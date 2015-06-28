@@ -1,0 +1,37 @@
+libbpp-core (2.1.0-1) unstable; urgency=low
+
+  * Extended range classes
+  * Improved initialization of static members
+  * Extended support for BppO.
+
+ -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Mon, 04 Mar 2013 10:15:00 +0100
+
+libbpp-core (2.0.3-1) unstable; urgency=low
+
+  * New range classes
+  * Linear assigment method
+  * Improved string tokenizer and text tools.
+
+ -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Thu, 09 Feb 2012 13:00:00 +0100
+
+libbpp-core (2.0.2-1) unstable; urgency=low
+
+  * RFP: Bio++ -- The Bio++ bioinformatics libraries. (Closes: #616373).
+  * Packages are now non-native.
+  * More MatrixTools, multivariate analysis classes and several bugs fixed.
+
+ -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Thu, 09 Jun 2011 11:00:00 +0100
+
+libbpp-core (2.0.1) unstable; urgency=low
+
+  * Fixed missing RColorSet.cpp source file.
+
+ -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Mon, 28 Feb 2011 09:00:00 +0100
+
+libbpp-core (2.0.0) unstable; urgency=low
+
+  * New package merging old bpp-utils and bpp-numcalc.
+  * New source tree.
+
+ -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Mon, 07 Feb 2011 09:00:00 +0100
+
