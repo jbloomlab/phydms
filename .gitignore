@@ -1,0 +1,16 @@
+*.pyc
+*.pyo
+*slurm*
+.DS_Store
+._*
+docs/_build/
+docs/_static/
+docs/_template/
+build/
+*.sbatch
+*.swp
+*.log
+dist/
+phydms.egg-info/
+*(busy)
+examples

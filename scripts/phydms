@@ -1,0 +1,201 @@
+#!python
+
+"""Phylogenetic inference using deep mutational scanning data.
+
+Written by Jesse Bloom."""
+
+
+import sys
+import os
+import re
+import logging
+import random
+import tempfile
+import Bio.SeqRecord
+import Bio.Phylo
+import Bio.Phylo.TreeConstruction
+import Bio.Seq
+import Bio.Alphabet
+import Bio.Alphabet.IUPAC
+import Bio.Align
+import dms_tools.file_io
+import dms_tools.utils
+import phydmslib
+import phydmslib.file_io
+import phydmslib.parsearguments
+import phydmslib.pybpp
+
+
+def main():
+    """Main body of script."""
+
+    # some regular expressions used later
+    yngkp_match = re.compile('^YNGKP_M(?P<modelvariant>[0,7,8])$')
+
+    # Parse command line arguments
+    parser = phydmslib.parsearguments.PhyDMSParser()
+    args = vars(parser.parse_args())
+    prog = parser.prog
+
+    # create output directory if needed
+    outdir = os.path.dirname(args['outprefix'])
+    if outdir:
+        if not os.path.isdir(outdir):
+            if os.path.isfile(outdir):
+                os.remove(outdir)
+            os.mkdir(outdir)
+
+    # name files, remove if they already exist
+    modelparamsfile = '%smodelparams.txt' % args['outprefix']
+    loglikelihoodfile = '%sloglikelihood.txt' % args['outprefix']
+    logfile = "%s.log" % args['outprefix']
+    for f in [modelparamsfile, loglikelihoodfile, logfile]:
+        if os.path.isfile(f):
+            os.remove(f)
+
+    # Set up to log everything to logfile.
+    logging.shutdown()
+    versionstring = phydmslib.file_io.Versions() 
+    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
+    logger = logging.getLogger(prog)
+    logfile_handler = logging.FileHandler(logfile)
+    logger.addHandler(logfile_handler)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    logfile_handler.setFormatter(formatter)
+
+    # begin execution
+    try:
+
+        # print some basic information
+        logger.info('Beginning execution of %s in directory %s\n' % (prog, os.getcwd()))
+        logger.info('Progress is being logged to %s\n' % logfile)
+        logger.info("%s\n" % versionstring)
+        logger.info('Parsed the following command-line arguments:\n%s\n' % '\n'.join(['\t%s = %s' % tup for tup in args.iteritems()]))
+
+        logger.info('Seeding random number generator with %d\n' % args['seed'])
+        random.seed(args['seed'])
+
+        # some checks on arguments
+        if args['tree'] == 'random' and not args['infertopology']:
+            raise ValueError("It does not make sense to use ``tree`` of *random* without also using ``--infertopology``")
+        if args['infertopology'] and isinstance(args['model'], str) and yngkp_match.search(args['model']):
+            if int(yngkp_match.search(args['model']).group('modelvariant')) > 0:
+                raise ValueError("You cannot use ``--infertopology`` with model %s" % args['model'])
+        if args['infertopology'] and not args['oldlikmethod']:
+            raise ValueError("You can only use ``--infertopology`` with ``--oldlikmethod``")
+        if args['omegabysite'] and args['oldlikmethod']:
+            raise ValueError("You cannot use ``--omegabysite`` with ``--oldlikmethod``")
+        if args['fixbrlen'] and args['infertopology']:
+            raise ValueError("It does not make sense to ``--fixbrlen`` with ``--infertopology``")
+
+        # read alignment
+        logger.info('Reading alignment from %s' % args['alignment'])
+        alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'], checknewickvalid=True)
+        seqnames = set([head for (head, seq) in alignment])
+        logger.info('Read %d aligned codon sequences from %s. Each sequences consists of %d codons.\n' % (len(alignment), args['alignment'], len(alignment[0][1]) // 3))
+
+        # process the substitution model
+        if isinstance(args['model'], str) and yngkp_match.search(args['model']):
+            modelvariant = yngkp_match.search(args['model']).group('modelvariant')
+            logger.info('The codon substitution model with be the M%s version of YNGKP (Yang, Nielsen, Goldman, and Pederson. Genetics. 155:431-449).' % modelvariant)
+            if args['fitF3X4']:
+                logger.info('The codon equilibrium frequencies will be set by F3X4, optimizing the nine nucleotide frequencies by maximum likelihood.\n')
+                model = args['model'] + '_fitF3X4'
+            else:
+                logger.info('The codon equilibrium frequencies will be set by F3X4, estimating the nine nucleotide frequencies empirically from the alignment frequencies.\n')
+                model = args['model'] + '_empF3X4'
+        elif isinstance(args['model'], tuple) and len(args['model']) == 2 and args['model'][0] == 'ExpCM':
+            assert not args['oldlikmethod'], "Cannot use --oldlikmethod with ExpCM"
+            prefsfilename = args['model'][1]
+            logger.info('The codon substitution model will be experimentally informed model by the site-specific amino-acid preferences in %s' % prefsfilename)
+            (sites, wts, pi_means, pi_95credint, h) = dms_tools.file_io.ReadPreferences(prefsfilename)
+            if len(sites) != len(alignment[0][1]) // 3:
+                raise ValueError("The number of amino-acid preferences in %s does not match the number of codon sites in the alignment" % prefsfilename)
+            if not all([r.isdigit() for r in sites]):
+                raise ValueError("All sites in preferences file must be integers")
+            sites = [int(r) for r in sites]
+            assert len(set(sites)) == len(sites), "There are non-unique sites in the preferences file"
+            if not (min(sites) == 1 and max(sites) - min(sites) == len(sites) - 1):
+                raise ValueError("Sites in preferences file must start at 1 and be consecutive")
+            pi_means = dms_tools.utils.RemoveStopFromPreferences(pi_means)
+            aas = pi_means['1'].keys()
+            if set(aas) != set(Bio.Alphabet.IUPAC.IUPACProtein.letters):
+                raise ValueError("Preferences are not specified for the 20 amino acids")
+            assert all([set(aas) == set(ipi.keys()) for ipi in pi_means.values()]), "Not same amino acid keys for all sites"
+            aaprefs = dict([(int(r), rprefs) for (r, rprefs) in pi_means.items()])
+            model = ('ExpCM', aaprefs)
+            logger.info('Successfully read site-specific amino-acid preferences for all %d sites.\n' % len(aaprefs))
+        else:
+            raise ValueError("Invalid model of %s" % args['model'])
+
+        # read or create the tree
+        if args['tree'] == 'random':
+            logger.info("Creating a random initial tree.")
+            tree = Bio.Phylo.BaseTree.Tree.randomized(seqnames, branch_length=1.0)
+        elif args['tree'] == 'nj':
+            logger.info('Creating an initial tree from nucleotide sequences by neighbor joining using a crude identity scoring matrix...')
+            msa = Bio.Align.MultipleSeqAlignment([Bio.SeqRecord.SeqRecord(Bio.Seq.Seq(seq, Bio.Alphabet.generic_dna), id=head) for (head, seq) in alignment])
+            calculator = Bio.Phylo.TreeConstruction.DistanceCalculator('identity')
+            tree = Bio.Phylo.TreeConstruction.DistanceTreeConstructor(calculator, 'nj').build_tree(msa)
+            logger.info("Finished creating a crude neighbor-joining initial tree.")
+        else:
+            logger.info("Reading tree from %s" % args['tree'])
+            tree = Bio.Phylo.read(args['tree'], 'newick')
+        tipnames = set([clade.name for clade in tree.get_terminals()])
+        if tipnames != seqnames:
+            raise ValueError("The sequence names in alignment do not match those in tree.\nSequences in alignment but NOT in tree:\n\t%s\nSequences in tree but NOT in alignment:\n\t%s" % ('\n\t'.join(seqnames - tipnames), '\n\t'.join(tipnames - seqnames)))
+        logger.info('This tree has %d tips nodes, matching the sequences in alignment.' % len([clade.name for clade in tree.get_terminals()]))
+        nadjustedbrlen = 0
+        for node in tree.get_terminals() + tree.get_nonterminals():
+            if node != tree.root and node.branch_length < args['minbrlen']:
+                node.branch_length = args['minbrlen']
+                nadjustedbrlen += 1
+        if nadjustedbrlen:
+            logger.info('Ensured that all branch lengths are >= minimum of %g by adjusting %d lengths up to this value.\n' % (args['minbrlen'], nadjustedbrlen))
+        else:
+            logger.info('Confirmed that all branch lengths are >= minimum of %g.\n' % args['minbrlen'])
+        newicktree = tree.format('newick').strip()
+        # remove internal node names because they cause problem in parsing tree later
+        for node in tree.get_nonterminals():
+            if node.name: # root node won't have name
+                toremove = ')' + node.name + ':'
+                assert toremove in newicktree, "Cannot find internal node %s in form %s in tree:\n%s" % (node.name, toremove, newicktree)
+                newicktree = newicktree.replace(toremove, '):')
+
+        # now create object for storing alignment and tree, and for likelihood calculations
+        seqnames = [head for (head, seq) in alignment]
+        seqs = [seq for (head, seq) in alignment]
+        logger.info('Now creating wrapped Bio++ object to evaluate tree likelihoods...')
+        try:
+            (fd, temptreefile) = tempfile.mkstemp() # create temporary file to write tree for passing
+            with os.fdopen(fd, 'w') as f:
+                f.write(newicktree)
+            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixpreferences=True, oldlikelihoodmethod=args['oldlikmethod'], omegabysite=args['omegabysite'], fixbrlen=args['fixbrlen'], recursion=args['recursion'])
+        finally:
+            if os.path.isfile(temptreefile):
+                os.remove(temptreefile)
+        logger.info('Completed creating Bio++ object to evaluate likelihoods for the %d codon sites of the %d sequences.\n' % (tl.NSites(), tl.NSeqs()))
+
+        # now optimize tree
+        logger.info('The initial log likelihood is %g; now optimizing by maximum likelihood...' % tl.LogLikelihood())
+        tl.OptimizeLikelihood()
+        logger.info('Completed optimizing by maximum likelihood.')
+        logger.info("Here is the optimized log likelihood (also being written to %s): %g." % (loglikelihoodfile, tl.LogLikelihood()))
+        with open(loglikelihoodfile, 'w') as f:
+            f.write('log likelihood = %g' % tl.LogLikelihood())
+        modelparams = tl.ModelParams(True)
+        modelparamstextlist = ['%s = %g' % tup for tup in modelparams.items()]
+        modelparamstextlist.sort()
+        logger.info("Here are the optimized model parameters (also being written to %s):\n\t%s" % (modelparamsfile, '\n\t'.join(modelparamstextlist)))
+        with open(modelparamsfile, 'w') as f:
+            f.write('\n'.join(modelparamstextlist))
+
+        logger.info('Successful completion of %s' % prog)
+
+    finally:
+        logging.shutdown()
+
+
+
+if __name__ == '__main__':
+    main() # run the script
