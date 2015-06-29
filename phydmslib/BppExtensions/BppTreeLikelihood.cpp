@@ -68,7 +68,7 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
     }
 
     // indexes for shared aspects of substitution process collection
-    size_t sharedtreeindex = 0;
+    sharedtreeindex = 0;
     size_t sharedrateindex = 0;
     sharedmodelindex = 0;
 
@@ -299,8 +299,10 @@ void bppextensions::BppTreeLikelihood::OptimizeLikelihood()
 {
     if (oldlikmethod) {
         oldtreelikelihood = dynamic_cast<bpp::DiscreteRatesAcrossSitesTreeLikelihood*>(bpp::PhylogeneticsApplicationTools::optimizeParameters(oldtreelikelihood, oldtreelikelihood->getParameters(), optimizationparams, "", true, verbose, 1));
+        tree = new bpp::TreeTemplate<bpp::Node>(oldtreelikelihood->getTree());
     } else {
         phylolikelihood = bpp::PhylogeneticsApplicationTools::optimizeParameters(phylolikelihood, phylolikelihood->getParameters(), optimizationparams, "", true, verbose, 1);
+        tree = new bpp::TreeTemplate<bpp::Node>(substitutionprocesscollection->getTree(sharedtreeindex).getTree());
     }
 }
 

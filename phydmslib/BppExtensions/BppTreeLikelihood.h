@@ -146,6 +146,7 @@ namespace bppextensions {
             bpp::PhyloLikelihood *phylolikelihood;
             bpp::DiscreteRatesAcrossSitesTreeLikelihood *oldtreelikelihood;
             size_t sharedmodelindex;
+            size_t sharedtreeindex;
             std::map<std::string, std::string> constrainedparams; // keyed by param, value is what it is constrained to
     };
 };

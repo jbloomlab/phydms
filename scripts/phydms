@@ -48,8 +48,9 @@ def main():
     # name files, remove if they already exist
     modelparamsfile = '%smodelparams.txt' % args['outprefix']
     loglikelihoodfile = '%sloglikelihood.txt' % args['outprefix']
+    treefile = "%stree.newick" % args['outprefix']
     logfile = "%s.log" % args['outprefix']
-    for f in [modelparamsfile, loglikelihoodfile, logfile]:
+    for f in [modelparamsfile, loglikelihoodfile, treefile, logfile]:
         if os.path.isfile(f):
             os.remove(f)
 
@@ -189,6 +190,9 @@ def main():
         logger.info("Here are the optimized model parameters (also being written to %s):\n\t%s" % (modelparamsfile, '\n\t'.join(modelparamstextlist)))
         with open(modelparamsfile, 'w') as f:
             f.write('\n'.join(modelparamstextlist))
+        logger.info("Here is the optimized tree (also being written to %s):\n%s" % (treefile, tl.NewickTree()))
+        with open(treefile, 'w') as f:
+            f.write(tl.NewickTree())
 
         logger.info('Successful completion of %s' % prog)
 

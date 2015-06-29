@@ -50,9 +50,13 @@ Command-line usage
 
     The specific files created have the following suffixes appended to ``outprefix``:
 
+        - ``.log`` : a log file recording the progress of the program
+
         - ``loglikelihood.txt`` : the log likelihood after optimization
 
         - ``modelparams.txt`` : the values of all optimized model parameters after optimization.
+
+        - ``tree.newick`` : the tree after optimization in Newick format.
 
    minbrlen
     Regardless of the method used to set ``tree``, all branches with lengths less than this value will be set to this value in the initial starting tree. Branches can still end up with lengths less than this after subsequent optimization of this starting tree.
