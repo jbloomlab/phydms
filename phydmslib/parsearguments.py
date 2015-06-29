@@ -135,7 +135,9 @@ def PhyDMSParser():
     parser.add_argument('--fitF3X4', dest='fitF3X4', action='store_true', help='Fit F3X4 frequencies for YNGKP; otherwise use empirical')
     parser.add_argument('--minbrlen', default=1e-6, help='Min branch length for starting tree.', type=FloatGreaterThanZero)
     parser.add_argument('--seed', type=int, default=1, help="Random number seed.")
-    parser.add_argument('--recursion', choices=['S', 'D'], default='S', help='Likelihood recursion for Bio++.')
+    parser.set_defaults(recursion='S')
+    # comment out this option for now as the double recursion seems not to work properly
+    #parser.add_argument('--recursion', choices=['S', 'D'], default='S', help='Likelihood recursion for Bio++.')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
 
