@@ -35,6 +35,8 @@ def main():
     # Parse command line arguments
     parser = phydmslib.parsearguments.PhyDMSParser()
     args = vars(parser.parse_args())
+    if args['infertopology']:
+        args['oldlikmethod'] = True # currently must used oldlikmethod to infer topology
     prog = parser.prog
 
     # create output directory if needed
@@ -84,8 +86,6 @@ def main():
                 raise ValueError("You cannot use ``--infertopology`` with model %s" % args['model'])
         if args['infertopology'] and not args['oldlikmethod']:
             raise ValueError("You can only use ``--infertopology`` with ``--oldlikmethod``")
-        if args['omegabysite'] and args['oldlikmethod']:
-            raise ValueError("You cannot use ``--omegabysite`` with ``--oldlikmethod``")
         if args['fixbrlen'] and args['infertopology']:
             raise ValueError("It does not make sense to ``--fixbrlen`` with ``--infertopology``")
 

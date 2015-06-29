@@ -64,12 +64,6 @@ Command-line usage
    seed
     The random number seed can influence the outcome when using a non-deterministic algorithm (such as when ``tree`` is set to ``random``).
 
-   \-\-infertopology
-    Note that this option is only compatible with ``--oldlikmethod`` **and** a non-site-specific ``model`` without rates or parameter distributions (e.g. *YNGKP_M0*).
-
-   \-\-oldlikmethod
-    For instance, is allowed with the *YNGKP* models but **not** with *ExpCM*.
-
    \-\-fitF3X4
     Only meaningful if ``model`` is one of the *YNGKP* models. It specifies how the 9 nucleotide frequency parameters are determined. By default, they are set to the empirically observed values in the sequence alignment. If you use ``--fitF3X4`` then these 9 parameters are fit by maximum likelihood.
 
