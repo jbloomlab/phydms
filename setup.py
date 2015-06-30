@@ -103,5 +103,6 @@ setup(
     ext_modules = lazy_cythonize(extensions),
     scripts = [
             'scripts/phydms',
+            'scripts/phydms_comprehensive',
             ],
 )

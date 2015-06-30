@@ -116,12 +116,24 @@ def ModelOption(model):
         raise argparse.ArgumentTypeError("Invalid model")
 
 
+def PhyDMSComprehensiveParser():
+    """Returns *argparse.ArgumentParser* for ``phdyms_comprehensive script."""
+    parser = ArgumentParserNoArgHelp(description="Comprehensive phylogenetic model comparison and detection of positive selection using deep mutational scanning data. This program runs 'phydms' to infer a tree topology, then compare substitution models, then detect positive selection. Version %s by %s. Full documentation at %s" % (phydmslib.__version__, phydmslib.__author__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('alignment', help='Existing FASTA file with aligned codon sequences.', type=ExistingFile)
+    parser.add_argument('prefsfile', help='Existing file with site-specific amino-acid preferences', type=ExistingFile)
+    parser.add_argument('outprefix', help='Prefix for output files.', type=str)
+    parser.add_argument('--treetopology', help='Fix tree to this Newick topology.', default=None)
+    parser.add_argument('--ncpus', default=-1, help='Use this many CPUS; -1 means use all available.', type=int)
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
+    return parser
+
+
 def PhyDMSParser():
     """Returns *argparse.ArgumentParser* for ``phydms`` script."""
     parser = ArgumentParserNoArgHelp(description='Phylogenetic inference using deep mutational scanning data. Version %s by %s. Full documentation at %s' % (phydmslib.__version__, phydmslib.__author__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('alignment', help='Existing FASTA file with aligned codon sequences.', type=ExistingFile)
     parser.add_argument('tree', help="Existing Newick tree file or 'random' or 'nj'.", type=TreeFile)
-    parser.add_argument('model', help="Codon substitution model: YNGKP_M0, YNGKP_M7, YNGKP_M8, ExpCM_<prefsfilename>", type=ModelOption)
+    parser.add_argument('model', help="Codon substitution model: YNGKP_M0, YNGKP_M7, YNGKP_M8, ExpCM_<prefsfile>", type=ModelOption)
     parser.add_argument('outprefix', help='Prefix for output files.', type=str)
     parser.set_defaults(omegabysite=False)
     parser.add_argument('--omegabysite', dest='omegabysite', action='store_true', help="Fit a different omega (dN/dS) for each site?")

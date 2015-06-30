@@ -1,0 +1,151 @@
+#!python
+
+"""Comprehensive model comparison and selection-detection with ``phydms``.
+
+Written by Jesse Bloom."""
+
+
+import sys
+import os
+import re
+import logging
+import multiprocessing
+import subprocess
+import Bio.Alphabet.IUPAC
+import Bio.Phylo
+import dms_tools.file_io
+import phydmslib
+import phydmslib.file_io
+import phydmslib.parsearguments
+
+
+def main():
+    """Main body of script."""
+
+    # Parse command line arguments
+    parser = phydmslib.parsearguments.PhyDMSComprehensiveParser()
+    args = vars(parser.parse_args())
+    prog = parser.prog
+
+    # create output directory if needed
+    outdir = os.path.dirname(args['outprefix'])
+    if outdir:
+        if not os.path.isdir(outdir):
+            if os.path.isfile(outdir):
+                os.remove(outdir)
+            os.mkdir(outdir)
+
+    # keyed by model names for output, value is model for phydms and list of additional options
+    models = {'YNGKP_M0':('YNGKP_M0', []),\
+              'YNGKP_M7':('YNGKP_M7', []),\
+              'YNGKP_M8':('YNGKP_M8', []),\
+              'ExpCM':('ExpCM_%s' % args['prefsfile'], []),\
+              }
+
+    # suffixes of files created by phydms
+    filesuffixes = ['.log', '_tree.newick', '_loglikelihood.txt', '_modelparams.txt']
+
+    # Set up to log everything to logfile.
+    logfile = "%s.log" % args['outprefix']
+    if os.path.isfile(logfile):
+        os.remove(logfile)
+    logging.shutdown()
+    versionstring = phydmslib.file_io.Versions() 
+    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
+    logger = logging.getLogger(prog)
+    logfile_handler = logging.FileHandler(logfile)
+    logger.addHandler(logfile_handler)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    logfile_handler.setFormatter(formatter)
+
+    # begin execution
+    try:
+
+        # print some basic information
+        logger.info('Beginning execution of %s in directory %s\n' % (prog, os.getcwd()))
+        logger.info('Progress is being logged to %s\n' % logfile)
+        logger.info("%s\n" % versionstring)
+        logger.info('Parsed the following command-line arguments:\n%s\n' % '\n'.join(['\t%s = %s' % tup for tup in args.iteritems()]))
+
+        # get number of available CPUs
+        if args['ncpus'] == -1:
+            try:
+                args['ncpus'] = multiprocessing.cpu_count()
+            except:
+                raise RuntimeError("Encountered a problem trying to dynamically determine the number of available CPUs. Please manually specify the number of desired CPUs with '--ncpus' and try again.")
+            logger.info('Will use all %d available CPUs.\n' % args['ncpus'])
+        assert args['ncpus'] >= 1, "Failed to specify valid number of CPUs"
+
+        # remove existing output files
+        outfiles = []
+        removed = []
+        for model in models.keys():
+            for suffix in filesuffixes:
+                fname = "%s%s%s" % (args['outprefix'], model, suffix)
+                if os.path.isfile(fname):
+                    removed.append(fname)
+                outfiles.append(fname)
+        if removed:
+            logger.info('Removed the following existing files that have names that match the names of output files that will be created: %s\n' % ', '.join(removed))
+
+        # check alignment
+        logger.info('Checking alignment in %s' % args['alignment'])
+        alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'], checknewickvalid=True)
+        logger.info('Read %d aligned codon sequences from %s. Each sequence consists of %d codons.\n' % (len(alignment), args['alignment'], len(alignment[0][1]) // 3))
+
+        # check preferences
+        logger.info('Checking preferences in %s' % args['prefsfile'])
+        (sites, wts, pi_means, pi_95credint, h) = dms_tools.file_io.ReadPreferences(args['prefsfile'])
+        if len(sites) != len(alignment[0][1]) // 3:
+            raise ValueError("The number of amino-acid preferences in %s does not match the number of codon sites in the alignment" % args['prefsfile'])
+        if not all([r.isdigit() for r in sites]):
+            raise ValueError("All sites in preferences file must be integers")
+        sites = [int(r) for r in sites]
+        assert len(set(sites)) == len(sites), "There are non-unique sites in the preferences file"
+        if not (min(sites) == 1 and max(sites) - min(sites) == len(sites) - 1):
+            raise ValueError("Sites in preferences file must start at 1 and be consecutive")
+        aas = pi_means['1'].keys()
+        if set(aas) != set(Bio.Alphabet.IUPAC.IUPACProtein.letters) or set(aas) == set(Bio.Alphabet.IUPAC.IUPACProtein.letters + '*'):
+            raise ValueError("Preferences are not specified for the 20 amino acids")
+        assert all([set(aas) == set(ipi.keys()) for ipi in pi_means.values()]), "Not same amino acid keys for preferences for all sites"
+        logger.info('Read valid preferences for %d sites from %s\n' % (len(sites), args['prefsfile']))
+
+        # check tree
+        if args['treetopology']:
+            logger.info('Checking tree topology in %s' % args['treetopology'])
+            assert os.path.isfile(args['treetopology']), "Cannot find file %s" % args['treetopology']
+            tree = Bio.Phylo.read(args['treetopology'], 'newick')
+            assert set([clade.name for clade in tree.get_terminals()]) == set([head for (head, seq) in alignment]), "The tree tip nodes do not match the sequence headers in teh alignment"
+
+        # first estimate tree using YNGKP_M0 model
+        (model, additionalcmds) = models['YNGKP_M0']
+        outprefix = "%s%s" % (args['outprefix'], model)
+        if args['treetopology']:
+            cmds = ['phydms', args['alignment'], args['treetopology'], model, outprefix] + additionalcmds
+            logger.info('Optimizing tree in %s using the %s model. The command is: %s' % (model, args['treetopology'], ' '.join(cmds)))
+        else:
+            cmds = ['phydms', args['alignment'], 'nj', model, outprefix, '--infertopology'] + additionalcmds
+            logger.info('Inferring topology using the %s model starting from a simple neighbor joining tree. The command is: %s' % (model, ' '.join(cmds)))
+        p = subprocess.Popen(cmds, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        (stdout, stderr) = p.communicate()
+        for fname in [outprefix + suffix for suffix in filesuffixes]:
+            if not os.path.isfile(fname):
+                raise RuntimeError("phydms failed to created expected output file %s.\n\nStandard out and error:\n%s" % (fname, stdout))
+            logger.info("Found expected output file %s" % fname)
+        logger.info('Analysis successful for model %s' % model)
+        treefile = '%s_tree.newick' % outprefix
+
+        # make sure all expected output files are there
+        for fname in outfiles:
+            if not os.path.isfile(fname):
+                raise RuntimeError("Cannot find expected output file %s" % fname)
+
+        logger.info('Successful completion of %s' % prog)
+
+    finally:
+        logging.shutdown()
+
+
+
+if __name__ == '__main__':
+    main() # run the script

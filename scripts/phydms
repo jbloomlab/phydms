@@ -48,9 +48,9 @@ def main():
             os.mkdir(outdir)
 
     # name files, remove if they already exist
-    modelparamsfile = '%smodelparams.txt' % args['outprefix']
-    loglikelihoodfile = '%sloglikelihood.txt' % args['outprefix']
-    treefile = "%stree.newick" % args['outprefix']
+    modelparamsfile = '%s_modelparams.txt' % args['outprefix']
+    loglikelihoodfile = '%s_loglikelihood.txt' % args['outprefix']
+    treefile = "%s_tree.newick" % args['outprefix']
     logfile = "%s.log" % args['outprefix']
     for f in [modelparamsfile, loglikelihoodfile, treefile, logfile]:
         if os.path.isfile(f):

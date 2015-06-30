@@ -39,7 +39,7 @@ Command-line usage
 
         - *YNGKP_M8* : three values of :math:`\omega` between zero and one drawn from a beta distribution with the two distribution parameters optimized by maximum likelihood, plus another value of :math:`\omega > 1` with the value and weight optimized by maximum likelihood (4 free parameters). 
 
-    *ExpCM_<prefsfilename>* is an **exp**\erimentally informed **c**\odon **m**\odel, with amino-acid preferences taken from the file ``prefsfilename``. 
+    *ExpCM_<prefsfile>* is an **exp**\erimentally informed **c**\odon **m**\odel, with amino-acid preferences taken from the file ``prefsfile``. 
     The preferences file should be in the `dms_tools`_ `preferences file format`_ for **amino acids** (any stop codon preferences if present are normalized away to zero). The preferences file must specify a preference for the amino acid encoded by every site in ``alignment``, using sequential 1, 2, ... numbering.
     For information on experimentally informed codon models, see `Bloom. Mol Biol Evol, 31:2753-2769`_. 
 
@@ -52,11 +52,11 @@ Command-line usage
 
         - ``.log`` : a log file recording the progress of the program
 
-        - ``loglikelihood.txt`` : the log likelihood after optimization
+        - ``_loglikelihood.txt`` : the log likelihood after optimization
 
-        - ``modelparams.txt`` : the values of all optimized model parameters after optimization.
+        - ``_modelparams.txt`` : the values of all optimized model parameters after optimization.
 
-        - ``tree.newick`` : the tree after optimization in Newick format.
+        - ``_tree.newick`` : the tree after optimization in Newick format.
 
    minbrlen
     Regardless of the method used to set ``tree``, all branches with lengths less than this value will be set to this value in the initial starting tree. Branches can still end up with lengths less than this after subsequent optimization of this starting tree.
