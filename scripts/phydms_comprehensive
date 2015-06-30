@@ -8,15 +8,27 @@ Written by Jesse Bloom."""
 import sys
 import os
 import re
+import time
 import logging
 import multiprocessing
 import subprocess
+import signal
 import Bio.Alphabet.IUPAC
 import Bio.Phylo
 import dms_tools.file_io
 import phydmslib
 import phydmslib.file_io
 import phydmslib.parsearguments
+
+
+def RunCmds(cmds):
+    """Runs the command line arguments in *cmds* using *subprocess*."""
+    try:
+        p = subprocess.Popen(cmds, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        pid = p.pid
+        (stdout, stderr) = p.communicate()
+    finally:
+        os.kill(pid, signal.SIGTERM)
 
 
 def main():
@@ -58,23 +70,28 @@ def main():
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     logfile_handler.setFormatter(formatter)
 
-    # begin execution
+    # print some basic information
+    logger.info('Beginning execution of %s in directory %s\n' % (prog, os.getcwd()))
+    logger.info('Progress is being logged to %s\n' % logfile)
+    logger.info("%s\n" % versionstring)
+    logger.info('Parsed the following command-line arguments:\n%s\n' % '\n'.join(['\t%s = %s' % tup for tup in args.iteritems()]))
+
+    # get number of available CPUs
+    if args['ncpus'] == -1:
+        try:
+            args['ncpus'] = multiprocessing.cpu_count()
+        except:
+            raise RuntimeError("Encountered a problem trying to dynamically determine the number of available CPUs. Please manually specify the number of desired CPUs with '--ncpus' and try again.")
+        logger.info('Will use all %d available CPUs.\n' % args['ncpus'])
+    assert args['ncpus'] >= 1, "Failed to specify valid number of CPUs"
+
+    pool = {} # holds process for model name
+    started = {} # holds whether process started for model name
+    completed = {} # holds whether process completed for model name
+    outprefixes = {} # holds outprefix for model name
+
+    # rest of execution in try / finally
     try:
-
-        # print some basic information
-        logger.info('Beginning execution of %s in directory %s\n' % (prog, os.getcwd()))
-        logger.info('Progress is being logged to %s\n' % logfile)
-        logger.info("%s\n" % versionstring)
-        logger.info('Parsed the following command-line arguments:\n%s\n' % '\n'.join(['\t%s = %s' % tup for tup in args.iteritems()]))
-
-        # get number of available CPUs
-        if args['ncpus'] == -1:
-            try:
-                args['ncpus'] = multiprocessing.cpu_count()
-            except:
-                raise RuntimeError("Encountered a problem trying to dynamically determine the number of available CPUs. Please manually specify the number of desired CPUs with '--ncpus' and try again.")
-            logger.info('Will use all %d available CPUs.\n' % args['ncpus'])
-        assert args['ncpus'] >= 1, "Failed to specify valid number of CPUs"
 
         # remove existing output files
         outfiles = []
@@ -117,23 +134,58 @@ def main():
             tree = Bio.Phylo.read(args['treetopology'], 'newick')
             assert set([clade.name for clade in tree.get_terminals()]) == set([head for (head, seq) in alignment]), "The tree tip nodes do not match the sequence headers in teh alignment"
 
-        # first estimate tree using YNGKP_M0 model
-        (model, additionalcmds) = models['YNGKP_M0']
-        outprefix = "%s%s" % (args['outprefix'], model)
+        # first estimate tree with phydms using YNGKP_M0 model
+        modelname = 'YNGKP_M0'
+        (model, additionalcmds) = models[modelname]
+        outprefix = "%s%s" % (args['outprefix'], modelname)
         if args['treetopology']:
             cmds = ['phydms', args['alignment'], args['treetopology'], model, outprefix] + additionalcmds
             logger.info('Optimizing tree in %s using the %s model. The command is: %s' % (model, args['treetopology'], ' '.join(cmds)))
         else:
             cmds = ['phydms', args['alignment'], 'nj', model, outprefix, '--infertopology'] + additionalcmds
             logger.info('Inferring topology using the %s model starting from a simple neighbor joining tree. The command is: %s' % (model, ' '.join(cmds)))
-        p = subprocess.Popen(cmds, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        (stdout, stderr) = p.communicate()
+        p = multiprocessing.Process(target=RunCmds, args=(cmds,))
+        pool[modelname] = p
+        completed[modelname] = False
+        outprefixes[modelname] = outprefix
+        started[modelname] = True
+        p.start()
+        p.join()
+        completed[modelname] = True
         for fname in [outprefix + suffix for suffix in filesuffixes]:
             if not os.path.isfile(fname):
-                raise RuntimeError("phydms failed to created expected output file %s.\n\nStandard out and error:\n%s" % (fname, stdout))
+                raise RuntimeError("phydms failed to created expected output file %s." % fname)
             logger.info("Found expected output file %s" % fname)
-        logger.info('Analysis successful for model %s' % model)
+        logger.info('Analysis successful for model %s\n' % model)
         treefile = '%s_tree.newick' % outprefix
+        assert os.path.isfile(treefile)
+
+        # now run the other models
+        for modelname in [xmodel for xmodel in models.keys() if xmodel != 'YNGKP_M0']:
+            (model, additionalcmds) = models[modelname]
+            outprefix = "%s%s" % (args['outprefix'], modelname)
+            cmds = ['phydms', args['alignment'], treefile, model, outprefix] + additionalcmds
+            logger.info('Starting analysis to optimize tree in %s using model %s. The command is: %s\n' % (treefile, model, ' '.join(cmds)))
+            pool[modelname] = multiprocessing.Process(target=RunCmds, args=(cmds,))
+            outprefixes[modelname] = outprefix
+            completed[modelname] = False
+            started[modelname] = False
+        while not all(completed.values()):
+            if (started.values().count(True) - completed.values().count(True)) < args['ncpus']:
+                for (modelname, p) in pool.items():
+                    if not started[modelname]:
+                        p.start()
+                        started[modelname] = True
+            for (modelname, p) in pool.items():
+                if started[modelname] and (not completed[modelname]) and (not p.is_alive()): # process just completed
+                    completed[modelname] = True
+                    logger.info('Analysis completed for model %s' % modelname)
+                    for fname in [outprefixes[modelname] + suffix for suffix in filesuffixes]:
+                        if not os.path.isfile(fname):
+                            raise RuntimeError("phydms failed to created expected output file %s." % fname)
+                        logger.info("Found expected output file %s" % fname)
+                    logger.info('Analysis successful for model %s\n' % modelname)
+            time.sleep(1)
 
         # make sure all expected output files are there
         for fname in outfiles:
@@ -144,7 +196,9 @@ def main():
 
     finally:
         logging.shutdown()
-
+        for p in pool.values():
+            if p.is_alive():
+                p.terminate()
 
 
 if __name__ == '__main__':
