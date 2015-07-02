@@ -81,9 +81,6 @@ def main():
         # some checks on arguments
         if args['tree'] == 'random' and not args['infertopology']:
             raise ValueError("It does not make sense to use ``tree`` of *random* without also using ``--infertopology``")
-        if args['infertopology'] and isinstance(args['model'], str) and yngkp_match.search(args['model']):
-            if int(yngkp_match.search(args['model']).group('modelvariant')) > 0:
-                raise ValueError("You cannot use ``--infertopology`` with model %s" % args['model'])
         if args['infertopology'] and not args['oldlikmethod']:
             raise ValueError("You can only use ``--infertopology`` with ``--oldlikmethod``")
         if args['fixbrlen'] and args['infertopology']:
@@ -97,7 +94,11 @@ def main():
 
         # process the substitution model
         if isinstance(args['model'], str) and yngkp_match.search(args['model']):
+            assert not args['avgprefs'], "You cannot use '--avgprefs' with a non-experimentally informed model as there are no preferences to average"
+            assert not args['randprefs'], "You cannot use '--randprefs' with a non-experimentally informed model as there are no preferences to randomize"
             modelvariant = yngkp_match.search(args['model']).group('modelvariant')
+            if args['infertopology'] and int(modelvariant) != 0:
+                raise ValueError("You cannot use '--infertopology' with model %s" % args['model'])
             logger.info('The codon substitution model with be the M%s version of YNGKP (Yang, Nielsen, Goldman, and Pederson. Genetics. 155:431-449).' % modelvariant)
             if args['fitF3X4']:
                 logger.info('The codon equilibrium frequencies will be set by F3X4, optimizing the nine nucleotide frequencies by maximum likelihood.\n')
@@ -106,6 +107,8 @@ def main():
                 logger.info('The codon equilibrium frequencies will be set by F3X4, estimating the nine nucleotide frequencies empirically from the alignment frequencies.\n')
                 model = args['model'] + '_empF3X4'
         elif isinstance(args['model'], tuple) and len(args['model']) == 2 and args['model'][0] == 'ExpCM':
+            assert not args['infertopology'], "You cannot use '--infertopology' with an experimentally informed model"
+            assert not args['fitF3X4'], "It does not make sense to use '--fitF3X4' with an experimentally informed model"
             assert not args['oldlikmethod'], "Cannot use --oldlikmethod with ExpCM"
             prefsfilename = args['model'][1]
             logger.info('The codon substitution model will be experimentally informed model by the site-specific amino-acid preferences in %s' % prefsfilename)
@@ -126,6 +129,25 @@ def main():
             aaprefs = dict([(int(r), rprefs) for (r, rprefs) in pi_means.items()])
             model = ('ExpCM', aaprefs)
             logger.info('Successfully read site-specific amino-acid preferences for all %d sites.\n' % len(aaprefs))
+            if args['randprefs']:
+                assert not args['avgprefs'], "Cannot use both '--randprefs' and '--avgprefs'"
+
+                logger.info("Now randomizing these amino-acid preferences among sites.\n")
+                rs = [r for r in aaprefs.keys()]
+                aaprefs = [rprefs for rprefs in aaprefs.values()]
+                random.shuffle(rs)
+                aaprefs = dict(zip(rs, aaprefs))
+            elif args['avgprefs']:
+                assert not args['randprefs'], "Cannot use both '--randprefs' and '--avgprefs'"
+                logger.info("Now averaging these amino-acid preferences across sites.\n")
+                avg_prefs = dict([(aa, 0.0) for aa in aas])
+                for rprefs in aaprefs.values():
+                    for aa in aas:
+                        avg_prefs[aa] += rprefs[aa]
+                for aa in aas:
+                    avg_prefs[aa] /= float(len(aaprefs))
+                for r in aaprefs.keys():
+                    aaprefs[r] = avg_prefs
         else:
             raise ValueError("Invalid model of %s" % args['model'])
 
