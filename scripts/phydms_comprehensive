@@ -58,7 +58,10 @@ def main():
     filesuffixes = ['.log', '_tree.newick', '_loglikelihood.txt', '_modelparams.txt']
 
     # Set up to log everything to logfile.
-    logfile = "%s.log" % args['outprefix']
+    if args['outprefix'][-1] == '/':
+        logfile = "%slog.log" % args['outprefix']
+    else:
+        logfile = "%s.log" % args['outprefix']
     if os.path.isfile(logfile):
         os.remove(logfile)
     logging.shutdown()
