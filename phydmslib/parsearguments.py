@@ -124,6 +124,8 @@ def PhyDMSComprehensiveParser():
     parser.add_argument('prefsfiles', help='Existing files with site-specific amino-acid preferences.', type=ExistingFile, nargs='+')
     parser.add_argument('--treetopology', help='Fix tree to this Newick topology.', default=None)
     parser.add_argument('--ncpus', default=-1, help='Use this many CPUS; -1 means use all available.', type=int)
+    parser.set_defaults(use_existing=False)
+    parser.add_argument('--use_existing', action='store_true', dest='use_existing', help="Use existing 'phydms' output for a model if it exists. BE CAREFUL: no checks are performed to ensure calling options the same.")
     parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
 

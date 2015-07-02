@@ -31,6 +31,59 @@ def RunCmds(cmds):
         os.kill(pid, signal.SIGTERM)
 
 
+def TabulateModelComparisons(modelcomparisonfile, models, outprefix, loglikelihoodsuffix, modelparamssuffix):
+    """Writes file tabulating model comparisons.
+
+    *modelcomparisonfile* : name of created file.
+
+    *models* : the *models* dictionary from *main*
+
+    *outprefix* : output prefix from *main*
+
+    *loglikelihoodsuffix* : suffix of ``phydms`` output file with log likelihood
+
+    *modelparamssuffix* : suffix of ``phydms`` output file with model parameters
+    """
+    datalist = [] # keyed by (aic, model name, loglikelihood, noptimized, nempirical)
+    for (modelname, (model, cmds, nempirical)) in models.iteritems():
+        fprefix = '%s%s' % (outprefix, modelname)
+        with open('%s%s' % (fprefix, loglikelihoodsuffix)) as f2:
+            ll = float(f2.read().split('=')[-1])
+        with open('%s%s' % (fprefix, modelparamssuffix)) as f2:
+            modelparamstext = f2.read()
+            noptimized = modelparamstext.count('=')
+        aic = 2.0 * (noptimized + nempirical) - 2.0 * ll
+        datalist.append((aic, modelname, ll, noptimized, nempirical))
+    datalist.sort()
+    minaic = datalist[0][0]
+    text = [['model', 'AIC', 'log likelihood', 'parameters (optimized + empirical)']]
+    columnwidths = [len(s) for s in text[0]]
+    for (aic, modelname, ll, noptimized, nempirical) in datalist:
+        text.append([\
+                modelname.replace('_', '_'),\
+                '%.1f' % (aic - minaic),\
+                '%.1f' % ll,\
+                '%d (%d + %d)' % (noptimized + nempirical, noptimized, nempirical),\
+                ])
+        columnwidths = [max(x, len(s)) for (x, s) in zip(columnwidths, text[-1])]
+    formatstring = ' '.join(['%-' + str(w) + 's' for w in columnwidths])
+    f = open(modelcomparisonfile, 'w')
+    try:
+        f.write(' '.join(['=' * w for w in columnwidths]) + '\n')
+        wroteheader = False
+        for textline in text:
+            f.write(formatstring % tuple(textline) + '\n')
+            if not wroteheader:
+                f.write(' '.join(['=' * w for w in columnwidths]) + '\n')
+                wroteheader = True
+        f.write(' '.join(['=' * w for w in columnwidths]) + '\n')
+    except:
+        f.close()
+        os.remove(modelcomparisonfile)
+        raise
+    f.close()
+
+
 def main():
     """Main body of script."""
 
@@ -47,28 +100,32 @@ def main():
                 os.remove(outdir)
             os.mkdir(outdir)
 
-    # keyed by model names for output, value is model for phydms and list of additional options
-    models = {'YNGKP_M0':('YNGKP_M0', []),\
-              'YNGKP_M7':('YNGKP_M7', []),\
-              'YNGKP_M8':('YNGKP_M8', []),\
+    # keyed by model names, value is (model, additional phydms options, number of empirical parameters)
+    models = {'YNGKP_M0':('YNGKP_M0', [], 9),\
+              'YNGKP_M7':('YNGKP_M7', [], 9),\
+              'YNGKP_M8':('YNGKP_M8', [], 9),\
               }
     assert len(set(args['prefsfiles'])) == len(args['prefsfiles']), 'Entries in prefsfiles not unique'
     for prefsfile in args['prefsfiles']:
         if re.search('\s', prefsfile):
             raise ValueError("There is a space in the preferences file name: %s" % prefsfile)
         modelname = 'ExpCM_%s' % os.path.splitext(prefsfile)[0].replace('/', '_')
-        models[modelname] = ('ExpCM_%s' % prefsfile, [])
-        models['randomized_%s' % modelname] = ('ExpCM_%s' % prefsfile, ['--randprefs'])
-        models['averaged_%s' % modelname] = ('ExpCM_%s' % prefsfile, ['--avgprefs'])
+        models[modelname] = ('ExpCM_%s' % prefsfile, [], 0)
+        models['randomized_%s' % modelname] = ('ExpCM_%s' % prefsfile, ['--randprefs'], 0)
+        models['averaged_%s' % modelname] = ('ExpCM_%s' % prefsfile, ['--avgprefs'], 0)
 
     # suffixes of files created by phydms
     filesuffixes = ['.log', '_tree.newick', '_loglikelihood.txt', '_modelparams.txt']
 
-    # Set up to log everything to logfile.
+    # file names slightly different depending on whether outprefix is directory or file
     if args['outprefix'][-1] == '/':
         logfile = "%slog.log" % args['outprefix']
     else:
         logfile = "%s.log" % args['outprefix']
+        args['outprefix'] = '%s_' % args['outprefix']
+    modelcomparisonfile = '%smodelcomparison.txt' % args['outprefix']
+
+    # Set up to log everything to logfile.
     if os.path.isfile(logfile):
         os.remove(logfile)
     logging.shutdown()
@@ -109,48 +166,56 @@ def main():
         for model in models.keys():
             for suffix in filesuffixes:
                 fname = "%s%s%s" % (args['outprefix'], model, suffix)
-                if os.path.isfile(fname):
-                    removed.append(fname)
                 outfiles.append(fname)
+        for fname in outfiles + [modelcomparisonfile]:
+            if os.path.isfile(fname) and not args['use_existing']:
+                os.remove(fname)
+                removed.append(fname)
         if removed:
             logger.info('Removed the following existing files that have names that match the names of output files that will be created: %s\n' % ', '.join(removed))
 
         # first estimate tree with phydms using YNGKP_M0 model
         modelname = 'YNGKP_M0'
-        (model, additionalcmds) = models[modelname]
+        (model, additionalcmds, nempirical) = models[modelname]
         outprefix = "%s%s" % (args['outprefix'], modelname)
-        if args['treetopology']:
-            cmds = ['phydms', args['alignment'], args['treetopology'], model, outprefix] + additionalcmds
-            logger.info('Optimizing tree in %s using the %s model. The command is: %s' % (model, args['treetopology'], ' '.join(cmds)))
-        else:
-            cmds = ['phydms', args['alignment'], 'nj', model, outprefix, '--infertopology'] + additionalcmds
-            logger.info('Inferring topology using the %s model starting from a simple neighbor joining tree. The command is: %s' % (model, ' '.join(cmds)))
-        p = multiprocessing.Process(target=RunCmds, args=(cmds,))
-        pool[modelname] = p
-        completed[modelname] = False
-        outprefixes[modelname] = outprefix
-        started[modelname] = True
-        p.start()
-        p.join()
-        completed[modelname] = True
-        for fname in [outprefix + suffix for suffix in filesuffixes]:
-            if not os.path.isfile(fname):
-                raise RuntimeError("phydms failed to created expected output file %s." % fname)
-            logger.info("Found expected output file %s" % fname)
-        logger.info('Analysis successful for model %s\n' % model)
         treefile = '%s_tree.newick' % outprefix
+        if args['use_existing'] and all([os.path.isfile(outprefix + suffix) for suffix in filesuffixes]):
+            logger.info('Using existing output for model %s\n' % model)
+        else:
+            if args['treetopology']:
+                cmds = ['phydms', args['alignment'], args['treetopology'], model, outprefix] + additionalcmds
+                logger.info('Optimizing tree in %s using the %s model. The command is: %s' % (model, args['treetopology'], ' '.join(cmds)))
+            else:
+                cmds = ['phydms', args['alignment'], 'nj', model, outprefix, '--infertopology'] + additionalcmds
+                logger.info('Inferring topology using the %s model starting from a simple neighbor joining tree. The command is: %s' % (model, ' '.join(cmds)))
+            p = multiprocessing.Process(target=RunCmds, args=(cmds,))
+            pool[modelname] = p
+            completed[modelname] = False
+            outprefixes[modelname] = outprefix
+            started[modelname] = True
+            p.start()
+            p.join()
+            completed[modelname] = True
+            for fname in [outprefix + suffix for suffix in filesuffixes]:
+                if not os.path.isfile(fname):
+                    raise RuntimeError("phydms failed to created expected output file %s." % fname)
+                logger.info("Found expected output file %s" % fname)
+            logger.info('Analysis successful for model %s\n' % model)
         assert os.path.isfile(treefile)
 
         # now run the other models
-        for modelname in [xmodel for xmodel in models.keys() if xmodel != 'YNGKP_M0']:
-            (model, additionalcmds) = models[modelname]
+        for modelname in [xmodel for xmodel in models.keys() if 'YNGKP_M0' != xmodel]:
+            (model, additionalcmds, nempirical) = models[modelname]
             outprefix = "%s%s" % (args['outprefix'], modelname)
-            cmds = ['phydms', args['alignment'], treefile, model, outprefix] + additionalcmds
-            logger.info('Starting analysis to optimize tree in %s using model %s. The command is: %s\n' % (treefile, model, ' '.join(cmds)))
-            pool[modelname] = multiprocessing.Process(target=RunCmds, args=(cmds,))
-            outprefixes[modelname] = outprefix
-            completed[modelname] = False
-            started[modelname] = False
+            if args['use_existing'] and all([os.path.isfile(outprefix + suffix) for suffix in filesuffixes]):
+                logger.info('Using existing output for model %s\n' % model)
+            else:
+                cmds = ['phydms', args['alignment'], treefile, model, outprefix] + additionalcmds
+                logger.info('Starting analysis to optimize tree in %s using model %s. The command is: %s\n' % (treefile, model, ' '.join(cmds)))
+                pool[modelname] = multiprocessing.Process(target=RunCmds, args=(cmds,))
+                outprefixes[modelname] = outprefix
+                completed[modelname] = False
+                started[modelname] = False
         while not all(completed.values()):
             nrunning = started.values().count(True) - completed.values().count(True)
             if nrunning < args['ncpus']:
@@ -162,18 +227,25 @@ def main():
             for (modelname, p) in pool.items():
                 if started[modelname] and (not completed[modelname]) and (not p.is_alive()): # process just completed
                     completed[modelname] = True
-                    logger.info('Analysis completed for model %s' % modelname)
+                    logger.info('Analysis completed for model %s' % models[modelname][0])
                     for fname in [outprefixes[modelname] + suffix for suffix in filesuffixes]:
                         if not os.path.isfile(fname):
                             raise RuntimeError("phydms failed to created expected output file %s." % fname)
                         logger.info("Found expected output file %s" % fname)
-                    logger.info('Analysis successful for model %s\n' % modelname)
+                    logger.info('Analysis successful for model %s\n' % models[modelname][0])
             time.sleep(1)
 
         # make sure all expected output files are there
         for fname in outfiles:
             if not os.path.isfile(fname):
                 raise RuntimeError("Cannot find expected output file %s" % fname)
+
+        # tabulate model comparison
+        logger.info("Tabulating model comparisons and writing to %s" % modelcomparisonfile)
+        TabulateModelComparisons(modelcomparisonfile, models, args['outprefix'], '_loglikelihood.txt', '_modelparams.txt')
+        with open(modelcomparisonfile) as f:
+            modelcomparisontext = f.read()
+        logger.info("Here are the results of the model comparison:\n\t%s" % modelcomparisontext.replace('\n', '\n\t'))
 
         logger.info('Successful completion of %s' % prog)
 
