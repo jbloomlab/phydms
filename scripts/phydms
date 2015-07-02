@@ -127,7 +127,6 @@ def main():
                 raise ValueError("Preferences are not specified for the 20 amino acids")
             assert all([set(aas) == set(ipi.keys()) for ipi in pi_means.values()]), "Not same amino acid keys for all sites"
             aaprefs = dict([(int(r), rprefs) for (r, rprefs) in pi_means.items()])
-            model = ('ExpCM', aaprefs)
             logger.info('Successfully read site-specific amino-acid preferences for all %d sites.\n' % len(aaprefs))
             if args['randprefs']:
                 assert not args['avgprefs'], "Cannot use both '--randprefs' and '--avgprefs'"
@@ -148,6 +147,7 @@ def main():
                     avg_prefs[aa] /= float(len(aaprefs))
                 for r in aaprefs.keys():
                     aaprefs[r] = avg_prefs
+            model = ('ExpCM', aaprefs)
         else:
             raise ValueError("Invalid model of %s" % args['model'])
 
