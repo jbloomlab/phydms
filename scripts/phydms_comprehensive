@@ -27,7 +27,7 @@ def RunCmds(cmds):
         p = subprocess.Popen(cmds, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         pid = p.pid
         (stdout, stderr) = p.communicate()
-    finally:
+    except:
         os.kill(pid, signal.SIGTERM)
 
 
@@ -51,8 +51,12 @@ def main():
     models = {'YNGKP_M0':('YNGKP_M0', []),\
               'YNGKP_M7':('YNGKP_M7', []),\
               'YNGKP_M8':('YNGKP_M8', []),\
-              'ExpCM':('ExpCM_%s' % args['prefsfile'], []),\
               }
+    assert len(set(args['prefsfiles'])) == len(args['prefsfiles']), 'Entries in prefsfiles not unique'
+    for prefsfile in args['prefsfiles']:
+        if re.search('\s', prefsfile):
+            raise ValueError("There is a space in the preferences file name: %s" % prefsfile)
+        models['ExpCM_%s' % prefsfile.replace('/', '_')] = ('ExpCM_%s' % prefsfile, [])
 
     # suffixes of files created by phydms
     filesuffixes = ['.log', '_tree.newick', '_loglikelihood.txt', '_modelparams.txt']
@@ -108,35 +112,6 @@ def main():
         if removed:
             logger.info('Removed the following existing files that have names that match the names of output files that will be created: %s\n' % ', '.join(removed))
 
-        # check alignment
-        logger.info('Checking alignment in %s' % args['alignment'])
-        alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'], checknewickvalid=True)
-        logger.info('Read %d aligned codon sequences from %s. Each sequence consists of %d codons.\n' % (len(alignment), args['alignment'], len(alignment[0][1]) // 3))
-
-        # check preferences
-        logger.info('Checking preferences in %s' % args['prefsfile'])
-        (sites, wts, pi_means, pi_95credint, h) = dms_tools.file_io.ReadPreferences(args['prefsfile'])
-        if len(sites) != len(alignment[0][1]) // 3:
-            raise ValueError("The number of amino-acid preferences in %s does not match the number of codon sites in the alignment" % args['prefsfile'])
-        if not all([r.isdigit() for r in sites]):
-            raise ValueError("All sites in preferences file must be integers")
-        sites = [int(r) for r in sites]
-        assert len(set(sites)) == len(sites), "There are non-unique sites in the preferences file"
-        if not (min(sites) == 1 and max(sites) - min(sites) == len(sites) - 1):
-            raise ValueError("Sites in preferences file must start at 1 and be consecutive")
-        aas = pi_means['1'].keys()
-        if set(aas) != set(Bio.Alphabet.IUPAC.IUPACProtein.letters) or set(aas) == set(Bio.Alphabet.IUPAC.IUPACProtein.letters + '*'):
-            raise ValueError("Preferences are not specified for the 20 amino acids")
-        assert all([set(aas) == set(ipi.keys()) for ipi in pi_means.values()]), "Not same amino acid keys for preferences for all sites"
-        logger.info('Read valid preferences for %d sites from %s\n' % (len(sites), args['prefsfile']))
-
-        # check tree
-        if args['treetopology']:
-            logger.info('Checking tree topology in %s' % args['treetopology'])
-            assert os.path.isfile(args['treetopology']), "Cannot find file %s" % args['treetopology']
-            tree = Bio.Phylo.read(args['treetopology'], 'newick')
-            assert set([clade.name for clade in tree.get_terminals()]) == set([head for (head, seq) in alignment]), "The tree tip nodes do not match the sequence headers in teh alignment"
-
         # first estimate tree with phydms using YNGKP_M0 model
         modelname = 'YNGKP_M0'
         (model, additionalcmds) = models[modelname]
@@ -174,11 +149,13 @@ def main():
             completed[modelname] = False
             started[modelname] = False
         while not all(completed.values()):
-            if (started.values().count(True) - completed.values().count(True)) < args['ncpus']:
+            nrunning = started.values().count(True) - completed.values().count(True)
+            if nrunning < args['ncpus']:
                 for (modelname, p) in pool.items():
                     if not started[modelname]:
                         p.start()
                         started[modelname] = True
+                        break
             for (modelname, p) in pool.items():
                 if started[modelname] and (not completed[modelname]) and (not p.is_alive()): # process just completed
                     completed[modelname] = True
