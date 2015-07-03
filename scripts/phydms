@@ -193,7 +193,7 @@ def main():
             (fd, temptreefile) = tempfile.mkstemp() # create temporary file to write tree for passing
             with os.fdopen(fd, 'w') as f:
                 f.write(newicktree)
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixpreferences=True, oldlikelihoodmethod=args['oldlikmethod'], omegabysite=args['omegabysite'], fixbrlen=args['fixbrlen'], recursion=args['recursion'])
+            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixpreferences=True, oldlikelihoodmethod=args['oldlikmethod'], fixbrlen=args['fixbrlen'], recursion=args['recursion'])
         finally:
             if os.path.isfile(temptreefile):
                 os.remove(temptreefile)

@@ -18,7 +18,7 @@ from libcpp.map cimport map as cpp_map
 
 cdef extern from "BppExtensions/BppTreeLikelihood.h" namespace "bppextensions":
     cdef cppclass BppTreeLikelihood:
-        BppTreeLikelihood(vector[string], vector[string], string, string, bint, cpp_map[int, cpp_map[string, double]], bint, bint, bint, bint, char) except +
+        BppTreeLikelihood(vector[string], vector[string], string, string, bint, cpp_map[int, cpp_map[string, double]], bint, bint, bint, char) except +
         long NSeqs()
         long NSites()
         void NewickTree(string)
@@ -39,7 +39,7 @@ cdef class PyBppTreeLikelihood:
 
     Objects are instantiated like this:
 
-        *bpptl = BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, fixpreferences, oldlikelihoodmethod, omegabysite, fixbrlen, recursion)*
+        *bpptl = BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, fixpreferences, oldlikelihoodmethod, fixbrlen, recursion)*
 
     where:
 
@@ -97,10 +97,6 @@ cdef class PyBppTreeLikelihood:
           (not the ``NewLikelihood``) methods of ``Bio++``. Only compatible with
           non-partitioned models.
 
-        * *omegabysite* is a Boolean switch that specifies that we infer a different *omega*
-          (dN/dS) ration (if *True*) for each site, or one for all sites (if *False*). Can
-          only be used if *oldlikelihoodmethod* is *False*.
-
         * *fixbrlen* is a Boolean switch that specifies that we fix the branch lengths to
           those in *treefile*. Can only be used if *infertopology* is *False*.
 
@@ -114,7 +110,7 @@ cdef class PyBppTreeLikelihood:
 
     cdef dict codon_to_aa
 
-    def __cinit__(self, list seqnames, list seqs, str treefile, model, bint infertopology, bint fixpreferences, bint oldlikelihoodmethod, bint omegabysite, bint fixbrlen, str recursion):
+    def __cinit__(self, list seqnames, list seqs, str treefile, model, bint infertopology, bint fixpreferences, bint oldlikelihoodmethod, bint fixbrlen, str recursion):
         """Initializes new *PyBppTreeLikelihood* object."""
         # 
         # set up codons, amino acids, nts
@@ -160,7 +156,7 @@ cdef class PyBppTreeLikelihood:
             model = 'ExpCM'
         else:
             raise ValueError("Invalid model of %s" % model)
-        self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixpreferences, oldlikelihoodmethod, omegabysite, fixbrlen, ord(recursion))
+        self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixpreferences, oldlikelihoodmethod, fixbrlen, ord(recursion))
         if self.thisptr is NULL:
             raise MemoryError("Failed to allocate pointer to BppTreeLikelihood")
 

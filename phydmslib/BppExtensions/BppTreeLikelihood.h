@@ -63,14 +63,12 @@ namespace bppextensions {
              *
              * @param oldlikelihoodmethod Do we use the old Bpp likelihood method rather then the NewLikelihood? Only can be used for non-partitioned data.
              * 
-             * @param omegabysite Do we fit a different value of omega for each site (done if true) or use the same value for all sites? 
-             * 
              * @param fixbrlen Do we fix the branch lengths?
              *
              * @param recursion Recursion method used for likelihood. Can be "S" for simple or "D" for double.
              * 
              */
-            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, int fixpreferences, int oldlikelihoodmethod, int omegabysite, int fixbrlen, char recursion);
+            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, int fixpreferences, int oldlikelihoodmethod, int fixbrlen, char recursion);
 
             /**
              *@brief Destructor

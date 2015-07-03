@@ -25,7 +25,7 @@ namespace patch
 
 
 // constructor
-bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, int fixpreferences, int oldlikelihoodmethod, int omegabysite, int fixbrlen, char recursion)
+bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, int fixpreferences, int oldlikelihoodmethod, int fixbrlen, char recursion)
 {
 
     // setup some parameters / options
@@ -115,11 +115,6 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         }
         std::map<std::string, std::string> unparsedparams;
         models[sharedmodelindex] = bpp::PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gcode, sites, modelparams, unparsedparams, "", true, verbose); 
-        if (omegabysite) { // we need a different model for each site
-            for (long isite = 1; isite <= nsites; isite++) {
-                models[isite] = bpp::PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gcode, sites, modelparams, unparsedparams, "", true, verbose); 
-            }
-        }
     } 
     else if (modelstring == "ExpCM") {
         if (oldlikmethod) {
@@ -195,9 +190,6 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
             // all parameters are aliased to that for model1
             std::vector<std::string> independentmodelparams = models[1]->getIndependentParameters().getParameterNames();
             for (std::vector<std::string>::size_type i = 0; i != independentmodelparams.size(); ++i) {
-                if (omegabysite && (independentmodelparams[i].length() >= 5) && (independentmodelparams[i].substr(independentmodelparams[i].length() - 5, 5) == "omega")) {
-                    continue; // do NOT constrain omega to be the same for all sites
-                }
                 std::string parametername = independentmodelparams[i] + "_1";
                 constrainedparams[independentmodelparams[i]] = independentmodelparams[i]; // name to return in ModelParams
                 for (long isite = 2; isite <= nsites; isite++) {
@@ -224,9 +216,6 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         phylolikelihood = new bpp::PartitionPhyloLikelihood(*sites, *pse, recursion, 0, 0, verbose, compression=='R');
 
     } else { // use the old likelihood method
-        if (omegabysite) {
-            throw std::runtime_error("Cannot use omegabysite with old likelihood method");
-        }
         if (models.find(sharedmodelindex) == models.end()) {
             throw runtime_error("Cannot use old likelihood method as there is not a shared model");
         }
