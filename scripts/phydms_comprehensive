@@ -111,8 +111,10 @@ def main():
             raise ValueError("There is a space in the preferences file name: %s" % prefsfile)
         modelname = 'ExpCM_%s' % os.path.splitext(prefsfile)[0].replace('/', '_')
         models[modelname] = ('ExpCM_%s' % prefsfile, [], 0)
-        models['randomized_%s' % modelname] = ('ExpCM_%s' % prefsfile, ['--randprefs'], 0)
-        models['averaged_%s' % modelname] = ('ExpCM_%s' % prefsfile, ['--avgprefs'], 0)
+        if args['randprefs']:
+            models['randomized_%s' % modelname] = ('ExpCM_%s' % prefsfile, ['--randprefs'], 0)
+        if args['avgprefs']:
+            models['averaged_%s' % modelname] = ('ExpCM_%s' % prefsfile, ['--avgprefs'], 0)
 
     # suffixes of files created by phydms
     filesuffixes = ['.log', '_tree.newick', '_loglikelihood.txt', '_modelparams.txt']
