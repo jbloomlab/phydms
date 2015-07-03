@@ -5,9 +5,32 @@
 
 Written by `Jesse Bloom`_.
 
-`Bio++`_ code 
+Installation from source
+------------------------
+To install from source, if you are superuser do the following to install globally::
+
+    python setup.py install
+
+To install locally (to ``~/.local/``) use::
+
+    python setup.py install --user
+
+Bio++ code 
 ----------------------------------
-The `Bio++`_ libraries are used for the phylogenetic likelihood calculations. In order to avoid requiring separate installation of these libraries, their source code is included in the source code for ``phydms``. Specifically, the ``./phydmslib/Bpp/`` subdirectory holds the ``bpp-core``, ``bpp-seq``, and ``bpp-phyl`` libraries, which were added to the repository using ``git subtree``. These libraries are compiled by ``cythonize`` as specified in the ``setup.py`` file. This compilation substantially increases the time to build and install ``phydms``. If you want to link to pre-compiled `Bio++`_ libraries instead, you will need to modify the definition of the extensions for ``cythonize`` in ``setup.py``.
+The `Bio++`_ libraries are used for the phylogenetic likelihood calculations. 
+
+To avoid requiring separate installation of the `Bio++`_ libraries, their source code is included in the source for ``phydms`` and they are compiled and statically linked to ``phydms``. Specifically, the ``./phydmslib/Bpp/`` subdirectory holds the ``bpp-core``, ``bpp-seq``, and ``bpp-phyl`` libraries, which were added to the repository using ``git subtree``. These libraries are compiled by ``cythonize`` as specified in the ``setup.py`` file. 
+
+The need to compile and statically link the `Bio++`_ libraries increases the time to build ``phydms``. The ``setup.py`` script includes an option that should allow you to instead dynamically link to pre-compiled `Bio++`_ libraries. For this to work, you will need to have pre-installed the correct versions of ``bpp-core``, ``bpp-seq``, and ``bpp-phyl`` in the location expected by ``setup.py``. Then run::
+
+    python setup.py install --user --dynamically-link-bpp
+
+or::
+
+    python setup.py install --dynamically-link-bpp
+
+Note that this ``--dynamically-link-bpp`` option may lead to crashes during installation or execution if you don't have the right versions of `Bio++`_. Therefore, only use this option if you know what you're doing.
+
 
 
 .. _`Jesse Bloom`: http://research.fhcrc.org/bloom/en.html

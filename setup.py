@@ -16,6 +16,16 @@ except ImportError:
 if (sys.version_info[0], sys.version_info[1]) != (2, 7):
     raise RuntimeError('phydms is currently only compatible with Python 2.7.\nYou are using Python %d.%d' % (sys.version_info[0], sys.version_info[1]))
 
+# this is a bit of a hack to enable the --dynamically-link-bpp option
+dynamically_link_bpp = False
+if '--dynamically-link-bpp' in sys.argv:
+    dynamically_link_bpp = True
+    if '--user' in sys.argv:
+        dynamically_link_bpp_dir = '%s/.local/' % os.path.expanduser('~')
+    else:
+        dynamically_link_bpp_dir = '/usr/local/'
+    sys.argv.remove('--dynamically-link-bpp')
+
 
 # get metadata, which is specified in another file
 metadata = {}
@@ -63,17 +73,27 @@ def extensions():
         for (path, dirs, files) in os.walk('phydmslib/Bpp/%s/src' % bpplib):
             for fname in fnmatch.filter(files, '*.cpp'):
                 bpp_sources.append('%s/%s' % (path, fname))
-    ext = [\
-        Extension(\
-            'phydmslib.pybpp',\
-            sources=['phydmslib/pybpp.pyx', 'phydmslib/BppExtensions/BppTreeLikelihood.cpp', 'phydmslib/BppExtensions/ExperimentallyInformedCodonModel.cpp'] + bpp_sources,\
-            language='c++',\
-            include_dirs=include_dirs,\
-            extra_compile_args=['-O2'],\
-            ),\
-        ]
-    #commenting out command for linking to existing Bpp libraries:        
+    if dynamically_link_bpp:
+        ext = [\
+            Extension(\
+                'phydmslib.pybpp',\
+                sources=['phydmslib/pybpp.pyx', 'phydmslib/BppExtensions/BppTreeLikelihood.cpp', 'phydmslib/BppExtensions/ExperimentallyInformedCodonModel.cpp'],\
+                language='c++',\
+                extra_compile_args=['-I%s/include' % dynamically_link_bpp_dir, '-O2'],\
+                extra_link_args=['-L%s/lib/' % dynamically_link_bpp_dir, '-lbpp-core', '-lbpp-seq', '-lbpp-phyl'],\
+                ),\
+            ]
     #ext = [Extension('phydmslib.pybpp', sources=['phydmslib/pybpp.pyx', 'phydmslib/BppExtensions/BppTreeLikelihood.cpp', 'phydmslib/BppExtensions/ExperimentallyInformedCodonModel.cpp'], language='c++', extra_compile_args=['-I%s/.local/include/' % os.path.expanduser("~")], extra_link_args=['-L%s/.local/lib/' % os.path.expanduser('~'), '-lbpp-core', '-lbpp-seq', '-lbpp-phyl']),]\
+    else:
+        ext = [\
+            Extension(\
+                'phydmslib.pybpp',\
+                sources=['phydmslib/pybpp.pyx', 'phydmslib/BppExtensions/BppTreeLikelihood.cpp', 'phydmslib/BppExtensions/ExperimentallyInformedCodonModel.cpp'] + bpp_sources,\
+                language='c++',\
+                include_dirs=include_dirs,\
+                extra_compile_args=['-O2'],\
+                ),\
+            ]
     return cythonize(ext)
 
 
