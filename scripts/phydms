@@ -35,8 +35,6 @@ def main():
     # Parse command line arguments
     parser = phydmslib.parsearguments.PhyDMSParser()
     args = vars(parser.parse_args())
-    if args['infertopology']:
-        args['oldlikmethod'] = True # currently must used oldlikmethod to infer topology
     prog = parser.prog
 
     # create output directory if needed
@@ -81,8 +79,6 @@ def main():
         # some checks on arguments
         if args['tree'] == 'random' and not args['infertopology']:
             raise ValueError("It does not make sense to use ``tree`` of *random* without also using ``--infertopology``")
-        if args['infertopology'] and not args['oldlikmethod']:
-            raise ValueError("You can only use ``--infertopology`` with ``--oldlikmethod``")
         if args['fixbrlen'] and args['infertopology']:
             raise ValueError("It does not make sense to ``--fixbrlen`` with ``--infertopology``")
 
@@ -109,7 +105,6 @@ def main():
         elif isinstance(args['model'], tuple) and len(args['model']) == 2 and args['model'][0] == 'ExpCM':
             assert not args['infertopology'], "You cannot use '--infertopology' with an experimentally informed model"
             assert not args['fitF3X4'], "It does not make sense to use '--fitF3X4' with an experimentally informed model"
-            assert not args['oldlikmethod'], "Cannot use --oldlikmethod with ExpCM"
             prefsfilename = args['model'][1]
             logger.info('The codon substitution model will be experimentally informed model by the site-specific amino-acid preferences in %s' % prefsfilename)
             (sites, wts, pi_means, pi_95credint, h) = dms_tools.file_io.ReadPreferences(prefsfilename)
@@ -193,7 +188,8 @@ def main():
             (fd, temptreefile) = tempfile.mkstemp() # create temporary file to write tree for passing
             with os.fdopen(fd, 'w') as f:
                 f.write(newicktree)
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixpreferences=True, oldlikelihoodmethod=args['oldlikmethod'], fixbrlen=args['fixbrlen'], recursion=args['recursion'])
+            # we use oldlikelihoodmethod if inferring topology
+            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixpreferences=True, oldlikelihoodmethod=args['infertopology'], fixbrlen=args['fixbrlen'], recursion=args['recursion'])
         finally:
             if os.path.isfile(temptreefile):
                 os.remove(temptreefile)

@@ -145,8 +145,6 @@ def PhyDMSParser():
     parser.add_argument('--omegabysite', dest='omegabysite', action='store_true', help="Fit a different omega (dN/dS) for each site, similar to FEL.")
     parser.set_defaults(infertopology=False)
     parser.add_argument('--infertopology', dest='infertopology', action='store_true', help="Infer topology starting from 'tree'; otherwise topology fixed to 'tree'. Requires 'model' to be 'YNGKP_M0'.")
-    parser.set_defaults(oldlikmethod=False)
-    #parser.add_argument('--oldlikmethod', dest='oldlikmethod', action='store_true', help='Use old Bio++ likelihood method. Only allowed for non-partitioned models.')
     parser.set_defaults(randprefs=False)
     parser.add_argument('--randprefs', dest='randprefs', action='store_true', help="Randomize preferences among sites for ExpCM.")
     parser.set_defaults(avgprefs=False)
