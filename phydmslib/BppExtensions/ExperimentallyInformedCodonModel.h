@@ -60,8 +60,6 @@ namespace bppextensions
    *
    * @prefix The name prefixed to the model, such as "ExpCM_residue_1."
    *
-   * @fixpreferences Do we fix the preferences or treat them as free parameters?
-   *
    * Reference:
    * -  Bloom JD (2014), _Molecular Biology and Evolution_ 31(10):2753-2769.
    */
@@ -82,8 +80,7 @@ namespace bppextensions
     ExperimentallyInformedCodonModel(
         const bpp::GeneticCode* gCode,
         bpp::FrequenciesSet* preferences, 
-        const std::string& prefix,
-        bool fixpreferences);
+        const std::string& prefix);
 
     ExperimentallyInformedCodonModel(const ExperimentallyInformedCodonModel& model):
       AbstractParameterAliasable(model),

@@ -189,7 +189,7 @@ def main():
             with os.fdopen(fd, 'w') as f:
                 f.write(newicktree)
             # we use oldlikelihoodmethod if inferring topology
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixpreferences=True, fixedmodelparams={}, oldlikelihoodmethod=args['infertopology'], fixbrlen=args['fixbrlen'], recursion=args['recursion'])
+            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, oldlikelihoodmethod=args['infertopology'], fixbrlen=args['fixbrlen'], recursion=args['recursion'])
         finally:
             if os.path.isfile(temptreefile):
                 os.remove(temptreefile)
@@ -211,7 +211,37 @@ def main():
         logger.info("Here is the optimized tree (also being written to %s):\n%s" % (treefile, tl.NewickTree()))
         with open(treefile, 'w') as f:
             f.write(tl.NewickTree())
+        allmodelparams = tl.ModelParams(False)
+        del tl
 
+        # optimize a different omega for each site
+        if args['omegabysite']:
+            excludeparams = ['omega', 'YNGKP_M7.p', 'YNGKP_M7.q', 'YNGKP_M8.p', 'YNGKP_M8.p0', 'YNGKP_M8.q'] # parameters related to omega
+            fixedmodelparams = {}
+            for (param, value) in allmodelparams.items():
+                for excludeparam in excludeparams:
+                    if excludeparam in param:
+                        break
+                else:
+                    fixedmodelparams[param] = value
+            logger.info('Now optimizing a different omega for each site while keeping branch lengths and other model parameters fixed.')
+            logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
+            logger.info('The model parameters will be to fixed to the following:\n\t%s' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
+            print fixedmodelparams # debugging
+#        for icodon in range(len(seqs[0]) // 3):
+#            if model[ : 7] == 'YNGKP_M':
+#                imodel = 'YNGKP_M0_fitF3X4' # a single omega for the site
+#            elif isinstance(model, tuple) and model[0] == 'ExpCM':
+#                imodel = ('ExpCM', {icodon + 1:aaprefs[icodon + 1]})
+#            else:
+#                raise ValueError("Invalid model")
+#            iseqs = [seq[3 * icodon : 3 * icodon + 3] for seq in seqs]
+            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, recursion=args['recursion']) # debugging
+            logger.info("log likelihood: " + str(tl.LogLikelihood())) # debugging
+            logger.info("model params: " + str(tl.ModelParams(True))) # debugging
+            logger.info("all model params: " + str(tl.ModelParams(False))) # debugging
+
+        # script complete
         logger.info('Successful completion of %s' % prog)
 
     finally:

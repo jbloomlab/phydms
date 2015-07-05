@@ -59,8 +59,6 @@ namespace bppextensions {
              *
              * @param preferences Site-specific amino-acid preferences, keyed by integer site (1, 2, ... numbering), then maps keyed by codon and values preference. Value does not matter if modelstring is not "ExpCM".
              *
-             * @param fixpreferences Do we fix the preferences or treat them as free parameters (only matters if modelstring is "ExpCM").
-             *
              * @param fixedmodelparams A map giving model parameters that should be fixed. Key is string name of model parameter, value is what it is fixed to. You will get an error if you specify a parameter that does not exist with that name.
              *
              * @param oldlikelihoodmethod Do we use the old Bpp likelihood method rather then the NewLikelihood? Only can be used for non-partitioned data.
@@ -70,7 +68,7 @@ namespace bppextensions {
              * @param recursion Recursion method used for likelihood. Can be "S" for simple or "D" for double.
              * 
              */
-            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, int fixpreferences, std::map<std::string, double> fixedmodelparams, int oldlikelihoodmethod, int fixbrlen, char recursion);
+            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, int oldlikelihoodmethod, int fixbrlen, char recursion);
 
             /**
              *@brief Destructor
