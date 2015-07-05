@@ -25,7 +25,7 @@ namespace patch
 
 
 // constructor
-bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, int fixpreferences, int oldlikelihoodmethod, int fixbrlen, char recursion)
+bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, int fixpreferences, std::map<std::string, double> fixedmodelparams, int oldlikelihoodmethod, int fixbrlen, char recursion)
 {
 
     // setup some parameters / options
@@ -142,6 +142,36 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
     else {
         throw std::invalid_argument("Invalid modelstring");
     }
+
+    // fix any model parameters in fixedmodelparams
+    if (! fixedmodelparams.empty()) {
+        if (oldlikmethod) {
+            throw std::runtime_error("fixedmodelparams is not guaranteed to work if using oldlikmethod");
+        }
+        std::vector<size_t> modelnumbers = substitutionprocesscollection->getModelNumbers();
+        for (std::map<std::string, double>::iterator itr = fixedmodelparams.begin(); itr != fixedmodelparams.end(); itr++) {
+            for (std::map<size_t, bpp::SubstitutionModel*>::iterator imodel_itr = models.begin(); imodel_itr != models.end(); ++imodel_itr) {
+                if (imodel_itr->second->hasParameter(itr->first)) {
+                    cout << "Fixing parameter " << itr->first << "\n"; // debugging
+                    imodel_itr->second->setParameterValue(itr->first, itr->second);
+                } else {
+                    throw std::runtime_error("Cannot find parameter in fixedmodelparams: " + itr->first);
+                }
+            }
+            if (optimizationparams["optimization.ignore_parameters"].empty()) {
+                optimizationparams["optimization.ignore_parameters"] = "*" + itr->first + "*";
+            } else {
+                optimizationparams["optimization.ignore_parameters"] = optimizationparams["optimization.ignore_parameters"] + "," + "*" + itr->first + "*";
+            }
+        }
+        for (std::map<size_t, bpp::SubstitutionModel*>::iterator imodel_itr = models.begin(); imodel_itr != models.end(); ++imodel_itr) {
+            bpp::AbstractParametrizable* imodel = dynamic_cast<bpp::AbstractParametrizable*>(imodel_itr->second);
+            if (! imodel) {
+                throw runtime_error("Failed to cast imodel");
+            }
+            imodel->fireParameterChanged(imodel->getParameters());
+        }
+    } 
 
     // set up rate distribution
     ratedistribution = new bpp::ConstantRateDistribution(); // just a single rate
