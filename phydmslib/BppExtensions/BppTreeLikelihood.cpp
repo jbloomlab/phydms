@@ -8,8 +8,13 @@
 #include <exception>
 #include <string>
 #include <sstream>
+#include <Bpp/Phyl/Io/BppOFrequenciesSetFormat.h>
+#include <Bpp/Phyl/Model/Codon/YN98.h>
+#include <Bpp/Phyl/Model/Codon/YNGKP_M7.h>
+#include <Bpp/Phyl/Model/Codon/YNGKP_M8.h>
 #include "BppTreeLikelihood.h"
 #include "ExperimentallyInformedCodonModel.h"
+#include "YN98WithRateParameter.h"
 
 // This function is a patch for the fact that there is a bug in some g++ so that to_string isn't included.
 // See: http://stackoverflow.com/questions/12975341/to-string-is-not-a-member-of-std-says-so-g
@@ -25,7 +30,7 @@ namespace patch
 
 
 // constructor
-bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, int oldlikelihoodmethod, int fixbrlen, char recursion)
+bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, char recursion)
 {
 
     // setup some parameters / options
@@ -90,7 +95,6 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
     }
 
     // set up substitution models
-    std::map<std::string, std::string> modelparams;
     if ((modelstring.length() >= 12) && (modelstring.substr(0, 6) == "YNGKP_")) {
         if (modelstring.substr(modelstring.length() - 8, 8) == "_empF3X4") {
             if (optimizationparams["optimization.ignore_parameters"].empty()) {
@@ -102,19 +106,34 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         else if (modelstring.substr(modelstring.length() - 8, 8) != "_fitF3X4") {
             throw std::invalid_argument("Invalid YNGKP frequencies method");
         }
-        if (modelstring.substr(6, 2) == "M0") {
-            modelparams["model"] = "YNGKP_M0(frequencies=F3X4, initFreqs=observed)";
+        // These next few lines parallel bpp::PhylogeneticsApplicationTools::getSubstitutionModel to set up models
+        bpp::BppOFrequenciesSetFormat freqReader(bpp::BppOFrequenciesSetFormat::ALL, verbose, 1);
+        freqReader.setGeneticCode(gcode);
+        auto_ptr<bpp::FrequenciesSet> codonFreqs(freqReader.read(alphabet, "F3X4", sites, false));
+        bpp::SubstitutionModel *sharedmodel = 0;
+        if ((addrateparameter) && (modelstring.substr(6, 2) != "M0")) {
+            throw std::runtime_error("Cannot use addrateparameter with a YNGKP model other than M0");
+        }
+        else if ((addrateparameter) && (modelstring.substr(6, 2) == "M0")) {
+            sharedmodel = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::YN98WithRateParameter(gcode, codonFreqs.release()));
+        }
+        else if (modelstring.substr(6, 2) == "M0") {
+            sharedmodel = dynamic_cast<bpp::SubstitutionModel*>(new bpp::YN98(gcode, codonFreqs.release()));
         }
         else if (modelstring.substr(6, 2) == "M7") {
-            modelparams["model"] = "YNGKP_M7(frequencies=F3X4, n=3, initFreqs=observed)";
+            sharedmodel = dynamic_cast<bpp::SubstitutionModel*>(new bpp::YNGKP_M7(gcode, codonFreqs.release(), 3));
         }
         else if (modelstring.substr(6, 2) == "M8") {
-            modelparams["model"] = "YNGKP_M8(frequencies=F3X4, n=3, initFreqs=observed)";
+            sharedmodel = dynamic_cast<bpp::SubstitutionModel*>(new bpp::YNGKP_M8(gcode, codonFreqs.release(), 3));
         } else {
             throw std::invalid_argument("Invalid model variant of YNGKP");
         }
-        std::map<std::string, std::string> unparsedparams;
-        models[sharedmodelindex] = bpp::PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gcode, sites, modelparams, unparsedparams, "", true, verbose); 
+        if (sharedmodel) {
+            sharedmodel->setFreqFromData(*sites, 0);
+            models[sharedmodelindex] = sharedmodel;
+        } else {
+            throw std::runtime_error("Error casting sharedmodel");
+        }
     } 
     else if (modelstring == "ExpCM") {
         if (oldlikmethod) {
@@ -133,7 +152,7 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
             }
             init_rprefs[alphabet->getNumberOfTypes() - 1] = 0.0; // this is the ambiguous character code
             bpp::FullCodonFrequenciesSet *rprefs = new bpp::FullCodonFrequenciesSet(gcode, init_rprefs);
-            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM."));
+            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM.", addrateparameter != 0));
             if (! models[isite]) {
                 throw std::runtime_error("error casting ExperimentallyInformedCodonModel");
             }

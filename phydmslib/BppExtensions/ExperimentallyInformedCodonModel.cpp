@@ -53,7 +53,8 @@
 bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonModel(
     const bpp::GeneticCode* gCode,
     bpp::FrequenciesSet* preferences,
-    const std::string& prefix) :
+    const std::string& prefix,
+    bool addrateparameter) :
   AbstractParameterAliasable(prefix),
   AbstractCodonSubstitutionModel(gCode, new bpp::K80(dynamic_cast<const bpp::CodonAlphabet*>(gCode->getSourceAlphabet())->getNucleicAlphabet()), prefix),
   AbstractCodonPhaseFrequenciesSubstitutionModel(bpp::CodonFrequenciesSet::getFrequenciesSetForCodons(bpp::CodonFrequenciesSet::F1X4, gCode), prefix),
@@ -61,7 +62,8 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
   prefix_(""),
   preferences_(preferences),
   omega_(1),
-  stringencyparameter_(1)
+  stringencyparameter_(1),
+  rateparameter_(1)
 {
   if (dynamic_cast<bpp::CodonFrequenciesSet*>(preferences) == NULL) {
     throw std::runtime_error("Invalid preferences");
@@ -72,6 +74,9 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
 //  if (! fixpreferences) {
 //    addParameters_(preferences_->getParameters());
 //  }
+  if (addrateparameter) {
+      addParameter_(new bpp::Parameter(prefix + "rateparameter", 1, new bpp::IntervalConstraint(0.0001, 1000, true, true), true));
+  }
   addParameter_(new bpp::Parameter(prefix + "omega", 1, new bpp::IntervalConstraint(0.001, 99, true, true), true));
   addParameter_(new bpp::Parameter(prefix + "stringencyparameter", 1, new bpp::IntervalConstraint(0.01, 99, true, true), true));
   updateMatrices();
@@ -92,6 +97,9 @@ void bppextensions::ExperimentallyInformedCodonModel::fireParameterChanged(const
   AbstractCodonPhaseFrequenciesSubstitutionModel::fireParameterChanged(parameters);
   omega_ = getParameterValue("omega");
   stringencyparameter_ = getParameterValue("stringencyparameter");
+  if (hasParameter("rateparameter")) {
+      rateparameter_ = getParameterValue("rateparameter");
+  }   
   preferences_->matchParametersValues(parameters);
   // this next call MUST be last!
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
@@ -100,7 +108,8 @@ void bppextensions::ExperimentallyInformedCodonModel::fireParameterChanged(const
 double bppextensions::ExperimentallyInformedCodonModel::getCodonsMulRate(size_t i, size_t j) const
 {
   if (getGeneticCode()->areSynonymous(static_cast<int>(i), static_cast<int>(j))) {
-    return AbstractCodonSubstitutionModel::getCodonsMulRate(i,j)
+    return rateparameter_ * 
+      AbstractCodonSubstitutionModel::getCodonsMulRate(i,j)
       * AbstractCodonPhaseFrequenciesSubstitutionModel::getCodonsMulRate(i,j);
   } else {
     double fixationprob;
@@ -115,7 +124,7 @@ double bppextensions::ExperimentallyInformedCodonModel::getCodonsMulRate(size_t 
     } else {
       fixationprob = stringencyparameter_ * std::log(pi_j / pi_i) / (1 - std::pow(pi_i / pi_j, stringencyparameter_));  // correct version of Halpern and Bruno (1998) equation; note that their paper has a typo
     }
-    return omega_
+    return omega_ * rateparameter_
       * AbstractCodonSubstitutionModel::getCodonsMulRate(i,j)
       * AbstractCodonPhaseFrequenciesSubstitutionModel::getCodonsMulRate(i,j)
       * fixationprob;

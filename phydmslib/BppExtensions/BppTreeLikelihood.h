@@ -65,10 +65,12 @@ namespace bppextensions {
              * 
              * @param fixbrlen Do we fix the branch lengths?
              *
+             * @param addrateparameter Add a parameter that scales all rates. You may want to use this if fixing branch lengths. Can only be used for YNGKP_M0 and ExpCM models.
+             *
              * @param recursion Recursion method used for likelihood. Can be "S" for simple or "D" for double.
              * 
              */
-            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, int oldlikelihoodmethod, int fixbrlen, char recursion);
+            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, char recursion);
 
             /**
              *@brief Destructor

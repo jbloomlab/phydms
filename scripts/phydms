@@ -190,7 +190,7 @@ def main():
             with os.fdopen(fd, 'w') as f:
                 f.write(newicktree)
             # we use oldlikelihoodmethod if inferring topology
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, oldlikelihoodmethod=args['infertopology'], fixbrlen=args['fixbrlen'], recursion=args['recursion'])
+            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, oldlikelihoodmethod=args['infertopology'], fixbrlen=args['fixbrlen'], addrateparameter=False, recursion=args['recursion'])
         finally:
             if os.path.isfile(temptreefile):
                 os.remove(temptreefile)
@@ -238,7 +238,7 @@ def main():
 #            iseqs = [seq[3 * icodon : 3 * icodon + 3] for seq in seqs]
 #            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, recursion=args['recursion']) # debugging
             logger.info('Setting up Bio++ object to evaluate likelihoods with these fixed parameters.')
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, treefile, model, infertopology=False, fixedmodelparams=fixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, recursion=args['recursion']) # debugging
+            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, treefile, model, infertopology=False, fixedmodelparams=fixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=True, recursion=args['recursion']) # debugging
             logger.info('Now optimizing the likelihood...')
             tl.OptimizeLikelihood()
             logger.info('Likelihood optimization complete.')

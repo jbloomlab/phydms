@@ -73,22 +73,27 @@ def extensions():
         for (path, dirs, files) in os.walk('phydmslib/Bpp/%s/src' % bpplib):
             for fname in fnmatch.filter(files, '*.cpp'):
                 bpp_sources.append('%s/%s' % (path, fname))
+    bppextension_sources=[\
+            'phydmslib/pybpp.pyx',\
+            'phydmslib/BppExtensions/BppTreeLikelihood.cpp',\
+            'phydmslib/BppExtensions/ExperimentallyInformedCodonModel.cpp',\
+            'phydmslib/BppExtensions/YN98WithRateParameter.cpp',\
+            ]
     if dynamically_link_bpp:
         ext = [\
             Extension(\
                 'phydmslib.pybpp',\
-                sources=['phydmslib/pybpp.pyx', 'phydmslib/BppExtensions/BppTreeLikelihood.cpp', 'phydmslib/BppExtensions/ExperimentallyInformedCodonModel.cpp'],\
+                sources=bppextension_sources,\
                 language='c++',\
                 extra_compile_args=['-I%s/include' % dynamically_link_bpp_dir, '-O2'],\
                 extra_link_args=['-L%s/lib/' % dynamically_link_bpp_dir, '-lbpp-core', '-lbpp-seq', '-lbpp-phyl'],\
                 ),\
             ]
-    #ext = [Extension('phydmslib.pybpp', sources=['phydmslib/pybpp.pyx', 'phydmslib/BppExtensions/BppTreeLikelihood.cpp', 'phydmslib/BppExtensions/ExperimentallyInformedCodonModel.cpp'], language='c++', extra_compile_args=['-I%s/.local/include/' % os.path.expanduser("~")], extra_link_args=['-L%s/.local/lib/' % os.path.expanduser('~'), '-lbpp-core', '-lbpp-seq', '-lbpp-phyl']),]\
     else:
         ext = [\
             Extension(\
                 'phydmslib.pybpp',\
-                sources=['phydmslib/pybpp.pyx', 'phydmslib/BppExtensions/BppTreeLikelihood.cpp', 'phydmslib/BppExtensions/ExperimentallyInformedCodonModel.cpp'] + bpp_sources,\
+                sources=bppextension_sources + bpp_sources,\
                 language='c++',\
                 include_dirs=include_dirs,\
                 extra_compile_args=['-O2'],\

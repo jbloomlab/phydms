@@ -18,7 +18,7 @@ from libcpp.map cimport map as cpp_map
 
 cdef extern from "BppExtensions/BppTreeLikelihood.h" namespace "bppextensions":
     cdef cppclass BppTreeLikelihood:
-        BppTreeLikelihood(vector[string], vector[string], string, string, bint, cpp_map[int, cpp_map[string, double]], cpp_map[string, double], bint, bint, char) except +
+        BppTreeLikelihood(vector[string], vector[string], string, string, bint, cpp_map[int, cpp_map[string, double]], cpp_map[string, double], bint, bint, bint, char) except +
         long NSeqs()
         long NSites()
         void NewickTree(string)
@@ -39,7 +39,7 @@ cdef class PyBppTreeLikelihood:
 
     Objects are instantiated like this:
 
-        *bpptl = BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, fixedmodelparams, oldlikelihoodmethod, fixbrlen, recursion)*
+        *bpptl = BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, fixedmodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, recursion)*
 
     where:
 
@@ -99,6 +99,10 @@ cdef class PyBppTreeLikelihood:
         * *fixbrlen* is a Boolean switch that specifies that we fix the branch lengths to
           those in *treefile*. Can only be used if *infertopology* is *False*.
 
+        * *addrateparameter* is a Boolean switch specifying that we add a 
+          parameter that scales the rates. Only makes sense when *fixbrlen*
+          is *True*. Can only be used for *YNGKP_M0* and *ExpCM* models.
+
         * *recursion* is the ``Bio++`` likelihood recursion, which can be 'S' (simple)
           or 'D' (double).
     """
@@ -109,7 +113,7 @@ cdef class PyBppTreeLikelihood:
 
     cdef dict codon_to_aa
 
-    def __cinit__(self, list seqnames, list seqs, str treefile, model, bint infertopology, fixedmodelparams, bint oldlikelihoodmethod, bint fixbrlen, str recursion):
+    def __cinit__(self, list seqnames, list seqs, str treefile, model, bint infertopology, fixedmodelparams, bint oldlikelihoodmethod, bint fixbrlen, bint addrateparameter, str recursion):
         """Initializes new *PyBppTreeLikelihood* object."""
         # 
         # set up codons, amino acids, nts
@@ -123,6 +127,8 @@ cdef class PyBppTreeLikelihood:
         self.codon_to_aa = dict([(codon, str(Bio.Seq.Seq(codon).translate())) for codon in self.codons])
         #
         # some error checking on calling variables
+        if addrateparameter and not fixbrlen:
+            raise ValueError("It makes no sense to use addrateparameter without fixbrlen")
         assert len(seqnames) == len(seqs) > 0, "seqnames and seqs must be non-empty and specify the same number of entries"
         assert len(set(seqnames)) == len(seqnames), "seqnames has duplicate entries"
         assert all([isinstance(s, str) for s in seqnames]), "seqnames does not specify entirely strings"
@@ -138,8 +144,10 @@ cdef class PyBppTreeLikelihood:
         cdef cpp_map[int, cpp_map[string, double]] preferences  # only needs to be filled with values if using ExpCM
         if isinstance(model, str) and yngkp_match.search(model):
             modelvariant = int(yngkp_match.search(model).group('modelvariant'))
-            if modelvariant >= 1 and infertopology:
+            if modelvariant != 0 and infertopology:
                 raise ValueError("Cannot infer topology with %s" % model)
+            if modelvariant != 0 and addrateparameter:
+                raise ValueError("Cannot addrateparameter with %s" % model)
         elif isinstance(model, tuple) and len(model) == 2 and model[0] == 'ExpCM':
             assert isinstance(model[1], dict), "Second entry in model tuple not preferences dict"
             for (r, rprefs) in model[1].items():
@@ -156,7 +164,7 @@ cdef class PyBppTreeLikelihood:
             model = 'ExpCM'
         else:
             raise ValueError("Invalid model of %s" % model)
-        self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixedmodelparams, oldlikelihoodmethod, fixbrlen, ord(recursion))
+        self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixedmodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, ord(recursion))
         if self.thisptr is NULL:
             raise MemoryError("Failed to allocate pointer to BppTreeLikelihood")
 

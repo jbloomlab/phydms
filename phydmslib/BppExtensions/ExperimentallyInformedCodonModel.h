@@ -58,7 +58,9 @@ namespace bppextensions
    *
    * @param preferences The preference for the amino acid encoded by each codon
    *
-   * @prefix The name prefixed to the model, such as "ExpCM_residue_1."
+   * @param prefix The name prefixed to the model, such as "ExpCM_residue_1."
+   *
+   * @param addrateparameter Include a free parameter that scales the substitution rate. This option would be used in the case that the branch lengths are fixed but you want to scale the rate. If addrateparameter is false, then the rate parameter is just fixed to 1.
    *
    * Reference:
    * -  Bloom JD (2014), _Molecular Biology and Evolution_ 31(10):2753-2769.
@@ -75,12 +77,14 @@ namespace bppextensions
     bpp::FrequenciesSet* preferences_;
     double omega_; // dN/dS ratio
     double stringencyparameter_;
+    double rateparameter_;
 
   public:
     ExperimentallyInformedCodonModel(
         const bpp::GeneticCode* gCode,
         bpp::FrequenciesSet* preferences, 
-        const std::string& prefix);
+        const std::string& prefix,
+        bool addrateparameter);
 
     ExperimentallyInformedCodonModel(const ExperimentallyInformedCodonModel& model):
       AbstractParameterAliasable(model),
@@ -90,7 +94,8 @@ namespace bppextensions
       prefix_(model.prefix_),
       preferences_(model.preferences_->clone()),
       omega_(model.omega_),
-      stringencyparameter_(model.stringencyparameter_)
+      stringencyparameter_(model.stringencyparameter_),
+      rateparameter_(model.rateparameter_)
     {} 
 
     ExperimentallyInformedCodonModel& operator=(const ExperimentallyInformedCodonModel& model) {
@@ -103,6 +108,7 @@ namespace bppextensions
       preferences_ = model.preferences_->clone();
       omega_ = model.omega_;
       stringencyparameter_ = model.stringencyparameter_;
+      rateparameter_ = model.rateparameter_;
       return *this;
     }
 
