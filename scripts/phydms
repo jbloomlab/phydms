@@ -11,6 +11,7 @@ import re
 import logging
 import random
 import tempfile
+import time
 import Bio.SeqRecord
 import Bio.Phylo
 import Bio.Phylo.TreeConstruction
@@ -227,7 +228,6 @@ def main():
             logger.info('Now optimizing a different omega for each site while keeping branch lengths and other model parameters fixed.')
             logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
             logger.info('The model parameters will be to fixed to the following:\n\t%s' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
-            print fixedmodelparams # debugging
 #        for icodon in range(len(seqs[0]) // 3):
 #            if model[ : 7] == 'YNGKP_M':
 #                imodel = 'YNGKP_M0_fitF3X4' # a single omega for the site
@@ -236,14 +236,20 @@ def main():
 #            else:
 #                raise ValueError("Invalid model")
 #            iseqs = [seq[3 * icodon : 3 * icodon + 3] for seq in seqs]
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, recursion=args['recursion']) # debugging
+#            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, recursion=args['recursion']) # debugging
+            logger.info('Setting up Bio++ object to evaluate likelihoods with these fixed parameters.')
+            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, treefile, model, infertopology=False, fixedmodelparams=fixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, recursion=args['recursion']) # debugging
+            logger.info('Now optimizing the likelihood...')
+            tl.OptimizeLikelihood()
+            logger.info('Likelihood optimization complete.')
             logger.info("log likelihood: " + str(tl.LogLikelihood())) # debugging
             logger.info("model params: " + str(tl.ModelParams(True))) # debugging
             logger.info("all model params: " + str(tl.ModelParams(False))) # debugging
 
-        # script complete
+    except:
+        logger.exception('Terminating %s at %s with ERROR' % (prog, time.asctime()))    
+    else:
         logger.info('Successful completion of %s' % prog)
-
     finally:
         logging.shutdown()
 

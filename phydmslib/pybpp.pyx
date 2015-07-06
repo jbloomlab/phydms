@@ -221,7 +221,13 @@ cdef class PyBppTreeLikelihood:
                 for ignore in ignored.split(','):
                     ignorematch = re.compile(ignore.replace('*', '.*'))
                     modelparams = dict([(param, value) for (param, value) in modelparams.items() if not ignorematch.search(param)])
-        return modelparams
+        # clip the prefix (typically "YN98." or "ExpCM." from the model parameter)
+        clippedmodelparams = {}
+        for modelparam in modelparams:
+            clippedmodelparam = modelparam[modelparam.index('.') + 1 : ]
+            assert clippedmodelparam not in clippedmodelparams, "Duplicated model param %s after clipping" % clippedmodelparam
+            clippedmodelparams[clippedmodelparam] = modelparams[modelparam]
+        return clippedmodelparams
 
     def StationaryState(self, int isite):
         """Returns stationary state of substitution model for site *isite*.

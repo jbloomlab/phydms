@@ -148,7 +148,6 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         if (oldlikmethod) {
             throw std::runtime_error("fixedmodelparams is not guaranteed to work if using oldlikmethod");
         }
-        std::vector<size_t> modelnumbers = substitutionprocesscollection->getModelNumbers();
         for (std::map<std::string, double>::iterator itr = fixedmodelparams.begin(); itr != fixedmodelparams.end(); itr++) {
             for (std::map<size_t, bpp::SubstitutionModel*>::iterator imodel_itr = models.begin(); imodel_itr != models.end(); ++imodel_itr) {
                 if (imodel_itr->second->hasParameter(itr->first)) {
