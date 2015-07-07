@@ -82,6 +82,8 @@ def main():
             raise ValueError("It does not make sense to use ``tree`` of *random* without also using ``--infertopology``")
         if args['fixbrlen'] and args['infertopology']:
             raise ValueError("It does not make sense to ``--fixbrlen`` with ``--infertopology``")
+        if args['addrateparameter'] and not args['fixbrlen']:
+            raise ValueError("It does not make sense to use --addrateparameter without also using --fixbrlen, as otherwise branch lengths are already scaled by rate.")
 
         # read alignment
         logger.info('Reading alignment from %s' % args['alignment'])
@@ -96,6 +98,8 @@ def main():
             modelvariant = yngkp_match.search(args['model']).group('modelvariant')
             if args['infertopology'] and int(modelvariant) != 0:
                 raise ValueError("You cannot use '--infertopology' with model %s" % args['model'])
+            if args['addrateparameter'] and int(modelvariant) != 0:
+                raise ValueError("You cannot use --addrateparameter with any YNGKP model except M0")
             logger.info('The codon substitution model with be the M%s version of YNGKP (Yang, Nielsen, Goldman, and Pederson. Genetics. 155:431-449).' % modelvariant)
             if args['fitF3X4']:
                 logger.info('The codon equilibrium frequencies will be set by F3X4, optimizing the nine nucleotide frequencies by maximum likelihood.\n')
@@ -190,7 +194,7 @@ def main():
             with os.fdopen(fd, 'w') as f:
                 f.write(newicktree)
             # we use oldlikelihoodmethod if inferring topology
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, oldlikelihoodmethod=args['infertopology'], fixbrlen=args['fixbrlen'], addrateparameter=False, recursion=args['recursion'])
+            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, oldlikelihoodmethod=args['infertopology'], fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], recursion=args['recursion'])
         finally:
             if os.path.isfile(temptreefile):
                 os.remove(temptreefile)

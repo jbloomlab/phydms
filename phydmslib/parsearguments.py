@@ -151,6 +151,8 @@ def PhyDMSParser():
     parser.add_argument('--avgprefs', dest='avgprefs', action='store_true', help="Average preferences across sites for ExpCM.")
     parser.set_defaults(fixbrlen=False)
     parser.add_argument('--fixbrlen', dest='fixbrlen', action='store_true', help="Fix branch lengths to those of initial 'tree'?")
+    parser.set_defaults(addrateparameter=False)
+    parser.add_argument('--addrateparameter', dest='addrateparameter', action='store_true', help="Add parameter scaling substitution rate. Only allowed with '--fixbrlen' and 'YNGKP_M0' or 'ExpCM'.")
     parser.set_defaults(fitF3X4=False)
     parser.add_argument('--fitF3X4', dest='fitF3X4', action='store_true', help='Fit F3X4 frequencies for YNGKP; otherwise use empirical')
     parser.add_argument('--minbrlen', default=1e-6, help='Min branch length for starting tree.', type=FloatGreaterThanZero)
