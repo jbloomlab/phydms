@@ -43,15 +43,15 @@
 
 
 bppextensions::YN98WithRateParameter::YN98WithRateParameter(const bpp::GeneticCode* gc, bpp::FrequenciesSet* codonFreqs) :
-  AbstractBiblioSubstitutionModel("YN98."),
+  AbstractBiblioSubstitutionModel("YN98WithRateParameter."),
   pmodel_(new bpp::CodonDistanceFrequenciesSubstitutionModel(gc, new bpp::K80(dynamic_cast<const bpp::CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs)),
   rateparameter_(1)
 {
-  addParameter_(new bpp::Parameter("YN98.kappa", 1, &bpp::Parameter::R_PLUS_STAR));
-  addParameter_(new bpp::Parameter("YN98.omega", 1, new bpp::IntervalConstraint(bpp::NumConstants::MILLI(), 999, true, true), true));
-  addParameter_(new bpp::Parameter("YN98.rateparameter", 1, new bpp::IntervalConstraint(0.0001, 1000, true, true), true));
+  addParameter_(new bpp::Parameter("YN98WithRateParameter.kappa", 1, &bpp::Parameter::R_PLUS_STAR));
+  addParameter_(new bpp::Parameter("YN98WithRateParameter.omega", 1, new bpp::IntervalConstraint(bpp::NumConstants::MILLI(), 999, true, true), true));
+  addParameter_(new bpp::Parameter("YN98WithRateParameter.rateparameter", 1, new bpp::IntervalConstraint(0.0001, 1000, true, true), true));
 
-  pmodel_->setNamespace("YN98.");
+  pmodel_->setNamespace("YN98WithRateParameter.");
   addParameters_(codonFreqs->getParameters());
 
   lParPmodel_.addParameters(pmodel_->getParameters());
@@ -62,8 +62,8 @@ bppextensions::YN98WithRateParameter::YN98WithRateParameter(const bpp::GeneticCo
   {
     mapParNamesFromPmodel_[v[i]] = getParameterNameWithoutNamespace(v[i]);
   }
-  mapParNamesFromPmodel_["YN98.123_K80.kappa"] = "kappa";
-  mapParNamesFromPmodel_["YN98.beta"] = "omega";
+  mapParNamesFromPmodel_["YN98WithRateParameter.123_K80.kappa"] = "kappa";
+  mapParNamesFromPmodel_["YN98WithRateParameter.beta"] = "omega";
 
   updateMatrices();
 }
