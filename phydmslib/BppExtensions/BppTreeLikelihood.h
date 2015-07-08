@@ -65,7 +65,7 @@ namespace bppextensions {
              * 
              * @param fixbrlen Do we fix the branch lengths?
              *
-             * @param addrateparameter Add a parameter that scales all rates. You may want to use this if fixing branch lengths. Can only be used for YNGKP_M0 and ExpCM models.
+             * @param addrateparameter Add a parameter that scales all rates. You can only use this if fixing branch lengths (fixbrlen =! 0)
              *
              * @param recursion Recursion method used for likelihood. Can be "S" for simple or "D" for double.
              * 

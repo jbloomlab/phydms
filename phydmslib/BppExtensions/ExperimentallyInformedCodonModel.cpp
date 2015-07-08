@@ -53,8 +53,7 @@
 bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonModel(
     const bpp::GeneticCode* gCode,
     bpp::FrequenciesSet* preferences,
-    const std::string& prefix,
-    bool addrateparameter) :
+    const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractCodonSubstitutionModel(gCode, new bpp::K80(dynamic_cast<const bpp::CodonAlphabet*>(gCode->getSourceAlphabet())->getNucleicAlphabet()), prefix),
   AbstractCodonPhaseFrequenciesSubstitutionModel(bpp::CodonFrequenciesSet::getFrequenciesSetForCodons(bpp::CodonFrequenciesSet::F1X4, gCode), prefix),
@@ -74,9 +73,6 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
 //  if (! fixpreferences) {
 //    addParameters_(preferences_->getParameters());
 //  }
-  if (addrateparameter) {
-      addParameter_(new bpp::Parameter(prefix + "rateparameter", 1, new bpp::IntervalConstraint(0.0001, 1000, true, true), true));
-  }
   addParameter_(new bpp::Parameter(prefix + "omega", 1, new bpp::IntervalConstraint(0.001, 99, true, true), true));
   addParameter_(new bpp::Parameter(prefix + "stringencyparameter", 1, new bpp::IntervalConstraint(0.01, 99, true, true), true));
   updateMatrices();

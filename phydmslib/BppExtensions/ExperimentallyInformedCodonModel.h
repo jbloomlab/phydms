@@ -60,8 +60,6 @@ namespace bppextensions
    *
    * @param prefix The name prefixed to the model, such as "ExpCM_residue_1."
    *
-   * @param addrateparameter Include a free parameter that scales the substitution rate. This option would be used in the case that the branch lengths are fixed but you want to scale the rate. If addrateparameter is false, then the rate parameter is just fixed to 1.
-   *
    * Reference:
    * -  Bloom JD (2014), _Molecular Biology and Evolution_ 31(10):2753-2769.
    */
@@ -83,8 +81,7 @@ namespace bppextensions
     ExperimentallyInformedCodonModel(
         const bpp::GeneticCode* gCode,
         bpp::FrequenciesSet* preferences, 
-        const std::string& prefix,
-        bool addrateparameter);
+        const std::string& prefix);
 
     ExperimentallyInformedCodonModel(const ExperimentallyInformedCodonModel& model):
       AbstractParameterAliasable(model),

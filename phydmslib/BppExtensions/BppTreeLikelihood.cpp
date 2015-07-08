@@ -14,7 +14,6 @@
 #include <Bpp/Phyl/Model/Codon/YNGKP_M8.h>
 #include "BppTreeLikelihood.h"
 #include "ExperimentallyInformedCodonModel.h"
-#include "YN98WithRateParameter.h"
 
 // This function is a patch for the fact that there is a bug in some g++ so that to_string isn't included.
 // See: http://stackoverflow.com/questions/12975341/to-string-is-not-a-member-of-std-says-so-g
@@ -34,7 +33,7 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
 {
 
     // setup some parameters / options
-    oldlikmethod = (bool) oldlikelihoodmethod;
+    oldlikmethod = oldlikelihoodmethod != 0;
     verbose = false;
     optimizationparams["optimization.reparametrization"] = "false";
     optimizationparams["optimization.profiler"] = "none";
@@ -47,6 +46,14 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         optimizationparams["optimization.topology"] = "false";
     }
     optimizationparams["optimization.ignore_parameters"] = "";
+
+    // error checking on calling variables
+    if ((fixbrlen) && (infertopology)) {
+        throw std::runtime_error("Cannot use both infertopology and fixbrlen");
+    }
+    if ((addrateparameter) && (! fixbrlen)) {
+        throw std::runtime_error("Cannot use addrateparameter without fixbrlen");
+    }
 
     // Initialize to DNA alphabet of codons using standard genetic code
     ntalphabet = new bpp::DNA(false); // false indicates no gap characters other than -
@@ -84,9 +91,6 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         throw std::invalid_argument("seqs and treefile specify different size sequence sets");
     }
     if (fixbrlen) {
-        if (infertopology) {
-            throw std::runtime_error("Cannot use both infertopology and fixbrlen");
-        }
         if (optimizationparams["optimization.ignore_parameters"].empty()) {
             optimizationparams["optimization.ignore_parameters"] = "*BrLen*"; 
         } else {
@@ -111,13 +115,7 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         freqReader.setGeneticCode(gcode);
         auto_ptr<bpp::FrequenciesSet> codonFreqs(freqReader.read(alphabet, "F3X4", sites, false));
         bpp::SubstitutionModel *sharedmodel = 0;
-        if ((addrateparameter) && (modelstring.substr(6, 2) != "M0")) {
-            throw std::runtime_error("Cannot use addrateparameter with a YNGKP model other than M0");
-        }
-        else if ((addrateparameter) && (modelstring.substr(6, 2) == "M0")) {
-            sharedmodel = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::YN98WithRateParameter(gcode, codonFreqs.release()));
-        }
-        else if (modelstring.substr(6, 2) == "M0") {
+        if (modelstring.substr(6, 2) == "M0") {
             sharedmodel = dynamic_cast<bpp::SubstitutionModel*>(new bpp::YN98(gcode, codonFreqs.release()));
         }
         else if (modelstring.substr(6, 2) == "M7") {
@@ -133,6 +131,9 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
             models[sharedmodelindex] = sharedmodel;
         } else {
             throw std::runtime_error("Error casting sharedmodel");
+        }
+        if (addrateparameter) {
+            sharedmodel->addRateParameter();
         }
     } 
     else if (modelstring == "ExpCM") {
@@ -152,9 +153,12 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
             }
             init_rprefs[alphabet->getNumberOfTypes() - 1] = 0.0; // this is the ambiguous character code
             bpp::FullCodonFrequenciesSet *rprefs = new bpp::FullCodonFrequenciesSet(gcode, init_rprefs);
-            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM.", addrateparameter != 0));
+            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM."));
             if (! models[isite]) {
                 throw std::runtime_error("error casting ExperimentallyInformedCodonModel");
+            }
+            if (addrateparameter) {
+                models[isite]->addRateParameter();
             }
         }
     }
@@ -170,7 +174,6 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         for (std::map<std::string, double>::iterator itr = fixedmodelparams.begin(); itr != fixedmodelparams.end(); itr++) {
             for (std::map<size_t, bpp::SubstitutionModel*>::iterator imodel_itr = models.begin(); imodel_itr != models.end(); ++imodel_itr) {
                 if (imodel_itr->second->hasParameter(itr->first)) {
-                    cout << "Fixing parameter " << itr->first << "\n"; // debugging
                     imodel_itr->second->setParameterValue(itr->first, itr->second);
                 } else {
                     throw std::runtime_error("Cannot find parameter in fixedmodelparams: " + itr->first);

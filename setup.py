@@ -77,7 +77,6 @@ def extensions():
             'phydmslib/pybpp.pyx',\
             'phydmslib/BppExtensions/BppTreeLikelihood.cpp',\
             'phydmslib/BppExtensions/ExperimentallyInformedCodonModel.cpp',\
-            'phydmslib/BppExtensions/YN98WithRateParameter.cpp',\
             ]
     if dynamically_link_bpp:
         ext = [\
