@@ -220,7 +220,7 @@ def main():
         # optimize a different omega for each site
         if args['omegabysite']:
             fixedomegavalue = 1.0 # null model fixes omega to this value
-            excludeparams = ['omega', 'YNGKP_M7.p', 'YNGKP_M7.q', 'YNGKP_M8.p', 'YNGKP_M8.p0', 'YNGKP_M8.q'] # parameters related to omega, do not fix
+            excludeparams = ['omega', 'p', 'q', 'omegas', 'p0'] # parameters related to omega, do not fix
             fixedmodelparams = {}
             for (param, value) in allmodelparams.items():
                 for excludeparam in excludeparams:
