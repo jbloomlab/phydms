@@ -219,7 +219,8 @@ def main():
 
         # optimize a different omega for each site
         if args['omegabysite']:
-            excludeparams = ['omega', 'YNGKP_M7.p', 'YNGKP_M7.q', 'YNGKP_M8.p', 'YNGKP_M8.p0', 'YNGKP_M8.q'] # parameters related to omega
+            fixedomegavalue = 1.0 # null model fixes omega to this value
+            excludeparams = ['omega', 'YNGKP_M7.p', 'YNGKP_M7.q', 'YNGKP_M8.p', 'YNGKP_M8.p0', 'YNGKP_M8.q'] # parameters related to omega, do not fix
             fixedmodelparams = {}
             for (param, value) in allmodelparams.items():
                 for excludeparam in excludeparams:
@@ -229,24 +230,35 @@ def main():
                     fixedmodelparams[param] = value
             logger.info('Now optimizing a different omega for each site while keeping branch lengths and other model parameters fixed (but adding a rate parameter that effectively scales the branch lengths).')
             logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
-            logger.info('The model parameters (other than omega and the rate) will be to fixed to the following:\n\t%s' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
-#        for icodon in range(len(seqs[0]) // 3):
-#            if model[ : 7] == 'YNGKP_M':
-#                imodel = 'YNGKP_M0_fitF3X4' # a single omega for the site
-#            elif isinstance(model, tuple) and model[0] == 'ExpCM':
-#                imodel = ('ExpCM', {icodon + 1:aaprefs[icodon + 1]})
-#            else:
-#                raise ValueError("Invalid model")
-#            iseqs = [seq[3 * icodon : 3 * icodon + 3] for seq in seqs]
-#            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, recursion=args['recursion']) # debugging
-            logger.info('Setting up Bio++ object to evaluate likelihoods with these fixed parameters.')
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, treefile, model, infertopology=False, fixedmodelparams=fixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=True, recursion=args['recursion']) # debugging
-            logger.info('Now optimizing the likelihood...')
-            tl.OptimizeLikelihood()
-            logger.info('Likelihood optimization complete.')
-            logger.info("log likelihood: " + str(tl.LogLikelihood())) # debugging
-            logger.info("model params: " + str(tl.ModelParams(True))) # debugging
-            logger.info("all model params: " + str(tl.ModelParams(False))) # debugging
+            logger.info('The model parameters (other than omega and the rate) will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
+            fitomegaresults = {} # keyed by site, values dict with results for site
+            for icodon in range(1, len(seqs[0]) // 3 + 1):
+                fitomegaresults[icodon] = {}
+                logger.info('Fitting models for site %d with omega as a free parameter and fixed to %.2f.' % (icodon, fixedomegavalue))
+                if model[ : 7] == 'YNGKP_M':
+                    imodel = 'YNGKP_M0_fitF3X4' # single omega for the site, M0 model
+                elif isinstance(model, tuple) and model[0] == 'ExpCM':
+                    imodel = ('ExpCM', {icodon:aaprefs[icodon]})
+                else:
+                    raise ValueError("Invalid model")
+                iseqs = [seq[3 * icodon  - 3 : 3 * icodon] for seq in seqs]
+                for fitomega in ['fitted', 'fixed']:
+                    ifixedmodelparams = dict([(param, value) for (param, value) in fixedmodelparams.items()])
+                    if fitomega == 'fixed':
+                        ifixedmodelparams['omega'] = fixedomegavalue
+                    logger.info('Setting up Bio++ object to evaluate site likelihood with a %s omega...' % fitomega)
+                    tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=True, recursion=args['recursion']) 
+                    logger.info('Now optimizing the site likelihood...')
+                    tl.OptimizeLikelihood()
+                    fitomegaresults[icodon][fitomega] = {\
+                            'log likelihood':tl.LogLikelihood(),\
+                            'model parameters':tl.ModelParams(True),\
+                            'all model parameters':tl.ModelParams(True),\
+                            }
+                    logger.info('Completed optimizing the site likelihood with %s omega:\n\tlog likelihood: %g\n\tfitted model parameters: %s\n\tall model parameters: %s' % (fitomega, tl.LogLikelihood(), ', '.join(['%s = %g' % tup for tup in tl.ModelParams(True).items()]), ', '.join(['%s = %g' % tup for tup in tl.ModelParams(False).items()])))
+                fitomegaresults[icodon]['omega'] = fitomegaresults[icodon]['fitted']['model parameters']['omega']
+                fitomegaresults[icodon]['dLnL'] = fitomegaresults[icodon]['fitted']['log likelihood'] - fitomegaresults[icodon]['fixed']['log likelihood']
+                logger.info('For site %d, fitting omega to a value of %.2f increases the log likelihood by %.2f relative to a model that fixes omega at %.2f.\n' % (icodon, fitomegaresults[icodon]['omega'], fitomegaresults[icodon]['dLnL'], fixedomegavalue))
 
     except:
         logger.exception('Terminating %s at %s with ERROR' % (prog, time.asctime()))    

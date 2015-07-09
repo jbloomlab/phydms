@@ -8,6 +8,7 @@
 #include <exception>
 #include <string>
 #include <sstream>
+#include <Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h>
 #include <Bpp/Phyl/Io/BppOFrequenciesSetFormat.h>
 #include <Bpp/Phyl/Model/Codon/YN98.h>
 #include <Bpp/Phyl/Model/Codon/YNGKP_M7.h>
@@ -111,10 +112,11 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
             throw std::invalid_argument("Invalid YNGKP frequencies method");
         }
         // These next few lines parallel bpp::PhylogeneticsApplicationTools::getSubstitutionModel to set up models
+        bpp::SubstitutionModel *sharedmodel = 0;
         bpp::BppOFrequenciesSetFormat freqReader(bpp::BppOFrequenciesSetFormat::ALL, verbose, 1);
         freqReader.setGeneticCode(gcode);
-        auto_ptr<bpp::FrequenciesSet> codonFreqs(freqReader.read(alphabet, "F3X4", sites, false));
-        bpp::SubstitutionModel *sharedmodel = 0;
+        auto_ptr<bpp::FrequenciesSet> codonFreqs(freqReader.read(alphabet, "F3X4", sites, true));
+        // now set up the models
         if (modelstring.substr(6, 2) == "M0") {
             sharedmodel = dynamic_cast<bpp::SubstitutionModel*>(new bpp::YN98(gcode, codonFreqs.release()));
         }
@@ -126,12 +128,17 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         } else {
             throw std::invalid_argument("Invalid model variant of YNGKP");
         }
-        if (sharedmodel) {
-            sharedmodel->setFreqFromData(*sites, 0);
-            models[sharedmodelindex] = sharedmodel;
-        } else {
+        if (! sharedmodel) {
             throw std::runtime_error("Error casting sharedmodel");
         }
+        if (nsites == 1) {
+            // add a pseudocount if only one site, as some frequencies are likely to be near zero
+            sharedmodel->setFreqFromData(*sites, 0.1);
+        }
+        else {
+            sharedmodel->setFreqFromData(*sites, 0);
+        }
+        models[sharedmodelindex] = sharedmodel;
         if (addrateparameter) {
             sharedmodel->addRateParameter();
         }
