@@ -101,7 +101,7 @@ cdef class PyBppTreeLikelihood:
 
         * *addrateparameter* is a Boolean switch specifying that we add a 
           parameter that scales the rates. Only makes sense when *fixbrlen*
-          is *True*. Can only be used for *YNGKP_M0* and *ExpCM* models.
+          is *True*. 
 
         * *recursion* is the ``Bio++`` likelihood recursion, which can be 'S' (simple)
           or 'D' (double).
@@ -146,8 +146,6 @@ cdef class PyBppTreeLikelihood:
             modelvariant = int(yngkp_match.search(model).group('modelvariant'))
             if modelvariant != 0 and infertopology:
                 raise ValueError("Cannot infer topology with %s" % model)
-            if modelvariant != 0 and addrateparameter:
-                raise ValueError("Cannot addrateparameter with %s" % model)
         elif isinstance(model, tuple) and len(model) == 2 and model[0] == 'ExpCM':
             assert isinstance(model[1], dict), "Second entry in model tuple not preferences dict"
             for (r, rprefs) in model[1].items():

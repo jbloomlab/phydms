@@ -98,8 +98,6 @@ def main():
             modelvariant = yngkp_match.search(args['model']).group('modelvariant')
             if args['infertopology'] and int(modelvariant) != 0:
                 raise ValueError("You cannot use '--infertopology' with model %s" % args['model'])
-            if args['addrateparameter'] and int(modelvariant) != 0:
-                raise ValueError("You cannot use --addrateparameter with any YNGKP model except M0")
             logger.info('The codon substitution model with be the M%s version of YNGKP (Yang, Nielsen, Goldman, and Pederson. Genetics. 155:431-449).' % modelvariant)
             if args['fitF3X4']:
                 logger.info('The codon equilibrium frequencies will be set by F3X4, optimizing the nine nucleotide frequencies by maximum likelihood.\n')
@@ -229,9 +227,9 @@ def main():
                         break
                 else:
                     fixedmodelparams[param] = value
-            logger.info('Now optimizing a different omega for each site while keeping branch lengths and other model parameters fixed.')
+            logger.info('Now optimizing a different omega for each site while keeping branch lengths and other model parameters fixed (but adding a rate parameter that effectively scales the branch lengths).')
             logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
-            logger.info('The model parameters will be to fixed to the following:\n\t%s' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
+            logger.info('The model parameters (other than omega and the rate) will be to fixed to the following:\n\t%s' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
 #        for icodon in range(len(seqs[0]) // 3):
 #            if model[ : 7] == 'YNGKP_M':
 #                imodel = 'YNGKP_M0_fitF3X4' # a single omega for the site

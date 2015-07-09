@@ -908,7 +908,6 @@ static char __pyx_k_IUPACUnambiguousDNA[] = "IUPACUnambiguousDNA";
 static char __pyx_k_oldlikelihoodmethod[] = "oldlikelihoodmethod";
 static char __pyx_k_recursion_must_be_S_or_D[] = "recursion must be 'S' or 'D'";
 static char __pyx_k_Cannot_infer_topology_with_s[] = "Cannot infer topology with %s";
-static char __pyx_k_Cannot_addrateparameter_with_s[] = "Cannot addrateparameter with %s";
 static char __pyx_k_YNGKP_M_P_modelvariant_d___emp[] = "^YNGKP_M(?P<modelvariant>\\d+)_(emp|fit)F3X4$";
 static char __pyx_k_seqnames_has_duplicate_entries[] = "seqnames has duplicate entries";
 static char __pyx_k_Second_entry_in_model_tuple_not[] = "Second entry in model tuple not preferences dict";
@@ -932,7 +931,6 @@ static PyObject *__pyx_n_s_Bio;
 static PyObject *__pyx_n_s_Bio_Alphabet_IUPAC;
 static PyObject *__pyx_n_s_Bio_Phylo;
 static PyObject *__pyx_n_s_Bio_Seq;
-static PyObject *__pyx_kp_s_Cannot_addrateparameter_with_s;
 static PyObject *__pyx_kp_s_Cannot_infer_topology_with_s;
 static PyObject *__pyx_n_s_D;
 static PyObject *__pyx_kp_s_Duplicated_model_param_s_after_c;
@@ -2359,7 +2357,7 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
  *             modelvariant = int(yngkp_match.search(model).group('modelvariant'))
  *             if modelvariant != 0 and infertopology:             # <<<<<<<<<<<<<<
  *                 raise ValueError("Cannot infer topology with %s" % model)
- *             if modelvariant != 0 and addrateparameter:
+ *         elif isinstance(model, tuple) and len(model) == 2 and model[0] == 'ExpCM':
  */
     __pyx_t_1 = PyObject_RichCompare(__pyx_v_modelvariant, __pyx_int_0, Py_NE); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 147; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_13 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 147; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -2378,8 +2376,8 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
  *             modelvariant = int(yngkp_match.search(model).group('modelvariant'))
  *             if modelvariant != 0 and infertopology:
  *                 raise ValueError("Cannot infer topology with %s" % model)             # <<<<<<<<<<<<<<
- *             if modelvariant != 0 and addrateparameter:
- *                 raise ValueError("Cannot addrateparameter with %s" % model)
+ *         elif isinstance(model, tuple) and len(model) == 2 and model[0] == 'ExpCM':
+ *             assert isinstance(model[1], dict), "Second entry in model tuple not preferences dict"
  */
       __pyx_t_1 = __Pyx_PyString_Format(__pyx_kp_s_Cannot_infer_topology_with_s, __pyx_v_model); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 148; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_1);
@@ -2395,54 +2393,12 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       {__pyx_filename = __pyx_f[0]; __pyx_lineno = 148; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     }
-
-    /* "phydmslib/pybpp.pyx":149
- *             if modelvariant != 0 and infertopology:
- *                 raise ValueError("Cannot infer topology with %s" % model)
- *             if modelvariant != 0 and addrateparameter:             # <<<<<<<<<<<<<<
- *                 raise ValueError("Cannot addrateparameter with %s" % model)
- *         elif isinstance(model, tuple) and len(model) == 2 and model[0] == 'ExpCM':
- */
-    __pyx_t_1 = PyObject_RichCompare(__pyx_v_modelvariant, __pyx_int_0, Py_NE); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 149; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_13 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 149; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (__pyx_t_13) {
-    } else {
-      __pyx_t_12 = __pyx_t_13;
-      goto __pyx_L41_bool_binop_done;
-    }
-    __pyx_t_13 = (__pyx_v_addrateparameter != 0);
-    __pyx_t_12 = __pyx_t_13;
-    __pyx_L41_bool_binop_done:;
-    if (__pyx_t_12) {
-
-      /* "phydmslib/pybpp.pyx":150
- *                 raise ValueError("Cannot infer topology with %s" % model)
- *             if modelvariant != 0 and addrateparameter:
- *                 raise ValueError("Cannot addrateparameter with %s" % model)             # <<<<<<<<<<<<<<
- *         elif isinstance(model, tuple) and len(model) == 2 and model[0] == 'ExpCM':
- *             assert isinstance(model[1], dict), "Second entry in model tuple not preferences dict"
- */
-      __pyx_t_1 = __Pyx_PyString_Format(__pyx_kp_s_Cannot_addrateparameter_with_s, __pyx_v_model); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 150; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 150; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_GOTREF(__pyx_t_2);
-      PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1);
-      __Pyx_GIVEREF(__pyx_t_1);
-      __pyx_t_1 = 0;
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_t_2, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 150; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_GOTREF(__pyx_t_1);
-      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __Pyx_Raise(__pyx_t_1, 0, 0, 0);
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 150; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    }
     goto __pyx_L34;
   }
 
-  /* "phydmslib/pybpp.pyx":151
- *             if modelvariant != 0 and addrateparameter:
- *                 raise ValueError("Cannot addrateparameter with %s" % model)
+  /* "phydmslib/pybpp.pyx":149
+ *             if modelvariant != 0 and infertopology:
+ *                 raise ValueError("Cannot infer topology with %s" % model)
  *         elif isinstance(model, tuple) and len(model) == 2 and model[0] == 'ExpCM':             # <<<<<<<<<<<<<<
  *             assert isinstance(model[1], dict), "Second entry in model tuple not preferences dict"
  *             for (r, rprefs) in model[1].items():
@@ -2452,25 +2408,25 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
   if (__pyx_t_16) {
   } else {
     __pyx_t_12 = __pyx_t_16;
-    goto __pyx_L43_bool_binop_done;
+    goto __pyx_L40_bool_binop_done;
   }
-  __pyx_t_3 = PyObject_Length(__pyx_v_model); if (unlikely(__pyx_t_3 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = PyObject_Length(__pyx_v_model); if (unlikely(__pyx_t_3 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 149; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_t_16 = ((__pyx_t_3 == 2) != 0);
   if (__pyx_t_16) {
   } else {
     __pyx_t_12 = __pyx_t_16;
-    goto __pyx_L43_bool_binop_done;
+    goto __pyx_L40_bool_binop_done;
   }
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_model, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(__pyx_t_1 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_model, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(__pyx_t_1 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 149; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_16 = (__Pyx_PyString_Equals(__pyx_t_1, __pyx_n_s_ExpCM, Py_EQ)); if (unlikely(__pyx_t_16 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_16 = (__Pyx_PyString_Equals(__pyx_t_1, __pyx_n_s_ExpCM, Py_EQ)); if (unlikely(__pyx_t_16 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 149; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_12 = __pyx_t_16;
-  __pyx_L43_bool_binop_done:;
+  __pyx_L40_bool_binop_done:;
   if (__pyx_t_12) {
 
-    /* "phydmslib/pybpp.pyx":152
- *                 raise ValueError("Cannot addrateparameter with %s" % model)
+    /* "phydmslib/pybpp.pyx":150
+ *                 raise ValueError("Cannot infer topology with %s" % model)
  *         elif isinstance(model, tuple) and len(model) == 2 and model[0] == 'ExpCM':
  *             assert isinstance(model[1], dict), "Second entry in model tuple not preferences dict"             # <<<<<<<<<<<<<<
  *             for (r, rprefs) in model[1].items():
@@ -2478,27 +2434,27 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
  */
     #ifndef CYTHON_WITHOUT_ASSERTIONS
     if (unlikely(!Py_OptimizeFlag)) {
-      __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_model, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(__pyx_t_1 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 152; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+      __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_model, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(__pyx_t_1 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 150; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
       __Pyx_GOTREF(__pyx_t_1);
       __pyx_t_12 = PyDict_Check(__pyx_t_1); 
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       if (unlikely(!(__pyx_t_12 != 0))) {
         PyErr_SetObject(PyExc_AssertionError, __pyx_kp_s_Second_entry_in_model_tuple_not);
-        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 152; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 150; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       }
     }
     #endif
 
-    /* "phydmslib/pybpp.pyx":153
+    /* "phydmslib/pybpp.pyx":151
  *         elif isinstance(model, tuple) and len(model) == 2 and model[0] == 'ExpCM':
  *             assert isinstance(model[1], dict), "Second entry in model tuple not preferences dict"
  *             for (r, rprefs) in model[1].items():             # <<<<<<<<<<<<<<
  *                 assert isinstance(r, int) and isinstance(rprefs, dict), "preferences must by int keys, dict values"
  *                 for codon in self.codons:
  */
-    __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_model, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(__pyx_t_2 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+    __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_model, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(__pyx_t_2 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_items); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_items); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_t_2 = NULL;
@@ -2512,10 +2468,10 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
       }
     }
     if (__pyx_t_2) {
-      __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     } else {
-      __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_7); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_7); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     }
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
@@ -2523,9 +2479,9 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
       __pyx_t_7 = __pyx_t_1; __Pyx_INCREF(__pyx_t_7); __pyx_t_3 = 0;
       __pyx_t_14 = NULL;
     } else {
-      __pyx_t_3 = -1; __pyx_t_7 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = -1; __pyx_t_7 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_7);
-      __pyx_t_14 = Py_TYPE(__pyx_t_7)->tp_iternext; if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_14 = Py_TYPE(__pyx_t_7)->tp_iternext; if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     }
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     for (;;) {
@@ -2533,16 +2489,16 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
         if (likely(PyList_CheckExact(__pyx_t_7))) {
           if (__pyx_t_3 >= PyList_GET_SIZE(__pyx_t_7)) break;
           #if CYTHON_COMPILING_IN_CPYTHON
-          __pyx_t_1 = PyList_GET_ITEM(__pyx_t_7, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_1 = PyList_GET_ITEM(__pyx_t_7, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           #else
-          __pyx_t_1 = PySequence_ITEM(__pyx_t_7, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_1 = PySequence_ITEM(__pyx_t_7, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           #endif
         } else {
           if (__pyx_t_3 >= PyTuple_GET_SIZE(__pyx_t_7)) break;
           #if CYTHON_COMPILING_IN_CPYTHON
-          __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_7, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_7, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           #else
-          __pyx_t_1 = PySequence_ITEM(__pyx_t_7, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_1 = PySequence_ITEM(__pyx_t_7, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           #endif
         }
       } else {
@@ -2551,7 +2507,7 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(exc_type == PyExc_StopIteration || PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           }
           break;
         }
@@ -2567,7 +2523,7 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
         if (unlikely(size != 2)) {
           if (size > 2) __Pyx_RaiseTooManyValuesError(2);
           else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
         #if CYTHON_COMPILING_IN_CPYTHON
         if (likely(PyTuple_CheckExact(sequence))) {
@@ -2580,39 +2536,39 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
         __Pyx_INCREF(__pyx_t_2);
         __Pyx_INCREF(__pyx_t_5);
         #else
-        __pyx_t_2 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_2 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_2);
-        __pyx_t_5 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_5 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_5);
         #endif
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       } else {
         Py_ssize_t index = -1;
-        __pyx_t_10 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_10 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_10);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __pyx_t_17 = Py_TYPE(__pyx_t_10)->tp_iternext;
-        index = 0; __pyx_t_2 = __pyx_t_17(__pyx_t_10); if (unlikely(!__pyx_t_2)) goto __pyx_L48_unpacking_failed;
+        index = 0; __pyx_t_2 = __pyx_t_17(__pyx_t_10); if (unlikely(!__pyx_t_2)) goto __pyx_L45_unpacking_failed;
         __Pyx_GOTREF(__pyx_t_2);
-        index = 1; __pyx_t_5 = __pyx_t_17(__pyx_t_10); if (unlikely(!__pyx_t_5)) goto __pyx_L48_unpacking_failed;
+        index = 1; __pyx_t_5 = __pyx_t_17(__pyx_t_10); if (unlikely(!__pyx_t_5)) goto __pyx_L45_unpacking_failed;
         __Pyx_GOTREF(__pyx_t_5);
-        if (__Pyx_IternextUnpackEndCheck(__pyx_t_17(__pyx_t_10), 2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        if (__Pyx_IternextUnpackEndCheck(__pyx_t_17(__pyx_t_10), 2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __pyx_t_17 = NULL;
         __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-        goto __pyx_L49_unpacking_done;
-        __pyx_L48_unpacking_failed:;
+        goto __pyx_L46_unpacking_done;
+        __pyx_L45_unpacking_failed:;
         __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
         __pyx_t_17 = NULL;
         if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-        __pyx_L49_unpacking_done:;
+        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 151; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_L46_unpacking_done:;
       }
       __Pyx_XDECREF_SET(__pyx_v_r, __pyx_t_2);
       __pyx_t_2 = 0;
       __Pyx_XDECREF_SET(__pyx_v_rprefs, __pyx_t_5);
       __pyx_t_5 = 0;
 
-      /* "phydmslib/pybpp.pyx":154
+      /* "phydmslib/pybpp.pyx":152
  *             assert isinstance(model[1], dict), "Second entry in model tuple not preferences dict"
  *             for (r, rprefs) in model[1].items():
  *                 assert isinstance(r, int) and isinstance(rprefs, dict), "preferences must by int keys, dict values"             # <<<<<<<<<<<<<<
@@ -2626,20 +2582,20 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
         if (__pyx_t_13) {
         } else {
           __pyx_t_12 = __pyx_t_13;
-          goto __pyx_L50_bool_binop_done;
+          goto __pyx_L47_bool_binop_done;
         }
         __pyx_t_13 = PyDict_Check(__pyx_v_rprefs); 
         __pyx_t_16 = (__pyx_t_13 != 0);
         __pyx_t_12 = __pyx_t_16;
-        __pyx_L50_bool_binop_done:;
+        __pyx_L47_bool_binop_done:;
         if (unlikely(!__pyx_t_12)) {
           PyErr_SetObject(PyExc_AssertionError, __pyx_kp_s_preferences_must_by_int_keys_dic);
-          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 154; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 152; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
       }
       #endif
 
-      /* "phydmslib/pybpp.pyx":155
+      /* "phydmslib/pybpp.pyx":153
  *             for (r, rprefs) in model[1].items():
  *                 assert isinstance(r, int) and isinstance(rprefs, dict), "preferences must by int keys, dict values"
  *                 for codon in self.codons:             # <<<<<<<<<<<<<<
@@ -2648,20 +2604,20 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
  */
       if (unlikely(__pyx_v_self->codons == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 155; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       }
       __pyx_t_1 = __pyx_v_self->codons; __Pyx_INCREF(__pyx_t_1); __pyx_t_6 = 0;
       for (;;) {
         if (__pyx_t_6 >= PyList_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_COMPILING_IN_CPYTHON
-        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_6); __Pyx_INCREF(__pyx_t_5); __pyx_t_6++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 155; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_6); __Pyx_INCREF(__pyx_t_5); __pyx_t_6++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_1, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 155; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_1, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         #endif
         __Pyx_XDECREF_SET(__pyx_v_codon, __pyx_t_5);
         __pyx_t_5 = 0;
 
-        /* "phydmslib/pybpp.pyx":156
+        /* "phydmslib/pybpp.pyx":154
  *                 assert isinstance(r, int) and isinstance(rprefs, dict), "preferences must by int keys, dict values"
  *                 for codon in self.codons:
  *                     aa = self.codon_to_aa[codon]             # <<<<<<<<<<<<<<
@@ -2670,89 +2626,89 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
  */
         if (unlikely(__pyx_v_self->codon_to_aa == Py_None)) {
           PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 156; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 154; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
-        __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_self->codon_to_aa, __pyx_v_codon); if (unlikely(__pyx_t_5 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 156; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+        __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_self->codon_to_aa, __pyx_v_codon); if (unlikely(__pyx_t_5 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 154; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_XDECREF_SET(__pyx_v_aa, __pyx_t_5);
         __pyx_t_5 = 0;
 
-        /* "phydmslib/pybpp.pyx":157
+        /* "phydmslib/pybpp.pyx":155
  *                 for codon in self.codons:
  *                     aa = self.codon_to_aa[codon]
  *                     if aa in self.aminoacids:             # <<<<<<<<<<<<<<
  *                         preferences[r][codon] = rprefs[aa]
  *                     elif aa == '*':
  */
-        __pyx_t_12 = (__Pyx_PySequence_Contains(__pyx_v_aa, __pyx_v_self->aminoacids, Py_EQ)); if (unlikely(__pyx_t_12 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 157; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_12 = (__Pyx_PySequence_Contains(__pyx_v_aa, __pyx_v_self->aminoacids, Py_EQ)); if (unlikely(__pyx_t_12 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 155; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __pyx_t_16 = (__pyx_t_12 != 0);
         if (__pyx_t_16) {
 
-          /* "phydmslib/pybpp.pyx":158
+          /* "phydmslib/pybpp.pyx":156
  *                     aa = self.codon_to_aa[codon]
  *                     if aa in self.aminoacids:
  *                         preferences[r][codon] = rprefs[aa]             # <<<<<<<<<<<<<<
  *                     elif aa == '*':
  *                         preferences[r][codon] = 0.0
  */
-          __pyx_t_5 = PyObject_GetItem(__pyx_v_rprefs, __pyx_v_aa); if (unlikely(__pyx_t_5 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 158; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+          __pyx_t_5 = PyObject_GetItem(__pyx_v_rprefs, __pyx_v_aa); if (unlikely(__pyx_t_5 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 156; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
           __Pyx_GOTREF(__pyx_t_5);
-          __pyx_t_18 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_18 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 158; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_18 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_18 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 156; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-          __pyx_t_19 = __Pyx_PyInt_As_int(__pyx_v_r); if (unlikely((__pyx_t_19 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 158; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-          __pyx_t_20 = __pyx_convert_string_from_py_std__string(__pyx_v_codon); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 158; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_19 = __Pyx_PyInt_As_int(__pyx_v_r); if (unlikely((__pyx_t_19 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 156; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_20 = __pyx_convert_string_from_py_std__string(__pyx_v_codon); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 156; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           ((__pyx_v_preferences[__pyx_t_19])[__pyx_t_20]) = __pyx_t_18;
-          goto __pyx_L54;
+          goto __pyx_L51;
         }
 
-        /* "phydmslib/pybpp.pyx":159
+        /* "phydmslib/pybpp.pyx":157
  *                     if aa in self.aminoacids:
  *                         preferences[r][codon] = rprefs[aa]
  *                     elif aa == '*':             # <<<<<<<<<<<<<<
  *                         preferences[r][codon] = 0.0
  *                     else:
  */
-        __pyx_t_16 = (__Pyx_PyString_Equals(__pyx_v_aa, __pyx_kp_s__4, Py_EQ)); if (unlikely(__pyx_t_16 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 159; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_16 = (__Pyx_PyString_Equals(__pyx_v_aa, __pyx_kp_s__4, Py_EQ)); if (unlikely(__pyx_t_16 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 157; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         if (__pyx_t_16) {
 
-          /* "phydmslib/pybpp.pyx":160
+          /* "phydmslib/pybpp.pyx":158
  *                         preferences[r][codon] = rprefs[aa]
  *                     elif aa == '*':
  *                         preferences[r][codon] = 0.0             # <<<<<<<<<<<<<<
  *                     else:
  *                         raise ValueError("Invalid aa of %s" % aa)
  */
-          __pyx_t_19 = __Pyx_PyInt_As_int(__pyx_v_r); if (unlikely((__pyx_t_19 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 160; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-          __pyx_t_20 = __pyx_convert_string_from_py_std__string(__pyx_v_codon); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 160; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_19 = __Pyx_PyInt_As_int(__pyx_v_r); if (unlikely((__pyx_t_19 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 158; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_20 = __pyx_convert_string_from_py_std__string(__pyx_v_codon); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 158; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           ((__pyx_v_preferences[__pyx_t_19])[__pyx_t_20]) = 0.0;
-          goto __pyx_L54;
+          goto __pyx_L51;
         }
         /*else*/ {
 
-          /* "phydmslib/pybpp.pyx":162
+          /* "phydmslib/pybpp.pyx":160
  *                         preferences[r][codon] = 0.0
  *                     else:
  *                         raise ValueError("Invalid aa of %s" % aa)             # <<<<<<<<<<<<<<
  *                     assert isinstance(preferences[r][codon], float), "preference not a number for site %d codon %d" % (r, codon)
  *             model = 'ExpCM'
  */
-          __pyx_t_5 = __Pyx_PyString_Format(__pyx_kp_s_Invalid_aa_of_s, __pyx_v_aa); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 162; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_5 = __Pyx_PyString_Format(__pyx_kp_s_Invalid_aa_of_s, __pyx_v_aa); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 160; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_5);
-          __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 162; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 160; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_2);
           PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_5);
           __Pyx_GIVEREF(__pyx_t_5);
           __pyx_t_5 = 0;
-          __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_t_2, NULL); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 162; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_t_2, NULL); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 160; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_5);
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
           __Pyx_Raise(__pyx_t_5, 0, 0, 0);
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 162; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 160; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
-        __pyx_L54:;
+        __pyx_L51:;
 
-        /* "phydmslib/pybpp.pyx":163
+        /* "phydmslib/pybpp.pyx":161
  *                     else:
  *                         raise ValueError("Invalid aa of %s" % aa)
  *                     assert isinstance(preferences[r][codon], float), "preference not a number for site %d codon %d" % (r, codon)             # <<<<<<<<<<<<<<
@@ -2761,14 +2717,14 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
  */
         #ifndef CYTHON_WITHOUT_ASSERTIONS
         if (unlikely(!Py_OptimizeFlag)) {
-          __pyx_t_19 = __Pyx_PyInt_As_int(__pyx_v_r); if (unlikely((__pyx_t_19 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 163; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-          __pyx_t_20 = __pyx_convert_string_from_py_std__string(__pyx_v_codon); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 163; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-          __pyx_t_5 = PyFloat_FromDouble(((__pyx_v_preferences[__pyx_t_19])[__pyx_t_20])); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 163; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_19 = __Pyx_PyInt_As_int(__pyx_v_r); if (unlikely((__pyx_t_19 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 161; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_20 = __pyx_convert_string_from_py_std__string(__pyx_v_codon); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 161; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_5 = PyFloat_FromDouble(((__pyx_v_preferences[__pyx_t_19])[__pyx_t_20])); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 161; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_5);
           __pyx_t_16 = PyFloat_Check(__pyx_t_5); 
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           if (unlikely(!(__pyx_t_16 != 0))) {
-            __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 163; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 161; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_5);
             __Pyx_INCREF(__pyx_v_r);
             PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_v_r);
@@ -2776,17 +2732,17 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
             __Pyx_INCREF(__pyx_v_codon);
             PyTuple_SET_ITEM(__pyx_t_5, 1, __pyx_v_codon);
             __Pyx_GIVEREF(__pyx_v_codon);
-            __pyx_t_2 = __Pyx_PyString_Format(__pyx_kp_s_preference_not_a_number_for_site, __pyx_t_5); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 163; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_2 = __Pyx_PyString_Format(__pyx_kp_s_preference_not_a_number_for_site, __pyx_t_5); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 161; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_2);
             __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
             PyErr_SetObject(PyExc_AssertionError, __pyx_t_2);
             __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-            {__pyx_filename = __pyx_f[0]; __pyx_lineno = 163; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            {__pyx_filename = __pyx_f[0]; __pyx_lineno = 161; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           }
         }
         #endif
 
-        /* "phydmslib/pybpp.pyx":155
+        /* "phydmslib/pybpp.pyx":153
  *             for (r, rprefs) in model[1].items():
  *                 assert isinstance(r, int) and isinstance(rprefs, dict), "preferences must by int keys, dict values"
  *                 for codon in self.codons:             # <<<<<<<<<<<<<<
@@ -2796,7 +2752,7 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
       }
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-      /* "phydmslib/pybpp.pyx":153
+      /* "phydmslib/pybpp.pyx":151
  *         elif isinstance(model, tuple) and len(model) == 2 and model[0] == 'ExpCM':
  *             assert isinstance(model[1], dict), "Second entry in model tuple not preferences dict"
  *             for (r, rprefs) in model[1].items():             # <<<<<<<<<<<<<<
@@ -2806,7 +2762,7 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
     }
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-    /* "phydmslib/pybpp.pyx":164
+    /* "phydmslib/pybpp.pyx":162
  *                         raise ValueError("Invalid aa of %s" % aa)
  *                     assert isinstance(preferences[r][codon], float), "preference not a number for site %d codon %d" % (r, codon)
  *             model = 'ExpCM'             # <<<<<<<<<<<<<<
@@ -2819,60 +2775,60 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
   }
   /*else*/ {
 
-    /* "phydmslib/pybpp.pyx":166
+    /* "phydmslib/pybpp.pyx":164
  *             model = 'ExpCM'
  *         else:
  *             raise ValueError("Invalid model of %s" % model)             # <<<<<<<<<<<<<<
  *         self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixedmodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, ord(recursion))
  *         if self.thisptr is NULL:
  */
-    __pyx_t_7 = __Pyx_PyString_Format(__pyx_kp_s_Invalid_model_of_s, __pyx_v_model); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 166; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_7 = __Pyx_PyString_Format(__pyx_kp_s_Invalid_model_of_s, __pyx_v_model); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 164; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 166; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 164; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_7);
     __Pyx_GIVEREF(__pyx_t_7);
     __pyx_t_7 = 0;
-    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_t_1, NULL); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 166; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_t_1, NULL); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 164; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_Raise(__pyx_t_7, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 166; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 164; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_L34:;
 
-  /* "phydmslib/pybpp.pyx":167
+  /* "phydmslib/pybpp.pyx":165
  *         else:
  *             raise ValueError("Invalid model of %s" % model)
  *         self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixedmodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, ord(recursion))             # <<<<<<<<<<<<<<
  *         if self.thisptr is NULL:
  *             raise MemoryError("Failed to allocate pointer to BppTreeLikelihood")
  */
-  __pyx_t_21 = __pyx_convert_vector_from_py_std_3a__3a_string(__pyx_v_seqnames); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_t_22 = __pyx_convert_vector_from_py_std_3a__3a_string(__pyx_v_seqs); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_t_20 = __pyx_convert_string_from_py_std__string(__pyx_v_treefile); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_t_23 = __pyx_convert_string_from_py_std__string(__pyx_v_model); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_t_24 = __pyx_convert_map_from_py_std_3a__3a_string____double(__pyx_v_fixedmodelparams); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_t_7 = PyTuple_New(1); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_21 = __pyx_convert_vector_from_py_std_3a__3a_string(__pyx_v_seqnames); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 165; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_22 = __pyx_convert_vector_from_py_std_3a__3a_string(__pyx_v_seqs); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 165; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_20 = __pyx_convert_string_from_py_std__string(__pyx_v_treefile); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 165; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_23 = __pyx_convert_string_from_py_std__string(__pyx_v_model); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 165; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_24 = __pyx_convert_map_from_py_std_3a__3a_string____double(__pyx_v_fixedmodelparams); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 165; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_7 = PyTuple_New(1); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 165; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_INCREF(__pyx_v_recursion);
   PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_v_recursion);
   __Pyx_GIVEREF(__pyx_v_recursion);
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_ord, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_ord, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 165; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_25 = __Pyx_PyInt_As_char(__pyx_t_1); if (unlikely((__pyx_t_25 == (char)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_25 = __Pyx_PyInt_As_char(__pyx_t_1); if (unlikely((__pyx_t_25 == (char)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 165; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   try {
     __pyx_t_26 = new bppextensions::BppTreeLikelihood(__pyx_t_21, __pyx_t_22, __pyx_t_20, __pyx_t_23, __pyx_v_infertopology, __pyx_v_preferences, __pyx_t_24, __pyx_v_oldlikelihoodmethod, __pyx_v_fixbrlen, __pyx_v_addrateparameter, __pyx_t_25);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 165; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_v_self->thisptr = __pyx_t_26;
 
-  /* "phydmslib/pybpp.pyx":168
+  /* "phydmslib/pybpp.pyx":166
  *             raise ValueError("Invalid model of %s" % model)
  *         self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixedmodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, ord(recursion))
  *         if self.thisptr is NULL:             # <<<<<<<<<<<<<<
@@ -2882,18 +2838,18 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
   __pyx_t_16 = ((__pyx_v_self->thisptr == NULL) != 0);
   if (__pyx_t_16) {
 
-    /* "phydmslib/pybpp.pyx":169
+    /* "phydmslib/pybpp.pyx":167
  *         self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixedmodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, ord(recursion))
  *         if self.thisptr is NULL:
  *             raise MemoryError("Failed to allocate pointer to BppTreeLikelihood")             # <<<<<<<<<<<<<<
  * 
  *     def __dealloc__(self):
  */
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__5, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 169; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__5, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 169; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
 
   /* "phydmslib/pybpp.pyx":116
@@ -2937,7 +2893,7 @@ static int __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood___cinit__(struct __p
   return __pyx_r;
 }
 
-/* "phydmslib/pybpp.pyx":171
+/* "phydmslib/pybpp.pyx":169
  *             raise MemoryError("Failed to allocate pointer to BppTreeLikelihood")
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -2961,7 +2917,7 @@ static void __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_2__dealloc__(struct
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "phydmslib/pybpp.pyx":173
+  /* "phydmslib/pybpp.pyx":171
  *     def __dealloc__(self):
  *         """Deallocate object"""
  *         if self.thisptr is not NULL:             # <<<<<<<<<<<<<<
@@ -2971,7 +2927,7 @@ static void __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_2__dealloc__(struct
   __pyx_t_1 = ((__pyx_v_self->thisptr != NULL) != 0);
   if (__pyx_t_1) {
 
-    /* "phydmslib/pybpp.pyx":174
+    /* "phydmslib/pybpp.pyx":172
  *         """Deallocate object"""
  *         if self.thisptr is not NULL:
  *             del self.thisptr             # <<<<<<<<<<<<<<
@@ -2983,7 +2939,7 @@ static void __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_2__dealloc__(struct
   }
   __pyx_L3:;
 
-  /* "phydmslib/pybpp.pyx":171
+  /* "phydmslib/pybpp.pyx":169
  *             raise MemoryError("Failed to allocate pointer to BppTreeLikelihood")
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -2995,7 +2951,7 @@ static void __pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_2__dealloc__(struct
   __Pyx_RefNannyFinishContext();
 }
 
-/* "phydmslib/pybpp.pyx":176
+/* "phydmslib/pybpp.pyx":174
  *             del self.thisptr
  * 
  *     def NSeqs(self):             # <<<<<<<<<<<<<<
@@ -3026,7 +2982,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_4NSeqs(struct 
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("NSeqs", 0);
 
-  /* "phydmslib/pybpp.pyx":178
+  /* "phydmslib/pybpp.pyx":176
  *     def NSeqs(self):
  *         """Returns number of sequences."""
  *         return self.thisptr.NSeqs()             # <<<<<<<<<<<<<<
@@ -3034,13 +2990,13 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_4NSeqs(struct 
  *     def NSites(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_long(__pyx_v_self->thisptr->NSeqs()); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 178; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyInt_From_long(__pyx_v_self->thisptr->NSeqs()); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 176; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "phydmslib/pybpp.pyx":176
+  /* "phydmslib/pybpp.pyx":174
  *             del self.thisptr
  * 
  *     def NSeqs(self):             # <<<<<<<<<<<<<<
@@ -3059,7 +3015,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_4NSeqs(struct 
   return __pyx_r;
 }
 
-/* "phydmslib/pybpp.pyx":180
+/* "phydmslib/pybpp.pyx":178
  *         return self.thisptr.NSeqs()
  * 
  *     def NSites(self):             # <<<<<<<<<<<<<<
@@ -3090,7 +3046,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_6NSites(struct
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("NSites", 0);
 
-  /* "phydmslib/pybpp.pyx":182
+  /* "phydmslib/pybpp.pyx":180
  *     def NSites(self):
  *         """Returns number of codon sites."""
  *         return self.thisptr.NSites()             # <<<<<<<<<<<<<<
@@ -3098,13 +3054,13 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_6NSites(struct
  *     def NewickTree(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_long(__pyx_v_self->thisptr->NSites()); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 182; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyInt_From_long(__pyx_v_self->thisptr->NSites()); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 180; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "phydmslib/pybpp.pyx":180
+  /* "phydmslib/pybpp.pyx":178
  *         return self.thisptr.NSeqs()
  * 
  *     def NSites(self):             # <<<<<<<<<<<<<<
@@ -3123,7 +3079,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_6NSites(struct
   return __pyx_r;
 }
 
-/* "phydmslib/pybpp.pyx":184
+/* "phydmslib/pybpp.pyx":182
  *         return self.thisptr.NSites()
  * 
  *     def NewickTree(self):             # <<<<<<<<<<<<<<
@@ -3178,7 +3134,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("NewickTree", 0);
 
-  /* "phydmslib/pybpp.pyx":186
+  /* "phydmslib/pybpp.pyx":184
  *     def NewickTree(self):
  *         """Returns Newick representation of current tree as string."""
  *         try:             # <<<<<<<<<<<<<<
@@ -3187,16 +3143,16 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
  */
   /*try:*/ {
 
-    /* "phydmslib/pybpp.pyx":187
+    /* "phydmslib/pybpp.pyx":185
  *         """Returns Newick representation of current tree as string."""
  *         try:
  *             (fd, fname) = tempfile.mkstemp()             # <<<<<<<<<<<<<<
  *             f = os.fdopen(fd, 'w')
  *             f.close() # close, but we still have the path fname
  */
-    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_tempfile); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 187; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_tempfile); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_mkstemp); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 187; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_mkstemp); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_t_2 = NULL;
@@ -3210,10 +3166,10 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
       }
     }
     if (__pyx_t_2) {
-      __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 187; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+      __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     } else {
-      __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 187; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+      __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
     }
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3227,7 +3183,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
       if (unlikely(size != 2)) {
         if (size > 2) __Pyx_RaiseTooManyValuesError(2);
         else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 187; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
       }
       #if CYTHON_COMPILING_IN_CPYTHON
       if (likely(PyTuple_CheckExact(sequence))) {
@@ -3240,15 +3196,15 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
       __Pyx_INCREF(__pyx_t_3);
       __Pyx_INCREF(__pyx_t_2);
       #else
-      __pyx_t_3 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 187; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+      __pyx_t_3 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_2 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 187; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+      __pyx_t_2 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
       __Pyx_GOTREF(__pyx_t_2);
       #endif
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     } else {
       Py_ssize_t index = -1;
-      __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 187; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+      __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __pyx_t_5 = Py_TYPE(__pyx_t_4)->tp_iternext;
@@ -3256,7 +3212,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
       __Pyx_GOTREF(__pyx_t_3);
       index = 1; __pyx_t_2 = __pyx_t_5(__pyx_t_4); if (unlikely(!__pyx_t_2)) goto __pyx_L6_unpacking_failed;
       __Pyx_GOTREF(__pyx_t_2);
-      if (__Pyx_IternextUnpackEndCheck(__pyx_t_5(__pyx_t_4), 2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 187; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+      if (__Pyx_IternextUnpackEndCheck(__pyx_t_5(__pyx_t_4), 2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
       __pyx_t_5 = NULL;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       goto __pyx_L7_unpacking_done;
@@ -3264,7 +3220,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __pyx_t_5 = NULL;
       if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 187; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
       __pyx_L7_unpacking_done:;
     }
     __pyx_v_fd = __pyx_t_3;
@@ -3272,16 +3228,16 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
     __pyx_v_fname = __pyx_t_2;
     __pyx_t_2 = 0;
 
-    /* "phydmslib/pybpp.pyx":188
+    /* "phydmslib/pybpp.pyx":186
  *         try:
  *             (fd, fname) = tempfile.mkstemp()
  *             f = os.fdopen(fd, 'w')             # <<<<<<<<<<<<<<
  *             f.close() # close, but we still have the path fname
  *             self.thisptr.NewickTree(fname)
  */
-    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_os); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 188; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_os); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 186; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_fdopen); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 188; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_fdopen); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 186; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_t_2 = NULL;
@@ -3296,7 +3252,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
         __pyx_t_6 = 1;
       }
     }
-    __pyx_t_4 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 188; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+    __pyx_t_4 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 186; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
     __Pyx_GOTREF(__pyx_t_4);
     if (__pyx_t_2) {
       PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_2); __Pyx_GIVEREF(__pyx_t_2); __pyx_t_2 = NULL;
@@ -3307,21 +3263,21 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
     __Pyx_INCREF(__pyx_n_s_w);
     PyTuple_SET_ITEM(__pyx_t_4, 1+__pyx_t_6, __pyx_n_s_w);
     __Pyx_GIVEREF(__pyx_n_s_w);
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 188; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 186; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_v_f = __pyx_t_1;
     __pyx_t_1 = 0;
 
-    /* "phydmslib/pybpp.pyx":189
+    /* "phydmslib/pybpp.pyx":187
  *             (fd, fname) = tempfile.mkstemp()
  *             f = os.fdopen(fd, 'w')
  *             f.close() # close, but we still have the path fname             # <<<<<<<<<<<<<<
  *             self.thisptr.NewickTree(fname)
  *             with open(fname) as f:
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_f, __pyx_n_s_close); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_f, __pyx_n_s_close); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 187; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_3))) {
@@ -3334,26 +3290,26 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
       }
     }
     if (__pyx_t_4) {
-      __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+      __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 187; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     } else {
-      __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+      __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 187; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
     }
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "phydmslib/pybpp.pyx":190
+    /* "phydmslib/pybpp.pyx":188
  *             f = os.fdopen(fd, 'w')
  *             f.close() # close, but we still have the path fname
  *             self.thisptr.NewickTree(fname)             # <<<<<<<<<<<<<<
  *             with open(fname) as f:
  *                 newicktree = f.read()
  */
-    __pyx_t_7 = __pyx_convert_string_from_py_std__string(__pyx_v_fname); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 190; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+    __pyx_t_7 = __pyx_convert_string_from_py_std__string(__pyx_v_fname); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 188; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
     __pyx_v_self->thisptr->NewickTree(__pyx_t_7);
 
-    /* "phydmslib/pybpp.pyx":191
+    /* "phydmslib/pybpp.pyx":189
  *             f.close() # close, but we still have the path fname
  *             self.thisptr.NewickTree(fname)
  *             with open(fname) as f:             # <<<<<<<<<<<<<<
@@ -3361,17 +3317,17 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
  *         finally:
  */
     /*with:*/ {
-      __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 191; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+      __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_INCREF(__pyx_v_fname);
       PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_fname);
       __Pyx_GIVEREF(__pyx_v_fname);
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_open, __pyx_t_1, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 191; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_open, __pyx_t_1, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __pyx_t_8 = __Pyx_PyObject_LookupSpecial(__pyx_t_3, __pyx_n_s_exit); if (unlikely(!__pyx_t_8)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 191; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+      __pyx_t_8 = __Pyx_PyObject_LookupSpecial(__pyx_t_3, __pyx_n_s_exit); if (unlikely(!__pyx_t_8)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
       __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_4 = __Pyx_PyObject_LookupSpecial(__pyx_t_3, __pyx_n_s_enter); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 191; __pyx_clineno = __LINE__; goto __pyx_L8_error;}
+      __pyx_t_4 = __Pyx_PyObject_LookupSpecial(__pyx_t_3, __pyx_n_s_enter); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L8_error;}
       __Pyx_GOTREF(__pyx_t_4);
       __pyx_t_2 = NULL;
       if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_4))) {
@@ -3384,10 +3340,10 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
         }
       }
       if (__pyx_t_2) {
-        __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 191; __pyx_clineno = __LINE__; goto __pyx_L8_error;}
+        __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L8_error;}
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       } else {
-        __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_4); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 191; __pyx_clineno = __LINE__; goto __pyx_L8_error;}
+        __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_4); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L8_error;}
       }
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -3404,14 +3360,14 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
             __Pyx_DECREF_SET(__pyx_v_f, __pyx_t_4);
             __pyx_t_4 = 0;
 
-            /* "phydmslib/pybpp.pyx":192
+            /* "phydmslib/pybpp.pyx":190
  *             self.thisptr.NewickTree(fname)
  *             with open(fname) as f:
  *                 newicktree = f.read()             # <<<<<<<<<<<<<<
  *         finally:
  *             try:
  */
-            __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_f, __pyx_n_s_read); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 192; __pyx_clineno = __LINE__; goto __pyx_L12_error;}
+            __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_f, __pyx_n_s_read); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 190; __pyx_clineno = __LINE__; goto __pyx_L12_error;}
             __Pyx_GOTREF(__pyx_t_3);
             __pyx_t_1 = NULL;
             if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_3))) {
@@ -3424,10 +3380,10 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
               }
             }
             if (__pyx_t_1) {
-              __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 192; __pyx_clineno = __LINE__; goto __pyx_L12_error;}
+              __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 190; __pyx_clineno = __LINE__; goto __pyx_L12_error;}
               __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
             } else {
-              __pyx_t_4 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 192; __pyx_clineno = __LINE__; goto __pyx_L12_error;}
+              __pyx_t_4 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 190; __pyx_clineno = __LINE__; goto __pyx_L12_error;}
             }
             __Pyx_GOTREF(__pyx_t_4);
             __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3444,7 +3400,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-          /* "phydmslib/pybpp.pyx":191
+          /* "phydmslib/pybpp.pyx":189
  *             f.close() # close, but we still have the path fname
  *             self.thisptr.NewickTree(fname)
  *             with open(fname) as f:             # <<<<<<<<<<<<<<
@@ -3453,20 +3409,20 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
  */
           /*except:*/ {
             __Pyx_AddTraceback("phydmslib.pybpp.PyBppTreeLikelihood.NewickTree", __pyx_clineno, __pyx_lineno, __pyx_filename);
-            if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_3, &__pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 191; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
+            if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_3, &__pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
             __Pyx_GOTREF(__pyx_t_4);
             __Pyx_GOTREF(__pyx_t_3);
             __Pyx_GOTREF(__pyx_t_1);
-            __pyx_t_2 = PyTuple_Pack(3, __pyx_t_4, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 191; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
+            __pyx_t_2 = PyTuple_Pack(3, __pyx_t_4, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
             __Pyx_GOTREF(__pyx_t_2);
             __pyx_t_12 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_2, NULL);
             __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
             __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-            if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 191; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
+            if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
             __Pyx_GOTREF(__pyx_t_12);
             __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_t_12);
             __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-            if (__pyx_t_13 < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 191; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
+            if (__pyx_t_13 < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
             __pyx_t_14 = ((!(__pyx_t_13 != 0)) != 0);
             if (__pyx_t_14) {
               __Pyx_GIVEREF(__pyx_t_4);
@@ -3474,7 +3430,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
               __Pyx_XGIVEREF(__pyx_t_1);
               __Pyx_ErrRestore(__pyx_t_4, __pyx_t_3, __pyx_t_1);
               __pyx_t_4 = 0; __pyx_t_3 = 0; __pyx_t_1 = 0; 
-              {__pyx_filename = __pyx_f[0]; __pyx_lineno = 191; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
+              {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
             }
             __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
             __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3500,7 +3456,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
           if (__pyx_t_8) {
             __pyx_t_11 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_tuple__6, NULL);
             __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-            if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 191; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
+            if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L4_error;}
             __Pyx_GOTREF(__pyx_t_11);
             __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
           }
@@ -3516,7 +3472,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
     }
   }
 
-  /* "phydmslib/pybpp.pyx":194
+  /* "phydmslib/pybpp.pyx":192
  *                 newicktree = f.read()
  *         finally:
  *             try:             # <<<<<<<<<<<<<<
@@ -3532,15 +3488,15 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
         __Pyx_XGOTREF(__pyx_t_10);
         /*try:*/ {
 
-          /* "phydmslib/pybpp.pyx":195
+          /* "phydmslib/pybpp.pyx":193
  *         finally:
  *             try:
  *                 f.close()             # <<<<<<<<<<<<<<
  *             except:
  *                 pass
  */
-          if (unlikely(!__pyx_v_f)) { __Pyx_RaiseUnboundLocalError("f"); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 195; __pyx_clineno = __LINE__; goto __pyx_L24_error;} }
-          __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_f, __pyx_n_s_close); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 195; __pyx_clineno = __LINE__; goto __pyx_L24_error;}
+          if (unlikely(!__pyx_v_f)) { __Pyx_RaiseUnboundLocalError("f"); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L24_error;} }
+          __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_f, __pyx_n_s_close); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L24_error;}
           __Pyx_GOTREF(__pyx_t_3);
           __pyx_t_4 = NULL;
           if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_3))) {
@@ -3553,10 +3509,10 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
             }
           }
           if (__pyx_t_4) {
-            __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 195; __pyx_clineno = __LINE__; goto __pyx_L24_error;}
+            __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L24_error;}
             __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
           } else {
-            __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 195; __pyx_clineno = __LINE__; goto __pyx_L24_error;}
+            __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L24_error;}
           }
           __Pyx_GOTREF(__pyx_t_1);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3572,7 +3528,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-        /* "phydmslib/pybpp.pyx":196
+        /* "phydmslib/pybpp.pyx":194
  *             try:
  *                 f.close()
  *             except:             # <<<<<<<<<<<<<<
@@ -3591,22 +3547,22 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
         __pyx_L31_try_end:;
       }
 
-      /* "phydmslib/pybpp.pyx":198
+      /* "phydmslib/pybpp.pyx":196
  *             except:
  *                 pass
  *             if os.path.isfile(fname):             # <<<<<<<<<<<<<<
  *                 os.remove(fname)
  *         return newicktree
  */
-      __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_os); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_os); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_path); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_path); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_isfile); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_isfile); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (unlikely(!__pyx_v_fname)) { __Pyx_RaiseUnboundLocalError("fname"); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L1_error;} }
+      if (unlikely(!__pyx_v_fname)) { __Pyx_RaiseUnboundLocalError("fname"); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L1_error;} }
       __pyx_t_4 = NULL;
       if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_3))) {
         __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
@@ -3618,37 +3574,37 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
         }
       }
       if (!__pyx_t_4) {
-        __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_fname); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_fname); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_1);
       } else {
-        __pyx_t_2 = PyTuple_New(1+1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_2 = PyTuple_New(1+1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_2);
         PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_4); __Pyx_GIVEREF(__pyx_t_4); __pyx_t_4 = NULL;
         __Pyx_INCREF(__pyx_v_fname);
         PyTuple_SET_ITEM(__pyx_t_2, 0+1, __pyx_v_fname);
         __Pyx_GIVEREF(__pyx_v_fname);
-        __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       }
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_14 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_14 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       if (__pyx_t_14) {
 
-        /* "phydmslib/pybpp.pyx":199
+        /* "phydmslib/pybpp.pyx":197
  *                 pass
  *             if os.path.isfile(fname):
  *                 os.remove(fname)             # <<<<<<<<<<<<<<
  *         return newicktree
  * 
  */
-        __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_os); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_os); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 197; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_remove); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_remove); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 197; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        if (unlikely(!__pyx_v_fname)) { __Pyx_RaiseUnboundLocalError("fname"); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L1_error;} }
+        if (unlikely(!__pyx_v_fname)) { __Pyx_RaiseUnboundLocalError("fname"); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 197; __pyx_clineno = __LINE__; goto __pyx_L1_error;} }
         __pyx_t_3 = NULL;
         if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_2))) {
           __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
@@ -3660,16 +3616,16 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
           }
         }
         if (!__pyx_t_3) {
-          __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_fname); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_fname); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 197; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_1);
         } else {
-          __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 197; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_4);
           PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __Pyx_GIVEREF(__pyx_t_3); __pyx_t_3 = NULL;
           __Pyx_INCREF(__pyx_v_fname);
           PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_fname);
           __Pyx_GIVEREF(__pyx_v_fname);
-          __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 197; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_1);
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         }
@@ -3698,7 +3654,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
       __pyx_t_15 = __pyx_lineno; __pyx_t_16 = __pyx_clineno; __pyx_t_17 = __pyx_filename;
       {
 
-        /* "phydmslib/pybpp.pyx":194
+        /* "phydmslib/pybpp.pyx":192
  *                 newicktree = f.read()
  *         finally:
  *             try:             # <<<<<<<<<<<<<<
@@ -3712,15 +3668,15 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
           __Pyx_XGOTREF(__pyx_t_21);
           /*try:*/ {
 
-            /* "phydmslib/pybpp.pyx":195
+            /* "phydmslib/pybpp.pyx":193
  *         finally:
  *             try:
  *                 f.close()             # <<<<<<<<<<<<<<
  *             except:
  *                 pass
  */
-            if (unlikely(!__pyx_v_f)) { __Pyx_RaiseUnboundLocalError("f"); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 195; __pyx_clineno = __LINE__; goto __pyx_L35_error;} }
-            __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_f, __pyx_n_s_close); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 195; __pyx_clineno = __LINE__; goto __pyx_L35_error;}
+            if (unlikely(!__pyx_v_f)) { __Pyx_RaiseUnboundLocalError("f"); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L35_error;} }
+            __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_f, __pyx_n_s_close); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L35_error;}
             __Pyx_GOTREF(__pyx_t_2);
             __pyx_t_4 = NULL;
             if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_2))) {
@@ -3733,10 +3689,10 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
               }
             }
             if (__pyx_t_4) {
-              __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 195; __pyx_clineno = __LINE__; goto __pyx_L35_error;}
+              __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L35_error;}
               __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
             } else {
-              __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 195; __pyx_clineno = __LINE__; goto __pyx_L35_error;}
+              __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L35_error;}
             }
             __Pyx_GOTREF(__pyx_t_1);
             __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -3752,7 +3708,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
           __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
           __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-          /* "phydmslib/pybpp.pyx":196
+          /* "phydmslib/pybpp.pyx":194
  *             try:
  *                 f.close()
  *             except:             # <<<<<<<<<<<<<<
@@ -3771,22 +3727,22 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
           __pyx_L42_try_end:;
         }
 
-        /* "phydmslib/pybpp.pyx":198
+        /* "phydmslib/pybpp.pyx":196
  *             except:
  *                 pass
  *             if os.path.isfile(fname):             # <<<<<<<<<<<<<<
  *                 os.remove(fname)
  *         return newicktree
  */
-        __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_os); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
+        __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_os); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
         __Pyx_GOTREF(__pyx_t_2);
-        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_path); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
+        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_path); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-        __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_isfile); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
+        __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_isfile); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_v_fname)) { __Pyx_RaiseUnboundLocalError("fname"); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L34_error;} }
+        if (unlikely(!__pyx_v_fname)) { __Pyx_RaiseUnboundLocalError("fname"); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L34_error;} }
         __pyx_t_4 = NULL;
         if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_2))) {
           __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_2);
@@ -3798,37 +3754,37 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
           }
         }
         if (!__pyx_t_4) {
-          __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_fname); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
+          __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_fname); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
           __Pyx_GOTREF(__pyx_t_1);
         } else {
-          __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
+          __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
           __Pyx_GOTREF(__pyx_t_3);
           PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_4); __Pyx_GIVEREF(__pyx_t_4); __pyx_t_4 = NULL;
           __Pyx_INCREF(__pyx_v_fname);
           PyTuple_SET_ITEM(__pyx_t_3, 0+1, __pyx_v_fname);
           __Pyx_GIVEREF(__pyx_v_fname);
-          __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
+          __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
           __Pyx_GOTREF(__pyx_t_1);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         }
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-        __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_14 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
+        __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_14 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 196; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         if (__pyx_t_14) {
 
-          /* "phydmslib/pybpp.pyx":199
+          /* "phydmslib/pybpp.pyx":197
  *                 pass
  *             if os.path.isfile(fname):
  *                 os.remove(fname)             # <<<<<<<<<<<<<<
  *         return newicktree
  * 
  */
-          __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_os); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
+          __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_os); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 197; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
           __Pyx_GOTREF(__pyx_t_2);
-          __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_remove); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
+          __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_remove); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 197; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
           __Pyx_GOTREF(__pyx_t_3);
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-          if (unlikely(!__pyx_v_fname)) { __Pyx_RaiseUnboundLocalError("fname"); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L34_error;} }
+          if (unlikely(!__pyx_v_fname)) { __Pyx_RaiseUnboundLocalError("fname"); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 197; __pyx_clineno = __LINE__; goto __pyx_L34_error;} }
           __pyx_t_2 = NULL;
           if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_3))) {
             __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_3);
@@ -3840,16 +3796,16 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
             }
           }
           if (!__pyx_t_2) {
-            __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_fname); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
+            __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_fname); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 197; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
             __Pyx_GOTREF(__pyx_t_1);
           } else {
-            __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
+            __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 197; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
             __Pyx_GOTREF(__pyx_t_4);
             PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_2); __Pyx_GIVEREF(__pyx_t_2); __pyx_t_2 = NULL;
             __Pyx_INCREF(__pyx_v_fname);
             PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_fname);
             __Pyx_GIVEREF(__pyx_v_fname);
-            __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
+            __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 197; __pyx_clineno = __LINE__; goto __pyx_L34_error;}
             __Pyx_GOTREF(__pyx_t_1);
             __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
           }
@@ -3888,7 +3844,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
     __pyx_L5:;
   }
 
-  /* "phydmslib/pybpp.pyx":200
+  /* "phydmslib/pybpp.pyx":198
  *             if os.path.isfile(fname):
  *                 os.remove(fname)
  *         return newicktree             # <<<<<<<<<<<<<<
@@ -3896,12 +3852,12 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
  *     def LogLikelihood(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  if (unlikely(!__pyx_v_newicktree)) { __Pyx_RaiseUnboundLocalError("newicktree"); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 200; __pyx_clineno = __LINE__; goto __pyx_L1_error;} }
+  if (unlikely(!__pyx_v_newicktree)) { __Pyx_RaiseUnboundLocalError("newicktree"); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 198; __pyx_clineno = __LINE__; goto __pyx_L1_error;} }
   __Pyx_INCREF(__pyx_v_newicktree);
   __pyx_r = __pyx_v_newicktree;
   goto __pyx_L0;
 
-  /* "phydmslib/pybpp.pyx":184
+  /* "phydmslib/pybpp.pyx":182
  *         return self.thisptr.NSites()
  * 
  *     def NewickTree(self):             # <<<<<<<<<<<<<<
@@ -3927,7 +3883,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_8NewickTree(st
   return __pyx_r;
 }
 
-/* "phydmslib/pybpp.pyx":202
+/* "phydmslib/pybpp.pyx":200
  *         return newicktree
  * 
  *     def LogLikelihood(self):             # <<<<<<<<<<<<<<
@@ -3958,7 +3914,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_10LogLikelihoo
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("LogLikelihood", 0);
 
-  /* "phydmslib/pybpp.pyx":204
+  /* "phydmslib/pybpp.pyx":202
  *     def LogLikelihood(self):
  *         """Returns current log likelihood (does not perform optimization)."""
  *         return self.thisptr.LogLikelihood()             # <<<<<<<<<<<<<<
@@ -3966,13 +3922,13 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_10LogLikelihoo
  *     def OptimizeLikelihood(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->thisptr->LogLikelihood()); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 204; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->thisptr->LogLikelihood()); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 202; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "phydmslib/pybpp.pyx":202
+  /* "phydmslib/pybpp.pyx":200
  *         return newicktree
  * 
  *     def LogLikelihood(self):             # <<<<<<<<<<<<<<
@@ -3991,7 +3947,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_10LogLikelihoo
   return __pyx_r;
 }
 
-/* "phydmslib/pybpp.pyx":206
+/* "phydmslib/pybpp.pyx":204
  *         return self.thisptr.LogLikelihood()
  * 
  *     def OptimizeLikelihood(self):             # <<<<<<<<<<<<<<
@@ -4018,7 +3974,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_12OptimizeLike
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("OptimizeLikelihood", 0);
 
-  /* "phydmslib/pybpp.pyx":212
+  /* "phydmslib/pybpp.pyx":210
  *         the topology if *infertopology* was *True* when this object
  *         was created."""
  *         self.thisptr.OptimizeLikelihood()             # <<<<<<<<<<<<<<
@@ -4027,7 +3983,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_12OptimizeLike
  */
   __pyx_v_self->thisptr->OptimizeLikelihood();
 
-  /* "phydmslib/pybpp.pyx":206
+  /* "phydmslib/pybpp.pyx":204
  *         return self.thisptr.LogLikelihood()
  * 
  *     def OptimizeLikelihood(self):             # <<<<<<<<<<<<<<
@@ -4042,7 +3998,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_12OptimizeLike
   return __pyx_r;
 }
 
-/* "phydmslib/pybpp.pyx":214
+/* "phydmslib/pybpp.pyx":212
  *         self.thisptr.OptimizeLikelihood()
  * 
  *     def ModelParams(self, bint optimizedonly):             # <<<<<<<<<<<<<<
@@ -4062,7 +4018,7 @@ static PyObject *__pyx_pw_9phydmslib_5pybpp_19PyBppTreeLikelihood_15ModelParams(
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("ModelParams (wrapper)", 0);
   assert(__pyx_arg_optimizedonly); {
-    __pyx_v_optimizedonly = __Pyx_PyObject_IsTrue(__pyx_arg_optimizedonly); if (unlikely((__pyx_v_optimizedonly == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 214; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_optimizedonly = __Pyx_PyObject_IsTrue(__pyx_arg_optimizedonly); if (unlikely((__pyx_v_optimizedonly == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 212; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -4108,19 +4064,19 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("ModelParams", 0);
 
-  /* "phydmslib/pybpp.pyx":225
+  /* "phydmslib/pybpp.pyx":223
  *         being the numerical value of parameter *parametername*.
  *         """
  *         modelparams = self.thisptr.ModelParams()             # <<<<<<<<<<<<<<
  *         if optimizedonly:
  *             ignored = self.thisptr.OptimizationIgnoredParameters()
  */
-  __pyx_t_1 = __pyx_convert_map_to_py_std_3a__3a_string____double(__pyx_v_self->thisptr->ModelParams()); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 225; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __pyx_convert_map_to_py_std_3a__3a_string____double(__pyx_v_self->thisptr->ModelParams()); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 223; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_modelparams = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "phydmslib/pybpp.pyx":226
+  /* "phydmslib/pybpp.pyx":224
  *         """
  *         modelparams = self.thisptr.ModelParams()
  *         if optimizedonly:             # <<<<<<<<<<<<<<
@@ -4130,7 +4086,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
   __pyx_t_2 = (__pyx_v_optimizedonly != 0);
   if (__pyx_t_2) {
 
-    /* "phydmslib/pybpp.pyx":227
+    /* "phydmslib/pybpp.pyx":225
  *         modelparams = self.thisptr.ModelParams()
  *         if optimizedonly:
  *             ignored = self.thisptr.OptimizationIgnoredParameters()             # <<<<<<<<<<<<<<
@@ -4139,42 +4095,42 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
  */
     __pyx_v_ignored = __pyx_v_self->thisptr->OptimizationIgnoredParameters();
 
-    /* "phydmslib/pybpp.pyx":228
+    /* "phydmslib/pybpp.pyx":226
  *         if optimizedonly:
  *             ignored = self.thisptr.OptimizationIgnoredParameters()
  *             if len(ignored):             # <<<<<<<<<<<<<<
  *                 for ignore in ignored.split(','):
  *                     ignorematch = re.compile(ignore.replace('*', '.*'))
  */
-    __pyx_t_1 = __pyx_convert_PyBytes_string_to_py_std__string(__pyx_v_ignored); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 228; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __pyx_convert_PyBytes_string_to_py_std__string(__pyx_v_ignored); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 226; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = PyObject_Length(__pyx_t_1); if (unlikely(__pyx_t_3 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 228; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = PyObject_Length(__pyx_t_1); if (unlikely(__pyx_t_3 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 226; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_t_2 = (__pyx_t_3 != 0);
     if (__pyx_t_2) {
 
-      /* "phydmslib/pybpp.pyx":229
+      /* "phydmslib/pybpp.pyx":227
  *             ignored = self.thisptr.OptimizationIgnoredParameters()
  *             if len(ignored):
  *                 for ignore in ignored.split(','):             # <<<<<<<<<<<<<<
  *                     ignorematch = re.compile(ignore.replace('*', '.*'))
  *                     modelparams = dict([(param, value) for (param, value) in modelparams.items() if not ignorematch.search(param)])
  */
-      __pyx_t_1 = __pyx_convert_PyBytes_string_to_py_std__string(__pyx_v_ignored); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_1 = __pyx_convert_PyBytes_string_to_py_std__string(__pyx_v_ignored); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 227; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_split); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_split); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 227; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_tuple__8, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_tuple__8, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 227; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       if (likely(PyList_CheckExact(__pyx_t_1)) || PyTuple_CheckExact(__pyx_t_1)) {
         __pyx_t_4 = __pyx_t_1; __Pyx_INCREF(__pyx_t_4); __pyx_t_3 = 0;
         __pyx_t_5 = NULL;
       } else {
-        __pyx_t_3 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_3 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 227; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_5 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_5 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 227; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       }
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       for (;;) {
@@ -4182,16 +4138,16 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
           if (likely(PyList_CheckExact(__pyx_t_4))) {
             if (__pyx_t_3 >= PyList_GET_SIZE(__pyx_t_4)) break;
             #if CYTHON_COMPILING_IN_CPYTHON
-            __pyx_t_1 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_1 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 227; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             #else
-            __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 227; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             #endif
           } else {
             if (__pyx_t_3 >= PyTuple_GET_SIZE(__pyx_t_4)) break;
             #if CYTHON_COMPILING_IN_CPYTHON
-            __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 227; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             #else
-            __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 227; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             #endif
           }
         } else {
@@ -4200,7 +4156,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
             PyObject* exc_type = PyErr_Occurred();
             if (exc_type) {
               if (likely(exc_type == PyExc_StopIteration || PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-              else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+              else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 227; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             }
             break;
           }
@@ -4209,21 +4165,21 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
         __Pyx_XDECREF_SET(__pyx_v_ignore, __pyx_t_1);
         __pyx_t_1 = 0;
 
-        /* "phydmslib/pybpp.pyx":230
+        /* "phydmslib/pybpp.pyx":228
  *             if len(ignored):
  *                 for ignore in ignored.split(','):
  *                     ignorematch = re.compile(ignore.replace('*', '.*'))             # <<<<<<<<<<<<<<
  *                     modelparams = dict([(param, value) for (param, value) in modelparams.items() if not ignorematch.search(param)])
  *         # clip the prefix (typically "YN98." or "ExpCM." from the model parameter)
  */
-        __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_re); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 230; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_re); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 228; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_compile); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 230; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_compile); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 228; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_7);
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_ignore, __pyx_n_s_replace); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 230; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_ignore, __pyx_n_s_replace); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 228; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_tuple__10, NULL); if (unlikely(!__pyx_t_8)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 230; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_tuple__10, NULL); if (unlikely(!__pyx_t_8)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 228; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_8);
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         __pyx_t_6 = NULL;
@@ -4237,17 +4193,17 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
           }
         }
         if (!__pyx_t_6) {
-          __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_8); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 230; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_8); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 228; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
           __Pyx_GOTREF(__pyx_t_1);
         } else {
-          __pyx_t_9 = PyTuple_New(1+1); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 230; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_9 = PyTuple_New(1+1); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 228; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_9);
           PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_6); __Pyx_GIVEREF(__pyx_t_6); __pyx_t_6 = NULL;
           PyTuple_SET_ITEM(__pyx_t_9, 0+1, __pyx_t_8);
           __Pyx_GIVEREF(__pyx_t_8);
           __pyx_t_8 = 0;
-          __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_9, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 230; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_9, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 228; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_1);
           __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
         }
@@ -4255,16 +4211,16 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
         __Pyx_XDECREF_SET(__pyx_v_ignorematch, __pyx_t_1);
         __pyx_t_1 = 0;
 
-        /* "phydmslib/pybpp.pyx":231
+        /* "phydmslib/pybpp.pyx":229
  *                 for ignore in ignored.split(','):
  *                     ignorematch = re.compile(ignore.replace('*', '.*'))
  *                     modelparams = dict([(param, value) for (param, value) in modelparams.items() if not ignorematch.search(param)])             # <<<<<<<<<<<<<<
  *         # clip the prefix (typically "YN98." or "ExpCM." from the model parameter)
  *         clippedmodelparams = {}
  */
-        __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_v_modelparams, __pyx_n_s_items); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_v_modelparams, __pyx_n_s_items); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_9);
         __pyx_t_8 = NULL;
         if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_9))) {
@@ -4277,10 +4233,10 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
           }
         }
         if (__pyx_t_8) {
-          __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_t_9, __pyx_t_8); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_t_9, __pyx_t_8); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
         } else {
-          __pyx_t_7 = __Pyx_PyObject_CallNoArg(__pyx_t_9); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_7 = __Pyx_PyObject_CallNoArg(__pyx_t_9); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
         __Pyx_GOTREF(__pyx_t_7);
         __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
@@ -4288,9 +4244,9 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
           __pyx_t_9 = __pyx_t_7; __Pyx_INCREF(__pyx_t_9); __pyx_t_10 = 0;
           __pyx_t_11 = NULL;
         } else {
-          __pyx_t_10 = -1; __pyx_t_9 = PyObject_GetIter(__pyx_t_7); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_10 = -1; __pyx_t_9 = PyObject_GetIter(__pyx_t_7); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_9);
-          __pyx_t_11 = Py_TYPE(__pyx_t_9)->tp_iternext; if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_11 = Py_TYPE(__pyx_t_9)->tp_iternext; if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
         __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
         for (;;) {
@@ -4298,16 +4254,16 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
             if (likely(PyList_CheckExact(__pyx_t_9))) {
               if (__pyx_t_10 >= PyList_GET_SIZE(__pyx_t_9)) break;
               #if CYTHON_COMPILING_IN_CPYTHON
-              __pyx_t_7 = PyList_GET_ITEM(__pyx_t_9, __pyx_t_10); __Pyx_INCREF(__pyx_t_7); __pyx_t_10++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+              __pyx_t_7 = PyList_GET_ITEM(__pyx_t_9, __pyx_t_10); __Pyx_INCREF(__pyx_t_7); __pyx_t_10++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
               #else
-              __pyx_t_7 = PySequence_ITEM(__pyx_t_9, __pyx_t_10); __pyx_t_10++; if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+              __pyx_t_7 = PySequence_ITEM(__pyx_t_9, __pyx_t_10); __pyx_t_10++; if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
               #endif
             } else {
               if (__pyx_t_10 >= PyTuple_GET_SIZE(__pyx_t_9)) break;
               #if CYTHON_COMPILING_IN_CPYTHON
-              __pyx_t_7 = PyTuple_GET_ITEM(__pyx_t_9, __pyx_t_10); __Pyx_INCREF(__pyx_t_7); __pyx_t_10++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+              __pyx_t_7 = PyTuple_GET_ITEM(__pyx_t_9, __pyx_t_10); __Pyx_INCREF(__pyx_t_7); __pyx_t_10++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
               #else
-              __pyx_t_7 = PySequence_ITEM(__pyx_t_9, __pyx_t_10); __pyx_t_10++; if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+              __pyx_t_7 = PySequence_ITEM(__pyx_t_9, __pyx_t_10); __pyx_t_10++; if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
               #endif
             }
           } else {
@@ -4316,7 +4272,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
               PyObject* exc_type = PyErr_Occurred();
               if (exc_type) {
                 if (likely(exc_type == PyExc_StopIteration || PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-                else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+                else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
               }
               break;
             }
@@ -4332,7 +4288,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
             if (unlikely(size != 2)) {
               if (size > 2) __Pyx_RaiseTooManyValuesError(2);
               else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-              {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+              {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             }
             #if CYTHON_COMPILING_IN_CPYTHON
             if (likely(PyTuple_CheckExact(sequence))) {
@@ -4345,15 +4301,15 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
             __Pyx_INCREF(__pyx_t_8);
             __Pyx_INCREF(__pyx_t_6);
             #else
-            __pyx_t_8 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_8)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_8 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_8)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_8);
-            __pyx_t_6 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_6 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_6);
             #endif
             __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
           } else {
             Py_ssize_t index = -1;
-            __pyx_t_12 = PyObject_GetIter(__pyx_t_7); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_12 = PyObject_GetIter(__pyx_t_7); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_12);
             __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
             __pyx_t_13 = Py_TYPE(__pyx_t_12)->tp_iternext;
@@ -4361,7 +4317,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
             __Pyx_GOTREF(__pyx_t_8);
             index = 1; __pyx_t_6 = __pyx_t_13(__pyx_t_12); if (unlikely(!__pyx_t_6)) goto __pyx_L9_unpacking_failed;
             __Pyx_GOTREF(__pyx_t_6);
-            if (__Pyx_IternextUnpackEndCheck(__pyx_t_13(__pyx_t_12), 2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            if (__Pyx_IternextUnpackEndCheck(__pyx_t_13(__pyx_t_12), 2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __pyx_t_13 = NULL;
             __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
             goto __pyx_L10_unpacking_done;
@@ -4369,14 +4325,14 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
             __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
             __pyx_t_13 = NULL;
             if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-            {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __pyx_L10_unpacking_done:;
           }
           __Pyx_XDECREF_SET(__pyx_v_param, __pyx_t_8);
           __pyx_t_8 = 0;
           __Pyx_XDECREF_SET(__pyx_v_value, __pyx_t_6);
           __pyx_t_6 = 0;
-          __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_ignorematch, __pyx_n_s_search); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_ignorematch, __pyx_n_s_search); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_6);
           __pyx_t_8 = NULL;
           if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_6))) {
@@ -4389,25 +4345,25 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
             }
           }
           if (!__pyx_t_8) {
-            __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_v_param); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_v_param); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_7);
           } else {
-            __pyx_t_12 = PyTuple_New(1+1); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_12 = PyTuple_New(1+1); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_12);
             PyTuple_SET_ITEM(__pyx_t_12, 0, __pyx_t_8); __Pyx_GIVEREF(__pyx_t_8); __pyx_t_8 = NULL;
             __Pyx_INCREF(__pyx_v_param);
             PyTuple_SET_ITEM(__pyx_t_12, 0+1, __pyx_v_param);
             __Pyx_GIVEREF(__pyx_v_param);
-            __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_12, NULL); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_12, NULL); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_7);
             __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
           }
           __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-          __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_2 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_2 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
           __pyx_t_14 = ((!__pyx_t_2) != 0);
           if (__pyx_t_14) {
-            __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_7);
             __Pyx_INCREF(__pyx_v_param);
             PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_v_param);
@@ -4415,25 +4371,25 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
             __Pyx_INCREF(__pyx_v_value);
             PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_v_value);
             __Pyx_GIVEREF(__pyx_v_value);
-            if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_7))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_7))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
             goto __pyx_L11;
           }
           __pyx_L11:;
         }
         __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-        __pyx_t_9 = PyTuple_New(1); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_9 = PyTuple_New(1); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_9);
         PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_1);
         __Pyx_GIVEREF(__pyx_t_1);
         __pyx_t_1 = 0;
-        __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)((PyObject*)(&PyDict_Type))), __pyx_t_9, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)((PyObject*)(&PyDict_Type))), __pyx_t_9, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
         __Pyx_DECREF_SET(__pyx_v_modelparams, __pyx_t_1);
         __pyx_t_1 = 0;
 
-        /* "phydmslib/pybpp.pyx":229
+        /* "phydmslib/pybpp.pyx":227
  *             ignored = self.thisptr.OptimizationIgnoredParameters()
  *             if len(ignored):
  *                 for ignore in ignored.split(','):             # <<<<<<<<<<<<<<
@@ -4449,19 +4405,19 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
   }
   __pyx_L3:;
 
-  /* "phydmslib/pybpp.pyx":233
+  /* "phydmslib/pybpp.pyx":231
  *                     modelparams = dict([(param, value) for (param, value) in modelparams.items() if not ignorematch.search(param)])
  *         # clip the prefix (typically "YN98." or "ExpCM." from the model parameter)
  *         clippedmodelparams = {}             # <<<<<<<<<<<<<<
  *         for modelparam in modelparams:
  *             clippedmodelparam = modelparam[modelparam.index('.') + 1 : ]
  */
-  __pyx_t_4 = PyDict_New(); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 233; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = PyDict_New(); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_v_clippedmodelparams = ((PyObject*)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "phydmslib/pybpp.pyx":234
+  /* "phydmslib/pybpp.pyx":232
  *         # clip the prefix (typically "YN98." or "ExpCM." from the model parameter)
  *         clippedmodelparams = {}
  *         for modelparam in modelparams:             # <<<<<<<<<<<<<<
@@ -4472,25 +4428,25 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
     __pyx_t_4 = __pyx_v_modelparams; __Pyx_INCREF(__pyx_t_4); __pyx_t_3 = 0;
     __pyx_t_5 = NULL;
   } else {
-    __pyx_t_3 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_v_modelparams); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_v_modelparams); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 232; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_5 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 232; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   for (;;) {
     if (likely(!__pyx_t_5)) {
       if (likely(PyList_CheckExact(__pyx_t_4))) {
         if (__pyx_t_3 >= PyList_GET_SIZE(__pyx_t_4)) break;
         #if CYTHON_COMPILING_IN_CPYTHON
-        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 232; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 232; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         #endif
       } else {
         if (__pyx_t_3 >= PyTuple_GET_SIZE(__pyx_t_4)) break;
         #if CYTHON_COMPILING_IN_CPYTHON
-        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 232; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 232; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         #endif
       }
     } else {
@@ -4499,7 +4455,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(exc_type == PyExc_StopIteration || PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 232; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
         break;
       }
@@ -4508,28 +4464,28 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
     __Pyx_XDECREF_SET(__pyx_v_modelparam, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "phydmslib/pybpp.pyx":235
+    /* "phydmslib/pybpp.pyx":233
  *         clippedmodelparams = {}
  *         for modelparam in modelparams:
  *             clippedmodelparam = modelparam[modelparam.index('.') + 1 : ]             # <<<<<<<<<<<<<<
  *             assert clippedmodelparam not in clippedmodelparams, "Duplicated model param %s after clipping" % clippedmodelparam
  *             clippedmodelparams[clippedmodelparam] = modelparams[modelparam]
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_modelparam, __pyx_n_s_index); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_modelparam, __pyx_n_s_index); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 233; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_9 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_9 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 233; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_9);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = PyNumber_Add(__pyx_t_9, __pyx_int_1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = PyNumber_Add(__pyx_t_9, __pyx_int_1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 233; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-    __pyx_t_9 = __Pyx_PyObject_GetSlice(__pyx_v_modelparam, 0, 0, &__pyx_t_1, NULL, NULL, 0, 0, 1); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_9 = __Pyx_PyObject_GetSlice(__pyx_v_modelparam, 0, 0, &__pyx_t_1, NULL, NULL, 0, 0, 1); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 233; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_9);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_XDECREF_SET(__pyx_v_clippedmodelparam, __pyx_t_9);
     __pyx_t_9 = 0;
 
-    /* "phydmslib/pybpp.pyx":236
+    /* "phydmslib/pybpp.pyx":234
  *         for modelparam in modelparams:
  *             clippedmodelparam = modelparam[modelparam.index('.') + 1 : ]
  *             assert clippedmodelparam not in clippedmodelparams, "Duplicated model param %s after clipping" % clippedmodelparam             # <<<<<<<<<<<<<<
@@ -4538,30 +4494,30 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
  */
     #ifndef CYTHON_WITHOUT_ASSERTIONS
     if (unlikely(!Py_OptimizeFlag)) {
-      __pyx_t_14 = (__Pyx_PyDict_Contains(__pyx_v_clippedmodelparam, __pyx_v_clippedmodelparams, Py_NE)); if (unlikely(__pyx_t_14 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 236; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_14 = (__Pyx_PyDict_Contains(__pyx_v_clippedmodelparam, __pyx_v_clippedmodelparams, Py_NE)); if (unlikely(__pyx_t_14 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       if (unlikely(!(__pyx_t_14 != 0))) {
-        __pyx_t_9 = __Pyx_PyString_Format(__pyx_kp_s_Duplicated_model_param_s_after_c, __pyx_v_clippedmodelparam); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 236; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_9 = __Pyx_PyString_Format(__pyx_kp_s_Duplicated_model_param_s_after_c, __pyx_v_clippedmodelparam); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_9);
         PyErr_SetObject(PyExc_AssertionError, __pyx_t_9);
         __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 236; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       }
     }
     #endif
 
-    /* "phydmslib/pybpp.pyx":237
+    /* "phydmslib/pybpp.pyx":235
  *             clippedmodelparam = modelparam[modelparam.index('.') + 1 : ]
  *             assert clippedmodelparam not in clippedmodelparams, "Duplicated model param %s after clipping" % clippedmodelparam
  *             clippedmodelparams[clippedmodelparam] = modelparams[modelparam]             # <<<<<<<<<<<<<<
  *         return clippedmodelparams
  * 
  */
-    __pyx_t_9 = PyObject_GetItem(__pyx_v_modelparams, __pyx_v_modelparam); if (unlikely(__pyx_t_9 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 237; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+    __pyx_t_9 = PyObject_GetItem(__pyx_v_modelparams, __pyx_v_modelparam); if (unlikely(__pyx_t_9 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
     __Pyx_GOTREF(__pyx_t_9);
-    if (unlikely(PyDict_SetItem(__pyx_v_clippedmodelparams, __pyx_v_clippedmodelparam, __pyx_t_9) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 237; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(PyDict_SetItem(__pyx_v_clippedmodelparams, __pyx_v_clippedmodelparam, __pyx_t_9) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-    /* "phydmslib/pybpp.pyx":234
+    /* "phydmslib/pybpp.pyx":232
  *         # clip the prefix (typically "YN98." or "ExpCM." from the model parameter)
  *         clippedmodelparams = {}
  *         for modelparam in modelparams:             # <<<<<<<<<<<<<<
@@ -4571,7 +4527,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "phydmslib/pybpp.pyx":238
+  /* "phydmslib/pybpp.pyx":236
  *             assert clippedmodelparam not in clippedmodelparams, "Duplicated model param %s after clipping" % clippedmodelparam
  *             clippedmodelparams[clippedmodelparam] = modelparams[modelparam]
  *         return clippedmodelparams             # <<<<<<<<<<<<<<
@@ -4583,7 +4539,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
   __pyx_r = __pyx_v_clippedmodelparams;
   goto __pyx_L0;
 
-  /* "phydmslib/pybpp.pyx":214
+  /* "phydmslib/pybpp.pyx":212
  *         self.thisptr.OptimizeLikelihood()
  * 
  *     def ModelParams(self, bint optimizedonly):             # <<<<<<<<<<<<<<
@@ -4616,7 +4572,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_14ModelParams(
   return __pyx_r;
 }
 
-/* "phydmslib/pybpp.pyx":240
+/* "phydmslib/pybpp.pyx":238
  *         return clippedmodelparams
  * 
  *     def StationaryState(self, int isite):             # <<<<<<<<<<<<<<
@@ -4636,7 +4592,7 @@ static PyObject *__pyx_pw_9phydmslib_5pybpp_19PyBppTreeLikelihood_17StationarySt
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("StationaryState (wrapper)", 0);
   assert(__pyx_arg_isite); {
-    __pyx_v_isite = __Pyx_PyInt_As_int(__pyx_arg_isite); if (unlikely((__pyx_v_isite == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_isite = __Pyx_PyInt_As_int(__pyx_arg_isite); if (unlikely((__pyx_v_isite == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 238; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -4664,7 +4620,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_16StationarySt
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("StationaryState", 0);
 
-  /* "phydmslib/pybpp.pyx":249
+  /* "phydmslib/pybpp.pyx":247
  *         of the codon indicated by the upper-case string *codon*.
  *         """
  *         stationarystate = self.thisptr.StationaryState(isite)             # <<<<<<<<<<<<<<
@@ -4673,7 +4629,7 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_16StationarySt
  */
   __pyx_v_stationarystate = __pyx_v_self->thisptr->StationaryState(__pyx_v_isite);
 
-  /* "phydmslib/pybpp.pyx":250
+  /* "phydmslib/pybpp.pyx":248
  *         """
  *         stationarystate = self.thisptr.StationaryState(isite)
  *         assert abs(sum(stationarystate.values()) - 1.0) < 1.0e-5, "The sum of the stationary state is not close to one: %g" % sum(stationarystate.values())             # <<<<<<<<<<<<<<
@@ -4681,9 +4637,9 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_16StationarySt
  */
   #ifndef CYTHON_WITHOUT_ASSERTIONS
   if (unlikely(!Py_OptimizeFlag)) {
-    __pyx_t_2 = __pyx_convert_map_to_py_std_3a__3a_string____double(__pyx_v_stationarystate); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = __pyx_convert_map_to_py_std_3a__3a_string____double(__pyx_v_stationarystate); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_values); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_values); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_t_2 = NULL;
@@ -4697,35 +4653,35 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_16StationarySt
       }
     }
     if (__pyx_t_2) {
-      __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     } else {
-      __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     }
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
     PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
     __Pyx_GIVEREF(__pyx_t_1);
     __pyx_t_1 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_sum, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_sum, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyNumber_Subtract(__pyx_t_1, __pyx_float_1_0); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = PyNumber_Subtract(__pyx_t_1, __pyx_float_1_0); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = PyNumber_Absolute(__pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = PyNumber_Absolute(__pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyObject_RichCompare(__pyx_t_1, __pyx_float_1_0eneg_5, Py_LT); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = PyObject_RichCompare(__pyx_t_1, __pyx_float_1_0eneg_5, Py_LT); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_4 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_4 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     if (unlikely(!__pyx_t_4)) {
-      __pyx_t_1 = __pyx_convert_map_to_py_std_3a__3a_string____double(__pyx_v_stationarystate); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_1 = __pyx_convert_map_to_py_std_3a__3a_string____double(__pyx_v_stationarystate); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_values); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_values); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __pyx_t_1 = NULL;
@@ -4739,44 +4695,44 @@ static PyObject *__pyx_pf_9phydmslib_5pybpp_19PyBppTreeLikelihood_16StationarySt
         }
       }
       if (__pyx_t_1) {
-        __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       } else {
-        __pyx_t_3 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_3 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       }
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_2);
       PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_3);
       __Pyx_GIVEREF(__pyx_t_3);
       __pyx_t_3 = 0;
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_sum, __pyx_t_2, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_sum, __pyx_t_2, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __pyx_t_2 = __Pyx_PyString_Format(__pyx_kp_s_The_sum_of_the_stationary_state, __pyx_t_3); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_2 = __Pyx_PyString_Format(__pyx_kp_s_The_sum_of_the_stationary_state, __pyx_t_3); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       PyErr_SetObject(PyExc_AssertionError, __pyx_t_2);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     }
   }
   #endif
 
-  /* "phydmslib/pybpp.pyx":251
+  /* "phydmslib/pybpp.pyx":249
  *         stationarystate = self.thisptr.StationaryState(isite)
  *         assert abs(sum(stationarystate.values()) - 1.0) < 1.0e-5, "The sum of the stationary state is not close to one: %g" % sum(stationarystate.values())
  *         return stationarystate             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __pyx_convert_map_to_py_std_3a__3a_string____double(__pyx_v_stationarystate); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 251; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __pyx_convert_map_to_py_std_3a__3a_string____double(__pyx_v_stationarystate); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 249; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "phydmslib/pybpp.pyx":240
+  /* "phydmslib/pybpp.pyx":238
  *         return clippedmodelparams
  * 
  *     def StationaryState(self, int isite):             # <<<<<<<<<<<<<<
@@ -5519,7 +5475,7 @@ static PyTypeObject __pyx_type_9phydmslib_5pybpp_PyBppTreeLikelihood = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "Python wrapped *BppTreeLikelihood* for phylogenetic calculations using ``Bio++``.\n\n    This class wraps a ``C++`` interface to the ``Bio++`` package. It defines\n    a single object that can be used for calculating likelihoods, optimizing\n    model parameters, optimizing branch lengths, and (for some models) optimizing\n    tree topology.\n\n    Objects are instantiated like this:\n\n        *bpptl = BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, fixedmodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, recursion)*\n\n    where:\n\n        * *seqnames* is a list of strings giving sequence names (must be unique).\n\n        * *seqs* is a list of the same length as *seqnames* giving the sequences\n          as upper case ``A``, ``C``, ``G``, ``T``, and ``-`` characters. Must \n          be aligned, and so all must be the same length. They should be\n          coding sequences with stop codons trimmed (you may get an undiagnosable\n          error if this is not true).\n\n        * *treefile* is an existing file holding a tree in Newick format with tips\n          that match those in *seqnames*. Note that this Newick tree can **not**\n          have named internal nodes or you will get an error.\n\n        * *model* specifies the substitution model. Allowed values:\n\n            - Variants of the *YNGKP* models of Yang et al, Genetics (2000) \n              (http://www.genetics.org/content/155/1/431.full)\n              are specified by a string taking the form *YNGKP_XX_YY* where *XX*\n              is method for :math:`\\omega` (the dN/dS ratio), and *YY* is method\n              to get the equilibrium codon frequencies. For *XX*, the options are:\n\n                - *M0* is a single :math:`\\omega` fit by maximum likelihood.\n\n                - *M7* is 3 discrete values of :math:`\\omega` between 0 and 1 drawn from\n                  beta distribution with shape optimized by maximum likelihood.\n\n                - *M8* is like *M7* but with a fourth category with :math:`\\omega > 1`.\n               \n              For *YY*, the valid options are:\n\n                - *fitF3X4* : fit 9 nucleotide frequencies according the F3X4 method.\n\n                - *empF3X4* : frequencies empirically determined from the alignment.\n\n              So for instance, *model* might be *YNGKP_M0_empF3X4*.\n\n            - Experimentally informed substitution models are specified by the\n              2-tuple *('ExpCM', aaprefs)* where *aaprefs* is a dictionary\n              keyed by integers for every codon site for the sequences in\n              *seqs* (1, 2, ... numbering) and the values are dictionaries\n              keyed by all 20 amino-acids with values the numerical preference\n              for that amino acid at that site.\n\n        * *infertopology* is a Boolean switch specifying if we infer tree topology or\n          fix topology to that in *treefile*. Must be *False* if using \n          *YNGKP_M?_F3X4* with *?* > 0.\n\n        * *fixedmodelparams* is a dictionary keyed by names of model parameters to\n           fix, with float values being what to fix them to.\n\n        * *oldlikelihoodmethod* is a Boolean switch that specifies that we use the old\n          (not the ``NewLikelihood``) methods of ``Bio++``. Only compatible with\n          non-partitioned models.\n\n        * *fixbrlen* is a Boolean switch that specifies that we fix the branch lengths to\n          those in *treefile*. Can only be used if *infertopology* is *False*.\n\n        * *addrateparameter* is a Boolean switch specifying that we add a \n          parameter that scales the rates. Only makes sense when *fixbrlen*\n          is *True*. Can only be used for *YNGKP_M0* and *ExpCM* models.\n\n        * *recursion* is the ``Bio++`` likelihood recursion, which can be 'S' (simple)\n          or 'D' (double).\n    ", /*tp_doc*/
+  "Python wrapped *BppTreeLikelihood* for phylogenetic calculations using ``Bio++``.\n\n    This class wraps a ``C++`` interface to the ``Bio++`` package. It defines\n    a single object that can be used for calculating likelihoods, optimizing\n    model parameters, optimizing branch lengths, and (for some models) optimizing\n    tree topology.\n\n    Objects are instantiated like this:\n\n        *bpptl = BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, fixedmodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, recursion)*\n\n    where:\n\n        * *seqnames* is a list of strings giving sequence names (must be unique).\n\n        * *seqs* is a list of the same length as *seqnames* giving the sequences\n          as upper case ``A``, ``C``, ``G``, ``T``, and ``-`` characters. Must \n          be aligned, and so all must be the same length. They should be\n          coding sequences with stop codons trimmed (you may get an undiagnosable\n          error if this is not true).\n\n        * *treefile* is an existing file holding a tree in Newick format with tips\n          that match those in *seqnames*. Note that this Newick tree can **not**\n          have named internal nodes or you will get an error.\n\n        * *model* specifies the substitution model. Allowed values:\n\n            - Variants of the *YNGKP* models of Yang et al, Genetics (2000) \n              (http://www.genetics.org/content/155/1/431.full)\n              are specified by a string taking the form *YNGKP_XX_YY* where *XX*\n              is method for :math:`\\omega` (the dN/dS ratio), and *YY* is method\n              to get the equilibrium codon frequencies. For *XX*, the options are:\n\n                - *M0* is a single :math:`\\omega` fit by maximum likelihood.\n\n                - *M7* is 3 discrete values of :math:`\\omega` between 0 and 1 drawn from\n                  beta distribution with shape optimized by maximum likelihood.\n\n                - *M8* is like *M7* but with a fourth category with :math:`\\omega > 1`.\n               \n              For *YY*, the valid options are:\n\n                - *fitF3X4* : fit 9 nucleotide frequencies according the F3X4 method.\n\n                - *empF3X4* : frequencies empirically determined from the alignment.\n\n              So for instance, *model* might be *YNGKP_M0_empF3X4*.\n\n            - Experimentally informed substitution models are specified by the\n              2-tuple *('ExpCM', aaprefs)* where *aaprefs* is a dictionary\n              keyed by integers for every codon site for the sequences in\n              *seqs* (1, 2, ... numbering) and the values are dictionaries\n              keyed by all 20 amino-acids with values the numerical preference\n              for that amino acid at that site.\n\n        * *infertopology* is a Boolean switch specifying if we infer tree topology or\n          fix topology to that in *treefile*. Must be *False* if using \n          *YNGKP_M?_F3X4* with *?* > 0.\n\n        * *fixedmodelparams* is a dictionary keyed by names of model parameters to\n           fix, with float values being what to fix them to.\n\n        * *oldlikelihoodmethod* is a Boolean switch that specifies that we use the old\n          (not the ``NewLikelihood``) methods of ``Bio++``. Only compatible with\n          non-partitioned models.\n\n        * *fixbrlen* is a Boolean switch that specifies that we fix the branch lengths to\n          those in *treefile*. Can only be used if *infertopology* is *False*.\n\n        * *addrateparameter* is a Boolean switch specifying that we add a \n          parameter that scales the rates. Only makes sense when *fixbrlen*\n          is *True*. \n\n        * *recursion* is the ``Bio++`` likelihood recursion, which can be 'S' (simple)\n          or 'D' (double).\n    ", /*tp_doc*/
   __pyx_tp_traverse_9phydmslib_5pybpp_PyBppTreeLikelihood, /*tp_traverse*/
   __pyx_tp_clear_9phydmslib_5pybpp_PyBppTreeLikelihood, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -5580,7 +5536,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_Bio_Alphabet_IUPAC, __pyx_k_Bio_Alphabet_IUPAC, sizeof(__pyx_k_Bio_Alphabet_IUPAC), 0, 0, 1, 1},
   {&__pyx_n_s_Bio_Phylo, __pyx_k_Bio_Phylo, sizeof(__pyx_k_Bio_Phylo), 0, 0, 1, 1},
   {&__pyx_n_s_Bio_Seq, __pyx_k_Bio_Seq, sizeof(__pyx_k_Bio_Seq), 0, 0, 1, 1},
-  {&__pyx_kp_s_Cannot_addrateparameter_with_s, __pyx_k_Cannot_addrateparameter_with_s, sizeof(__pyx_k_Cannot_addrateparameter_with_s), 0, 0, 1, 0},
   {&__pyx_kp_s_Cannot_infer_topology_with_s, __pyx_k_Cannot_infer_topology_with_s, sizeof(__pyx_k_Cannot_infer_topology_with_s), 0, 0, 1, 0},
   {&__pyx_n_s_D, __pyx_k_D, sizeof(__pyx_k_D), 0, 0, 1, 1},
   {&__pyx_kp_s_Duplicated_model_param_s_after_c, __pyx_k_Duplicated_model_param_s_after_c, sizeof(__pyx_k_Duplicated_model_param_s_after_c), 0, 0, 1, 0},
@@ -5667,10 +5622,10 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
 static int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 131; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_builtin_all = __Pyx_GetBuiltinName(__pyx_n_s_all); if (!__pyx_builtin_all) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 134; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_builtin_ord = __Pyx_GetBuiltinName(__pyx_n_s_ord); if (!__pyx_builtin_ord) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 169; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_builtin_open = __Pyx_GetBuiltinName(__pyx_n_s_open); if (!__pyx_builtin_open) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 191; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_builtin_sum = __Pyx_GetBuiltinName(__pyx_n_s_sum); if (!__pyx_builtin_sum) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_builtin_ord = __Pyx_GetBuiltinName(__pyx_n_s_ord); if (!__pyx_builtin_ord) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 165; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_builtin_open = __Pyx_GetBuiltinName(__pyx_n_s_open); if (!__pyx_builtin_open) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_builtin_sum = __Pyx_GetBuiltinName(__pyx_n_s_sum); if (!__pyx_builtin_sum) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -5713,58 +5668,58 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
-  /* "phydmslib/pybpp.pyx":169
+  /* "phydmslib/pybpp.pyx":167
  *         self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixedmodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, ord(recursion))
  *         if self.thisptr is NULL:
  *             raise MemoryError("Failed to allocate pointer to BppTreeLikelihood")             # <<<<<<<<<<<<<<
  * 
  *     def __dealloc__(self):
  */
-  __pyx_tuple__5 = PyTuple_Pack(1, __pyx_kp_s_Failed_to_allocate_pointer_to_Bp); if (unlikely(!__pyx_tuple__5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 169; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple__5 = PyTuple_Pack(1, __pyx_kp_s_Failed_to_allocate_pointer_to_Bp); if (unlikely(!__pyx_tuple__5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__5);
   __Pyx_GIVEREF(__pyx_tuple__5);
 
-  /* "phydmslib/pybpp.pyx":191
+  /* "phydmslib/pybpp.pyx":189
  *             f.close() # close, but we still have the path fname
  *             self.thisptr.NewickTree(fname)
  *             with open(fname) as f:             # <<<<<<<<<<<<<<
  *                 newicktree = f.read()
  *         finally:
  */
-  __pyx_tuple__6 = PyTuple_Pack(3, Py_None, Py_None, Py_None); if (unlikely(!__pyx_tuple__6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 191; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple__6 = PyTuple_Pack(3, Py_None, Py_None, Py_None); if (unlikely(!__pyx_tuple__6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__6);
   __Pyx_GIVEREF(__pyx_tuple__6);
 
-  /* "phydmslib/pybpp.pyx":229
+  /* "phydmslib/pybpp.pyx":227
  *             ignored = self.thisptr.OptimizationIgnoredParameters()
  *             if len(ignored):
  *                 for ignore in ignored.split(','):             # <<<<<<<<<<<<<<
  *                     ignorematch = re.compile(ignore.replace('*', '.*'))
  *                     modelparams = dict([(param, value) for (param, value) in modelparams.items() if not ignorematch.search(param)])
  */
-  __pyx_tuple__8 = PyTuple_Pack(1, __pyx_kp_s__7); if (unlikely(!__pyx_tuple__8)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple__8 = PyTuple_Pack(1, __pyx_kp_s__7); if (unlikely(!__pyx_tuple__8)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 227; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__8);
   __Pyx_GIVEREF(__pyx_tuple__8);
 
-  /* "phydmslib/pybpp.pyx":230
+  /* "phydmslib/pybpp.pyx":228
  *             if len(ignored):
  *                 for ignore in ignored.split(','):
  *                     ignorematch = re.compile(ignore.replace('*', '.*'))             # <<<<<<<<<<<<<<
  *                     modelparams = dict([(param, value) for (param, value) in modelparams.items() if not ignorematch.search(param)])
  *         # clip the prefix (typically "YN98." or "ExpCM." from the model parameter)
  */
-  __pyx_tuple__10 = PyTuple_Pack(2, __pyx_kp_s__4, __pyx_kp_s__9); if (unlikely(!__pyx_tuple__10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 230; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple__10 = PyTuple_Pack(2, __pyx_kp_s__4, __pyx_kp_s__9); if (unlikely(!__pyx_tuple__10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 228; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__10);
   __Pyx_GIVEREF(__pyx_tuple__10);
 
-  /* "phydmslib/pybpp.pyx":235
+  /* "phydmslib/pybpp.pyx":233
  *         clippedmodelparams = {}
  *         for modelparam in modelparams:
  *             clippedmodelparam = modelparam[modelparam.index('.') + 1 : ]             # <<<<<<<<<<<<<<
  *             assert clippedmodelparam not in clippedmodelparams, "Duplicated model param %s after clipping" % clippedmodelparam
  *             clippedmodelparams[clippedmodelparam] = modelparams[modelparam]
  */
-  __pyx_tuple__12 = PyTuple_Pack(1, __pyx_kp_s__11); if (unlikely(!__pyx_tuple__12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple__12 = PyTuple_Pack(1, __pyx_kp_s__11); if (unlikely(!__pyx_tuple__12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 233; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__12);
   __Pyx_GIVEREF(__pyx_tuple__12);
   __Pyx_RefNannyFinishContext();
