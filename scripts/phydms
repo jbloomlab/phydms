@@ -224,7 +224,7 @@ def main():
             fixedmodelparams = {}
             for (param, value) in allmodelparams.items():
                 for excludeparam in excludeparams:
-                    if excludeparam in param:
+                    if excludeparam == param:
                         break
                 else:
                     fixedmodelparams[param] = value
