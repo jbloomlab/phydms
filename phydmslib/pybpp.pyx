@@ -148,8 +148,11 @@ cdef class PyBppTreeLikelihood:
                 raise ValueError("Cannot infer topology with %s" % model)
         elif isinstance(model, tuple) and len(model) == 2 and model[0] == 'ExpCM':
             assert isinstance(model[1], dict), "Second entry in model tuple not preferences dict"
+            sites = model[1].keys()
+            assert len(sites) == len(set(sites)) and min(sites) == 1 and max(sites) == len(seqs[0]) // 3, "Invalid sites in preferences: %s" % str(sites)
             for (r, rprefs) in model[1].items():
                 assert isinstance(r, int) and isinstance(rprefs, dict), "preferences must by int keys, dict values"
+                assert (sum(rprefs.values()) - 1.0) < 1.0e-5, "preferences do not sum to one"
                 for codon in self.codons:
                     aa = self.codon_to_aa[codon]
                     if aa in self.aminoacids:

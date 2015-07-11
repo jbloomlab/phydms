@@ -12,6 +12,7 @@ import logging
 import random
 import tempfile
 import time
+import scipy.stats
 import Bio.SeqRecord
 import Bio.Phylo
 import Bio.Phylo.TreeConstruction
@@ -50,8 +51,9 @@ def main():
     modelparamsfile = '%s_modelparams.txt' % args['outprefix']
     loglikelihoodfile = '%s_loglikelihood.txt' % args['outprefix']
     treefile = "%s_tree.newick" % args['outprefix']
+    omegafile = '%s_omegabysite.txt' % args['outprefix']
     logfile = "%s.log" % args['outprefix']
-    for f in [modelparamsfile, loglikelihoodfile, treefile, logfile]:
+    for f in [modelparamsfile, loglikelihoodfile, treefile, omegafile, logfile]:
         if os.path.isfile(f):
             os.remove(f)
 
@@ -238,7 +240,7 @@ def main():
                 if model[ : 7] == 'YNGKP_M':
                     imodel = 'YNGKP_M0_fitF3X4' # single omega for the site, M0 model
                 elif isinstance(model, tuple) and model[0] == 'ExpCM':
-                    imodel = ('ExpCM', {icodon:aaprefs[icodon]})
+                    imodel = ('ExpCM', {1:aaprefs[icodon]})
                 else:
                     raise ValueError("Invalid model")
                 iseqs = [seq[3 * icodon  - 3 : 3 * icodon] for seq in seqs]
@@ -246,19 +248,20 @@ def main():
                     ifixedmodelparams = dict([(param, value) for (param, value) in fixedmodelparams.items()])
                     if fitomega == 'fixed':
                         ifixedmodelparams['omega'] = fixedomegavalue
-                    logger.info('Setting up Bio++ object to evaluate site likelihood with a %s omega...' % fitomega)
                     tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=True, recursion=args['recursion']) 
-                    logger.info('Now optimizing the site likelihood...')
                     tl.OptimizeLikelihood()
-                    fitomegaresults[icodon][fitomega] = {\
-                            'log likelihood':tl.LogLikelihood(),\
-                            'model parameters':tl.ModelParams(True),\
-                            'all model parameters':tl.ModelParams(True),\
-                            }
-                    logger.info('Completed optimizing the site likelihood with %s omega:\n\tlog likelihood: %g\n\tfitted model parameters: %s\n\tall model parameters: %s' % (fitomega, tl.LogLikelihood(), ', '.join(['%s = %g' % tup for tup in tl.ModelParams(True).items()]), ', '.join(['%s = %g' % tup for tup in tl.ModelParams(False).items()])))
-                fitomegaresults[icodon]['omega'] = fitomegaresults[icodon]['fitted']['model parameters']['omega']
-                fitomegaresults[icodon]['dLnL'] = fitomegaresults[icodon]['fitted']['log likelihood'] - fitomegaresults[icodon]['fixed']['log likelihood']
-                logger.info('For site %d, fitting omega to a value of %.2f increases the log likelihood by %.2f relative to a model that fixes omega at %.2f.\n' % (icodon, fitomegaresults[icodon]['omega'], fitomegaresults[icodon]['dLnL'], fixedomegavalue))
+                    fitomegaresults[icodon]["LnL_%s" % fitomega] = tl.LogLikelihood()
+                    if fitomega == 'fitted':
+                        fitomegaresults[icodon]['omega'] = tl.ModelParams(True)['omega']
+                    #logger.info('Completed optimizing the site likelihood with %s omega:\n\tlog likelihood: %g\n\tfitted model parameters: %s\n\tall model parameters: %s' % (fitomega, tl.LogLikelihood(), ', '.join(['%s = %g' % tup for tup in tl.ModelParams(True).items()]), ', '.join(['%s = %g' % tup for tup in tl.ModelParams(False).items()])))
+                fitomegaresults[icodon]['dLnL'] = fitomegaresults[icodon]['LnL_fitted'] - fitomegaresults[icodon]['LnL_fixed']
+                fitomegaresults[icodon]['P'] = scipy.stats.chi2.sf(2.0 * fitomegaresults[icodon]['dLnL'], df=1)
+                logger.info('Fitting omega to %.2f increases LnL by %.2f relative to fixing omega at %.2f (P-value %.2g).\n' % (fitomegaresults[icodon]['omega'], fitomegaresults[icodon]['dLnL'], fixedomegavalue, fitomegaresults[icodon]['P']))
+        fitomegaresults = [(d['P'], site, d['omega'], d['dLnL']) for (site, d) in fitomegaresults.items()]
+        fitomegaresults.sort()
+        logger.info('Now writing the full results of the omega-by-site analysis to %s\n' % omegafile)
+        with open(omegafile, 'w') as f:
+            f.write("# Omega fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of omega = %.2f; P-values NOT corrected for multiple testing.\n#\n# site\tomega\tdLnL\tP\n%s" % (fixedomegavalue, '\n'.join(['%d\t%.2f\t%.1g\t%.1g' % (site, omega, p, lnl) for (p, site, omega, lnl) in fitomegaresults])))
 
     except:
         logger.exception('Terminating %s at %s with ERROR' % (prog, time.asctime()))    

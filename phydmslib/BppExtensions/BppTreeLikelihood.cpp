@@ -216,7 +216,7 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         substitutionprocesscollection->addTree(new bpp::ParametrizableTree(*tree), sharedtreeindex); 
         substitutionprocesscollection->addDistribution(ratedistribution, sharedrateindex); 
         std::vector<size_t> processbysite;
-        if (models.size() == 1) { // all models the same
+        if ((models.size() == 1) && (modelstring != "ExpCM")) { // all models the same
             substitutionprocesscollection->addModel(models[sharedmodelindex], sharedmodelindex);
             map<size_t, vector<int> > mModBr; // keyed by model, values are branches to which model is assigned
             for (int ibranch=0; ibranch<(int) substitutionprocesscollection->getTree(sharedtreeindex).getNumberOfBranches(); ibranch++) {

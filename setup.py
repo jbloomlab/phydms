@@ -120,6 +120,7 @@ setup(
         'biopython>=1.65',\
         'cython>=0.21',\
         'dms_tools>=1.1.2',\
+        'scipy>=0.13',\
         ],
     platforms = 'Linux',
     packages = ['phydmslib'],
