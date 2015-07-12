@@ -68,9 +68,10 @@ namespace bppextensions {
              * @param addrateparameter Add a parameter that scales all rates. You can only use this if fixing branch lengths (fixbrlen =! 0)
              *
              * @param recursion Recursion method used for likelihood. Can be "S" for simple or "D" for double.
-             * 
+             *
+             * @param fixpreferences Do we fix the preferences or treat as parameters?
              */
-            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, char recursion);
+            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, char recursion, int fixpreferences);
 
             /**
              *@brief Destructor

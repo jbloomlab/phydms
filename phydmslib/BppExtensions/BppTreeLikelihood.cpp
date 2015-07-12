@@ -31,7 +31,7 @@ namespace patch
 
 
 // constructor
-bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, char recursion)
+bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, char recursion, int fixpreferences)
 {
 
     // setup some parameters / options
@@ -164,7 +164,7 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
             }
             init_rprefs[alphabet->getNumberOfTypes() - 1] = 0.0; // this is the ambiguous character code
             bpp::FullCodonFrequenciesSet *rprefs = new bpp::FullCodonFrequenciesSet(gcode, init_rprefs);
-            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM."));
+            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM.", fixpreferences != 0));
             if (! models[isite]) {
                 throw std::runtime_error("error casting ExperimentallyInformedCodonModel");
             }

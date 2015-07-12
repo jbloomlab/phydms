@@ -196,7 +196,7 @@ def main():
             with os.fdopen(fd, 'w') as f:
                 f.write(newicktree)
             # we use oldlikelihoodmethod if inferring topology
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, oldlikelihoodmethod=args['infertopology'], fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], recursion=args['recursion'])
+            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, oldlikelihoodmethod=args['infertopology'], fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], recursion=args['recursion'], fixpreferences=True)
         finally:
             if os.path.isfile(temptreefile):
                 os.remove(temptreefile)
@@ -250,7 +250,7 @@ def main():
                     ifixedmodelparams = dict([(param, value) for (param, value) in fixedmodelparams.items()])
                     if fitomega == 'fixed':
                         ifixedmodelparams['omega'] = fixedomegavalue
-                    tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=True, recursion=args['recursion']) 
+                    tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=True, recursion=args['recursion'], fixpreferences=True) 
                     tl.OptimizeLikelihood()
                     fitomegaresults[icodon]["LnL_%s" % fitomega] = tl.LogLikelihood()
                     if fitomega == 'fitted':
@@ -282,7 +282,7 @@ def main():
                     if fitstringency == 'fixed':
                         ifixedmodelparams['stringencyparameter'] = fixedstringencyvalue
                     imodel = ('ExpCM', {1:aaprefs[icodon]})
-                    tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, recursion=args['recursion']) 
+                    tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, recursion=args['recursion'], fixpreferences=True) 
                     tl.OptimizeLikelihood()
                     fitstringencyresults[icodon]["LnL_%s" % fitstringency] = tl.LogLikelihood()
                     if fitstringency == 'fitted':

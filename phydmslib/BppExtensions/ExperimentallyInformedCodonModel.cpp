@@ -53,7 +53,8 @@
 bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonModel(
     const bpp::GeneticCode* gCode,
     bpp::FrequenciesSet* preferences,
-    const std::string& prefix) :
+    const std::string& prefix,
+    bool fixpreferences) :
   AbstractParameterAliasable(prefix),
   AbstractCodonSubstitutionModel(gCode, new bpp::K80(dynamic_cast<const bpp::CodonAlphabet*>(gCode->getSourceAlphabet())->getNucleicAlphabet()), prefix),
   AbstractCodonPhaseFrequenciesSubstitutionModel(bpp::CodonFrequenciesSet::getFrequenciesSetForCodons(bpp::CodonFrequenciesSet::F1X4, gCode), prefix),
@@ -70,9 +71,9 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
   prefName_ = "preferences_" + preferences_->getNamespace();
   prefix_ = prefix;
   preferences_->setNamespace(prefix + prefName_);
-//  if (! fixpreferences) {
-//    addParameters_(preferences_->getParameters());
-//  }
+  if (! fixpreferences) {
+    addParameters_(preferences_->getParameters());
+  }
   addParameter_(new bpp::Parameter(prefix + "omega", 1, new bpp::IntervalConstraint(0.001, 99, true, true), true));
   addParameter_(new bpp::Parameter(prefix + "stringencyparameter", 1, new bpp::IntervalConstraint(0.01, 99, true, true), true));
   updateMatrices();
@@ -109,8 +110,8 @@ double bppextensions::ExperimentallyInformedCodonModel::getCodonsMulRate(size_t 
       * AbstractCodonPhaseFrequenciesSubstitutionModel::getCodonsMulRate(i,j);
   } else {
     double fixationprob;
-    double pi_i = preferences_->getFrequencies()[i];
-    double pi_j = preferences_->getFrequencies()[j];
+    double pi_i = std::pow(preferences_->getFrequencies()[i], stringencyparameter_);
+    double pi_j = std::pow(preferences_->getFrequencies()[j], stringencyparameter_);
     if (pi_j == pi_i) {
       fixationprob = 1;
     } else if (pi_i == 0) {
@@ -118,7 +119,7 @@ double bppextensions::ExperimentallyInformedCodonModel::getCodonsMulRate(size_t 
     } else if (pi_j == 0) {
       fixationprob = 0;
     } else {
-      fixationprob = stringencyparameter_ * std::log(pi_j / pi_i) / (1 - std::pow(pi_i / pi_j, stringencyparameter_));  // correct version of Halpern and Bruno (1998) equation; note that their paper has a typo
+      fixationprob = std::log(pi_j / pi_i) / (1 - (pi_i / pi_j));  // correct version of Halpern and Bruno (1998) equation; note that their paper has a typo
     }
     return omega_ * rateparameter_
       * AbstractCodonSubstitutionModel::getCodonsMulRate(i,j)
