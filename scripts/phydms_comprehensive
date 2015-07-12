@@ -100,9 +100,16 @@ def main():
                 os.remove(outdir)
             os.mkdir(outdir)
 
+    # suffixes of files created by phydms
+    filesuffixes = ['.log', '_tree.newick', '_loglikelihood.txt', '_modelparams.txt']
+
     # keyed by model names, value is (model, additional phydms options, number of empirical parameters)
-    additionalcmds = ['--omegabysite']
-    expcmadditionalcmds = ['--stringencybysite'] + additionalcmds
+    if not args['noomegabysite']:
+        additionalcmds = ['--omegabysite']
+        filesuffixes.append('_omegabysite.txt')
+    expcmadditionalcmds = additionalcmds
+    if not args['nostringencybysite']:
+        expcmadditionalcmds += ['--stringencybysite'] 
     models = {'YNGKP_M0':('YNGKP_M0', additionalcmds, 9),\
               'YNGKP_M7':('YNGKP_M7', additionalcmds, 9),\
               'YNGKP_M8':('YNGKP_M8', additionalcmds, 9),\
@@ -117,9 +124,6 @@ def main():
             models['randomized_%s' % modelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--randprefs'], 0)
         if args['avgprefs']:
             models['averaged_%s' % modelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--avgprefs'], 0)
-
-    # suffixes of files created by phydms
-    filesuffixes = ['.log', '_tree.newick', '_loglikelihood.txt', '_modelparams.txt']
 
     # file names slightly different depending on whether outprefix is directory or file
     if args['outprefix'][-1] == '/':
@@ -171,7 +175,11 @@ def main():
             for suffix in filesuffixes:
                 fname = "%s%s%s" % (args['outprefix'], model, suffix)
                 outfiles.append(fname)
-        for fname in outfiles + [modelcomparisonfile]:
+                if 'ExpCM' in model and not args['nostringencybysite']:
+                    outfiles.append("%s%s_stringencybysite.txt" % (args['outprefix'], model))
+        if os.path.isfile(modelcomparisonfile):
+            os.remove(modelcomparisonfile)
+        for fname in outfiles:
             if os.path.isfile(fname) and not args['use_existing']:
                 os.remove(fname)
                 removed.append(fname)
