@@ -282,7 +282,7 @@ def main():
                     if fitstringency == 'fixed':
                         ifixedmodelparams['stringencyparameter'] = fixedstringencyvalue
                     imodel = ('ExpCM', {1:aaprefs[icodon]})
-                    tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=True, recursion=args['recursion']) 
+                    tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, recursion=args['recursion']) 
                     tl.OptimizeLikelihood()
                     fitstringencyresults[icodon]["LnL_%s" % fitstringency] = tl.LogLikelihood()
                     if fitstringency == 'fitted':
