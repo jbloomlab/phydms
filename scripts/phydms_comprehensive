@@ -104,13 +104,15 @@ def main():
     filesuffixes = ['.log', '_tree.newick', '_loglikelihood.txt', '_modelparams.txt']
 
     # keyed by model names, value is (model, additional phydms options, number of empirical parameters)
+    additionalcmds = []
     if not args['noomegabysite']:
-        additionalcmds = ['--omegabysite']
+        additionalcmds.append('--omegabysite')
         filesuffixes.append('_omegabysite.txt')
     expcmadditionalcmds = additionalcmds
     if not args['nostringencybysite']:
         expcmadditionalcmds += ['--stringencybysite'] 
     models = {'YNGKP_M0':('YNGKP_M0', additionalcmds, 9),\
+              'YNGKP_M3':('YNGKP_M3', additionalcmds, 9),\
               'YNGKP_M7':('YNGKP_M7', additionalcmds, 9),\
               'YNGKP_M8':('YNGKP_M8', additionalcmds, 9),\
               }
@@ -191,7 +193,10 @@ def main():
         (model, additionalcmds, nempirical) = models[modelname]
         outprefix = "%s%s" % (args['outprefix'], modelname)
         treefile = '%s_tree.newick' % outprefix
-        if args['use_existing'] and all([os.path.isfile(outprefix + suffix) for suffix in filesuffixes]):
+        modelfilesuffixes = [suffix for suffix in filesuffixes]
+        if 'ExpCM' in model and not args['nostringencybysite']:
+            modelfilesuffixes.append('_stringencybysite.txt')
+        if args['use_existing'] and all([os.path.isfile(outprefix + suffix) for suffix in modelfilesuffixes]):
             logger.info('Using existing output for %s\n' % model)
         else:
             if args['treetopology']:

@@ -65,6 +65,10 @@ cdef class PyBppTreeLikelihood:
 
                 - *M0* is a single :math:`\omega` fit by maximum likelihood.
 
+                - *M3* is 3 discrete values of :math:`\omega` with weights and 
+                  values optimized by maximum likelihood.
+               
+
                 - *M7* is 3 discrete values of :math:`\omega` between 0 and 1 drawn from
                   beta distribution with shape optimized by maximum likelihood.
 

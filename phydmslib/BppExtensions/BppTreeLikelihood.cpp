@@ -11,6 +11,7 @@
 #include <Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h>
 #include <Bpp/Phyl/Io/BppOFrequenciesSetFormat.h>
 #include <Bpp/Phyl/Model/Codon/YN98.h>
+#include <Bpp/Phyl/Model/Codon/YNGKP_M3.h>
 #include <Bpp/Phyl/Model/Codon/YNGKP_M7.h>
 #include <Bpp/Phyl/Model/Codon/YNGKP_M8.h>
 #include "BppTreeLikelihood.h"
@@ -105,9 +106,9 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
     if ((modelstring.length() >= 12) && (modelstring.substr(0, 6) == "YNGKP_")) {
         if (modelstring.substr(modelstring.length() - 8, 8) == "_empF3X4") {
             if (optimizationparams["optimization.ignore_parameters"].empty()) {
-                optimizationparams["optimization.ignore_parameters"] = "*theta*"; 
+                optimizationparams["optimization.ignore_parameters"] = "*_Full.theta*"; 
             } else {
-                optimizationparams["optimization.ignore_parameters"] = optimizationparams["optimization.ignore_parameters"] + "," + "*theta*";
+                optimizationparams["optimization.ignore_parameters"] = optimizationparams["optimization.ignore_parameters"] + "," + "*_Full.theta*";
             }
         }
         else if (modelstring.substr(modelstring.length() - 8, 8) != "_fitF3X4") {
@@ -120,6 +121,9 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         // now set up the models
         if (modelstring.substr(6, 2) == "M0") {
             models[sharedmodelindex] = dynamic_cast<bpp::SubstitutionModel*>(new bpp::YN98(gcode, codonFreqs.release()));
+        }
+        else if (modelstring.substr(6, 2) == "M3") {
+            models[sharedmodelindex] = dynamic_cast<bpp::SubstitutionModel*>(new bpp::YNGKP_M3(gcode, codonFreqs.release(), 3));
         }
         else if (modelstring.substr(6, 2) == "M7") {
             models[sharedmodelindex] = dynamic_cast<bpp::SubstitutionModel*>(new bpp::YNGKP_M7(gcode, codonFreqs.release(), 3));

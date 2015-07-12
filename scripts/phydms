@@ -32,7 +32,7 @@ def main():
     """Main body of script."""
 
     # some regular expressions used later
-    yngkp_match = re.compile('^YNGKP_M(?P<modelvariant>[0,7,8])$')
+    yngkp_match = re.compile('^YNGKP_M(?P<modelvariant>[0,3,7,8])$')
 
     # Parse command line arguments
     parser = phydmslib.parsearguments.PhyDMSParser()
