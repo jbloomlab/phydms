@@ -141,7 +141,8 @@ cdef class PyBppTreeLikelihood:
         assert os.path.isfile(treefile), "treefile of %s does not specify an existing file" % treefile
         assert set([clade.name for clade in Bio.Phylo.read(treefile, 'newick').get_terminals()]) == set(seqnames), "treefile and seqnames do not specify the same set of sequence names"
         assert recursion in ['S', 'D'], "recursion must be 'S' or 'D'"
-        assert isinstance(fixedmodelparams, dict) and all([isinstance(key, str) for key in fixedmodelparams.keys()]) and all([isinstance(value, float) for value in fixedmodelparams.values()]), "fixedmodelparams is not a dictionary keyed by strings with float values"
+        assert isinstance(fixedmodelparams, dict) and all([isinstance(key, str) for key in fixedmodelparams.keys()]) and all([isinstance(value, (float, int)) for value in fixedmodelparams.values()]), "fixedmodelparams is not a dictionary keyed by strings with float values"
+        fixedmodelparams = dict([(key, float(value)) for (key, value) in fixedmodelparams.items()]) # convert any int values to floats
         #
         # now construct object after processing the model
         yngkp_match = re.compile('^YNGKP_M(?P<modelvariant>\d+)_(emp|fit)F3X4$')
