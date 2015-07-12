@@ -263,7 +263,7 @@ def main():
             fitomegaresults.sort()
             logger.info('Now writing the full results of the omega-by-site analysis to %s\n' % omegafile)
             with open(omegafile, 'w') as f:
-                f.write("# Omega fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of omega = %.2f; P-values NOT corrected for multiple testing.\n#\n# site\tomega\tdLnL\tP\n%s" % (fixedomegavalue, '\n'.join(['%d\t%.2f\t%.1g\t%.1g' % (site, omega, p, lnl) for (p, site, omega, lnl) in fitomegaresults])))
+                f.write("# Omega fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of omega = %.2f; P-values NOT corrected for multiple testing.\n#\n# site\tomega\tdP\tdLnL\n%s" % (fixedomegavalue, '\n'.join(['%d\t%.2f\t%.1g\t%.2f' % (site, omega, p, lnl) for (p, site, omega, lnl) in fitomegaresults])))
 
         if args['stringencybysite']:
             assert isinstance(model, tuple) and model[0] == 'ExpCM', "stringencybysite only allowed for ExpCM"
@@ -295,7 +295,7 @@ def main():
             fitstringencyresults.sort()
             logger.info('Now writing the full results of the stringency-by-site analysis to %s\n' % stringencyfile)
             with open(stringencyfile, 'w') as f:
-                f.write("# Stringency fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of stringency = %.2f (the overall gene value).\nP-values NOT corrected for multiple testing.\n# The stringency ratio is the ratio of the fitted value to the null (overall gene value).\n#\n# site\tostringency_ratio\tdLnL\tP\n%s" % (fixedstringencyvalue, '\n'.join(['%d\t%.2f\t%.1g\t%.1g' % (site, d['stringency_ratio'], p, lnl) for (p, site, stringency, lnl) in fitstringencyresults])))
+                f.write("# Stringency fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of stringency = %.2f (the overall gene value).\nP-values NOT corrected for multiple testing.\n# The stringency ratio is the ratio of the fitted value to the null (overall gene value).\n#\n# site\tostringency_ratio\tP\tdLnL\n%s" % (fixedstringencyvalue, '\n'.join(['%d\t%.2f\t%.1g\t%.2f' % (site, d['stringency_ratio'], p, lnl) for (p, site, stringency, lnl) in fitstringencyresults])))
 
     except:
         logger.exception('Terminating %s at %s with ERROR' % (prog, time.asctime()))    
