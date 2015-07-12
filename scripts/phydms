@@ -52,8 +52,9 @@ def main():
     loglikelihoodfile = '%s_loglikelihood.txt' % args['outprefix']
     treefile = "%s_tree.newick" % args['outprefix']
     omegafile = '%s_omegabysite.txt' % args['outprefix']
+    stringencyfile = '%s_stringencybysite.txt' % args['outprefix']
     logfile = "%s.log" % args['outprefix']
-    for f in [modelparamsfile, loglikelihoodfile, treefile, omegafile, logfile]:
+    for f in [modelparamsfile, loglikelihoodfile, treefile, omegafile, stringencyfile, logfile]:
         if os.path.isfile(f):
             os.remove(f)
 
@@ -95,6 +96,7 @@ def main():
 
         # process the substitution model
         if isinstance(args['model'], str) and yngkp_match.search(args['model']):
+            assert not args['stringencybysite'], "You cannot use '--stringencybysite' with a non-experimentally informed model as there are no preferences to have their stringency adjusted."
             assert not args['avgprefs'], "You cannot use '--avgprefs' with a non-experimentally informed model as there are no preferences to average"
             assert not args['randprefs'], "You cannot use '--randprefs' with a non-experimentally informed model as there are no preferences to randomize"
             modelvariant = yngkp_match.search(args['model']).group('modelvariant')
@@ -257,11 +259,43 @@ def main():
                 fitomegaresults[icodon]['dLnL'] = fitomegaresults[icodon]['LnL_fitted'] - fitomegaresults[icodon]['LnL_fixed']
                 fitomegaresults[icodon]['P'] = scipy.stats.chi2.sf(2.0 * fitomegaresults[icodon]['dLnL'], df=1)
                 logger.info('Fitting omega to %.2f increases LnL by %.2f relative to fixing omega at %.2f (P-value %.2g).\n' % (fitomegaresults[icodon]['omega'], fitomegaresults[icodon]['dLnL'], fixedomegavalue, fitomegaresults[icodon]['P']))
-        fitomegaresults = [(d['P'], site, d['omega'], d['dLnL']) for (site, d) in fitomegaresults.items()]
-        fitomegaresults.sort()
-        logger.info('Now writing the full results of the omega-by-site analysis to %s\n' % omegafile)
-        with open(omegafile, 'w') as f:
-            f.write("# Omega fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of omega = %.2f; P-values NOT corrected for multiple testing.\n#\n# site\tomega\tdLnL\tP\n%s" % (fixedomegavalue, '\n'.join(['%d\t%.2f\t%.1g\t%.1g' % (site, omega, p, lnl) for (p, site, omega, lnl) in fitomegaresults])))
+            fitomegaresults = [(d['P'], site, d['omega'], d['dLnL']) for (site, d) in fitomegaresults.items()]
+            fitomegaresults.sort()
+            logger.info('Now writing the full results of the omega-by-site analysis to %s\n' % omegafile)
+            with open(omegafile, 'w') as f:
+                f.write("# Omega fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of omega = %.2f; P-values NOT corrected for multiple testing.\n#\n# site\tomega\tdLnL\tP\n%s" % (fixedomegavalue, '\n'.join(['%d\t%.2f\t%.1g\t%.1g' % (site, omega, p, lnl) for (p, site, omega, lnl) in fitomegaresults])))
+
+        if args['stringencybysite']:
+            assert isinstance(model, tuple) and model[0] == 'ExpCM', "stringencybysite only allowed for ExpCM"
+            fixedstringencyvalue = modelparams['stringencyparameter'] # null model fixes stringency to this value
+            fixedmodelparams = dict([(param, value) for (param, value) in allmodelparams.items() if param != 'stringencyparameter'])
+            logger.info('Now optimizing a different stringency parameter for each site while keeping branch lengths and other model parameters fixed (but adding a rate parameter that effectively scales the branch lengths). This will be compared to a null model where the stringency parameter is equal to the overall gene value of %.2f.' % fixedstringencyvalue)
+            logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
+            logger.info('The model parameters (other than the stringency parameter and the rate) will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
+            fitstringencyresults = {} # keyed by site
+            for icodon in range(1, len(seqs[0]) // 3 + 1):
+                fitstringencyresults[icodon] = {}
+                logger.info('Fitting models for site %d with stringency as a free parameter and fixed to %.2f.' % (icodon, fixedstringencyvalue))
+                iseqs = [seq[3 * icodon  - 3 : 3 * icodon] for seq in seqs]
+                for fitstringency in ['fitted', 'fixed']:
+                    ifixedmodelparams = dict([(param, value) for (param, value) in fixedmodelparams.items()])
+                    if fitstringency == 'fixed':
+                        ifixedmodelparams['stringencyparameter'] = fixedstringencyvalue
+                    imodel = ('ExpCM', {1:aaprefs[icodon]})
+                    tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=True, recursion=args['recursion']) 
+                    tl.OptimizeLikelihood()
+                    fitstringencyresults[icodon]["LnL_%s" % fitstringency] = tl.LogLikelihood()
+                    if fitstringency == 'fitted':
+                        fitstringencyresults[icodon]['stringency'] = tl.ModelParams(True)['stringencyparameter']
+                        fitstringencyresults[icodon]['stringency_ratio'] = fitstringencyresults[icodon]['stringency'] / fixedstringencyvalue
+                fitstringencyresults[icodon]['dLnL'] = fitstringencyresults[icodon]['LnL_fitted'] - fitstringencyresults[icodon]['LnL_fixed']
+                fitstringencyresults[icodon]['P'] = scipy.stats.chi2.sf(2.0 * fitstringencyresults[icodon]['dLnL'], df=1)
+                logger.info('Fitting a stringency ratio of %.2f (fitted value of %.2f versus gene value of %.2f) increases LnL by %.2f (P-value %.2g).\n' % (fitstringencyresults[icodon]['stringency_ratio'], fitstringencyresults[icodon]['stringency'], fixedstringencyvalue, fitstringencyresults[icodon]['dLnL'], fitstringencyresults[icodon]['P']))
+            fitstringencyresults = [(d['P'], site, d['stringency_ratio'], d['dLnL']) for (site, d) in fitstringencyresults.items()]
+            fitstringencyresults.sort()
+            logger.info('Now writing the full results of the stringency-by-site analysis to %s\n' % stringencyfile)
+            with open(stringencyfile, 'w') as f:
+                f.write("# Stringency fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of stringency = %.2f (the overall gene value).\nP-values NOT corrected for multiple testing.\n# The stringency ratio is the ratio of the fitted value to the null (overall gene value).\n#\n# site\tostringency_ratio\tdLnL\tP\n%s" % (fixedstringencyvalue, '\n'.join(['%d\t%.2f\t%.1g\t%.1g' % (site, d['stringency_ratio'], p, lnl) for (p, site, stringency, lnl) in fitstringencyresults])))
 
     except:
         logger.exception('Terminating %s at %s with ERROR' % (prog, time.asctime()))    

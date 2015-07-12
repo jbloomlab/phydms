@@ -102,6 +102,7 @@ def main():
 
     # keyed by model names, value is (model, additional phydms options, number of empirical parameters)
     additionalcmds = ['--omegabysite']
+    expcmadditionalcmds = ['--stringencybysite'] + additionalcmds
     models = {'YNGKP_M0':('YNGKP_M0', additionalcmds, 9),\
               'YNGKP_M7':('YNGKP_M7', additionalcmds, 9),\
               'YNGKP_M8':('YNGKP_M8', additionalcmds, 9),\
@@ -111,11 +112,11 @@ def main():
         if re.search('\s', prefsfile):
             raise ValueError("There is a space in the preferences file name: %s" % prefsfile)
         modelname = 'ExpCM_%s' % os.path.splitext(prefsfile)[0].replace('/', '_')
-        models[modelname] = ('ExpCM_%s' % prefsfile, additionalcmds, 0)
+        models[modelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds, 0)
         if args['randprefs']:
-            models['randomized_%s' % modelname] = ('ExpCM_%s' % prefsfile, additionalcmds + ['--randprefs'], 0)
+            models['randomized_%s' % modelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--randprefs'], 0)
         if args['avgprefs']:
-            models['averaged_%s' % modelname] = ('ExpCM_%s' % prefsfile, additionalcmds + ['--avgprefs'], 0)
+            models['averaged_%s' % modelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--avgprefs'], 0)
 
     # suffixes of files created by phydms
     filesuffixes = ['.log', '_tree.newick', '_loglikelihood.txt', '_modelparams.txt']

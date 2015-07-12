@@ -80,10 +80,12 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         throw std::runtime_error("No sites are specified");
     }
 
-    // indexes for shared aspects of substitution process collection
+    // initialize some values
     sharedtreeindex = 0;
     size_t sharedrateindex = 0;
     sharedmodelindex = 0;
+    sequenceevolution = 0;
+    tree = 0;
 
     // read in tree
     treeReaderWriter = new bpp::Newick(true); // true indicates comments allowed in brackets
@@ -112,35 +114,33 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
             throw std::invalid_argument("Invalid YNGKP frequencies method");
         }
         // These next few lines parallel bpp::PhylogeneticsApplicationTools::getSubstitutionModel to set up models
-        bpp::SubstitutionModel *sharedmodel = 0;
         bpp::BppOFrequenciesSetFormat freqReader(bpp::BppOFrequenciesSetFormat::ALL, verbose, 1);
         freqReader.setGeneticCode(gcode);
         auto_ptr<bpp::FrequenciesSet> codonFreqs(freqReader.read(alphabet, "F3X4", sites, true));
         // now set up the models
         if (modelstring.substr(6, 2) == "M0") {
-            sharedmodel = dynamic_cast<bpp::SubstitutionModel*>(new bpp::YN98(gcode, codonFreqs.release()));
+            models[sharedmodelindex] = dynamic_cast<bpp::SubstitutionModel*>(new bpp::YN98(gcode, codonFreqs.release()));
         }
         else if (modelstring.substr(6, 2) == "M7") {
-            sharedmodel = dynamic_cast<bpp::SubstitutionModel*>(new bpp::YNGKP_M7(gcode, codonFreqs.release(), 3));
+            models[sharedmodelindex] = dynamic_cast<bpp::SubstitutionModel*>(new bpp::YNGKP_M7(gcode, codonFreqs.release(), 3));
         }
         else if (modelstring.substr(6, 2) == "M8") {
-            sharedmodel = dynamic_cast<bpp::SubstitutionModel*>(new bpp::YNGKP_M8(gcode, codonFreqs.release(), 3));
+            models[sharedmodelindex] = dynamic_cast<bpp::SubstitutionModel*>(new bpp::YNGKP_M8(gcode, codonFreqs.release(), 3));
         } else {
             throw std::invalid_argument("Invalid model variant of YNGKP");
         }
-        if (! sharedmodel) {
+        if (! models[sharedmodelindex]) {
             throw std::runtime_error("Error casting sharedmodel");
         }
         if (nsites == 1) {
             // add a pseudocount if only one site, as some frequencies are likely to be near zero
-            sharedmodel->setFreqFromData(*sites, 0.1);
+            models[sharedmodelindex]->setFreqFromData(*sites, 0.1);
         }
         else {
-            sharedmodel->setFreqFromData(*sites, 0);
+            models[sharedmodelindex]->setFreqFromData(*sites, 0);
         }
-        models[sharedmodelindex] = sharedmodel;
         if (addrateparameter) {
-            sharedmodel->addRateParameter();
+            models[sharedmodelindex]->addRateParameter();
         }
     } 
     else if (modelstring == "ExpCM") {
@@ -161,6 +161,7 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
             init_rprefs[alphabet->getNumberOfTypes() - 1] = 0.0; // this is the ambiguous character code
             bpp::FullCodonFrequenciesSet *rprefs = new bpp::FullCodonFrequenciesSet(gcode, init_rprefs);
             models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM."));
+            delete rprefs;
             if (! models[isite]) {
                 throw std::runtime_error("error casting ExperimentallyInformedCodonModel");
             }
@@ -311,6 +312,8 @@ bppextensions::BppTreeLikelihood::~BppTreeLikelihood()
     if (gcode) delete gcode;
     if (treeReaderWriter) delete treeReaderWriter;
     if (ratedistribution) delete ratedistribution;
+    if (sequenceevolution) delete sequenceevolution;
+    if (tree) delete tree;
 }
 
 long bppextensions::BppTreeLikelihood::NSeqs()
