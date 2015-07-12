@@ -108,7 +108,7 @@ def main():
     if not args['noomegabysite']:
         additionalcmds.append('--omegabysite')
         filesuffixes.append('_omegabysite.txt')
-    expcmadditionalcmds = additionalcmds
+    expcmadditionalcmds = [cmd for cmd in additionalcmds]
     if not args['nostringencybysite']:
         expcmadditionalcmds += ['--stringencybysite'] 
     models = {'YNGKP_M0':('YNGKP_M0', additionalcmds, 9),\
