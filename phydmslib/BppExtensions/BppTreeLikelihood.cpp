@@ -87,7 +87,9 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
     size_t sharedrateindex = 0;
     sharedmodelindex = 0;
     sequenceevolution = 0;
+    substitutionprocesscollection = 0;
     tree = 0;
+    paramtree = 0;
 
     // read in tree
     treeReaderWriter = new bpp::Newick(true); // true indicates comments allowed in brackets
@@ -222,7 +224,8 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         }
         // combine all of these into collection, similar to what is done by bpp::PhylogeneticsApplicationTools::getSubstitutionProcessCollection
         substitutionprocesscollection = new bpp::SubstitutionProcessCollection();
-        substitutionprocesscollection->addTree(new bpp::ParametrizableTree(*tree), sharedtreeindex); 
+        paramtree = new bpp::ParametrizableTree(*tree);
+        substitutionprocesscollection->addTree(paramtree, sharedtreeindex); 
         substitutionprocesscollection->addDistribution(ratedistribution, sharedrateindex); 
         std::vector<size_t> processbysite;
         if ((models.size() == 1) && (modelstring != "ExpCM")) { // all models the same
@@ -311,15 +314,20 @@ bppextensions::BppTreeLikelihood::~BppTreeLikelihood()
 {
     if (oldtreelikelihood) delete oldtreelikelihood;
     if (phylolikelihood) delete phylolikelihood;
-    for (std::map<size_t, bpp::SubstitutionModel*>::iterator itr = models.begin(); itr != models.end(); itr++) {
-        if (itr->second) delete itr->second;
+    if (substitutionprocesscollection) {
+        delete substitutionprocesscollection;
+    } else {
+        for (std::map<size_t, bpp::SubstitutionModel*>::iterator itr = models.begin(); itr != models.end(); itr++) {
+            if (itr->second) delete itr->second;
+        }
+        if (ratedistribution) delete ratedistribution;
+        if (paramtree) delete paramtree;
     }
     if (sites) delete sites;
     if (ntalphabet) delete ntalphabet;
     if (alphabet) delete alphabet;
     if (gcode) delete gcode;
     if (treeReaderWriter) delete treeReaderWriter;
-    if (ratedistribution) delete ratedistribution;
     if (sequenceevolution) delete sequenceevolution;
     if (tree) delete tree;
 }

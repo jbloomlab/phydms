@@ -156,6 +156,7 @@ namespace bppextensions {
             bpp::GeneticCode *gcode;
             bpp::VectorSiteContainer *sites;
             bpp::Tree *tree;
+            bpp::ParametrizableTree *paramtree;
             bpp::Newick *treeReaderWriter;
             std::map<size_t, bpp::SubstitutionModel*> models;
             bpp::DiscreteDistribution *ratedistribution;
