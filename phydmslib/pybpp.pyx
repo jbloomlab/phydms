@@ -28,6 +28,7 @@ cdef extern from "BppExtensions/BppTreeLikelihood.h" namespace "bppextensions":
         string OptimizationIgnoredParameters()
         cpp_map[string, double] StationaryState(long)
         cpp_map[string, double] GetPreferences(long)
+        void SetPreferences(cpp_map[string, double], long)
 
 
 cdef class PyBppTreeLikelihood:
@@ -267,3 +268,16 @@ cdef class PyBppTreeLikelihood:
         Numbering is 1 <= *isite* <= *NSites()*
         """
         return self.thisptr.GetPreferences(isite)
+
+
+    def SetPreferences(self, cpp_map[string, double] aaprefs, long isite):
+        """Sets the site-specific amino-acid preferences to *aaprefs* for *isite*.
+
+        Numbering is 1 <= *isite* <= *NSites()*.
+
+        *aaprefs* is keyed by one-letter amino-acid code, value is preference.
+
+        Only works if this object was created using an *ExpCM* model.
+        """
+        self.thisptr.SetPreferences(aaprefs, isite)
+

@@ -57,7 +57,6 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
   AbstractParameterAliasable(prefix),
   AbstractCodonSubstitutionModel(gCode, new bpp::K80(dynamic_cast<const bpp::CodonAlphabet*>(gCode->getSourceAlphabet())->getNucleicAlphabet()), prefix),
   AbstractCodonPhaseFrequenciesSubstitutionModel(bpp::CodonFrequenciesSet::getFrequenciesSetForCodons(bpp::CodonFrequenciesSet::F1X4, gCode), prefix),
-  prefName_(""),
   prefix_(""),
   preferences_(preferences),
   omega_(1),
@@ -67,7 +66,6 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
   if (dynamic_cast<bpp::CodonFrequenciesSet*>(preferences) == NULL) {
     throw std::runtime_error("Invalid preferences");
   }
-  prefName_ = "preferences_" + preferences_->getNamespace();
   prefix_ = prefix;
   addParameter_(new bpp::Parameter(prefix + "omega", 1, new bpp::IntervalConstraint(0.001, 99, true, true), true));
   addParameter_(new bpp::Parameter(prefix + "stringencyparameter", 1, new bpp::IntervalConstraint(0.01, 99, true, true), true));
@@ -136,6 +134,15 @@ std::map<std::string, double> bppextensions::ExperimentallyInformedCodonModel::g
         prefs[preferences_->getAlphabet()->intToChar((int) icodon)] = preferences_->getFrequencies()[icodon];
     }
     return prefs;
+}
+
+void bppextensions::ExperimentallyInformedCodonModel::setPreferences(bpp::FrequenciesSet* preferences) {
+    if (preferences_->getNumberOfFrequencies() != preferences->getNumberOfFrequencies()) {
+        throw std::runtime_error("Mismatch in length between new and old preferences");
+    }
+    delete preferences_;
+    preferences_ = preferences;
+    updateMatrices();
 }
 
 void bppextensions::ExperimentallyInformedCodonModel::setFreq(std::map<int,double>& frequencies)

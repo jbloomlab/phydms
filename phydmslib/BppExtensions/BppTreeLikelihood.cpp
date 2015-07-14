@@ -427,7 +427,7 @@ std::map<std::string, double> bppextensions::BppTreeLikelihood::GetPreferences(l
     if (models.find(isite) == models.end()) {
         throw std::runtime_error("There is not a site with key " + patch::to_string(isite) + ". Are you sure you are using ExpCM with just one model?");
     }
-    bppextensions::ExperimentallyInformedCodonModel *model = dynamic_cast<bppextensions::ExperimentallyInformedCodonModel*>(models[1]);
+    bppextensions::ExperimentallyInformedCodonModel *model = dynamic_cast<bppextensions::ExperimentallyInformedCodonModel*>(models[isite]);
     if (! model) {
         throw std::runtime_error("You did not use an ExpCM model");
     }
@@ -457,4 +457,40 @@ std::map<std::string, double> bppextensions::BppTreeLikelihood::GetPreferences(l
         itr->second /= sum;
     }
     return aaprefs;
+}
+
+void bppextensions::BppTreeLikelihood::SetPreferences(std::map<std::string, double> aaprefs, long isite) {
+    if ((isite < 1) || (isite > NSites())) {
+        throw std::runtime_error("Invalid site number, must be >= 1 and <= NSites");
+    }
+    if (models.find(isite) == models.end()) {
+        throw std::runtime_error("There is not a site with key " + patch::to_string(isite) + ". Are you sure you are using ExpCM with just one model?");
+    }
+    bppextensions::ExperimentallyInformedCodonModel *model = dynamic_cast<bppextensions::ExperimentallyInformedCodonModel*>(models[isite]);
+    if (! model) {
+        throw std::runtime_error("You did not use an ExpCM model");
+    }
+    double sum = 0.0;
+    for (std::map<std::string, double>::iterator itr = aaprefs.begin(); itr != aaprefs.end(); itr++) {
+        sum += itr->second;
+    }
+    if (std::fabs(sum - 1.0) > 1.e-8) {
+        throw std::runtime_error("Sum of amino-acid preferences is not close to one: " + patch::to_string(sum));
+    }
+    std::map<int, double> initcodonprefs;
+    bpp::FullCodonFrequenciesSet *codonprefs = new bpp::FullCodonFrequenciesSet(gcode);
+    for (size_t icodon = 0; icodon < codonprefs->getNumberOfFrequencies(); icodon++) {
+        if (gcode->isStop(icodon)) {
+            initcodonprefs[icodon] = 0.0;
+        } else {
+            std::string codon = codonprefs->getAlphabet()->intToChar((int) icodon);
+            std::string aa = gcode->translate(codon);
+            if (aaprefs.find(aa) == aaprefs.end()) {
+                throw std::runtime_error("Failed to find preference for amino acid " + aa + "\n");
+            }
+            initcodonprefs[icodon] = aaprefs[aa];
+        }
+    }
+    codonprefs->setFrequenciesFromAlphabetStatesFrequencies(initcodonprefs);
+    model->setPreferences(codonprefs);
 }

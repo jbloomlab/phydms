@@ -70,7 +70,6 @@ namespace bppextensions
     public bpp::AbstractCodonPhaseFrequenciesSubstitutionModel
   {
   private:
-    std::string prefName_;
     std::string prefix_;
     bpp::FrequenciesSet* preferences_;
     double omega_; // dN/dS ratio
@@ -87,7 +86,6 @@ namespace bppextensions
       AbstractParameterAliasable(model),
       AbstractCodonSubstitutionModel(model),
       AbstractCodonPhaseFrequenciesSubstitutionModel(model),
-      prefName_(model.prefName_),
       prefix_(model.prefix_),
       preferences_(model.preferences_->clone()),
       omega_(model.omega_),
@@ -99,7 +97,6 @@ namespace bppextensions
       AbstractParameterAliasable::operator=(model);
       AbstractCodonSubstitutionModel::operator=(model);
       AbstractCodonPhaseFrequenciesSubstitutionModel::operator=(model);
-      prefName_ = model.prefName_;
       prefix_ = model.prefix_;
       if (preferences_) delete preferences_;
       preferences_ = model.preferences_->clone();
@@ -130,6 +127,11 @@ namespace bppextensions
      *
      */
     std::map<std::string, double> getPreferences();
+
+    /*
+     * @brief sets the preferences 
+     */
+    void setPreferences(bpp::FrequenciesSet* preferences);
 
     /*
      * @brief set the phasefrequencies and fitness of the model from

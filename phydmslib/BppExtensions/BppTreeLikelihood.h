@@ -122,13 +122,22 @@ namespace bppextensions {
             std::map<std::string, double> StationaryState(long isite);
 
             /**
-             *@brief returns the site-specific preferences. Will work only if object was constructed for an ExpCM with fixpreference as false.
+             *@brief returns the site-specific preferences. Will work only if object was constructed for an ExpCM.
              *
              * @param isite is the site for which we get the stationary state in 1, 2, ..., NSites() numbering
              *
              *@return map keyed by amino-acids, values as preferences.
              */
              std::map<std::string, double> GetPreferences(long isite);
+
+            /**
+             *@brief Sets new values for the site-specific preferences for a site. Will only work if object was constructed for an ExpCM.
+             *
+             * @param aaprefs is a map keyed by amino acids with values as preferences, we set to these values.
+             *
+             * @param isite is the site for which we set the preferences in 1, 2, ..., NSites() numbering.
+             */
+             void SetPreferences(std::map<std::string, double> aaprefs, long isite);
 
             /**
              *@brief Returns parameters currently being ignored for optimization
