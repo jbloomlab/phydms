@@ -18,7 +18,7 @@ from libcpp.map cimport map as cpp_map
 
 cdef extern from "BppExtensions/BppTreeLikelihood.h" namespace "bppextensions":
     cdef cppclass BppTreeLikelihood:
-        BppTreeLikelihood(vector[string], vector[string], string, string, bint, cpp_map[int, cpp_map[string, double]], cpp_map[string, double], bint, bint, bint, char, bint) except +
+        BppTreeLikelihood(vector[string], vector[string], string, string, bint, cpp_map[int, cpp_map[string, double]], cpp_map[string, double], bint, bint, bint, char) except +
         long NSeqs()
         long NSites()
         void NewickTree(string)
@@ -27,6 +27,7 @@ cdef extern from "BppExtensions/BppTreeLikelihood.h" namespace "bppextensions":
         cpp_map[string, double] ModelParams()
         string OptimizationIgnoredParameters()
         cpp_map[string, double] StationaryState(long)
+        cpp_map[string, double] GetPreferences(long)
 
 
 cdef class PyBppTreeLikelihood:
@@ -109,9 +110,6 @@ cdef class PyBppTreeLikelihood:
 
         * *recursion* is the ``Bio++`` likelihood recursion, which can be 'S' (simple)
           or 'D' (double).
-
-        * *fixpreferences* is a Boolean switch specifying whether we fix the
-          preferences for an *ExpCM* or treat them as free parameters.
     """
 
     cdef BppTreeLikelihood *thisptr
@@ -120,7 +118,7 @@ cdef class PyBppTreeLikelihood:
 
     cdef dict codon_to_aa
 
-    def __cinit__(self, list seqnames, list seqs, str treefile, model, bint infertopology, fixedmodelparams, bint oldlikelihoodmethod, bint fixbrlen, bint addrateparameter, str recursion, bint fixpreferences):
+    def __cinit__(self, list seqnames, list seqs, str treefile, model, bint infertopology, fixedmodelparams, bint oldlikelihoodmethod, bint fixbrlen, bint addrateparameter, str recursion):
         """Initializes new *PyBppTreeLikelihood* object."""
         # 
         # set up codons, amino acids, nts
@@ -173,7 +171,7 @@ cdef class PyBppTreeLikelihood:
             model = 'ExpCM'
         else:
             raise ValueError("Invalid model of %s" % model)
-        self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixedmodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, ord(recursion), fixpreferences)
+        self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixedmodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, ord(recursion))
         if self.thisptr is NULL:
             raise MemoryError("Failed to allocate pointer to BppTreeLikelihood")
 
@@ -258,3 +256,14 @@ cdef class PyBppTreeLikelihood:
         stationarystate = self.thisptr.StationaryState(isite)
         assert abs(sum(stationarystate.values()) - 1.0) < 1.0e-5, "The sum of the stationary state is not close to one: %g" % sum(stationarystate.values())
         return stationarystate
+
+    def GetPreferences(self, int isite):
+        """Returns the site-specific amino-acid preferences for *isite*.
+
+        Returned as dictionary keyed by amino-acid.
+        Only will work (not raise an error) if this
+        object was created with an *ExpCM* model.
+
+        Numbering is 1 <= *isite* <= *NSites()*
+        """
+        return self.thisptr.GetPreferences(isite)

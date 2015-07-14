@@ -60,8 +60,6 @@ namespace bppextensions
    *
    * @param prefix The name prefixed to the model, such as "ExpCM_residue_1."
    *
-   * @param fixpreferences Do we fix the preferences at their initial values or treat them as parameters?
-   *
    * Reference:
    * -  Bloom JD (2014), _Molecular Biology and Evolution_ 31(10):2753-2769.
    */
@@ -83,8 +81,7 @@ namespace bppextensions
     ExperimentallyInformedCodonModel(
         const bpp::GeneticCode* gCode,
         bpp::FrequenciesSet* preferences, 
-        const std::string& prefix, 
-        bool fixpreferences);
+        const std::string& prefix);
 
     ExperimentallyInformedCodonModel(const ExperimentallyInformedCodonModel& model):
       AbstractParameterAliasable(model),
@@ -127,6 +124,12 @@ namespace bppextensions
     double getCodonsMulRate(size_t i, size_t j) const;
 
     void setNamespace(const std::string&);
+
+    /*
+     * @brief returns the preferences in a map keyed by codon and with value as preferences
+     *
+     */
+    std::map<std::string, double> getPreferences();
 
     /*
      * @brief set the phasefrequencies and fitness of the model from

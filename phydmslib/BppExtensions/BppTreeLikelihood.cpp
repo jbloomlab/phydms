@@ -8,6 +8,7 @@
 #include <exception>
 #include <string>
 #include <sstream>
+#include <cmath>
 #include <Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h>
 #include <Bpp/Phyl/Io/BppOFrequenciesSetFormat.h>
 #include <Bpp/Phyl/Model/Codon/YN98.h>
@@ -31,7 +32,7 @@ namespace patch
 
 
 // constructor
-bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, char recursion, int fixpreferences)
+bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, char recursion)
 {
 
     // setup some parameters / options
@@ -105,10 +106,11 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
     // set up substitution models
     if ((modelstring.length() >= 12) && (modelstring.substr(0, 6) == "YNGKP_")) {
         if (modelstring.substr(modelstring.length() - 8, 8) == "_empF3X4") {
+            std::string thetaparams = "1_Full.theta,1_Full.theta1,1_Full.theta2,2_Full.theta,2_Full.theta1,2_Full.theta2,3_Full.theta,3_Full.theta1,3_Full.theta2";
             if (optimizationparams["optimization.ignore_parameters"].empty()) {
-                optimizationparams["optimization.ignore_parameters"] = "*_Full.theta*"; 
+                optimizationparams["optimization.ignore_parameters"] = thetaparams;
             } else {
-                optimizationparams["optimization.ignore_parameters"] = optimizationparams["optimization.ignore_parameters"] + "," + "*_Full.theta*";
+                optimizationparams["optimization.ignore_parameters"] = optimizationparams["optimization.ignore_parameters"] + "," + thetaparams;
             }
         }
         else if (modelstring.substr(modelstring.length() - 8, 8) != "_fitF3X4") {
@@ -154,17 +156,20 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         if (nsites != (long) preferences.size()) {
             throw runtime_error("number of sites isn't equal to number of preferences");
         }
-        std::vector<double> init_rprefs;
+        std::map<int, double> init_rprefs;
         std::string codon;
         for (long isite = 1; isite <= nsites; isite++) {
+            bpp::FullCodonFrequenciesSet *rprefs = new bpp::FullCodonFrequenciesSet(gcode);
             init_rprefs.clear();
-            for (long icodon = 0; icodon < alphabet->getNumberOfTypes() - 1; icodon++) { 
-                codon = alphabet->intToChar(icodon);
-                init_rprefs.push_back(preferences[isite][codon]);
+            for (size_t icodon = 0; icodon < rprefs->getNumberOfFrequencies(); icodon++) {
+                codon = rprefs->getAlphabet()->intToChar((int) icodon);
+                if (preferences[isite].find(codon) == preferences[isite].end()) {
+                    throw std::runtime_error("Failed to find codon " + codon + "\n");
+                }
+                init_rprefs[icodon] = preferences[isite][codon];    
             }
-            init_rprefs[alphabet->getNumberOfTypes() - 1] = 0.0; // this is the ambiguous character code
-            bpp::FullCodonFrequenciesSet *rprefs = new bpp::FullCodonFrequenciesSet(gcode, init_rprefs);
-            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM.", fixpreferences != 0));
+            rprefs->setFrequenciesFromAlphabetStatesFrequencies(init_rprefs);
+            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM."));
             if (! models[isite]) {
                 throw std::runtime_error("error casting ExperimentallyInformedCodonModel");
             }
@@ -401,15 +406,55 @@ std::string bppextensions::BppTreeLikelihood::OptimizationIgnoredParameters()
 std::map<std::string, double> bppextensions::BppTreeLikelihood::StationaryState(long isite)
 {
     if ((isite < 1) || (isite > NSites())) {
-        throw std::runtime_error("Invalid site number, must be > 1 and < NSites");
+        throw std::runtime_error("Invalid site number, must be >= 1 and <= NSites");
     }
     if (oldlikmethod) {
         isite = sharedmodelindex;
     }
     map<std::string, double> stationarystate;
-    for (long icodon = 0; icodon < alphabet->getNumberOfTypes() - 1; icodon++) { 
-        std::string codon = alphabet->intToChar(icodon);
+    for (size_t icodon = 0; icodon < models[isite]->getNumberOfStates(); icodon++) { 
+        std::string codon = models[isite]->getAlphabetStateAsChar(icodon);
         stationarystate[codon] = models[isite]->freq((int) icodon);
     }
     return stationarystate;
+}
+             
+std::map<std::string, double> bppextensions::BppTreeLikelihood::GetPreferences(long isite)
+{
+    if ((isite < 1) || (isite > NSites())) {
+        throw std::runtime_error("Invalid site number, must be >= 1 and <= NSites");
+    }
+    if (models.find(isite) == models.end()) {
+        throw std::runtime_error("There is not a site with key " + patch::to_string(isite) + ". Are you sure you are using ExpCM with just one model?");
+    }
+    bppextensions::ExperimentallyInformedCodonModel *model = dynamic_cast<bppextensions::ExperimentallyInformedCodonModel*>(models[1]);
+    if (! model) {
+        throw std::runtime_error("You did not use an ExpCM model");
+    }
+    std::map<std::string, double> aaprefs;
+    std::map<std::string, double> codonprefs = model->getPreferences();
+    double sum = 0.0;
+    for (std::map<std::string, double>::iterator itr = codonprefs.begin(); itr != codonprefs.end(); itr++) 
+    {
+        if (gcode->isStop(itr->first)) {
+            if (itr->second > 1.0e-8) {
+                throw std::runtime_error("Stop codon " + itr->first + " has substantially nonzero value of " + patch::to_string(itr->second));
+            }
+        } else {
+            std::string aa = gcode->translate(itr->first);
+            if (aaprefs.find(aa) == aaprefs.end()) {
+                aaprefs[aa] = itr->second;
+                sum += itr->second;
+            } else if (std::fabs(aaprefs[aa] - itr->second) > 1.0e-8) {
+                throw std::runtime_error("Inconsistent preferences for " + aa + ": " + patch::to_string(aaprefs[aa]) + " and " + patch::to_string(itr->second) + "\n");
+            }
+        }
+    }
+    if ((sum <= 0) || (sum > 1)) {
+        throw std::runtime_error("sum of aaprefs is invalid value of " + patch::to_string(sum));
+    }
+    for (std::map<std::string, double>::iterator itr = aaprefs.begin(); itr != aaprefs.end(); itr++) {
+        itr->second /= sum;
+    }
+    return aaprefs;
 }

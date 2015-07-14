@@ -69,9 +69,8 @@ namespace bppextensions {
              *
              * @param recursion Recursion method used for likelihood. Can be "S" for simple or "D" for double.
              *
-             * @param fixpreferences Do we fix the preferences or treat as parameters?
              */
-            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, char recursion, int fixpreferences);
+            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, char recursion);
 
             /**
              *@brief Destructor
@@ -121,6 +120,15 @@ namespace bppextensions {
              *@return map keyed by codons, values are stationary state
              */
             std::map<std::string, double> StationaryState(long isite);
+
+            /**
+             *@brief returns the site-specific preferences. Will work only if object was constructed for an ExpCM with fixpreference as false.
+             *
+             * @param isite is the site for which we get the stationary state in 1, 2, ..., NSites() numbering
+             *
+             *@return map keyed by amino-acids, values as preferences.
+             */
+             std::map<std::string, double> GetPreferences(long isite);
 
             /**
              *@brief Returns parameters currently being ignored for optimization

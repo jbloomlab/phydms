@@ -53,8 +53,7 @@
 bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonModel(
     const bpp::GeneticCode* gCode,
     bpp::FrequenciesSet* preferences,
-    const std::string& prefix,
-    bool fixpreferences) :
+    const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractCodonSubstitutionModel(gCode, new bpp::K80(dynamic_cast<const bpp::CodonAlphabet*>(gCode->getSourceAlphabet())->getNucleicAlphabet()), prefix),
   AbstractCodonPhaseFrequenciesSubstitutionModel(bpp::CodonFrequenciesSet::getFrequenciesSetForCodons(bpp::CodonFrequenciesSet::F1X4, gCode), prefix),
@@ -70,10 +69,6 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
   }
   prefName_ = "preferences_" + preferences_->getNamespace();
   prefix_ = prefix;
-  preferences_->setNamespace(prefix + prefName_);
-  if (! fixpreferences) {
-    addParameters_(preferences_->getParameters());
-  }
   addParameter_(new bpp::Parameter(prefix + "omega", 1, new bpp::IntervalConstraint(0.001, 99, true, true), true));
   addParameter_(new bpp::Parameter(prefix + "stringencyparameter", 1, new bpp::IntervalConstraint(0.01, 99, true, true), true));
   updateMatrices();
@@ -97,7 +92,6 @@ void bppextensions::ExperimentallyInformedCodonModel::fireParameterChanged(const
   if (hasParameter("rateparameter")) {
       rateparameter_ = getParameterValue("rateparameter");
   }   
-  preferences_->matchParametersValues(parameters);
   // this next call MUST be last!
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
 }
@@ -133,7 +127,15 @@ void bppextensions::ExperimentallyInformedCodonModel::setNamespace(const std::st
   AbstractCodonSubstitutionModel::setNamespace(st);
   AbstractParameterAliasable::setNamespace(st);
   AbstractCodonPhaseFrequenciesSubstitutionModel::setNamespace(st); 
-  preferences_->setNamespace(st + prefName_);
+}
+
+std::map<std::string, double> bppextensions::ExperimentallyInformedCodonModel::getPreferences()
+{
+    std::map<std::string, double> prefs;
+    for (size_t icodon = 0; icodon < preferences_->getNumberOfFrequencies(); icodon++) {
+        prefs[preferences_->getAlphabet()->intToChar((int) icodon)] = preferences_->getFrequencies()[icodon];
+    }
+    return prefs;
 }
 
 void bppextensions::ExperimentallyInformedCodonModel::setFreq(std::map<int,double>& frequencies)
