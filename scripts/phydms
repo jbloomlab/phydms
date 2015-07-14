@@ -295,7 +295,7 @@ def main():
             fitstringencyresults.sort()
             logger.info('Now writing the full results of the stringency-by-site analysis to %s\n' % stringencyfile)
             with open(stringencyfile, 'w') as f:
-                f.write("# Stringency fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of stringency = %.2f (the overall gene value).\nP-values NOT corrected for multiple testing.\n# The stringency ratio is the ratio of the fitted value to the null (overall gene value).\n#\n# site\tstringency_ratio\tP\tdLnL\n%s" % (fixedstringencyvalue, '\n'.join(['%d\t%.2f\t%.2g\t%.2f' % (site, stringencyratio, p, lnl) for (p, site, stringencyratio, lnl) in fitstringencyresults])))
+                f.write("# Stringency fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of stringency = %.2f (the overall gene value).\n# P-values NOT corrected for multiple testing.\n# The stringency ratio is the ratio of the fitted value to the null (overall gene value).\n#\n# site\tstringency_ratio\tP\tdLnL\n%s" % (fixedstringencyvalue, '\n'.join(['%d\t%.2f\t%.2g\t%.2f' % (site, stringencyratio, p, lnl) for (p, site, stringencyratio, lnl) in fitstringencyresults])))
 
     except:
         logger.exception('Terminating %s at %s with ERROR' % (prog, time.asctime()))    
