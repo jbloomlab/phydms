@@ -111,6 +111,9 @@ def main():
     expcmadditionalcmds = [cmd for cmd in additionalcmds]
     if not args['nostringencybysite']:
         expcmadditionalcmds += ['--stringencybysite'] 
+        expcmfilesuffixes = filesuffixes + ['_stringencybysite.txt']
+    else:
+        expcmfilesuffixes = filesuffixes
     models = {'YNGKP_M0':('YNGKP_M0', additionalcmds, 9),\
               'YNGKP_M3':('YNGKP_M3', additionalcmds, 9),\
               'YNGKP_M7':('YNGKP_M7', additionalcmds, 9),\
@@ -174,11 +177,13 @@ def main():
         outfiles = []
         removed = []
         for model in models.keys():
-            for suffix in filesuffixes:
+            if 'ExpCM' in model:
+                modelfilesuffixes = filesuffixes
+            else:
+                modelfilesuffixes = expcmfilesuffixes
+            for suffix in modelfilesuffixes:
                 fname = "%s%s%s" % (args['outprefix'], model, suffix)
                 outfiles.append(fname)
-                if 'ExpCM' in model and not args['nostringencybysite']:
-                    outfiles.append("%s%s_stringencybysite.txt" % (args['outprefix'], model))
         if os.path.isfile(modelcomparisonfile):
             os.remove(modelcomparisonfile)
         for fname in outfiles:
@@ -193,9 +198,10 @@ def main():
         (model, additionalcmds, nempirical) = models[modelname]
         outprefix = "%s%s" % (args['outprefix'], modelname)
         treefile = '%s_tree.newick' % outprefix
-        modelfilesuffixes = [suffix for suffix in filesuffixes]
-        if 'ExpCM' in model and not args['nostringencybysite']:
-            modelfilesuffixes.append('_stringencybysite.txt')
+        if 'ExpCM' in model:
+            modelfilesuffixes = expcmfilesuffixes
+        else:
+            modelfilesuffixes = filesuffixes
         if args['use_existing'] and all([os.path.isfile(outprefix + suffix) for suffix in modelfilesuffixes]):
             logger.info('Using existing output for %s\n' % model)
         else:
@@ -213,7 +219,11 @@ def main():
             p.start()
             p.join()
             completed[modelname] = True
-            for fname in [outprefix + suffix for suffix in filesuffixes]:
+            if 'ExpCM' in modelname:
+                modelfilesuffixes = expcmfilesuffixes
+            else:
+                modelfilesuffixes = filesuffixes
+            for fname in [outprefix + suffix for suffix in modelfilesuffixes]:
                 if not os.path.isfile(fname):
                     raise RuntimeError("phydms failed to created expected output file %s." % fname)
                 logger.info("Found expected output file %s" % fname)
@@ -224,7 +234,11 @@ def main():
         for modelname in [xmodel for xmodel in models.keys() if 'YNGKP_M0' != xmodel]:
             (model, additionalcmds, nempirical) = models[modelname]
             outprefix = "%s%s" % (args['outprefix'], modelname)
-            if args['use_existing'] and all([os.path.isfile(outprefix + suffix) for suffix in filesuffixes]):
+            if 'ExpCM' in modelname:
+                modelfilesuffixes = expcmfilesuffixes
+            else:
+                modelfilesuffixes = filesuffixes
+            if args['use_existing'] and all([os.path.isfile(outprefix + suffix) for suffix in modelfilesuffixes]):
                 logger.info('Using existing output for %s\n' % modelname)
             else:
                 cmds = ['phydms', args['alignment'], treefile, model, outprefix] + additionalcmds
@@ -245,7 +259,11 @@ def main():
                 if started[modelname] and (not completed[modelname]) and (not p.is_alive()): # process just completed
                     completed[modelname] = True
                     logger.info('Analysis completed for %s' % modelname)
-                    for fname in [outprefixes[modelname] + suffix for suffix in filesuffixes]:
+                    if 'ExpCM' in modelname:
+                        modelfilesuffixes = expcmfilesuffixes
+                    else:
+                        modelfilesuffixes = filesuffixes
+                    for fname in [outprefixes[modelname] + suffix for suffix in modelfilesuffixes]:
                         if not os.path.isfile(fname):
                             raise RuntimeError("phydms failed to created expected output file %s." % fname)
                         logger.info("Found expected output file %s" % fname)
