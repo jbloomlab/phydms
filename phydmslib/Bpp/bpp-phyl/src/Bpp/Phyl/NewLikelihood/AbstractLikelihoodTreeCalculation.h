@@ -1,7 +1,7 @@
 //
-// File: AbstractTreeLikelihoodCalculation.h
-// Created by: Julien Dutheil
-// Created on: Tue July 23 10:50 2013
+// File: AbstractLikelihoodTreeCalculation.h
+// Created by: Julien Dutheil, Laurent Guéguen
+// Created on: mardi 23 juin 2015, à 14h 04
 //
 
 /*
@@ -37,19 +37,20 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTTREELIKELIHOODCALCULATION_H_
-#define _ABSTRACTTREELIKELIHOODCALCULATION_H_
+#ifndef _ABSTRACT_LIKELIHOOD_TREE_CALCULATION_H_
+#define _ABSTRACT_LIKELIHOOD_TREE_CALCULATION_H_
 
-#include "TreeLikelihoodCalculation.h"
+#include "LikelihoodTreeCalculation.h"
 #include "SubstitutionProcess.h"
+#include "AbstractLikelihoodTree.h"
 
 namespace bpp
 {
 /**
- * @brief Partial implementation of the TreeLikelihoodCalculation interface.
+ * @brief Partial implementation of the LikelihoodTreeCalculation interface.
  */
-    class AbstractTreeLikelihoodCalculation:
-      public virtual TreeLikelihoodCalculation
+    class AbstractLikelihoodTreeCalculation:
+      public virtual LikelihoodTreeCalculation
     {
 
     protected:
@@ -63,14 +64,8 @@ namespace bpp
       bool initialized_;
       bool verbose_;
 
-      // say if the Likelihoods should be recomputed
-      
-      bool computeLikelihoods_;
-      bool computeLikelihoodsD1_;
-      bool computeLikelihoodsD2_;
-      
     public:
-      AbstractTreeLikelihoodCalculation(const SubstitutionProcess* process, bool verbose = true):
+      AbstractLikelihoodTreeCalculation(const SubstitutionProcess* process, bool verbose = true):
         process_(process),
         data_(0),
         nbSites_(0),
@@ -78,14 +73,11 @@ namespace bpp
         nbStates_(process->getNumberOfStates()),
         nbClasses_(process->getNumberOfClasses()),
         initialized_(false),
-        verbose_(verbose),
-        computeLikelihoods_(true),
-        computeLikelihoodsD1_(true),
-        computeLikelihoodsD2_(true)
+        verbose_(verbose)
       {
       }
   
-      AbstractTreeLikelihoodCalculation(const AbstractTreeLikelihoodCalculation& tlc):
+      AbstractLikelihoodTreeCalculation(const AbstractLikelihoodTreeCalculation& tlc):
         process_(tlc.process_),
         data_(0),
         nbSites_(tlc.nbSites_),
@@ -93,15 +85,12 @@ namespace bpp
         nbStates_(tlc.nbStates_),
         nbClasses_(tlc.nbClasses_),
         initialized_(tlc.initialized_),
-        verbose_(tlc.verbose_),
-        computeLikelihoods_(tlc.computeLikelihoods_),
-        computeLikelihoodsD1_(tlc.computeLikelihoodsD1_),
-        computeLikelihoodsD2_(tlc.computeLikelihoodsD2_)
+        verbose_(tlc.verbose_)
       {
         if (tlc.data_.get()) data_.reset(tlc.data_->clone());
       }
   
-      AbstractTreeLikelihoodCalculation& operator=(const AbstractTreeLikelihoodCalculation& tlc)
+      AbstractLikelihoodTreeCalculation& operator=(const AbstractLikelihoodTreeCalculation& tlc)
       {
         process_ = tlc.process_;
         if (tlc.data_.get()) data_.reset(tlc.data_->clone());
@@ -112,30 +101,27 @@ namespace bpp
         nbClasses_                     = tlc.nbClasses_;
         initialized_                   = tlc.initialized_;
         verbose_                       = tlc.verbose_;
-        computeLikelihoods_            = tlc.computeLikelihoods_;
-        computeLikelihoodsD1_          = tlc.computeLikelihoodsD1_;
-        computeLikelihoodsD2_          = tlc.computeLikelihoodsD2_;
         
         return *this;
       }
 
-      virtual ~AbstractTreeLikelihoodCalculation() {}
+      virtual ~AbstractLikelihoodTreeCalculation() {}
 
     public:
 
       bool isInitialized() const { return initialized_; }
 
-      const Alphabet* getAlphabet() const throw (TreeLikelihoodCalculationNotInitializedException)
+      const Alphabet* getAlphabet() const throw (LikelihoodTreeCalculationNotInitializedException)
       {
         if (!initialized_)
-          throw new TreeLikelihoodCalculationNotInitializedException("DoubleRecursiveTreeLikelihoodCalculation::getAlphabet().");
+          throw new LikelihoodTreeCalculationNotInitializedException("DoubleRecursiveLikelihoodTreeCalculation::getAlphabet().");
         return data_->getAlphabet();
       }
 
-      size_t getSiteIndex(size_t site) const throw (TreeLikelihoodCalculationNotInitializedException, IndexOutOfBoundsException) {
+      size_t getSiteIndex(size_t site) const throw (LikelihoodTreeCalculationNotInitializedException, IndexOutOfBoundsException) {
         if (!initialized_)
-          throw new TreeLikelihoodCalculationNotInitializedException("SingleRecursiveTreeLikelihoodCalculation::getSiteIndex().");
-        return getLikelihoodData()->getRootArrayPosition(site);
+          throw new LikelihoodTreeCalculationNotInitializedException("SingleRecursiveLikelihoodTreeCalculation::getSiteIndex().");
+        return getLikelihoodData().getRootArrayPosition(site);
       }
 
       void setData(const SiteContainer& sites);
@@ -143,20 +129,30 @@ namespace bpp
       const SiteContainer* getData() const
       {
         if (!initialized_)
-          throw new TreeLikelihoodCalculationNotInitializedException("SingleRecursiveTreeLikelihoodCalculation::getData().");
+          throw new LikelihoodTreeCalculationNotInitializedException("SingleRecursiveLikelihoodTreeCalculation::getData().");
         return data_.get();
       }
   
-      void resetToCompute() {
-        computeLikelihoods_=true;
-        computeLikelihoodsD1_=true;
-        computeLikelihoodsD2_=true;
-      }
-      
       const SubstitutionProcess* getSubstitutionProcess() const { return process_;}
 
       double getLogLikelihood();
 
+      /*
+       * @brief Retrieve the likelihood data.
+       *
+       */
+       
+      
+      AbstractLikelihoodTree& getLikelihoodData() = 0;
+
+      const AbstractLikelihoodTree& getLikelihoodData() const = 0;
+
+      
+      /*
+       * @brief get DXLikelihoods
+       *
+       */
+      
       double getDLogLikelihood();
 
       virtual double getDLikelihoodForASite(size_t site) = 0;
@@ -179,21 +175,22 @@ namespace bpp
 
 
       size_t getNumberOfDistinctSites() const {
-        return getLikelihoodData()->getNumberOfDistinctSites();
+        return getLikelihoodData().getNumberOfDistinctSites();
       }
 
       size_t getNumberOfSites() const {
-        return getLikelihoodData()->getNumberOfSites();
+        return getLikelihoodData().getNumberOfSites();
       }
       
       size_t getNumberOfStates() const {
-        return getLikelihoodData()->getNumberOfStates();
+        return getLikelihoodData().getNumberOfStates();
       }
 
       size_t getNumberOfClasses() const {
-        return getLikelihoodData()->getNumberOfClasses();
+        return getLikelihoodData().getNumberOfClasses();
       }
 
+      
       /**
        * @brief Print the likelihood array to terminal (debugging tool).
        *
@@ -207,6 +204,8 @@ namespace bpp
        *
        */
 
+    public:
+      
       /**
        * @brief Compute the expected ancestral frequencies of all
        * states at all (inner) nodes according to a Markov process
@@ -274,5 +273,5 @@ namespace bpp
 
 } // end of namespace bpp.
 
-#endif  // _ABSTRACTTREELIKELIHOODCALCULATION_H_
+#endif  // _ABSTRACT_LIKELIHOOD_TREE_CALCULATION_H_
 

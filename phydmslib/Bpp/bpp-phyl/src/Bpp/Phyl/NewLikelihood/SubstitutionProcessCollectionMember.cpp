@@ -170,6 +170,9 @@ void SubstitutionProcessCollectionMember::updateParameters()
 
 ParameterList SubstitutionProcessCollectionMember::getDerivableParameters() const
 {
+  // patch, to be fixed properly later
+  return ParameterList();
+
   return pSubProColl_->getBranchLengthParameters(nTree_, true);
 }
 
@@ -178,6 +181,9 @@ ParameterList SubstitutionProcessCollectionMember::getNonDerivableParameters() c
   ParameterList pl=getSubstitutionModelParameters(true);
   pl.includeParameters(getRootFrequenciesParameters(true));
   pl.includeParameters(getRateDistributionParameters(true));
+
+  // patch, to be fixed properly later
+  pl.includeParameters(getBranchLengthParameters(true));
 
   return pl;
 }
@@ -375,6 +381,16 @@ inline double SubstitutionProcessCollectionMember::getProbabilityForModel(size_t
   if (classIndex >= getRateDistribution()->getNumberOfCategories())
     throw IndexOutOfBoundsException("SubstitutionProcessCollectionMember::getProbabilityForModel.", classIndex, 0, getRateDistribution()->getNumberOfCategories());
   return getRateDistribution()->getProbability(classIndex);
+}
+
+inline Vdouble SubstitutionProcessCollectionMember::getClassProbabilities() const
+{
+  Vdouble vProb;
+
+  for (size_t i=0;i<getRateDistribution()->getNumberOfCategories(); i++)
+    vProb.push_back(getRateDistribution()->getProbability(i));
+
+  return vProb;
 }
 
 inline double SubstitutionProcessCollectionMember::getRateForModel(size_t classIndex) const {

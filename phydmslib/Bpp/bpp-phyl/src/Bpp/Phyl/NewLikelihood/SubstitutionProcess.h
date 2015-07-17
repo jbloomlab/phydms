@@ -41,6 +41,7 @@
 #define _SUBSTITUTIONPROCESS_H_
 
 #include "ParametrizableTree.h"
+#include "ComputingTree.h"
 #include "../Model/SubstitutionModel.h"
 
 //From bpp-core:
@@ -203,6 +204,14 @@ public:
   virtual double getProbabilityForModel(size_t classIndex) const = 0;
 
   /**
+   * @return The vector of the probabilities associated to the
+   * classes.
+   *
+   */
+  
+  virtual Vdouble getClassProbabilities() const = 0;
+
+  /**
    * @return The substitution rate associated to the given model class.
    *
    * @param classIndex The model class index.
@@ -217,11 +226,16 @@ public:
   //virtual bool transitionProbabilitiesHaveChanged() const = 0; Not sure we need that anymore...
 
   /**
-   * @brief Methods for computing partial likelihoods. See
-   * class ComputingTree for details.
+   * @brief A virtual method to retrieve the ComputingTree defined in
+   * inheriting classes.
    *
-   **/
+   */
   
+  virtual const ComputingTree& getComputingTree() const = 0;
+
+  virtual ComputingTree& getComputingTree() = 0;
+
+
   virtual void multiplyUpwardPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int sonId, unsigned char DX) const = 0;
 
   virtual void multiplyDownwardPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_father, int sonId, unsigned char DX) const = 0;

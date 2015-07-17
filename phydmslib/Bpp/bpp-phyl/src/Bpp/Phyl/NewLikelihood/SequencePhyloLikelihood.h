@@ -70,7 +70,7 @@ namespace bpp
       
     public:
       SequencePhyloLikelihood(SequenceEvolution& se, size_t nSE = 0, size_t nData = 0) :
-        AbstractSingleDataPhyloLikelihood(nData),
+        AbstractSingleDataPhyloLikelihood(0, 0, nData),
         seqEvol_(&se),
         nSeqEvol_(nSE)
       {
@@ -161,7 +161,6 @@ namespace bpp
       void setData(const SiteContainer& sites, size_t nData = 0)
       {
         AbstractSingleDataPhyloLikelihood::setData(sites, nData);
-
         update();
       }
       

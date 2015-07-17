@@ -1,7 +1,7 @@
 //
-// File: AbstractTreeLikelihoodCalculation.h
-// Created by: Julien Dutheil
-// Created on: Tue July 23 10:50 2013
+// File: LikelihoodTreeCalculation.h
+// Created by: Laurent Guéguen
+// Created on: mardi 23 juin 2015, à 14h 01
 //
 
 /*
@@ -37,10 +37,10 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _TREELIKELIHOODCALCULATION_H_
-#define _TREELIKELIHOODCALCULATION_H_
+#ifndef _LIKELIHOOD_TREE_CALCULATION_H_
+#define _LIKELIHOOD_TREE_CALCULATION_H_
 
-#include "TreeLikelihoodData.h"
+#include "LikelihoodTree.h"
 #include "SubstitutionProcess.h"
 
 #include <cstddef>
@@ -50,36 +50,36 @@
 namespace bpp
 {
 /**
- * @brief Exception thrown in case a TreeLikelihoodCalculation object was not properly initialized.
+ * @brief Exception thrown in case a LikelihoodTreeCalculation object was not properly initialized.
  */
-class TreeLikelihoodCalculationNotInitializedException:
+class LikelihoodTreeCalculationNotInitializedException:
   public virtual Exception
 {
 public:
-  TreeLikelihoodCalculationNotInitializedException(const std::string& msg):
-    Exception("TreeLikelihoodCalculation not initialized. " + msg) {}
+  LikelihoodTreeCalculationNotInitializedException(const std::string& msg):
+    Exception("LikelihoodTreeCalculation not initialized. " + msg) {}
 
 };
 
 /**
- * @brief The TreeLikelihoodCalculation interface.
+ * @brief The LikelihoodTreeCalculation interface.
  */
-class TreeLikelihoodCalculation:
+class LikelihoodTreeCalculation:
   public virtual Clonable
 {
 
 public:
-  virtual ~TreeLikelihoodCalculation() {}
+  virtual ~LikelihoodTreeCalculation() {}
 
-  virtual TreeLikelihoodCalculation* clone() const = 0;
+  virtual LikelihoodTreeCalculation* clone() const = 0;
 
 public:
 
   /**
    * @return The alphabet of the data set for which this object is initialized.
-   * @throw TreeLikelihoodCalculationNotInitializedException If this instance was not initialized.
+   * @throw LikelihoodTreeCalculationNotInitializedException If this instance was not initialized.
    */
-  virtual const Alphabet* getAlphabet() const throw (TreeLikelihoodCalculationNotInitializedException) = 0;
+  virtual const Alphabet* getAlphabet() const throw (LikelihoodTreeCalculationNotInitializedException) = 0;
 
   /**
    * @return The process used for calculation.
@@ -90,7 +90,7 @@ public:
 
   /**
    * @return The size of the data set for which this object is initialized.
-   * @throw TreeLikelihoodCalculationNotInitializedException If this instance was not initialized.
+   * @throw LikelihoodTreeCalculationNotInitializedException If this instance was not initialized.
    */
   
   virtual size_t getNumberOfSites() const = 0;
@@ -99,10 +99,10 @@ public:
    * @brief Get the pattern index for a given site position in the original data.
    *
    * @return The pattern index in the associated data set, given the position in the original data set used to initialize this instance.
-   * @throw TreeLikelihoodCalculationNotInitializedException If this instance was not initialized.
+   * @throw LikelihoodTreeCalculationNotInitializedException If this instance was not initialized.
    * @throw IndexOutOfBoundsException If the input position is invalid.
    */
-  virtual size_t getSiteIndex(size_t site) const throw (TreeLikelihoodCalculationNotInitializedException, IndexOutOfBoundsException) = 0;
+  virtual size_t getSiteIndex(size_t site) const throw (LikelihoodTreeCalculationNotInitializedException, IndexOutOfBoundsException) = 0;
 
   /**
    * @brief Tell is this instance is properly insitialized, that is, if the setData method has been called once.
@@ -110,13 +110,6 @@ public:
    * @return True if a data set is associated to this instance.
    */
   virtual bool isInitialized() const  = 0;
-
-  /**
-   * @brief Tell that the likelihood should be recomputed.
-   *
-   * @return True if a data set is associated to this instance.
-   */
-  virtual void resetToCompute() = 0;
 
   /**
    * @brief Initialize the object according to a data set.
@@ -127,13 +120,13 @@ public:
   
   /**
    * @return The data set used to initialize this object.
-   * @throw TreeLikelihoodCalculationNotInitializedException In this instance was not initialized.
+   * @throw LikelihoodTreeCalculationNotInitializedException In this instance was not initialized.
    */
   virtual const SiteContainer* getData() const = 0;
 
-  virtual newlik::TreeLikelihoodData* getLikelihoodData() = 0;
+  virtual LikelihoodTree& getLikelihoodData() = 0;
   
-  virtual const newlik::TreeLikelihoodData* getLikelihoodData() const = 0;
+  virtual const LikelihoodTree& getLikelihoodData() const = 0;
   
   /**
    * @brief Get the log-likelihood for the data set.
@@ -217,13 +210,15 @@ public:
 
   virtual double getD2LogLikelihoodForASite(size_t site) = 0;  
 
-protected:
   /**
-   * @brief Initiate a likelihood computation.
+   * @brief Perform a likelihood computation.
    */
+  
   virtual void computeTreeLikelihood() = 0;
 
-  // To protect later
+  
+  virtual void computeLikelihoodsAtNode(int nodeId) = 0;
+
 public:
   /**
    * @brief Initiate a derivative log-likelihood computation.
@@ -251,5 +246,6 @@ public:
 
 } // end of namespace bpp.
 
-#endif //_TREELIKELIHOODCALCULATION_H_
+#endif //_LIKELIHOOD_TREE_CALCULATION_H_
+
 

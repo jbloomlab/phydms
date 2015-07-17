@@ -46,38 +46,36 @@ using namespace bpp;
 
 SingleProcessPhyloLikelihood::SingleProcessPhyloLikelihood(
   SubstitutionProcess* process,
-  TreeLikelihoodCalculation* tlComp,
+  LikelihoodTreeCalculation* tlComp,
   size_t nProc,
   size_t nData) :
   AbstractPhyloLikelihood(),
-  AbstractSingleDataPhyloLikelihood(nData),
+  AbstractSingleDataPhyloLikelihood(tlComp->getNumberOfSites(), process->getNumberOfStates(), nData),
   AbstractParametrizable(""),
   tlComp_(tlComp),
   process_(process),
   nProc_(nProc)
 {
   if (tlComp->getSubstitutionProcess() != process_)
-    throw Exception("SingleProcessPhyloLikelihood::SingleProcessPhyloLikelihood Error :  given process must be the same as the one of TreeLikelihoodCalculation");
+    throw Exception("SingleProcessPhyloLikelihood::SingleProcessPhyloLikelihood Error :  given process must be the same as the one of LikelihoodTreeCalculation");
 
   // initialize INDEPENDENT parameters:
 
   addParameters_(process_->getBranchLengthParameters(true));
   addParameters_(process_->getSubstitutionModelParameters(true));
   addParameters_(process_->getRateDistributionParameters(true));
-  addParameters_(process_->getRootFrequenciesParameters(true)); 
-
-  tlComp_->resetToCompute();
-
+  addParameters_(process_->getRootFrequenciesParameters(true));
 }
 
 /******************************************************************************/
 
 void SingleProcessPhyloLikelihood::fireParameterChanged(const ParameterList& params)
 {
+  // Error, is not called if params not in the parameters, such as in
+  // case of total aliasing
   update();
   
   process_->matchParametersValues(params);
-  tlComp_->resetToCompute();
 }
 
 /******************************************************************************/
@@ -140,6 +138,9 @@ VVVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachClassForE
 
 ParameterList SingleProcessPhyloLikelihood::getNonDerivableParameters() const
 {
+  // patch, to be fixed properly later
+  return getParameters();
+
   ParameterList pl = getSubstitutionModelParameters();
   pl.addParameters(getRootFrequenciesParameters());
   pl.addParameters(getRateDistributionParameters());
@@ -172,6 +173,7 @@ vector<size_t> SingleProcessPhyloLikelihood::getClassWithMaxPostProbOfEachSite()
 {
   size_t nbSites = getNumberOfSites();
   VVdouble l = getLikelihoodForEachSiteForEachClass();
+
   vector<size_t> classes(nbSites);
   for (size_t i = 0; i < nbSites; ++i)
   {
@@ -207,6 +209,9 @@ Vdouble SingleProcessPhyloLikelihood::getPosteriorRateOfEachSite() const
 double SingleProcessPhyloLikelihood::getFirstOrderDerivative(const string& variable) const
 throw (Exception)
 {
+  // patch, to be fixed properly later
+  throw Exception("Derivative is not implemented for " + variable + " parameter.");
+  
   if (!hasParameter(variable))
     return 0;
   
@@ -226,6 +231,9 @@ throw (Exception)
 double SingleProcessPhyloLikelihood::getSecondOrderDerivative(const string& variable) const
 throw (Exception)
 {
+  // patch, to be fixed properly later
+  throw Exception("Derivative is not implemented for " + variable + " parameter.");
+
   if (!hasParameter(variable))
     return 0;
   
