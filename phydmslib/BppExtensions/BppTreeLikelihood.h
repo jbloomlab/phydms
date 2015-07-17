@@ -61,6 +61,8 @@ namespace bppextensions {
              *
              * @param fixedmodelparams A map giving model parameters that should be fixed. Key is string name of model parameter, value is what it is fixed to. You will get an error if you specify a parameter that does not exist with that name.
              *
+             * @param initializemodelparams A map giving model parameters that should be initialized but not fixed. Key is string name of model parameter, value is what it is initialized to. You will get an error if you specify a parameter that does not exist with that name, or if an entry is duplicated in fixedmodelparams.
+             *
              * @param oldlikelihoodmethod Do we use the old Bpp likelihood method rather then the NewLikelihood? Only can be used for non-partitioned data.
              * 
              * @param fixbrlen Do we fix the branch lengths?
@@ -70,7 +72,7 @@ namespace bppextensions {
              * @param recursion Recursion method used for likelihood. Can be "S" for simple or "D" for double.
              *
              */
-            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, char recursion);
+            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, char recursion);
 
             /**
              *@brief Destructor

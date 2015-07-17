@@ -32,7 +32,7 @@ namespace patch
 
 
 // constructor
-bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, char recursion)
+bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, char recursion)
 {
 
     // setup some parameters / options
@@ -184,12 +184,15 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         throw std::invalid_argument("Invalid modelstring");
     }
 
-    // fix any model parameters in fixedmodelparams
-    if (! fixedmodelparams.empty()) {
+    // fix and initialize model parameters
+    if ((! fixedmodelparams.empty()) || (! initializemodelparams.empty())) {
         if (oldlikmethod) {
-            throw std::runtime_error("fixedmodelparams is not guaranteed to work if using oldlikmethod");
+            throw std::runtime_error("fixedmodelparams and initializemodelparams not guaranteed to work if using oldlikmethod");
         }
         for (std::map<std::string, double>::iterator itr = fixedmodelparams.begin(); itr != fixedmodelparams.end(); itr++) {
+            if (initializemodelparams.find(itr->first) != initializemodelparams.end()) {
+                throw std::runtime_error("Cannot specify a key in both fixedmodelparams and initializemodelparams, but you did for " + itr->first);
+            }
             for (std::map<size_t, bpp::SubstitutionModel*>::iterator imodel_itr = models.begin(); imodel_itr != models.end(); ++imodel_itr) {
                 if (imodel_itr->second->hasParameter(itr->first)) {
                     imodel_itr->second->setParameterValue(itr->first, itr->second);
@@ -201,6 +204,15 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
                 optimizationparams["optimization.ignore_parameters"] = "*" + itr->first + "*";
             } else {
                 optimizationparams["optimization.ignore_parameters"] = optimizationparams["optimization.ignore_parameters"] + "," + "*" + itr->first + "*";
+            }
+        }
+        for (std::map<std::string, double>::iterator itr = initializemodelparams.begin(); itr != initializemodelparams.end(); itr++) {
+            for (std::map<size_t, bpp::SubstitutionModel*>::iterator imodel_itr = models.begin(); imodel_itr != models.end(); ++imodel_itr) {
+                if (imodel_itr->second->hasParameter(itr->first)) {
+                    imodel_itr->second->setParameterValue(itr->first, itr->second);
+                } else {
+                    throw std::runtime_error("Cannot find parameter in initializemodelparams: " + itr->first);
+                }
             }
         }
         for (std::map<size_t, bpp::SubstitutionModel*>::iterator imodel_itr = models.begin(); imodel_itr != models.end(); ++imodel_itr) {
@@ -278,12 +290,12 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         if ((recursion != 'S') && (recursion != 'D')) {
             throw std::runtime_error("Invalid value of recursion, should be S or D");
         }
-        char compression = 'R'; // appears to be Bpp default, not sure what it means
         bpp::PartitionSequenceEvolution* pse = dynamic_cast<bpp::PartitionSequenceEvolution*>(sequenceevolution);
         if (pse == NULL) {
             throw std::runtime_error("Failed to cast to PartitionSequenceEvolution");
         }
-        phylolikelihood = new bpp::PartitionPhyloLikelihood(*sites, *pse, recursion, 0, 0, verbose, compression=='R');
+        bool patterns = true; // is default, not sure exactly what it means
+        phylolikelihood = new bpp::PartitionPhyloLikelihood(*sites, *pse, 0, 0, verbose, patterns);
 
     } else { // use the old likelihood method
         if (models.find(sharedmodelindex) == models.end()) {
