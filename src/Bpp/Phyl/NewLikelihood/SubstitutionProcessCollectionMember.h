@@ -176,6 +176,17 @@ namespace bpp
       else
         computingTree_->update(modelToNodes_[m]);
     }
+
+    /**
+     * @brief Method to inform changes in root
+     *
+     * If flag = true (default), node has to be updated (false otherwise).
+     */
+    
+    void changedRoot(bool flag = true)
+    {
+      computingTree_->update((*computingTree_)[0]->getRootId(), flag);
+    }
     
   public:
 
@@ -200,6 +211,15 @@ namespace bpp
      **/
 
     bool hasMixedSubstitutionModel() const;
+
+    /**
+     * @return True iff is stationary.
+     **/
+
+    bool isStationary() const
+    {
+      return stationarity_;
+    }
 
     /**
      * @brief Get one model from the set knowing its index.
@@ -487,6 +507,8 @@ namespace bpp
     
     double getProbabilityForModel(size_t classIndex) const;
 
+    Vdouble getClassProbabilities() const;
+
     double getRateForModel(size_t classIndex) const;
 
     /**
@@ -494,6 +516,22 @@ namespace bpp
      * class ComputingTree for details.
      *
      **/
+
+    /**
+     * @brief A virtual method to retrieve the ComputingTree defined in
+     * inheriting classes.
+     *
+     */
+  
+    const ComputingTree& getComputingTree() const
+    {
+      return *computingTree_.get();
+    }
+    
+    ComputingTree& getComputingTree()
+    {
+      return *computingTree_.get();
+    }
 
     void multiplyUpwardPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int sonId, unsigned char DX) const
     {

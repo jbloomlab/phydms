@@ -43,7 +43,6 @@
 #include "../Tree/Node.h"
 #include "../Tree/Tree.h"
 #include "../Model/SubstitutionModel.h"
-#include "TreeLikelihoodData.h"
 #include "ModelIterator.h"
 #include "SitePartition.h"
 
@@ -56,18 +55,19 @@
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 
 #include "SingleDataPhyloLikelihood.h"
-#include "TreeLikelihoodCalculation.h"
-#include "SingleRecursiveTreeLikelihoodCalculation.h"
+#include "RecursiveLikelihoodTreeCalculation.h"
 #include "PhyloLikelihood.h"
 
 namespace bpp
 {
 /**
- * @brief The SingleProcessPhyloLikelihood class: phylogenetic likelihood computation with a single process.
+ * @brief The SingleProcessPhyloLikelihood class: phylogenetic
+ * likelihood computation with a single process.
  *
- * This class implements likelihood calculation with a single process/tree.
- * It uses a unique TreeLikelihoodCalculation instance, and implements the
- * Function interface, dealing with parameters from the associated SubstitutionProcess.
+ * This class implements likelihood calculation with a single
+ * process/tree. It uses a unique LikelihoodTreeCalculation instance,
+ * and implements the Function interface, dealing with parameters from
+ * the associated SubstitutionProcess.
  */
 
     class SingleProcessPhyloLikelihood :
@@ -76,7 +76,7 @@ namespace bpp
       public AbstractParametrizable
     { 
     protected:
-      mutable std::auto_ptr<TreeLikelihoodCalculation> tlComp_;
+      mutable std::auto_ptr<LikelihoodTreeCalculation> tlComp_;
       SubstitutionProcess* process_;
 
       /**
@@ -87,7 +87,7 @@ namespace bpp
       size_t nProc_;
 
     public:
-      SingleProcessPhyloLikelihood(SubstitutionProcess* process, TreeLikelihoodCalculation* tlComp, size_t nProc = 0, size_t nData = 0);
+      SingleProcessPhyloLikelihood(SubstitutionProcess* process, LikelihoodTreeCalculation* tlComp, size_t nProc = 0, size_t nData = 0);
 
       SingleProcessPhyloLikelihood(const SingleProcessPhyloLikelihood& lik) :
         AbstractPhyloLikelihood(lik),
@@ -134,7 +134,7 @@ namespace bpp
 
         update();
                 
-        tlComp_->setData(sites); //This automatically calls computeTreeLikelihood().
+        tlComp_->setData(sites); 
       }
 
       /**
@@ -243,7 +243,7 @@ namespace bpp
 
 
       void computeTreeLikelihood() {
-        tlComp_->resetToCompute();
+        tlComp_->computeTreeLikelihood();
       }  
 
       bool isInitialized() const {
@@ -252,7 +252,7 @@ namespace bpp
 
       char getRecursivity() const 
       {
-        if (dynamic_cast<const SingleRecursiveTreeLikelihoodCalculation*>(tlComp_.get()))
+        if (dynamic_cast<const RecursiveLikelihoodTreeCalculation*>(tlComp_.get()))
           return 'S';
         else
           return 'D';
@@ -271,21 +271,24 @@ namespace bpp
        * @return The underlying likelihood computation structure.
        */
       
-      TreeLikelihoodCalculation* getLikelihoodCalculation() { return tlComp_.get(); }
+      LikelihoodTreeCalculation* getLikelihoodCalculation() { return tlComp_.get(); }
 
       /**
        * @return The underlying likelihood data structure.
        */
-      virtual newlik::TreeLikelihoodData* getLikelihoodData() { return tlComp_->getLikelihoodData(); }
+      virtual LikelihoodTree* getLikelihoodData() { return &tlComp_->getLikelihoodData(); }
 
       /**
        * @return The underlying likelihood data structure.
        */
-      virtual const newlik::TreeLikelihoodData* getLikelihoodData() const { return tlComp_->getLikelihoodData(); }
+      virtual const LikelihoodTree* getLikelihoodData() const { return &tlComp_->getLikelihoodData(); }
 
       //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
       // TODO: this has to be modified to deal with special cases...
       ParameterList getDerivableParameters() const {
+        // patch, to be fixed properly later
+        return ParameterList();
+
         return getBranchLengthParameters();
       }
 

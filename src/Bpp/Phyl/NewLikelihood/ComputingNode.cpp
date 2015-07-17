@@ -44,10 +44,6 @@
 using namespace bpp;
 using namespace std;
 
-unsigned char ComputingNode::D0=0;
-unsigned char ComputingNode::D1=1;
-unsigned char ComputingNode::D2=2;
-
 ComputingNode::ComputingNode(const SubstitutionModel* model) :
   Node(),
   AbstractParametrizable(""),
@@ -167,11 +163,11 @@ void ComputingNode::fireParameterChanged(const ParameterList& pl)
   computeProbabilitiesD2_=true;
 }  
 
-void ComputingNode::update()
+void ComputingNode::update(bool flag)
 {
-  computeProbabilities_=true;
-  computeProbabilitiesD1_=true;
-  computeProbabilitiesD2_=true;
+  computeProbabilities_=flag;
+  computeProbabilitiesD1_=flag;
+  computeProbabilitiesD2_=flag;
 }  
   
 void ComputingNode::computeTransitionProbabilities() const
@@ -202,3 +198,14 @@ void ComputingNode::computeTransitionProbabilitiesD2() const
   }
 }
 
+void ComputingNode::updatedSubTreeNodes(Vint& lId) const
+{
+  if (!isUp2dateTransitionProbabilities())
+    lId.push_back(getId());
+
+  if (!isLeaf()){
+    size_t nS=getNumberOfSons();
+    for (size_t i=0; i<nS; i++)
+      getSon(i)->updatedSubTreeNodes(lId);
+  }
+}

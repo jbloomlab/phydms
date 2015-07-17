@@ -1,8 +1,7 @@
 //
-// File: TreeLikelihoodData.h
-// Created by: Julien Dutheil
-// Created on: Sat Dec 30 12:48 2006
-// From file AbstractTreeLikelihood.h
+// File: LikelihoodTree.h
+// Created by: Julien Dutheil, Laurent Guéguen
+// Created on: mardi 23 juin 2015, à 14h 16
 //
 
 /*
@@ -38,12 +37,13 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _NEWLIK_TREELIKELIHOODDATA_H_
-#define _NEWLIK_TREELIKELIHOODDATA_H_
+#ifndef _LIKELIHOOD_TREE_H_
+#define _LIKELIHOOD_TREE_H_
 
 #include "../Tree/Node.h"
 #include "../Tree/TreeTemplate.h"
 #include "SubstitutionProcess.h"
+#include "AbstractLikelihoodNode.h"
 
 //From SeqLib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
@@ -51,78 +51,35 @@
 
 namespace bpp
 {
-  namespace newlik
-  {
 
 /**
- * @brief TreeLikelihood partial data structure.
- *
- * Stores inner computation for a given node.
- *
- * @see TreeLikelihoodData
- */
-    class TreeLikelihoodNodeData:
-      public virtual Clonable
-    {
-    public:
-      TreeLikelihoodNodeData() {}
-      virtual ~TreeLikelihoodNodeData() {}
-
-#ifndef NO_VIRTUAL_COV
-      TreeLikelihoodNodeData*
-#else
-      Clonable*
-#endif
-      clone() const = 0;
-
-    public:
-      /**
-       * @brief Get the id of the node associated to this data structure.
-       *
-       * @return The id of the node associated to this structure.
-       */
-      virtual int getNodeId() const = 0;
-
-      /**
-       * @brief Set the id of the node associated to this data
-       *
-       * @param nodeId The id of the node to be associated to this data.
-       */
-      virtual void setNodeId(int nodeId) = 0;
-
-    };
-
-/**
- * @brief TreeLikelihood data structure.
- *
- * Stores all the inner computations:
- * - conditionnal likelihoods for each node,
- * - correspondance between sites in the dataset and array indices.
+ * @brief Interface LikelihoodTree data structure.
  *
  * The structure is initiated according to a tree topology, and 
- * data can be retrieved through node ids. The structure does not
- * store the original tree used for initialization.
+ * data can be retrieved through node ids.
  *
- * @see TreeLikelihoodNodeData
+ * @see LikelihoodNode
  */
-    class TreeLikelihoodData:
+  
+    class LikelihoodTree:
       public virtual Clonable
     {
     public:
-      TreeLikelihoodData() {}
-      virtual ~TreeLikelihoodData() {}
+      LikelihoodTree() {}
+      virtual ~LikelihoodTree() {}
     
 #ifndef NO_VIRTUAL_COV
-      TreeLikelihoodData* clone() const = 0;
+      LikelihoodTree* clone() const = 0;
 #endif
 
     public:
       virtual const Alphabet* getAlphabet() const = 0;
-      virtual size_t getArrayPosition(int parentId, int sonId, size_t currentPosition) const = 0;
       virtual size_t getRootArrayPosition(size_t site) const = 0;
       virtual std::vector<size_t>& getRootArrayPositions() = 0; 
-      virtual TreeLikelihoodNodeData& getNodeData(int nodeId) = 0;
-      virtual const TreeLikelihoodNodeData& getNodeData(int nodeId) const = 0;
+
+      // virtual LikelihoodNode& getNodeData(int nodeId, size_t nClass) = 0;
+      
+      // virtual const LikelihoodNode& getNodeData(int nodeId, size_t nClass) const = 0;
 
       /**
        * @return The number of non redundant patterns.
@@ -154,45 +111,29 @@ namespace bpp
        */
       virtual const std::vector<unsigned int>& getWeights() const = 0;
 
-      /**
-       * @brief reset the given likelihoodArray boxes to 1.
-       */
-
-      static void resetLikelihoodArray(VVVdouble& likelihoodArray)
-      {
-        size_t nbClasses = likelihoodArray.size();
-        size_t nbSites = likelihoodArray[0].size();
-        size_t nbStates  = likelihoodArray[0][0].size();
-        for (size_t c = 0; c < nbClasses; ++c)
-        {
-          VVdouble* likelihoodArray_c=&(likelihoodArray[c]);
-          
-          for (size_t i = 0; i < nbSites; ++i)
-          {
-            Vdouble* likelihoodArray_c_i=&(*likelihoodArray_c)[i];
-            
-            for (size_t s = 0; s < nbStates; ++s)
-            {
-              (*likelihoodArray_c_i)[s] = 1.;
-            }
-          }
-        }
-      }
 
       /**
-       * @brief Resize and initialize all likelihood arrays according to the given data set and substitution process.
+       * @brief Resize and initialize all likelihood arrays at a given
+       * node according to the given sizes, with values computed at
+       * leaves by the process on the sites.
        *
-       * @param sites The sequences to use as data.
-       * @param process The substitution process to use.
-       * @throw Exception if an error occures.
        */
 
-      virtual void initLikelihoods(const SiteContainer& sites, const SubstitutionProcess& process) throw (Exception) = 0;
+      virtual void initLikelihoods(const SiteContainer& sites, const SubstitutionProcess& process) = 0;
+
+      /**
+       * @brief Resize and initialize all likelihood arrays at a given
+       * node according to the given sizes, for a given derivation
+       * class.
+       *
+       */
+
+      virtual void resetLikelihoods(int nodeId, size_t nbSites, size_t nbStates, unsigned char DX) = 0;
+
 
     };
 
-  } //end of namespace newlik.
 } //end of namespace bpp.
 
-#endif //_TREELIKELIHOODDATA_H_
+#endif //_LIKELIHOOD_TREE_H_
 
