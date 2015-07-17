@@ -19,16 +19,16 @@ from libcpp.map cimport map as cpp_map
 cdef extern from "BppExtensions/BppTreeLikelihood.h" namespace "bppextensions":
     cdef cppclass BppTreeLikelihood:
         BppTreeLikelihood(vector[string], vector[string], string, string, bint, cpp_map[int, cpp_map[string, double]], cpp_map[string, double], bint, bint, bint, char) except +
-        long NSeqs()
-        long NSites()
-        void NewickTree(string)
-        double LogLikelihood()
-        void OptimizeLikelihood()
-        cpp_map[string, double] ModelParams()
-        string OptimizationIgnoredParameters()
-        cpp_map[string, double] StationaryState(long)
-        cpp_map[string, double] GetPreferences(long)
-        void SetPreferences(cpp_map[string, double], long)
+        long NSeqs() except +
+        long NSites() except +
+        void NewickTree(string) except +
+        double LogLikelihood() except +
+        void OptimizeLikelihood() except +
+        cpp_map[string, double] ModelParams() except +
+        string OptimizationIgnoredParameters() except +
+        cpp_map[string, double] StationaryState(long) except +
+        cpp_map[string, double] GetPreferences(long) except +
+        void SetPreferences(cpp_map[string, double], long) except +
 
 
 cdef class PyBppTreeLikelihood:
