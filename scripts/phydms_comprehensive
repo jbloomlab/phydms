@@ -178,9 +178,9 @@ def main():
         removed = []
         for model in models.keys():
             if 'ExpCM' in model:
-                modelfilesuffixes = filesuffixes
-            else:
                 modelfilesuffixes = expcmfilesuffixes
+            else:
+                modelfilesuffixes = filesuffixes
             for suffix in modelfilesuffixes:
                 fname = "%s%s%s" % (args['outprefix'], model, suffix)
                 outfiles.append(fname)
