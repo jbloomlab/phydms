@@ -308,6 +308,7 @@ def main():
 
     except:
         logger.exception('Terminating %s at %s with ERROR' % (prog, time.asctime()))    
+        raise
     else:
         logger.info('Successful completion of %s' % prog)
     finally:
