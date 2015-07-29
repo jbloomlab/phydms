@@ -118,7 +118,7 @@ def ModelOption(model):
 
 def PhyDMSComprehensiveParser():
     """Returns *argparse.ArgumentParser* for ``phdyms_comprehensive`` script."""
-    parser = ArgumentParserNoArgHelp(description="Comprehensive phylogenetic model comparison and detection of positive selection using deep mutational scanning data. This program runs 'phydms' to infer a tree topology, then compare substitution models, then detect positive selection. Version %s by %s. Full documentation at %s" % (phydmslib.__version__, phydmslib.__author__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = ArgumentParserNoArgHelp(description="Comprehensive phylogenetic model comparison and detection of selection using deep mutational scanning data. This program runs 'phydms' to infer a tree topology, then compare substitution models, then detect selection at each site. Version %s by %s. Full documentation at %s" % (phydmslib.__version__, phydmslib.__author__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('outprefix', help='Prefix for output files.', type=str)
     parser.add_argument('alignment', help='Existing FASTA file with aligned codon sequences.', type=ExistingFile)
     parser.add_argument('prefsfiles', help='Existing files with site-specific amino-acid preferences.', type=ExistingFile, nargs='+')

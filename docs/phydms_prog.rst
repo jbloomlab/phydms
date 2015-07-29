@@ -35,6 +35,8 @@ Command-line usage
     
         - *YNGKP_M0* : a single :math:`\omega` is optimized by maximum likelihood (1 free parameter)
 
+        - *YNGKP_M3* : three :math:`\omega` values and the weights (probabilities) of their categories optimized by maximum likelihood (5 free parameters).
+
         - *YNGKP_M7* : three values of :math:`\omega` between zero and one drawn from a beta distribution with the two distribution parameters optimized by maximum likelihood (2 free parameters). 
 
         - *YNGKP_M8* : three values of :math:`\omega` between zero and one drawn from a beta distribution with the two distribution parameters optimized by maximum likelihood, plus another value of :math:`\omega > 1` with the value and weight optimized by maximum likelihood (4 free parameters). 

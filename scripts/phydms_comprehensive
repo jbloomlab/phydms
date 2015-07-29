@@ -31,6 +31,41 @@ def RunCmds(cmds):
         os.kill(pid, signal.SIGTERM)
 
 
+def FormattedModelParams(model, modelparamstext):
+    """Returns nicely formatted model parameters from ``phydms`` output."""
+    if model == 'YNGKP_M0':
+        kappa = float(re.search('kappa = (\d+\.\d+)', modelparamstext).group(1))
+        omega = float(re.search('omega = (\d+\.\d+)', modelparamstext).group(1))
+        return 'omega = %.2f, kappa = %.2f' % (omega, kappa)
+    elif model == 'YNGKP_M3':
+        kappa = float(re.search('kappa = (\d+\.\d+)', modelparamstext).group(1))
+        omega0 = float(re.search('omega0 = (\d+\.\d+)', modelparamstext).group(1))
+        omega1 = omega0 + float(re.search('delta1 = (\d+\.\d+)', modelparamstext).group(1))
+        omega2 = omega1 + float(re.search('delta2 = (\d+\.\d+)', modelparamstext).group(1))
+        theta1 = float(re.search('theta1 = (\d+\.\d+)', modelparamstext).group(1))
+        theta2 = float(re.search('theta2 = (\d+\.\d+)', modelparamstext).group(1))
+        # according to docs, p_i = theta_i * sum_j<i (1 - theta_j)
+        # we then re-index to start with 0 to be consistent with omega value indexing
+        p0 = theta1
+        p1 = (1.0 - theta1) * theta2
+        assert p0 + p1 <= 1, "Invalid conversions from theta to p giving summed p > 1"
+        return 'omega0 = %.2f, omega1 = %.2f, omega2 = %.2f, p0 = %.2f, p1 = %.2f, kappa = %.2f' % (omega0, omega1, omega2, p0, p1, kappa)
+    elif 'ExpCM' in model:
+        kappa = float(re.search('123_K80.kappa = (\d+\.\d+)', modelparamstext).group(1))
+        omega = float(re.search('omega = (\d+\.\d+)', modelparamstext).group(1))
+        beta = float(re.search('stringencyparameter = (\d+\.\d+)', modelparamstext).group(1))
+        theta = float(re.search('123_Full.theta = (\d+\.\d+)', modelparamstext).group(1))
+        theta1 = float(re.search('123_Full.theta1 = (\d+\.\d+)', modelparamstext).group(1))
+        theta2 = float(re.search('123_Full.theta2 = (\d+\.\d+)', modelparamstext).group(1))
+        phiA = theta1 * (1.0 - theta)
+        phiC = (1.0 - theta2) * theta
+        phiG = theta * theta2
+        return 'beta = %.2f, omega = %.2f, kappa = %.2f, phiA = %.2f, phiC = %.2f, phiG = %.2f' % (beta, omega, kappa, phiA, phiC, phiG)
+    else:
+        raise ValueError("unrecognized model for formatting: %s" % model)
+
+
+
 def TabulateModelComparisons(modelcomparisonfile, models, outprefix, loglikelihoodsuffix, modelparamssuffix):
     """Writes file tabulating model comparisons.
 
@@ -53,17 +88,17 @@ def TabulateModelComparisons(modelcomparisonfile, models, outprefix, loglikeliho
             modelparamstext = f2.read()
             noptimized = modelparamstext.count('=')
         aic = 2.0 * (noptimized + nempirical) - 2.0 * ll
-        datalist.append((aic, modelname, ll, noptimized, nempirical))
+        datalist.append((aic, modelname, ll, noptimized, nempirical, FormattedModelParams(modelname, modelparamstext)))
     datalist.sort()
     minaic = datalist[0][0]
-    text = [['model', 'AIC', 'log likelihood', 'parameters (optimized + empirical)']]
+    text = [['model', 'AIC', 'log likelihood', 'number parameters (optimized + empirical): optimized values']]
     columnwidths = [len(s) for s in text[0]]
-    for (aic, modelname, ll, noptimized, nempirical) in datalist:
+    for (aic, modelname, ll, noptimized, nempirical, paramvalues) in datalist:
         text.append([\
                 modelname.replace('_', '_'),\
                 '%.1f' % (aic - minaic),\
                 '%.1f' % ll,\
-                '%d (%d + %d)' % (noptimized + nempirical, noptimized, nempirical),\
+                '%d (%d + %d): %s' % (noptimized + nempirical, noptimized, nempirical, paramvalues),\
                 ])
         columnwidths = [max(x, len(s)) for (x, s) in zip(columnwidths, text[-1])]
     formatstring = ' '.join(['%-' + str(w) + 's' for w in columnwidths])
@@ -114,10 +149,8 @@ def main():
         expcmfilesuffixes = filesuffixes + ['_stringencybysite.txt']
     else:
         expcmfilesuffixes = filesuffixes
-    models = {'YNGKP_M0':('YNGKP_M0', additionalcmds, 9),\
+    models = {'YNGKP_M0':('YNGKP_M0', [], 9),\
               'YNGKP_M3':('YNGKP_M3', additionalcmds, 9),\
-              'YNGKP_M7':('YNGKP_M7', additionalcmds, 9),\
-              'YNGKP_M8':('YNGKP_M8', additionalcmds, 9),\
               }
     assert len(set(args['prefsfiles'])) == len(args['prefsfiles']), 'Entries in prefsfiles not unique'
     for prefsfile in args['prefsfiles']:
