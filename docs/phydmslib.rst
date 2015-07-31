@@ -12,6 +12,14 @@ phydmslib.file_io module
     :undoc-members:
     :show-inheritance:
 
+phydmslib.mcmc module
+---------------------
+
+.. automodule:: phydmslib.mcmc
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 phydmslib.parsearguments module
 -------------------------------
 

@@ -20,10 +20,9 @@ if (sys.version_info[0], sys.version_info[1]) != (2, 7):
 dynamically_link_bpp = False
 if '--dynamically-link-bpp' in sys.argv:
     dynamically_link_bpp = True
-    if '--user' in sys.argv:
-        dynamically_link_bpp_dir = '%s/.local/' % os.path.expanduser('~')
-    else:
-        dynamically_link_bpp_dir = '/usr/local/'
+    dynamically_link_bpp_dirs = ['%s/.local/' % os.path.expanduser('~'), '/usr/local']
+    if '--user' not in sys.argv:
+        dynamically_link_bpp_dirs.reverse() # look in /usr/local first if not using --user
     sys.argv.remove('--dynamically-link-bpp')
 
 
@@ -84,8 +83,8 @@ def extensions():
                 'phydmslib.pybpp',\
                 sources=bppextension_sources,\
                 language='c++',\
-                extra_compile_args=['-I%s/include' % dynamically_link_bpp_dir, '-O2'],\
-                extra_link_args=['-L%s/lib/' % dynamically_link_bpp_dir, '-lbpp-core', '-lbpp-seq', '-lbpp-phyl'],\
+                extra_compile_args=['-I%s/include' % x for x in dynamically_link_bpp_dirs] + ['-O2'],\
+                extra_link_args=['-L%s/lib/' % x for x in dynamically_link_bpp_dirs] + ['-lbpp-core', '-lbpp-seq', '-lbpp-phyl'],\
                 ),\
             ]
     else:
@@ -121,6 +120,7 @@ setup(
         'cython>=0.21',\
         'dms_tools>=1.1.2',\
         'scipy>=0.13',\
+        'pymc>=2.3.4,<3',\
         ],
     platforms = 'Linux',
     packages = ['phydmslib'],

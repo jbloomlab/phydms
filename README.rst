@@ -7,13 +7,17 @@ Written by `Jesse Bloom`_.
 
 Installation from source
 ------------------------
-To install from source, if you are superuser do the following to install globally::
+To install from source, ``cd`` into the main ``./phydms/`` directory, and if you are superuser do the following to install globally::
 
     python setup.py install
 
 To install locally (to ``~/.local/``) use::
 
     python setup.py install --user
+
+If you want to install from source processing the dependencies, use `pip`_ with::
+
+    pip install -e . --user
 
 Bio++ code 
 ----------------------------------
@@ -35,3 +39,4 @@ Note that this ``--dynamically-link-bpp`` option may lead to crashes during inst
 
 .. _`Jesse Bloom`: http://research.fhcrc.org/bloom/en.html
 .. _`Bio++`: http://biopp.univ-montp2.fr/wiki/index.php/Main_Page
+.. _`pip`: https://pip.pypa.io/en/stable/

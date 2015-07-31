@@ -26,6 +26,7 @@ import phydmslib
 import phydmslib.file_io
 import phydmslib.parsearguments
 import phydmslib.pybpp
+import phydmslib.mcmc
 
 
 def main():
@@ -53,8 +54,9 @@ def main():
     treefile = "%s_tree.newick" % args['outprefix']
     omegafile = '%s_omegabysite.txt' % args['outprefix']
     stringencyfile = '%s_stringencybysite.txt' % args['outprefix']
+    diffprefsfile = '%s_diffprefsbysite.txt' % args['outprefix']
     logfile = "%s.log" % args['outprefix']
-    for f in [modelparamsfile, loglikelihoodfile, treefile, omegafile, stringencyfile, logfile]:
+    for f in [modelparamsfile, loglikelihoodfile, treefile, omegafile, stringencyfile, diffprefsfile, logfile]:
         if os.path.isfile(f):
             os.remove(f)
 
@@ -96,9 +98,9 @@ def main():
 
         # process the substitution model
         if isinstance(args['model'], str) and yngkp_match.search(args['model']):
-            assert not args['stringencybysite'], "You cannot use '--stringencybysite' with a non-experimentally informed model as there are no preferences to have their stringency adjusted."
-            assert not args['avgprefs'], "You cannot use '--avgprefs' with a non-experimentally informed model as there are no preferences to average"
-            assert not args['randprefs'], "You cannot use '--randprefs' with a non-experimentally informed model as there are no preferences to randomize"
+            for argname in ['stringencybsite', 'diffprefsbysite', 'randprefs', 'avgprefs']:
+                if args[argname]:
+                    raise ValueError("You can use '--%s' only with an ExpCM model" % argname)
             modelvariant = yngkp_match.search(args['model']).group('modelvariant')
             if args['infertopology'] and int(modelvariant) != 0:
                 raise ValueError("You cannot use '--infertopology' with model %s" % args['model'])
@@ -110,8 +112,8 @@ def main():
                 logger.info('The codon equilibrium frequencies will be set by F3X4, estimating the nine nucleotide frequencies empirically from the alignment frequencies.\n')
                 model = args['model'] + '_empF3X4'
         elif isinstance(args['model'], tuple) and len(args['model']) == 2 and args['model'][0] == 'ExpCM':
-            assert not args['infertopology'], "You cannot use '--infertopology' with an experimentally informed model"
-            assert not args['fitF3X4'], "It does not make sense to use '--fitF3X4' with an experimentally informed model"
+            assert not args['infertopology'], "You cannot use '--infertopology' with ExpCM"
+            assert not args['fitF3X4'], "You cannot use '--fitF3X4' with ExpCM"
             prefsfilename = args['model'][1]
             logger.info('The codon substitution model will be experimentally informed model by the site-specific amino-acid preferences in %s' % prefsfilename)
             (sites, wts, pi_means, pi_95credint, h) = dms_tools.file_io.ReadPreferences(prefsfilename)
@@ -261,7 +263,6 @@ def main():
                     fitomegaresults[icodon]["LnL_%s" % fitomega] = tl.LogLikelihood()
                     if fitomega == 'fitted':
                         fitomegaresults[icodon]['omega'] = tl.ModelParams(True)['omega']
-                    #logger.info('Completed optimizing the site likelihood with %s omega:\n\tlog likelihood: %g\n\tfitted model parameters: %s\n\tall model parameters: %s' % (fitomega, tl.LogLikelihood(), ', '.join(['%s = %g' % tup for tup in tl.ModelParams(True).items()]), ', '.join(['%s = %g' % tup for tup in tl.ModelParams(False).items()])))
                 fitomegaresults[icodon]['dLnL'] = fitomegaresults[icodon]['LnL_fitted'] - fitomegaresults[icodon]['LnL_fixed']
                 fitomegaresults[icodon]['P'] = scipy.stats.chi2.sf(2.0 * fitomegaresults[icodon]['dLnL'], df=1)
                 logger.info('Fitting omega to %.2f increases LnL by %.2f relative to fixing omega at %.2f (P-value %.2g).\n' % (fitomegaresults[icodon]['omega'], fitomegaresults[icodon]['dLnL'], fixedomegavalue, fitomegaresults[icodon]['P']))
@@ -275,7 +276,7 @@ def main():
             assert isinstance(model, tuple) and model[0] == 'ExpCM', "stringencybysite only allowed for ExpCM"
             fixedstringencyvalue = modelparams['stringencyparameter'] # null model fixes stringency to this value
             fixedmodelparams = dict([(param, value) for (param, value) in allmodelparams.items() if param != 'stringencyparameter'])
-            logger.info('Now optimizing a different stringency parameter for each site while keeping branch lengths and other model parameters fixed (but adding a rate parameter that effectively scales the branch lengths). This will be compared to a null model where the stringency parameter is equal to the overall gene value of %.2f.' % fixedstringencyvalue)
+            logger.info('Now optimizing a different stringency parameter for each site while keeping branch lengths and other model parameters fixed. This will be compared to a null model where the stringency parameter is equal to the overall gene value of %.2f.' % fixedstringencyvalue)
             logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
             logger.info('The model parameters (other than the stringency parameter) will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
             fitstringencyresults = {} # keyed by site
@@ -305,6 +306,28 @@ def main():
             logger.info('Now writing the full results of the stringency-by-site analysis to %s\n' % stringencyfile)
             with open(stringencyfile, 'w') as f:
                 f.write("# Stringency fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of stringency = %.2f (the overall gene value).\n# P-values NOT corrected for multiple testing.\n# The stringency ratio is the ratio of the fitted value to the null (overall gene value).\n#\n# site\tstringency_ratio\tP\tdLnL\n%s" % (fixedstringencyvalue, '\n'.join(['%d\t%.2f\t%.2g\t%.2f' % (site, stringencyratio, p, lnl) for (p, site, stringencyratio, lnl) in fitstringencyresults])))
+
+        if args['diffprefsbysite']:
+            assert isinstance(model, tuple) and model[0] == 'ExpCM', "diffprefsbysite only allowed for ExpCM"
+            fixedmodelparams = dict([(param, value) for (param, value) in allmodelparams.items() if param != 'stringencyparameter'])
+            fixedmodelparams['stringencyparameter'] = 1.0
+            logger.info('Now inferring the difference between the preferences specified in %s and those that best describe the natural evolution. We perform MCMC with a Dirichlet prior centered on the preferences provided in the file with a concentration parameter of %.2f. The preferences in the file are rescaled prior to this inference by the stringency parameter value of %.2f previously optimized for the entire sequence / tree, and the difference in preferences are relative to these rescaled preferences. After this rescaling, the stringency parameter is set to one. All other model parameters are fixed to their maximum likelihood values for the entire sequence / tree.' % (prefsfilename, args['diffprefsalpha'], modelparams['stringencyparameter']))
+            logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
+            logger.info('The model parameters will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
+            for icodon in range(1, len(seqs[0]) // 3 + 1):
+                logger.info('Inferring difference in preferences for site %d...' % icodon)
+                iseqs = [seq[3 * icodon  - 3 : 3 * icodon] for seq in seqs]
+                stringencyscaledprefs = dict([(aa, pref**modelparams['stringencyparameter']) for (aa, pref) in aaprefs[icodon].items()])
+                prefsum = float(sum(stringencyscaledprefs.values()))
+                stringencyscaledprefs = dict([(aa, pref / prefsum) for (aa, pref) in stringencyscaledprefs.items()])
+                imodel = ('ExpCM', {1:stringencyscaledprefs})
+                tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams=fixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, recursion=args['recursion']) 
+                initial_ll = tl.LogLikelihood()
+                (meanprefs, mcmcstring) = phydmslib.mcmc.PrefsMCMC(tl, stringencyscaledprefs, site=1, concentrationparam=args['diffprefsalpha'])
+                tl.SetPreferences(meanprefs, 1)
+                new_ll = tl.LogLikelihood()
+                assert new_ll >= initial_ll, "Log likelihood of %g with posterior mean prefs is less than initial log likelihood of %g for site %d. This probably indicates a problem with the MCMC." % (new_ll, initial_ll, icodon)
+                logger.info("The increase in log likelihood is %.3g when going from the initial preferences to those inferred from natural evolution. Here is information about the MCMC:\n\t%s\n" % (new_ll - initial_ll, mcmcstring))
 
     except:
         logger.exception('Terminating %s at %s with ERROR' % (prog, time.asctime()))    
