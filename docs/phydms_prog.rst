@@ -70,5 +70,9 @@ Command-line usage
     Only meaningful if ``model`` is one of the *YNGKP* models. It specifies how the 9 nucleotide frequency parameters are determined. By default, they are set to the empirically observed values in the sequence alignment. If you use ``--fitF3X4`` then these 9 parameters are fit by maximum likelihood.
 
 
+   \-\-no_optimize
+    This argument is intended for the case when you want to use a per-site optimization (such as ``--stringencybysite``, ``--omegabysite``, or ``--diffprefsbysite``) without re-optimizing the entire tree. It assumes that you have **previously** run ``phydms`` with the same ``outprefix`` on the same set of sequences, and have already generated the ``_modelparams.txt``, ``_tree.newick``, and ``_loglikelihood.txt`` output files. It then simply uses those files and proceeds to the per-site optimization. This option currently does **not** work for *YNGKP* models that don't use ``-fitF3X4``. When using this option, you should specify a ``treefile`` that is the one created by the previous run with ``outprefix``.
+
+
 .. include:: weblinks.txt
    

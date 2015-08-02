@@ -56,7 +56,12 @@ def main():
     stringencyfile = '%s_stringencybysite.txt' % args['outprefix']
     diffprefsfile = '%s_diffprefsbysite.txt' % args['outprefix']
     logfile = "%s.log" % args['outprefix']
-    for f in [modelparamsfile, loglikelihoodfile, treefile, omegafile, stringencyfile, diffprefsfile, logfile]:
+    if args['no_optimize']:
+        to_remove = [omegafile, stringencyfile, diffprefsfile, logfile]
+        assert args['tree'] == treefile, "When using --no_optimize, you must set 'tree' to the name of the file that would be expected to be created for this 'outprefix', which is %s in this case" % treefile
+    else:
+        to_remove = [modelparamsfile, loglikelihoodfile, treefile, omegafile, stringencyfile, diffprefsfile, logfile]
+    for f in to_remove:
         if os.path.isfile(f):
             os.remove(f)
 
@@ -98,7 +103,7 @@ def main():
 
         # process the substitution model
         if isinstance(args['model'], str) and yngkp_match.search(args['model']):
-            for argname in ['stringencybsite', 'diffprefsbysite', 'randprefs', 'avgprefs']:
+            for argname in ['stringencybysite', 'diffprefsbysite', 'randprefs', 'avgprefs']:
                 if args[argname]:
                     raise ValueError("You can use '--%s' only with an ExpCM model" % argname)
             modelvariant = yngkp_match.search(args['model']).group('modelvariant')
@@ -157,9 +162,11 @@ def main():
 
         # read or create the tree
         if args['tree'] == 'random':
+            assert not args['no_optimize'], "Cannot use --no_optimize with tree of 'random'"
             logger.info("Creating a random initial tree.")
             tree = Bio.Phylo.BaseTree.Tree.randomized(seqnames, branch_length=1.0)
         elif args['tree'] == 'nj':
+            assert not args['no_optimize'], "Cannot use --no_optimize with tree of 'nj'"
             logger.info('Creating an initial tree from nucleotide sequences by neighbor joining using a crude identity scoring matrix...')
             msa = Bio.Align.MultipleSeqAlignment([Bio.SeqRecord.SeqRecord(Bio.Seq.Seq(seq, Bio.Alphabet.generic_dna), id=head) for (head, seq) in alignment])
             calculator = Bio.Phylo.TreeConstruction.DistanceCalculator('identity')
@@ -188,43 +195,53 @@ def main():
                 toremove = ')' + node.name + ':'
                 assert toremove in newicktree, "Cannot find internal node %s in form %s in tree:\n%s" % (node.name, toremove, newicktree)
                 newicktree = newicktree.replace(toremove, '):')
-
-        # now create object for storing alignment and tree, and for likelihood calculations
         seqnames = [head for (head, seq) in alignment]
         seqs = [seq for (head, seq) in alignment]
-        logger.info('Now creating wrapped Bio++ object to evaluate tree likelihoods...')
-        try:
-            (fd, temptreefile) = tempfile.mkstemp() # create temporary file to write tree for passing
-            with os.fdopen(fd, 'w') as f:
-                f.write(newicktree)
-            if isinstance(model, str) and 'YNGKP' in model:
-                oldlikelihoodmethod = True
-            else:
-                oldlikelihoodmethod = False
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], recursion=args['recursion'])
-        finally:
-            if os.path.isfile(temptreefile):
-                os.remove(temptreefile)
-        logger.info('Completed creating Bio++ object to evaluate likelihoods for the %d codon sites of the %d sequences.\n' % (tl.NSites(), tl.NSeqs()))
 
-        # now optimize tree
-        logger.info('The initial log likelihood is %g; now optimizing by maximum likelihood...' % tl.LogLikelihood())
-        tl.OptimizeLikelihood()
-        logger.info('Completed optimizing by maximum likelihood.')
-        logger.info("Here is the optimized log likelihood (also being written to %s): %g." % (loglikelihoodfile, tl.LogLikelihood()))
-        with open(loglikelihoodfile, 'w') as f:
-            f.write('log likelihood = %g' % tl.LogLikelihood())
-        modelparams = tl.ModelParams(True)
-        modelparamstextlist = ['%s = %g' % tup for tup in modelparams.items()]
-        modelparamstextlist.sort()
-        logger.info("Here are the optimized model parameters (also being written to %s):\n\t%s" % (modelparamsfile, '\n\t'.join(modelparamstextlist)))
-        with open(modelparamsfile, 'w') as f:
-            f.write('\n'.join(modelparamstextlist))
-        logger.info("Here is the optimized tree (also being written to %s):\n%s" % (treefile, tl.NewickTree()))
-        with open(treefile, 'w') as f:
-            f.write(tl.NewickTree())
-        allmodelparams = tl.ModelParams(False)
-        del tl
+        # now optimize tree 
+        if args['no_optimize']:
+            require_files = [modelparamsfile, loglikelihoodfile, treefile]
+            logger.info("Because --no_optimize is being used, the tree and model parameters will not be optimized. Instead using the existing values from a previous optimization in the following file: %s\n" % ', '.join(require_files))
+            if not all([os.path.isfile(f) for f in require_files]):
+                raise ValueError("Cannot use --no_optimize' because cannot find all of the existing optimization files: %s" % ', '.join(require_files))
+            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, treefile, model, args['infertopology'], fixedmodelparams={}, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], recursion=args['recursion'])
+            with open(modelparamsfile) as f:
+                modelparams = dict([(line.split('=')[0].strip(), float(line.split('=')[1])) for line in f])
+            allmodelparams = modelparams
+            if set(tl.ModelParams(False).keys()) != set(modelparams.keys()):
+                raise ValueError("The existing model params file %s does not have all of the expected parameters for this substitution model, so cannot use --no_optimize. Either the existing model parameters were created with a different model, or you used a YNGKP model without --fitF3X4 (this is currently incompatible with --no_optimize).")
+        else:
+            try:
+                (fd, temptreefile) = tempfile.mkstemp() # create temporary file to write tree for passing
+                with os.fdopen(fd, 'w') as f:
+                    f.write(newicktree)
+                if isinstance(model, str) and 'YNGKP' in model:
+                    oldlikelihoodmethod = True
+                else:
+                    oldlikelihoodmethod = False
+                logger.info('Creating Bio++ object to optimize likelihood...')
+                tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], recursion=args['recursion'])
+            finally:
+                if os.path.isfile(temptreefile):
+                    os.remove(temptreefile)
+            logger.info('Created Bio++ object to optimize likelihood for the %d codon sites of the %d sequences.\n' % (tl.NSites(), tl.NSeqs()))
+            logger.info('The initial log likelihood is %g; now optimizing by maximum likelihood...' % tl.LogLikelihood())
+            tl.OptimizeLikelihood()
+            logger.info('Completed optimizing by maximum likelihood.')
+            logger.info("Here is the optimized log likelihood (also being written to %s): %g." % (loglikelihoodfile, tl.LogLikelihood()))
+            with open(loglikelihoodfile, 'w') as f:
+                f.write('log likelihood = %g' % tl.LogLikelihood())
+            modelparams = tl.ModelParams(True)
+            modelparamstextlist = ['%s = %g' % tup for tup in modelparams.items()]
+            modelparamstextlist.sort()
+            logger.info("Here are the optimized model parameters (also being written to %s):\n\t%s" % (modelparamsfile, '\n\t'.join(modelparamstextlist)))
+            with open(modelparamsfile, 'w') as f:
+                f.write('\n'.join(modelparamstextlist))
+            logger.info("Here is the optimized tree (also being written to %s):\n%s" % (treefile, tl.NewickTree()))
+            with open(treefile, 'w') as f:
+                f.write(tl.NewickTree())
+            allmodelparams = tl.ModelParams(False)
+            del tl
 
         # optimize a different omega for each site
         if args['omegabysite']:
@@ -272,6 +289,7 @@ def main():
             with open(omegafile, 'w') as f:
                 f.write("# Omega fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of omega = %.2f; P-values NOT corrected for multiple testing.\n#\n# site\tomega\tP\tdLnL\n%s" % (fixedomegavalue, '\n'.join(['%d\t%.2f\t%.2g\t%.2f' % (site, omega, p, lnl) for (p, site, omega, lnl) in fitomegaresults])))
 
+        # optimize a different stringency parameter for each site
         if args['stringencybysite']:
             assert isinstance(model, tuple) and model[0] == 'ExpCM', "stringencybysite only allowed for ExpCM"
             fixedstringencyvalue = modelparams['stringencyparameter'] # null model fixes stringency to this value
@@ -323,7 +341,7 @@ def main():
                 imodel = ('ExpCM', {1:stringencyscaledprefs})
                 tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams=fixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, recursion=args['recursion']) 
                 initial_ll = tl.LogLikelihood()
-                (meanprefs, mcmcstring) = phydmslib.mcmc.PrefsMCMC(tl, stringencyscaledprefs, site=1, concentrationparam=args['diffprefsalpha'], args['seed'])
+                (meanprefs, mcmcstring) = phydmslib.mcmc.PrefsMCMC(tl, stringencyscaledprefs, site=1, concentrationparam=args['diffprefsalpha'], seed=args['seed'])
                 tl.SetPreferences(meanprefs, 1)
                 new_ll = tl.LogLikelihood()
                 assert new_ll >= initial_ll, "Log likelihood of %g with posterior mean prefs is less than initial log likelihood of %g for site %d. This probably indicates a problem with the MCMC." % (new_ll, initial_ll, icodon)
