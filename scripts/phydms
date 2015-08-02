@@ -323,7 +323,7 @@ def main():
                 imodel = ('ExpCM', {1:stringencyscaledprefs})
                 tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams=fixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, recursion=args['recursion']) 
                 initial_ll = tl.LogLikelihood()
-                (meanprefs, mcmcstring) = phydmslib.mcmc.PrefsMCMC(tl, stringencyscaledprefs, site=1, concentrationparam=args['diffprefsalpha'])
+                (meanprefs, mcmcstring) = phydmslib.mcmc.PrefsMCMC(tl, stringencyscaledprefs, site=1, concentrationparam=args['diffprefsalpha'], args['seed'])
                 tl.SetPreferences(meanprefs, 1)
                 new_ll = tl.LogLikelihood()
                 assert new_ll >= initial_ll, "Log likelihood of %g with posterior mean prefs is less than initial log likelihood of %g for site %d. This probably indicates a problem with the MCMC." % (new_ll, initial_ll, icodon)

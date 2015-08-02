@@ -147,7 +147,7 @@ def PhyDMSParser():
     parser.add_argument('--omegabysite', dest='omegabysite', action='store_true', help="Fit a different omega (dN/dS) for each site, similar to FEL.")
     parser.set_defaults(stringencybysite=False)
     parser.add_argument('--stringencybysite', dest='stringencybysite', action='store_true', help="Fit a different stringency parameter for each site, only for ExpCM.")
-    parser.set_default(diffprefsbysite=False)
+    parser.set_defaults(diffprefsbysite=False)
     parser.add_argument('--diffprefsbysite', dest='diffprefsbysite', action='store_true', help="Infer differential preferences for each site, only for ExpCM.")
     parser.set_defaults(infertopology=False)
     parser.add_argument('--infertopology', dest='infertopology', action='store_true', help="Infer topology starting from 'tree'; otherwise topology fixed to 'tree'. Requires YNGKP_M0 model.")

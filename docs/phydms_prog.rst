@@ -64,7 +64,7 @@ Command-line usage
     Regardless of the method used to set ``tree``, all branches with lengths less than this value will be set to this value in the initial starting tree. Branches can still end up with lengths less than this after subsequent optimization of this starting tree.
 
    seed
-    The random number seed can influence the outcome when using a non-deterministic algorithm (such as when ``tree`` is set to ``random``).
+    The random number seed can influence the outcome when using a non-deterministic algorithm.
 
    \-\-fitF3X4
     Only meaningful if ``model`` is one of the *YNGKP* models. It specifies how the 9 nucleotide frequency parameters are determined. By default, they are set to the empirically observed values in the sequence alignment. If you use ``--fitF3X4`` then these 9 parameters are fit by maximum likelihood.
