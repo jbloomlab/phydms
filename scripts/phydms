@@ -12,6 +12,7 @@ import logging
 import random
 import tempfile
 import time
+import math
 import scipy.stats
 import Bio.SeqRecord
 import Bio.Phylo
@@ -201,7 +202,7 @@ def main():
         # now optimize tree 
         if args['no_optimize']:
             require_files = [modelparamsfile, loglikelihoodfile, treefile]
-            logger.info("Because --no_optimize is being used, the tree and model parameters will not be optimized. Instead using the existing values from a previous optimization in the following file: %s\n" % ', '.join(require_files))
+            logger.info("Because --no_optimize is being used, the tree and model parameters will not be optimized. Instead using the existing values from a previous optimization in the following files: %s\n" % ', '.join(require_files))
             if not all([os.path.isfile(f) for f in require_files]):
                 raise ValueError("Cannot use --no_optimize' because cannot find all of the existing optimization files: %s" % ', '.join(require_files))
             tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, treefile, model, args['infertopology'], fixedmodelparams={}, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], recursion=args['recursion'])
@@ -339,13 +340,18 @@ def main():
                 prefsum = float(sum(stringencyscaledprefs.values()))
                 stringencyscaledprefs = dict([(aa, pref / prefsum) for (aa, pref) in stringencyscaledprefs.items()])
                 imodel = ('ExpCM', {1:stringencyscaledprefs})
-                tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams=fixedmodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, recursion=args['recursion']) 
+                tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, recursion=args['recursion']) 
                 initial_ll = tl.LogLikelihood()
-                (meanprefs, mcmcstring) = phydmslib.mcmc.PrefsMCMC(tl, stringencyscaledprefs, site=1, concentrationparam=args['diffprefsalpha'], seed=args['seed'])
+                (meanprefs, mcmcstring, converged) = phydmslib.mcmc.PrefsMCMC(tl, stringencyscaledprefs, site=1, concentrationparam=args['diffprefsalpha'], seed=args['seed'])
+                if not converged:
+                    raise RuntimeError("MCMC failed to converge for site %d. Here is the MCMC message:\n%s" % (icodon, mcmcstring))
                 tl.SetPreferences(meanprefs, 1)
+                diffprefs = dict([(x, meanprefs[x] - stringencyscaledprefs[x]) for x in meanprefs.keys()])
+                rmsdiffpref = math.sqrt(sum([x**2 for x in diffprefs.values()]))
                 new_ll = tl.LogLikelihood()
-                assert new_ll >= initial_ll, "Log likelihood of %g with posterior mean prefs is less than initial log likelihood of %g for site %d. This probably indicates a problem with the MCMC." % (new_ll, initial_ll, icodon)
-                logger.info("The increase in log likelihood is %.3g when going from the initial preferences to those inferred from natural evolution. Here is information about the MCMC:\n\t%s\n" % (new_ll - initial_ll, mcmcstring))
+                assert (new_ll - initial_ll) > -1, "Log likelihood of %g with posterior mean prefs is substantially greater than initial log likelihood of %g for site %d. This probably indicates a problem with the MCMC." % (new_ll, initial_ll, icodon)
+                logger.info("For site %d, the increase in log likelihood is %.3g when going from the initial preferences to those inferred from natural evolution. Here is information about the MCMC:\n\t%s" % (icodon, new_ll - initial_ll, mcmcstring))
+                logger.info("The RMS difference in preference is %.3f; here are the differences in preferences for each amino acid: %s\n" % (rmsdiffpref, ', '.join(['%s = %.3f' % tup for tup in diffprefs.items()])))
 
     except:
         logger.exception('Terminating %s at %s with ERROR' % (prog, time.asctime()))    

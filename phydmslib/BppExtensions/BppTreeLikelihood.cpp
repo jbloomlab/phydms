@@ -494,7 +494,7 @@ void bppextensions::BppTreeLikelihood::SetPreferences(std::map<std::string, doub
     for (std::map<std::string, double>::iterator itr = aaprefs.begin(); itr != aaprefs.end(); itr++) {
         sum += itr->second;
     }
-    if (std::fabs(sum - 1.0) > 1.e-8) {
+    if (std::fabs(sum - 1.0) > 1.e-4) {
         throw std::runtime_error("Sum of amino-acid preferences is not close to one: " + patch::to_string(sum));
     }
     std::map<int, double> initcodonprefs;

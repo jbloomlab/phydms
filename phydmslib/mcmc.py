@@ -83,36 +83,35 @@ def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, n
     index_to_char = dict([(i, char) for (char, i) in char_to_index.items()])
     assert nchars == len(char_to_index) == len(index_to_char) > 1
 
-    # define MCMC variables
-    # pi is vector of preferences
-    pi_incomplete = pymc.Dirichlet(\
-            'pi_incomplete',\
-            concentrationparam * nchars * pymc.numpy.array([float(prefs[index_to_char[i]]) for i in range(nchars)]),\
-            value=pymc.numpy.array([float(prefs[index_to_char[i]]) for i in range(nchars - 1)]))
-    pi = pymc.CompletedDirichlet('pi', pi_incomplete)
-    # sitelikelihood is the likelihood given pi
-    @pymc.stochastic(plot=False, name='sitelikelihood', observed=True)
-    def sitelikelihood(value=site, pix=pi):
-        """site likelihood given pi"""
-        pi_vec = pix[0] # to get as vector, as pix is column vector
-        if any(pi_vec <= 0) or any(pi_vec >= 1) or (not pymc.numpy.allclose(sum(pi_vec), 1.0)):
-            return -pymc.numpy.inf
+    # define MCMC variable 
+    priorvec = pymc.numpy.array([float(prefs[index_to_char[i]] * nchars * concentrationparam) for i in range(nchars)]) 
+    initial_pi_incomplete = pymc.numpy.array([float(prefs[index_to_char[i]]) for i in range(nchars - 1)]) # incomplete Dirichlet 
+    @pymc.stochastic(plot=False, name='prefs_posterior')
+    def prefs_posterior(value=initial_pi_incomplete):
+        """Posterior of preferences (value is incomplete Dirichlet vector)"""
+        if any(value <= 0) or sum(value) >= 1:
+            return -pymc.numpy.inf # outside Dirichlet support
         else:
-            tl.SetPreferences(dict([(index_to_char[i], pi_i) for (i, pi_i) in enumerate(pi_vec)]), value)
-            return tl.LogLikelihood()
+            prior = pymc.distributions.dirichlet_like(value, priorvec)
+            prefs_dict = dict([(index_to_char[i], pi_i) for (i, pi_i) in enumerate(value)])
+            prefs_dict[index_to_char[nchars - 1]] = 1.0 - sum(value)
+            tl.SetPreferences(prefs_dict, site)
+            logl = tl.LogLikelihood()
+            return prior + logl
+    pi = pymc.CompletedDirichlet('pi', prefs_posterior)
 
     # run MCMC
     converged = False
     increasetry = 0
     while (not converged) and (increasetry <= nincreasetries):
-        mcmc = pymc.MCMC([pi_incomplete, pi, sitelikelihood], verbose=max(0, verbose - 1))
-        mcmc.use_step_method(DeltaExchange, pi_incomplete, verbose=max(0, verbose - 1))
+        mcmc = pymc.MCMC([prefs_posterior, pi], verbose=max(0, verbose - 1))
+        mcmc.use_step_method(DeltaExchange, prefs_posterior, verbose=max(0, verbose - 1))
         if verbose:
             print("\nBeginning MCMC of %d chains each of %d steps." % (nchains, nsteps))
         pi_means = {}
         for ichain in range(nchains):
-            assert len(pi_incomplete.value) == nchars - 1
-            pi_incomplete.value = pymc.numpy.random.dirichlet(pymc.numpy.array([1.0 for i in range(nchars)]))[ : -1]
+            assert len(prefs_posterior.value) == nchars - 1
+            prefs_posterior.value = pymc.numpy.random.dirichlet(pymc.numpy.array([1.0 for i in range(nchars)]))[ : -1]
             mcmc.sample(iter=nsteps, burn=int(nsteps * burnfrac), progress_bar=(verbose >= 3))
             itrace = mcmc.trace('pi', chain=ichain)[:][:,0,:]
             assert itrace.shape[0] == nsteps - int(nsteps * burnfrac)
@@ -130,7 +129,8 @@ def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, n
             mcmcstring = "MCMC FAILED to converge (%d chains each with %d burn-in steps and %d sampling steps) with a Gelman-Rubin R of %.3f and a maximum RMS difference in preferences of %.3f." % (nchains, int(burnfrac * nsteps), nsteps - int(burnfrac * nsteps), grstat, maxrmsdpi)
             if verbose:
                 print(mcmcstring)
-            nsteps = int(foldincrease * nsteps)
+            if increasetry <= nincreasetries:
+                nsteps = int(foldincrease * nsteps)
     traces = mcmc.trace('pi', chain=None)[:][:,0,:]
     assert traces.shape[0] == nchains * (nsteps - int(nsteps * burnfrac))
     pi_mean = sum(traces) / float(traces.shape[0])
@@ -162,11 +162,6 @@ class DeltaExchange(pymc.Metropolis):
         if j < n:
             newvalue[j] += delta
         self.stochastic.value = newvalue
-
-    def reject(self):
-        """Return to last value if step rejected."""
-        self.rejected += 1
-        self.stochastic.value = self.stochastic.last_value
 
 
 if __name__ == '__main__':

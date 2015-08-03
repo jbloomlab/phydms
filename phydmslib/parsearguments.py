@@ -157,7 +157,7 @@ def PhyDMSParser():
     parser.add_argument('--avgprefs', dest='avgprefs', action='store_true', help="Average preferences across sites for ExpCM.")
     parser.set_defaults(fixbrlen=False)
     parser.add_argument('--fixbrlen', dest='fixbrlen', action='store_true', help="Fix branch lengths to those of initial 'tree'. Consider using '--addrateparameter' too.")
-    parser.add_argument('--diffprefsalpha', default=5, help="Concentration parameter for '--diffprefsbysite'; larger values favor smaller diff prefs.", type=FloatGreaterThanZero)
+    parser.add_argument('--diffprefsalpha', default=1, help="Concentration parameter for '--diffprefsbysite'; larger values favor smaller diff prefs.", type=FloatGreaterThanZero)
     parser.set_defaults(addrateparameter=False)
     parser.add_argument('--addrateparameter', dest='addrateparameter', action='store_true', help="Add parameter scaling substitution rate. Only allowed with '--fixbrlen'.")
     parser.set_defaults(fitF3X4=False)
