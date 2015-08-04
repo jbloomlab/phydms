@@ -225,13 +225,15 @@ cdef class PyBppTreeLikelihood:
         was created."""
         self.thisptr.OptimizeLikelihood()
 
-    def ModelParams(self, bint optimizedonly):
+    def ModelParams(self, bint optimizedonly, bint clipnames=True):
         """Returns current values of substitution model parameters.
 
         If *optimizedonly* is *True*, then only returns parameters being optimized by
         maximum likelihood. If *optimizedonly* is *False*, returns all parameters.
         For instance, there will be non-optimized parameters if the equilibrium codon
         frequencies are being fit empirically.
+
+        If *clipnames* is *True*, clip any prefix from the model parameter name.
         
         The return value is the dictionary *modelparams*, with *modelparams[parametername]*
         being the numerical value of parameter *parametername*.
@@ -246,7 +248,10 @@ cdef class PyBppTreeLikelihood:
         # clip the prefix (typically "YN98." or "ExpCM." from the model parameter)
         clippedmodelparams = {}
         for modelparam in modelparams:
-            clippedmodelparam = modelparam[modelparam.index('.') + 1 : ]
+            if clipnames:
+                clippedmodelparam = modelparam[modelparam.index('.') + 1 : ]
+            else:
+                clippedmodelparam = modelparam
             assert clippedmodelparam not in clippedmodelparams, "Duplicated model param %s after clipping" % clippedmodelparam
             clippedmodelparams[clippedmodelparam] = modelparams[modelparam]
         return clippedmodelparams
