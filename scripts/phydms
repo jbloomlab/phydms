@@ -205,12 +205,16 @@ def main():
             logger.info("Because --no_optimize is being used, the tree and model parameters will not be optimized. Instead using the existing values from a previous optimization in the following files: %s\n" % ', '.join(require_files))
             if not all([os.path.isfile(f) for f in require_files]):
                 raise ValueError("Cannot use --no_optimize' because cannot find all of the existing optimization files: %s" % ', '.join(require_files))
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, treefile, model, args['infertopology'], fixedmodelparams={}, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], recursion=args['recursion'])
+            with open(loglikelihoodfile) as f:
+                old_ll = float(f.readlines()[0].split('=')[1])
             with open(modelparamsfile) as f:
                 modelparams = dict([(line.split('=')[0].strip(), float(line.split('=')[1])) for line in f])
             allmodelparams = modelparams
+            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, treefile, model, args['infertopology'], fixedmodelparams=modelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], recursion=args['recursion'])
             if set(tl.ModelParams(False).keys()) != set(modelparams.keys()):
                 raise ValueError("The existing model params file %s does not have all of the expected parameters for this substitution model, so cannot use --no_optimize. Either the existing model parameters were created with a different model, or you used a YNGKP model without --fitF3X4 (this is currently incompatible with --no_optimize).")
+            if abs(tl.LogLikelihood() - old_ll) > 0.01:
+                raise ValueError("Incompatibility between old log likelihood %g and new one of %g" % (old_ll, tl.LogLikelihood()))
         else:
             try:
                 (fd, temptreefile) = tempfile.mkstemp() # create temporary file to write tree for passing
