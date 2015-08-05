@@ -53,7 +53,8 @@
 bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonModel(
     const bpp::GeneticCode* gCode,
     bpp::FrequenciesSet* preferences,
-    const std::string& prefix) :
+    const std::string& prefix,
+    bool prefsasparams) :
   AbstractParameterAliasable(prefix),
   AbstractCodonSubstitutionModel(gCode, new bpp::K80(dynamic_cast<const bpp::CodonAlphabet*>(gCode->getSourceAlphabet())->getNucleicAlphabet()), prefix),
   AbstractCodonPhaseFrequenciesSubstitutionModel(bpp::CodonFrequenciesSet::getFrequenciesSetForCodons(bpp::CodonFrequenciesSet::F1X4, gCode), prefix),
@@ -61,12 +62,18 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
   preferences_(preferences),
   omega_(1),
   stringencyparameter_(1),
-  rateparameter_(1)
+  rateparameter_(1),
+  prefsasparams_(prefsasparams)
 {
   if (dynamic_cast<bpp::CodonFrequenciesSet*>(preferences) == NULL) {
     throw std::runtime_error("Invalid preferences");
   }
   prefix_ = prefix;
+  prefName_ = "preferences_" + preferences_->getNamespace();
+  preferences_->setNamespace(prefix + prefName_);
+  if (prefsasparams_) {
+    addParameters_(preferences_->getParameters());
+  }
   addParameter_(new bpp::Parameter(prefix + "omega", 1, new bpp::IntervalConstraint(0.001, 99, true, true), true));
   addParameter_(new bpp::Parameter(prefix + "stringencyparameter", 1, new bpp::IntervalConstraint(0.01, 99, true, true), true));
   updateMatrices();
@@ -89,7 +96,10 @@ void bppextensions::ExperimentallyInformedCodonModel::fireParameterChanged(const
   stringencyparameter_ = getParameterValue("stringencyparameter");
   if (hasParameter("rateparameter")) {
       rateparameter_ = getParameterValue("rateparameter");
-  }   
+  }
+  if (prefsasparams_) {
+      preferences_->matchParametersValues(parameters);
+  }
   // this next call MUST be last!
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
 }
@@ -125,6 +135,7 @@ void bppextensions::ExperimentallyInformedCodonModel::setNamespace(const std::st
   AbstractCodonSubstitutionModel::setNamespace(st);
   AbstractParameterAliasable::setNamespace(st);
   AbstractCodonPhaseFrequenciesSubstitutionModel::setNamespace(st); 
+  preferences_->setNamespace(st + prefName_);
 }
 
 std::map<std::string, double> bppextensions::ExperimentallyInformedCodonModel::getPreferences()

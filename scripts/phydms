@@ -210,7 +210,8 @@ def main():
             with open(modelparamsfile) as f:
                 modelparams = dict([(line.split('=')[0].strip(), float(line.split('=')[1])) for line in f])
             allmodelparams = modelparams
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, treefile, model, args['infertopology'], fixedmodelparams=modelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], recursion=args['recursion'])
+            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, treefile, model, args['infertopology'], fixedmodelparams=modelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], prefsasparams=False, recursion=args['recursion'])
+            assert not tl.ModelParams(True), "There are unspecified model parameters to be optimized for --no_optimize: %s" % str(tl.ModelParams(True))
             if set(tl.ModelParams(False).keys()) != set(modelparams.keys()):
                 raise ValueError("The existing model params file %s does not have all of the expected parameters for this substitution model, so cannot use --no_optimize. Either the existing model parameters were created with a different model, or you used a YNGKP model without --fitF3X4 (this is currently incompatible with --no_optimize).")
             if abs(tl.LogLikelihood() - old_ll) > 0.01:
@@ -225,7 +226,7 @@ def main():
                 else:
                     oldlikelihoodmethod = False
                 logger.info('Creating Bio++ object to optimize likelihood...')
-                tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], recursion=args['recursion'])
+                tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], prefsasparams=False, recursion=args['recursion'])
             finally:
                 if os.path.isfile(temptreefile):
                     os.remove(temptreefile)
@@ -280,7 +281,7 @@ def main():
                         initializemodelparams = {}
                     else:
                         initializemodelparams = {'omega':fixedomegavalue}
-                    tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, initializemodelparams=initializemodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=True, recursion=args['recursion']) 
+                    tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, initializemodelparams=initializemodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=True, prefsasparams=False, recursion=args['recursion']) 
                     tl.OptimizeLikelihood()
                     fitomegaresults[icodon]["LnL_%s" % fitomega] = tl.LogLikelihood()
                     if fitomega == 'fitted':
@@ -315,7 +316,7 @@ def main():
                     else:
                         initializemodelparams = {'stringencyparameter':fixedstringencyvalue}
                     imodel = ('ExpCM', {1:aaprefs[icodon]})
-                    tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, initializemodelparams=initializemodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, recursion=args['recursion']) 
+                    tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, initializemodelparams=initializemodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=False, recursion=args['recursion']) 
                     tl.OptimizeLikelihood()
                     fitstringencyresults[icodon]["LnL_%s" % fitstringency] = tl.LogLikelihood()
                     if fitstringency == 'fitted':
@@ -344,7 +345,7 @@ def main():
                 prefsum = float(sum(stringencyscaledprefs.values()))
                 stringencyscaledprefs = dict([(aa, pref / prefsum) for (aa, pref) in stringencyscaledprefs.items()])
                 imodel = ('ExpCM', {1:stringencyscaledprefs})
-                tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, recursion=args['recursion']) 
+                tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=True, recursion=args['recursion']) 
                 initial_ll = tl.LogLikelihood()
                 (meanprefs, mcmcstring, converged) = phydmslib.mcmc.PrefsMCMC(tl, stringencyscaledprefs, site=1, concentrationparam=args['diffprefsalpha'], seed=args['seed'])
                 if not converged:

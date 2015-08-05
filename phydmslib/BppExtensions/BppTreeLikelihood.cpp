@@ -32,7 +32,7 @@ namespace patch
 
 
 // constructor
-bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, char recursion)
+bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion)
 {
 
     // setup some parameters / options
@@ -48,7 +48,11 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
     } else {
         optimizationparams["optimization.topology"] = "false";
     }
-    optimizationparams["optimization.ignore_parameters"] = "";
+    if (prefsasparams) {
+        optimizationparams["optimization.ignore_parameters"] = "*preferences*";
+    } else {
+        optimizationparams["optimization.ignore_parameters"] = "";
+    }
 
     // error checking on calling variables
     if ((fixbrlen) && (infertopology)) {
@@ -171,7 +175,7 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
                 init_rprefs[icodon] = preferences[isite][codon];    
             }
             rprefs->setFrequenciesFromAlphabetStatesFrequencies(init_rprefs);
-            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM."));
+            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM.", prefsasparams != 0));
             if (! models[isite]) {
                 throw std::runtime_error("error casting ExperimentallyInformedCodonModel");
             }
@@ -273,6 +277,9 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
             std::vector<std::string> independentmodelparams = models[1]->getIndependentParameters().getParameterNames();
             for (std::vector<std::string>::size_type i = 0; i != independentmodelparams.size(); ++i) {
                 std::string parametername = independentmodelparams[i] + "_1";
+                if (parametername.find("preferences") != std::string::npos) {
+                    continue;
+                }
                 constrainedparams[independentmodelparams[i]] = independentmodelparams[i]; // name to return in ModelParams
                 for (long isite = 2; isite <= nsites; isite++) {
                     std::string parameternametoalias = independentmodelparams[i] + "_" + patch::to_string(isite);

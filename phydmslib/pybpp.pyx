@@ -18,7 +18,7 @@ from libcpp.map cimport map as cpp_map
 
 cdef extern from "BppExtensions/BppTreeLikelihood.h" namespace "bppextensions":
     cdef cppclass BppTreeLikelihood:
-        BppTreeLikelihood(vector[string], vector[string], string, string, bint, cpp_map[int, cpp_map[string, double]], cpp_map[string, double], cpp_map[string, double], bint, bint, bint, char) except +
+        BppTreeLikelihood(vector[string], vector[string], string, string, bint, cpp_map[int, cpp_map[string, double]], cpp_map[string, double], cpp_map[string, double], bint, bint, bint, bint, char) except +
         long NSeqs() except +
         long NSites() except +
         void NewickTree(string) except +
@@ -42,7 +42,7 @@ cdef class PyBppTreeLikelihood:
 
     Objects are instantiated like this:
 
-        *bpptl = BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, fixedmodelparams, initializemodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, recursion)*
+        *bpptl = BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, fixedmodelparams, initializemodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, prefsasparams, recursion)*
 
     where:
 
@@ -114,6 +114,10 @@ cdef class PyBppTreeLikelihood:
           parameter that scales the rates. Only makes sense when *fixbrlen*
           is *True*. 
 
+        * Do we define ExpCM models with preferences as parameters (note that they
+          are still not optimized). This is necessary if you want to subsequently
+          use *SetPreferences*.
+
         * *recursion* is the ``Bio++`` likelihood recursion, which can be 'S' (simple)
           or 'D' (double).
     """
@@ -124,7 +128,7 @@ cdef class PyBppTreeLikelihood:
 
     cdef dict codon_to_aa
 
-    def __cinit__(self, list seqnames, list seqs, str treefile, model, bint infertopology, fixedmodelparams, initializemodelparams, bint oldlikelihoodmethod, bint fixbrlen, bint addrateparameter, str recursion):
+    def __cinit__(self, list seqnames, list seqs, str treefile, model, bint infertopology, fixedmodelparams, initializemodelparams, bint oldlikelihoodmethod, bint fixbrlen, bint addrateparameter, bint prefsasparams, str recursion):
         """Initializes new *PyBppTreeLikelihood* object."""
         # 
         # set up codons, amino acids, nts
@@ -179,7 +183,7 @@ cdef class PyBppTreeLikelihood:
             model = 'ExpCM'
         else:
             raise ValueError("Invalid model of %s" % model)
-        self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixedmodelparams, initializemodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, ord(recursion))
+        self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixedmodelparams, initializemodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, prefsasparams, ord(recursion))
         if self.thisptr is NULL:
             raise MemoryError("Failed to allocate pointer to BppTreeLikelihood")
 
@@ -249,7 +253,7 @@ cdef class PyBppTreeLikelihood:
         # clip the prefix (typically "YN98." or "ExpCM." from the model parameter)
         clippedmodelparams = {}
         for modelparam in modelparams:
-            if clipnames:
+            if clipnames and 'preferences' not in modelparam:
                 clippedmodelparam = modelparam[modelparam.index('.') + 1 : ]
             else:
                 clippedmodelparam = modelparam

@@ -60,6 +60,8 @@ namespace bppextensions
    *
    * @param prefix The name prefixed to the model, such as "ExpCM_residue_1."
    *
+   *@param prefsasparams Are the preferences defined as model parameters?
+   *
    * Reference:
    * -  Bloom JD (2014), _Molecular Biology and Evolution_ 31(10):2753-2769.
    */
@@ -71,16 +73,19 @@ namespace bppextensions
   {
   private:
     std::string prefix_;
+    std::string prefName_;
     bpp::FrequenciesSet* preferences_;
     double omega_; // dN/dS ratio
     double stringencyparameter_;
     double rateparameter_;
+    bool prefsasparams_;
 
   public:
     ExperimentallyInformedCodonModel(
         const bpp::GeneticCode* gCode,
         bpp::FrequenciesSet* preferences, 
-        const std::string& prefix);
+        const std::string& prefix,
+        bool prefsasparams);
 
     ExperimentallyInformedCodonModel(const ExperimentallyInformedCodonModel& model):
       AbstractParameterAliasable(model),
@@ -90,7 +95,8 @@ namespace bppextensions
       preferences_(model.preferences_->clone()),
       omega_(model.omega_),
       stringencyparameter_(model.stringencyparameter_),
-      rateparameter_(model.rateparameter_)
+      rateparameter_(model.rateparameter_),
+      prefsasparams_(model.prefsasparams_)
     {} 
 
     ExperimentallyInformedCodonModel& operator=(const ExperimentallyInformedCodonModel& model) {
@@ -103,6 +109,7 @@ namespace bppextensions
       omega_ = model.omega_;
       stringencyparameter_ = model.stringencyparameter_;
       rateparameter_ = model.rateparameter_;
+      prefsasparams_ = model.prefsasparams_;
       return *this;
     }
 

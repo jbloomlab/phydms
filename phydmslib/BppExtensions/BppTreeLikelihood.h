@@ -69,10 +69,12 @@ namespace bppextensions {
              *
              * @param addrateparameter Add a parameter that scales all rates. You can only use this if fixing branch lengths (fixbrlen =! 0)
              *
+             * @param prefsasparams Do we define site-specific amino-acid preferences as parameters for ExpCM?
+             *
              * @param recursion Recursion method used for likelihood. Can be "S" for simple or "D" for double.
              *
              */
-            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, char recursion);
+            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion);
 
             /**
              *@brief Destructor
