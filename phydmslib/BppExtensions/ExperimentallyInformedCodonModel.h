@@ -141,6 +141,11 @@ namespace bppextensions
     void setPreferences(bpp::FrequenciesSet* preferences);
 
     /*
+     * @brief gets namespace for preferences
+     */
+    std::string getPreferencesNamespace();
+
+    /*
      * @brief set the phasefrequencies and fitness of the model from
      * given frequencies, such that the equilibrium frequencies of the
      * model matches at best the given ones.

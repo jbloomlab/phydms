@@ -519,7 +519,25 @@ void bppextensions::BppTreeLikelihood::SetPreferences(std::map<std::string, doub
         }
     }
     codonprefs->setFrequenciesFromAlphabetStatesFrequencies(initcodonprefs);
-    model->setPreferences(codonprefs);
+    codonprefs->setNamespace(model->getPreferencesNamespace());
+    bpp::ParameterList preflist = codonprefs->getParameters();
+    std::vector<std::string> prefnames = preflist.getParameterNames();
+    bpp::ParameterList *preflist_renamed = new bpp::ParameterList();
+    for (size_t i = 0; i < prefnames.size(); i++) {
+        bpp::Parameter iparam = preflist.getParameter(prefnames[i]);
+        // add site number suffix to match phylolikelihood names
+        iparam.setName(iparam.getName() + "_" + patch::to_string(isite));
+        preflist_renamed->addParameter(iparam);
+    }
+    std::vector<std::string> prefnames_renamed = preflist_renamed->getParameterNames();
+    for (size_t i = 0; i < prefnames_renamed.size(); i++) {
+        if (! phylolikelihood->getSubstitutionModelParameters().hasParameter(prefnames_renamed[i])) {
+            throw std::runtime_error("Can't find parameter " + prefnames_renamed[i] + ". Did you use an ExpCM?");
+        }
+    }
+    phylolikelihood->setParameters(*preflist_renamed);
+    delete codonprefs;
+    delete preflist_renamed;
 }
 
 

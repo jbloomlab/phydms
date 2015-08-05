@@ -156,6 +156,10 @@ void bppextensions::ExperimentallyInformedCodonModel::setPreferences(bpp::Freque
     updateMatrices();
 }
 
+std::string bppextensions::ExperimentallyInformedCodonModel::getPreferencesNamespace() {
+    return preferences_->getNamespace();
+}
+
 void bppextensions::ExperimentallyInformedCodonModel::setFreq(std::map<int,double>& frequencies)
 {
   throw std::runtime_error("It's not good that ExperimentallyInformedCodonModel->setFreq is being called, because I don't understand what this function does and it is probably not written correctly.\n");     
