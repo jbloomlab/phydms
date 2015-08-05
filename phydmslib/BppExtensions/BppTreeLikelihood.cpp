@@ -514,3 +514,28 @@ void bppextensions::BppTreeLikelihood::SetPreferences(std::map<std::string, doub
     codonprefs->setFrequenciesFromAlphabetStatesFrequencies(initcodonprefs);
     model->setPreferences(codonprefs);
 }
+
+
+void bppextensions::BppTreeLikelihood::SetStringency(double stringency, long isite)
+{
+    if ((isite < 1) || (isite > NSites())) {
+        throw std::runtime_error("Invalid site number, must be >= 1 and <= NSites");
+    }
+    if (models.find(isite) == models.end()) {
+        throw std::runtime_error("There is not a site with key " + patch::to_string(isite) + ".");
+    }
+    bppextensions::ExperimentallyInformedCodonModel *model = dynamic_cast<bppextensions::ExperimentallyInformedCodonModel*>(models[isite]);
+    if (! model) {
+        throw std::runtime_error("You did not use an ExpCM model");
+    }
+    //model->setParameterValue("stringencyparameter", stringency);
+    //model->fireParameterChanged(model->getParameters());
+    bpp::ParameterList pl = phylolikelihood->getSubstitutionModelParameters();
+    std::vector<std::string> plvec = pl.getParameterNames();
+    for (size_t i = 0; i < plvec.size(); i++) {
+        std::cout << plvec[i] << "\n";
+    }
+    bpp::ParameterList *newparams = new bpp::ParameterList();
+    newparams->addParameter(new bpp::Parameter("ExpCM.stringencyparameter_1", stringency));
+    phylolikelihood->setParameters(*newparams);
+}

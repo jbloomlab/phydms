@@ -29,6 +29,7 @@ cdef extern from "BppExtensions/BppTreeLikelihood.h" namespace "bppextensions":
         cpp_map[string, double] StationaryState(long) except +
         cpp_map[string, double] GetPreferences(long) except +
         void SetPreferences(cpp_map[string, double], long) except +
+        void SetStringency(double, long) except +
 
 
 cdef class PyBppTreeLikelihood:
@@ -291,4 +292,9 @@ cdef class PyBppTreeLikelihood:
         Only works if this object was created using an *ExpCM* model.
         """
         self.thisptr.SetPreferences(aaprefs, isite)
+
+
+    def SetStringency(self, double stringency, long isite):
+        """Sets stringency parameter to *stringency* for site *isite*."""
+        self.thisptr.SetStringency(stringency, isite)
 
