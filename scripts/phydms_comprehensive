@@ -44,7 +44,7 @@ def FormattedModelParams(model, modelparamstext):
         omega2 = omega1 + float(re.search('delta2 = (\d+\.\d+)', modelparamstext).group(1))
         theta1 = float(re.search('theta1 = (\d+\.\d+)', modelparamstext).group(1))
         theta2 = float(re.search('theta2 = (\d+\.\d+)', modelparamstext).group(1))
-        # according to docs, p_i = theta_i * sum_j<i (1 - theta_j)
+        # according to docs, p_i = theta_i * prod_j<i (1 - theta_j)
         # we then re-index to start with 0 to be consistent with omega value indexing
         p0 = theta1
         p1 = (1.0 - theta1) * theta2
