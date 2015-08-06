@@ -147,15 +147,6 @@ std::map<std::string, double> bppextensions::ExperimentallyInformedCodonModel::g
     return prefs;
 }
 
-void bppextensions::ExperimentallyInformedCodonModel::setPreferences(bpp::FrequenciesSet* preferences) {
-    if (preferences_->getNumberOfFrequencies() != preferences->getNumberOfFrequencies()) {
-        throw std::runtime_error("Mismatch in length between new and old preferences");
-    }
-    delete preferences_;
-    preferences_ = preferences;
-    updateMatrices();
-}
-
 std::string bppextensions::ExperimentallyInformedCodonModel::getPreferencesNamespace() {
     return preferences_->getNamespace();
 }

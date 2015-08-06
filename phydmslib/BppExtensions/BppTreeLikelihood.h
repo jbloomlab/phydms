@@ -151,14 +151,6 @@ namespace bppextensions {
              */
             std::string OptimizationIgnoredParameters();
 
-            /**
-             @brief Sets stringency for a site
-             *
-             *@param stringency set to this value
-             *
-             *@param isite site for which we set stringency
-             */
-             void SetStringency(double stringency, long isite);
 
         private:
             bool verbose; // verbosity of Bpp functions

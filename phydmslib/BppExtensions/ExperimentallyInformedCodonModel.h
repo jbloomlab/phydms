@@ -136,11 +136,6 @@ namespace bppextensions
     std::map<std::string, double> getPreferences();
 
     /*
-     * @brief sets the preferences 
-     */
-    void setPreferences(bpp::FrequenciesSet* preferences);
-
-    /*
      * @brief gets namespace for preferences
      */
     std::string getPreferencesNamespace();
