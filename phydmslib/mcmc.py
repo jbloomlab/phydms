@@ -6,7 +6,7 @@ import random
 import pymc
 
 
-def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, nsteps=5e3, burnfrac=0.2, nincreasetries=2, foldincrease=2, convergence=1.05):
+def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, nsteps=1e4, burnfrac=0.2, nincreasetries=2, foldincrease=2, convergence=1.1):
     """MCMC to infer posterior mean preferences from tree likelihood.
 
     *tl* is a *phydmslib.pybpp.PyBppTreeLikelihood* object that has
@@ -42,7 +42,7 @@ def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, n
     is considered to converge if the chains (*nchains* must be >= 2)
     have a Gelman-Rubin R that is less than *convergence* **and**
     if the max root-mean-square difference in the inferred preferences
-    between chains is less than *1.0 - convergence*. First, we try
+    between chains is less than *(convergence - 1.0) / 2*. First, we try
     *nchains* chains with *nsteps* steps, of which the first *burnfrac*
     is burn-in. If convergence fails, we try again *nincreasetries* more
     times, each time increasing the number of steps by *foldincrease*.
@@ -111,7 +111,7 @@ def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, n
         pi_means = {}
         for ichain in range(nchains):
             assert len(prefs_posterior.value) == nchars - 1
-            prefs_posterior.value = pymc.numpy.random.dirichlet(pymc.numpy.array([1.0 for i in range(nchars)]))[ : -1]
+            prefs_posterior.value = pymc.numpy.random.dirichlet(priorvec)[ : -1] # initial random values
             mcmc.sample(iter=nsteps, burn=int(nsteps * burnfrac), progress_bar=(verbose >= 3))
             itrace = mcmc.trace('pi', chain=ichain)[:][:,0,:]
             assert itrace.shape[0] == nsteps - int(nsteps * burnfrac)
@@ -119,7 +119,7 @@ def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, n
             assert pymc.numpy.allclose(sum(pi_means[ichain]), 1.0)
         grstat = sum([r[0] for r in pymc.gelman_rubin(mcmc)['pi']]) / float(nchars)
         maxrmsdpi = max([math.sqrt(sum((pi_means[ichain] - pi_means[ichain + 1])**2)) for ichain in range(nchains - 1)])
-        if (grstat < convergence) and (maxrmsdpi < convergence - 1):
+        if (grstat < convergence) and (maxrmsdpi < (convergence - 1) / 2.0):
             converged = True
             mcmcstring = "MCMC converged (%d chains each with %d burn-in steps and %d sampling steps) with a Gelman-Rubin R of %.3f and a maximum RMS difference in preferences of %.3f." % (nchains, int(burnfrac * nsteps), nsteps - int(burnfrac * nsteps), grstat, maxrmsdpi)
             if verbose:
