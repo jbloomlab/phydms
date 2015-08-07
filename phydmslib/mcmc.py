@@ -5,8 +5,28 @@ import math
 import random
 import pymc
 
+def AdjustToMinValue(vec, minvalue):
+    """Adjusts incomplete Dirichlet vector *vec* so all elements > *minvalue*"""
+    nadjusts = 0
+    vec = pymc.numpy.ravel(vec)
+    while any(vec <= minvalue) or sum(vec) >= 1 - minvalue:
+        maxindex = pymc.numpy.argmax(vec)
+        if 1 - sum(vec) > vec[maxindex]:
+            maxindex = -1
+        else:
+            vec[maxindex] -= minvalue
+        minindex = pymc.numpy.argmin(vec)
+        if 1 - sum(vec) < vec[minindex]:
+            minindex = -1
+        else:
+            vec[minindex] += minvalue
+        assert maxindex != minindex
+        nadjusts += 1
+        assert nadjusts < 2 * len(vec), "problem adjusting"
+    return vec
 
-def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, nsteps=1e4, burnfrac=0.2, nincreasetries=2, foldincrease=2, convergence=1.1):
+
+def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, nsteps=1e4, burnfrac=0.2, nincreasetries=4, convergence=1.1, minvalue=1.0e-3, use_delta_exchange=False):
     """MCMC to infer posterior mean preferences from tree likelihood.
 
     *tl* is a *phydmslib.pybpp.PyBppTreeLikelihood* object that has
@@ -37,17 +57,22 @@ def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, n
     output (0 is no output), you will get more output with values
     up to at least 3.
 
-    *nchains*, *burnfrac*, *nsteps*, *nincreasetries*, *foldincrease*, 
+    *nchains*, *burnfrac*, *nsteps*, *nincreasetries*, and 
     *convergence* specify how the MCMC is performed. The MCMC
     is considered to converge if the chains (*nchains* must be >= 2)
     have a Gelman-Rubin R that is less than *convergence* **and**
     if the max root-mean-square difference in the inferred preferences
-    between chains is less than *(convergence - 1.0) / 2*. First, we try
-    *nchains* chains with *nsteps* steps, of which the first *burnfrac*
-    is burn-in. If convergence fails, we try again *nincreasetries* more
-    times, each time increasing the number of steps by *foldincrease*.
-    Each chain is always seeded with preferences drawn
-    randomly from a flat Dirichlet distribution.
+    between chains is less than *(convergence - 1.0) / 2*. Each chain begins
+    with *nsteps X burnfrac* steps. Then we perform a chain of *nsteps*
+    steps. If convergence fails, we add *nsteps* additional steps to
+    the chain *nincreasetries* more times. Each chain is seeded with
+    preferences drawn randomly from the prior.
+
+    We do not allow any element of the preference vector to become
+    smaller than *minvalue*.
+
+    *use_delta_exchange* specifies that we use the delta exchange
+    MCMC operator rather than the ``pymc`` default.
 
     The return value is *(meanprefs, mcmcstring, converged)* where:
 
@@ -61,31 +86,9 @@ def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, n
         - *converged* is *True* if the MCMC converged and *False* 
           otherwise.
     """ 
-    minvalue = 1.0e-3 # minimum value allowed for any preference
-
-    def AdjustToMinValue(vec):
-        """Adjusts incomplete Dirichlet so all elements > minvalue"""
-        nadjusts = 0
-        while any(vec <= minvalue) or sum(vec) >= 1 - minvalue:
-            maxindex = pymc.numpy.argmax(vec)
-            if 1 - sum(vec) > vec[maxindex]:
-                maxindex = -1
-            else:
-                vec[maxindex] -= minvalue
-            minindex = pymc.numpy.argmin(vec)
-            if 1 - sum(vec) < vec[minindex]:
-                minindex = -1
-            else:
-                vec[minindex] += minvalue
-            assert maxindex != minindex
-            nadjusts += 1
-            assert nadjusts < 2 * len(vec), "problem adjusting"
-        return vec
-
     # check variables
     assert nchains > 1
     assert convergence > 1.0
-    assert foldincrease > 1
     assert nincreasetries >= 0
     assert concentrationparam > 0, "concentratioparam must be > 0"
     assert all([pi > 0 for pi in prefs.values()]), "The preference must be > 0 for all sites"
@@ -96,17 +99,22 @@ def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, n
     # seed random number generator
     pymc.numpy.random.seed(seed)
 
-    # dicts that convert from prefs chars (e.g. amino acids) to vector indices and back
-    chars = prefs.keys()
-    chars.sort()
+    # dicts to convert from prefs chars (e.g. amino acids) to vector indices
+    # order from smallest to largest; this makes last element of vector the
+    # incompleted item in Dirichlet which can help with convergence; when steps
+    # are specified for other variables last one will have biggest change
+    decorated_chars = [(ipi, ichar) for (ichar, ipi) in prefs.items()]
+    decorated_chars.sort()
+    chars = [tup[1] for tup in decorated_chars]
     nchars = len(chars)
     char_to_index = dict([(char, i) for (i, char) in enumerate(chars)])
     index_to_char = dict([(i, char) for (char, i) in char_to_index.items()])
     assert nchars == len(char_to_index) == len(index_to_char) > 1
 
-    # define MCMC variable 
+    # define MCMC variables 
     priorvec = pymc.numpy.array([float(prefs[index_to_char[i]] * nchars * concentrationparam) for i in range(nchars)]) 
-    initial_pi_incomplete = AdjustToMinValue(pymc.numpy.array([float(prefs[index_to_char[i]]) for i in range(nchars - 1)])) # incomplete Dirichlet 
+    initial_pi_incomplete = AdjustToMinValue(pymc.numpy.array([float(prefs[index_to_char[i]]) for i in range(nchars - 1)]), minvalue) # incomplete Dirichlet 
+
     @pymc.stochastic(plot=False, name='prefs_posterior')
     def prefs_posterior(value=initial_pi_incomplete):
         """Posterior of preferences (value is incomplete Dirichlet vector)"""
@@ -119,49 +127,58 @@ def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, n
             tl.SetPreferences(prefs_dict, site)
             logl = tl.LogLikelihood()
             return prior + logl
+
     pi = pymc.CompletedDirichlet('pi', prefs_posterior)
 
-    m = pymc.MAP([prefs_posterior, pi])
-    m.fit()
-    pi = dict([(index_to_char[i], pi_i) for (i, pi_i) in enumerate(pi[0])])
-    return (pi, "Completed MAP", True)
-    sys.exit()
-
     # run MCMC
+    tune_interval = 250
     converged = False
     increasetry = 0
+    traces = {} # keyed by chain
+    mcmc = {} # keyed by chain
     while (not converged) and (increasetry <= nincreasetries):
-        mcmc = pymc.MCMC([prefs_posterior, pi], verbose=max(0, verbose - 1))
-        mcmc.use_step_method(DeltaExchange, prefs_posterior, verbose=max(0, verbose - 1))
-        if verbose:
-            print("\nBeginning MCMC of %d chains each of %d steps." % (nchains, nsteps))
-        pi_means = {}
-        for ichain in range(nchains):
+        increasetry += 1
+        for ichain in range(1, nchains + 1):
             assert len(prefs_posterior.value) == nchars - 1
-            prefs_posterior.value = AdjustToMinValue(pymc.numpy.random.dirichlet(priorvec)[ : -1]) # initial random values
-            mcmc.sample(iter=nsteps, burn=int(nsteps * burnfrac), progress_bar=(verbose >= 3))
-            itrace = mcmc.trace('pi', chain=ichain)[:][:,0,:]
-            assert itrace.shape[0] == nsteps - int(nsteps * burnfrac)
-            pi_means[ichain] = sum(itrace) / float(itrace.shape[0])
-            assert pymc.numpy.allclose(sum(pi_means[ichain]), 1.0)
-        grstat = sum([r[0] for r in pymc.gelman_rubin(mcmc)['pi']]) / float(nchars)
-        maxrmsdpi = max([math.sqrt(sum((pi_means[ichain] - pi_means[ichain + 1])**2)) for ichain in range(nchains - 1)])
+            if ichain not in mcmc:
+                mcmc[ichain] = pymc.MCMC([prefs_posterior, pi], verbose=max(0, verbose - 1))
+                if use_delta_exchange:
+                    mcmc[ichain].use_step_method(DeltaExchange, prefs_posterior, verbose=max(0, verbose - 1))
+                else:
+                    mcmc[ichain].use_step_method(pymc.Metropolis, prefs_posterior, verbose=max(0, verbose - 1))
+                prefs_posterior.value = AdjustToMinValue(pymc.numpy.random.dirichlet(priorvec)[ : -1], 0.01) # initial value drawn from posterior to start, don't let any element be too small (hence 0.01 adjustment)
+                if verbose:
+                    print("Beginning burn-in of %d steps for chain %d, starting with %s" % (int(nsteps * burnfrac), ichain, str(prefs_posterior.value)))
+                mcmc[ichain].sample(iter=int(nsteps * burnfrac), burn=int(nsteps * burnfrac), progress_bar=(verbose >= 3), tune_interval=tune_interval) # burn in
+                assert len(mcmc[ichain].trace('pi', chain=None)[:][:,0,:]) == 1, "Found traces after burnin: %s" % str(mcmc[ichain].trace('pi', chain=None)[:][:,0,:])
+                if verbose:
+                    print("Completed burn-in for chain %d, values now %s" % (ichain, str(prefs_posterior.value)))
+                mcmc[ichain].save_state()
+            mcmc[ichain].restore_sampler_state()
+            if verbose:
+                print("Now sampling %d steps from chain %d for the %d time, starting with %s" % (nsteps, ichain, increasetry, str(prefs_posterior.value)))
+            mcmc[ichain].sample(iter=nsteps, burn=0, progress_bar=(verbose >= 3), tune_interval=tune_interval)
+            mcmc[ichain].save_state()
+            traces[ichain] = mcmc[ichain].trace('pi', chain=None)[:][:,0,:][1 : ] # first sample is burn-in empty vector, and so removed
+            assert len(traces[ichain]) == increasetry * nsteps, "Failed to find expected chain length after %d increase samplings: %s, length %d" % (increasetry, str(traces[ichain]), len(traces[ichain]))
+            if verbose:
+                print("Finished sampling from chain %d for the %d time, values now %s" % (ichain, increasetry, str(prefs_posterior.value)))
+        pi_means = dict([(ichain, sum(itrace) / float(itrace.shape[0])) for (ichain, itrace) in traces.items()])
+        assert all([pymc.numpy.allclose(sum(imean), 1.0) for imean in pi_means.values()]), str(pi_means)
+        maxrmsdpi = max([math.sqrt(sum((pi_means[ichain] - pi_means[ichain + 1])**2)) for ichain in range(1, nchains)])
+        grstatvec = [r for r in pymc.gelman_rubin(pymc.numpy.array([itrace for itrace in traces.values()]))]
+        grstat = sum([r for r in grstatvec]) / float(nchars)
+        if verbose:
+            print("Examined convergence. The max RMS diff pref is %g, the average Gelman-Rubin statistic is %g, and the Gelman-Rubin vector is %s" % (maxrmsdpi, grstat, grstatvec))
         if (grstat < convergence) and (maxrmsdpi < (convergence - 1) / 2.0):
             converged = True
-            mcmcstring = "MCMC converged (%d chains each with %d burn-in steps and %d sampling steps) with a Gelman-Rubin R of %.3f and a maximum RMS difference in preferences of %.3f." % (nchains, int(burnfrac * nsteps), nsteps - int(burnfrac * nsteps), grstat, maxrmsdpi)
-            if verbose:
-                print(mcmcstring)
         else:
-            increasetry += 1
-            mcmcstring = "MCMC FAILED to converge (%d chains each with %d burn-in steps and %d sampling steps) with a Gelman-Rubin R of %.3f and a maximum RMS difference in preferences of %.3f." % (nchains, int(burnfrac * nsteps), nsteps - int(burnfrac * nsteps), grstat, maxrmsdpi)
-            if verbose:
-                print(mcmcstring)
-            if increasetry <= nincreasetries:
-                nsteps = int(foldincrease * nsteps)
-    traces = mcmc.trace('pi', chain=None)[:][:,0,:]
-    assert traces.shape[0] == nchains * (nsteps - int(nsteps * burnfrac))
-    pi_mean = sum(traces) / float(traces.shape[0])
-    assert pymc.numpy.allclose(pi_mean, sum(pi_means.values()) / float(nchains))
+            converged = False
+        mcmcstring = "MCMC %s (%d chains each with %d sampling steps) with a Gelman-Rubin R of %.3f and a maximum RMS difference in preferences of %.3f." % ({True:'converged', False:'FAILED to converge'}[converged], nchains, nsteps * increasetry, grstat, maxrmsdpi)
+        if verbose:
+            print(mcmcstring)
+    assert len(pi_means) == nchains
+    pi_mean = sum(pi_means.values()) / float(len(pi_means))
     pi_mean = dict([(index_to_char[i], pi_i) for (i, pi_i) in enumerate(pi_mean)])
     return (pi_mean, mcmcstring, converged)
 
