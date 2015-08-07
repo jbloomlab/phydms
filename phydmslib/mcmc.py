@@ -61,6 +61,27 @@ def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, n
         - *converged* is *True* if the MCMC converged and *False* 
           otherwise.
     """ 
+    minvalue = 1.0e-3 # minimum value allowed for any preference
+
+    def AdjustToMinValue(vec):
+        """Adjusts incomplete Dirichlet so all elements > minvalue"""
+        nadjusts = 0
+        while any(vec <= minvalue) or sum(vec) >= 1 - minvalue:
+            maxindex = pymc.numpy.argmax(vec)
+            if 1 - sum(vec) > vec[maxindex]:
+                maxindex = -1
+            else:
+                vec[maxindex] -= minvalue
+            minindex = pymc.numpy.argmin(vec)
+            if 1 - sum(vec) < vec[minindex]:
+                minindex = -1
+            else:
+                vec[minindex] += minvalue
+            assert maxindex != minindex
+            nadjusts += 1
+            assert nadjusts < 2 * len(vec), "problem adjusting"
+        return vec
+
     # check variables
     assert nchains > 1
     assert convergence > 1.0
@@ -85,11 +106,11 @@ def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, n
 
     # define MCMC variable 
     priorvec = pymc.numpy.array([float(prefs[index_to_char[i]] * nchars * concentrationparam) for i in range(nchars)]) 
-    initial_pi_incomplete = pymc.numpy.array([float(prefs[index_to_char[i]]) for i in range(nchars - 1)]) # incomplete Dirichlet 
+    initial_pi_incomplete = AdjustToMinValue(pymc.numpy.array([float(prefs[index_to_char[i]]) for i in range(nchars - 1)])) # incomplete Dirichlet 
     @pymc.stochastic(plot=False, name='prefs_posterior')
     def prefs_posterior(value=initial_pi_incomplete):
         """Posterior of preferences (value is incomplete Dirichlet vector)"""
-        if any(value <= 0) or sum(value) >= 1:
+        if any(value <= minvalue) or sum(value) >= 1 - minvalue:
             return -pymc.numpy.inf # outside Dirichlet support
         else:
             prior = pymc.distributions.dirichlet_like(value, priorvec)
@@ -99,6 +120,12 @@ def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, n
             logl = tl.LogLikelihood()
             return prior + logl
     pi = pymc.CompletedDirichlet('pi', prefs_posterior)
+
+    m = pymc.MAP([prefs_posterior, pi])
+    m.fit()
+    pi = dict([(index_to_char[i], pi_i) for (i, pi_i) in enumerate(pi[0])])
+    return (pi, "Completed MAP", True)
+    sys.exit()
 
     # run MCMC
     converged = False
@@ -111,7 +138,7 @@ def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, n
         pi_means = {}
         for ichain in range(nchains):
             assert len(prefs_posterior.value) == nchars - 1
-            prefs_posterior.value = pymc.numpy.random.dirichlet(priorvec)[ : -1] # initial random values
+            prefs_posterior.value = AdjustToMinValue(pymc.numpy.random.dirichlet(priorvec)[ : -1]) # initial random values
             mcmc.sample(iter=nsteps, burn=int(nsteps * burnfrac), progress_bar=(verbose >= 3))
             itrace = mcmc.trace('pi', chain=ichain)[:][:,0,:]
             assert itrace.shape[0] == nsteps - int(nsteps * burnfrac)
