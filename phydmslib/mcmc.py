@@ -26,7 +26,7 @@ def AdjustToMinValue(vec, minvalue):
     return vec
 
 
-def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, nsteps=1e4, burnfrac=0.2, nincreasetries=4, convergence=1.1, minvalue=1.0e-3, use_delta_exchange=False):
+def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, nsteps=1e4, burnfrac=0.2, nincreasetries=4, convergence=1.1, minvalue=1.0e-3, use_delta_exchange=True, readjust_proposal_sd=True, scale_proposal_sd=0.1):
     """MCMC to infer posterior mean preferences from tree likelihood.
 
     *tl* is a *phydmslib.pybpp.PyBppTreeLikelihood* object that has
@@ -73,6 +73,11 @@ def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, n
 
     *use_delta_exchange* specifies that we use the delta exchange
     MCMC operator rather than the ``pymc`` default.
+
+    *readjust_proposal_sd* specifies that we readjust the proposal
+    sd for each new try of the chain; *scale_proposal_sd* is the
+    amoutn by which we scale the proposal sd. This options are only
+    relevant if *use_delta_exchange* is *False*.
 
     The return value is *(meanprefs, mcmcstring, converged)* where:
 
@@ -136,6 +141,7 @@ def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, n
     increasetry = 0
     traces = {} # keyed by chain
     mcmc = {} # keyed by chain
+    stepmethod = {} # keyed by chain
     while (not converged) and (increasetry <= nincreasetries):
         increasetry += 1
         for ichain in range(1, nchains + 1):
@@ -146,23 +152,28 @@ def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, n
                     mcmc[ichain].use_step_method(DeltaExchange, prefs_posterior, verbose=max(0, verbose - 1))
                 else:
                     mcmc[ichain].use_step_method(pymc.Metropolis, prefs_posterior, verbose=max(0, verbose - 1))
+                stepmethod[ichain] = mcmc[ichain].step_method_dict[prefs_posterior][0]
                 prefs_posterior.value = AdjustToMinValue(pymc.numpy.random.dirichlet(priorvec)[ : -1], 0.01) # initial value drawn from posterior to start, don't let any element be too small (hence 0.01 adjustment)
+                stepmethod[ichain].proposal_sd = prefs_posterior.value * scale_proposal_sd
                 if verbose:
-                    print("Beginning burn-in of %d steps for chain %d, starting with %s" % (int(nsteps * burnfrac), ichain, str(prefs_posterior.value)))
+                    print("Beginning burn-in of %d steps for chain %d, starting with %s." % (int(nsteps * burnfrac), ichain, str(prefs_posterior.value)))
                 mcmc[ichain].sample(iter=int(nsteps * burnfrac), burn=int(nsteps * burnfrac), progress_bar=(verbose >= 3), tune_interval=tune_interval) # burn in
                 assert len(mcmc[ichain].trace('pi', chain=None)[:][:,0,:]) == 1, "Found traces after burnin: %s" % str(mcmc[ichain].trace('pi', chain=None)[:][:,0,:])
                 if verbose:
-                    print("Completed burn-in for chain %d, values now %s" % (ichain, str(prefs_posterior.value)))
+                    print("Completed burn-in for chain %d, values now %s. The adaptive scale factor is %g, the number rejected is %d, and the number accepted is %d." % (ichain, str(prefs_posterior.value), stepmethod[ichain].adaptive_scale_factor, stepmethod[ichain].rejected, stepmethod[ichain].accepted))
+                stepmethod[ichain].proposal_sd = prefs_posterior.value * scale_proposal_sd
                 mcmc[ichain].save_state()
             mcmc[ichain].restore_sampler_state()
             if verbose:
-                print("Now sampling %d steps from chain %d for the %d time, starting with %s" % (nsteps, ichain, increasetry, str(prefs_posterior.value)))
+                print("Now sampling %d steps from chain %d for the %d time, starting with %s." % (nsteps, ichain, increasetry, str(prefs_posterior.value)))
+            if readjust_proposal_sd:
+                stepmethod[ichain].proposal_sd = prefs_posterior.value * scale_proposal_sd
             mcmc[ichain].sample(iter=nsteps, burn=0, progress_bar=(verbose >= 3), tune_interval=tune_interval)
             mcmc[ichain].save_state()
             traces[ichain] = mcmc[ichain].trace('pi', chain=None)[:][:,0,:][1 : ] # first sample is burn-in empty vector, and so removed
             assert len(traces[ichain]) == increasetry * nsteps, "Failed to find expected chain length after %d increase samplings: %s, length %d" % (increasetry, str(traces[ichain]), len(traces[ichain]))
             if verbose:
-                print("Finished sampling from chain %d for the %d time, values now %s" % (ichain, increasetry, str(prefs_posterior.value)))
+                print("Finished sampling from chain %d for the %d time, values now %s. The adaptive scale factor is %g, the number rejected is %d, and the number accepted is %d." % (ichain, increasetry, str(prefs_posterior.value), stepmethod[ichain].adaptive_scale_factor, stepmethod[ichain].rejected, stepmethod[ichain].accepted))
         pi_means = dict([(ichain, sum(itrace) / float(itrace.shape[0])) for (ichain, itrace) in traces.items()])
         assert all([pymc.numpy.allclose(sum(imean), 1.0) for imean in pi_means.values()]), str(pi_means)
         maxrmsdpi = max([math.sqrt(sum((pi_means[ichain] - pi_means[ichain + 1])**2)) for ichain in range(1, nchains)])
