@@ -30,7 +30,7 @@ def AdjustToMinValue(vec, minvalue):
 
 
 
-def PrefsMCMC_emcee(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, nsteps=200, burnfrac=1.0, nincreasetries=4, convergence=1.1, minvalue=5.0e-4, nwalkers=100):
+def PrefsMCMC_emcee(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, nsteps=100, burnfrac=1.0, nincreasetries=4, convergence=1.1, minvalue=5.0e-4, nwalkers=100):
     """MCMC to infer posterior mean preferences from tree likelihood.
 
     This function differs from *PrefsMCMC* in that it uses ``emcee`` for
@@ -83,22 +83,29 @@ def PrefsMCMC_emcee(tl, prefs, site, concentrationparam, seed, verbose=0, nchain
     samplers = {} # keyed by chain
     lastpos = {} # keyed by chain
     acceptfrac = {} # keyed by chain
+    pi_starts = {}
     while (not converged) and (increasetry <= nincreasetries):
         for ichain in range(1, nchains + 1):
             if not burnedin:
                 samplers[ichain] = emcee.EnsembleSampler(nwalkers, nchars - 1, PrefsPosterior, args=[])
                 # As suggested by emcee docs, we seed a cluster around a point near
                 # prior's center. This cluster is more concentrated than prior itself.
-                seedcenter = (numpy.random.dirichlet(priorvec) + priorvec) / 2.0
+                seedcenter = numpy.random.dirichlet(priorvec)
                 seedpos = numpy.array([AdjustToMinValue(numpy.random.dirichlet(seedcenter * nchars * concentrationparam * 2.0)[ : -1], minvalue) for iwalker in range(nwalkers)])
+                pi_starts[ichain] = sum(seedpos) / float(nwalkers)
                 isteps = int(burnfrac * nsteps)
                 (lastpos[ichain], prob, state) = samplers[ichain].run_mcmc(seedpos, isteps)
                 acceptfrac[ichain] = sum(samplers[ichain].acceptance_fraction) / float(len(samplers[ichain].acceptance_fraction))
             else:
-                increasetry += 1
                 isteps = nsteps
                 (lastpos[ichain], prob, state) = samplers[ichain].run_mcmc(lastpos[ichain], isteps)
                 acceptfrac[ichain] = sum(samplers[ichain].acceptance_fraction) / float(len(samplers[ichain].acceptance_fraction))
+        if not burnedin and verbose:
+            pi_starts = dict([(ichain, numpy.append(imean, 1.0 - sum(imean))) for (ichain, imean) in pi_starts.items()])
+            assert all([numpy.allclose(sum(imean), 1.0) for imean in pi_starts.values()]), pi_starts
+            assert all([len(imean) == nchars for imean in pi_starts.values()]), str(pi_starts)
+            maxrmsdpi = max([math.sqrt(sum((pi_starts[ichain] - pi_starts[ichain + 1])**2)) for ichain in range(1, nchains)])
+            print("Prior to burn-in, the RMS difference in preference is %.3f" % (maxrmsdpi))
         expectedsteps += isteps
         pi_means = dict([(ichain, sum(isampler.flatchain) / float(isampler.flatchain.shape[0])) for (ichain, isampler) in samplers.items()])
         pi_means = dict([(ichain, numpy.append(imean, 1.0 - sum(imean))) for (ichain, imean) in pi_means.items()])
