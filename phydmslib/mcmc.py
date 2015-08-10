@@ -1,32 +1,142 @@
-"""Module for MCMC; uses ``pymc`` (tested with version 2.3.4)."""
+"""Module for MCMC."""
 
 
 import math
 import random
+import numpy
+import emcee
 import pymc
+
 
 def AdjustToMinValue(vec, minvalue):
     """Adjusts incomplete Dirichlet vector *vec* so all elements > *minvalue*"""
     nadjusts = 0
-    vec = pymc.numpy.ravel(vec)
+    vec = numpy.ravel(vec)
     while any(vec <= minvalue) or sum(vec) >= 1 - minvalue:
-        maxindex = pymc.numpy.argmax(vec)
+        maxindex = numpy.argmax(vec)
         if 1 - sum(vec) > vec[maxindex]:
             maxindex = -1
         else:
             vec[maxindex] -= minvalue
-        minindex = pymc.numpy.argmin(vec)
+        minindex = numpy.argmin(vec)
         if 1 - sum(vec) < vec[minindex]:
             minindex = -1
         else:
             vec[minindex] += minvalue
         assert maxindex != minindex
         nadjusts += 1
-        assert nadjusts < 2 * len(vec), "problem adjusting"
+        assert nadjusts < 2 * (len(vec) + 1), "problem adjusting"
     return vec
 
 
-def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, nsteps=1e4, burnfrac=0.2, nincreasetries=4, convergence=1.1, minvalue=1.0e-3, use_delta_exchange=True, readjust_proposal_sd=True, scale_proposal_sd=0.1):
+
+def PrefsMCMC_emcee(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, nsteps=200, burnfrac=1.0, nincreasetries=4, convergence=1.1, minvalue=5.0e-4, nwalkers=100):
+    """MCMC to infer posterior mean preferences from tree likelihood.
+
+    This function differs from *PrefsMCMC* in that it uses ``emcee`` for
+    the sampling.
+    """
+    # check variables
+    assert nsteps > 10 and int(burnfrac * nsteps) > 10, "nsteps or burnfrac too low"
+    assert nchains > 1
+    assert convergence > 1.0
+    assert nincreasetries >= 0
+    assert concentrationparam > 0, "concentrationparam must be > 0"
+    assert all([pi > 0 for pi in prefs.values()]), "The preference must be > 0 for all sites"
+    assert abs(sum(prefs.values()) - 1.0) < 1.0e-5, "The sum of the preferences must be one"
+    assert isinstance(site, int) and 1 <= site <= tl.NSites(), "site of %d is not in the tree likelihood object" % site
+    assert set(prefs.keys()) == set(tl.GetPreferences(site).keys()), "prefs does not have keys for the same characters as the tree likelihood object"
+
+    # seed random number generator
+    numpy.random.seed(seed)
+
+    # dicts to convert from prefs chars (e.g. amino acids) to vector indices
+    # order from smallest to largest; this makes last element of vector the
+    # incompleted item in Dirichlet which can help with convergence; when steps
+    # are specified for other variables last one will have biggest change
+    decorated_chars = [(ipi, ichar) for (ichar, ipi) in prefs.items()]
+    decorated_chars.sort()
+    chars = [tup[1] for tup in decorated_chars]
+    nchars = len(chars)
+    char_to_index = dict([(char, i) for (i, char) in enumerate(chars)])
+    index_to_char = dict([(i, char) for (char, i) in char_to_index.items()])
+    assert nchars == len(char_to_index) == len(index_to_char) > 1
+
+    # vector for Dirichlet prior
+    priorvec = numpy.array([float(prefs[index_to_char[i]] * nchars * concentrationparam) for i in range(nchars)])
+
+    def PrefsPosterior(value):
+        """Posterior of preferences in terms of incomplete Dirichlet."""
+        if any(value <= minvalue) or sum(value) >= 1 - minvalue:
+            return -numpy.inf # outside Dirichlet support
+        else:
+            prior = pymc.distributions.dirichlet_like(value, priorvec)
+            prefs_dict = dict([(index_to_char[i], pi_i) for (i, pi_i) in enumerate(value)])
+            prefs_dict[index_to_char[nchars - 1]] = 1.0 - sum(value)
+            tl.SetPreferences(prefs_dict, site)
+            logl = tl.LogLikelihood()
+            return prior + logl
+
+    # run MCMC
+    converged = burnedin = False
+    increasetry = expectedsteps = 0
+    samplers = {} # keyed by chain
+    lastpos = {} # keyed by chain
+    acceptfrac = {} # keyed by chain
+    while (not converged) and (increasetry <= nincreasetries):
+        for ichain in range(1, nchains + 1):
+            if not burnedin:
+                samplers[ichain] = emcee.EnsembleSampler(nwalkers, nchars - 1, PrefsPosterior, args=[])
+                # As suggested by emcee docs, we seed a cluster around a point near
+                # prior's center. This cluster is more concentrated than prior itself.
+                seedcenter = (numpy.random.dirichlet(priorvec) + priorvec) / 2.0
+                seedpos = numpy.array([AdjustToMinValue(numpy.random.dirichlet(seedcenter * nchars * concentrationparam * 2.0)[ : -1], minvalue) for iwalker in range(nwalkers)])
+                isteps = int(burnfrac * nsteps)
+                (lastpos[ichain], prob, state) = samplers[ichain].run_mcmc(seedpos, isteps)
+                acceptfrac[ichain] = sum(samplers[ichain].acceptance_fraction) / float(len(samplers[ichain].acceptance_fraction))
+            else:
+                increasetry += 1
+                isteps = nsteps
+                (lastpos[ichain], prob, state) = samplers[ichain].run_mcmc(lastpos[ichain], isteps)
+                acceptfrac[ichain] = sum(samplers[ichain].acceptance_fraction) / float(len(samplers[ichain].acceptance_fraction))
+        expectedsteps += isteps
+        pi_means = dict([(ichain, sum(isampler.flatchain) / float(isampler.flatchain.shape[0])) for (ichain, isampler) in samplers.items()])
+        pi_means = dict([(ichain, numpy.append(imean, 1.0 - sum(imean))) for (ichain, imean) in pi_means.items()])
+        assert all([numpy.allclose(sum(imean), 1.0) for imean in pi_means.values()]), pi_means
+        assert all([len(imean) == nchars for imean in pi_means.values()]), str(pi_means)
+        assert all([isampler.flatchain.shape == (nwalkers * expectedsteps, nchars - 1) for isampler in samplers.values()]), "%s vs (%d, %d)" % (isampler.flatchain.shape, nwalkers * expectedsteps, nchars - 1)
+        maxrmsdpi = max([math.sqrt(sum((pi_means[ichain] - pi_means[ichain + 1])**2)) for ichain in range(1, nchains)])
+        grstatvec = [r for r in pymc.gelman_rubin(numpy.array([isampler.flatchain for isampler in samplers.values()]))]
+        grstat = sum(grstatvec) / float(nchars)
+        autocorrstring = ''
+        meanautocorr = []
+        for (ichain, isampler) in samplers.items():
+            chainsamples = isampler.chain.swapaxes(0, 1)
+            autocorr = sum(emcee.autocorr.integrated_time(chainsamples)) / float(nwalkers)
+            assert len(autocorr) == nchars - 1
+            autocorrstring += ' For chain %d, the mean integrated time is %g (vector %s).' % (ichain, sum(autocorr) / float(nchars - 1), str(autocorr))
+            meanautocorr.append(sum(autocorr) / float(nchars - 1))
+        meanautocorr = sum(meanautocorr) / float(nchains)
+        mcmcstring = "After %d %ssteps with %d walkers for %d chains, the RMS difference in preferences is %.3f and the Gelman-Rubin statistic is %.3f. Acceptance fraction is %.3f. Overall average integrated time for each chain is %g." % (expectedsteps, {False:'burn-in ', True:''}[burnedin], nwalkers, nchains, maxrmsdpi, grstat, sum(acceptfrac.values()) / float(len(acceptfrac.values())), meanautocorr)
+        if not burnedin:
+            burnedin = True
+            expectedsteps = 0
+            for ichain in samplers.keys():
+                samplers[ichain].reset()
+        else:
+            increasetry += 1
+            if (grstat < convergence) and (maxrmsdpi < (convergence - 1) / 2.0):
+                converged = True
+        if verbose:
+            print(mcmcstring + autocorrstring)
+    assert len(pi_means) == nchains
+    pi_mean = sum(pi_means.values()) / float(len(pi_means))
+    pi_mean = dict([(index_to_char[i], pi_i) for (i, pi_i) in enumerate(pi_mean)])
+    return (pi_mean, mcmcstring, converged)
+
+
+
+def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, nsteps=1e4, burnfrac=0.2, nincreasetries=4, convergence=1.1, minvalue=5.0e-4, use_delta_exchange=True, readjust_proposal_sd=True, scale_proposal_sd=0.1):
     """MCMC to infer posterior mean preferences from tree likelihood.
 
     *tl* is a *phydmslib.pybpp.PyBppTreeLikelihood* object that has
@@ -117,7 +227,7 @@ def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, n
     assert nchars == len(char_to_index) == len(index_to_char) > 1
 
     # define MCMC variables 
-    priorvec = pymc.numpy.array([float(prefs[index_to_char[i]] * nchars * concentrationparam) for i in range(nchars)]) 
+    priorvec = pymc.numpy.array([float(max(minvalue, prefs[index_to_char[i]]) * nchars * concentrationparam) for i in range(nchars)]) 
     initial_pi_incomplete = AdjustToMinValue(pymc.numpy.array([float(prefs[index_to_char[i]]) for i in range(nchars - 1)]), minvalue) # incomplete Dirichlet 
 
     @pymc.stochastic(plot=False, name='prefs_posterior')
@@ -153,7 +263,7 @@ def PrefsMCMC(tl, prefs, site, concentrationparam, seed, verbose=0, nchains=2, n
                 else:
                     mcmc[ichain].use_step_method(pymc.Metropolis, prefs_posterior, verbose=max(0, verbose - 1))
                 stepmethod[ichain] = mcmc[ichain].step_method_dict[prefs_posterior][0]
-                prefs_posterior.value = AdjustToMinValue(pymc.numpy.random.dirichlet(priorvec)[ : -1], 0.01) # initial value drawn from posterior to start, don't let any element be too small (hence 0.01 adjustment)
+                prefs_posterior.value = AdjustToMinValue(pymc.numpy.random.dirichlet(priorvec)[ : -1], minvalue) # initial value drawn from posterior to start, don't let any element be too small
                 stepmethod[ichain].proposal_sd = prefs_posterior.value * scale_proposal_sd
                 if verbose:
                     print("Beginning burn-in of %d steps for chain %d, starting with %s." % (int(nsteps * burnfrac), ichain, str(prefs_posterior.value)))
