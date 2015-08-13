@@ -51,6 +51,15 @@ def NonNegativeInt(n):
         return n
 
 
+def FloatGreaterThanOne(x):
+    """If *x* is a string for a float > 1, returns it, otherwise an error."""
+    x = float(x)
+    if x > 1:
+        return x
+    else:
+        raise argparse.ArgumentTypeError("%r not a float greater than one" % x)
+
+
 def FloatGreaterThanZero(x):
     """If *x* is string for float > 0, returns it, otherwise an error.
 
@@ -157,9 +166,7 @@ def PhyDMSParser():
     parser.add_argument('--avgprefs', dest='avgprefs', action='store_true', help="Average preferences across sites for ExpCM.")
     parser.set_defaults(fixbrlen=False)
     parser.add_argument('--fixbrlen', dest='fixbrlen', action='store_true', help="Fix branch lengths to those of initial 'tree'. Consider using '--addrateparameter' too.")
-    parser.add_argument('--diffprefalpha', default=2, help="Concentration parameter for '--diffprefsbysite'; larger values favor smaller diff prefs.", type=FloatGreaterThanZero)
-    parser.add_argument('--diffprefsteps', default=1e4, type=int, help="MCMC steps for each chain for '--diffprefsbysite'; we perform up to 5 iterations of this many steps if convergence fails.")
-    parser.add_argument('--diffprefconvergence', default=1.1, type=float, help="MCMC convergence criteria for '--diffprefsbysite'")
+    parser.add_argument('--diffprefconc', default=2, help="Concentration parameter for '--diffprefsbysite'; larger values favor smaller diff prefs.", type=FloatGreaterThanOne)
     parser.set_defaults(addrateparameter=False)
     parser.add_argument('--addrateparameter', dest='addrateparameter', action='store_true', help="Add parameter scaling substitution rate. Only allowed with '--fixbrlen'.")
     parser.set_defaults(fitF3X4=False)

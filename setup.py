@@ -120,8 +120,6 @@ setup(
         'cython>=0.21',\
         'dms_tools>=1.1.2',\
         'scipy>=0.16',\
-        'pymc>=2.3.4,<3',\
-        'emcee>=2.1',\
         ],
     platforms = 'Linux',
     packages = ['phydmslib'],

@@ -4,18 +4,18 @@ phydmslib package
 Submodules
 ----------
 
-phydmslib.file_io module
-------------------------
+phydmslib.diffpref module
+-------------------------
 
-.. automodule:: phydmslib.file_io
+.. automodule:: phydmslib.diffpref
     :members:
     :undoc-members:
     :show-inheritance:
 
-phydmslib.mcmc module
----------------------
+phydmslib.file_io module
+------------------------
 
-.. automodule:: phydmslib.mcmc
+.. automodule:: phydmslib.file_io
     :members:
     :undoc-members:
     :show-inheritance:
