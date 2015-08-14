@@ -251,7 +251,7 @@ def OptimizePrefs(tl, prefs, site, concentration, minvalue=1e-4, noprior=False, 
                 return -(tl.LogLikelihood() + prefsprior.LogPrior(iprefs))
 
     # do the minimization
-    result = scipy.optimize.minimize(NegLogPosterior, initvec, method='L-BFGS-B', bounds=bounds)
+    result = scipy.optimize.minimize(NegLogPosterior, initvec, method='SLSQP', bounds=bounds)
     
     # process the results
     assert len(result.x) == len(initvec)

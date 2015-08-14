@@ -335,9 +335,12 @@ def main():
             assert isinstance(model, tuple) and model[0] == 'ExpCM', "diffprefsbysite only allowed for ExpCM"
             fixedmodelparams = dict([(param, value) for (param, value) in allmodelparams.items() if param != 'stringencyparameter'])
             fixedmodelparams['stringencyparameter'] = 1.0
-            logger.info('Now inferring the difference between the preferences specified in %s and those that best describe the natural evolution. We perform MCMC with a Dirichlet prior centered on the preferences provided in the file with a concentration of %.2f. The preferences in the file are rescaled before this inference by the stringency parameter value of %.2f previously optimized for the entire sequence / tree, and the difference in preferences are relative to these rescaled preferences. After this rescaling, the stringency parameter is set to one. All other model parameters are fixed to their maximum likelihood values for the entire sequence / tree.' % (prefsfilename, args['diffprefconc'], modelparams['stringencyparameter']))
+            logger.info('Now estimating the difference between the preferences specified in %s and those that best describe the natural evolution. We optimize the preferences after regularizing them using a Dirichlet (concentration %.2f) centered on the preferences provided in the file. The preferences in the file are first rescaled by the stringency parameter value of %.2f previously optimized for the entire sequence / tree, and the difference in preferences are relative to these rescaled preferences. After this rescaling, the stringency parameter is set to one. All other model parameters are fixed to their maximum likelihood values for the entire sequence / tree.' % (prefsfilename, args['diffprefconc'], modelparams['stringencyparameter']))
             logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
             logger.info('The model parameters will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
+            sites = []
+            diffprefs = {}
+            wts = {}
             for icodon in range(1, len(seqs[0]) // 3 + 1):
                 logger.info('Inferring difference in preferences for site %d...' % icodon)
                 iseqs = [seq[3 * icodon  - 3 : 3 * icodon] for seq in seqs]
@@ -347,16 +350,20 @@ def main():
                 imodel = ('ExpCM', {1:stringencyscaledprefs})
                 tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=True, recursion=args['recursion']) 
                 initial_ll = tl.LogLikelihood()
-                (meanprefs, mcmcstring, converged) = phydmslib.diffpref.OptimizePrefs(tl, stringencyscaledprefs, site=1, concentration=args['diffprefconc'])
+                (meanprefs, convergencestring, converged) = phydmslib.diffpref.OptimizePrefs(tl, stringencyscaledprefs, site=1, concentration=args['diffprefconc'])
                 tl.SetPreferences(meanprefs, 1)
                 new_ll = tl.LogLikelihood()
-                diffprefs = dict([(x, meanprefs[x] - stringencyscaledprefs[x]) for x in meanprefs.keys()])
-                rmsdiffpref = math.sqrt(sum([x**2 for x in diffprefs.values()]))
-                logger.info("For site %d, the increase in log likelihood is %.3g when going from the initial preferences to those inferred from natural evolution. Here is information about the MCMC:\n\t%s" % (icodon, new_ll - initial_ll, mcmcstring))
-                logger.info("The RMS difference in preference is %.3f; here are the differences in preferences for each amino acid: %s\n" % (rmsdiffpref, ', '.join(['%s = %.3f' % tup for tup in diffprefs.items()])))
+                idiffprefs = dict([(x, meanprefs[x] - stringencyscaledprefs[x]) for x in meanprefs.keys()])
+                rmsdiffpref = math.sqrt(sum([x**2 for x in idiffprefs.values()]))
+                logger.info("For site %d, the increase in log likelihood is %.3g when going from the initial preferences to those inferred from natural evolution. The RMS difference in preference is %.3f. Here are the differences in preferences:\n\t%s\n" % (icodon, new_ll - initial_ll, rmsdiffpref, ', '.join(['%s = %.3f' % tup for tup in idiffprefs.items()])))
                 if not converged:
-                    raise RuntimeError("MCMC failed to converge for site %d. Here is the MCMC message:\n%s" % (icodon, mcmcstring))
-                assert (new_ll - initial_ll) > -0.1, "Log likelihood of %g with posterior mean prefs is substantially greater than initial log likelihood of %g for site %d. This probably indicates a problem with the MCMC." % (new_ll, initial_ll, icodon)
+                    raise RuntimeError("Optimization failed to converge for site %d. Here is the optimization message:\n%s" % (icodon, convergencestring))
+                assert (new_ll - initial_ll) > -0.01, "Log likelihood of %g with optimized prefs is substantially greater than initial log likelihood of %g for site %d. This indicates a problem with the optimization." % (new_ll, initial_ll, icodon)
+                sites.append(str(icodon))
+                wts[str(icodon)] = '?' 
+                diffprefs[str(icodon)] = idiffprefs
+            logger.info('Writing the differences in preferences to %s' % diffprefsfile)
+            dms_tools.file_io.WriteDiffPrefs(diffprefsfile, sites, wts, diffprefs)
 
     except:
         logger.exception('Terminating %s at %s with ERROR' % (prog, time.asctime()))    
