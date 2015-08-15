@@ -75,7 +75,7 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
     addParameters_(preferences_->getParameters());
   }
   addParameter_(new bpp::Parameter(prefix + "omega", 1, new bpp::IntervalConstraint(0.001, 99, true, true), true));
-  addParameter_(new bpp::Parameter(prefix + "stringencyparameter", 1, new bpp::IntervalConstraint(0.01, 99, true, true), true));
+  addParameter_(new bpp::Parameter(prefix + "stringencyparameter", 1, new bpp::IntervalConstraint(0.05, 20.0, true, true), true));
   updateMatrices();
 }
 
