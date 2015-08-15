@@ -13,6 +13,7 @@ import random
 import tempfile
 import time
 import math
+import multiprocessing
 import scipy.stats
 import Bio.SeqRecord
 import Bio.Phylo
@@ -28,6 +29,59 @@ import phydmslib.file_io
 import phydmslib.parsearguments
 import phydmslib.pybpp
 import phydmslib.diffpref
+
+
+def FitOmegaForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedomegavalue, treefile, recursion):
+    """Fits omega for a specific site."""
+    iresults = {}
+    start = time.time()
+    for fitomega in ['fitted', 'fixed']:
+        ifixedmodelparams = dict([(param, value) for (param, value) in fixedmodelparams.items()])
+        if fitomega == 'fixed':
+            ifixedmodelparams['omega'] = fixedomegavalue
+            initializemodelparams = {}
+        else:
+            initializemodelparams = {'omega':fixedomegavalue}
+        tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, initializemodelparams=initializemodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=True, prefsasparams=False, recursion=recursion) 
+        tl.OptimizeLikelihood()
+        iresults["LnL_%s" % fitomega] = tl.LogLikelihood()
+        if fitomega == 'fitted':
+            iresults['omega'] = tl.ModelParams(True)['omega']
+    iresults['dLnL'] = iresults['LnL_fitted'] - iresults['LnL_fixed']
+    iresults['P'] = scipy.stats.chi2.sf(2.0 * iresults['dLnL'], df=1)
+    return (iresults, time.time() - start)
+
+
+def FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams, fixedomegavalue, treefile, recursion, ncpus, logger):
+    """Fit a different omega to each site in a multiprocessing pool running *ncpus*."""
+    pool = multiprocessing.Pool(ncpus)
+    fitomegaresults = {}
+    poolresults = {}
+    for icodon in codons:
+        if model[ : 7] == 'YNGKP_M':
+            imodel = 'YNGKP_M0_fitF3X4' # single omega for the site, M0 model
+        elif isinstance(model, tuple) and model[0] == 'ExpCM':
+            imodel = ('ExpCM', {1:aaprefs[icodon]})
+        else:
+            raise ValueError("Invalid model")
+        iseqs = [seq[3 * icodon  - 3 : 3 * icodon] for seq in seqs]
+        poolresults[icodon] = pool.apply_async(FitOmegaForSite, (seqnames, iseqs, imodel, fixedmodelparams, fixedomegavalue, treefile, recursion))
+    completed = dict([(icodon, False) for icodon in codons])
+    while not all(completed.values()):
+        time.sleep(1)
+        for icodon in codons:
+            if poolresults[icodon].ready() and not completed[icodon]:
+                try:
+                    (fitomegaresults[icodon], itime) = poolresults[icodon].get()
+                except:
+                    logger.error("Problem fitting omega by site to site %d" % icodon)
+                    raise
+                completed[icodon] = True
+                logger.info('For site %d, fitting omega to %.2f increases LnL by %.2f relative to fixing omega at %.2f (P-value %.2g). Fitting took %.1f seconds.\n' % (icodon, fitomegaresults[icodon]['omega'], fitomegaresults[icodon]['dLnL'], fixedomegavalue, fitomegaresults[icodon]['P'], itime))
+    pool.terminate()
+    assert len(fitomegaresults) == len(codons)
+    return fitomegaresults
+
 
 
 def main():
@@ -249,6 +303,17 @@ def main():
             allmodelparams = tl.ModelParams(False)
             del tl
 
+        # get number of cpus for multiprocessing
+        if args['ncpus'] == -1:
+            try:
+                args['ncpus'] = multiprocessing.cpu_count()
+            except:
+                raise RuntimeError("Problem trying to determine number of available CPUs. Please manually specify the number of desired CPUs with '--ncpus' and try again.")
+        assert args['ncpus'] >= 1, "Failed to specify a number of CPUs that exceeds one: %d." % args['ncpus']
+
+        # list of all codons
+        codons = [icodon for icodon in range(1, len(seqs[0]) // 3 + 1)]
+
         # optimize a different omega for each site
         if args['omegabysite']:
             fixedomegavalue = 1.0 # null model fixes omega to this value
@@ -263,37 +328,12 @@ def main():
             logger.info('Now optimizing a different omega for each site while keeping branch lengths and other model parameters fixed (but adding a rate parameter that effectively scales the branch lengths).')
             logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
             logger.info('The model parameters (other than omega and the rate) will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
-            fitomegaresults = {} # keyed by site, values dict with results for site
-            for icodon in range(1, len(seqs[0]) // 3 + 1):
-                fitomegaresults[icodon] = {}
-                logger.info('Fitting models for site %d with omega as a free parameter and fixed to %.2f.' % (icodon, fixedomegavalue))
-                if model[ : 7] == 'YNGKP_M':
-                    imodel = 'YNGKP_M0_fitF3X4' # single omega for the site, M0 model
-                elif isinstance(model, tuple) and model[0] == 'ExpCM':
-                    imodel = ('ExpCM', {1:aaprefs[icodon]})
-                else:
-                    raise ValueError("Invalid model")
-                iseqs = [seq[3 * icodon  - 3 : 3 * icodon] for seq in seqs]
-                for fitomega in ['fitted', 'fixed']:
-                    ifixedmodelparams = dict([(param, value) for (param, value) in fixedmodelparams.items()])
-                    if fitomega == 'fixed':
-                        ifixedmodelparams['omega'] = fixedomegavalue
-                        initializemodelparams = {}
-                    else:
-                        initializemodelparams = {'omega':fixedomegavalue}
-                    tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, initializemodelparams=initializemodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=True, prefsasparams=False, recursion=args['recursion']) 
-                    tl.OptimizeLikelihood()
-                    fitomegaresults[icodon]["LnL_%s" % fitomega] = tl.LogLikelihood()
-                    if fitomega == 'fitted':
-                        fitomegaresults[icodon]['omega'] = tl.ModelParams(True)['omega']
-                fitomegaresults[icodon]['dLnL'] = fitomegaresults[icodon]['LnL_fitted'] - fitomegaresults[icodon]['LnL_fixed']
-                fitomegaresults[icodon]['P'] = scipy.stats.chi2.sf(2.0 * fitomegaresults[icodon]['dLnL'], df=1)
-                logger.info('Fitting omega to %.2f increases LnL by %.2f relative to fixing omega at %.2f (P-value %.2g).\n' % (fitomegaresults[icodon]['omega'], fitomegaresults[icodon]['dLnL'], fixedomegavalue, fitomegaresults[icodon]['P']))
+            fitomegaresults = FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams, fixedomegavalue, treefile, args['recursion'], args['ncpus'], logger)
             fitomegaresults = [(d['P'], site, d['omega'], d['dLnL']) for (site, d) in fitomegaresults.items()]
             fitomegaresults.sort()
             logger.info('Now writing the full results of the omega-by-site analysis to %s\n' % omegafile)
             with open(omegafile, 'w') as f:
-                f.write("# Omega fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of omega = %.2f; P-values NOT corrected for multiple testing.\n#\n# site\tomega\tP\tdLnL\n%s" % (fixedomegavalue, '\n'.join(['%d\t%.2f\t%.2g\t%.2f' % (site, omega, p, lnl) for (p, site, omega, lnl) in fitomegaresults])))
+                f.write("# Omega fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of omega = %.3f; P-values NOT corrected for multiple testing.\n#\n# site\tomega\tP\tdLnL\n%s" % (fixedomegavalue, '\n'.join(['%d\t%.3f\t%.3g\t%.3f' % (site, omega, p, lnl) for (p, site, omega, lnl) in fitomegaresults])))
 
         # optimize a different stringency parameter for each site
         if args['stringencybysite']:
