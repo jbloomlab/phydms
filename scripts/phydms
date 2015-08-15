@@ -31,8 +31,57 @@ import phydmslib.pybpp
 import phydmslib.diffpref
 
 
+def FitStringencyForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedstringencyvalue, treefile, recursion):
+    """Fits stringency for a specific site, to be run in multiprocessing pool."""
+    iresults = {}
+    start = time.time()
+    for fitstringency in ['fitted', 'fixed']:
+        ifixedmodelparams = dict([(param, value) for (param, value) in fixedmodelparams.items()])
+        if fitstringency == 'fixed':
+            initializemodelparams = {}
+            ifixedmodelparams['stringencyparameter'] = fixedstringencyvalue
+        else:
+            initializemodelparams = {'stringencyparameter':fixedstringencyvalue}
+        tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, initializemodelparams=initializemodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=False, recursion=recursion) 
+        tl.OptimizeLikelihood()
+        iresults["LnL_%s" % fitstringency] = tl.LogLikelihood()
+        if fitstringency == 'fitted':
+            iresults['stringency'] = tl.ModelParams(True)['stringencyparameter']
+            iresults['stringency_ratio'] = iresults['stringency'] / fixedstringencyvalue
+    iresults['dLnL'] = iresults['LnL_fitted'] - iresults['LnL_fixed']
+    iresults['P'] = scipy.stats.chi2.sf(2.0 * iresults['dLnL'], df=1)
+    return (iresults, time.time() - start)
+
+
+def FitStringencyBySitePool(codons, seqnames, seqs, aaprefs, fixedmodelparams, fixedstringencyvalue, treefile, recursion, ncpus, logger):
+    """Fits a different stringency to each site in a multiprocessing pool."""
+    pool = multiprocessing.Pool(ncpus)
+    fitstringencyresults = {}
+    poolresults = {}
+    for icodon in codons:
+        iseqs = [seq[3 * icodon  - 3 : 3 * icodon] for seq in seqs]
+        imodel = ('ExpCM', {1:aaprefs[icodon]})
+        poolresults[icodon] = pool.apply_async(FitStringencyForSite, (seqnames, iseqs, imodel, fixedmodelparams, fixedstringencyvalue, treefile, recursion))
+    completed = dict([(icodon, False) for icodon in codons])
+    while not all(completed.values()):
+        time.sleep(1)
+        for icodon in codons:
+            if poolresults[icodon].ready() and not completed[icodon]:
+                try:
+                    (fitstringencyresults[icodon], itime) = poolresults[icodon].get()
+                except:
+                    logger.error("Problem fitting stringency by site to site %d" % icodon)
+                    raise
+                completed[icodon] = True
+                logger.info('For site %d, fitting a stringency ratio of %.2f (fitted value of %.2f versus gene value of %.2f) increases LnL by %.2f (P-value %.2g). Fitting took %.1f seconds.\n' % (icodon, fitstringencyresults[icodon]['stringency_ratio'], fitstringencyresults[icodon]['stringency'], fixedstringencyvalue, fitstringencyresults[icodon]['dLnL'], fitstringencyresults[icodon]['P'], itime))
+    pool.terminate()
+    assert len(fitstringencyresults) == len(codons)
+    return fitstringencyresults
+
+
+
 def FitOmegaForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedomegavalue, treefile, recursion):
-    """Fits omega for a specific site."""
+    """Fits omega for a specific site, to be run in multiprocessing pool."""
     iresults = {}
     start = time.time()
     for fitomega in ['fitted', 'fixed']:
@@ -343,34 +392,14 @@ def main():
             logger.info('Now optimizing a different stringency parameter for each site while keeping branch lengths and other model parameters fixed. This will be compared to a null model where the stringency parameter is equal to the overall gene value of %.2f.' % fixedstringencyvalue)
             logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
             logger.info('The model parameters (other than the stringency parameter) will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
-            fitstringencyresults = {} # keyed by site
-            for icodon in range(1, len(seqs[0]) // 3 + 1):
-                fitstringencyresults[icodon] = {}
-                logger.info('Fitting models for site %d with stringency as a free parameter and fixed to %.2f.' % (icodon, fixedstringencyvalue))
-                iseqs = [seq[3 * icodon  - 3 : 3 * icodon] for seq in seqs]
-                for fitstringency in ['fitted', 'fixed']:
-                    ifixedmodelparams = dict([(param, value) for (param, value) in fixedmodelparams.items()])
-                    if fitstringency == 'fixed':
-                        initializemodelparams = {}
-                        ifixedmodelparams['stringencyparameter'] = fixedstringencyvalue
-                    else:
-                        initializemodelparams = {'stringencyparameter':fixedstringencyvalue}
-                    imodel = ('ExpCM', {1:aaprefs[icodon]})
-                    tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, initializemodelparams=initializemodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=False, recursion=args['recursion']) 
-                    tl.OptimizeLikelihood()
-                    fitstringencyresults[icodon]["LnL_%s" % fitstringency] = tl.LogLikelihood()
-                    if fitstringency == 'fitted':
-                        fitstringencyresults[icodon]['stringency'] = tl.ModelParams(True)['stringencyparameter']
-                        fitstringencyresults[icodon]['stringency_ratio'] = fitstringencyresults[icodon]['stringency'] / fixedstringencyvalue
-                fitstringencyresults[icodon]['dLnL'] = fitstringencyresults[icodon]['LnL_fitted'] - fitstringencyresults[icodon]['LnL_fixed']
-                fitstringencyresults[icodon]['P'] = scipy.stats.chi2.sf(2.0 * fitstringencyresults[icodon]['dLnL'], df=1)
-                logger.info('Fitting a stringency ratio of %.2f (fitted value of %.2f versus gene value of %.2f) increases LnL by %.2f (P-value %.2g).\n' % (fitstringencyresults[icodon]['stringency_ratio'], fitstringencyresults[icodon]['stringency'], fixedstringencyvalue, fitstringencyresults[icodon]['dLnL'], fitstringencyresults[icodon]['P']))
+            fitstringencyresults = FitStringencyBySitePool(codons, seqnames, seqs, aaprefs, fixedmodelparams, fixedstringencyvalue, treefile, args['recursion'], args['ncpus'], logger)
             fitstringencyresults = [(d['P'], site, d['stringency_ratio'], d['dLnL']) for (site, d) in fitstringencyresults.items()]
             fitstringencyresults.sort()
             logger.info('Now writing the full results of the stringency-by-site analysis to %s\n' % stringencyfile)
             with open(stringencyfile, 'w') as f:
-                f.write("# Stringency fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of stringency = %.2f (the overall gene value).\n# P-values NOT corrected for multiple testing.\n# The stringency ratio is the ratio of the fitted value to the null (overall gene value).\n#\n# site\tstringency_ratio\tP\tdLnL\n%s" % (fixedstringencyvalue, '\n'.join(['%d\t%.2f\t%.2g\t%.2f' % (site, stringencyratio, p, lnl) for (p, site, stringencyratio, lnl) in fitstringencyresults])))
+                f.write("# Stringency fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of stringency = %.3f (the overall gene value).\n# P-values NOT corrected for multiple testing.\n# The stringency ratio is the ratio of the fitted value to the null (overall gene value).\n#\n# site\tstringency_ratio\tP\tdLnL\n%s" % (fixedstringencyvalue, '\n'.join(['%d\t%.3f\t%.3g\t%.3f' % (site, stringencyratio, p, lnl) for (p, site, stringencyratio, lnl) in fitstringencyresults])))
 
+        # optimize differential preferences for each site
         if args['diffprefsbysite']:
             assert isinstance(model, tuple) and model[0] == 'ExpCM', "diffprefsbysite only allowed for ExpCM"
             fixedmodelparams = dict([(param, value) for (param, value) in allmodelparams.items() if param != 'stringencyparameter'])
