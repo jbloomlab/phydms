@@ -30,7 +30,7 @@ def Versions():
             '\tPython version: %s' % sys.version.replace('\n', ' '),
             '\tphydms version: %s' % phydmslib.__version__,
             ]
-    for modname in ['Bio', 'cython', 'dms_tools']:
+    for modname in ['Bio', 'cython', 'dms_tools', 'scipy']:
         try:
             v = importlib.import_module(modname).__version__
             s.append('\t%s version: %s' % (modname, v))
