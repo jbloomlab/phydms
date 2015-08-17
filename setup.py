@@ -115,11 +115,11 @@ setup(
     description = 'Phylogenetic analyses informed by deep mutational scanning data.',
     long_description = readme,
     license = 'GPLv3',
-    install_requires = [\
-        'biopython>=1.65',\
-        'cython>=0.21',\
-        'dms_tools>=1.1.2',\
-        'scipy>=0.16',\
+    install_requires = [
+        'biopython>=1.65',
+        'cython>=0.21',
+        'dms_tools>=1.1.2',
+        'scipy>=0.16',
         ],
     platforms = 'Linux',
     packages = ['phydmslib'],
@@ -128,5 +128,6 @@ setup(
     scripts = [
             'scripts/phydms',
             'scripts/phydms_comprehensive',
+            'scripts/phydms_plotselection',
             ],
 )

@@ -125,6 +125,19 @@ def ModelOption(model):
         raise argparse.ArgumentTypeError("Invalid model")
 
 
+def PhyDMSPlotSelectionParser():
+    """Returns an *argparse.ArgumentParser* for ``phydms_plotselection``."""
+    parser = ArgumentParserNoArgHelp(description="Visualization of the site-specific selection inferred using 'phydms' with an 'ExpCM' model. Version %s by %s. Full documentation at %s" % (phydmslib.__version__, phydmslib.__author__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('inprefix', help="Prefix used when calling 'phydms' to create site-specific selection data files.")
+    parser.add_argument('plotfile', help='Name of created PDF file.')
+    parser.set_defaults(noomegabysite=False)
+    parser.add_argument('--no-omegabysite', dest='noomegabysite', action='store_true', help="Don't plot site-specific omegas.")
+    parser.set_defaults(nostringencybysite=False)
+    parser.add_argument('--no-stringencybysite', dest='nostringencybysite', action='store_true', help="Don't plot site-specific stringency.")
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
+    return parser
+
+
 def PhyDMSComprehensiveParser():
     """Returns *argparse.ArgumentParser* for ``phdyms_comprehensive`` script."""
     parser = ArgumentParserNoArgHelp(description="Comprehensive phylogenetic model comparison and detection of selection using deep mutational scanning data. This program runs 'phydms' to infer a tree topology, then compare substitution models, then detect selection at each site. Version %s by %s. Full documentation at %s" % (phydmslib.__version__, phydmslib.__author__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)

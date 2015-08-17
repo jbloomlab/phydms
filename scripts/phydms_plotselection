@@ -8,8 +8,25 @@ Written by Jesse Bloom."""
 import sys
 import os
 import re
+import time
+import Bio.Alphabet.IUPAC
+import dms_tools.file_io
 import phydmslib.file_io
 import phydmslib.parsearguments
+
+
+def ModifiedReadDiffPrefs(infile):
+    """Reads differential preferences in format needed by this script.
+
+    Return value is dictionary keyed by integer site numbers, with values
+    being dictionaries keyed by each amino-acid and values equal to 
+    differential preference for that amino acid."""
+    (sites, wts, dpi, pr_lt, pr_gt, rms) = dms_tools.file_io.ReadDiffPrefs(infile)
+    diffprefs = {}
+    for site in sites:
+        diffprefs[int(site)] = dpi[site]
+    assert diffprefs and set(diffprefs.values()[0].keys()) == set(Bio.Alphabet.IUPAC.IUPACProtein.letters), "Failed to read diffprefs for all 20 protein characters"
+    return diffprefs
 
 
 def main():
@@ -21,137 +38,54 @@ def main():
     prog = parser.prog
 
     # print some basic information
-    print('Beginning execution of %s in directory %s at time %s\n' % (prog, os.getcwd(), time.asctime()))
-    print("%s\n" % versionstring)
-    logger.info('Parsed the following command-line arguments:\n%s\n' % '\n'.join(['\t%s = %s' % tup for tup in args.iteritems()]))
+    print('\nBeginning execution of %s in directory %s at time %s\n' % (prog, os.getcwd(), time.asctime()))
+    print("%s\n" % phydmslib.file_io.Versions())
+    print('Parsed the following command-line arguments:\n%s\n' % '\n'.join(['\t%s = %s' % tup for tup in args.iteritems()]))
 
-    # get number of available CPUs and assign to each model
-    if args['ncpus'] == -1:
-        try:
-            args['ncpus'] = multiprocessing.cpu_count()
-        except:
-            raise RuntimeError("Encountered a problem trying to dynamically determine the number of available CPUs. Please manually specify the number of desired CPUs with '--ncpus' and try again.")
-        logger.info('Will use all %d available CPUs.\n' % args['ncpus'])
-    assert args['ncpus'] >= 1, "Failed to specify valid number of CPUs"
-    # YNGKP models get one CPU, ExpCM get more than one if excess over number of models
-    expcm_modelnames = [modelname for modelname in models.keys() if 'ExpCM' in modelname]
-    yngkp_modelnames = [modelname for modelname in models.keys() if 'YNGKP' in modelname]
-    assert len(models.keys()) == len(expcm_modelnames) + len(yngkp_modelnames), "not ExpCM or YNGKP:\n%s" % str(models.keys())
-    ncpus_per_model = dict([(modelname, 1) for modelname in yngkp_modelnames])
-    nperexpcm = max(1, (args['ncpus'] - len(yngkp_modelnames) + 1) // len(expcm_modelnames)) # add one in numerator since YNGKP_M0 fit first
-    for modelname in expcm_modelnames:
-        ncpus_per_model[modelname] = nperexpcm
-    for modelname in models.keys():
-        mtup = models[modelname]
-        assert len(mtup) == 3 # should be 3-tuple
-        models[modelname] = (mtup[0], mtup[1] + ['--ncpus', str(ncpus_per_model[modelname])], mtup[2]) # add to additionalcmds, second tuple element
+    # types of selection and associated information
+    selectiontypes = ['diffprefs', 'omega', 'stringency']
+    filereaders = {'diffprefs':ModifiedReadDiffPrefs,
+                   'omega':phydmslib.file_io.ReadOmegaBySite,
+                   'stringency':phydmslib.file_io.ReadStringencyBySite,
+                  }
 
-    pool = {} # holds process for model name
-    started = {} # holds whether process started for model name
-    completed = {} # holds whether process completed for model name
-    outprefixes = {} # holds outprefix for model name
-
-    # rest of execution in try / finally
-    try:
-
-        # remove existing output files
-        outfiles = []
-        removed = []
-        for modelname in models.keys():
-            for suffix in filesuffixes[modelname]:
-                fname = "%s%s%s" % (args['outprefix'], modelname, suffix)
-                outfiles.append(fname)
-        if os.path.isfile(modelcomparisonfile):
-            os.remove(modelcomparisonfile)
-        for fname in outfiles:
-            if os.path.isfile(fname) and not args['use_existing']:
-                os.remove(fname)
-                removed.append(fname)
-        if removed:
-            logger.info('Removed the following existing files that have names that match the names of output files that will be created: %s\n' % ', '.join(removed))
-
-        # first estimate tree with phydms using YNGKP_M0 model
-        modelname = 'YNGKP_M0'
-        (model, additionalcmds, nempirical) = models[modelname]
-        outprefix = "%s%s" % (args['outprefix'], modelname)
-        treefile = '%s_tree.newick' % outprefix
-        if args['use_existing'] and all([os.path.isfile(outprefix + suffix) for suffix in filesuffixes[modelname]]):
-            logger.info('Using existing output for %s\n' % model)
+    # read data on selection from input files
+    selectiondata = {}
+    sites = []
+    for stype in selectiontypes:
+        fname = '%s_%sbysite.txt' % (args['inprefix'], stype)
+        if stype == 'diffprefs' or not args['no%sbysite' % stype]:
+            assert os.path.isfile(fname), "Cannot find required file input file: %s" % fname
+            selectiondata[stype] = fname
+            print("Visualizing %s selection using data from: %s\n" % (stype, fname))
+            try:
+                selectiondata[stype] = filereaders[stype](fname)
+            except:
+                sys.stderr.write('\nERROR reading %s selection data from %s\n' % (stype, fname))
+                raise
+            if not sites:
+                sites = selectiondata[stype].keys()
+                sites.sort()
+                assert sites, "No sites in %s" % fname
+                assert len(set(sites)) == len(sites), "Duplicate site numbers in %s" % fname
+                assert sites[-1] - sites[0] + 1 == len(sites), "site numbers are not consecutive in %s" % fname
+            else:
+                assert set(sites) == set(selectiondata[stype].keys()), "site numbers in %s do not match those for other selection types" % fname
         else:
-            if args['treetopology']:
-                cmds = ['phydms', args['alignment'], args['treetopology'], model, outprefix] + additionalcmds
-                logger.info('Optimizing tree in %s using the %s model. The command is: %s' % (model, args['treetopology'], ' '.join(cmds)))
-            else:
-                cmds = ['phydms', args['alignment'], 'nj', model, outprefix, '--infertopology'] + additionalcmds
-                logger.info('Inferring topology using the %s model starting from a simple neighbor joining tree. The command is: %s' % (model, ' '.join(cmds)))
-            p = multiprocessing.Process(target=RunCmds, args=(cmds,))
-            pool[modelname] = p
-            completed[modelname] = False
-            outprefixes[modelname] = outprefix
-            started[modelname] = True
-            p.start()
-            p.join()
-            completed[modelname] = True
-            for fname in [outprefix + suffix for suffix in filesuffixes[modelname]]:
-                if not os.path.isfile(fname):
-                    raise RuntimeError("phydms failed to created expected output file %s." % fname)
-                logger.info("Found expected output file %s" % fname)
-            logger.info('Analysis successful for %s\n' % model)
-        assert os.path.isfile(treefile)
+            assert stype != 'diffprefs', "You cannot run this program without specifying %s selection in %s" % (stype, fname)
+            print("The visualization will NOT include %s selection" % stype)
+            selectiondata[stype] = None
+    print("The visualization will include %d sites spanning %d to %d\n" % (len(sites), sites[0], sites[-1]))
 
-        # now run the other models
-        for modelname in [xmodel for xmodel in models.keys() if 'YNGKP_M0' != xmodel]:
-            (model, additionalcmds, nempirical) = models[modelname]
-            outprefix = "%s%s" % (args['outprefix'], modelname)
-            if args['use_existing'] and all([os.path.isfile(outprefix + suffix) for suffix in filesuffixes[modelname]]):
-                logger.info('Using existing output for %s\n' % modelname)
-            else:
-                cmds = ['phydms', args['alignment'], treefile, model, outprefix] + additionalcmds
-                logger.info('Starting analysis to optimize tree in %s using model %s. The command is: %s\n' % (treefile, modelname, ' '.join(cmds)))
-                pool[modelname] = multiprocessing.Process(target=RunCmds, args=(cmds,))
-                outprefixes[modelname] = outprefix
-                completed[modelname] = False
-                started[modelname] = False
-        while not all(completed.values()):
-            nrunning = started.values().count(True) - completed.values().count(True)
-            if nrunning < args['ncpus']:
-                for (modelname, p) in pool.items():
-                    if not started[modelname]:
-                        p.start()
-                        started[modelname] = True
-                        break
-            for (modelname, p) in pool.items():
-                if started[modelname] and (not completed[modelname]) and (not p.is_alive()): # process just completed
-                    completed[modelname] = True
-                    logger.info('Analysis completed for %s' % modelname)
-                    for fname in [outprefixes[modelname] + suffix for suffix in filesuffixes[modelname]]:
-                        if not os.path.isfile(fname):
-                            raise RuntimeError("phydms failed to created expected output file %s." % fname)
-                        logger.info("Found expected output file %s" % fname)
-                    logger.info('Analysis successful for %s\n' % modelname)
-            time.sleep(1)
+    # check on plotfile we will create
+    assert os.path.splitext(args['plotfile'])[1].lower() == '.pdf', "plotfile %s does not have extension '.pdf'" % args['plotfile']
+    assert (not os.path.dirname(args['plotfile'])) or (os.path.isdir(os.path.dirname(args['plotfile']))), "plotfile name %s includes non-existent directory" % args['plotfile']
+    if os.path.isfile(args['plotfile']):
+        print("Removing existing plotfile of %s" % args['plotfile'])
+        os.remove(args['plotfile'])
 
-        # make sure all expected output files are there
-        for fname in outfiles:
-            if not os.path.isfile(fname):
-                raise RuntimeError("Cannot find expected output file %s" % fname)
 
-        # tabulate model comparison
-        logger.info("Tabulating model comparisons and writing to %s" % modelcomparisonfile)
-        TabulateModelComparisons(modelcomparisonfile, models, args['outprefix'], '_loglikelihood.txt', '_modelparams.txt')
-        with open(modelcomparisonfile) as f:
-            modelcomparisontext = f.read()
-        logger.info("Here are the results of the model comparison:\n\t%s" % modelcomparisontext.replace('\n', '\n\t'))
-
-    except:
-        logger.exception('Terminating %s at %s with ERROR' % (prog, time.asctime()))
-    else:
-        logger.info('Successful completion of %s' % prog)
-    finally:
-        logging.shutdown()
-        for p in pool.values():
-            if p.is_alive():
-                p.terminate()
+    print('Successful completion of %s' % prog)
 
 
 if __name__ == '__main__':

@@ -16,7 +16,6 @@ import Bio.SeqIO
 import phydmslib
 
 
-
 def Versions():
     """Returns a string with version information.
 
@@ -105,7 +104,113 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
                 raise ValueError("There is an invalid character in the following header in %s:\n%s" % (fastafile, head))
     return seqs
 
+
+def ReadStringencyBySite(infile):
+    """Reads ``*_stringencybsite.txt`` files created by ``phydms``.
+
+    *infile* can be either a readable file-like boject (assumed to be
+    at its start) or a string giving the name of an existing file.
+
+    The returned value is a dictionary *stringencybysite* keyed by integer
+    site number with element *stringencybysite[site]* being a dictionary keyed
+    by the three string keys *stringency*, *P*, and *dLnL* each
+    specifying the value for that property.
+
+    >>> f = cStringIO.StringIO()
+    >>> f.write("# site stringency_ratio P dLnL\\n1 0.017 2.45e-05 8.9\\n2 0.079 0.0005 6.1\\n")
+    >>> f.seek(0)
+    >>> stringencybysite = ReadStringencyBySite(f)
+    >>> set(stringencybysite.keys()) == set([1, 2])
+    True
+    >>> '0.017' == '%.3f' % stringencybysite[1]['stringency']
+    True
+    >>> '0.0000245' == '%.7f' % stringencybysite[1]['P']
+    True
+    >>> '8.9' == '%.1f' % stringencybysite[1]['dLnL']
+    True
+    >>> '0.079' == '%.3f' % stringencybysite[2]['stringency']
+    True
+    >>> '0.0005' == '%.4f' % stringencybysite[2]['P']
+    True
+    >>> '6.1' == '%.1f' % stringencybysite[2]['dLnL']
+    True
+    """
+    if isinstance(infile, str):
+        with open(infile) as f:
+            lines = f.readlines()
+    else:
+        lines = infile.readlines()
+    stringencybysite = {}
+    for line in lines:
+        if line[0] == '#' or line.isspace() or not line:
+            continue
+        entries = line.split()
+        assert len(entries) == 4, "Unexpected number of entries in line:\n%s" % line
+        (site, stringency, P, dLnL) = entries
+        site = int(site)
+        assert site not in stringencybysite, "Duplicate site %d" % site
+        stringency = float(stringency)
+        assert 0 <= stringency, "Invalid stringency: %g" % stringency
+        P = float(P)
+        assert 0 <= P <= 1, "Invalid P: %g" % P
+        dLnL = float(dLnL)
+        stringencybysite[site] = {'stringency':stringency, 'P':P, 'dLnL':dLnL}
+    return stringencybysite
+
+
+def ReadOmegaBySite(infile):
+    """Reads ``*_omegabysite.txt`` files created by ``phydms``.
+   
+    *infile* can be either a readable file-like object (assumed to be
+    at its start) or a string giving the name of an existing file.
+
+    The returned value is a dictionary *omegabysite* keyed by integer 
+    site number with element *omegabysite[site]* being a dictionary keyed
+    by the three string keys *omega*, *P*, and *dLnL* each specifying
+    the value for that property.
     
+    >>> f = cStringIO.StringIO()
+    >>> f.write("# site omega P dLnL\\n1 2.73 0.0012 4.6\\n2 0.03 0.09 1.2\\n")
+    >>> f.seek(0)
+    >>> omegabysite = ReadOmegaBySite(f)
+    >>> set(omegabysite.keys()) == set([1, 2])
+    True
+    >>> '2.73' == '%.2f' % omegabysite[1]['omega']
+    True
+    >>> '0.0012' == '%.4f' % omegabysite[1]['P']
+    True
+    >>> '4.6' == '%.1f' % omegabysite[1]['dLnL']
+    True
+    >>> '0.03' == '%.2f' % omegabysite[2]['omega']
+    True
+    >>> '0.09' == '%.2f' % omegabysite[2]['P']
+    True
+    >>> '1.2' == '%.1f' % omegabysite[2]['dLnL']
+    True
+    """
+    if isinstance(infile, str):
+        with open(infile) as f:
+            lines = f.readlines()
+    else:
+        lines = infile.readlines()
+    omegabysite = {}
+    for line in lines:
+        if line[0] == '#' or line.isspace() or not line:
+            continue
+        entries = line.split()
+        assert len(entries) == 4, "Unexpected number of entries in line:\n%s" % line
+        (site, omega, P, dLnL) = entries
+        site = int(site)
+        assert site not in omegabysite, "Duplicate site %d" % site
+        omega = float(omega)
+        assert 0 <= omega, "Invalid omega: %g" % omega
+        P = float(P)
+        assert 0 <= P <= 1, "Invalid P: %g" % P
+        dLnL = float(dLnL)
+        omegabysite[site] = {'omega':omega, 'P':P, 'dLnL':dLnL}
+    return omegabysite
+
+
 
 
 if __name__ == '__main__':
