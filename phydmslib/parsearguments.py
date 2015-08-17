@@ -137,6 +137,8 @@ def PhyDMSComprehensiveParser():
     parser.add_argument('--no-omegabysite', dest='noomegabysite', action='store_true', help="No fitting of site-specific omegas.")
     parser.set_defaults(nostringencybysite=False)
     parser.add_argument('--no-stringencybysite', dest='nostringencybysite', action='store_true', help="No fitting of site-specific stringency for ExpCM.")
+    parser.set_defaults(nodiffprefsbysite=False)
+    parser.add_argument('--no-diffprefsbysite', dest='nodiffprefsbysite', action='store_true', help="No fitting of differential preferences for ExpCM.")
     parser.set_defaults(randprefs=False)
     parser.add_argument('--randprefs', dest='randprefs', action='store_true', help="Include ExpCM models with randomized preferences.")
     parser.set_defaults(use_existing=False)

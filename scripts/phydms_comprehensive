@@ -153,6 +153,9 @@ def main():
     if not args['nostringencybysite']:
         expcmadditionalcmds += ['--stringencybysite'] 
         filesuffixlist.append('_stringencybysite.txt')
+    if not args['nodiffprefsbysite']:
+        expcmadditionalcmds += ['--diffprefsbysite'] 
+        filesuffixlist.append('_diffprefsbysite.txt')
     assert len(set(args['prefsfiles'])) == len(args['prefsfiles']), 'Entries in prefsfiles not unique'
     for prefsfile in args['prefsfiles']:
         if re.search('\s', prefsfile):
@@ -194,7 +197,7 @@ def main():
     logger.info("%s\n" % versionstring)
     logger.info('Parsed the following command-line arguments:\n%s\n' % '\n'.join(['\t%s = %s' % tup for tup in args.iteritems()]))
 
-    # get number of available CPUs
+    # get number of available CPUs and assign to each model
     if args['ncpus'] == -1:
         try:
             args['ncpus'] = multiprocessing.cpu_count()
@@ -202,6 +205,18 @@ def main():
             raise RuntimeError("Encountered a problem trying to dynamically determine the number of available CPUs. Please manually specify the number of desired CPUs with '--ncpus' and try again.")
         logger.info('Will use all %d available CPUs.\n' % args['ncpus'])
     assert args['ncpus'] >= 1, "Failed to specify valid number of CPUs"
+    # YNGKP models get one CPU, ExpCM get more than one if excess over number of models
+    expcm_modelnames = [modelname for modelname in models.keys() if 'ExpCM' in modelname]
+    yngkp_modelnames = [modelname for modelname in models.keys() if 'YNGKP' in modelname]
+    assert len(models.keys()) == len(expcm_modelnames) + len(yngkp_modelnames), "not ExpCM or YNGKP:\n%s" % str(models.keys())
+    ncpus_per_model = dict([(modelname, 1) for modelname in yngkp_modelnames])
+    nperexpcm = max(1, (args['ncpus'] - len(yngkp_modelnames) + 1) // len(expcm_modelnames)) # add one in numerator since YNGKP_M0 fit first
+    for modelname in expcm_modelnames:
+        ncpus_per_model[modelname] = nperexpcm
+    for modelname in models.keys():
+        mtup = models[modelname]
+        assert len(mtup) == 3 # should be 3-tuple
+        models[modelname] = (mtup[0], mtup[1] + ['--ncpus', str(ncpus_per_model[modelname])], mtup[2]) # add to additionalcmds, second tuple element
 
     pool = {} # holds process for model name
     started = {} # holds whether process started for model name
