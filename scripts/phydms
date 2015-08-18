@@ -427,6 +427,8 @@ def main():
             logger.info('Now optimizing a different omega for each site while keeping branch lengths and other model parameters fixed (but adding a rate parameter that effectively scales the branch lengths).')
             logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
             logger.info('The model parameters (other than omega and the rate) will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
+            if isinstance(model, str) and 'YNGKP' in model:
+                aaprefs = {}
             fitomegaresults = FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams, fixedomegavalue, treefile, args['recursion'], args['ncpus'], logger)
             fitomegaresults = [(d['P'], site, d['omega'], d['dLnL']) for (site, d) in fitomegaresults.items()]
             fitomegaresults.sort()
