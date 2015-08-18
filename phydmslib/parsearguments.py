@@ -50,6 +50,17 @@ def NonNegativeInt(n):
     else:
         return n
 
+def IntGreaterThanZero(n):
+    """If *n* is an integter > 0, returns it, otherwise an error."""
+    try:
+        n = int(n)
+    except:
+        raise argparse.ArgumentTypeError("%s is not an integer" % n)
+    if n <= 0:
+        raise argparser.ArgumentTypeError("%d is not > 0" % n)
+    else:
+        return n
+
 
 def FloatGreaterThanOne(x):
     """If *x* is a string for a float > 1, returns it, otherwise an error."""
@@ -134,6 +145,12 @@ def PhyDMSPlotSelectionParser():
     parser.add_argument('--no-omegabysite', dest='noomegabysite', action='store_true', help="Don't plot site-specific omegas.")
     parser.set_defaults(nostringencybysite=False)
     parser.add_argument('--no-stringencybysite', dest='nostringencybysite', action='store_true', help="Don't plot site-specific stringency.")
+    parser.add_argument('--nperline', type=IntGreaterThanZero, default=70, help="Number of sites per line in plot.")
+    parser.add_argument('--numberevery', type=IntGreaterThanZero, default=10, help="Number sites at this interval.")
+    parser.add_argument('--diffprefheight', type=FloatGreaterThanZero, default=0.2, help="Height of differential preferences logo stacks in each direction. If using '--updiffprefheight' then the height may be higher than this.")
+    parser.set_defaults(updiffprefheight=False)
+    parser.add_argument('--updiffprefheight', dest='updiffprefheight', action='store_true', help="Automatically increase '--diffprefheight' to make it exceed max differential preferences.")
+    parser.add_argument('--minP', type=FloatGreaterThanZero, default=1e-4, help="Minimum plotted P-value for omega and stringency by site.")
     parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
 

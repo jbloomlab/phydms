@@ -9,8 +9,10 @@ import sys
 import os
 import re
 import time
+import math
 import Bio.Alphabet.IUPAC
 import dms_tools.file_io
+import dms_tools.weblogo
 import phydmslib.file_io
 import phydmslib.parsearguments
 
@@ -43,11 +45,12 @@ def main():
     print('Parsed the following command-line arguments:\n%s\n' % '\n'.join(['\t%s = %s' % tup for tup in args.iteritems()]))
 
     # types of selection and associated information
-    selectiontypes = ['diffprefs', 'omega', 'stringency']
+    selectiontypes = ['diffprefs', 'stringency', 'omega']
     filereaders = {'diffprefs':ModifiedReadDiffPrefs,
                    'omega':phydmslib.file_io.ReadOmegaBySite,
                    'stringency':phydmslib.file_io.ReadStringencyBySite,
                   }
+    selectionsymbols = {'omega':'$\omega$', 'stringency':'$\\beta$'}
 
     # read data on selection from input files
     selectiondata = {}
@@ -84,6 +87,56 @@ def main():
         print("Removing existing plotfile of %s" % args['plotfile'])
         os.remove(args['plotfile'])
 
+    # determine range on diff prefs
+    maxdiffprefheight = max([sum([dpi for dpi in selectiondata['diffprefs'][site].values() if dpi > 0]) for site in sites])
+    if maxdiffprefheight < args['diffprefheight']:
+        print("The maximum differential preference height is %.2g, which is less than the specified '--diffprefheight' of %.2g. So the extent of the y-axis on the differential preferences logo plot will be %.2g.\n" % (maxdiffprefheight, args['diffprefheight'], args['diffprefheight']))
+    elif args['updiffprefheight']:
+        newheight = 1.02 * maxdiffprefheight
+        print("The maximum differential preference height is %.2g, which exceeds '--diffprefheight' of %.2g. But since we are using '--updiffprefheight', the extent of the y-axis on the differential preferences logo plot will be scaled up to %.2g to accomodate the data.\n" % (maxdiffprefheight, args['diffprefheight'], newheight))
+        args['diffprefheight'] = newheight
+    else:
+        raise ValueError("The maximum differential preference height of %.2g exceeds '--diffprefheight' of %.2g. Either increase '--diffprefheight' or use '--updiffprefheight'." % (maxdiffprefheight, args['diffprefheight']))
+
+    # convert sites to strings, which is needed for plotting
+    sites = [str(isite) for isite in sites]
+    for stype in selectiontypes:
+        if selectiondata[stype]:
+            selectiondata[stype] = dict([(str(isite), ivalue) for (isite, ivalue) in selectiondata[stype].items()])
+
+    # make plot
+    print("Now creating the plot %s...\n" % args['plotfile'])
+    assert not os.path.isfile(args['plotfile']), "plotfile %s already exists" % args['plotfile']
+    overlay = []
+    fix_limits = {}
+    for stype in selectiontypes[1 : ]:
+        if selectiondata[stype]:
+            prop_d = {}
+            for site in sites:
+                if selectiondata[stype][site][stype] < 1: # negative value, more negative smaller P
+                    prop_d[site] = max(math.log10(args['minP']), math.log10(selectiondata[stype][site]['P']))
+                else: # positive value, more positive larger P
+                    prop_d[site] = -max(math.log10(args['minP']), math.log10(selectiondata[stype][site]['P']))
+            shortname = selectionsymbols[stype]
+            longname = '%s $<1 \; \longleftarrow$ $\log_{10} P$ for %s $\longrightarrow \;$ %s $>1$' % (shortname, stype, shortname)
+            overlay.append((prop_d, shortname, longname))
+            ticklocs = [itick for itick in range(int(math.log10(args['minP'])), 1 - int(math.log10(args['minP'])))]
+            ticknames = [-abs(itick) for itick in ticklocs]
+            fix_limits[selectionsymbols[stype]] = (ticklocs, ticknames)
+    dms_tools.weblogo.LogoPlot(
+                sites=sites,
+                datatype='diffprefs',
+                data=selectiondata['diffprefs'],
+                plotfile=args['plotfile'],
+                nperline=args['nperline'],
+                numberevery=args['numberevery'],
+                ydatamax=args['diffprefheight'],
+                overlay=overlay,
+                fix_limits=fix_limits,
+                fixlongname=True,
+                overlay_cmap='bwr'
+            )
+    assert os.path.isfile(args['plotfile']), "Failed to create plotfile %s" % args['plotfile']
 
     print('Successful completion of %s' % prog)
 
