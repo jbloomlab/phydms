@@ -31,7 +31,7 @@ Command-line usage
         * Use *random* for a randomly chosen starting tree. If you use this option, you must also use ``--infertreetopology`` since a random tree makes no sense otherwise.
 
    model
-    *YNGKP_M?* is a codon model from `Yang, Nielsen, Goldman, and Krabbe Pederson. Genetics, 155:431-449`_. The *?* indicates the model variant. Codon frequencies are set by *F3X4* (the product of nucleotide frequency parameters at each of the three positions; see ``--fitF3X4`` for how these 9 parameters are set). The transition-transversion ratio :math:`\kappa` is optimized by maximum likelihood. The nonsynonymous-synonymous ratio :math:`\omega` is set differently depending on the variant:
+    *YNGKP_M?* is a codon model from `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_. The *?* indicates the model variant. Codon frequencies are set by *F3X4* (the product of nucleotide frequency parameters at each of the three positions; see ``--fitF3X4`` for how these 9 parameters are set). The transition-transversion ratio :math:`\kappa` is optimized by maximum likelihood. The nonsynonymous-synonymous ratio :math:`\omega` is set differently depending on the variant:
     
         - *YNGKP_M0* : a single :math:`\omega` is optimized by maximum likelihood (1 free parameter)
 
@@ -43,7 +43,7 @@ Command-line usage
 
     *ExpCM_<prefsfile>* is an **exp**\erimentally informed **c**\odon **m**\odel, with amino-acid preferences taken from the file ``prefsfile``. 
     The preferences file should be in the `dms_tools`_ `preferences file format`_ for **amino acids** (any stop codon preferences if present are normalized away to zero). The preferences file must specify a preference for the amino acid encoded by every site in ``alignment``, using sequential 1, 2, ... numbering.
-    For information on experimentally informed codon models, see `Bloom. Mol Biol Evol, 31:2753-2769`_. 
+    For information on experimentally informed codon models, see `Bloom, Mol Biol Evol, 31:2753-2769`_. 
 
    outprefix
     If this prefix contains a directory name, that directory is created if it does not already exist. 

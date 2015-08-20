@@ -12,9 +12,6 @@
 .. _`weblogo`: https://code.google.com/p/weblogo/
 .. _`reference for weblogo`: http://genome.cshlp.org/content/14/6/1188
 .. _`Jesse Bloom`: http://labs.fhcrc.org/bloom
-.. _`Thyagarajan and Bloom (2014)`: http://elifesciences.org/content/3/e03300
-.. _`Melnikov et al (2014)`: http://nar.oxfordjournals.org/content/42/14/e112
-.. _`Fowler and Fields (2014)`: http://www.nature.com/nmeth/journal/v11/n8/full/nmeth.3027.html
 .. _`GPL-compatible`: https://www.gnu.org/licenses/license-list.html#GPLCompatibleLicenses
 .. _`pip`: https://pypi.python.org/pypi/pip
 .. _`Python convention for local installation`: https://www.python.org/dev/peps/pep-0370/
@@ -28,7 +25,14 @@
 .. _`weblogolib`: https://code.google.com/p/weblogo/
 .. _`PyPDF2`: https://pypi.python.org/pypi/PyPDF2
 .. _`phydms`: https://github.com/jbloom/phydms
-.. _`Yang, Nielsen, Goldman, and Krabbe Pederson. Genetics, 155:431-449`: http://www.genetics.org/content/155/1/431
-.. _`Bloom. Mol Biol Evol, 31:2753-2769`: http://mbe.oxfordjournals.org/content/31/10/2753
-.. _`Halpern and Bruno. Mol Biol Evol, 15:910-917`: http://www.ncbi.nlm.nih.gov/pubmed/9656490
+.. _`Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`: http://www.genetics.org/content/155/1/431
+.. _`Bloom, Mol Biol Evol, 31:2753-2769`: http://mbe.oxfordjournals.org/content/31/10/2753
+.. _`Bloom, Mol Biol Evol, 31:1956-1978`: http://mbe.oxfordjournals.org/content/31/8/1956
+.. _`Bloom, Bioinformatics, 16:168`: http://www.biomedcentral.com/1471-2105/16/168
+.. _`Thyagarajan and Bloom, eLife, 3:e03300`: http://elifesciences.org/content/3/e03300
+.. _`Doud et al, Mol Biol Evol, msv167`: https://dx.doi.org/10.1093/molbev/msv167
+.. _`Rodrigue and Lartillot, PNAS, 107:4629-4634`: http://www.pnas.org/content/107/10/4629.full
+.. _`Halpern and Bruno, Mol Biol Evol, 15:910-917`: http://www.ncbi.nlm.nih.gov/pubmed/9656490
+.. _`McCandlish and Stolzfus, Quarterly Review of Biology, 89:225-252`: http://www.ncbi.nlm.nih.gov/pubmed/25195318
 .. _`HKY85`: https://dx.doi.org/10.1007%2FBF02101694
+.. _`Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`: http://mbe.oxfordjournals.org/content/22/5/1208.full
