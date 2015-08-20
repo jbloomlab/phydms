@@ -138,7 +138,7 @@ def ModelOption(model):
 
 def PhyDMSPlotSelectionParser():
     """Returns an *argparse.ArgumentParser* for ``phydms_plotselection``."""
-    parser = ArgumentParserNoArgHelp(description="Visualization of the site-specific selection inferred using 'phydms' with an 'ExpCM' model. Version %s by %s. Full documentation at %s" % (phydmslib.__version__, phydmslib.__author__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = ArgumentParserNoArgHelp(description="Visualization of site-specific selection inferred using 'phydms' with an 'ExpCM' model. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('inprefix', help="Prefix used when calling 'phydms' to create site-specific selection data files.")
     parser.add_argument('plotfile', help='Name of created PDF file.')
     parser.set_defaults(noomegabysite=False)
@@ -157,7 +157,7 @@ def PhyDMSPlotSelectionParser():
 
 def PhyDMSComprehensiveParser():
     """Returns *argparse.ArgumentParser* for ``phdyms_comprehensive`` script."""
-    parser = ArgumentParserNoArgHelp(description="Comprehensive phylogenetic model comparison and detection of selection using deep mutational scanning data. This program runs 'phydms' to infer a tree topology, then compare substitution models, then detect selection at each site. Version %s by %s. Full documentation at %s" % (phydmslib.__version__, phydmslib.__author__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = ArgumentParserNoArgHelp(description="Comprehensive phylogenetic model comparison and detection of selection using deep mutational scanning data. This program runs 'phydms' to infer a tree topology, then compare substitution models, then detect selection at each site. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('outprefix', help='Prefix for output files.', type=str)
     parser.add_argument('alignment', help='Existing FASTA file with aligned codon sequences.', type=ExistingFile)
     parser.add_argument('prefsfiles', help='Existing files with site-specific amino-acid preferences.', type=ExistingFile, nargs='+')
@@ -179,7 +179,7 @@ def PhyDMSComprehensiveParser():
 
 def PhyDMSParser():
     """Returns *argparse.ArgumentParser* for ``phydms`` script."""
-    parser = ArgumentParserNoArgHelp(description='Phylogenetic inference using deep mutational scanning data. Version %s by %s. Full documentation at %s' % (phydmslib.__version__, phydmslib.__author__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = ArgumentParserNoArgHelp(description='Phylogenetic inference using deep mutational scanning data. %s Version %s. Full documentation at %s' % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('alignment', help='Existing FASTA file with aligned codon sequences.', type=ExistingFile)
     parser.add_argument('tree', help="Existing Newick tree file or 'random' or 'nj'.", type=TreeFile)
     parser.add_argument('model', help="Codon substitution model: YNGKP_M0, YNGKP_M3, YNGKP_M7, YNGKP_M8, ExpCM_<prefsfile>", type=ModelOption)
