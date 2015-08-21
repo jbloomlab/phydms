@@ -390,7 +390,7 @@ def main():
             with open(loglikelihoodfile, 'w') as f:
                 f.write('log likelihood = %g' % tl.LogLikelihood())
             modelparams = tl.ModelParams(True)
-            modelparamstextlist = ['%s = %g' % tup for tup in modelparams.items()]
+            modelparamstextlist = ['%s = %.6f' % tup for tup in modelparams.items()]
             modelparamstextlist.sort()
             logger.info("Here are the optimized model parameters (also being written to %s):\n\t%s" % (modelparamsfile, '\n\t'.join(modelparamstextlist)))
             with open(modelparamsfile, 'w') as f:
