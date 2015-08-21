@@ -16,6 +16,8 @@ Contents:
    :maxdepth: 1
 
    phydms_prog
+   phydms_comprehensive_prog
+   phydms_plotselection_prog
    ExpCM
    api
 
