@@ -18,7 +18,7 @@ The `phydms source code`_ is freely available under a `GPLv3`_ license (the nece
 
 If you use `phydms`_, please cite the references in :ref:`acknowledgments`.
 
-Contents:
+Contents
 ------------
 
 .. toctree::
@@ -36,7 +36,7 @@ Contents:
 
 
 Indices and tables
-==================
+---------------------
 
 * :ref:`genindex`
 * :ref:`modindex`

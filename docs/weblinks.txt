@@ -31,7 +31,7 @@
 .. _`Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`: http://www.genetics.org/content/155/1/431
 .. _`Bloom, Mol Biol Evol, 31:2753-2769`: http://mbe.oxfordjournals.org/content/31/10/2753
 .. _`Bloom, Mol Biol Evol, 31:1956-1978`: http://mbe.oxfordjournals.org/content/31/8/1956
-.. _`Bloom, Bioinformatics, 16:168`: http://www.biomedcentral.com/1471-2105/16/168
+.. _`Bloom, BMC Bioinformatics, 16:168`: http://www.biomedcentral.com/1471-2105/16/168
 .. _`Thyagarajan and Bloom, eLife, 3:e03300`: http://elifesciences.org/content/3/e03300
 .. _`Doud et al, Mol Biol Evol, msv167`: https://dx.doi.org/10.1093/molbev/msv167
 .. _`Rodrigue and Lartillot, PNAS, 107:4629-4634`: http://www.pnas.org/content/107/10/4629.full
@@ -45,3 +45,5 @@
 .. _`Laurent Gueguen`: https://lbbe.univ-lyon1.fr/-Gueguen-Laurent-.html
 .. _`CeCILL`: http://www.cecill.info/licences.en.html
 .. _`PyPI`: https://pypi.python.org/pypi
+.. _`Gueguen et al, Mol Biol Evol, 30:1745-1750`: http://mbe.oxfordjournals.org/content/30/8/1745
+.. _`Crooks et al, Genome Research, 14:1188-1190`: http://genome.cshlp.org/content/14/6/1188
