@@ -1,7 +1,9 @@
+.. _`Bio++`: http://biopp.univ-montp2.fr/wiki/index.php/Main_Page
 .. _`Python`: https://www.python.org
 .. _`dms_tools`: http://jbloom.github.io/dms_tools
 .. _`dms_tools source code`: https://github.com/jbloom/dms_tools
 .. _`preferences file format`: http://jbloom.github.io/dms_tools/fileformats.html#preferences-file
+.. _`differential preferences file format`: http://jbloom.github.io/dms_tools/fileformats.html#differential-preferences-file
 .. _`PyStan`: http://pystan.readthedocs.org/en/latest/
 .. _`GelmanRubin1992`: http://www.jstor.org/stable/2246093
 .. _`Kronecker delta`: http://en.wikipedia.org/wiki/Kronecker_delta
