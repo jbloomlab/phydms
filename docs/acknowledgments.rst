@@ -8,7 +8,7 @@ Acknowledgments
 -----------------
 `phydms`_ is written by `Jesse Bloom`_.
 
-`phydms`_ is completely reliant on the `Bio++`_ libraries; thanks for leading the development of these libraries and assisting in their use is due to `Julien Dutheil`_ and `Laurent Gueguen`_.
+`phydms`_ is completely reliant on the `Bio++`_ libraries; thanks to `Julien Dutheil`_ and `Laurent Gueguen`_ for developing these libraries and assisting in their use.
 
 The plotting performed by ``phydms_plotselection`` utilizes `weblogo`_.
 

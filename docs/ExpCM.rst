@@ -23,7 +23,7 @@ For examples of previous studies that have used experimentally measured site-spe
 
     * `Doud et al, Mol Biol Evol, msv167`_
 
-These experimentally informed site-specific substitution models closely parallel those used in studies that infer the site-specific information from natural sequences; see `Rodrigue and Lartillot, PNAS, 107:4629-4634`_. For a more general discussion of models of this form, see `Halpern and Bruno, Mol Biol Evol, 15:910-917`_ and `McCandlish and Stolzfus, Quarterly Review of Biology, 89:225-252`_.
+These experimentally informed site-specific substitution models closely parallel those used in studies that infer the site-specific information from natural sequences; see `Rodrigue and Lartillot, PNAS, 107:4629-4634`_. For a more general discussion of models of this form, see `Halpern and Bruno, Mol Biol Evol, 15:910-917`_ and `McCandlish and Stoltzfus, Quarterly Review of Biology, 89:225-252`_.
 
 The *ExpCM* implemented by ``phydms`` are similar but not completely identical to those in aforementioned publications. The *ExpCM* in ``phydms`` has the following components:
 

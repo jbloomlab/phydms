@@ -1,10 +1,11 @@
-.. _installation:
+.. _quick_example:
 
 ================================
-Installation
+Quick example
 ================================
 
 .. contents::
 
+Here
 
 .. include:: weblinks.txt

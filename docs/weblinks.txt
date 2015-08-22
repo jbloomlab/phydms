@@ -36,7 +36,7 @@
 .. _`Doud et al, Mol Biol Evol, msv167`: https://dx.doi.org/10.1093/molbev/msv167
 .. _`Rodrigue and Lartillot, PNAS, 107:4629-4634`: http://www.pnas.org/content/107/10/4629.full
 .. _`Halpern and Bruno, Mol Biol Evol, 15:910-917`: http://www.ncbi.nlm.nih.gov/pubmed/9656490
-.. _`McCandlish and Stolzfus, Quarterly Review of Biology, 89:225-252`: http://www.ncbi.nlm.nih.gov/pubmed/25195318
+.. _`McCandlish and Stoltzfus, Quarterly Review of Biology, 89:225-252`: http://www.ncbi.nlm.nih.gov/pubmed/25195318
 .. _`HKY85`: https://dx.doi.org/10.1007%2FBF02101694
 .. _`Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`: http://mbe.oxfordjournals.org/content/22/5/1208.full
 .. _`AIC`: https://en.wikipedia.org/wiki/Akaike_information_criterion
