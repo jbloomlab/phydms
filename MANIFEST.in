@@ -5,6 +5,9 @@ include docs/*.pdf
 include docs/*.py
 include docs/Makefile
 include docs/*.txt
+include tests/*
+include phydmslib/*.pyx
+include phydmslib/*/README.rst
 
 global-exclude *.so
 global-exclude *.pyc
