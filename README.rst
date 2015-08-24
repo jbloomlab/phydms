@@ -1,42 +1,23 @@
 ========================
 ``phydms``
 ========================
-``phydms`` enables **phy**\logenetic analyses using **d**\eep **m**\utational **s**\canning data to inform the substitution models.
+``phydms`` enables **phy**\logenetic analyses using **d**\eep **m**\utational **s**\canning data to inform the substitution models. It implements **Exp**\erimentally informed **c**\odon **m**\odels (*ExpCM*) for phylogenetic inference and the detection of biologically interesting selection.
 
-Written by `Jesse Bloom`_.
+``phydms`` is written by `Jesse Bloom`_, and uses the `Bio++`_ libraries for likelihood calculations (thanks to `Julien Dutheil`_ and `Laurent Gueguen`_ for making these wonderful libraries available).
 
-Installation from source
-------------------------
-To install from source, ``cd`` into the main ``./phydms/`` directory, and if you are superuser do the following to install globally::
+See the `phydms documentation`_ for information about using ``phydms`` and details about the recommended installation process.
 
-    python setup.py install
+The `phydms source code`_ is freely available under a `GPLv3`_ license (the necessary `Bio++`_ libraries are packaged into the `phydms source code`_, and are themselves under a `GPL-compatible`_ `CeCILL`_ license).
 
-To install locally (to ``~/.local/``) use::
-
-    python setup.py install --user
-
-If you want to install from source processing the dependencies, use `pip`_ with::
-
-    pip install -e . --user
-
-Bio++ code 
-----------------------------------
-The `Bio++`_ libraries are used for the phylogenetic likelihood calculations. 
-
-To avoid requiring separate installation of the `Bio++`_ libraries, their source code is included in the source for ``phydms`` and they are compiled and statically linked to ``phydms``. Specifically, the ``./phydmslib/Bpp/`` subdirectory holds the ``bpp-core``, ``bpp-seq``, and ``bpp-phyl`` libraries, which were added to the repository using ``git subtree``. These libraries are compiled by ``cythonize`` as specified in the ``setup.py`` file. 
-
-The need to compile and statically link the `Bio++`_ libraries increases the time to build ``phydms``. The ``setup.py`` script includes an option that should allow you to instead dynamically link to pre-compiled `Bio++`_ libraries. For this to work, you will need to have pre-installed the correct versions of ``bpp-core``, ``bpp-seq``, and ``bpp-phyl`` in the location expected by ``setup.py``. Then run::
-
-    python setup.py install --user --dynamically-link-bpp
-
-or::
-
-    python setup.py install --dynamically-link-bpp
-
-Note that this ``--dynamically-link-bpp`` option may lead to crashes during installation or execution if you don't have the right versions of `Bio++`_. Therefore, only use this option if you know what you're doing.
 
 
 
 .. _`Jesse Bloom`: http://research.fhcrc.org/bloom/en.html
 .. _`Bio++`: http://biopp.univ-montp2.fr/wiki/index.php/Main_Page
-.. _`pip`: https://pip.pypa.io/en/stable/
+.. _`phydms documentation`: http://jbloom.github.io/phydms/
+.. _`phydms source code`: https://github.com/jbloom/phydms
+.. _`Julien Dutheil`: http://kimura.univ-montp2.fr/jdutheil/CMS/index.php/
+.. _`Laurent Gueguen`: https://lbbe.univ-lyon1.fr/-Gueguen-Laurent-.html
+.. _`CeCILL`: http://www.cecill.info/licences.en.html
+.. _`GPL-compatible`: https://www.gnu.org/licenses/license-list.html#GPLCompatibleLicenses
+.. _`GPLv3`: http://www.gnu.org/copyleft/gpl.html
