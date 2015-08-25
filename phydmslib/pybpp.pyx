@@ -169,11 +169,11 @@ cdef class PyBppTreeLikelihood:
             assert len(sites) == len(set(sites)) and min(sites) == 1 and max(sites) == len(seqs[0]) // 3, "Invalid sites in preferences: %s" % str(sites)
             for (r, rprefs) in model[1].items():
                 assert isinstance(r, int) and isinstance(rprefs, dict), "preferences must by int keys, dict values"
-                assert (sum(rprefs.values()) - 1.0) < 1.0e-5, "preferences do not sum to one"
+                assert (sum(rprefs.values()) - 1.0) < 1.0e-4, "preferences do not sum to one"
                 for codon in self.codons:
                     aa = self.codon_to_aa[codon]
                     if aa in self.aminoacids:
-                        preferences[r][codon] = rprefs[aa]
+                        preferences[r][codon] = max(1.0e-6, rprefs[aa]) # don't let any preferences be zero
                     elif aa == '*':
                         preferences[r][codon] = 0.0
                     else:
