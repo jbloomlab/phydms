@@ -218,7 +218,8 @@ def OptimizePrefs(tl, prefs, site, concentration, minvalue=1e-4, noprior=False, 
     # error check arguments
     assert (not noprior) or (not nologl), "Cannot use both noprior and logl"
     assert concentration > 1, "It does not make sense to have concentration <= 1"
-    assert all([pi > 0 for pi in prefs.values()]), "The preference must be > 0 for all sites"
+    assert all([pi >= 0 for pi in prefs.values()]), "The preference must be > 0 for all sites"
+    prefs = dict([(aa, max(pi, 1.0e-7)) for (aa, pi) in prefs.items()]) # make all a bit greater than zero
     assert abs(sum(prefs.values()) - 1.0) < 1.0e-5, "The sum of the preferences must be one"
     assert isinstance(site, int) and 1 <= site <= tl.NSites(), "site of %d is not in the tree likelihood object" % site
     assert set(prefs.keys()) == set(tl.GetPreferences(site).keys()), "prefs does not have keys for the same characters as the tree likelihood object"
