@@ -34,11 +34,16 @@ import phydmslib.diffpref
 def FitDiffPrefsForSite(seqnames, iseqs, treefile, imodel, fixedmodelparams, recursion, stringencyscaledprefs, diffprefconc):
     """Fits preferences for a specific site, to be run in multiprocessing pool."""
     start = time.time()
-    tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=True, recursion=recursion) 
-    initial_ll = tl.LogLikelihood()
-    (prefs, convergencestring, converged) = phydmslib.diffpref.OptimizePrefs(tl, stringencyscaledprefs, site=1, concentration=diffprefconc)
-    tl.SetPreferences(prefs, 1)
-    new_ll = tl.LogLikelihood()
+    converged = randinitprefs = False
+    ntries = 0
+    while (not converged) and ntries < 3:
+        tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=True, recursion=recursion) 
+        initial_ll = tl.LogLikelihood()
+        (prefs, convergencestring, converged) = phydmslib.diffpref.OptimizePrefs(tl, stringencyscaledprefs, site=1, concentration=diffprefconc, randinitprefs=randinitprefs)
+        tl.SetPreferences(prefs, 1)
+        new_ll = tl.LogLikelihood()
+        ntries += 1
+        randinitprefs = ntries
     return (prefs, new_ll, initial_ll, convergencestring, converged, time.time() - start)
 
 
@@ -366,7 +371,7 @@ def main():
             assert not tl.ModelParams(True), "There are unspecified model parameters to be optimized for --no_optimize: %s" % str(tl.ModelParams(True))
             if set(tl.ModelParams(False).keys()) != set(modelparams.keys()):
                 raise ValueError("The existing model params file %s does not have all of the expected parameters for this substitution model, so cannot use --no_optimize. Either the existing model parameters were created with a different model, or you used a YNGKP model without --fitF3X4 (this is currently incompatible with --no_optimize).")
-            if abs(tl.LogLikelihood() - old_ll) > 0.01:
+            if abs(tl.LogLikelihood() - old_ll) > 0.5:
                 raise ValueError("Incompatibility between old log likelihood %g and new one of %g" % (old_ll, tl.LogLikelihood()))
         else:
             try:

@@ -3,7 +3,6 @@
 
 import sys
 import math
-import random
 import numpy
 import scipy.optimize
 import scipy.stats
@@ -178,7 +177,7 @@ class PrefsPrior(object):
 
 
 
-def OptimizePrefs(tl, prefs, site, concentration, minvalue=1e-4, noprior=False, nologl=False):
+def OptimizePrefs(tl, prefs, site, concentration, minvalue=1e-4, noprior=False, nologl=False, randinitprefs=False):
     """Optimize preferences along with a prior constraint.
 
     *tl* is a *phydmslib.pybpp.PyBppTreeLikelihood* object that has
@@ -205,6 +204,10 @@ def OptimizePrefs(tl, prefs, site, concentration, minvalue=1e-4, noprior=False, 
     *noprior* and *nologl* are for debugging only; the indicate that we don't
     include the prior or the likelihood in the optimization.
 
+    *randinitprefs* specify that we seed the optimization at random preferences
+    chosen from the seed *randinitprefs*, which should be an integer. Otherwise
+    if *False*, we seed optimization at *prefs*.
+
     The prior estimate over each preference is a Dirichlet that is peaked (has its
     mode) at the estimate in *prefs* (after shifting all preferences to be at
     least *minvalue*). See the documentation for *PrefsPrior* to see exactly
@@ -227,7 +230,13 @@ def OptimizePrefs(tl, prefs, site, concentration, minvalue=1e-4, noprior=False, 
 
     # set up initial preference vector, prior vector, and the bounds
     prefstovec = PrefsToVec(prefs)
-    initvec = prefstovec.Vector(prefs)
+    if randinitprefs != False:
+        numpy.random.seed(randinitprefs)
+        aas = prefs.keys()
+        initprefs = dict(zip(aas, random.numpy.dirichlet([len(aas) * prefs[aa] for aa in aas])))
+        initvec = prefstovec.Vector(initprefs)
+    else:
+        initvec = prefstovec.Vector(prefs)
     bounds = [(minvalue, 1.0 - minvalue) for i in range(len(initvec))]
     prefsprior = PrefsPrior(prefs, concentration, minvalue)
 
