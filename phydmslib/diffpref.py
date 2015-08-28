@@ -94,12 +94,13 @@ class PrefsToVec(object):
         All values are adjusted to be at least equal to the *tol*
         used when initializing this object."""
         assert len(vec) == self.nchars - 1, "vec not for right number of characters"
-        assert all(vec >= 0) and all(vec <= 1), "vec elements are not all >= 0 and <= 1"
+        assert all(vec >= 0) and all(vec <= 1 + self.tol), "vec elements are not all >= 0 and <= 1"
         prefs = {}
         runningprod = 1.0
         for (ichar, char) in enumerate(self.chars[ : -1]):
-            prefs[char] = vec[ichar] * runningprod
-            runningprod *= (1.0 - vec[ichar])
+            veci = min(1.0, vec[ichar])
+            prefs[char] = veci * runningprod
+            runningprod *= (1.0 - veci)
         prefs[self.chars[-1]] = max(0, 1.0 - sum(prefs.values()))
         maxprefchar = [(pi, char) for (char, pi) in prefs.items()]
         maxprefchar.sort()
@@ -243,7 +244,7 @@ def OptimizePrefs(tl, prefs, site, concentration, minvalue=1e-4, noprior=False, 
     # function to minimize
     def NegLogPosterior(vec):
         """Returns **negative** log likelihood as we are minimizing."""
-        if any(vec < 0) or any(vec > 1.0) or any(numpy.isnan(vec)):
+        if any(numpy.isnan(vec)):
             raise RuntimeError("Call outside support: %s" % str(vec))
         else:
             iprefs = prefstovec.Prefs(vec)
