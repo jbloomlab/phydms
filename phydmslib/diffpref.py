@@ -233,7 +233,7 @@ def OptimizePrefs(tl, prefs, site, concentration, minvalue=1e-4, noprior=False, 
     if randinitprefs != False:
         numpy.random.seed(randinitprefs)
         aas = prefs.keys()
-        initprefs = dict(zip(aas, random.numpy.dirichlet([len(aas) * prefs[aa] for aa in aas])))
+        initprefs = dict(zip(aas, numpy.random.dirichlet([len(aas) * prefs[aa] for aa in aas])))
         initvec = prefstovec.Vector(initprefs)
     else:
         initvec = prefstovec.Vector(prefs)

@@ -278,7 +278,7 @@ def main():
             assert not args['infertopology'], "You cannot use '--infertopology' with ExpCM"
             assert not args['fitF3X4'], "You cannot use '--fitF3X4' with ExpCM"
             prefsfilename = args['model'][1]
-            logger.info('The codon substitution model will be experimentally informed model by the site-specific amino-acid preferences in %s' % prefsfilename)
+            logger.info('The codon substitution model will be experimentally informed by the site-specific amino-acid preferences in %s' % prefsfilename)
             (sites, wts, pi_means, pi_95credint, h) = dms_tools.file_io.ReadPreferences(prefsfilename)
             if len(sites) != len(alignment[0][1]) // 3:
                 raise ValueError("The number of amino-acid preferences in %s does not match the number of codon sites in the alignment" % prefsfilename)
