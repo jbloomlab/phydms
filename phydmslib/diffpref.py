@@ -84,7 +84,7 @@ class PrefsToVec(object):
             if runningsum >= 1.0 - self.tol:
                 vec.append(0.5)
             else:
-                vec.append(prefs[char] / (1.0 - runningsum))
+                vec.append(min(1.0, prefs[char] / (1.0 - runningsum)))
             runningsum += prefs[char]
         return numpy.array(vec)
 
@@ -243,7 +243,7 @@ def OptimizePrefs(tl, prefs, site, concentration, minvalue=1e-4, noprior=False, 
     # function to minimize
     def NegLogPosterior(vec):
         """Returns **negative** log likelihood as we are minimizing."""
-        if any(vec <= 0) or any(vec >= 1.0) or any(numpy.isnan(vec)):
+        if any(vec < 0) or any(vec > 1.0) or any(numpy.isnan(vec)):
             raise RuntimeError("Call outside support: %s" % str(vec))
         else:
             iprefs = prefstovec.Prefs(vec)
