@@ -25,13 +25,13 @@ Command-line usage
     The headers must be unique strings that do **not** contain any of the following: spaces, commas, colons, semicolons, parentheses, square brackets, and single or double quotes.
 
    tree
-    This argument specifies the fixed tree topology (if **not** using ``--infertreetopology``) or an initial topology for further optimization. (if using ``--infertreetopology``). The possibilities are:
+    This argument specifies the fixed tree topology (if **not** using ``--infertopology``) or an initial topology for further optimization. (if using ``--infertopology``). The possibilities are:
 
-        * Specify a Newick file giving an existing tree (tip names must match sequence headers in ``alignment``).
+        * Specify a Newick file giving an existing tree (tip names must match sequence headers in ``alignment``). For instance, this might be a tree that you inferred using `codonPhyML`_.
 
-        * Use *nj* to build a neighbor-joining tree from the nucleotide sequences using a crude identity model to compute distances. Trees built using this option will not be very good, so you are suggested to use this option only to get an initial tree for further optimization via ``--infertreetopology``.
+        * Use *nj* to build a neighbor-joining tree from the nucleotide sequences using a crude identity model to compute distances. Trees built using this option will not be very good, so you are suggested to use this option only to get an initial tree for further optimization via ``--infertopology``.
 
-        * Use *random* for a randomly chosen starting tree. If you use this option, you must also use ``--infertreetopology`` since a random tree makes no sense otherwise.
+        * Use *random* for a randomly chosen starting tree. If you use this option, you must also use ``--infertopology`` since a random tree makes no sense otherwise.
 
    model
     *YNGKP_M?* is a codon model from `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_. The *?* indicates the model variant. Codon frequencies are set by *F3X4* (the product of nucleotide frequency parameters at each of the three positions; see ``--fitF3X4`` for how these 9 parameters are set). The transition-transversion ratio :math:`\kappa` is optimized by maximum likelihood. The nonsynonymous-synonymous ratio :math:`\omega` is set differently depending on the variant:
@@ -72,6 +72,9 @@ Command-line usage
 
    \-\-addrateparameter
     It only makes sense to use this parameter if you have fixed all branch lengths and then wish to fit a rate that effectively scales these branch lengths.
+
+   \-\-infertopology
+    Note that sometimes the topology inference appears to fail (or at least hang up for a very long time). In that case, you may want to infer the topology with another program such as `codonPhyML`_ and then pass that topology via the ``tree`` argument rather than using ``--infertopology``.
 
    \-\-minbrlen
     Regardless of the method used to set ``tree``, all branches with lengths less than this value will be set to this value in the initial starting tree. Branches can still end up with lengths less than this after subsequent optimization of this starting tree.

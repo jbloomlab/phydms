@@ -12,6 +12,8 @@ Overview
 
 In its simplest usage, you simply provide ``phydms_comprehensive`` with an alignment and one or more files giving site-specific amino-acid preferences. The program then first uses ``phydms`` to infer a tree under the *YNGKP_M0* model (starting from a crude neighbor-joining tree), and then for each set of site-specific amino-acid preferences optimizes this tree (with fixed topology) for an *ExpCM* and a control *ExpCM* with the preferences averaged across sites (the ``phydms`` option ``--avgprefs``). The program also optimizes the tree using the *YNGKP_M3* model. For all models, it detects site-specific selection. It also creates a simple summary that enables comparison among the models.
 
+If this program hangs up on the initial inference of the tree with *YNGKP_M0*, then infer a tree using another tree-building program such as `codonPhyML`_ and then pass that via the ``--treetopology`` option.
+
 You could get all of this output by simply running ``phydms`` repeatedly, but using ``phydms_comprehensive`` automates this process for you.
 
 See below for information on `Command-line usage`_ and `Output files`_.

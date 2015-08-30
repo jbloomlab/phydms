@@ -47,3 +47,4 @@
 .. _`PyPI`: https://pypi.python.org/pypi
 .. _`Gueguen et al, Mol Biol Evol, 30:1745-1750`: http://mbe.oxfordjournals.org/content/30/8/1745
 .. _`Crooks et al, Genome Research, 14:1188-1190`: http://genome.cshlp.org/content/14/6/1188
+.. _`codonPhyML`: http://sourceforge.net/projects/codonphyml/
