@@ -33,17 +33,29 @@ import phydmslib.diffpref
 
 def FitDiffPrefsForSite(seqnames, iseqs, treefile, imodel, fixedmodelparams, recursion, stringencyscaledprefs, diffprefconc):
     """Fits preferences for a specific site, to be run in multiprocessing pool."""
+    maxtries = 3 # number of different times we try with slightly different values if optimization fails initially
     start = time.time()
     converged = randinitprefs = False
     ntries = 0
-    while (not converged) and ntries < 3:
+    while (not converged) and ntries < maxtries:
         tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=True, recursion=recursion) 
         initial_ll = tl.LogLikelihood()
-        (prefs, convergencestring, converged) = phydmslib.diffpref.OptimizePrefs(tl, stringencyscaledprefs, site=1, concentration=diffprefconc, randinitprefs=randinitprefs)
-        tl.SetPreferences(prefs, 1)
-        new_ll = tl.LogLikelihood()
-        ntries += 1
-        randinitprefs = ntries
+        try:
+            (prefs, convergencestring, converged) = phydmslib.diffpref.OptimizePrefs(tl, stringencyscaledprefs, site=1, concentration=diffprefconc, randinitprefs=randinitprefs)
+        except RuntimeError as err:
+            # sometimes optimization gives zero likelihood; catch this and try again
+            if 'Tree likelihood is zero' in str(err):
+                ntries += 1
+                randinitprefs = ntries
+                if ntries >= maxtries:
+                    raise
+            else:
+                raise
+        else:
+            tl.SetPreferences(prefs, 1)
+            new_ll = tl.LogLikelihood()
+            ntries += 1
+            randinitprefs = ntries
     return (prefs, new_ll, initial_ll, convergencestring, converged, time.time() - start)
 
 
