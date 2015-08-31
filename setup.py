@@ -118,7 +118,7 @@ setup(
     install_requires = [
         'biopython>=1.65',
         'cython>=0.21',
-        'dms_tools>=1.1.5',
+        'dms_tools>=1.1.6',
         'scipy>=0.16',
         ],
     platforms = 'Linux',
