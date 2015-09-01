@@ -136,6 +136,16 @@ def ModelOption(model):
         raise argparse.ArgumentTypeError("Invalid model")
 
 
+def PhyDMSRenumberParser():
+    """Returns an *argparse.ArgumentParser* for ``phydms_renumber``."""
+    parser = ArgumentParserNoArgHelp(description="Renumber by-site output files from 'phydms'. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('renumberfile', type=ExistingFile, help="Column 1 lists current number for a site; column 2 gives new number. Lines beginning with '#' are ignored.")
+    parser.add_argument('outprefixes', help="Output prefixes for which we renumber files with appropriate suffixes. Use '*' as a wildcard character.", nargs='+')
+    parser.add_argument('--renumberedprefix', default='renumbered', help='Add this prefix followed by underscore to names of renumbered files.')
+    return parser
+
+
+
 def PhyDMSPlotSelectionParser():
     """Returns an *argparse.ArgumentParser* for ``phydms_plotselection``."""
     parser = ArgumentParserNoArgHelp(description="Visualization of site-specific selection inferred using 'phydms' with an 'ExpCM' model. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)

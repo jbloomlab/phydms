@@ -96,8 +96,18 @@ def FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodel
 
 
 
-def FitStringencyForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedstringencyvalue, treefile, recursion):
-    """Fits stringency for a specific site, to be run in multiprocessing pool."""
+def FitStringencyForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedstringencyvalue, treefile, recursion, numericaladjust=False):
+    """Fits stringency for a specific site, to be run in multiprocessing pool.
+    
+    *numericaladjust* is used for a recursive call that slightly adjusts (rounds) the model parameters.
+    This a bit of a hack, but the rationale is as follows. Rarely, the fitting appears to fit strange
+    nonsensical values with very large stringency values that appear to be due to some numerical issue. 
+    In trying to reproduce this,
+    I found that even slightly adjusting the parameters makes it go away.
+    """
+    if numericaladjust:
+        ifixedmodelparams = dict([(param, float("%.5f" % value)) for (param, value) in fixedmodelparams.items()])
+        fixedstringencyvalue = float("%.5f" % fixedstringencyvalue)
     iresults = {}
     start = time.time()
     for fitstringency in ['fitted', 'fixed']:
@@ -114,6 +124,9 @@ def FitStringencyForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedstringe
             iresults['stringency'] = tl.ModelParams(True)['stringencyparameter']
             iresults['stringency_ratio'] = iresults['stringency'] / fixedstringencyvalue
     iresults['dLnL'] = iresults['LnL_fitted'] - iresults['LnL_fixed']
+    if (not numericaladjust) and (abs(iresults['dLnL']) > 50 and (iresults['stringency_ratio'] > 5 or iresults['stringency_ratio'] < 0.2)):
+        # suspicious values, try fitting with a numerical adjust
+        return FitStringencyForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedstringencyvalue, treefile, recursion, numericaladjust=True)
     iresults['P'] = scipy.stats.chi2.sf(2.0 * iresults['dLnL'], df=1)
     return (iresults, time.time() - start)
 
