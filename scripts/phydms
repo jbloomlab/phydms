@@ -87,7 +87,7 @@ def FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodel
                 logger.info("For site %d, fit preferences to natural sequences in %.1f seconds. The increase in log likelihood was %.3g, and the RMS difference in preference is %.3f. Here are the differences in preferences:\n\t%s\n" % (icodon, itime, new_ll - initial_ll, rmsdiffpref, ', '.join(['%s = %.3f' % tup for tup in idiffprefs.items()])))
                 if not converged:
                     raise RuntimeError("Diff pref optimization failed to converge for site %d. Here is the optimization message:\n%s" % (icodon, convergencestring))
-                assert (new_ll - initial_ll) > -0.2, "Log likelihood of %g with optimized prefs is substantially greater than initial log likelihood of %g for site %d. This indicates a problem with the optimization." % (new_ll, initial_ll, icodon)
+                assert (new_ll - initial_ll) > -0.5, "Log likelihood of %g with optimized prefs is substantially greater than initial log likelihood of %g for site %d. This indicates a problem with the optimization." % (new_ll, initial_ll, icodon)
                 diffprefs[str(icodon)] = idiffprefs
                 completed[icodon] = True
     pool.terminate()
