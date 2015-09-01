@@ -128,6 +128,7 @@ setup(
     scripts = [
             'scripts/phydms',
             'scripts/phydms_comprehensive',
+            'scripts/phydms_renumber',
             'scripts/phydms_plotselection',
             ],
 )

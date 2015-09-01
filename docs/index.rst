@@ -29,6 +29,7 @@ Contents
    phydms_prog
    phydms_comprehensive_prog
    phydms_plotselection_prog
+   phydms_renumber_prog
    ExpCM
    api
    acknowledgments
