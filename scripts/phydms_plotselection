@@ -20,15 +20,17 @@ import phydmslib.parsearguments
 def ModifiedReadDiffPrefs(infile):
     """Reads differential preferences in format needed by this script.
 
-    Return value is dictionary keyed by integer site numbers, with values
+    Return value is 2-tuple *(sites, diffprefs)*.
+    *sites* is the list of sites as strings. *diffprefs* is a dictionary keyed 
+    by site numbers as strings, with values
     being dictionaries keyed by each amino-acid and values equal to 
     differential preference for that amino acid."""
     (sites, wts, dpi, pr_lt, pr_gt, rms) = dms_tools.file_io.ReadDiffPrefs(infile)
     diffprefs = {}
     for site in sites:
-        diffprefs[int(site)] = dpi[site]
+        diffprefs[site] = dpi[site]
     assert diffprefs and set(diffprefs.values()[0].keys()) == set(Bio.Alphabet.IUPAC.IUPACProtein.letters), "Failed to read diffprefs for all 20 protein characters"
-    return diffprefs
+    return (sites, diffprefs)
 
 
 def main():
@@ -54,31 +56,23 @@ def main():
 
     # read data on selection from input files
     selectiondata = {}
-    sites = []
     for stype in selectiontypes:
         fname = '%s_%sbysite.txt' % (args['inprefix'], stype)
         if stype == 'diffprefs' or not args['no%sbysite' % stype]:
             assert os.path.isfile(fname), "Cannot find required file input file: %s" % fname
-            selectiondata[stype] = fname
             print("Visualizing %s selection using data from: %s\n" % (stype, fname))
-            try:
-                selectiondata[stype] = filereaders[stype](fname)
-            except:
-                sys.stderr.write('\nERROR reading %s selection data from %s\n' % (stype, fname))
-                raise
-            if not sites:
-                sites = selectiondata[stype].keys()
-                sites.sort()
+            if stype == 'diffprefs':
+                (sites, selectiondata[stype]) = filereaders[stype](fname)
                 assert sites, "No sites in %s" % fname
                 assert len(set(sites)) == len(sites), "Duplicate site numbers in %s" % fname
-                assert sites[-1] - sites[0] + 1 == len(sites), "site numbers are not consecutive in %s" % fname
             else:
+                selectiondata[stype] = filereaders[stype](fname)
                 assert set(sites) == set(selectiondata[stype].keys()), "site numbers in %s do not match those for other selection types" % fname
         else:
             assert stype != 'diffprefs', "You cannot run this program without specifying %s selection in %s" % (stype, fname)
             print("The visualization will NOT include %s selection" % stype)
             selectiondata[stype] = None
-    print("The visualization will include %d sites spanning %d to %d\n" % (len(sites), sites[0], sites[-1]))
+    print("The visualization will include %d sites spanning %s to %s\n" % (len(sites), sites[0], sites[-1]))
 
     # check on plotfile we will create
     assert os.path.splitext(args['plotfile'])[1].lower() == '.pdf', "plotfile %s does not have extension '.pdf'" % args['plotfile']
@@ -99,10 +93,9 @@ def main():
         raise ValueError("The maximum differential preference height of %.2g exceeds '--diffprefheight' of %.2g. Either increase '--diffprefheight' or use '--updiffprefheight'." % (maxdiffprefheight, args['diffprefheight']))
 
     # convert sites to strings, which is needed for plotting
-    sites = [str(isite) for isite in sites]
     for stype in selectiontypes:
         if selectiondata[stype]:
-            selectiondata[stype] = dict([(str(isite), ivalue) for (isite, ivalue) in selectiondata[stype].items()])
+            selectiondata[stype] = dict([(isite, ivalue) for (isite, ivalue) in selectiondata[stype].items()])
 
     # make plot
     print("Now creating the plot %s...\n" % args['plotfile'])
@@ -130,6 +123,7 @@ def main():
                 plotfile=args['plotfile'],
                 nperline=args['nperline'],
                 numberevery=args['numberevery'],
+                allowunsorted=True,
                 ydatamax=args['diffprefheight'],
                 overlay=overlay,
                 fix_limits=fix_limits,
