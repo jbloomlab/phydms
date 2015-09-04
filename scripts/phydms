@@ -14,6 +14,7 @@ import tempfile
 import time
 import math
 import multiprocessing
+import warnings
 import scipy.stats
 import Bio.SeqRecord
 import Bio.Phylo
@@ -31,31 +32,39 @@ import phydmslib.pybpp
 import phydmslib.diffpref
 
 
-def FitDiffPrefsForSite(seqnames, iseqs, treefile, imodel, fixedmodelparams, recursion, stringencyscaledprefs, diffprefconc):
+def FitDiffPrefsForSite(seqnames, iseqs, treefile, imodel, fixedmodelparams, recursion, stringencyscaledprefs, diffprefconc, icodon):
     """Fits preferences for a specific site, to be run in multiprocessing pool."""
-    maxtries = 3 # number of different times we try with slightly different values if optimization fails initially
+    maxtries = 2 # number of different times we try with slightly different values if optimization fails initially
+    optmethods = ['SLSQP', 'TNC', 'L-BFGS-B'] # try optimization methods in this order
     start = time.time()
     converged = randinitprefs = False
-    ntries = 0
-    while (not converged) and ntries < maxtries:
+    ntries = imethod = 0
+    while (not converged) and imethod < len(optmethods):
         tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=True, recursion=recursion) 
         initial_ll = tl.LogLikelihood()
         try:
-            (prefs, convergencestring, converged) = phydmslib.diffpref.OptimizePrefs(tl, stringencyscaledprefs, site=1, concentration=diffprefconc, randinitprefs=randinitprefs)
+            (prefs, convergencestring, converged) = phydmslib.diffpref.OptimizePrefs(tl, stringencyscaledprefs, site=1, concentration=diffprefconc, randinitprefs=randinitprefs, optmethod=optmethods[imethod])
         except RuntimeError as err:
-            # sometimes optimization gives zero likelihood; catch this and try again
-            if 'Tree likelihood is zero' in str(err):
+            # catch and try again with different initial values
+            if ntries >= maxtries and imethod + 1 >= len(optmethods):
+                raise
+            else:
                 ntries += 1
                 randinitprefs = ntries
-                if ntries >= maxtries:
-                    raise
-            else:
-                raise
+                warnings.warn("Retrying optimization for site %d with different initial values for the %d time after catching this error: %s" % (icodon, ntries, str(err)), RuntimeWarning)
         else:
             tl.SetPreferences(prefs, 1)
             new_ll = tl.LogLikelihood()
             ntries += 1
             randinitprefs = ntries
+            if (not converged) and ntries <= maxtries:
+                warnings.warn("Retrying optimization for site %d with different initial values for the %d time after convergence failed with this message: %s" % (icodon, ntries, convergencestring), RuntimeWarning)
+        if ntries > maxtries:
+            ntries = 0
+            randinitprefs = False
+            imethod += 1
+            if imethod < len(optmethods):
+                warnings.warn("Switching to optimization method %s for site %d due to failures with method %s" % (optmethods[imethod], icodon, optmethods[imethod - 1]), RuntimeWarning)
     return (prefs, new_ll, initial_ll, convergencestring, converged, time.time() - start)
 
 
@@ -71,7 +80,7 @@ def FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodel
         prefsum = float(sum(stringencyscaledprefs[icodon].values()))
         stringencyscaledprefs[icodon] = dict([(aa, pref / prefsum) for (aa, pref) in stringencyscaledprefs[icodon].items()])
         imodel = ('ExpCM', {1:stringencyscaledprefs[icodon]})
-        poolresults[icodon] = pool.apply_async(FitDiffPrefsForSite, (seqnames, iseqs, treefile, imodel, fixedmodelparams, recursion, stringencyscaledprefs[icodon], diffprefconc))
+        poolresults[icodon] = pool.apply_async(FitDiffPrefsForSite, (seqnames, iseqs, treefile, imodel, fixedmodelparams, recursion, stringencyscaledprefs[icodon], diffprefconc, icodon))
     completed = dict([(icodon, False) for icodon in codons])
     while not all(completed.values()):
         time.sleep(1)
@@ -250,6 +259,7 @@ def main():
 
     # Set up to log everything to logfile.
     logging.shutdown()
+    logging.captureWarnings(True)
     versionstring = phydmslib.file_io.Versions() 
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
     logger = logging.getLogger(prog)

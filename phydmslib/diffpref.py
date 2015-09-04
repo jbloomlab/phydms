@@ -178,7 +178,7 @@ class PrefsPrior(object):
 
 
 
-def OptimizePrefs(tl, prefs, site, concentration, minvalue=1e-4, noprior=False, nologl=False, randinitprefs=False):
+def OptimizePrefs(tl, prefs, site, concentration, minvalue=1e-4, noprior=False, nologl=False, randinitprefs=False, optmethod='SLSQP'):
     """Optimize preferences along with a prior constraint.
 
     *tl* is a *phydmslib.pybpp.PyBppTreeLikelihood* object that has
@@ -208,6 +208,9 @@ def OptimizePrefs(tl, prefs, site, concentration, minvalue=1e-4, noprior=False, 
     *randinitprefs* specify that we seed the optimization at random preferences
     chosen from the seed *randinitprefs*, which should be an integer. Otherwise
     if *False*, we seed optimization at *prefs*.
+
+    *optmethod* is the *scipy.optimize.minimize* method to use. Should be one that
+    accepts bounds (constrained minimization).
 
     The prior estimate over each preference is a Dirichlet that is peaked (has its
     mode) at the estimate in *prefs* (after shifting all preferences to be at
@@ -262,7 +265,7 @@ def OptimizePrefs(tl, prefs, site, concentration, minvalue=1e-4, noprior=False, 
                 return -(tl.LogLikelihood() + prefsprior.LogPrior(iprefs))
 
     # do the minimization
-    result = scipy.optimize.minimize(NegLogPosterior, initvec, method='SLSQP', bounds=bounds)
+    result = scipy.optimize.minimize(NegLogPosterior, initvec, method=optmethod, bounds=bounds)
     
     # process the results
     assert len(result.x) == len(initvec)
