@@ -155,7 +155,13 @@ def main():
         filesuffixlist.append('_stringencybysite.txt')
     if not args['nodiffprefsbysite']:
         expcmadditionalcmds += ['--diffprefsbysite'] 
+        if args['diffprefconc']:
+            conc = float(args['diffprefconc'])
+            assert 1 < conc, "--diffprefconc must be > 1"
+            expcmadditionalcmds += ['--diffprefconc', str(conc)]
         filesuffixlist.append('_diffprefsbysite.txt')
+    elif args['diffprefconc']:
+        raise ValueError("You can't specificy --diffprefconc when using --nodiffprefsbysite")
     assert len(set(args['prefsfiles'])) == len(args['prefsfiles']), 'Entries in prefsfiles not unique'
     for prefsfile in args['prefsfiles']:
         if re.search('\s', prefsfile):
