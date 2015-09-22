@@ -41,7 +41,7 @@ class TestOnNPs(unittest.TestCase):
 
     def test_Phydms(self):
         """Runs ``phydms_comprehensive``."""
-        cmds = ['phydms_comprehensive', self.test_dir, self.alignment, self.prefs, '--ncpus', '-1']
+        cmds = ['phydms_comprehensive', self.test_dir, self.alignment, self.prefs, '--ncpus', '-1', '--diffprefconc', '2.0']
         sys.stderr.write('\nRunning phydms with the the following command:\n%s\n' % ' '.join(cmds))
         subprocess.call(cmds)
 
