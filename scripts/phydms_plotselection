@@ -86,7 +86,7 @@ def main():
     if maxdiffprefheight < args['diffprefheight']:
         print("The maximum differential preference height is %.2g, which is less than the specified '--diffprefheight' of %.2g. So the extent of the y-axis on the differential preferences logo plot will be %.2g.\n" % (maxdiffprefheight, args['diffprefheight'], args['diffprefheight']))
     elif args['updiffprefheight']:
-        newheight = 1.02 * maxdiffprefheight
+        newheight = 1.1 * maxdiffprefheight
         print("The maximum differential preference height is %.2g, which exceeds '--diffprefheight' of %.2g. But since we are using '--updiffprefheight', the extent of the y-axis on the differential preferences logo plot will be scaled up to %.2g to accomodate the data.\n" % (maxdiffprefheight, args['diffprefheight'], newheight))
         args['diffprefheight'] = newheight
     else:
