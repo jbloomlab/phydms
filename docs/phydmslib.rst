@@ -36,6 +36,14 @@ phydmslib.pybpp module
     :undoc-members:
     :show-inheritance:
 
+phydmslib.utils module
+----------------------
+
+.. automodule:: phydmslib.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

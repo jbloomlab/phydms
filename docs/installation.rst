@@ -132,6 +132,8 @@ In addition it requires some external `Python`_ packages. The up-to-date exact r
 
     * `scipy`_ is used for optimization and some statistical / mathematical operations. You need at least version 0.16.
 
+    * `matplotlib`_ is used for plotting. You need at least version 1.3.
+
 What about ``Bio++``?
 ------------------------
 Most of the actual calculations performed by `phydms`_ use the `Bio++`_ libraries, which are themselves written in ``c++``. Manual installation of `Bio++`_ and subsequent linking to the installation of `phydms`_ is somewhat complicated, so the relevant portions of the `Bio++`_ source code are simply included in the `phydms source code`_ (in ``phydms/phydmslib/Bpp/`` you will find ``bpp-core``, ``bpp-seq``, and ``bpp-phyl``). When you install `phydms`_ using `pip`_ (or using ``python setup.py install``), `cython`_ compiles this `Bio++`_ source code in a form that is usable by `phydms`_. The requirement for compiling `Bio++`_ is why it takes a little while to install `phydms`_.

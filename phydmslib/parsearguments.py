@@ -136,6 +136,17 @@ def ModelOption(model):
         raise argparse.ArgumentTypeError("Invalid model")
 
 
+def PhyDMSAnalyzeSitesParser():
+    """Returns an *argparse.ArgumentParser* for ``phydms_analyzesites``."""
+    parser = ArgumentParserNoArgHelp(description="Analyzes/visualizes per-site selection inferred with 'phydms' for a subset of sites. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('outprefix', help="Prefix for output files.")
+    parser.add_argument('sitesfile', type=ExistingFile, help="Column 1 lists number of sites to analyze. Site number can be followed by '#' given notes for that site. Lines beginning with '#' are ignored.")
+    parser.add_argument('selectionfile', nargs='+', help="Per-site selection file(s) created by 'phydms' (i.e. '*_omegabysite.txt', '*_stringencybysite.txt', '*_diffprefsbysite.txt').", type=ExistingFile)
+    parser.add_argument('--name', nargs='+', help="Name describing type of selection to go with each 'selectionfile'.")
+    parser.add_argument('--fdr', type=float, default=0.05, help="False discovery rate for declaring sites significant.")
+    return parser
+
+
 def PhyDMSRenumberParser():
     """Returns an *argparse.ArgumentParser* for ``phydms_renumber``."""
     parser = ArgumentParserNoArgHelp(description="Renumber by-site output files from 'phydms'. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)

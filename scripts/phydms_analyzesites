@@ -1,0 +1,234 @@
+#!python
+
+"""Analyzes the site-specific selection on a subset of sites.
+
+Written by Jesse Bloom."""
+
+
+import sys
+import os
+import re
+import time
+import math
+import Bio.Alphabet.IUPAC
+import dms_tools.file_io
+import dms_tools.utils
+import phydmslib.file_io
+import phydmslib.parsearguments
+import phydmslib.utils
+
+
+def ModifiedReadDiffPrefs(infile):
+    """Reads RMS differential preferences in format needed by this script.
+    """
+    (sites, wts, dpi, pr_lt, pr_gt, rms) = dms_tools.file_io.ReadDiffPrefs(infile)
+    return rms
+
+
+def TransformP(x, p, maxval):
+    """If *x* >= 1, returns *min(-log10(p), maxval)*; if *x < 1* returns *max(-maxval, log10(p))*.
+
+    This transforms *P* values so large values indicate strong evidence for *x > 1*,
+    and small (negative) values indicate strong evidence for *x < 1*.
+    """
+    assert maxval > 0
+    assert 0 <= p <= 1
+    if x >= 1:
+        if p == 0:
+            return maxval
+        else:
+            return min(-math.log10(p), maxval)
+    else:
+        if p == 0:
+            return -maxval
+        else:
+            return max(-maxval, math.log10(p))
+
+
+def GetRank(x, xlist):
+    """Gets rank of *x* in *xlist*.
+
+    Assumes *xlist* is sorted from largest to smallest.
+
+    Returns 1 + index of the first item in *xlist* that is
+    <= than *x*."""
+    assert all([xlist[i] >= xlist[i + 1] for i in range(len(xlist) - 1)]), "xlist not sorted from largest to smallest"
+    for i in range(len(xlist)):
+        if xlist[i] <= x:
+            break
+    return i + 1
+
+
+def WriteTable(names, d, selectedsites, tablefile):
+    """Writes summary of per-site selection to *tablefile* in ReStructuredText format."""
+    # header
+    line = ['site'] + names
+    if any(selectedsites.values()):
+        line += ['notes']
+    text = [line]
+
+    # line for each site
+    maxval = 1e20
+    sites = selectedsites.keys()
+    dms_tools.utils.NaturalSort(sites)
+    ranklist = {}
+    for name in names:
+        if d[name]['selectiontype'] == 'diffprefs':
+            ranklist[name] = [rms for rms in d[name]['data'].values()]
+        elif d[name]['selectiontype'] == 'omega':
+            ranklist[name] = [TransformP(idict['omega'], idict['P'], maxval) for idict in d[name]['data'].values()]
+        elif d[name]['selectiontype'] == 'stringency':
+            ranklist[name] = [-TransformP(idict['stringency'], idict['P'], maxval) for idict in d[name]['data'].values()]
+        else:
+            raise ValueError("Invalid selection type %s" % d[name]['selectiontype'])
+        ranklist[name].sort()
+        ranklist[name].reverse()
+    for site in sites:
+        line = [site]
+        nsites = len(ranklist[names[0]])
+        for name in names:
+            data = d[name]['data'][site]
+            if d[name]['selectiontype'] == 'diffprefs':
+                line.append("%.3f (%d out of %d sites)" % (data, GetRank(data, ranklist[name]), nsites))
+            elif d[name]['selectiontype'] == 'omega':
+                line.append("%.3f (P = %.2g; %d out of %d sites)" % (data['omega'], data['P'], GetRank(TransformP(data['omega'], data['P'], maxval), ranklist[name]), nsites))
+            elif d[name]['selectiontype'] == 'stringency':
+                line.append("%.3f (P = %.2g; %d out of %d sites)" % (data['stringency'], data['P'], GetRank(-TransformP(data['stringency'], data['P'], maxval), ranklist[name]), nsites))
+            else:
+                raise ValueError("Invalid selection type %s" % d[name]['selectiontype'])
+        if any(selectedsites.values()):
+            line += [selectedsites[site]]
+        text.append(line)
+
+    # now format text into table and write to file
+    columnwidths = []
+    for i in range(len(text[0])):
+        columnwidths.append(max([len(line[i]) for line in text]))
+    formatstring = ' '.join(['%-' + str(w) + 's' for w in columnwidths])
+    f = open(tablefile, 'w')
+    try:
+        f.write(' '.join(['=' * w for w in columnwidths]) + '\n')
+        wroteheader = False
+        for line in text:
+            assert len(line) == len(columnwidths), "%d vs %d" % (len(line), len(columnwidths))
+            f.write(formatstring % tuple(line) + '\n')
+            if not wroteheader:
+                wroteheader = True
+                f.write(' '.join(['=' * w for w in columnwidths]) + '\n')
+        f.write(' '.join(['=' * w for w in columnwidths]) + '\n')
+    except:
+        f.close()
+        os.remove(tablefile)
+        raise
+    f.close()
+
+
+
+def main():
+    """Main body of script."""
+
+    # Parse command line arguments
+    parser = phydmslib.parsearguments.PhyDMSAnalyzeSitesParser()
+    args = vars(parser.parse_args())
+    prog = parser.prog
+    assert len(args['selectionfile']) == len(set(args['selectionfile'])), "The 'selectionfile' list contains duplicated entries"
+    assert 0 < args['fdr'] < 1, "Invalid fdr, must be > 0 and < 1. You specified %g" % args['fdr']
+
+    # print some basic information
+    print('\nBeginning execution of %s in directory %s at time %s\n' % (prog, os.getcwd(), time.asctime()))
+    print("%s\n" % phydmslib.file_io.Versions())
+    print('Parsed the following command-line arguments:\n%s\n' % '\n'.join(['\t%s = %s' % tup for tup in args.iteritems()]))
+
+    assert not (os.path.dirname(args['outprefix'])) or os.path.isdir(os.pathdirname(args['outprefix'])), "outprefix includes non-existent directory" % args['outprefix']
+    tablefile = "%s_table.txt" % args['outprefix']
+    removed = []
+    if os.path.isfile(tablefile):
+        removed.append(tablefile)
+
+    # Set up dictionary d containing information for site-specific selections, keyed by name
+    # if present or selectionfile otherwise
+    if args['name']:
+        assert len(args['name']) == len(args['selectionfile']), "The number of entries specified by '--names' must match the number for 'selectionfile'"
+        assert len(args['name']) == len(set(args['name'])), "The 'name' list contains duplicated entries."
+        names = args['name']
+    else:
+        names = args['selectionfile']
+    d = dict([(name, {'file':selectionfile}) for (name, selectionfile) in zip(names, args['selectionfile'])])
+    for name in d.keys():
+        outfile = '%s_%s_plot.pdf' % (args['outprefix'], name.replace(' ', '_'))
+        if os.path.isfile(outfile):
+            os.remove(outfile)
+            removed.append(outfile)
+        d[name]['plotfile'] = outfile
+    if removed:
+        print("\nRemoved the following files, which already existed but will be created as new output: %s" % ', '.join(removed))
+
+    # readers for each type of selection
+    filereaders = {'diffprefs':ModifiedReadDiffPrefs,
+                   'omega':phydmslib.file_io.ReadOmegaBySite,
+                   'stringency':phydmslib.file_io.ReadStringencyBySite,
+                  }
+
+    # read data on selection from input files
+    for (name, name_d) in d.items():
+        try:
+            stype = 'diffprefs'
+            name_d['data'] = filereaders[stype](name_d['file'])
+        except:
+            with open(name_d['file']) as f:
+                text = f.read()
+            if 'omega' in text:
+                assert 'stringency' not in text, "Unclear if file %s contains 'omega' or 'stringency' since both strings are found in the file text" % (name_d['file'])
+                stype = 'omega'
+            elif 'stringency' in text:
+                stype = 'stringency'    
+            else:
+                raise ValueError("File %s contains neither 'omega' or 'stringency' in file text" % name_d['file'])
+            name_d['data'] = filereaders[stype](name_d['file'])
+        name_d['selectiontype'] = stype
+        print("\nRead data of type %s from %s for %s." % (stype, name_d['file'], name))
+        if stype in ['omega', 'stringency']:
+            (pcutoff, significantsites) = phydmslib.utils.BenjaminiHochbergCorrection([(site, site_d['P']) for (site, site_d) in name_d['data'].items()], args['fdr'])
+            name_d['pcutoff'] = pcutoff
+            name_d['nsignificant'] = len(significantsites)
+            name_d['nsignificant_gt1'] = len([site for site in significantsites if name_d['data'][site][stype] > 1])
+            name_d['nsignificant_lt1'] = len([site for site in significantsites if name_d['data'][site][stype] < 1])
+            for site in name_d['data'].keys():
+                if site in significantsites:
+                    name_d['data'][site]['significant'] = True
+                else:
+                    name_d['data'][site]['significant'] = False
+            assert name_d['nsignificant'] == len([x for x in name_d['data'].values() if x['significant']]) == name_d['nsignificant_gt1'] + name_d['nsignificant_lt1']
+            print("\t%d of %d sites have significant P-values at an FDR of %.3g (this corresponds to P <= %.3g)" % (name_d['nsignificant'], len(name_d['data']), args['fdr'], name_d['pcutoff']))
+            print("\tOf these significant sites, %d have %s > 1 and %d have %s < 1." % (name_d['nsignificant_gt1'], stype, name_d['nsignificant_lt1'], stype))
+    sites = set(d.values()[0]['data'].keys())
+    assert all([set(idict['data'].keys()) == sites for idict in d.values()]), "Not the same sites for all selectionfiles"
+    print("\nWe have read data for a total of %d sites for the following types of selection:\n\t%s" % (len(sites), '\n\t'.join(names)))
+
+    # read selected sites
+    selectedsites = {}
+    with open(args['sitesfile']) as f:
+        for line in f:
+            if not (line.isspace() or line[0] == '#'):
+                entries = line.split('#', 1)
+                site = entries[0].strip()
+                if len(entries) == 1:
+                    notes = ''
+                else:
+                    notes = entries[1].strip()
+                assert site not in selectedsites, "Duplicate site %s in sitesfile %s" % (site, args['sitesfile'])
+                assert site in sites, "Site %s in sitesfile %s is not a site for which by-site selection information is specified in the selectionfile(s)" % (site, args['sitesfile'])
+                selectedsites[site] = notes
+    assert selectedsites, "No selected sites to analyze specified in sitesfile %s" % args['sitesfile']
+    print("\nRead %d selected sites to analyze from sitesfile %s" % (len(selectedsites), args['sitesfile']))
+
+    # make table 
+    print("\nNow writing selection information for the sites to analyze to %s" % tablefile)
+    WriteTable(names, d, selectedsites, tablefile)
+
+    print("\nSuccessful completion of %s" % prog)
+
+
+
+if __name__ == '__main__':
+    main() # run the script

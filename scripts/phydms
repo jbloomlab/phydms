@@ -14,7 +14,6 @@ import tempfile
 import time
 import math
 import multiprocessing
-import warnings
 import scipy.stats
 import Bio.SeqRecord
 import Bio.Phylo
@@ -39,11 +38,13 @@ def FitDiffPrefsForSite(seqnames, iseqs, treefile, imodel, fixedmodelparams, rec
     start = time.time()
     converged = randinitprefs = False
     ntries = imethod = 0
+    convergencestring = ''
     while (not converged) and imethod < len(optmethods):
         tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=True, recursion=recursion) 
         initial_ll = tl.LogLikelihood()
         try:
-            (prefs, convergencestring, converged) = phydmslib.diffpref.OptimizePrefs(tl, stringencyscaledprefs, site=1, concentration=diffprefconc, randinitprefs=randinitprefs, optmethod=optmethods[imethod])
+            (prefs, iconvergencestring, converged) = phydmslib.diffpref.OptimizePrefs(tl, stringencyscaledprefs, site=1, concentration=diffprefconc, randinitprefs=randinitprefs, optmethod=optmethods[imethod])
+            convergencestring += '\n' + iconvergencestring
         except RuntimeError as err:
             # catch and try again with different initial values
             if ntries >= maxtries and imethod + 1 >= len(optmethods):
@@ -51,20 +52,20 @@ def FitDiffPrefsForSite(seqnames, iseqs, treefile, imodel, fixedmodelparams, rec
             else:
                 ntries += 1
                 randinitprefs = ntries
-                warnings.warn("Retrying optimization for site %d with different initial values for the %d time after catching this error: %s" % (icodon, ntries, str(err)), RuntimeWarning)
+                convergencestring += "\nRetrying optimization for site %d with different initial values for the %d time after catching this error: %s" % (icodon, ntries, str(err))
         else:
             tl.SetPreferences(prefs, 1)
             new_ll = tl.LogLikelihood()
             ntries += 1
             randinitprefs = ntries
             if (not converged) and ntries <= maxtries:
-                warnings.warn("Retrying optimization for site %d with different initial values for the %d time after convergence failed with this message: %s" % (icodon, ntries, convergencestring), RuntimeWarning)
+                convergencestring += "\nRetrying optimization for site %d with different initial values for the %d time after convergence failed with this message: %s" % (icodon, ntries, iconvergencestring)
         if ntries > maxtries:
             ntries = 0
             randinitprefs = False
             imethod += 1
             if imethod < len(optmethods):
-                warnings.warn("Switching to optimization method %s for site %d due to failures with method %s" % (optmethods[imethod], icodon, optmethods[imethod - 1]), RuntimeWarning)
+                convergencestring += "\nSwitching to optimization method %s for site %d due to failures with method %s" % (optmethods[imethod], icodon, optmethods[imethod - 1])
     return (prefs, new_ll, initial_ll, convergencestring, converged, time.time() - start)
 
 

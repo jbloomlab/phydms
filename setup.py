@@ -120,6 +120,7 @@ setup(
         'cython>=0.21',
         'dms_tools>=1.1.7',
         'scipy>=0.16',
+        'matplotlib>=1.3',
         ],
     platforms = 'Linux',
     packages = ['phydmslib'],
@@ -130,5 +131,6 @@ setup(
             'scripts/phydms_comprehensive',
             'scripts/phydms_renumber',
             'scripts/phydms_plotselection',
+            'scripts/phydms_analyzesites',
             ],
 )
