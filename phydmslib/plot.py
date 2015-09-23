@@ -1,6 +1,7 @@
 """Module for plotting."""
 
 
+import os
 import math
 import matplotlib
 matplotlib.use('pdf')
@@ -8,7 +9,7 @@ import matplotlib.pyplot as plt
 
 
 def PlotSignificantOmega(plotfile, models, ngt, nlt, nsites, fdr, usetex=True):
-    """Makes a PDF plot of the number of sites with significant omega.
+    """Makes a PDF slopegraph of the number of sites with significant omega.
 
     *plotfile* : name of created PDF.
 
@@ -26,26 +27,34 @@ def PlotSignificantOmega(plotfile, models, ngt, nlt, nsites, fdr, usetex=True):
 
     *usetex* : use LaTex formatting of strings?
     """
+    assert os.path.splitext(plotfile)[1].lower() == '.pdf', "plotfile %s does not end with extension '.pdf'"
     assert len(models) == len(ngt) == len(nlt)
-    plt.rc('font', size=15)
+    plt.rc('font', size=25)
     plt.rc('text', usetex=usetex)
     omegacategories = {'< 1':'bo-', '> 1':'rs-'}
     handles = []
     labels = []
+    ymax = 1
     for (cat, style) in omegacategories.items():
         xs = range(len(models))
         ys = {'< 1':nlt, '> 1':ngt}[cat]
-        handle = plt.plot(xs, ys, style, markersize=11)
+        ymax = max(ymax, max(ys))
+        handle = plt.plot(xs, ys, style, markersize=22, linewidth=3)
         handles.append(handle[0])
         if usetex:
             labels.append('$\omega_r %s$' % cat)
         else:
             labels.append('omega %s' % cat)
     plt.xlim(-0.25, len(models) - 0.75)
-    plt.xticks(range(len(models)), [modelnames[model] for model in models], fontsize=17)
+    plt.ylim(0, int(1.02 * ymax + 1))
+    plt.xticks(range(len(models)), models, fontsize=32)
     plt.locator_params(axis='y', bins=4)
-    plt.ylabel('sites out of %d (FDR %.2f)' % (len(sites), fdr_alpha), fontsize=17)
-    plt.legend(handles, labels, 'upper right', numpoints=1)
+    plt.ylabel('sites out of %d (FDR %.2f)' % (nsites, fdr), fontsize=30)
+    plt.legend(handles, labels, loc='upper right', numpoints=1, fontsize=34, borderaxespad=0)
+    plt.savefig(plotfile, bbox_inches='tight')
+    plt.clf()
+    plt.close()
+
 
 
 if __name__ == '__main__':
