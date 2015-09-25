@@ -169,6 +169,7 @@ def main():
                    'omega':phydmslib.file_io.ReadOmegaBySite,
                    'stringency':phydmslib.file_io.ReadStringencyBySite,
                   }
+    selectiontypes = filereaders.keys()
 
     # read data on selection from input files
     for (name, name_d) in d.items():
@@ -255,6 +256,62 @@ def main():
                 usetex=True
                 )
         print("Finished creating the plot %s" % omegaslopegraph)
+
+    # make violin plots for each type of selection
+    for stype in selectiontypes:
+        snames = [name for name in names if d[name]['selectiontype'] == stype]
+        modelnames = [sname.replace(stype, '').strip() for sname in snames]
+        if not snames:
+            continue
+        plotfile = '%s_%s_violinplot.pdf' % (args['outprefix'], stype)
+        print("\nMaking violin plot %s for the %d %s-by-site selections, which are:\n\t%s" % (plotfile, len(snames), stype, '\n\t'.join(snames)))
+        if os.path.isfile(plotfile):
+            print("Removing existing file %s before creating new one." % plotfile)
+            os.remove(plotfile)
+        yvalues = []
+        hlines = []
+        points = []
+        if stype == 'omega' or stype == 'stringency':
+            ylabel = {
+                'omega':'$\omega_r < 1 \leftarrow \log_{10} P \\rightarrow \omega_r > 1$',
+                'stringency':'$\\beta_r > 1 \leftarrow \log_{10} P \\rightarrow \\beta_r < 1$'
+                }[stype]
+            symmetrizey = True
+            multfactor = {'omega':1, 'stringency':-1}[stype]
+            for sname in snames:
+                data = d[sname]['data']
+                yvalues.append([multfactor * TransformP(data[site][stype], data[site]['P'], args['maxlog10p']) for site in sites])
+                points.append([y for (site, y) in zip(sites, yvalues[-1]) if site in selectedsites])
+                if d[sname]['pcutoff']:
+                    pcut = TransformP(10, d[sname]['pcutoff'], args['maxlog10p'])
+                    hlines.append([pcut, -pcut])
+                else:
+                    hlines.append([])
+        elif stype == 'diffprefs':
+            ylabel = 'RMS $\Delta \pi_{r,a}$'
+            symmetrizey = False
+            hlines = None
+            for sname in snames:
+                data = d[sname]['data']
+                yvalues.append([data[site] for site in sites])
+                points.append([y for (site, y) in zip(sites, yvalues[-1]) if site in selectedsites])
+        else:
+            raise ValueError("Invalid selection type %s" % stype)
+        if hlines and all([not hline for hline in hlines]):
+            hlines = None
+        if points and all([not point for point in points]):
+            points = None
+        phydmslib.plot.SelectionViolinPlot(
+                plotfile,
+                ylabel, 
+                modelnames,
+                yvalues,
+                symmetrizey,
+                hlines=hlines,
+                points=points,
+                usetex=True
+                )
+        print("Finished creating plot %s" % plotfile)
 
 
     print("\nSuccessful completion of %s" % prog)

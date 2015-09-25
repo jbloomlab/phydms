@@ -144,6 +144,7 @@ def PhyDMSAnalyzeSitesParser():
     parser.add_argument('selectionfile', nargs='+', help="Per-site selection file(s) created by 'phydms' (i.e. '*_omegabysite.txt', '*_stringencybysite.txt', '*_diffprefsbysite.txt').", type=ExistingFile)
     parser.add_argument('--name', nargs='+', help="Name describing type of selection to go with each 'selectionfile'.")
     parser.add_argument('--fdr', type=float, default=0.05, help="False discovery rate for declaring sites significant.")
+    parser.add_argument('--maxlog10p', type=FloatGreaterThanZero, default=5, help="For violin plots, if the log10 of the P-value has magnitude > this, instead plot as this.")
     return parser
 
 
