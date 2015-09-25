@@ -1,6 +1,6 @@
 #!python
 
-"""Analyzes the site-specific selection on a subset of sites.
+"""Analyzes site-specific selection.
 
 Written by Jesse Bloom."""
 
@@ -129,7 +129,7 @@ def main():
     """Main body of script."""
 
     # Parse command line arguments
-    parser = phydmslib.parsearguments.PhyDMSAnalyzeSitesParser()
+    parser = phydmslib.parsearguments.PhyDMSAnalyzeSelectionParser()
     args = vars(parser.parse_args())
     prog = parser.prog
     assert len(args['selectionfile']) == len(set(args['selectionfile'])), "The 'selectionfile' list contains duplicated entries"

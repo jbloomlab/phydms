@@ -131,6 +131,6 @@ setup(
             'scripts/phydms_comprehensive',
             'scripts/phydms_renumber',
             'scripts/phydms_plotselection',
-            'scripts/phydms_analyzesites',
+            'scripts/phydms_analyzeselection',
             ],
 )

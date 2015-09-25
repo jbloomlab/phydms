@@ -136,8 +136,8 @@ def ModelOption(model):
         raise argparse.ArgumentTypeError("Invalid model")
 
 
-def PhyDMSAnalyzeSitesParser():
-    """Returns an *argparse.ArgumentParser* for ``phydms_analyzesites``."""
+def PhyDMSAnalyzeSelectionParser():
+    """Returns an *argparse.ArgumentParser* for ``phydms_analyzeselection``."""
     parser = ArgumentParserNoArgHelp(description="Analyzes/visualizes per-site selection inferred with 'phydms'. Plots distribution of selection parameters for all sites; can also extract and highlight information for a subset of sites. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('outprefix', help="Prefix for output files.")
     parser.add_argument('selectionfile', nargs='+', help="Per-site selection file(s) created by 'phydms' (i.e. '*_omegabysite.txt', '*_stringencybysite.txt', '*_diffprefsbysite.txt').", type=ExistingFile)
