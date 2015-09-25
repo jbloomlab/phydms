@@ -17,7 +17,8 @@ def BenjaminiHochbergCorrection(pvals, fdr):
     The return value is the 2-tuple *(pcutoff, significantlabels)*. After applying
     the algorithm, all data points with *p <= pcutoff* are declared significant.
     The labels for these data points are in *significantlabels*. If there are no
-    significant sites, *pcutoff* is *None*.
+    significant sites, *pcutoff* is returned as the maximum P-value that would
+    have made a single point significant.
     """
     num_tests = len(pvals)
 
@@ -34,6 +35,10 @@ def BenjaminiHochbergCorrection(pvals, fdr):
             assert rank > max_rank
             max_rank = rank
             pcutoff = p
+
+    # pcutoff to have one significant site if there are none
+    if pcutoff == None:
+        pcutoff = 1.0 / num_tests * fdr
 
     # collect significant ranks:
     significantlabels = []

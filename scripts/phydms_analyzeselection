@@ -201,12 +201,8 @@ def main():
                 else:
                     name_d['data'][site]['significant'] = False
             assert name_d['nsignificant'] == len([x for x in name_d['data'].values() if x['significant']]) == name_d['nsignificant_gt1'] + name_d['nsignificant_lt1']
-            if pcutoff:
-                print("\t%d of %d sites have significant P-values at a FDR of %.3g (this corresponds to P <= %.3g)" % (name_d['nsignificant'], len(name_d['data']), args['fdr'], name_d['pcutoff']))
-                print("\tOf these significant sites, %d have %s > 1 and %d have %s < 1." % (name_d['nsignificant_gt1'], stype, name_d['nsignificant_lt1'], stype))
-            else:
-                assert name_d['nsignificant'] == 0
-                print("\tNone of the %d sites have significant P-values at a FDR of %.3g" % (len(name_d['data']), args['fdr']))
+            print("\t%d of %d sites have significant P-values at a FDR of %.3g (this corresponds to P <= %.3g)" % (name_d['nsignificant'], len(name_d['data']), args['fdr'], name_d['pcutoff']))
+            print("\tOf these significant sites, %d have %s > 1 and %d have %s < 1." % (name_d['nsignificant_gt1'], stype, name_d['nsignificant_lt1'], stype))
     sites = set(d.values()[0]['data'].keys())
     assert all([set(idict['data'].keys()) == sites for idict in d.values()]), "Not the same sites for all selectionfiles"
     print("\nWe have read data for a total of %d sites for the following types of selection:\n\t%s" % (len(sites), '\n\t'.join(names)))
@@ -284,11 +280,8 @@ def main():
                 data = d[sname]['data']
                 yvalues.append([multfactor * TransformP(data[site][stype], data[site]['P'], args['maxlog10p']) for site in sites])
                 points.append([y for (site, y) in zip(sites, yvalues[-1]) if site in selectedsites])
-                if d[sname]['pcutoff']:
-                    pcut = TransformP(10, d[sname]['pcutoff'], args['maxlog10p'])
-                    hlines.append([pcut, -pcut])
-                else:
-                    hlines.append([])
+                pcut = TransformP(10, d[sname]['pcutoff'], args['maxlog10p'])
+                hlines.append([pcut, -pcut])
         elif stype == 'diffprefs':
             ylabel = 'RMS $\Delta \pi_{r,a}$'
             symmetrizey = False
