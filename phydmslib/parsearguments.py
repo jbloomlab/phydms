@@ -138,11 +138,11 @@ def ModelOption(model):
 
 def PhyDMSAnalyzeSitesParser():
     """Returns an *argparse.ArgumentParser* for ``phydms_analyzesites``."""
-    parser = ArgumentParserNoArgHelp(description="Analyzes/visualizes per-site selection inferred with 'phydms' for a subset of sites. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = ArgumentParserNoArgHelp(description="Analyzes/visualizes per-site selection inferred with 'phydms'. Plots distribution of selection parameters for all sites; can also extract and highlight information for a subset of sites. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('outprefix', help="Prefix for output files.")
-    parser.add_argument('sitesfile', type=ExistingFile, help="Column 1 lists number of sites to analyze. Site number can be followed by '#' given notes for that site. Lines beginning with '#' are ignored.")
     parser.add_argument('selectionfile', nargs='+', help="Per-site selection file(s) created by 'phydms' (i.e. '*_omegabysite.txt', '*_stringencybysite.txt', '*_diffprefsbysite.txt').", type=ExistingFile)
     parser.add_argument('--name', nargs='+', help="Name describing type of selection to go with each 'selectionfile'.")
+    parser.add_argument('--selectedsites', type=ExistingFile, help="File listing selected sites to analyze and display as points on plots. Column 1 lists site number, which can be followed by # giving notes for site. Lines beginning with '#' are ignored.")
     parser.add_argument('--fdr', type=float, default=0.05, help="False discovery rate for declaring sites significant.")
     parser.add_argument('--maxlog10p', type=FloatGreaterThanZero, default=5, help="For violin plots, if the log10 of the P-value has magnitude > this, instead plot as this.")
     return parser

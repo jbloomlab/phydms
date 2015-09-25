@@ -213,24 +213,26 @@ def main():
 
     # read selected sites
     selectedsites = {}
-    with open(args['sitesfile']) as f:
-        for line in f:
-            if not (line.isspace() or line[0] == '#'):
-                entries = line.split('#', 1)
-                site = entries[0].strip()
-                if len(entries) == 1:
-                    notes = ''
-                else:
-                    notes = entries[1].strip()
-                assert site not in selectedsites, "Duplicate site %s in sitesfile %s" % (site, args['sitesfile'])
-                assert site in sites, "Site %s in sitesfile %s is not a site for which by-site selection information is specified in the selectionfile(s)" % (site, args['sitesfile'])
-                selectedsites[site] = notes
-    assert selectedsites, "No selected sites to analyze specified in sitesfile %s" % args['sitesfile']
-    print("\nRead %d selected sites to analyze from sitesfile %s" % (len(selectedsites), args['sitesfile']))
+    if args['selectedsites']:
+        with open(args['selectedsites']) as f:
+            for line in f:
+                if not (line.isspace() or line[0] == '#'):
+                    entries = line.split('#', 1)
+                    site = entries[0].strip()
+                    if len(entries) == 1:
+                        notes = ''
+                    else:
+                        notes = entries[1].strip()
+                    assert site not in selectedsites, "Duplicate site %s in selectedsites file %s" % (site, args['selectedsites'])
+                    assert site in sites, "Site %s in selectedsites file %s is not a site for which by-site selection information is specified in the selectionfile(s)" % (site, args['selectedsites'])
+                    selectedsites[site] = notes
+        assert selectedsites, "No selected sites to analyze specified in selectedsites file %s" % args['selectedsites']
+        print("\nRead %d selected sites to analyze from selectedsites file %s" % (len(selectedsites), args['selectedsites']))
 
     # make table 
-    print("\nNow writing selection information for the sites to analyze to %s" % tablefile)
-    WriteTable(names, d, selectedsites, tablefile)
+    if selectedsites:
+        print("\nWriting selection information for the selected sites to %s" % tablefile)
+        WriteTable(names, d, selectedsites, tablefile)
 
     # if multiple omega selection types, make omega slopegraph
     omega_names = [name for name in names if d[name]['selectiontype'] == 'omega']
@@ -297,9 +299,9 @@ def main():
                 points.append([y for (site, y) in zip(sites, yvalues[-1]) if site in selectedsites])
         else:
             raise ValueError("Invalid selection type %s" % stype)
-        if hlines and all([not hline for hline in hlines]):
+        if (not hlines) or (hlines and all([not hline for hline in hlines])):
             hlines = None
-        if points and all([not point for point in points]):
+        if (not points) or (points and all([not point for point in points])):
             points = None
         phydmslib.plot.SelectionViolinPlot(
                 plotfile,
