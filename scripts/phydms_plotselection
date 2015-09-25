@@ -52,7 +52,7 @@ def main():
                    'omega':phydmslib.file_io.ReadOmegaBySite,
                    'stringency':phydmslib.file_io.ReadStringencyBySite,
                   }
-    selectionsymbols = {'omega':'$\omega$', 'stringency':'$\\beta$'}
+    selectionsymbols = {'omega':'$\omega_r$', 'stringency':'$\\beta_r$'}
 
     # read data on selection from input files
     selectiondata = {}
