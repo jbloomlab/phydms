@@ -140,11 +140,12 @@ def main():
     print("%s\n" % phydmslib.file_io.Versions())
     print('Parsed the following command-line arguments:\n%s\n' % '\n'.join(['\t%s = %s' % tup for tup in args.iteritems()]))
 
-    assert not (os.path.dirname(args['outprefix'])) or os.path.isdir(os.pathdirname(args['outprefix'])), "outprefix includes non-existent directory" % args['outprefix']
-    tablefile = "%s_table.txt" % args['outprefix']
-    removed = []
+    assert (not os.path.dirname(args['outprefix'])) or os.path.isdir(os.path.dirname(args['outprefix'])), "outprefix includes non-existent directory: %s" % args['outprefix']
+    if not os.path.isdir(args['outprefix']):
+        args['outprefix'] = '%s_' % args['outprefix']
+    tablefile = "%sselectiontable.txt" % args['outprefix']
     if os.path.isfile(tablefile):
-        removed.append(tablefile)
+        print("\nRemoved %s, which already existed but will be created as new output." % tablefile)
 
     # Set up dictionary d containing information for site-specific selections, keyed by name
     # if present or selectionfile otherwise
@@ -155,14 +156,6 @@ def main():
     else:
         names = args['selectionfile']
     d = dict([(name, {'file':selectionfile}) for (name, selectionfile) in zip(names, args['selectionfile'])])
-    for name in d.keys():
-        outfile = '%s_%s_plot.pdf' % (args['outprefix'], name.replace(' ', '_'))
-        if os.path.isfile(outfile):
-            os.remove(outfile)
-            removed.append(outfile)
-        d[name]['plotfile'] = outfile
-    if removed:
-        print("\nRemoved the following files, which already existed but will be created as new output: %s" % ', '.join(removed))
 
     # readers for each type of selection
     filereaders = {'diffprefs':ModifiedReadDiffPrefs,
@@ -235,7 +228,7 @@ def main():
     if len(omega_names) > 1:
         omega_names.sort()
         omega_names.reverse()
-        omegaslopegraph = '%s_omega_slopegraph.pdf' % args['outprefix']
+        omegaslopegraph = '%somega_slopegraph.pdf' % args['outprefix']
         print("\nMaking the slopegraph %s to compare the different omega-by-site selections, which are:\n\t%s" % (omegaslopegraph, '\n\t'.join(omega_names)))
         if os.path.isfile(omegaslopegraph):
             print("Removing existing file %s before creating new one." % omegaslopegraph)
@@ -261,7 +254,7 @@ def main():
         modelnames = [sname.replace(stype, '').strip() for sname in snames]
         if not snames:
             continue
-        plotfile = '%s_%s_violinplot.pdf' % (args['outprefix'], stype)
+        plotfile = '%s%s_violinplot.pdf' % (args['outprefix'], stype)
         print("\nMaking violin plot %s for the %d %s-by-site selections, which are:\n\t%s" % (plotfile, len(snames), stype, '\n\t'.join(snames)))
         if os.path.isfile(plotfile):
             print("Removing existing file %s before creating new one." % plotfile)
