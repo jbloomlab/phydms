@@ -105,13 +105,20 @@ def main():
     for stype in selectiontypes[1 : ]:
         if selectiondata[stype]:
             prop_d = {}
-            for site in sites:
-                if selectiondata[stype][site][stype] < 1: # negative value, more negative smaller P
-                    prop_d[site] = max(math.log10(args['minP']), math.log10(selectiondata[stype][site]['P']))
-                else: # positive value, more positive larger P
-                    prop_d[site] = -max(math.log10(args['minP']), math.log10(selectiondata[stype][site]['P']))
             shortname = selectionsymbols[stype]
-            longname = '%s $<1 \; \longleftarrow$ $\log_{10} P$ for %s $\longrightarrow \;$ %s $>1$' % (shortname, stype, shortname)
+            if stype == 'omega':
+                longname = '%s $<1 \; \longleftarrow$ $\log_{10} P$ for %s $\longrightarrow \;$ %s $>1$' % (shortname, stype, shortname)
+                mulfac = 1
+            elif stype == 'stringency':
+                longname = '%s $>1 \; \longleftarrow$ $\log_{10} P$ for %s $\longrightarrow \;$ %s $<1$' % (shortname, stype, shortname)
+                mulfac = -1
+            else:
+                raise ValueError("Invalid selection type %s" % stype)
+            for site in sites:
+                if selectiondata[stype][site][stype] < 1: 
+                    prop_d[site] = mulfac * max(math.log10(args['minP']), math.log10(selectiondata[stype][site]['P']))
+                else: 
+                    prop_d[site] = -mulfac * max(math.log10(args['minP']), math.log10(selectiondata[stype][site]['P']))
             overlay.append((prop_d, shortname, longname))
             ticklocs = [itick for itick in range(int(math.log10(args['minP'])), 1 - int(math.log10(args['minP'])))]
             ticknames = [-abs(itick) for itick in ticklocs]
