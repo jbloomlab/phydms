@@ -166,7 +166,9 @@ def main():
     for prefsfile in args['prefsfiles']:
         if re.search('\s', prefsfile):
             raise ValueError("There is a space in the preferences file name: %s" % prefsfile)
-        modelname = 'ExpCM_%s' % os.path.splitext(prefsfile)[0].replace('/', '_')
+        prefsfilebase = os.path.splitext(os.path.basename(prefsfile))[0]
+        modelname = 'ExpCM_%s' % prefsfilebase
+        assert modelname not in filesuffixes, "Duplicate preferences file base name %s for %s; make names unique even after removing directory and extension" % (modelname, prefsfile)
         filesuffixes[modelname] = filesuffixlist
         models[modelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds, 0)
         avgmodelname = 'averaged_%s' % modelname
