@@ -57,7 +57,7 @@ def PlotSignificantOmega(plotfile, models, ngt, nlt, nsites, fdr, usetex=True):
 
 
 
-def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=None, points=None, usetex=True):
+def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=None, points=None, pointmarkercolor='or', usetex=True):
     """Creates violin plot showing distribution of selection and significant sites.
 
     Calling arguments:
@@ -78,6 +78,10 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
 
     *points* : if not *None*, list of the same length as *models* with each entry
     a list giving the y-value for points to be placed for that *model*.
+
+    *pointmarkercolor* : specifies marker and color of points in *points*. Should either
+    be a length-two string giving marker and color for all points (such as 'or' for 
+    circles, red) or a list of such specifications for each point in *points*.
 
     *usetex* : use LaTex formatting of strings?
     """
@@ -110,13 +114,21 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
         (ymin, ymax) = plt.ylim()
     if points:
         assert len(points) == len(models)
+        if isinstance(pointmarkercolor, str):
+            assert len(pointmarkercolor) == 2
+            color = pointmarkercolor[1]
+            marker = pointmarkercolor[0]
+        else:
+            assert len(pointmarkercolor) == len(points), "len(pointmarkercolor) = %d; len(points) = %d" % (len(pointmarkercolor), len(points))
+            color = [x[1] for x in pointmarkercolor]
+            marker = [x[0] for x in pointmarkercolor]
         point_xs = []
         point_ys = []
         for i in range(len(models)):
             (model_xs, model_ys) = SmartJitter(points[i], yspace=(ymax - ymin) / 25., xspace=0.05, xcenter=i)
             point_xs += model_xs
             point_ys += model_ys
-        plt.scatter(point_xs, point_ys, s=23, c='r', marker='o', alpha=0.45)
+        plt.scatter(point_xs, point_ys, s=23, c=color, marker=marker, alpha=0.45)
     plt.ylim(ymin, ymax)
     plt.xticks(xs, models, fontsize=16)
     plt.savefig(plotfile, bbox_inches='tight')

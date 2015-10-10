@@ -207,6 +207,7 @@ def main():
     print("\nWe have read data for a total of %d sites for the following types of selection:\n\t%s" % (len(sites), '\n\t'.join(names)))
 
     # read selected sites
+    pointmarkercolor = 'or'
     selectedsites = {}
     if args['selectedsites']:
         with open(args['selectedsites']) as f:
@@ -223,6 +224,27 @@ def main():
                     selectedsites[site] = notes
         assert selectedsites, "No selected sites to analyze specified in selectedsites file %s" % args['selectedsites']
         print("\nRead %d selected sites to analyze from selectedsites file %s" % (len(selectedsites), args['selectedsites']))
+        if args['labelselectedsites']:
+            markers = 'ov^sd8*<>+xp'
+            colors =  'rbgmcky'
+            assert len(selectedsites) <= len(markers) * len(colors), "Cannot use --labelselectedsites for the %d selected sites as we don't have that many unique colors / markers" % len(selectedsiets)
+            pointmarkercolor = []
+            imarker = icolor = nfailed = 0
+            while len(pointmarkercolor) < len(selectedsites):
+                mc = '%s%s' % (markers[imarker], colors[icolor])
+                if mc not in pointmarkercolor:
+                    pointmarkercolor.append(mc)
+                    icolor += 1
+                    imarker += 1
+                    nfailed = 0
+                else:
+                    imarker += 1
+                    nfailed += 1
+                    if nfailed == len(markers):
+                        icolor += 1
+                        nfailed = 0
+    elif args['labelselectedsites']:
+        raise ValueError("You cannot use '--labelselectedsites' if you aren't also using '--selectedsites'.")
 
     # make table 
     if selectedsites:
@@ -308,6 +330,7 @@ def main():
                 symmetrizey,
                 hlines=hlines,
                 points=points,
+                pointmarkercolor=pointmarkercolor,
                 usetex=True
                 )
         print("Finished creating plot %s" % plotfile)
