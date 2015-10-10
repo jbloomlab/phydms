@@ -282,7 +282,12 @@ def main():
                 pcut = TransformP(10, d[sname]['pcutoff'], args['maxlog10p'])
                 hlines.append([pcut, -pcut])
         elif stype == 'diffprefs':
-            ylabel = 'RMS $\Delta \pi_{r,a}$'
+            if args['diffprefunits'] == 'rms':
+                ylabel = 'RMS $\Delta \pi_{r,a}$'
+            elif args['diffprefunits'] == 'absmean':
+                ylabel = 'absolute mean $\Delta\pi_{r,a}$'
+            else:
+                raise ValueError("Invalid diffprefunits: %s" % args['diffprefunits'])
             symmetrizey = False
             hlines = None
             for sname in snames:
