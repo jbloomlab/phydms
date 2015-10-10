@@ -142,9 +142,10 @@ def PhyDMSAnalyzeSelectionParser():
     parser.add_argument('outprefix', help="Prefix for output files.")
     parser.add_argument('selectionfile', nargs='+', help="Per-site selection file(s) created by 'phydms' (i.e. '*_omegabysite.txt', '*_stringencybysite.txt', '*_diffprefsbysite.txt').", type=ExistingFile)
     parser.add_argument('--name', nargs='+', help="Name describing type of selection to go with each 'selectionfile'.")
-    parser.add_argument('--selectedsites', type=ExistingFile, help="File listing selected sites to analyze and display as points on plots. Column 1 lists site number, which can be followed by # giving notes for site. Lines beginning with '#' are ignored.")
-    parser.add_argument('--fdr', type=float, default=0.05, help="False discovery rate for declaring sites significant.")
-    parser.add_argument('--maxlog10p', type=FloatGreaterThanZero, default=5, help="For violin plots, if the log10 of the P-value has magnitude > this, instead plot as this.")
+    parser.add_argument('--selectedsites', type=ExistingFile, help="File listing selected sites to analyze in table and display as points on plots. Column 1 lists site number, which can be followed by # giving notes for site. Lines beginning with '#' are ignored.")
+    parser.add_argument('--fdr', type=float, default=0.05, help="False discovery rate for declaring sites significant for 'omega' and 'stringency'.")
+    parser.add_argument('--diffprefunits', choices=['absmean', 'rms'], default='absmean', help="Plot absolute-mean or root-mean-square for 'diffprefs'.")
+    parser.add_argument('--maxlog10p', type=FloatGreaterThanZero, default=5, help="For 'omega' and 'stringency' violin plots, if the log10 of the P-value has magnitude > this, instead plot as this.")
     return parser
 
 

@@ -20,10 +20,12 @@ import phydmslib.plot
 
 
 def ModifiedReadDiffPrefs(infile):
-    """Reads RMS differential preferences in format needed by this script.
+    """Reads differential preferences in format needed by this script.
+
+    Returns *(rms, dpi)*.
     """
     (sites, wts, dpi, pr_lt, pr_gt, rms) = dms_tools.file_io.ReadDiffPrefs(infile)
-    return rms
+    return (rms, dpi)
 
 
 def TransformP(x, p, maxval):
@@ -60,8 +62,8 @@ def GetRank(x, xlist):
     return i + 1
 
 
-def WriteTable(names, d, selectedsites, tablefile):
-    """Writes summary of per-site selection to *tablefile* in ReStructuredText format."""
+def WriteTable(names, d, selectedsites, tablefile, diffprefunits):
+    """Summarizes per-site selection to *tablefile* in ReStructuredText format."""
     # header
     line = ['site'] + names
     if any(selectedsites.values()):
@@ -75,7 +77,7 @@ def WriteTable(names, d, selectedsites, tablefile):
     ranklist = {}
     for name in names:
         if d[name]['selectiontype'] == 'diffprefs':
-            ranklist[name] = [rms for rms in d[name]['data'].values()]
+            ranklist[name] = [dpi for dpi in d[name]['data'].values()]
         elif d[name]['selectiontype'] == 'omega':
             ranklist[name] = [TransformP(idict['omega'], idict['P'], maxval) for idict in d[name]['data'].values()]
         elif d[name]['selectiontype'] == 'stringency':
@@ -168,7 +170,11 @@ def main():
     for (name, name_d) in d.items():
         try:
             stype = 'diffprefs'
-            name_d['data'] = filereaders[stype](name_d['file'])
+            (rms, dpi) = filereaders[stype](name_d['file'])
+            if args['diffprefunits'] == 'rms':
+                name_d['data'] = rms
+            elif args['diffprefunits'] == 'absmean':
+                name_d['data'] = dict([(r, sum([abs(dpira) for dpira in dpi[r].values()])) for r in rms.keys()])
         except:
             with open(name_d['file']) as f:
                 text = f.read()
@@ -221,7 +227,7 @@ def main():
     # make table 
     if selectedsites:
         print("\nWriting selection information for the selected sites to %s" % tablefile)
-        WriteTable(names, d, selectedsites, tablefile)
+        WriteTable(names, d, selectedsites, tablefile, args['diffprefunits'])
 
     # if multiple omega selection types, make omega slopegraph
     omega_names = [name for name in names if d[name]['selectiontype'] == 'omega']
