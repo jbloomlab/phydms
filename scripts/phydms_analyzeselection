@@ -207,8 +207,8 @@ def main():
     print("\nWe have read data for a total of %d sites for the following types of selection:\n\t%s" % (len(sites), '\n\t'.join(names)))
 
     # read selected sites
-    pointmarkercolor = 'or'
     selectedsites = {}
+    pointmarkercolor = 'or'
     if args['selectedsites']:
         with open(args['selectedsites']) as f:
             for line in f:
@@ -226,12 +226,12 @@ def main():
         print("\nRead %d selected sites to analyze from selectedsites file %s" % (len(selectedsites), args['selectedsites']))
         if args['labelselectedsites']:
             markers = 'ov^sd8*<>+xp'
-            colors =  'rbgmcky'
-            assert len(selectedsites) <= len(markers) * len(colors), "Cannot use --labelselectedsites for the %d selected sites as we don't have that many unique colors / markers" % len(selectedsiets)
+            colors =  'rbgmck'
+            assert len(selectedsites) <= len(markers) * len(colors), "Cannot use --labelselectedsites for the %d selected sites as we don't have that many unique colors / markers" % len(selectedsites)
             pointmarkercolor = []
             imarker = icolor = nfailed = 0
             while len(pointmarkercolor) < len(selectedsites):
-                mc = '%s%s' % (markers[imarker], colors[icolor])
+                mc = '%s%s' % (markers[imarker % len(markers)], colors[icolor % len(colors)])
                 if mc not in pointmarkercolor:
                     pointmarkercolor.append(mc)
                     icolor += 1
@@ -243,6 +243,8 @@ def main():
                     if nfailed == len(markers):
                         icolor += 1
                         nfailed = 0
+            assert len(pointmarkercolor) == len(selectedsites) == len(set(pointmarkercolor))
+            pointmarkercolor_d = dict(zip(selectedsites.keys(), pointmarkercolor))
     elif args['labelselectedsites']:
         raise ValueError("You cannot use '--labelselectedsites' if you aren't also using '--selectedsites'.")
 
@@ -290,6 +292,10 @@ def main():
         yvalues = []
         hlines = []
         points = []
+        if args['labelselectedsites']:
+            pointmarkercolor = []
+            for sname in snames:
+                pointmarkercolor.append([pointmarkercolor_d[site] for site in sites if site in selectedsites])
         if stype == 'omega' or stype == 'stringency':
             ylabel = {
                 'omega':'$\omega_r < 1 \leftarrow \log_{10} P \\rightarrow \omega_r > 1$',

@@ -79,9 +79,10 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
     *points* : if not *None*, list of the same length as *models* with each entry
     a list giving the y-value for points to be placed for that *model*.
 
-    *pointmarkercolor* : specifies marker and color of points in *points*. Should either
-    be a length-two string giving marker and color for all points (such as 'or' for 
-    circles, red) or a list of such specifications for each point in *points*.
+    *pointmarkercolor* : specifies marker and color of points in *points*. 
+    Should either a length-two string giving marker and color for all points
+    (such as *or* for circles, red) or a list of lists of the same length
+    as *points* witch each entry specifying the marker and color for that point.
 
     *usetex* : use LaTex formatting of strings?
     """
@@ -119,16 +120,26 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
             color = pointmarkercolor[1]
             marker = pointmarkercolor[0]
         else:
+            color = []
+            marker = []
             assert len(pointmarkercolor) == len(points), "len(pointmarkercolor) = %d; len(points) = %d" % (len(pointmarkercolor), len(points))
-            color = [x[1] for x in pointmarkercolor]
-            marker = [x[0] for x in pointmarkercolor]
         point_xs = []
         point_ys = []
         for i in range(len(models)):
-            (model_xs, model_ys) = SmartJitter(points[i], yspace=(ymax - ymin) / 25., xspace=0.05, xcenter=i)
+            (model_xs, model_ys) = SmartJitter(points[i], yspace=(ymax - ymin) / 25., xspace=0.06, xcenter=i)
             point_xs += model_xs
             point_ys += model_ys
-        plt.scatter(point_xs, point_ys, s=23, c=color, marker=marker, alpha=0.45)
+            if not isinstance(pointmarkercolor, str):
+                imarkercolor = pointmarkercolor[i]
+                assert len(imarkercolor) == len(points[i]), "pointmarkercolor and points have length mismatch for %d" % i
+                color += [x[1] for x in imarkercolor]
+                marker += [x[0] for x in imarkercolor]
+        if isinstance(pointmarkercolor, str):
+            plt.scatter(point_xs, point_ys, s=23, c=color, marker=marker, alpha=0.5)
+        else:
+            assert len(color) == len(marker) == len(point_xs)
+            for (x, y, c, m) in zip(point_xs, point_ys, color, marker):
+                plt.scatter(x, y, s=23, c=c, marker=m, alpha=0.5)
     plt.ylim(ymin, ymax)
     plt.xticks(xs, models, fontsize=16)
     plt.savefig(plotfile, bbox_inches='tight')
@@ -151,14 +162,15 @@ def SmartJitter(ys, yspace, xspace, xcenter):
     *xcenter* is the center for the y-axis.
 
     The return value is *(smart_xs, smart_ys)*, which is a list with the
-    x and y values of the spaced points.
+    x and y values of the spaced points. 
     """
     assert yspace > 0 and xspace > 0
     (ymin, ymax) = (min(ys), max(ys))
     (ymin, ymax) = (ymin - yspace / 10. - 1e-5, ymax + yspace / 10. + 1e-5)
-    assigned = [False] * len(ys)
+    assigned = [False] * len(ys) 
     smart_xs = []
     smart_ys = []
+    indices = [] # indices[j] is the index of the point in smart_ys[j] in the original xs, ys
     binymin = ymin
     while not all(assigned):
         assert binymin <= ymax
@@ -169,7 +181,7 @@ def SmartJitter(ys, yspace, xspace, xcenter):
         binys = []
         for iy in yindices:
             assigned[iy] = True
-            binys.append(ys[iy])
+            binys.append((ys[iy], iy))
         if not binys:
             continue
         # make centeredbinys so that largest value is in middle
@@ -184,12 +196,19 @@ def SmartJitter(ys, yspace, xspace, xcenter):
                 centeredbinys.append(y)
             before = not before
         assert len(centeredbinys) == len(binys)
-        smart_ys += centeredbinys
+        smart_ys += [tup[0] for tup in centeredbinys]
+        indices += [tup[1] for tup in centeredbinys]
         xmin = xcenter - xspace * (len(binys) - 1) / 2.0
         smart_xs += [xmin + xspace * i for i in range(len(binys))]
     assert all(assigned), "Failed to assign all points to bins"
+    assert set(indices) == set([i for i in range(len(ys))]), "Failed to assign all unique indices"
     assert len(smart_xs) == len(smart_ys) == len(ys) == len(assigned)
-    return (smart_xs, smart_ys)
+    reindexed_smart_xs = [None] * len(smart_xs)
+    reindexed_smart_ys = [None] * len(smart_ys)
+    for (i, j) in enumerate(indices):
+        reindexed_smart_xs[j] = smart_xs[i]
+        reindexed_smart_ys[j] = smart_ys[i]
+    return (reindexed_smart_xs, reindexed_smart_ys)
 
 
 
