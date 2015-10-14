@@ -292,7 +292,10 @@ def main():
         yvalues = []
         hlines = []
         points = []
-        if args['labelselectedsites']:
+        legend = False
+        if args['labelselectedsites'] and selectedsites:
+            xsites = [site for site in sites if site in selectedsites]
+            legend = ([pointmarkercolor_d[site] for site in xsites], [str(site) for site in xsites])
             pointmarkercolor = []
             for sname in snames:
                 pointmarkercolor.append([pointmarkercolor_d[site] for site in sites if site in selectedsites])
@@ -337,10 +340,10 @@ def main():
                 hlines=hlines,
                 points=points,
                 pointmarkercolor=pointmarkercolor,
-                usetex=True
+                usetex=True,
+                legend=legend,
                 )
         print("Finished creating plot %s" % plotfile)
-
 
     print("\nSuccessful completion of %s" % prog)
 

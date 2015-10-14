@@ -6,6 +6,7 @@ import math
 import matplotlib
 matplotlib.use('pdf')
 import matplotlib.pyplot as plt
+import dms_tools.utils
 
 
 def PlotSignificantOmega(plotfile, models, ngt, nlt, nsites, fdr, usetex=True):
@@ -57,7 +58,7 @@ def PlotSignificantOmega(plotfile, models, ngt, nlt, nsites, fdr, usetex=True):
 
 
 
-def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=None, points=None, pointmarkercolor='or', usetex=True):
+def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=None, points=None, pointmarkercolor='or', usetex=True, legend=False):
     """Creates violin plot showing distribution of selection and significant sites.
 
     Calling arguments:
@@ -85,13 +86,36 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
     as *points* witch each entry specifying the marker and color for that point.
 
     *usetex* : use LaTex formatting of strings?
+
+    *legend* : Create a legend with names of points specified by *pointmarkercolor*?
+    This option is only valid if *pointmarkercolor* is a list. If it is not *False*,
+    it should be the tuple *(markercolors, names)*. In this tuple,
+    *markercolors* and *names* are lists of the same
+    length, with *markercolors* being a list of marker / color (e.g. *or*
+    for circles, red) and *names* being a list of the string corresponding
+    to each marker / color.
     """
+    alpha = 0.55 # transparency for points
+    markersize = 25 # size of points
+    markerlw = 0.6 # line width for makers
     assert os.path.splitext(plotfile)[1].lower() == '.pdf', "plotfile %s does not end with extension '.pdf'"
     assert len(models) == len(yvalues) >= 1
+    assert not (legend and not isinstance(pointmarkercolor, list)), "You can only use legend if pointmarkercolor is a list"
+    assert not (isinstance(pointmarkercolor, list) and not points), "It doesn't make sense to set pointmarkercolor to a list if you're not using points"
     plt.rc('font', size=12)
     plt.rc('text', usetex=usetex)
-    (height, widthper) = (3, 1.75)
-    plt.figure(figsize=(widthper * (0.5 + len(models)), height))
+    lmargin = 0.7
+    tmargin = 0.1
+    bmargin = 0.4
+    if legend:
+        rmargin = 0.95
+    else:
+        rmargin = 0.1
+    (height, widthper) = (2.5, 1.75)
+    totwidth = len(models) * widthper + lmargin + rmargin
+    totheight = height + tmargin + bmargin
+    plt.figure(figsize=(totwidth, totheight))
+    plt.axes([lmargin / totwidth, bmargin / totheight, 1.0 - (lmargin + rmargin) / totwidth, 1.0 - (tmargin + bmargin) / totheight])
     plt.ylabel(ylabel, fontsize=16)
     xs = [x for x in range(len(models))]
     violinwidth = 0.75
@@ -126,7 +150,7 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
         point_xs = []
         point_ys = []
         for i in range(len(models)):
-            (model_xs, model_ys) = SmartJitter(points[i], yspace=(ymax - ymin) / 25., xspace=0.06, xcenter=i)
+            (model_xs, model_ys) = SmartJitter(points[i], yspace=(ymax - ymin) / 25., xspace=0.07, xcenter=i)
             point_xs += model_xs
             point_ys += model_ys
             if not isinstance(pointmarkercolor, str):
@@ -135,14 +159,28 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
                 color += [x[1] for x in imarkercolor]
                 marker += [x[0] for x in imarkercolor]
         if isinstance(pointmarkercolor, str):
-            plt.scatter(point_xs, point_ys, s=23, c=color, marker=marker, alpha=0.5)
+            plt.scatter(point_xs, point_ys, s=markersize, c=color, marker=marker, alpha=alpha, lw=markerlw)
         else:
             assert len(color) == len(marker) == len(point_xs)
             for (x, y, c, m) in zip(point_xs, point_ys, color, marker):
-                plt.scatter(x, y, s=23, c=c, marker=m, alpha=0.5)
+                plt.scatter(x, y, s=markersize, c=c, marker=m, alpha=alpha, lw=markerlw)
     plt.ylim(ymin, ymax)
     plt.xticks(xs, models, fontsize=16)
-    plt.savefig(plotfile, bbox_inches='tight')
+    if legend:
+        (markercolors, legendnames) = legend
+        assert len(markercolors) == len(legendnames)
+        handles = [matplotlib.lines.Line2D([0], [0], marker=marker, color=color, markersize=markersize, alpha=alpha, lw=markerlw, linestyle='None') for (marker, color) in markercolors]
+        # put in natural sort order
+        assert len(set(legendnames)) == len(legendnames), "Duplicate legendnames entry"
+        sortedlegendnames = list(legendnames)
+        dms_tools.utils.NaturalSort(sortedlegendnames)
+        sortedhandles = [None] * len(sortedlegendnames)
+        for (handle, name) in zip(handles, legendnames):
+            sortedhandles[sortedlegendnames.index(name)] = handle
+        assert None not in sortedhandles
+        legend = plt.figlegend(sortedhandles, sortedlegendnames, loc='upper right', fontsize=13, numpoints=1, title='\\bf{sites}', markerscale=0.25, handlelength=0.7, handletextpad=0.25)
+        plt.setp(legend.get_title(), fontsize=14)
+    plt.savefig(plotfile)
     plt.clf()
     plt.close()
 
