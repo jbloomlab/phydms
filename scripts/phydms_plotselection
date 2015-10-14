@@ -128,7 +128,7 @@ def main():
                 datatype='diffprefs',
                 data=selectiondata['diffprefs'],
                 plotfile=args['plotfile'],
-                nperline=args['nperline'],
+                nperline=min(len(sites), args['nperline']),
                 numberevery=args['numberevery'],
                 allowunsorted=True,
                 ydatamax=args['diffprefheight'],
