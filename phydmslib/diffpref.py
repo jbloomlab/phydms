@@ -114,12 +114,67 @@ class PrefsToVec(object):
         return prefs
 
 
-class PrefsPrior(object):
-    """Computes prior over preferences.
+class InvQuadPrefsPrior(object):
+    """Computes inverse quadratic prior over preferences.
 
     This object is instantiated like this::
 
-        prefsprior = PrefsPrior(peakprefs, concentration, minvalue)
+        prefsprior = InvQuadPrefsPrior(peakprefs, concentration)
+
+    where *peakprefs* is a dictionary of the preferences that specifies
+    the peak of the prior, and *concentration* is a number > 1 that
+    specifies how "concentrated" the prior is (larger value means
+    more concentrated). 
+    
+    *tol* is the tolerance
+    for having preferences not sum to one.
+
+    The prior is defined as follows. Given some new vector with elements
+    :math:`\hat{\pi}_{r,a}` and initial (*peakprefs*) values
+    of :math:`\pi_{r,a}`, the prior probability is
+    :math:`\Pr\left(\left\{\hat{\pi}_{r,a}\\right\} \mid \left\{\pi_{r,a}\\right\}\\right) = \log\left(\\frac{1}{1 + C \\times \sum_a \left(\hat{\pi}_{r,a} - \pi_{r,a}\\right)^2}\\right)`.
+
+    To return the log prior probability of any given set of preferences
+    contained in a dictionary *prefs*, simply use::
+
+        prior = prefsprior.LogPrior(prefs)
+
+    Here is an example:
+
+    >>> peakprefs = {'A':0.4, 'C':0.3, 'G':0.3, 'T':0.0}
+    >>> concentration = 100
+    >>> prefsprior = InvQuadPrefsPrior(peakprefs, concentration)
+    >>> prefs1 = {'A':0.39, 'C':0.3, 'G':0.3, 'T':0.01}
+    >>> prefs2 = {'A':0.09, 'C':0.3, 'G':0.3, 'T':0.31}
+    >>> prefsprior.LogPrior(prefs1) > prefsprior.LogPrior(prefs2)
+    True
+    """
+    def __init__(self, peakprefs, concentration, tol=1e-6):
+        """Initialize object."""
+        assert concentration > 1
+        self.concentration = concentration
+        assert tol < 1e4, "Unreasonably large tol: %s" % tol
+        self.tol = tol
+        assert abs(1.0 - sum(peakprefs.values())) < tol, "peakprefs do not sum to one:\n%s" % str(peakprefs)
+        assert all([pi >= 0 for pi in peakprefs.values()]), "peakprefs not all >= 0: %s" % str(peakprefs)
+        self.chars = peakprefs.keys()
+        self.priorvec = numpy.array([peakprefs[char] for char in self.chars])
+
+    def LogPrior(self, prefs):
+        """Return prior probability of *prefs* (which is in dictionary format)."""
+        assert set(prefs.keys()) == set(self.chars), "Invalid character keys in prefs:\n%s" % str(prefs)
+        assert abs(1.0 - sum(prefs.values())) < self.tol, "prefs do not sum to one:\n%s" % str(prefs)
+        assert all([pi >= 0 for pi in prefs.values()]), "prefs not all >= 0: %s" % str(prefs)
+        prefsvec = numpy.array([prefs[char] for char in self.chars])
+        return math.log(1.0 / (1.0 + self.concentration * sum((self.priorvec - prefsvec)**2)))
+
+
+class DirichletPrefsPrior(object):
+    """Computes dirichlet prior over preferences.
+
+    This object is instantiated like this::
+
+        prefsprior = DirichletPrefsPrior(peakprefs, concentration, minvalue)
 
     where *peakprefs* is a dictionary of the preferences that specifies
     the peak of the prior, and *concentration* is a number > 1 that
@@ -149,7 +204,7 @@ class PrefsPrior(object):
     >>> peakprefs = {'A':0.4, 'C':0.3, 'G':0.3, 'T':0.0}
     >>> concentration = 2
     >>> minvalue = 1.0e-3
-    >>> prefsprior = PrefsPrior(peakprefs, concentration, minvalue)
+    >>> prefsprior = DirichletPrefsPrior(peakprefs, concentration, minvalue)
     >>> prefs1 = {'A':0.39, 'C':0.3, 'G':0.3, 'T':0.01}
     >>> prefs2 = {'A':0.09, 'C':0.3, 'G':0.3, 'T':0.31}
     >>> prefsprior.LogPrior(prefs1) > prefsprior.LogPrior(prefs2)
@@ -178,7 +233,7 @@ class PrefsPrior(object):
 
 
 
-def OptimizePrefs(tl, prefs, site, concentration, minvalue=1e-4, noprior=False, nologl=False, randinitprefs=False, optmethod='SLSQP'):
+def OptimizePrefs(tl, prefs, site, prior, concentration, minvalue=1e-4, noprior=False, nologl=False, randinitprefs=False, optmethod='SLSQP'):
     """Optimize preferences along with a prior constraint.
 
     *tl* is a *phydmslib.pybpp.PyBppTreeLikelihood* object that has
@@ -195,12 +250,22 @@ def OptimizePrefs(tl, prefs, site, concentration, minvalue=1e-4, noprior=False, 
     *site* is an integer giving the site in *tl* for which we
     performing MCMC.
 
+    *prior* is the type of prior used over the preferences. Must be
+    one of the following string:
+
+        - *invquad* : the prior described in the documentation
+          for *InvQuadPrefsPrior*.
+
+        - *dirichlet* : the prior described in the documentation 
+          for *DirichletPrefsPrior*.
+
     *concentration* is how strongly we concentrate the prior.
     Larger values lead to priors more strongly peaked on the initial
     value of *site*. Must be > 1.
     
     *minvalue* is a lower bound on the minimum valued allowed for the
-    peak prior estimate for any preference. 
+    peak prior estimate for any preference and for any preference. 
+    is *dirichlet*.
 
     *noprior* and *nologl* are for debugging only; the indicate that we don't
     include the prior or the likelihood in the optimization.
@@ -211,11 +276,6 @@ def OptimizePrefs(tl, prefs, site, concentration, minvalue=1e-4, noprior=False, 
 
     *optmethod* is the *scipy.optimize.minimize* method to use. Should be one that
     accepts bounds (constrained minimization).
-
-    The prior estimate over each preference is a Dirichlet that is peaked (has its
-    mode) at the estimate in *prefs* (after shifting all preferences to be at
-    least *minvalue*). See the documentation for *PrefsPrior* to see exactly
-    how this prior is defined (also depends on value of *concentration*).
 
     The return value is *(optimizedprefs, optstring, converged)*.
     *optimizedprefs* is in the same format as *prefs* and gives
@@ -242,7 +302,12 @@ def OptimizePrefs(tl, prefs, site, concentration, minvalue=1e-4, noprior=False, 
     else:
         initvec = prefstovec.Vector(prefs)
     bounds = [(minvalue, 1.0 - minvalue) for i in range(len(initvec))]
-    prefsprior = PrefsPrior(prefs, concentration, minvalue)
+    if prior == 'invquad':
+        prefsprior = InvQuadPrefsPrior(prefs, concentration)
+    elif prior == 'dirichlet':
+        prefsprior = DirichletPrior(prefs, concentration, minvalue)
+    else:
+        raise ValueError("Invalid value of prior: %s" % prior)
 
     # function to minimize
     def NegLogPosterior(vec):

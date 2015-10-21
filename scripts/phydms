@@ -31,7 +31,7 @@ import phydmslib.pybpp
 import phydmslib.diffpref
 
 
-def FitDiffPrefsForSite(seqnames, iseqs, treefile, imodel, fixedmodelparams, recursion, stringencyscaledprefs, diffprefconc, icodon):
+def FitDiffPrefsForSite(seqnames, iseqs, treefile, imodel, fixedmodelparams, recursion, stringencyscaledprefs, diffprefsprior, diffprefconc, icodon):
     """Fits preferences for a specific site, to be run in multiprocessing pool."""
     maxtries = 2 # number of different times we try with slightly different values if optimization fails initially
     optmethods = ['SLSQP', 'TNC', 'L-BFGS-B'] # try optimization methods in this order
@@ -43,7 +43,7 @@ def FitDiffPrefsForSite(seqnames, iseqs, treefile, imodel, fixedmodelparams, rec
         tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=True, recursion=recursion) 
         initial_ll = tl.LogLikelihood()
         try:
-            (prefs, iconvergencestring, converged) = phydmslib.diffpref.OptimizePrefs(tl, stringencyscaledprefs, site=1, concentration=diffprefconc, randinitprefs=randinitprefs, optmethod=optmethods[imethod])
+            (prefs, iconvergencestring, converged) = phydmslib.diffpref.OptimizePrefs(tl, stringencyscaledprefs, site=1, prior=diffprefsprior, concentration=diffprefconc, randinitprefs=randinitprefs, optmethod=optmethods[imethod])
             convergencestring += '\n' + iconvergencestring
         except RuntimeError as err:
             # catch and try again with different initial values
@@ -69,7 +69,7 @@ def FitDiffPrefsForSite(seqnames, iseqs, treefile, imodel, fixedmodelparams, rec
     return (prefs, new_ll, initial_ll, convergencestring, converged, time.time() - start)
 
 
-def FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodelparams, stringencyparameter, recursion, diffprefconc, ncpus, logger):
+def FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodelparams, stringencyparameter, recursion, diffprefsprior, diffprefconc, ncpus, logger):
     """Fits a different preference to each site in a multiprocessing pool."""
     pool = multiprocessing.Pool(ncpus)
     diffprefs = {}
@@ -81,7 +81,7 @@ def FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodel
         prefsum = float(sum(stringencyscaledprefs[icodon].values()))
         stringencyscaledprefs[icodon] = dict([(aa, pref / prefsum) for (aa, pref) in stringencyscaledprefs[icodon].items()])
         imodel = ('ExpCM', {1:stringencyscaledprefs[icodon]})
-        poolresults[icodon] = pool.apply_async(FitDiffPrefsForSite, (seqnames, iseqs, treefile, imodel, fixedmodelparams, recursion, stringencyscaledprefs[icodon], diffprefconc, icodon))
+        poolresults[icodon] = pool.apply_async(FitDiffPrefsForSite, (seqnames, iseqs, treefile, imodel, fixedmodelparams, recursion, stringencyscaledprefs[icodon], diffprefsprior, diffprefconc, icodon))
     completed = dict([(icodon, False) for icodon in codons])
     while not all(completed.values()):
         time.sleep(1)
@@ -502,12 +502,12 @@ def main():
             assert isinstance(model, tuple) and model[0] == 'ExpCM', "diffprefsbysite only allowed for ExpCM"
             fixedmodelparams = dict([(param, value) for (param, value) in allmodelparams.items() if param != 'stringencyparameter'])
             fixedmodelparams['stringencyparameter'] = 1.0
-            logger.info('Now estimating the difference between the preferences specified in %s and those that best describe the natural evolution. We optimize the preferences after regularizing them using a Dirichlet (concentration %.2f) centered on the preferences provided in the file. The preferences in the file are first rescaled by the stringency parameter value of %.2f previously optimized for the entire sequence / tree, and the difference in preferences are relative to these rescaled preferences. After this rescaling, the stringency parameter is set to one. All other model parameters are fixed to their maximum likelihood values for the entire sequence / tree.' % (prefsfilename, args['diffprefconc'], modelparams['stringencyparameter']))
+            logger.info('Now estimating the difference between the preferences specified in %s and those that best describe the natural evolution. We optimize the preferences after regularizing them using a %s prior (concentration %.2f). The preferences in the file are first rescaled by the stringency parameter value of %.2f previously optimized for the entire sequence / tree, and the difference in preferences are relative to these rescaled preferences. After this rescaling, the stringency parameter is set to one. All other model parameters are fixed to their maximum likelihood values for the entire sequence / tree.' % (prefsfilename, args['diffprefsprior'], args['diffprefconc'], modelparams['stringencyparameter']))
             logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
             logger.info('The model parameters will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
             sites = [str(icodon) for icodon in codons]
             wts = dict([(isite, '?') for isite in sites])
-            diffprefs = FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodelparams, modelparams['stringencyparameter'], args['recursion'], args['diffprefconc'], args['ncpus'], logger)
+            diffprefs = FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodelparams, modelparams['stringencyparameter'], args['recursion'], args['diffprefsprior'], args['diffprefconc'], args['ncpus'], logger)
             logger.info('Writing the differences in preferences to %s\n' % diffprefsfile)
             pr_deltapi = dict([(isite, None) for isite in sites]) # empty, as we have no data here
             dms_tools.file_io.WriteDiffPrefs(diffprefsfile, sites, wts, diffprefs, pr_deltapi, pr_deltapi)

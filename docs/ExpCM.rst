@@ -116,7 +116,7 @@ Specifically, after fixing all of the other parameters as described above, for e
    \mu_r \times \omega_r \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} & \mbox{otherwise.}
    \end{cases}
 
-and then fit the values for :math:`\mu_r` and :math:`\omega_r`. After this fitting, :math:`\mu_r` can be interpreted as the synonymous rate, and :math:`\mu_r \times \omega_r` as the nonsynonymous rate. The reason that we fit :math:`\mu_r` as well as :math:`\omega_r` is to model variation is synonymous rate; this can be important for the reasons described in the Discussion of `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_. 
+and then fit the values for :math:`\mu_r` and :math:`\omega_r`. After this fitting, :math:`\mu_r` can be interpreted as the synonymous rate, and :math:`\mu_r \times \omega_r` as the nonsynonymous rate. The reason that we fit :math:`\mu_r` as well as :math:`\omega_r` is to model variation is synonymous rate; this can be important for the reasons described in the Discussion of `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_. If you use the ``--omegabysite_fixsyn`` option to ``phydms`` then :math:`\mu_r` is not fit, but rather is constrained to one.
 
 The null hypothesis is that :math:`\omega_r = 1`. We compute a P-value for rejection of this null hypothesis using a :math:`\chi_1^2` test to compare the likelihood obtained when fitting both :math:`\mu_r` and :math:`\omega_r` to that obtained when fitting only :math:`\mu_r` and fixing :math:`\omega_r = 1`. See `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_ for a justification for using a :math:`\chi_1^2` test for this type of analysis. Note that the P-values reported by ``phydms`` are **not** adjusted for multiple testing, so you will want to make such an adjustment if you are testng the hypothesis that any site has :math:`\omega_r \ne 1`. Note also that in many cases, the fitted value of :math:`\omega_r` will either be very small (e.g. close to zero) or very large (e.g. close to :math:`\infty`) -- in general, it is more informative to look for sites with small P-values and then simply look to see if :math:`\omega` is > or < 1.
 
@@ -159,16 +159,42 @@ To identify differential selection, we first fix the tree / branch lengths and a
     \omega_r \times \frac{\ln\left(\hat{\pi}_{r,\mathcal{A}\left(y\right)} / \hat{\pi}_{r,\mathcal{A}\left(x\right)}\right)}{1 - \left(\hat{\pi}_{r,\mathcal{A}\left(x\right)} / \hat{\pi}_{r,\mathcal{A}\left(y\right)}\right)} & \mbox{otherwise.}.
     \end{cases}
 
-Simply fitting the model defined above with these 19 :math:`\hat{\pi}_{r,a}` values will probably overfit the data since we are including 19 new parameters. We therefore attempt to regularize the parameters by defining a prior that favors :math:`\hat{\pi}_{r,a} = \left(\pi_{r,a}\right)^{\beta}`. To do this, we define a Dirichlet that has as its mode the :math:`\left(\pi_{r,a}\right)^{\beta}` values:
+Simply fitting the model defined above with these 19 :math:`\hat{\pi}_{r,a}` values will probably overfit the data since we are including 19 new parameters. We therefore regularize the parameters by defining a prior that favors :math:`\hat{\pi}_{r,a} = \left(\pi_{r,a}\right)^{\beta}`. 
 
-.. math::
-   :label: Pr_pi
+``phydms`` currently implements two different priors; you can select which one you want using the ``--diffprefsprior`` option.
 
-   \Pr\left(\left\{\hat{\pi}_{r,a}\right\} \mid \left\{\pi_{r,a}\right\}, \beta\right) = \operatorname{Dirichlet}\left(\left\{\hat{\pi}_{r,a}\right\} \mid \left\{\left(C - 1\right) \times N_a \times \left(\pi_{r,a}\right)^{\beta} + 1\right\}\right)
+These priors are:
 
-where :math:`N_a` is the number of amino acids (e.g. 20) and :math:`C > 1` is a concentration parameter specified via the ``--diffprefconc`` option to ``phydms``. A larger :math:`C` favors :math:`\hat{\pi}_{r,a}` values that more closely match the :math:`\left(\pi_{r,a}\right)^{\beta}` values. 
+    * An **inverse quadratic** prior (selected by passing ``invquad`` to ``--diffprefsprior``). This prior is defined as
 
-To obtain the :math:`\hat{\pi}_{r,a}` values, the ``--diffprefsbysite`` option to ``phydms`` then jointly optimizes Equation :eq:`Pr_pi` and the likelihood (with fixed tree / branches and other model parameters) using Equation :eq:`Frxy_diffprefs`. In effect, this is the *maximum a posteriori* estimate of the :math:`\hat{\pi}_{r,a}` given the prior defined by Equation :eq:`\Pr_pi`.
+      .. math::
+         :label: Pr_pi_invquad
+
+         \Pr\left(\left\{\hat{\pi}_{r,a}\right\} \mid \left\{\pi_{r,a}\right\}, \beta\right) = \log\left(\frac{1}{1 + C \times \sum_a \left(\hat{\pi}_{r,a} - \left(\pi_{r,a}\right)^{\beta}\right)^2}\right)
+
+      where `C` is a concentration parameter specified via the ``--diffprefconc`` option. A larger :math:`C` favors :math:`\hat{\pi}_{r,a}` values that more closely match the :math:`\left(\pi_{r,a}\right)^{\beta}` values.
+
+      Here is a plot of the log of this prior versus the total differential preference
+
+      .. image:: diffprefs_prior_plot.png
+         :align: center
+         :width: 60%
+
+      As the plot makes clear, this prior has the desirable feature of penalizing small differential preferences proportionally more than larger ones, which is good if we think that most sites have no differential selection but some have a lot. In addition, relative the **Dirichlet** prior it is much less biased towards inferring large differential preferences for amino acids that already have large preferences.
+
+
+    * A **Dirichlet** prior (selected by passing ``dirichlet`` to ``--diffprefsprior``). This prior is a Dirichlet that has as its mode the :math:`\left(\pi_{r,a}\right)^{\beta}` values:
+
+      .. math::
+         :label: Pr_pi_dirichlet
+
+         \Pr\left(\left\{\hat{\pi}_{r,a}\right\} \mid \left\{\pi_{r,a}\right\}, \beta\right) = \operatorname{Dirichlet}\left(\left\{\hat{\pi}_{r,a}\right\} \mid \left\{\left(C - 1\right) \times N_a \times \left(\pi_{r,a}\right)^{\beta} + 1\right\}\right)
+
+      where :math:`N_a` is the number of amino acids (e.g. 20) and :math:`C > 1` is a concentration parameter specified via the ``--diffprefconc`` option to ``phydms``. A larger :math:`C` favors :math:`\hat{\pi}_{r,a}` values that more closely match the :math:`\left(\pi_{r,a}\right)^{\beta}` values. 
+
+      The possible downside of this prior (and the reason that the **inverse quadratic** prior may be a better choice) is that the cost of having a differential preference is highly dependent on the original preference at that site, which can mean that if an amino acid is highly disfavored in the experiments it may be hard to ever optimize a substantial differential preferences even if the residue is occurring in nature. In addition, the cost increases fairly quickly as the differential preferences get larger, meaning you're more likely to end up with lots of small ones rather than one large one.
+
+To obtain the :math:`\hat{\pi}_{r,a}` values, the ``--diffprefsbysite`` option to ``phydms`` jointly optimizes the product of the prior in Equation :eq:`Pr_pi_invquad` or :eq:`Pr_pi_dirichlet` and the likelihood (with fixed tree / branches and other model parameters) using Equation :eq:`Frxy_diffprefs`. In effect, this is the *maximum a posteriori* estimate of the :math:`\hat{\pi}_{r,a}` given the prior defined by Equation :eq:`Pr_pi_invquad` or :eq:`Pr_pi_dirichlet`.
 
 One might wonder why ``phydms`` takes the *maximum a posteriori* estimates rather than defining a prior with :math:`\left(\pi_{r,a}\right)^{\beta}` as the *mean* rather than the *mode*, and then sampling from the posterior to obtain the posterior mean estimates. In fact, this procedure would probably be better, but MCMC sampling of the posterior is much more computationally intensive than the *maximum a posteriori* approach.
 
