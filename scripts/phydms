@@ -169,7 +169,7 @@ def FitStringencyBySitePool(codons, seqnames, seqs, aaprefs, fixedmodelparams, f
 
 
 
-def FitOmegaForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedomegavalue, treefile, recursion):
+def FitOmegaForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedomegavalue, treefile, recursion, omegabysite_fixsyn):
     """Fits omega for a specific site, to be run in multiprocessing pool."""
     iresults = {}
     start = time.time()
@@ -180,7 +180,7 @@ def FitOmegaForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedomegavalue, 
             initializemodelparams = {}
         else:
             initializemodelparams = {'omega':fixedomegavalue}
-        tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, initializemodelparams=initializemodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=True, prefsasparams=False, recursion=recursion) 
+        tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, initializemodelparams=initializemodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=(not omegabysite_fixsyn), prefsasparams=False, recursion=recursion) 
         tl.OptimizeLikelihood()
         iresults["LnL_%s" % fitomega] = tl.LogLikelihood()
         if fitomega == 'fitted':
@@ -190,7 +190,7 @@ def FitOmegaForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedomegavalue, 
     return (iresults, time.time() - start)
 
 
-def FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams, fixedomegavalue, treefile, recursion, ncpus, logger):
+def FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams, fixedomegavalue, treefile, recursion, ncpus, logger, omegabysite_fixsyn):
     """Fit a different omega to each site in a multiprocessing pool running *ncpus*."""
     pool = multiprocessing.Pool(ncpus)
     fitomegaresults = {}
@@ -203,7 +203,7 @@ def FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams,
         else:
             raise ValueError("Invalid model")
         iseqs = [seq[3 * icodon  - 3 : 3 * icodon] for seq in seqs]
-        poolresults[icodon] = pool.apply_async(FitOmegaForSite, (seqnames, iseqs, imodel, fixedmodelparams, fixedomegavalue, treefile, recursion))
+        poolresults[icodon] = pool.apply_async(FitOmegaForSite, (seqnames, iseqs, imodel, fixedmodelparams, fixedomegavalue, treefile, recursion, omegabysite_fixsyn))
     completed = dict([(icodon, False) for icodon in codons])
     while not all(completed.values()):
         time.sleep(1)
@@ -465,17 +465,22 @@ def main():
                         break
                 else:
                     fixedmodelparams[param] = value
-            logger.info('Now optimizing a different omega for each site while keeping branch lengths and other model parameters fixed (but adding a rate parameter that effectively scales the branch lengths).')
+            logger.info('Now optimizing a different omega for each site while keeping branch lengths and other model parameters fixed.')
+            if args['omegabysite_fixsyn']:
+                fixsyn_string = "Using '--omegabysite_fixsyn', so the synonymous rate is assumed equal across all sites. This means we compare fitting omega for a site to not fitting anything."
+            else:
+                fixsyn_string = "Not using '--omegabysite_fixsyn', so we fit a synonymous rate for each site. This means we compare fitting omega and a synonymous rate to fitting just a synonymous rate."
+            logger.info(fixsyn_string)
             logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
-            logger.info('The model parameters (other than omega and the rate) will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
+            logger.info('The remaining model parameters will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
             if isinstance(model, str) and 'YNGKP' in model:
                 aaprefs = {}
-            fitomegaresults = FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams, fixedomegavalue, treefile, args['recursion'], args['ncpus'], logger)
+            fitomegaresults = FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams, fixedomegavalue, treefile, args['recursion'], args['ncpus'], logger, args['omegabysite_fixsyn'])
             fitomegaresults = [(d['P'], site, d['omega'], d['dLnL']) for (site, d) in fitomegaresults.items()]
             fitomegaresults.sort()
             logger.info('Now writing the full results of the omega-by-site analysis to %s\n' % omegafile)
             with open(omegafile, 'w') as f:
-                f.write("# Omega fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of omega = %.3f; P-values NOT corrected for multiple testing.\n#\n# site\tomega\tP\tdLnL\n%s" % (fixedomegavalue, '\n'.join(['%d\t%.3f\t%.3g\t%.3f' % (site, omega, p, lnl) for (p, site, omega, lnl) in fitomegaresults])))
+                f.write("# Omega fit to each site after fixing tree and and all other parameters.\n# %s\n# Fits compared to null model of omega = %.3f; P-values NOT corrected for multiple testing.\n#\n# site\tomega\tP\tdLnL\n%s" % (fixsyn_string, fixedomegavalue, '\n'.join(['%d\t%.3f\t%.3g\t%.3f' % (site, omega, p, lnl) for (p, site, omega, lnl) in fitomegaresults])))
 
         # optimize a different stringency parameter for each site
         if args['stringencybysite']:

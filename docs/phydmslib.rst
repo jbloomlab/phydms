@@ -28,6 +28,14 @@ phydmslib.parsearguments module
     :undoc-members:
     :show-inheritance:
 
+phydmslib.plot module
+---------------------
+
+.. automodule:: phydmslib.plot
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 phydmslib.pybpp module
 ----------------------
 

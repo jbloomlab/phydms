@@ -144,6 +144,8 @@ def main():
     filesuffixes['YNGKP_M0'] = list(filesuffixlist)
     if not args['noomegabysite']:
         additionalcmds.append('--omegabysite')
+        if args['omegabysite_fixsyn']:
+            additionalcmds.append('--omegabysite_fixsyn')
         filesuffixlist.append('_omegabysite.txt')
     filesuffixes['YNGKP_M3'] = list(filesuffixlist)
     models = {'YNGKP_M0':('YNGKP_M0', [], 9),\
