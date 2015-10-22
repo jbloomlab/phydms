@@ -172,7 +172,7 @@ def PhyDMSPlotSelectionParser():
     parser.add_argument('--no-stringencybysite', dest='nostringencybysite', action='store_true', help="Don't plot site-specific stringency.")
     parser.add_argument('--nperline', type=IntGreaterThanZero, default=70, help="Number of sites per line in plot.")
     parser.add_argument('--numberevery', type=IntGreaterThanZero, default=10, help="Number sites at this interval.")
-    parser.add_argument('--diffprefheight', type=FloatGreaterThanZero, default=0.2, help="Height of differential preferences logo stacks in each direction. If using '--updiffprefheight' then the height may be higher than this.")
+    parser.add_argument('--diffprefheight', type=FloatGreaterThanZero, default=1.0, help="Height of differential preferences logo stacks in each direction. If using '--updiffprefheight' then the height may be higher than this.")
     parser.set_defaults(updiffprefheight=False)
     parser.add_argument('--updiffprefheight', dest='updiffprefheight', action='store_true', help="Automatically increase '--diffprefheight' to make it exceed max differential preferences.")
     parser.add_argument('--minP', type=FloatGreaterThanZero, default=1e-4, help="Minimum plotted P-value for omega and stringency by site.")
