@@ -82,8 +82,10 @@ def main():
         os.remove(args['plotfile'])
 
     # determine range on diff prefs
+    diffprefmargin = 1.02 # make diffprefheight this much higher
+    args['diffprefheight'] = args['diffprefheight'] * diffprefmargin
     maxdiffprefheight = max([sum([dpi for dpi in selectiondata['diffprefs'][site].values() if dpi > 0]) for site in sites])
-    assert 0 <= maxdiffprefheight <= 1, "Invalid maxdiffprefheight of %g" % maxdiffprefheight
+    assert 0 <= maxdiffprefheight <= diffprefmargin, "Invalid maxdiffprefheight of %g" % maxdiffprefheight
     if maxdiffprefheight < args['diffprefheight']:
         print("The maximum differential preference height is %.2g, which is less than the specified '--diffprefheight' of %.2g. So the extent of the y-axis on the differential preferences logo plot will be %.2g.\n" % (maxdiffprefheight, args['diffprefheight'], args['diffprefheight']))
     elif args['updiffprefheight']:
