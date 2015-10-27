@@ -151,7 +151,7 @@ class InvQuadPrefsPrior(object):
     """
     def __init__(self, peakprefs, concentration, tol=1e-6):
         """Initialize object."""
-        assert concentration > 1
+        assert concentration >= 0, "concentration should be >= 0"
         self.concentration = concentration
         assert tol < 1e4, "Unreasonably large tol: %s" % tol
         self.tol = tol
@@ -213,7 +213,7 @@ class DirichletPrefsPrior(object):
 
     def __init__(self, peakprefs, concentration, minvalue, tol=1e-6):
         """Initialize object."""
-        assert concentration > 1
+        assert concentration > 1, "concentration should be > 1"
         assert 1e-2 > minvalue > 0, "Unreasonable value of %g for minvalue"
         assert tol < 1e4, "Unreasonably large tol: %s" % tol
         self.tol = tol
@@ -261,7 +261,7 @@ def OptimizePrefs(tl, prefs, site, prior, concentration, minvalue=1e-4, noprior=
 
     *concentration* is how strongly we concentrate the prior.
     Larger values lead to priors more strongly peaked on the initial
-    value of *site*. Must be > 1.
+    value of *site*.
     
     *minvalue* is a lower bound on the minimum valued allowed for the
     peak prior estimate for any preference and for any preference. 
@@ -284,7 +284,6 @@ def OptimizePrefs(tl, prefs, site, prior, concentration, minvalue=1e-4, noprior=
     """
     # error check arguments
     assert (not noprior) or (not nologl), "Cannot use both noprior and logl"
-    assert concentration > 1, "It does not make sense to have concentration <= 1"
     assert all([pi >= 0 for pi in prefs.values()]), "The preference must be > 0 for all sites"
     prefs = dict([(aa, max(pi, 1.0e-7)) for (aa, pi) in prefs.items()]) # make all a bit greater than zero
     assert abs(sum(prefs.values()) - 1.0) < 1.0e-5, "The sum of the preferences must be one"
@@ -333,7 +332,7 @@ def OptimizePrefs(tl, prefs, site, prior, concentration, minvalue=1e-4, noprior=
     result = scipy.optimize.minimize(NegLogPosterior, initvec, method=optmethod, bounds=bounds)
     
     # process the results
-    assert len(result.x) == len(initvec)
+    assert len(result.x) == len(initvec), "result has length that differs from initvec"
     optimizedprefs = prefstovec.Prefs(result.x)
     assert all([ipi >= 0 for ipi in optimizedprefs.values()]) and abs(1.0 - sum(optimizedprefs.values())) < 1.0e5, "Invalid optimized prefs: %s" % str(optimizedprefs)
     return (optimizedprefs, result.message, result.success)

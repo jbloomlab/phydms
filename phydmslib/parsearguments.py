@@ -231,7 +231,7 @@ def PhyDMSParser():
     parser.add_argument('--avgprefs', dest='avgprefs', action='store_true', help="Average preferences across sites for ExpCM.")
     parser.set_defaults(fixbrlen=False)
     parser.add_argument('--fixbrlen', dest='fixbrlen', action='store_true', help="Fix branch lengths to those of initial 'tree'. Consider using '--addrateparameter' too.")
-    parser.add_argument('--diffprefconc', default=100, help="Concentration parameter for '--diffprefsbysite'; larger values favor smaller diff prefs.", type=FloatGreaterThanOne)
+    parser.add_argument('--diffprefconc', default=100, help="Concentration parameter for '--diffprefsbysite'; larger values favor smaller diff prefs.", type=float)
     parser.set_defaults(addrateparameter=False)
     parser.add_argument('--addrateparameter', dest='addrateparameter', action='store_true', help="Add parameter scaling substitution rate. Only allowed with '--fixbrlen'.")
     parser.set_defaults(fitF3X4=False)
@@ -240,6 +240,7 @@ def PhyDMSParser():
     parser.add_argument('--seed', type=int, default=1, help="Random number seed.")
     parser.set_defaults(no_optimize=False)
     parser.add_argument('--no_optimize', dest='no_optimize', action='store_true', help="Don't optimize tree or model; use values in existing files from previous run with same 'outprefix'.")
+    parser.add_argument('--debugsite', type=int, help="For debugging: fit site-specific selection to only this site.")
     parser.set_defaults(recursion='S')
     # comment out this option for now as the double recursion seems not to work properly
     #parser.add_argument('--recursion', choices=['S', 'D'], default='S', help='Likelihood recursion for Bio++.')

@@ -288,6 +288,7 @@ def main():
             raise ValueError("It does not make sense to ``--fixbrlen`` with ``--infertopology``")
         if args['addrateparameter'] and not args['fixbrlen']:
             raise ValueError("It does not make sense to use --addrateparameter without also using --fixbrlen, as otherwise branch lengths are already scaled by rate.")
+        assert (args['diffprefsprior'] == 'invquad' and args['diffprefconc'] >= 0) or (args['diffprefsprior'] == 'dirichlet' and args['diffprefconc'] > 1), "Invalid combination of '--diffprefsprior' %s and '--diffprefconc' %s" % (args['diffprefsprior'], args['diffprefconc'])
 
         # read alignment
         logger.info('Reading alignment from %s' % args['alignment'])
@@ -453,6 +454,19 @@ def main():
 
         # list of all codons
         codons = [icodon for icodon in range(1, len(seqs[0]) // 3 + 1)]
+
+        # if debugging a site, specify on that site and print some information
+        if args['debugsite']:
+            assert args['debugsite'] in codons, "--debugsite specifies non-existent codon of %d. Actual codons range from %d to %d" % (args['debugsite'], codons[0], codons[-1])
+            codons = [args['debugsite']]
+            codoncounts = {}
+            for seq in seqs:
+                c = seq[(codons[0] - 1) * 3 : codons[0] * 3]
+                if c in codoncounts:
+                    codoncounts[c] += 1
+                else:
+                    codoncounts[c] = 1
+            logger.info("\nThe '--debugsite' option instructs us to perform the site-specific selection optimization only for site %d.\nHere are the codon counts for that site:\n\t%s" % (args['debugsite'], '\n\t'.join(['%s = %d' % tup for tup in codoncounts.items()])))
 
         # optimize a different omega for each site
         if args['omegabysite']:

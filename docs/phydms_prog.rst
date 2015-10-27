@@ -71,7 +71,9 @@ Command-line usage
     Only for *ExpCM* models. This option computes an average of each preference across sites (:math:`\pi_a = \frac{1}{L} \sum_r \pi_{r,a}` where :math:`r = 1, \ldots, L`), and then uses these average preferences for all sites. This can be used as a control, as it merges all the information in the preferences into a non-site-specific model.
 
    \-\-diffprefconc
-    This is the concentration parameter :math:`C` over the regularizing prior for the differential preferences. You must choose a value > 1. The default value is :math:`\sim 100` and is appropriate for a ``--diffprefsprior`` of ``invquad``. If you instead use ``--diffprefsprior`` of ``dirichlet``, you should use a much smaller value :math:`\sim 2`.
+    This is the concentration parameter :math:`C` over the regularizing prior for the differential preferences. The default value is :math:`\sim 100` and is appropriate for a ``--diffprefsprior`` of ``invquad``. If you instead use ``--diffprefsprior`` of ``dirichlet``, you should use a much smaller value :math:`\sim 2`.
+
+    When ``--diffprefsprior`` is ``invquad``, the value must be :math:`\ge 0`. When ``--diffprefsprior`` is ``dirichlet``, the value must be :math:`> 1`.
     
     This option is only relevant for *ExpCM* models; see :ref:`ExpCM` for more information.
 
