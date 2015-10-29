@@ -158,7 +158,7 @@ def main():
     if not args['nodiffprefsbysite']:
         expcmadditionalcmds += ['--diffprefsbysite'] 
         if args['diffprefconc']:
-            expcmadditionalcmds += ['--diffprefconc', ' '.join([str(c) for c in args['diffprefconc']])]
+            expcmadditionalcmds += ['--diffprefconc'] + [str(c) for c in args['diffprefconc']]
         filesuffixlist.append('_diffprefsbysite.txt')
     elif args['diffprefconc']:
         raise ValueError("You can't specify --diffprefconc when using --nodiffprefsbysite")
