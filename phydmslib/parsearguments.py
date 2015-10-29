@@ -216,7 +216,7 @@ def PhyDMSComprehensiveParser():
     parser.add_argument('--no-diffprefsbysite', dest='nodiffprefsbysite', action='store_true', help="No fitting of differential preferences for ExpCM.")
     parser.set_defaults(omegabysite_fixsyn=False)
     parser.add_argument('--omegabysite_fixsyn', action='store_true', dest='omegabysite_fixsyn', help="See 'phydms' option of the same name.")
-    parser.add_argument('--diffprefconc', help="Parameters determining the concentration of the regularizing prior over the differential preferences. Defaults to value of same param for 'phydms'.")
+    parser.add_argument('--diffprefconc', help="Parameters determining the concentration of the regularizing prior over the differential preferences for '--diffprefsbysite'. Defaults to value of the same param for 'phydms'.", type=FloatGreaterThanEqualToZero, nargs=2, metavar=('C1', 'C2'))
     parser.set_defaults(randprefs=False)
     parser.add_argument('--randprefs', dest='randprefs', action='store_true', help="Include ExpCM models with randomized preferences.")
     parser.set_defaults(use_existing=False)

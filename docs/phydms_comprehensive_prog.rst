@@ -47,6 +47,9 @@ Command-line usage
    \-\-no-diffprefsbysite 
     By default, ``phydms_comprehensive`` infer site-specific :math:`\Delta\pi_{r,a}` for each *ExpCM*. Use this option if you do **not** want to do this.
 
+   \-\-diffprefconc
+    See the documentation for ``phydms`` for more details.
+
    \-\-randprefs
     As described in the documentation for ``phydms`` (see :ref:`phydms_prog`), there are two sensible controls when using an *ExpCM* model: averaging the preferences across sites or randomizing them across sites. By default, ``phydms_comprehensive`` performs the averaging control (this is the ``--avgprefs`` option to ``phydms``) but not the randomization control (this is the ``--randprefs`` option to ``phydms``). Use this option if you also want to include the ``--randprefs`` control.
 
