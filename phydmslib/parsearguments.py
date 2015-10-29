@@ -61,6 +61,26 @@ def IntGreaterThanZero(n):
     else:
         return n
 
+def FloatGreaterThanEqualToZero(x):
+    """If *x* is a float >= 0, returns it, otherwise raises and error.
+
+    >>> print('%.1f' % FloatGreaterThanEqualToZero('1.5'))
+    1.5
+
+    >>> print('%.1f' % FloatGreaterThanEqualToZero('-1.1'))
+    Traceback (most recent call last):
+       ...
+    ArgumentTypeError: -1.1 not float greater than or equal to zero
+    """
+    try:
+        x = float(x)
+    except:
+        raise argparse.ArgumentTypeError("%r not float greater than or equal to zero" % x)
+    if x >= 0:
+        return x
+    else:
+        raise argparse.ArgumentTypeError("%r not float greater than or equal to zero" % x)
+
 
 def FloatGreaterThanOne(x):
     """If *x* is a string for a float > 1, returns it, otherwise an error."""
@@ -196,8 +216,7 @@ def PhyDMSComprehensiveParser():
     parser.add_argument('--no-diffprefsbysite', dest='nodiffprefsbysite', action='store_true', help="No fitting of differential preferences for ExpCM.")
     parser.set_defaults(omegabysite_fixsyn=False)
     parser.add_argument('--omegabysite_fixsyn', action='store_true', dest='omegabysite_fixsyn', help="See 'phydms' option of the same name.")
-    parser.add_argument('--diffprefsprior', default='invquad', choices=['invquad', 'dirichlet'], help="See 'phydms' option of the same name.")
-    parser.add_argument('--diffprefconc', help="Concentration parameter for fitting differential preferences. If not specified, defaults to default value of same param for 'phydms'.")
+    parser.add_argument('--diffprefconc', help="Parameters determining the concentration of the regularizing prior over the differential preferences. Defaults to value of same param for 'phydms'.")
     parser.set_defaults(randprefs=False)
     parser.add_argument('--randprefs', dest='randprefs', action='store_true', help="Include ExpCM models with randomized preferences.")
     parser.set_defaults(use_existing=False)
@@ -224,14 +243,16 @@ def PhyDMSParser():
     parser.add_argument('--ncpus', default=1, help='Use this many CPUs; -1 means all available.', type=int)
     parser.set_defaults(omegabysite_fixsyn=False)
     parser.add_argument('--omegabysite_fixsyn', dest='omegabysite_fixsyn', action='store_true', help="For '--omegabysite', assign all sites same synonymous rate rather than fitting a different one for each site.")
-    parser.add_argument('--diffprefsprior', default='invquad', choices=['invquad', 'dirichlet'], help="Prior on diff preferences for '--diffprefsbysite'.")
+    # comment out this option as the 'invquad' prior makes vastly more sense than 'dirichlet'
+    parser.set_defaults(diffprefsprior='invquad')
+    #parser.add_argument('--diffprefsprior', default='invquad', choices=['invquad', 'dirichlet'], help="Prior on diff preferences for '--diffprefsbysite'.")
     parser.set_defaults(randprefs=False)
     parser.add_argument('--randprefs', dest='randprefs', action='store_true', help="Randomize preferences among sites for ExpCM.")
     parser.set_defaults(avgprefs=False)
     parser.add_argument('--avgprefs', dest='avgprefs', action='store_true', help="Average preferences across sites for ExpCM.")
     parser.set_defaults(fixbrlen=False)
     parser.add_argument('--fixbrlen', dest='fixbrlen', action='store_true', help="Fix branch lengths to those of initial 'tree'. Consider using '--addrateparameter' too.")
-    parser.add_argument('--diffprefconc', default=100, help="Concentration parameter for '--diffprefsbysite'; larger values favor smaller diff prefs.", type=float)
+    parser.add_argument('--diffprefconc', help="Parameters determining the concentration of the regularizing prior over the differential preferences for '--diffprefsbysite'. Larger values favor smaller diff prefs.", type=FloatGreaterThanEqualToZero, nargs=2, metavar=('C1', 'C2'), default=[100, 0.5])
     parser.set_defaults(addrateparameter=False)
     parser.add_argument('--addrateparameter', dest='addrateparameter', action='store_true', help="Add parameter scaling substitution rate. Only allowed with '--fixbrlen'.")
     parser.set_defaults(fitF3X4=False)

@@ -8,7 +8,7 @@ The ``phydms`` program
 
 Overview
 ------------
-``phydms`` can be used to perform phylogenetic analyses with :ref:`ExpCM` as well as with some standard non-site-specific substitution models (variants of the *YNGKP* models described in `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_). In addition, ``phydms`` can be used to detect site-specific diversifying or differential selection using the :ref:`ExpCM`.
+``phydms`` can perform phylogenetic analyses with :ref:`ExpCM` as well as with some standard non-site-specific substitution models (variants of the *YNGKP* models described in `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_). In addition, ``phydms`` can be used to detect site-specific diversifying or differential selection using the :ref:`ExpCM`.
 
 ``phydms`` is written in `Python`_, and uses the `Bio++`_ libraries to perform the core likelihood functions. See below for information on the `Command-line usage`_ and `Output files`_.
 
@@ -71,14 +71,7 @@ Command-line usage
     Only for *ExpCM* models. This option computes an average of each preference across sites (:math:`\pi_a = \frac{1}{L} \sum_r \pi_{r,a}` where :math:`r = 1, \ldots, L`), and then uses these average preferences for all sites. This can be used as a control, as it merges all the information in the preferences into a non-site-specific model.
 
    \-\-diffprefconc
-    This is the concentration parameter :math:`C` over the regularizing prior for the differential preferences. The default value is :math:`\sim 100` and is appropriate for a ``--diffprefsprior`` of ``invquad``. If you instead use ``--diffprefsprior`` of ``dirichlet``, you should use a much smaller value :math:`\sim 2`.
-
-    When ``--diffprefsprior`` is ``invquad``, the value must be :math:`\ge 0`. When ``--diffprefsprior`` is ``dirichlet``, the value must be :math:`> 1`.
-    
-    This option is only relevant for *ExpCM* models; see :ref:`ExpCM` for more information.
-
-   \-\-diffprefsprior
-    See :ref:`ExpCM` for a detailed definition of the different options for the prior. 
+    This option specifies the parameters :math:`C_1` and :math:`C_2` that determine the concentration of the prior that regularizes the differential preferences inferred by ``--diffprefsbysite``. Both these parameters must be > 0; larger values favor smaller differential preferences. See :ref:`ExpCM` for more information on the exact meaning of these parameters.
 
    \-\-addrateparameter
     It only makes sense to use this parameter if you have fixed all branch lengths and then wish to fit a rate that effectively scales these branch lengths.

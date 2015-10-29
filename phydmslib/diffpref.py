@@ -119,40 +119,33 @@ class InvQuadPrefsPrior(object):
 
     This object is instantiated like this::
 
-        prefsprior = InvQuadPrefsPrior(peakprefs, concentration)
+        prefsprior = InvQuadPrefsPrior(peakprefs, cparams)
 
     where *peakprefs* is a dictionary of the preferences that specifies
-    the peak of the prior, and *concentration* is a number > 1 that
-    specifies how "concentrated" the prior is (larger value means
-    more concentrated). 
+    the peak of the prior, and *cparams* is the tuple
+    *(c1, c2)* of numbers >= 0
+    that specify how "concentrated" the prior is (larger value means
+    more concentrated around *peakprefs*). 
     
     *tol* is the tolerance
     for having preferences not sum to one.
 
     The prior is defined as follows. Given some new vector with elements
     :math:`\hat{\pi}_{r,a}` and initial (*peakprefs*) values
-    of :math:`\pi_{r,a}`, the prior probability is
-    :math:`\Pr\left(\left\{\hat{\pi}_{r,a}\\right\} \mid \left\{\pi_{r,a}\\right\}\\right) = \log\left(\\frac{1}{1 + C \\times \sum_a \left(\hat{\pi}_{r,a} - \pi_{r,a}\\right)^2}\\right)`.
+    of :math:`\pi_{r,a}`, the log prior probability is
+    :math:`\log\left[\Pr\left(\left\{\hat{\pi}_{r,a}\\right\} \mid \left\{\pi_{r,a}\\right\}, \\beta\\right)\\right] = - C_2 \sum_a \log\left(1 + C_1 \\times \left(\hat{\pi}_{r,a} - \left(\pi_{r,a}\\right)^{\\beta}\\right)^2\\right)`.
 
     To return the log prior probability of any given set of preferences
     contained in a dictionary *prefs*, simply use::
 
         prior = prefsprior.LogPrior(prefs)
 
-    Here is an example:
-
-    >>> peakprefs = {'A':0.4, 'C':0.3, 'G':0.3, 'T':0.0}
-    >>> concentration = 100
-    >>> prefsprior = InvQuadPrefsPrior(peakprefs, concentration)
-    >>> prefs1 = {'A':0.39, 'C':0.3, 'G':0.3, 'T':0.01}
-    >>> prefs2 = {'A':0.09, 'C':0.3, 'G':0.3, 'T':0.31}
-    >>> prefsprior.LogPrior(prefs1) > prefsprior.LogPrior(prefs2)
-    True
     """
-    def __init__(self, peakprefs, concentration, tol=1e-6):
+    def __init__(self, peakprefs, cparams, tol=1e-6):
         """Initialize object."""
-        assert concentration >= 0, "concentration should be >= 0"
-        self.concentration = concentration
+        (self.c1, self.c2) = cparams
+        assert self.c1 >= 0, "c1 must be >= 0"
+        assert self.c2 >= 0, "c2 must be >= 0"
         assert tol < 1e4, "Unreasonably large tol: %s" % tol
         self.tol = tol
         assert abs(1.0 - sum(peakprefs.values())) < tol, "peakprefs do not sum to one:\n%s" % str(peakprefs)
@@ -166,7 +159,10 @@ class InvQuadPrefsPrior(object):
         assert abs(1.0 - sum(prefs.values())) < self.tol, "prefs do not sum to one:\n%s" % str(prefs)
         assert all([pi >= 0 for pi in prefs.values()]), "prefs not all >= 0: %s" % str(prefs)
         prefsvec = numpy.array([prefs[char] for char in self.chars])
-        return math.log(1.0 / (1.0 + self.concentration * sum((self.priorvec - prefsvec)**2)))
+        logp = 0.0
+        for (pi1, pi2) in zip(self.priorvec, prefsvec):
+            logp -= self.c2 * math.log(1.0 + self.c1 * (pi1 - pi2)**2)
+        return logp
 
 
 class DirichletPrefsPrior(object):
@@ -261,7 +257,9 @@ def OptimizePrefs(tl, prefs, site, prior, concentration, minvalue=1e-4, noprior=
 
     *concentration* is how strongly we concentrate the prior.
     Larger values lead to priors more strongly peaked on the initial
-    value of *site*.
+    value of *site*. Should be a value appropriate for passing to 
+    *InvQuadPrefsPrior* (if using *prior* of *invquad*) or to
+    *DirichletPrefsPrior* (if using *prior* of *dirichlet*).
     
     *minvalue* is a lower bound on the minimum valued allowed for the
     peak prior estimate for any preference and for any preference. 
@@ -317,13 +315,13 @@ def OptimizePrefs(tl, prefs, site, prior, concentration, minvalue=1e-4, noprior=
             iprefs = prefstovec.Prefs(vec)
             if any([pi <= 0 for pi in iprefs.values()]) or any([pi >= 1 for pi in iprefs.values()]):
                 raise RuntimeError("iprefs outside support:\n%s\n%s" % (str(iprefs), str(vec)))
-            if noprior:
+            if noprior and nologl:
+                raise ValueError("Can't use noprior and nologl")
+            elif noprior:
                 tl.SetPreferences(iprefs, site)
                 return -(tl.LogLikelihood())
             elif nologl:
                 return -(prefsprior.LogPrior(iprefs))
-            elif noprior and nologl:
-                raise ValueError("Can't use noprior and nologl")
             else:
                 tl.SetPreferences(iprefs, site)
                 return -(tl.LogLikelihood() + prefsprior.LogPrior(iprefs))

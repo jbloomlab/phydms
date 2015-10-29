@@ -161,40 +161,33 @@ To identify differential selection, we first fix the tree / branch lengths and a
 
 Simply fitting the model defined above with these 19 :math:`\hat{\pi}_{r,a}` values will probably overfit the data since we are including 19 new parameters. We therefore regularize the parameters by defining a prior that favors :math:`\hat{\pi}_{r,a} = \left(\pi_{r,a}\right)^{\beta}`. 
 
-``phydms`` currently implements two different priors; you can select which one you want using the ``--diffprefsprior`` option.
+Although a Dirichlet prior peaked on the preferences might seem attractive, it performs poorly in practice because the *maximum a posteriori* is very different for small preferences depending on their exact magnitude -- for instance, under a Dirichlet prior we will have very different costs of increasing the differential preference by 0.1 depending on whether the *a priori* peak estimate is :math:`10^{-3}` or :math:`10^{-4}`. This is undesirable, so instead we use a prior based on the product of inverse-quadratics.
 
-These priors are:
+.. math::
+   :label: Pr_pi_invquad
 
-    * An **inverse quadratic** prior (selected by passing ``invquad`` to ``--diffprefsprior``). This prior is defined as
+   \Pr\left(\left\{\hat{\pi}_{r,a}\right\} \mid \left\{\pi_{r,a}\right\}, \beta\right) = \prod_a \left(\frac{1}{1 + C_1 \times \left(\hat{\pi}_{r,a} - \left(\pi_{r,a}\right)^{\beta}\right)^2}\right)^{C_2}
 
-      .. math::
-         :label: Pr_pi_invquad
+or equivalently
 
-         \Pr\left(\left\{\hat{\pi}_{r,a}\right\} \mid \left\{\pi_{r,a}\right\}, \beta\right) = \log\left(\frac{1}{1 + C \times \sum_a \left(\hat{\pi}_{r,a} - \left(\pi_{r,a}\right)^{\beta}\right)^2}\right)
+.. math::
+   :label: log_Pr_pi_invquad
+    
+   \log\left[\Pr\left(\left\{\hat{\pi}_{r,a}\right\} \mid \left\{\pi_{r,a}\right\}, \beta\right)\right] = - C_2 \sum_a \log\left(1 + C_1 \times \left(\hat{\pi}_{r,a} - \left(\pi_{r,a}\right)^{\beta}\right)^2\right)
 
-      where `C` is a concentration parameter specified via the ``--diffprefconc`` option. A larger :math:`C` favors :math:`\hat{\pi}_{r,a}` values that more closely match the :math:`\left(\pi_{r,a}\right)^{\beta}` values.
+where :math:`C_1` and :math:`C_2` are concentration parameters specified via the ``--diffprefconc`` option. Larger values of these favor :math:`\hat{\pi}_{r,a}` values that more closely match the :math:`\left(\pi_{r,a}\right)^{\beta}` values (and so favor smaller values of :math:`\Delta\pi_{r,a} = \hat{\pi}_{r,a} - \left(\pi_{r,a}\right)^{\beta}`). 
 
-      Here is a plot of the log of this prior versus the total differential preference
+The ``phydms`` program has reasonable defaults for these concentration parameters, but you can fine tune them with ``--diffprefconc``.
 
-      .. image:: diffprefs_prior_plot.png
-         :align: center
-         :width: 60%
+Here is a plot of the log prior (Equation :eq:`log_Pr_pi_invquad`) as a function of :math:`C_1` and :math:`C_2`.
 
-      As the plot makes clear, this prior has the desirable feature of penalizing small differential preferences proportionally more than larger ones, which is good if we think that most sites have no differential selection but some have a lot. In addition, relative the **Dirichlet** prior it is much less biased towards inferring large differential preferences for amino acids that already have large preferences.
+.. image:: diffprefs_prior_plot.png
+   :align: center
+   :width: 60%
 
+As the plot makes clear, this prior has the desirable feature of penalizing small differential preferences proportionally more than larger ones, which is good if we think that most sites have no differential selection but some have a lot. 
 
-    * A **Dirichlet** prior (selected by passing ``dirichlet`` to ``--diffprefsprior``). This prior is a Dirichlet that has as its mode the :math:`\left(\pi_{r,a}\right)^{\beta}` values:
-
-      .. math::
-         :label: Pr_pi_dirichlet
-
-         \Pr\left(\left\{\hat{\pi}_{r,a}\right\} \mid \left\{\pi_{r,a}\right\}, \beta\right) = \operatorname{Dirichlet}\left(\left\{\hat{\pi}_{r,a}\right\} \mid \left\{\left(C - 1\right) \times N_a \times \left(\pi_{r,a}\right)^{\beta} + 1\right\}\right)
-
-      where :math:`N_a` is the number of amino acids (e.g. 20) and :math:`C > 1` is a concentration parameter specified via the ``--diffprefconc`` option to ``phydms``. A larger :math:`C` favors :math:`\hat{\pi}_{r,a}` values that more closely match the :math:`\left(\pi_{r,a}\right)^{\beta}` values. 
-
-      The possible downside of this prior (and the reason that the **inverse quadratic** prior may be a better choice) is that the cost of having a differential preference is highly dependent on the original preference at that site, which can mean that if an amino acid is highly disfavored in the experiments it may be hard to ever optimize a substantial differential preferences even if the residue is occurring in nature. In addition, the cost increases fairly quickly as the differential preferences get larger, meaning you're more likely to end up with lots of small ones rather than one large one.
-
-To obtain the :math:`\hat{\pi}_{r,a}` values, the ``--diffprefsbysite`` option to ``phydms`` jointly optimizes the product of the prior in Equation :eq:`Pr_pi_invquad` or :eq:`Pr_pi_dirichlet` and the likelihood (with fixed tree / branches and other model parameters) using Equation :eq:`Frxy_diffprefs`. In effect, this is the *maximum a posteriori* estimate of the :math:`\hat{\pi}_{r,a}` given the prior defined by Equation :eq:`Pr_pi_invquad` or :eq:`Pr_pi_dirichlet`.
+To obtain the :math:`\hat{\pi}_{r,a}` values, the ``--diffprefsbysite`` option to ``phydms`` jointly optimizes the product of the prior in Equation :eq:`Pr_pi_invquad` and the likelihood (with fixed tree / branches and other model parameters) using Equation :eq:`Frxy_diffprefs`. In effect, this is the *maximum a posteriori* estimate of the :math:`\hat{\pi}_{r,a}` given the prior defined by Equation :eq:`Pr_pi_invquad`.
 
 One might wonder why ``phydms`` takes the *maximum a posteriori* estimates rather than defining a prior with :math:`\left(\pi_{r,a}\right)^{\beta}` as the *mean* rather than the *mode*, and then sampling from the posterior to obtain the posterior mean estimates. In fact, this procedure would probably be better, but MCMC sampling of the posterior is much more computationally intensive than the *maximum a posteriori* approach.
 

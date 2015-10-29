@@ -288,7 +288,6 @@ def main():
             raise ValueError("It does not make sense to ``--fixbrlen`` with ``--infertopology``")
         if args['addrateparameter'] and not args['fixbrlen']:
             raise ValueError("It does not make sense to use --addrateparameter without also using --fixbrlen, as otherwise branch lengths are already scaled by rate.")
-        assert (args['diffprefsprior'] == 'invquad' and args['diffprefconc'] >= 0) or (args['diffprefsprior'] == 'dirichlet' and args['diffprefconc'] > 1), "Invalid combination of '--diffprefsprior' %s and '--diffprefconc' %s" % (args['diffprefsprior'], args['diffprefconc'])
 
         # read alignment
         logger.info('Reading alignment from %s' % args['alignment'])
@@ -516,7 +515,7 @@ def main():
             assert isinstance(model, tuple) and model[0] == 'ExpCM', "diffprefsbysite only allowed for ExpCM"
             fixedmodelparams = dict([(param, value) for (param, value) in allmodelparams.items() if param != 'stringencyparameter'])
             fixedmodelparams['stringencyparameter'] = 1.0
-            logger.info('Now estimating the difference between the preferences specified in %s and those that best describe the natural evolution. We optimize the preferences after regularizing them using a %s prior (concentration %.2f). The preferences in the file are first rescaled by the stringency parameter value of %.2f previously optimized for the entire sequence / tree, and the difference in preferences are relative to these rescaled preferences. After this rescaling, the stringency parameter is set to one. All other model parameters are fixed to their maximum likelihood values for the entire sequence / tree.' % (prefsfilename, args['diffprefsprior'], args['diffprefconc'], modelparams['stringencyparameter']))
+            logger.info('Now estimating the difference between the preferences specified in %s and those that best describe the natural evolution. We optimize the preferences after regularizing them using a %s prior (concentrating parameters %s). The preferences in the file are first rescaled by the stringency parameter value of %.2f previously optimized for the entire sequence / tree, and the difference in preferences are relative to these rescaled preferences. After this rescaling, the stringency parameter is set to one. All other model parameters are fixed to their maximum likelihood values for the entire sequence / tree.' % (prefsfilename, args['diffprefsprior'], ', '.join(['C%d = %.2f' % (i + 1, args['diffprefconc'][i]) for i in range(len(args['diffprefconc']))]), modelparams['stringencyparameter']))
             logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
             logger.info('The model parameters will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
             sites = [str(icodon) for icodon in codons]
