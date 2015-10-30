@@ -1,0 +1,60 @@
+LSD: LEAST-SQUARES METHODS TO ESTIMATE RATES AND DATES FROM SERIAL PHYLOGENIES - v0.2 by Thu-Hien TO
+
+If you use this software, please cite: “ Fast dating using least-squares criteria and algorithms”, T-H. To, M. Jung, S. Lycett, O. Gascuel. 
+
+The program can be downloaded at http://www.atgc-montpellier.fr/LSD/
+
+The windows executable file which can be opened by double-click is at bin/lsd_win.exe
+
+How To Compile LSD:
+     Use g++ compiler to compile the program from the code source (just standard C++ libaries are needed). From the terminal:
+	 >./configure
+	 >make
+     Then, if you wish to install the program on your system, type:
+	 >make install
+     or  >sudo make install
+How to Run LSD:
+	After compiled the program, from the directory that contains the executable file (normally the src directory):
+		if you want to use use the interface, type ./lsd
+		if you want to use the command line, type ./lsd -i <"input_tree_file"> -d <"input_date_file"> (to estimate absolute dates)
+		                                       or ./lsd -i <"input_tree_file"> -a root_date -z leaves_date (to estimate relative dates)
+			further options can be specified (-o -c -v -n -r -g ...). Type "./lsd -h" for help. Option -c is recommended to take into account the temporal constraints (date of a node >= date of its ancestors).
+	If the program is installed or the path of the executable file is added into PATH, you can run it from anywhere by typing lsd (and with or without options).		
+
+Some examples:
+
+1) Examples of command line:
+for rooted tree, constrained mode, and using variances
+./lsd -i rootedtree_file -d date_file -c -v
+for rooted tree, constrained mode, re-estimate the root position around the given root, and non variances
+./lsd -i rootedtree_file -d date_file -c -r l
+for unrooted tree without outgroups, without constraints, estimate the root position, and using variances
+./lsd -i unrootedtree_file -d date_file -c -v -r a
+for unrooted tree with outgroups, constrained mode, using varainces, remove outgroups to obtain the root
+./lsd -i unrootedtree_file -d date_file -g outgroup_file -c -v
+for rooted tree, constrained mode, using variances, and using given rates to estimate dates
+./lsd -i rootedtree_file -d date_file -w given_rate_file -c -v
+for rooted tree, estimating relative dates with date root=0 and date of all leaves=1, using variances, with constraint
+./lsd -i tree_file -c -v -a 0 -z 1
+
+2) Examples of input files:
+Example of Input_tree_file format (newick)
+	(a:0.12,(b:0.3,c:0.5):0.4);
+	((a:0.12,b:0.3):0.7,c:0.5);	
+Example of Input_date_file format:
+	3
+	a 1999
+	b 2000
+	c 1780
+Example of Outgroup_file format:
+	2
+	outgroup1
+	outgroup2
+Example of given_rate_file format:
+	0.0068
+	0.0052
+3) Output files: 
+.result : contain the estimated rate, root date and the value of the log likelihood function if variances are used.
+.newick : trees in newick format with the new branch length (re-estimated by the program).
+.date.newick : trees in newick format where branch lengths are measured rescaled to time unit by multiplying with the estimated rate. 
+.nexus : trees in nexus format which contain both information about the dates of internal nodes and branch lengths.

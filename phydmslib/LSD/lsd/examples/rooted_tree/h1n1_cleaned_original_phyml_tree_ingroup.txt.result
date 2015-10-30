@@ -1,0 +1,27 @@
+
+LEAST-SQUARE METHODS TO ESTIMATE RATES AND DATES - v0.2 
+
+
+Input files:
+  I                                 Input tree file : ../examples/rooted_tree/h1n1_cleaned_original_phyml_tree_ingroup.txt
+  D                         Estimate relative dates : mrca date = 0.000, tips date =1.000
+Output file:
+  O                                    Output file  : ../examples/rooted_tree/h1n1_cleaned_original_phyml_tree_ingroup.txt.result
+Parameters:
+  C                                With constraints : No
+  T                        Lower bound for the rate : 0.000010
+  V                                  With variances : No
+  R                               Estimate the root : No
+  W                         Given substitution rate : No
+  G                                Remove outgroups : No
+  N                               Multiple data set : No
+
+  H to print Help 
+  Y to accept or type a letter to change an option (Q = Exit) 
+Tree 1 The results correspond to the estimation of relative dates when T[mrca]=0.000 and T[tips]=1.000
+rate 0.001372, tMRCA 0.000, objective function 0.562012
+Number of violated temporal constraints (nodes having date smaller than the one of its parent): 388 (21.77%)
+
+
+*********************************************************
+Elapsed time: 0.17 seconds
