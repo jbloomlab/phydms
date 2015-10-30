@@ -58,7 +58,7 @@ def PlotSignificantOmega(plotfile, models, ngt, nlt, nsites, fdr, usetex=True):
 
 
 
-def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=None, points=None, pointmarkercolor='or', usetex=True, legend=False):
+def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=None, points=None, pointmarkercolor='or', usetex=True, legend=False, fixymin=None, fixymax=None):
     """Creates violin plot showing distribution of selection and significant sites.
 
     Calling arguments:
@@ -94,6 +94,10 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
     length, with *markercolors* being a list of marker / color (e.g. *or*
     for circles, red) and *names* being a list of the string corresponding
     to each marker / color.
+
+    *fixymin* : if not *None*, the y-minimum is fixed to this value.
+
+    *fixymax* : if not *None*, the y-maximum is fixed to this value.
     """
     alpha = 0.55 # transparency for points
     markersize = 25 # size of points
@@ -164,6 +168,11 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
             assert len(color) == len(marker) == len(point_xs)
             for (x, y, c, m) in zip(point_xs, point_ys, color, marker):
                 plt.scatter(x, y, s=markersize, c=c, marker=m, alpha=alpha, lw=markerlw)
+    if fixymin not in [None, False]:
+        ymin = fixymin
+    if fixymax not in [None, False]:
+        ymax = fixymax
+    assert ymin < ymax
     plt.ylim(ymin, ymax)
     plt.xticks(xs, models, fontsize=16)
     if legend:

@@ -166,7 +166,6 @@ def PhyDMSAnalyzeSelectionParser():
     parser.set_defaults(labelselectedsites=False)
     parser.add_argument('--labelselectedsites', action='store_true', dest='labelselectedsites', help="Do we use a unique labeled point on violin plots for each site in '--selectedsites'?")
     parser.add_argument('--fdr', type=float, default=0.05, help="False discovery rate for declaring sites significant for 'omega' and 'stringency'.")
-    parser.add_argument('--diffprefunits', choices=['absmean', 'rms'], default='absmean', help="Plot absolute-mean or root-mean-square for 'diffprefs'.")
     parser.add_argument('--maxlog10p', type=FloatGreaterThanZero, default=5, help="For 'omega' and 'stringency' violin plots, if the log10 of the P-value has magnitude > this, instead plot as this.")
     return parser
 

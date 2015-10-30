@@ -62,7 +62,7 @@ def GetRank(x, xlist):
     return i + 1
 
 
-def WriteTable(names, d, selectedsites, tablefile, diffprefunits):
+def WriteTable(names, d, selectedsites, tablefile):
     """Summarizes per-site selection to *tablefile* in ReStructuredText format."""
     # header
     line = ['site'] + names
@@ -171,10 +171,7 @@ def main():
         try:
             stype = 'diffprefs'
             (rms, dpi) = filereaders[stype](name_d['file'])
-            if args['diffprefunits'] == 'rms':
-                name_d['data'] = rms
-            elif args['diffprefunits'] == 'absmean':
-                name_d['data'] = dict([(r, sum([abs(dpira) for dpira in dpi[r].values()])) for r in rms.keys()])
+            name_d['data'] = dict([(r, 0.5 * sum([abs(dpira) for dpira in dpi[r].values()])) for r in rms.keys()])
         except:
             with open(name_d['file']) as f:
                 text = f.read()
@@ -251,7 +248,7 @@ def main():
     # make table 
     if selectedsites:
         print("\nWriting selection information for the selected sites to %s" % tablefile)
-        WriteTable(names, d, selectedsites, tablefile, args['diffprefunits'])
+        WriteTable(names, d, selectedsites, tablefile)
 
     # if multiple omega selection types, make omega slopegraph
     omega_names = [name for name in names if d[name]['selectiontype'] == 'omega']
@@ -300,6 +297,7 @@ def main():
             for sname in snames:
                 pointmarkercolor.append([pointmarkercolor_d[site] for site in sites if site in selectedsites])
         if stype == 'omega' or stype == 'stringency':
+            fixymin = fixymax = None
             ylabel = {
                 'omega':'$\omega_r < 1 \leftarrow \log_{10} P \\rightarrow \omega_r > 1$',
                 'stringency':'$\\beta_r > 1 \leftarrow \log_{10} P \\rightarrow \\beta_r < 1$'
@@ -313,12 +311,8 @@ def main():
                 pcut = TransformP(10, d[sname]['pcutoff'], args['maxlog10p'])
                 hlines.append([pcut, -pcut])
         elif stype == 'diffprefs':
-            if args['diffprefunits'] == 'rms':
-                ylabel = 'RMS $\Delta \pi_{r,a}$'
-            elif args['diffprefunits'] == 'absmean':
-                ylabel = 'absolute mean $\Delta\pi_{r,a}$'
-            else:
-                raise ValueError("Invalid diffprefunits: %s" % args['diffprefunits'])
+            (fixymin, fixymax) = (0, 1)
+            ylabel = '$\\frac{1}{2} \sum_a |\Delta\pi_{r,a}|$'
             symmetrizey = False
             hlines = None
             for sname in snames:
@@ -342,6 +336,8 @@ def main():
                 pointmarkercolor=pointmarkercolor,
                 usetex=True,
                 legend=legend,
+                fixymin=fixymin,
+                fixymax=fixymax,
                 )
         print("Finished creating plot %s" % plotfile)
 
