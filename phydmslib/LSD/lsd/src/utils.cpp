@@ -1589,7 +1589,7 @@ void output(bool constr,bool v,FILE* f,FILE* tree1,FILE* tree2,FILE* tree3,int m
         printf("rate %.6f, tMRCA %.3f\n\n",rho,T[0]);
      }*/
      fprintf(f,"rate %.6f, tMRCA %.3f, objective function %.6f\n",rho,T[0],phi);
-     printf("rate %.6f, tMRCA %.3f, objective function %.6f\n",rho,T[0],phi);
+     //printf("rate %.6f, tMRCA %.3f, objective function %.6f\n",rho,T[0],phi);
      fprintf(tree1,"tree %d = ",y);
      for (int i=1;i<=m;i++) B[i]=rho*(T[i]-T[P[i]]);
      nexustree(m/2,P,Suc1,Suc2,Labels,B,Support,T,tree1);

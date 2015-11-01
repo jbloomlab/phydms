@@ -105,7 +105,7 @@ double estimate_root_without_constraint_rate_unrooted(double rho,int n,int m,int
 double estimate_root_with_constraint_unrooted(int n,int m,int* & Pur,double* & Bur,double* &V,double* & Tur,int &r,double &lambda,double &rho,double rho_min){
     //Pur: unrooted tree
     //estimate root with QPD algorithm for unrooted tree////////////////////////////
-    cout<<"Estimating the root using constrained mode on all branches ... ";
+    //cout<<"Estimating the root using constrained mode on all branches ... ";
     double phi1=-1;
     int *P_new= new int[m+2];
     int *Suc1_new= new int[n+1];
@@ -116,9 +116,9 @@ double estimate_root_with_constraint_unrooted(int n,int m,int* & Pur,double* & B
     double br=reroot_unrootedtree(m,y,Pur,Bur,Tur,P_new,B_new,T_new);
     computeSuc(P_new,Suc1_new,Suc2_new,m+2,n+1);
     double ld,rhor;
-    cout<<"Optimizing the root position on the branch "<<y<<" ... ";
+    //cout<<"Optimizing the root position on the branch "<<y<<" ... ";
     phi1=with_constraint_active_set_lambda(n+1,m+1,br,P_new,Suc1_new,Suc2_new,B_new,V,T_new,rhor,rho_min,ld);
-    printf("%.10f %.2f\n",phi1,T_new[0]);
+    //printf("%.10f %.2f\n",phi1,T_new[0]);
     lambda=ld;
     rho=rhor;
     r=y;
@@ -127,9 +127,9 @@ double estimate_root_with_constraint_unrooted(int n,int m,int* & Pur,double* & B
     while (y<=m){
         br=reroot_unrootedtree(m,y,Pur,Bur,Tur,P_new,B_new,T_new);
         computeSuc(P_new,Suc1_new,Suc2_new,m+2,n+1);
-        cout<<"Optimizing the root position on the branch "<<y<<" ... ";
+        //cout<<"Optimizing the root position on the branch "<<y<<" ... ";
         phi=with_constraint_active_set_lambda(n+1,m+1,br,P_new,Suc1_new,Suc2_new,B_new,V,T_new,rhor,rho_min,ld);
-        printf("%.10f %.2f\n",phi,T_new[0]);
+        //printf("%.10f %.2f\n",phi,T_new[0]);
         if (phi1>phi){
             phi1=phi;
             r=y;
@@ -137,7 +137,7 @@ double estimate_root_with_constraint_unrooted(int n,int m,int* & Pur,double* & B
         }
         y++;
     }
-    cout<<"The tree is rooted on the branch "<<r<<endl;
+    //cout<<"The tree is rooted on the branch "<<r<<endl;
     delete[] P_new;
     delete[] Suc1_new;
     delete[] Suc2_new;
@@ -181,7 +181,7 @@ double estimate_root_with_constraint_rate_unrooted(double rho,int n,int m,int* &
         }
         y++;
     }
-    cout<<"The tree is rooted on the branch "<<r<<endl;
+    //cout<<"The tree is rooted on the branch "<<r<<endl;
     delete[] P_new;
     delete[] Suc1_new;
     delete[] Suc2_new;
