@@ -7,9 +7,7 @@
 
 See the `phydms documentation`_ for information about using ``phydms`` and details about the recommended installation process.
 
-The `phydms source code`_ is freely available under a `GPLv3`_ license (the necessary `Bio++`_ libraries are packaged into the `phydms source code`_, and are themselves under a `GPL-compatible`_ `CeCILL`_ license).
-
-
+The `phydms source code`_ is freely available under a `GPLv3`_ license (the `Bio++`_ and `LSD`_ source codes is packaged into the `phydms source code`_; these code bases are themselves under a `GPL-compatible`_ `CeCILL`_ license and a `GPLv3`_ license, respectively). 
 
 
 .. _`Jesse Bloom`: http://research.fhcrc.org/bloom/en.html
@@ -21,3 +19,4 @@ The `phydms source code`_ is freely available under a `GPLv3`_ license (the nece
 .. _`CeCILL`: http://www.cecill.info/licences.en.html
 .. _`GPL-compatible`: https://www.gnu.org/licenses/license-list.html#GPLCompatibleLicenses
 .. _`GPLv3`: http://www.gnu.org/copyleft/gpl.html
+.. _`LSD`: http://www.atgc-montpellier.fr/LSD/

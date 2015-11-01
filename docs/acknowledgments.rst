@@ -12,6 +12,8 @@ Acknowledgments
 
 The plotting performed by ``phydms_plotselection`` utilizes `weblogo`_.
 
+The optional dating of nodes in the phylogenies uses the `LSD`_ source code, which was developed by the group of `Olivier Gascuel`_.
+
 Citations
 ------------
 There is currently no citation for `phydms`_, but the following references describe initial versions of the :ref:`ExpCM` incorporated into `phydms`_:
@@ -27,6 +29,10 @@ Because `phydms`_ is **completely reliant** on `Bio++`_, you should also cite th
 If you use ``phydms_plotselection`` to create a figure for your paper, please also cite `weblogo`_ (which is used to create the logo plots):
 
     * `Crooks et al, Genome Research, 14:1188-1190`_
+
+If you use the optional dating of nodes in the phylogeny, you should also cite the `LSD`_ program, which is wrapped within `phydms`_ to perform the dating. The reference for `LSD`_ is:
+
+    * `To et al, Systematic Biology, doi 10.1093/sysbio/syv068`_
 
 Finally, if you use `dms_tools`_ to process your deep mutational scanning data before feeding it into `phydms`_, please cite:
 
