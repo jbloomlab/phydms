@@ -6,6 +6,7 @@ Written by Jesse Bloom.
 import sys
 import os
 import re
+import glob
 import fnmatch
 try:
     from setuptools import setup
@@ -65,6 +66,7 @@ class lazy_cythonize(list):
 def extensions():
     """List of cython extensions for *lazy_cythonize*"""
     from Cython.Build import cythonize
+    # first Bpp extensions
     include_dirs = []
     bpp_sources = []
     for bpplib in ['bpp-core', 'bpp-seq', 'bpp-phyl']:
@@ -97,6 +99,17 @@ def extensions():
                 extra_compile_args=['-O2'],\
                 ),\
             ]
+    # now add LSD extension
+    ext.append(
+        Extension(
+            'phydmslib.pylsd',
+            # next line excludes lsd.cpp in LSD/lsd/src/ as it's redefined in LSDExtensions/
+            sources=['phydmslib/pylsd.pyx', 'phydmslib/LSDExtensions/lsd.cpp'] + [f for f in glob.glob('phydmslib/LSD/lsd/src/*.cpp') if 'lsd.cpp' not in f],
+            language='c++',
+            include_dirs=['phydmslib/LSD/lsd/src'],
+            extra_compile_args=['-O2', '-Wno-sign-compare', '-Wno-unused-result', '-Wno-maybe-uninitialized', '-Wno-unused-variable'], # these last three arguments supress warnings otherwise produced by the LSD code
+            )
+        )
     return cythonize(ext)
 
 
