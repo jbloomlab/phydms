@@ -47,7 +47,7 @@ def PlotSignificantOmega(plotfile, models, ngt, nlt, nsites, fdr, usetex=True):
         else:
             labels.append('omega %s' % cat)
     plt.xlim(-0.25, len(models) - 0.75)
-    plt.ylim(0, int(1.02 * ymax + 1))
+    plt.ylim(0, int(1.05 * ymax + 1))
     plt.xticks(xs, models, fontsize=32)
     plt.locator_params(axis='y', bins=4)
     plt.ylabel('sites out of %d (FDR %.2f)' % (nsites, fdr), fontsize=30)

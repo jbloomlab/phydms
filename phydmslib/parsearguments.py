@@ -165,8 +165,8 @@ def PhyDMSAnalyzeSelectionParser():
     parser.add_argument('--selectedsites', type=ExistingFile, help="File listing selected sites to analyze in table and display as points on plots. Column 1 lists site number, which can be followed by # giving notes for site. Lines beginning with '#' are ignored.")
     parser.set_defaults(labelselectedsites=False)
     parser.add_argument('--labelselectedsites', action='store_true', dest='labelselectedsites', help="Do we use a unique labeled point on violin plots for each site in '--selectedsites'?")
-    parser.add_argument('--fdr', type=float, default=0.05, help="False discovery rate for declaring sites significant for 'omega' and 'stringency'.")
-    parser.add_argument('--maxlog10p', type=FloatGreaterThanZero, default=5, help="For 'omega' and 'stringency' violin plots, if the log10 of the P-value has magnitude > this, instead plot as this.")
+    parser.add_argument('--fdr', type=float, default=0.05, help="False discovery rate for declaring sites significant for 'omega' and 'stringency'. FDR computed separately  for values > and < 1.")
+    parser.add_argument('--maxlog10p', type=FloatGreaterThanZero, default=5, help="For 'omega' and 'stringency' violin plots, if log10 P-value has magnitude > this, instead plot as this. Also is y-limits for these plots.")
     return parser
 
 
