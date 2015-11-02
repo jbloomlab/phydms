@@ -34,7 +34,7 @@ def BenjaminiHochbergCorrection(pvals, fdr):
         if p <= bh_threshold: 
             assert rank > max_rank
             max_rank = rank
-            pcutoff = p
+            pcutoff = bh_threshold
 
     # pcutoff to have one significant site if there are none
     if pcutoff == None:
