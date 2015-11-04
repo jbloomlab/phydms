@@ -27,8 +27,8 @@ rmargin = 0.32
 bmargin = 0.13
 tmargin = 0.07
 plt.axes([lmargin, bmargin, 1.0 - lmargin - rmargin, 1.0 - tmargin - bmargin])
-for (c1, ls) in zip([50, 100, 200], ['-', ':', '--']):
-    for (c2, color) in zip([0.25, 0.5, 0.75], ['b', 'r', 'g', 'y']):
+for (c1, color) in zip([50, 150, 500], ['b', 'r', 'g', 'y']):
+    for (c2, ls) in zip([0.25, 0.5, 1], ['-', ':', '--']):
         ys = [F(x, c1, c2) for x in xs]
         label = '$C_1 = %d$, $C_2 = %.2f$' % (c1, c2)
         labels.append(label)
