@@ -1,7 +1,7 @@
 .. _phydms_plotselection_prog:
 
 =======================================
-The ``phydms_plotselection`` program
+the ``phydms_plotselection`` program
 =======================================
 
 .. contents::

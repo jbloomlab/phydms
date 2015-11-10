@@ -1,7 +1,7 @@
 .. _phydms_prog:
 
 =======================================
-The ``phydms`` program
+the ``phydms`` program
 =======================================
 
 .. contents::

@@ -21,7 +21,7 @@ For examples of previous studies that have used experimentally measured site-spe
 
     * `Thyagarajan and Bloom, eLife, 3:e03300`_
 
-    * `Doud et al, Mol Biol Evol, msv167`_
+    * `Doud et al, Mol Biol Evol, 32:2944-2960`_
 
 These experimentally informed site-specific substitution models closely parallel those used in studies that infer the site-specific information from natural sequences; see `Rodrigue and Lartillot, PNAS, 107:4629-4634`_. For a more general discussion of models of this form, see `Halpern and Bruno, Mol Biol Evol, 15:910-917`_ and `McCandlish and Stoltzfus, Quarterly Review of Biology, 89:225-252`_.
 
@@ -198,12 +198,21 @@ The actual values reported by ``phydms`` are the *differential preferences*, def
 
    \Delta\pi_{r,a} = \hat{\pi}_{r,a} - \left(\pi_{r,a}\right)^{\beta}.
 
-So a differential preference of :math:`\Delta\pi_{r,a} > 0` suggests that natural evolution favors amino-acid :math:`a` at site :math:`r` more than suggested by the preferences, and a value < 0 suggests that natural evolution disfavors this amino acid. One way to summarize the total difference in preferences in the root-mean-square of the differential preferences at a site, defined as
+So a differential preference of :math:`\Delta\pi_{r,a} > 0` suggests that natural evolution favors amino-acid :math:`a` at site :math:`r` more than suggested by the preferences, and a value < 0 suggests that natural evolution disfavors this amino acid. One way to summarize the total difference in preferences is the root-mean-square of the differential preferences at a site, defined as
 
 .. math::
    :label: rms_diffpref
 
    RMS_{\Delta\pi_{r,a}} = \sqrt{\frac{1}{N_a} \sum_a \left(\Delta\pi_{r,a}\right)^2}.
+
+Another way to summarize the total difference in preferences is the half the absolute sum of the differential preferences, value:
+
+.. math::
+   :label: abs_sum_diffpref
+
+   \frac{1}{2} \sum_a \left|\pi_{r,a}\right|
+
+The theoretical maximum of this quantity is one.
 
 Unfortunately, ``phydms`` does not currently include any method for statistically testing (e.g. P-values) the hypothesis that any given :math:`\Delta\pi_{r,a}` is not equal to zero. So instead, you will have to keep in mind that these values are regularized (and so do not typically become substantially non-zero without some reasonable statistical evidence), and then manually inspect them for interesting trends.
 

@@ -1,7 +1,7 @@
 .. _phydms_comprehensive_prog:
 
 =======================================
-The ``phydms_comprehensive`` program
+the ``phydms_comprehensive`` program
 =======================================
 
 .. contents::
@@ -39,13 +39,13 @@ Command-line usage
     By default, ``phydms_comprehensive`` uses ``phydms`` to infer a tree topology under the *YNGKP_M0* model starting from a crude neighbor-joining tree. If you want to instead fix the tree to some existing topology, use this argument and provide the name of a file giving a valid tree in Newick format.
 
    \-\-no-omegabysite 
-    By default, ``phydms_comprehensive`` infer a site-specific :math:`\omega_r` for the tree obtained using the *YNGKP_M3* model and for each *ExpCM*. Use this option if you do **not** want to do this.
+    By default, ``phydms_comprehensive`` infers a site-specific :math:`\omega_r` for the tree obtained using the *YNGKP_M3* model and for each *ExpCM*. Use this option if you do **not** want to do this.
 
    \-\-no-stringencybysite 
-    By default, ``phydms_comprehensive`` infer a site-specific :math:`\beta_r` for each *ExpCM*. Use this option if you do **not** want to do this.
+    By default, ``phydms_comprehensive`` infers a site-specific :math:`\beta_r` for each *ExpCM*. Use this option if you do **not** want to do this.
 
    \-\-no-diffprefsbysite 
-    By default, ``phydms_comprehensive`` infer site-specific :math:`\Delta\pi_{r,a}` for each *ExpCM*. Use this option if you do **not** want to do this.
+    By default, ``phydms_comprehensive`` infers site-specific :math:`\Delta\pi_{r,a}` for each *ExpCM*. Use this option if you do **not** want to do this.
 
    \-\-diffprefconc
     See the documentation for ``phydms`` for more details.

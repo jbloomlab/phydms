@@ -33,7 +33,7 @@
 .. _`Bloom, Mol Biol Evol, 31:1956-1978`: http://mbe.oxfordjournals.org/content/31/8/1956
 .. _`Bloom, BMC Bioinformatics, 16:168`: http://www.biomedcentral.com/1471-2105/16/168
 .. _`Thyagarajan and Bloom, eLife, 3:e03300`: http://elifesciences.org/content/3/e03300
-.. _`Doud et al, Mol Biol Evol, msv167`: https://dx.doi.org/10.1093/molbev/msv167
+.. _`Doud et al, Mol Biol Evol, 32:2944-2960`: https://dx.doi.org/10.1093/molbev/msv167
 .. _`Rodrigue and Lartillot, PNAS, 107:4629-4634`: http://www.pnas.org/content/107/10/4629.full
 .. _`Halpern and Bruno, Mol Biol Evol, 15:910-917`: http://www.ncbi.nlm.nih.gov/pubmed/9656490
 .. _`McCandlish and Stoltzfus, Quarterly Review of Biology, 89:225-252`: http://www.ncbi.nlm.nih.gov/pubmed/25195318

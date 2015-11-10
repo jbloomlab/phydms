@@ -1,7 +1,7 @@
 .. _phydms_renumber_prog:
 
 =======================================
-The ``phydms_renumber`` program
+the ``phydms_renumber`` program
 =======================================
 
 .. contents::
