@@ -212,5 +212,22 @@ The file is `dms_tools`_ `differential preferences file format`_. Here is an exa
 
 The column for *WT* identity is always *?* because the concept of a wildtype identity is not well-defined when analyzing naturally occuring sequences. The third column is the root-mean-square differential preference at that site, and the remaining columns are :math:`\Delta\pi_{r,a}` for each amino acid :math:`a` at that site.
 
+Differential preferences absolute sum file
+++++++++++++++++++++++++++++++++++++++++++++
+This file has the suffix ``_diffprefsbysite_sumabs.txt`` and is created only if using *ExpCM* with ``--diffprefsbysite.txt``. It gives **half** the absolute sum the differential preferences at each site, e.g. :math:`\frac{1}{2}\sum_a \left|\Delta\pi_{r,a}\right|`. These values are sorted from largest to smallest; the possible range of values is 0 to 1. Sites with large values have large differences in preferences between natural evolution and the deep mutational scanning.
+
+Here is an example of the first few lines::
+
+    # The entries are half the absolute sum of the differential preferences for each site.
+    # This quantity can range from 0 to 1.
+    #
+    # SITE  HALF_ABSOLUTE_SUM_DIFFPREFS
+    61  0.36143
+    5   0.276541
+    15  0.255797
+    58  0.244982
+    12  0.237037
+    26  0.217145
+
 .. include:: weblinks.txt
    

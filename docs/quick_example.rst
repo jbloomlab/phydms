@@ -38,6 +38,7 @@ Running this command creates the subdirectory ``./NP_analysis/`` which will cont
 
     ├── NP_analysis
     │   ├── averaged_ExpCM_prefs_diffprefsbysite.txt
+    │   ├── averaged_ExpCM_prefs_diffprefsbysite_sumabs.txt
     │   ├── averaged_ExpCM_prefs.log
     │   ├── averaged_ExpCM_prefs_loglikelihood.txt
     │   ├── averaged_ExpCM_prefs_modelparams.txt
@@ -45,6 +46,7 @@ Running this command creates the subdirectory ``./NP_analysis/`` which will cont
     │   ├── averaged_ExpCM_prefs_stringencybysite.txt
     │   ├── averaged_ExpCM_prefs_tree.newick
     │   ├── ExpCM_prefs_diffprefsbysite.txt
+    │   ├── ExpCM_prefs_diffprefsbysite_sumabs.txt
     │   ├── ExpCM_prefs.log
     │   ├── ExpCM_prefs_loglikelihood.txt
     │   ├── ExpCM_prefs_modelparams.txt

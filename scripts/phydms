@@ -248,12 +248,13 @@ def main():
     omegafile = '%s_omegabysite.txt' % args['outprefix']
     stringencyfile = '%s_stringencybysite.txt' % args['outprefix']
     diffprefsfile = '%s_diffprefsbysite.txt' % args['outprefix']
+    sumabsdiffprefsfile = '%s_diffprefsbysite_sumabs.txt' % args['outprefix']
     logfile = "%s.log" % args['outprefix']
     if args['no_optimize']:
-        to_remove = [omegafile, stringencyfile, diffprefsfile, logfile]
+        to_remove = [omegafile, stringencyfile, diffprefsfile, sumabsdiffprefsfile, logfile]
         assert args['tree'] == treefile, "When using --no_optimize, you must set 'tree' to the name of the file that would be expected to be created for this 'outprefix', which is %s in this case" % treefile
     else:
-        to_remove = [modelparamsfile, loglikelihoodfile, treefile, omegafile, stringencyfile, diffprefsfile, logfile]
+        to_remove = [modelparamsfile, loglikelihoodfile, treefile, omegafile, stringencyfile, diffprefsfile, sumabsdiffprefsfile, logfile]
     for f in to_remove:
         if os.path.isfile(f):
             os.remove(f)
@@ -521,9 +522,20 @@ def main():
             sites = [str(icodon) for icodon in codons]
             wts = dict([(isite, '?') for isite in sites])
             diffprefs = FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodelparams, modelparams['stringencyparameter'], args['recursion'], args['diffprefsprior'], args['diffprefconc'], args['ncpus'], logger)
-            logger.info('Writing the differences in preferences to %s\n' % diffprefsfile)
+            logger.info('Writing the differences in preferences to %s' % diffprefsfile)
             pr_deltapi = dict([(isite, None) for isite in sites]) # empty, as we have no data here
             dms_tools.file_io.WriteDiffPrefs(diffprefsfile, sites, wts, diffprefs, pr_deltapi, pr_deltapi)
+            logger.info("Writing the absolute sum of the differential preferences to %s" % sumabsdiffprefsfile)
+            sumabs_sites = [(0.5 * sum([abs(x) for x in diffprefs[r].values()]), r) for r in sites]
+            sumabs_sites.sort()
+            sumabs_sites.reverse()
+            with open(sumabsdiffprefsfile, 'w') as f:
+                f.write('# The entries are half the absolute sum of the differential preferences for each site.\n' +
+                        '# This quantity can range from 0 to 1.\n' +
+                        '#\n' +
+                        '# SITE\tHALF_ABSOLUTE_SUM_DIFFPREFS\n') 
+                for (sumabs, site) in sumabs_sites:
+                    f.write('%s\t%g\n' % (site, sumabs))
 
     except:
         logger.exception('Terminating %s at %s with ERROR' % (prog, time.asctime()))    
