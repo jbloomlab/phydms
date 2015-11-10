@@ -48,7 +48,7 @@ def main():
 
     # types of selection and associated information
     selectiontypes = ['diffprefs', 'stringency', 'omega']
-    filereaders = {'diffprefs':ModifiedReadDiffPrefs,
+    filereaders = {
                    'omega':phydmslib.file_io.ReadOmegaBySite,
                    'stringency':phydmslib.file_io.ReadStringencyBySite,
                   }
@@ -56,21 +56,17 @@ def main():
 
     # read data on selection from input files
     selectiondata = {}
-    for stype in selectiontypes:
-        fname = '%s_%sbysite.txt' % (args['inprefix'], stype)
-        if stype == 'diffprefs' or not args['no%sbysite' % stype]:
-            assert os.path.isfile(fname), "Cannot find required file input file: %s" % fname
-            print("Visualizing %s selection using data from: %s\n" % (stype, fname))
-            if stype == 'diffprefs':
-                (sites, selectiondata[stype]) = filereaders[stype](fname)
-                assert sites, "No sites in %s" % fname
-                assert len(set(sites)) == len(sites), "Duplicate site numbers in %s" % fname
-            else:
-                selectiondata[stype] = filereaders[stype](fname)
-                assert set(sites) == set(selectiondata[stype].keys()), "site numbers in %s do not match those for other selection types" % fname
+    print("Visualizing differential preferences in: %s\n" % args['diffprefsbysite'])
+    (sites, selectiondata['diffprefs']) = ModifiedReadDiffPrefs(args['diffprefsbysite'])
+    assert sites, "No sites in %s" % args['diffprefsbysite']
+    assert len(set(sites)) == len(sites), "Duplicate site numbers in %s" % args['diffprefsbysite']
+    for stype in ['stringency', 'omega']:
+        fname = args['%sbysite' % stype]
+        if fname:
+            print("Visualizing %s in: %s\n" % (stype, fname))
+            selectiondata[stype] = filereaders[stype](fname)
+            assert set(sites) == set(selectiondata[stype].keys()), "site numbers in %s do not match those for other selection types" % fname
         else:
-            assert stype != 'diffprefs', "You cannot run this program without specifying %s selection in %s" % (stype, fname)
-            print("The visualization will NOT include %s selection" % stype)
             selectiondata[stype] = None
     print("The visualization will include %d sites spanning %s to %s\n" % (len(sites), sites[0], sites[-1]))
 

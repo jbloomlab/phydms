@@ -183,12 +183,10 @@ def PhyDMSRenumberParser():
 def PhyDMSPlotSelectionParser():
     """Returns an *argparse.ArgumentParser* for ``phydms_plotselection``."""
     parser = ArgumentParserNoArgHelp(description="Visualization of site-specific selection inferred using 'phydms' with an 'ExpCM' model. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('inprefix', help="Prefix used when calling 'phydms' to create site-specific selection data files.")
+    parser.add_argument('diffprefsbysite', help="A '*_diffprefsbysite.txt' file created by 'phydms' specifying the differential preferences for each site.", type=ExistingFile)
     parser.add_argument('plotfile', help='Name of created PDF file.')
-    parser.set_defaults(noomegabysite=False)
-    parser.add_argument('--no-omegabysite', dest='noomegabysite', action='store_true', help="Don't plot site-specific omegas.")
-    parser.set_defaults(nostringencybysite=False)
-    parser.add_argument('--no-stringencybysite', dest='nostringencybysite', action='store_true', help="Don't plot site-specific stringency.")
+    parser.add_argument('--omegabysite', help="To overlay site-specific omega values, specify a '*_omegabysite.txt' file created by 'phydms'. Sites must match those in 'diffprefs'.", type=ExistingFile)
+    parser.add_argument('--stringencybysite', help="To overlay site-specific stringency (beta) values, specify a '*_stringencybysite.txt' file created by 'phydms'. Sites must match those in 'diffprefs'.", type=ExistingFile)
     parser.add_argument('--nperline', type=IntGreaterThanZero, default=70, help="Number of sites per line in plot.")
     parser.add_argument('--numberevery', type=IntGreaterThanZero, default=10, help="Number sites at this interval.")
     parser.add_argument('--diffprefheight', type=FloatGreaterThanZero, default=1.0, help="Height of differential preferences logo stacks in each direction. If using '--updiffprefheight' then the height may be higher than this.")

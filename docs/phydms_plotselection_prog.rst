@@ -31,15 +31,6 @@ Command-line usage
    :prog: phydms_plotselection
 
 
-   inprefix
-    This should be the prefix used when calling ``phydms`` to infer the selection. Specifically, the following files must exist:
-
-        * A file beginning with ``inprefix`` and ending in ``_diffprefsbysite.txt`` that describes the differential preferences inferred using the ``--diffprefsbysite`` option of ``phydms``. 
-
-        * A file beginning with ``inprefix`` and ending in ``_stringencybysite.txt`` that describes the site-specific stringency inferred using the ``--stringencybysite`` option of ``phydms``. This file is **not** required if you use the ``--no-stringencybysite`` option of ``phydms_plotselection``.
-
-        * A file beginning with ``inprefix`` and ending in ``_omegabysite.txt`` that describes the site-specific omega inferred using the ``--omegabysite`` option of ``phydms``. This file is **not** required if you use the ``--no-omegabysite`` option of ``phydms_plotselection``.
-
    plotfile
     The file created with this name is described in `Output plot`_.
 
@@ -58,7 +49,7 @@ Command-line usage
 
 Output plot
 --------------
-``phydms_plotselection`` prints some basic information to the screen. But its primary output is a PDF plot that visualizes the differential selection. For each site, there is a logo stack with the height of each amino-acid single-letter code proportional to :math:`\Delta\pi_{r,a}`. In addition (unless you are using ``--no-omegabysite`` or ``--no-stringencybysite``) there are overlay bars that use colors to show the *P*-value with which we can reject the null hypothesis that :math:`\omega_r` and :math:`\beta_r / \beta` are not equal to one. These color bars indicate whether the fitted value of :math:`\omega_r` and :math:`\beta_r / \beta` are greater or less than one.
+``phydms_plotselection`` prints some basic information to the screen. But its primary output is a PDF plot that visualizes the differential selection. For each site, there is a logo stack with the height of each amino-acid single-letter code proportional to :math:`\Delta\pi_{r,a}`. In addition, if you are using ``--omegabysite`` or ``--stringencybysite`` there will be overlay bars that use colors to show the *P*-value with which we can reject the null hypothesis that :math:`\omega_r` and :math:`\beta_r / \beta` are not equal to one. These color bars indicate whether the fitted value of :math:`\omega_r` and :math:`\beta_r / \beta` are greater or less than one.
 
 Here is an example of a created plot:
 
