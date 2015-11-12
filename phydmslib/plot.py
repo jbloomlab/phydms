@@ -9,6 +9,27 @@ import matplotlib.pyplot as plt
 import dms_tools.utils
 
 
+def SplitText(text, maxchars):
+    r"""Splits text by word and then breaks long words.
+
+    *text* is the text to split, *maxchars* is the max characters
+    per line. First splits every word onto a new line, then 
+    splits long words.
+
+    >>> SplitText('lactamase ExpCM', maxchars=5)
+    'lact-\namase\nExpCM'
+    """
+    assert maxchars > 1, 'maxchars must be > 1'
+    newtext = []
+    for word in text.split():
+        word = word.strip()
+        while len(word) > maxchars:
+            newtext.append(word[ : maxchars - 1] + '-')
+            word = word[maxchars - 1 : ]
+        newtext.append(word)
+    return '\n'.join(newtext)
+
+
 def PlotSignificantOmega(plotfile, models, ngt, nlt, nsites, fdr, usetex=True):
     """Makes a PDF slopegraph of the number of sites with significant omega.
 
@@ -58,7 +79,7 @@ def PlotSignificantOmega(plotfile, models, ngt, nlt, nsites, fdr, usetex=True):
 
 
 
-def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=None, points=None, pointmarkercolor='or', usetex=True, legend=False, fixymin=None, fixymax=None):
+def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=None, points=None, pointmarkercolor='or', usetex=True, legends=False, fixymin=None, fixymax=None):
     """Creates violin plot showing distribution of selection and significant sites.
 
     Calling arguments:
@@ -83,17 +104,17 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
     *pointmarkercolor* : specifies marker and color of points in *points*. 
     Should either a length-two string giving marker and color for all points
     (such as *or* for circles, red) or a list of lists of the same length
-    as *points* witch each entry specifying the marker and color for that point.
+    as *points* with each entry specifying the marker and color for that point.
 
     *usetex* : use LaTex formatting of strings?
 
-    *legend* : Create a legend with names of points specified by *pointmarkercolor*?
-    This option is only valid if *pointmarkercolor* is a list. If it is not *False*,
-    it should be the tuple *(markercolors, names)*. In this tuple,
+    *legends* : Create legend(s) with names of points specified by *pointmarkercolor*?
+    If it is not *False* or *None*, then *legends* should be a list. Each entry
+    should be a 3-tuple *(markercolors, names, title)*. In this tuple,
     *markercolors* and *names* are lists of the same
     length, with *markercolors* being a list of marker / color (e.g. *or*
     for circles, red) and *names* being a list of the string corresponding
-    to each marker / color.
+    to each marker / color; *title* is the title for the legend.
 
     *fixymin* : if not *None*, the y-minimum is fixed to this value.
 
@@ -104,15 +125,15 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
     markerlw = 0.6 # line width for makers
     assert os.path.splitext(plotfile)[1].lower() == '.pdf', "plotfile %s does not end with extension '.pdf'"
     assert len(models) == len(yvalues) >= 1
-    assert not (legend and not isinstance(pointmarkercolor, list)), "You can only use legend if pointmarkercolor is a list"
     assert not (isinstance(pointmarkercolor, list) and not points), "It doesn't make sense to set pointmarkercolor to a list if you're not using points"
     plt.rc('font', size=12)
     plt.rc('text', usetex=usetex)
     lmargin = 0.7
     tmargin = 0.1
     bmargin = 0.4
-    if legend:
-        rmargin = 0.95
+    if legends:
+        perlegendwidth = 0.95
+        rmargin = perlegendwidth * len(legends) + 0.03
     else:
         rmargin = 0.1
     (height, widthper) = (2.5, 1.75)
@@ -175,20 +196,25 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
     assert ymin < ymax
     plt.ylim(ymin, ymax)
     plt.xticks(xs, models, fontsize=16)
-    if legend:
-        (markercolors, legendnames) = legend
-        assert len(markercolors) == len(legendnames)
-        handles = [matplotlib.lines.Line2D([0], [0], marker=marker, color=color, markersize=markersize, alpha=alpha, lw=markerlw, linestyle='None') for (marker, color) in markercolors]
-        # put in natural sort order
-        assert len(set(legendnames)) == len(legendnames), "Duplicate legendnames entry"
-        sortedlegendnames = list(legendnames)
-        dms_tools.utils.NaturalSort(sortedlegendnames)
-        sortedhandles = [None] * len(sortedlegendnames)
-        for (handle, name) in zip(handles, legendnames):
-            sortedhandles[sortedlegendnames.index(name)] = handle
-        assert None not in sortedhandles
-        legend = plt.figlegend(sortedhandles, sortedlegendnames, loc='upper right', fontsize=13, numpoints=1, title='\\bf{sites}', markerscale=0.25, handlelength=0.7, handletextpad=0.25)
-        plt.setp(legend.get_title(), fontsize=14)
+    if legends:
+        legendx = 1.0 - rmargin / float(totwidth)
+        legendfracwidth = perlegendwidth / float(totwidth)
+        legendtop = 1.0 - tmargin / float(totheight)
+        for (markercolors, legendnames, legendtitle) in legends:
+            assert len(markercolors) == len(legendnames)
+            handles = [matplotlib.lines.Line2D([0], [0], marker=marker, color=color, markersize=markersize, alpha=alpha, lw=markerlw, linestyle='None') for (marker, color) in markercolors]
+            # put in natural sort order
+            assert len(set(legendnames)) == len(legendnames), "Duplicate legendnames entry"
+            sortedlegendnames = list(legendnames)
+            dms_tools.utils.NaturalSort(sortedlegendnames)
+            sortedhandles = [None] * len(sortedlegendnames)
+            for (handle, name) in zip(handles, legendnames):
+                sortedhandles[sortedlegendnames.index(name)] = handle
+            assert None not in sortedhandles
+            legend = plt.legend(sortedhandles, sortedlegendnames, bbox_to_anchor=(legendx, 0, legendfracwidth, legendtop), bbox_transform=plt.gcf().transFigure, fontsize=13, numpoints=1, title='%s\nsites' % SplitText(legendtitle, maxchars=5), markerscale=0.25, handlelength=0.7, handletextpad=0.25, borderaxespad=0, labelspacing=0.2)
+            plt.gca().add_artist(legend)
+            legendx += legendfracwidth
+            plt.setp(legend.get_title(), fontsize=14)
     plt.savefig(plotfile)
     plt.clf()
     plt.close()
@@ -211,6 +237,8 @@ def SmartJitter(ys, yspace, xspace, xcenter):
     The return value is *(smart_xs, smart_ys)*, which is a list with the
     x and y values of the spaced points. 
     """
+    if not ys:
+        return ([], [])
     assert yspace > 0 and xspace > 0
     (ymin, ymax) = (min(ys), max(ys))
     (ymin, ymax) = (ymin - yspace / 10. - 1e-5, ymax + yspace / 10. + 1e-5)

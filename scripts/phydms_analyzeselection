@@ -49,85 +49,6 @@ def TransformP(x, p, maxval):
             return max(-maxval, math.log10(p))
 
 
-def GetRank(x, xlist):
-    """Gets rank of *x* in *xlist*.
-
-    Assumes *xlist* is sorted from largest to smallest.
-
-    Returns 1 + index of the first item in *xlist* that is
-    <= than *x*."""
-    assert all([xlist[i] >= xlist[i + 1] for i in range(len(xlist) - 1)]), "xlist not sorted from largest to smallest"
-    for i in range(len(xlist)):
-        if xlist[i] <= x:
-            break
-    return i + 1
-
-
-def WriteTable(names, d, selectedsites, tablefile):
-    """Summarizes per-site selection to *tablefile* in ReStructuredText format."""
-    # header
-    line = ['site'] + names
-    if any(selectedsites.values()):
-        line += ['notes']
-    text = [line]
-
-    # line for each site
-    maxval = 1e20
-    sites = selectedsites.keys()
-    dms_tools.utils.NaturalSort(sites)
-    ranklist = {}
-    for name in names:
-        if d[name]['selectiontype'] == 'diffprefs':
-            ranklist[name] = [dpi for dpi in d[name]['data'].values()]
-        elif d[name]['selectiontype'] == 'omega':
-            ranklist[name] = [TransformP(idict['omega'], idict['P'], maxval) for idict in d[name]['data'].values()]
-        elif d[name]['selectiontype'] == 'stringency':
-            ranklist[name] = [-TransformP(idict['stringency'], idict['P'], maxval) for idict in d[name]['data'].values()]
-        else:
-            raise ValueError("Invalid selection type %s" % d[name]['selectiontype'])
-        ranklist[name].sort()
-        ranklist[name].reverse()
-    for site in sites:
-        line = [site]
-        nsites = len(ranklist[names[0]])
-        for name in names:
-            data = d[name]['data'][site]
-            if d[name]['selectiontype'] == 'diffprefs':
-                line.append("%.3f (%d out of %d sites)" % (data, GetRank(data, ranklist[name]), nsites))
-            elif d[name]['selectiontype'] == 'omega':
-                line.append("%.3f (P = %.2g; %d out of %d sites)" % (data['omega'], data['P'], GetRank(TransformP(data['omega'], data['P'], maxval), ranklist[name]), nsites))
-            elif d[name]['selectiontype'] == 'stringency':
-                line.append("%.3f (P = %.2g; %d out of %d sites)" % (data['stringency'], data['P'], GetRank(-TransformP(data['stringency'], data['P'], maxval), ranklist[name]), nsites))
-            else:
-                raise ValueError("Invalid selection type %s" % d[name]['selectiontype'])
-        if any(selectedsites.values()):
-            line += [selectedsites[site]]
-        text.append(line)
-
-    # now format text into table and write to file
-    columnwidths = []
-    for i in range(len(text[0])):
-        columnwidths.append(max([len(line[i]) for line in text]))
-    formatstring = ' '.join(['%-' + str(w) + 's' for w in columnwidths])
-    f = open(tablefile, 'w')
-    try:
-        f.write(' '.join(['=' * w for w in columnwidths]) + '\n')
-        wroteheader = False
-        for line in text:
-            assert len(line) == len(columnwidths), "%d vs %d" % (len(line), len(columnwidths))
-            f.write(formatstring % tuple(line) + '\n')
-            if not wroteheader:
-                wroteheader = True
-                f.write(' '.join(['=' * w for w in columnwidths]) + '\n')
-        f.write(' '.join(['=' * w for w in columnwidths]) + '\n')
-    except:
-        f.close()
-        os.remove(tablefile)
-        raise
-    f.close()
-
-
-
 def main():
     """Main body of script."""
 
@@ -135,7 +56,7 @@ def main():
     parser = phydmslib.parsearguments.PhyDMSAnalyzeSelectionParser()
     args = vars(parser.parse_args())
     prog = parser.prog
-    assert len(args['selectionfile']) == len(set(args['selectionfile'])), "The 'selectionfile' list contains duplicated entries"
+    assert len(args['selectionfiles']) == len(set(args['selectionfiles'])), "The 'selectionfiles' list contains duplicated entries"
     assert 0 < args['fdr'] < 1, "Invalid fdr, must be > 0 and < 1. You specified %g" % args['fdr']
 
     # print some basic information
@@ -152,13 +73,13 @@ def main():
 
     # Set up dictionary d containing information for site-specific selections, keyed by name
     # if present or selectionfile otherwise
-    if args['name']:
-        assert len(args['name']) == len(args['selectionfile']), "The number of entries specified by '--names' must match the number for 'selectionfile'"
-        assert len(args['name']) == len(set(args['name'])), "The 'name' list contains duplicated entries."
-        names = args['name']
+    if args['names']:
+        assert len(args['names']) == len(args['selectionfiles']), "The number of entries specified by '--names' must match the number for 'selectionfiles'"
+        assert len(args['names']) == len(set(args['names'])), "The 'names' list contains duplicated entries."
+        names = args['names']
     else:
-        names = args['selectionfile']
-    d = dict([(name, {'file':selectionfile}) for (name, selectionfile) in zip(names, args['selectionfile'])])
+        names = args['selectionfiles']
+    d = dict([(name, {'file':selectionfile}) for (name, selectionfile) in zip(names, args['selectionfiles'])])
 
     # readers for each type of selection
     filereaders = {'diffprefs':ModifiedReadDiffPrefs,
@@ -185,9 +106,11 @@ def main():
                 raise ValueError("File %s contains neither 'omega' or 'stringency' in file text" % name_d['file'])
             name_d['data'] = filereaders[stype](name_d['file'])
         name_d['selectiontype'] = stype
-        print("\nRead data of type %s from %s for %s." % (stype, name_d['file'], name))
+        name_d['sites'] = list(name_d['data'].keys())
+        dms_tools.utils.NaturalSort(name_d['sites'])
+        print("\nRead data of type %s for %d sites from %s for %s." % (stype, len(name_d['sites']), name_d['file'], name))
         if stype in ['omega', 'stringency']:
-            for site in name_d['data'].keys():
+            for site in name_d['sites']:
                 name_d['data'][site]['significant'] = False
             for (op, symbol) in [(operator.gt, 'gt1'), (operator.lt, 'lt1')]:
                 plist = []
@@ -198,95 +121,63 @@ def main():
                         plist.append((site, 1.0))
                 (name_d['pcutoff_%s' % symbol], significantsites) = phydmslib.utils.BenjaminiHochbergCorrection(plist, args['fdr'])
                 name_d['nsignificant_%s' % symbol] = len(significantsites)
-                for site in name_d['data'].keys():
+                for site in name_d['sites']:
                     if site in significantsites:
                         name_d['data'][site]['significant'] = True
             nsignificant = len([x for x in name_d['data'].values() if x['significant']])
             assert nsignificant == name_d['nsignificant_gt1'] + name_d['nsignificant_lt1'], "Marked %d sites as significant, but nsignificant_gt1 = %d and nsignificant_lt1 = %d" % (nsignificant, name_d['nsignificant_gt1'], name_d['nsignificant_lt1'])
             print("\t%d of %d sites have %s > 1 at a FDR of %.3g (this corresponds to P <= %.3g)" % (name_d['nsignificant_gt1'], len(name_d['data']), stype, args['fdr'], name_d['pcutoff_gt1']))
             print("\t%d of %d sites have %s < 1 at a FDR of %.3g (this corresponds to P <= %.3g)" % (name_d['nsignificant_lt1'], len(name_d['data']), stype, args['fdr'], name_d['pcutoff_lt1']))
-    sites = set(d.values()[0]['data'].keys())
-    assert all([set(idict['data'].keys()) == sites for idict in d.values()]), "Not the same sites for all selectionfiles"
-    print("\nWe have read data for a total of %d sites for the following types of selection:\n\t%s" % (len(sites), '\n\t'.join(names)))
 
     # read selected sites
-    selectedsites = {}
-    pointmarkercolor = 'or'
-    if args['selectedsites']:
-        with open(args['selectedsites']) as f:
-            for line in f:
-                if not (line.isspace() or line[0] == '#'):
-                    entries = line.split('#', 1)
-                    site = entries[0].strip()
-                    if len(entries) == 1:
-                        notes = ''
-                    else:
-                        notes = entries[1].strip()
-                    assert site not in selectedsites, "Duplicate site %s in selectedsites file %s" % (site, args['selectedsites'])
-                    assert site in sites, "Site %s in selectedsites file %s is not a site for which by-site selection information is specified in the selectionfile(s)" % (site, args['selectedsites'])
-                    selectedsites[site] = notes
-        assert selectedsites, "No selected sites to analyze specified in selectedsites file %s" % args['selectedsites']
-        print("\nRead %d selected sites to analyze from selectedsites file %s" % (len(selectedsites), args['selectedsites']))
-        if args['labelselectedsites']:
-            markers = 'ov^sd8*<>+xp'
-            colors =  'rbgmck'
-            assert len(selectedsites) <= len(markers) * len(colors), "Cannot use --labelselectedsites for the %d selected sites as we don't have that many unique colors / markers" % len(selectedsites)
-            pointmarkercolor = []
-            imarker = icolor = nfailed = 0
-            while len(pointmarkercolor) < len(selectedsites):
-                mc = '%s%s' % (markers[imarker % len(markers)], colors[icolor % len(colors)])
-                if mc not in pointmarkercolor:
-                    pointmarkercolor.append(mc)
+    if args['selectedsites'] == None:
+        args['selectedsites'] = [None] * len(args['selectionfiles'])
+    elif len(args['selectedsites']) == 1:
+        args['selectedsites'] = args['selectedsites'] * len(args['selectionfiles'])
+    elif len(args['selectedsites']) != len(args['selectionfiles']):
+        raise ValueError("You must either specify one entry for '--selectedsites' or the same number of entries as for 'selectionfiles'")
+    for (name, selectedsites) in zip(names, args['selectedsites']):
+        d[name]['selectedsites'] = []
+        if selectedsites:
+            with open(selectedsites) as f:
+                for line in f:
+                    if not (line.isspace() or line[0] == '#'):
+                        entries = line.split('#', 1)
+                        site = entries[0].strip()
+                        assert site not in d[name]['selectedsites'], "Duplicate site %s in selectedsites file %s" % (site, selectedsites)
+                        d[name]['selectedsites'].append(site)
+                        assert site in d[name]['sites'], "Site %s in selectedsites file %s is not a site for which by-site selection information is specified in the selectionfile for %s" % (site, selectedsites, name)
+
+    if args['labelselectedsites']:
+        maxselectedsites = max([len(d[name]['selectedsites']) for name in names])
+        markers = 'ov^sd8*<>+xp'
+        colors =  'rbgmck'
+        assert maxselectedsites <= len(markers) * len(colors), "Cannot use --labelselectedsites since we have as many as %d selected sites but only %d unique colors / markers" % (maxselectedsites, len(markers) * len(colors))
+        pointmarkercolorlist = []
+        imarker = icolor = nfailed = 0
+        while len(pointmarkercolorlist) < maxselectedsites:
+            mc = '%s%s' % (markers[imarker % len(markers)], colors[icolor % len(colors)])
+            if mc not in pointmarkercolorlist:
+                pointmarkercolorlist.append(mc)
+                icolor += 1
+                imarker += 1
+                nfailed = 0
+            else:
+                imarker += 1
+                nfailed += 1
+                if nfailed == len(markers):
                     icolor += 1
-                    imarker += 1
                     nfailed = 0
-                else:
-                    imarker += 1
-                    nfailed += 1
-                    if nfailed == len(markers):
-                        icolor += 1
-                        nfailed = 0
-            assert len(pointmarkercolor) == len(selectedsites) == len(set(pointmarkercolor))
-            pointmarkercolor_d = dict(zip(selectedsites.keys(), pointmarkercolor))
-    elif args['labelselectedsites']:
-        raise ValueError("You cannot use '--labelselectedsites' if you aren't also using '--selectedsites'.")
-
-    # make table 
-    if selectedsites:
-        print("\nWriting selection information for the selected sites to %s" % tablefile)
-        WriteTable(names, d, selectedsites, tablefile)
-
-    # if multiple omega selection types, make omega slopegraph
-    omega_names = [name for name in names if d[name]['selectiontype'] == 'omega']
-    if len(omega_names) > 1:
-        omega_names.sort()
-        omega_names.reverse()
-        omegaslopegraph = '%somega_slopegraph.pdf' % args['outprefix']
-        print("\nMaking the slopegraph %s to compare the different omega-by-site selections, which are:\n\t%s" % (omegaslopegraph, '\n\t'.join(omega_names)))
-        if os.path.isfile(omegaslopegraph):
-            print("Removing existing file %s before creating new one." % omegaslopegraph)
-            os.remove(omegaslopegraph)
-        if args['name']:
-            modelnames = [name.replace('omega', '').strip() for name in omega_names]
-        else:
-            modelnames = omega_names
-        phydmslib.plot.PlotSignificantOmega(
-                omegaslopegraph,
-                modelnames,
-                [d[name]['nsignificant_gt1'] for name in omega_names],
-                [d[name]['nsignificant_lt1'] for name in omega_names],
-                len(sites),
-                args['fdr'],
-                usetex=True
-                )
-        print("Finished creating the plot %s" % omegaslopegraph)
+        assert len(pointmarkercolorlist) == len(set(pointmarkercolorlist)) <= maxselectedsites, "Didn't get right number of pointmarkercolorlist entries"
+        for name in names:
+            d[name]['pointmarkercolor_d'] = dict(zip(d[name]['selectedsites'], pointmarkercolorlist))
 
     # make violin plots for each type of selection
     for stype in selectiontypes:
         snames = [name for name in names if d[name]['selectiontype'] == stype]
-        modelnames = [sname.replace(stype, '').strip() for sname in snames]
+        modelnames = [sname.replace('_', '-').strip() for sname in snames]
         if not snames:
-            continue
+            continue # no data for this type of selection
         plotfile = '%s%s_violinplot.pdf' % (args['outprefix'], stype)
         print("\nMaking violin plot %s for the %d %s-by-site selections, which are:\n\t%s" % (plotfile, len(snames), stype, '\n\t'.join(snames)))
         if os.path.isfile(plotfile):
@@ -295,13 +186,16 @@ def main():
         yvalues = []
         hlines = []
         points = []
-        legend = False
-        if args['labelselectedsites'] and selectedsites:
-            xsites = [site for site in sites if site in selectedsites]
-            legend = ([pointmarkercolor_d[site] for site in xsites], [str(site) for site in xsites])
+        legends = []
+        if args['labelselectedsites']:
             pointmarkercolor = []
             for sname in snames:
-                pointmarkercolor.append([pointmarkercolor_d[site] for site in sites if site in selectedsites])
+                xsites = [site for site in d[sname]['sites'] if site in d[sname]['selectedsites']]
+                if xsites:
+                    legends.append(([d[sname]['pointmarkercolor_d'][site] for site in xsites], [str(site) for site in xsites], sname))
+                pointmarkercolor.append([d[sname]['pointmarkercolor_d'][site] for site in xsites])
+        else:
+            pointmarkercolor = 'or'
         if stype == 'omega' or stype == 'stringency':
             (fixymin, fixymax) = (-args['maxlog10p'] - 0.2, args['maxlog10p'] + 0.2)
             ylabel = {
@@ -312,8 +206,8 @@ def main():
             multfactor = {'omega':1, 'stringency':-1}[stype]
             for sname in snames:
                 data = d[sname]['data']
-                yvalues.append([multfactor * TransformP(data[site][stype], data[site]['P'], args['maxlog10p']) for site in sites])
-                points.append([y for (site, y) in zip(sites, yvalues[-1]) if site in selectedsites])
+                yvalues.append([multfactor * TransformP(data[site][stype], data[site]['P'], args['maxlog10p']) for site in d[sname]['sites']])
+                points.append([y for (site, y) in zip(d[sname]['sites'], yvalues[-1]) if site in d[sname]['selectedsites']])
                 pcuts = [-1 * multfactor * TransformP(10, d[sname]['pcutoff_lt1'], args['maxlog10p']), multfactor * TransformP(10, d[sname]['pcutoff_gt1'], args['maxlog10p'])]
                 pcuts.sort()
                 hlines.append(pcuts)
@@ -324,8 +218,8 @@ def main():
             hlines = None
             for sname in snames:
                 data = d[sname]['data']
-                yvalues.append([data[site] for site in sites])
-                points.append([y for (site, y) in zip(sites, yvalues[-1]) if site in selectedsites])
+                yvalues.append([data[site] for site in d[sname]['sites']])
+                points.append([y for (site, y) in zip(d[sname]['sites'], yvalues[-1]) if site in d[sname]['selectedsites']])
         else:
             raise ValueError("Invalid selection type %s" % stype)
         if (not hlines) or (hlines and all([not hline for hline in hlines])):
@@ -342,7 +236,7 @@ def main():
                 points=points,
                 pointmarkercolor=pointmarkercolor,
                 usetex=True,
-                legend=legend,
+                legends=legends,
                 fixymin=fixymin,
                 fixymax=fixymax,
                 )
