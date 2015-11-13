@@ -96,7 +96,9 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
     *symmetrizey* : make y-axis symmetric around zero?
 
     *hlines* : if not *None*, list of the same length as *models* with each entry
-    a list giving y-value for where we draw horizontal lines for that *model*.
+    a list giving y-value for where we draw horizontal lines for that *model*. 
+    Alternatively, can be a single number -- in that case, we draw a horizontal
+    line across the whole plot at that number.
 
     *points* : if not *None*, list of the same length as *models* with each entry
     a list giving the y-value for points to be placed for that *model*.
@@ -171,7 +173,9 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
     xmin = -violinwidth / 2.0 - xmargin
     xmax = len(models) - 1 + violinwidth / 2.0 + xmargin
     plt.xlim(xmin, xmax)
-    if hlines:
+    if isinstance(hlines, (int, float)):
+        plt.hlines(hlines, xmin, xmax, colors='b', linewidths=1, linestyles='dotted')
+    elif hlines:
         assert len(hlines) == len(models)
         line_ys = []
         line_xmins = []
@@ -180,7 +184,7 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
             line_ys += hlines[i]
             line_xmins += [i - violinwidth / 2.0] * len(hlines[i])
             line_xmaxs += [i + violinwidth / 2.0] * len(hlines[i])
-        plt.hlines(line_ys, line_xmins, line_xmaxs, colors='b')
+        plt.hlines(line_ys, line_xmins, line_xmaxs, colors='b', linewidths=1, linestyles='dotted')
     if symmetrizey:
         (ymin, ymax) = plt.ylim()
         ymax = 1.05 * max(abs(ymin), abs(ymax))
@@ -250,11 +254,11 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
             end_x = (xmargin + xs[end_i] + violinwidth) / (xmax - xmin) # axes coordinates
             line_y = -0.12 # in axes coordinates
             cap_height = 0.03
-            line = plt.Line2D([start_x, end_x], [line_y, line_y], transform=plt.gca().transAxes, color='black', linewidth=2, solid_capstyle='butt')
+            line = plt.Line2D([start_x, end_x], [line_y, line_y], transform=plt.gca().transAxes, color='black', linewidth=1.5, solid_capstyle='butt')
             line.set_clip_on(False)
             plt.gca().add_line(line)
             for x in [start_x, end_x]: # caps on end of lines
-                line = plt.Line2D([x, x], [line_y + cap_height, line_y - cap_height], transform=plt.gca().transAxes, color='black', linewidth=2, solid_capstyle='butt')
+                line = plt.Line2D([x, x], [line_y + cap_height, line_y - cap_height], transform=plt.gca().transAxes, color='black', linewidth=1.5, solid_capstyle='butt')
                 line.set_clip_on(False)
                 plt.gca().add_line(line)
             plt.text((start_x + end_x) / 2.0, line_y - 0.04, group, transform=plt.gca().transAxes, horizontalalignment='center', verticalalignment='top', fontsize=15)

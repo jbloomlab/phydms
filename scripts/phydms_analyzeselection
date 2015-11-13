@@ -58,6 +58,13 @@ def main():
     prog = parser.prog
     assert len(args['selectionfiles']) == len(set(args['selectionfiles'])), "The 'selectionfiles' list contains duplicated entries"
     assert 0 < args['fdr'] < 1, "Invalid fdr, must be > 0 and < 1. You specified %g" % args['fdr']
+    if args['diffprefsline'] not in [None, False, 'lowestpeak']:
+        try:
+            args['diffprefsline'] = float(args['diffprefsline'])
+            if not (0 <= args['diffprefsline'] <= 1):
+                raise("caught by next except")
+        except:
+            raise ValueError("--diffprefsline must be 'lowestpeak' or a number between 0 and 1")
 
     # print some basic information
     print('\nBeginning execution of %s in directory %s at time %s\n' % (prog, os.getcwd(), time.asctime()))
@@ -243,19 +250,24 @@ def main():
                 pcuts = [-1 * multfactor * TransformP(10, d[sname]['pcutoff_lt1'], args['maxlog10p']), multfactor * TransformP(10, d[sname]['pcutoff_gt1'], args['maxlog10p'])]
                 pcuts.sort()
                 hlines.append(pcuts)
+            if all([not hline for hline in hlines]):
+                hlines = None
         elif stype == 'diffprefs':
             (fixymin, fixymax) = (0, 1)
-            ylabel = '$\\frac{1}{2} \sum_a |\Delta\pi_{r,a}|$'
+            ylabel = '$\\frac{1}{2} \sum_a \left|\Delta\pi_{r,a}\\right|$'
             symmetrizey = False
-            hlines = None
             for sname in snames:
                 data = d[sname]['data']
                 yvalues.append([data[site] for site in d[sname]['sites']])
                 points.append([y for (site, y) in zip(d[sname]['sites'], yvalues[-1]) if site in d[sname]['selectedsites']])
+            if isinstance(args['diffprefsline'], float):
+                hlines = args['diffprefsline']
+            elif args['diffprefsline'] == 'lowestpeak':
+                hlines = min([max(ys) for ys in yvalues])
+            else:
+                hlines = None
         else:
             raise ValueError("Invalid selection type %s" % stype)
-        if (not hlines) or (hlines and all([not hline for hline in hlines])):
-            hlines = None
         if (not points) or (points and all([not point for point in points])):
             points = None
         phydmslib.plot.SelectionViolinPlot(

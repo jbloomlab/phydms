@@ -173,6 +173,7 @@ def PhyDMSAnalyzeSelectionParser():
     parser.add_argument('--maxlog10p', type=FloatGreaterThanZero, default=5, help="For 'omega' and 'stringency' violin plots, if log10 P-value has magnitude > this, instead plot as this. Also is y-limits for these plots.")
     parser.set_defaults(groupbyname=False)
     parser.add_argument('--groupbyname', action='store_true', dest='groupbyname', help="Group selections with same first word in name specified by '--names'. Grouped selections must have same sites specified by '--selectedsites'.")
+    parser.add_argument('--diffprefsline', help="Draw cutoff line on diffprefs plot: 'lowestpeak' indicates the lowest peak value for any selection file, otherwise specify a number between 0 and 1.")
     return parser
 
 
