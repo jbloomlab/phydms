@@ -162,15 +162,17 @@ def ModelOption(model):
 
 def PhyDMSAnalyzeSelectionParser():
     """Returns an *argparse.ArgumentParser* for ``phydms_analyzeselection``."""
-    parser = ArgumentParserNoArgHelp(description="Analyzes/visualizes per-site selection inferred with 'phydms'. Plots distribution of selection parameters for all sites; can also extract and highlight information for a subset of sites. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = ArgumentParserNoArgHelp(description="Visualizes distributions of per-site selection inferred with 'phydms'. Can also highlight information for a subset of sites. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('outprefix', help="Prefix for output files.")
     parser.add_argument('selectionfiles', nargs='+', help="Per-site selection file(s) created by 'phydms' (i.e. '*_omegabysite.txt', '*_stringencybysite.txt', '*_diffprefsbysite.txt').", type=ExistingFile)
     parser.add_argument('--names', nargs='+', help="Name(s) describing type of selection to go with each 'selectionfile'.")
-    parser.add_argument('--selectedsites', nargs='+', type=ExistingFile, help="File(s) listing selected sites to analyze in table and display as points on plots. If you give one file, it applies to all 'selectionfiles'. Otherwise list a different file (or 'None') for each file in 'selectionfiles'. Column 1 lists site number, which can be followed by # giving notes for site. Lines beginning with '#' are ignored.")
+    parser.add_argument('--selectedsites', nargs='+', type=ExistingFile, help="File(s) listing selected sites to display as points. If you give one file, it applies to all 'selectionfiles'. Otherwise list a different file (or 'None') for each file in 'selectionfiles'. Column 1 is site number, which can be followed by # giving notes. Lines beginning with '#' are ignored.")
     parser.set_defaults(labelselectedsites=False)
     parser.add_argument('--labelselectedsites', action='store_true', dest='labelselectedsites', help="Do we use a unique labeled point on violin plots for each site in '--selectedsites'?")
-    parser.add_argument('--fdr', type=float, default=0.05, help="False discovery rate for declaring sites significant for 'omega' and 'stringency'. FDR computed separately using Benjamini-Hochberg procedure for values > and < 1.")
+    parser.add_argument('--fdr', type=float, default=0.05, help="False discovery rate for 'omega' and 'stringency'. Benjamini-Hochberg FDR computed separately for values > and < 1.")
     parser.add_argument('--maxlog10p', type=FloatGreaterThanZero, default=5, help="For 'omega' and 'stringency' violin plots, if log10 P-value has magnitude > this, instead plot as this. Also is y-limits for these plots.")
+    parser.set_defaults(groupbyname=False)
+    parser.add_argument('--groupbyname', action='store_true', dest='groupbyname', help="Group selections with same first word in name specified by '--names'. Grouped selections must have same sites specified by '--selectedsites'.")
     return parser
 
 

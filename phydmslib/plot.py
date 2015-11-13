@@ -79,7 +79,7 @@ def PlotSignificantOmega(plotfile, models, ngt, nlt, nsites, fdr, usetex=True):
 
 
 
-def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=None, points=None, pointmarkercolor='or', usetex=True, legends=False, fixymin=None, fixymax=None):
+def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=None, points=None, pointmarkercolor='or', usetex=True, legends=False, fixymin=None, fixymax=None, modelgroups=None):
     """Creates violin plot showing distribution of selection and significant sites.
 
     Calling arguments:
@@ -119,6 +119,15 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
     *fixymin* : if not *None*, the y-minimum is fixed to this value.
 
     *fixymax* : if not *None*, the y-maximum is fixed to this value.
+
+    *modelgroups* : do we "group" models on the x-axis? If so, set this to a list
+    of the same length as *models* with each entry being the group to which
+    that model is assigned. For instance, if *models* is 
+    *['ExpCM', 'YNGKP', 'ExpCM', 'YNGKP']*,
+    then *modelgroups* might be *['HA', 'HA', 'NP', 'NP']*. In this case,
+    the two groups are indicated with a line and a label on the x-axis.
+    Models in the same group must be consecutive. If any entry is *None*,
+    the corresponding model is not assigned a group.
     """
     alpha = 0.55 # transparency for points
     markersize = 25 # size of points
@@ -126,26 +135,42 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
     assert os.path.splitext(plotfile)[1].lower() == '.pdf', "plotfile %s does not end with extension '.pdf'"
     assert len(models) == len(yvalues) >= 1
     assert not (isinstance(pointmarkercolor, list) and not points), "It doesn't make sense to set pointmarkercolor to a list if you're not using points"
+    if modelgroups:
+        assert len(modelgroups) == len(models), "modelgroups is not the same length as models"
+        # make sure models in the same group are consecutive
+        ngroups = 1
+        previousgroup = modelgroups[0]
+        for group in modelgroups[1 : ]:
+            if group != previousgroup:
+                ngroups += 1
+                previousgroup = group
+        assert ngroups == len(set(modelgroups)), "models in the same group must be consecutive in modelgroups. This is not the case:\n%s" % str(modelgroups)
     plt.rc('font', size=12)
     plt.rc('text', usetex=usetex)
     lmargin = 0.7
     tmargin = 0.1
-    bmargin = 0.4
+    if modelgroups:
+        bmargin = 0.6
+    else:
+        bmargin = 0.4
     if legends:
-        perlegendwidth = 0.95
+        perlegendwidth = 0.9
         rmargin = perlegendwidth * len(legends) + 0.03
     else:
         rmargin = 0.1
-    (height, widthper) = (2.5, 1.75)
+    (height, widthper) = (2.5, 1.5)
     totwidth = len(models) * widthper + lmargin + rmargin
     totheight = height + tmargin + bmargin
     plt.figure(figsize=(totwidth, totheight))
     plt.axes([lmargin / totwidth, bmargin / totheight, 1.0 - (lmargin + rmargin) / totwidth, 1.0 - (tmargin + bmargin) / totheight])
-    plt.ylabel(ylabel, fontsize=16)
+    plt.ylabel(ylabel, fontsize=15)
     xs = [x for x in range(len(models))]
-    violinwidth = 0.75
+    violinwidth = 0.7
     plt.violinplot(yvalues, xs, widths=violinwidth, showextrema=False)
-    plt.xlim(-1.2 * violinwidth / 2.0, len(models) - 1 + 1.2 * violinwidth / 2.0)
+    xmargin = 0.2 * violinwidth / 2.0
+    xmin = -violinwidth / 2.0 - xmargin
+    xmax = len(models) - 1 + violinwidth / 2.0 + xmargin
+    plt.xlim(xmin, xmax)
     if hlines:
         assert len(hlines) == len(models)
         line_ys = []
@@ -175,7 +200,7 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
         point_xs = []
         point_ys = []
         for i in range(len(models)):
-            (model_xs, model_ys) = SmartJitter(points[i], yspace=(ymax - ymin) / 25., xspace=0.07, xcenter=i)
+            (model_xs, model_ys) = SmartJitter(points[i], yspace=(ymax - ymin) / 25., xspace=0.08, xcenter=i)
             point_xs += model_xs
             point_ys += model_ys
             if not isinstance(pointmarkercolor, str):
@@ -195,7 +220,7 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
         ymax = fixymax
     assert ymin < ymax
     plt.ylim(ymin, ymax)
-    plt.xticks(xs, models, fontsize=16)
+    plt.xticks(xs, models, fontsize=15)
     if legends:
         legendx = 1.0 - rmargin / float(totwidth)
         legendfracwidth = perlegendwidth / float(totwidth)
@@ -211,10 +236,28 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
             for (handle, name) in zip(handles, legendnames):
                 sortedhandles[sortedlegendnames.index(name)] = handle
             assert None not in sortedhandles
-            legend = plt.legend(sortedhandles, sortedlegendnames, bbox_to_anchor=(legendx, 0, legendfracwidth, legendtop), bbox_transform=plt.gcf().transFigure, fontsize=13, numpoints=1, title='%s\nsites' % SplitText(legendtitle, maxchars=5), markerscale=0.25, handlelength=0.7, handletextpad=0.25, borderaxespad=0, labelspacing=0.2)
+            legend = plt.legend(sortedhandles, sortedlegendnames, bbox_to_anchor=(legendx, 0, legendfracwidth, legendtop), bbox_transform=plt.gcf().transFigure, fontsize=13, numpoints=1, title=('\\bf{%s\nsites}' % SplitText(legendtitle, maxchars=6)).replace('\n', '}\n\\bf{'), markerscale=0.25, handlelength=0.7, handletextpad=0.25, borderaxespad=0, labelspacing=0.2)
             plt.gca().add_artist(legend)
             legendx += legendfracwidth
-            plt.setp(legend.get_title(), fontsize=14)
+            plt.setp(legend.get_title(), fontsize=13)
+    if modelgroups:
+        for group in set(modelgroups):
+            if not group:
+                continue
+            start_i = min([i for (i, g) in enumerate(modelgroups) if g == group])
+            end_i = max([i for (i, g) in enumerate(modelgroups) if g == group])
+            start_x = (xmargin + xs[start_i]) / (xmax - xmin) # axes coordinates
+            end_x = (xmargin + xs[end_i] + violinwidth) / (xmax - xmin) # axes coordinates
+            line_y = -0.12 # in axes coordinates
+            cap_height = 0.03
+            line = plt.Line2D([start_x, end_x], [line_y, line_y], transform=plt.gca().transAxes, color='black', linewidth=2, solid_capstyle='butt')
+            line.set_clip_on(False)
+            plt.gca().add_line(line)
+            for x in [start_x, end_x]: # caps on end of lines
+                line = plt.Line2D([x, x], [line_y + cap_height, line_y - cap_height], transform=plt.gca().transAxes, color='black', linewidth=2, solid_capstyle='butt')
+                line.set_clip_on(False)
+                plt.gca().add_line(line)
+            plt.text((start_x + end_x) / 2.0, line_y - 0.04, group, transform=plt.gca().transAxes, horizontalalignment='center', verticalalignment='top', fontsize=15)
     plt.savefig(plotfile)
     plt.clf()
     plt.close()

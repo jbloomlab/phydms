@@ -67,9 +67,6 @@ def main():
     assert (not os.path.dirname(args['outprefix'])) or os.path.isdir(os.path.dirname(args['outprefix'])), "outprefix includes non-existent directory: %s" % args['outprefix']
     if not os.path.isdir(args['outprefix']):
         args['outprefix'] = '%s_' % args['outprefix']
-    tablefile = "%sselectiontable.txt" % args['outprefix']
-    if os.path.isfile(tablefile):
-        print("\nRemoved %s, which already existed but will be created as new output." % tablefile)
 
     # Set up dictionary d containing information for site-specific selections, keyed by name
     # if present or selectionfile otherwise
@@ -175,9 +172,36 @@ def main():
     # make violin plots for each type of selection
     for stype in selectiontypes:
         snames = [name for name in names if d[name]['selectiontype'] == stype]
-        modelnames = [sname.replace('_', '-').strip() for sname in snames]
         if not snames:
             continue # no data for this type of selection
+        if args['groupbyname']:
+            modelgroups = []
+            modelnames = []
+            groups = {}
+            for sname in snames:
+                tup = sname.split(None, 1)
+                if len(tup) == 2:
+                    (group, remainingname) = tup
+                    group = group.strip()
+                    modelnames.append(remainingname.replace('_', '-').strip())
+                    if group in groups:
+                        groups[group].append(sname)
+                    else:
+                        groups[group] = [sname]
+                    modelgroups.append(group)
+                else:
+                    modelnames.append(sname.replace('_', '-').strip())
+                    modelgroups.append(None)
+                    groups[sname] = [sname]
+        else:
+            modelnames = [sname.replace('_', '-').strip() for sname in snames]
+            modelgroups = None
+            groups = dict([(sname, [sname]) for sname in snames])
+        for group in groups: # make sure all groups have same selected sites
+            for sname in groups[group]:
+                if set(d[sname]['selectedsites']) != set(d[groups[group][0]]['selectedsites']):
+                    assert args['groupbyname'], "Shouldn't be getting this message if not using --groupbyname"
+                    raise ValueError("You are using --groupbyname, but you specified different selected sites for %s and %s, which are both in group %s" % (sname, groups[group][0], group))
         plotfile = '%s%s_violinplot.pdf' % (args['outprefix'], stype)
         print("\nMaking violin plot %s for the %d %s-by-site selections, which are:\n\t%s" % (plotfile, len(snames), stype, '\n\t'.join(snames)))
         if os.path.isfile(plotfile):
@@ -192,7 +216,15 @@ def main():
             for sname in snames:
                 xsites = [site for site in d[sname]['sites'] if site in d[sname]['selectedsites']]
                 if xsites:
-                    legends.append(([d[sname]['pointmarkercolor_d'][site] for site in xsites], [str(site) for site in xsites], sname))
+                    group = [group for group in groups if sname in groups[group]]
+                    assert len(group) == 1, "found multiple groups"
+                    group = group[0]
+                    if len(groups[group]) == 1:
+                        legendtitle = sname
+                    else:
+                        legendtitle = group                        
+                    if sname == groups[group][0]: # only one legend per group
+                        legends.append(([d[sname]['pointmarkercolor_d'][site] for site in xsites], [str(site) for site in xsites], legendtitle))
                 pointmarkercolor.append([d[sname]['pointmarkercolor_d'][site] for site in xsites])
         else:
             pointmarkercolor = 'or'
@@ -239,6 +271,7 @@ def main():
                 legends=legends,
                 fixymin=fixymin,
                 fixymax=fixymax,
+                modelgroups=modelgroups
                 )
         print("Finished creating plot %s" % plotfile)
 
