@@ -74,6 +74,8 @@ def main():
     assert (not os.path.dirname(args['outprefix'])) or os.path.isdir(os.path.dirname(args['outprefix'])), "outprefix includes non-existent directory: %s" % args['outprefix']
     if not os.path.isdir(args['outprefix']):
         args['outprefix'] = '%s_' % args['outprefix']
+    else:
+        args['outprefix'] = '%s/' % args['outprefix']
 
     # Set up dictionary d containing information for site-specific selections, keyed by name
     # if present or selectionfile otherwise
