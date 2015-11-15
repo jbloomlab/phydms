@@ -33,7 +33,7 @@ class TestOnNPs(unittest.TestCase):
         self.diffpref_files = ['%s_diffprefsbysite.txt' % model for model in self.all_models if 'YNGKP' not in model]
         for f in self.likelihood_files + self.params_files + self.bysite_files + self.diffpref_files:
             fname = "%s/%s" % (self.expected_dir, f)
-            self.assertTrue(os.path.isfile(fname), "Canot find required file %s" % fname)
+            self.assertTrue(os.path.isfile(fname), "Cannot find required file %s" % fname)
             toremove = "%s/%s" % (self.test_dir, f)
             if os.path.isfile(toremove):
                 os.remove(toremove)
@@ -41,7 +41,7 @@ class TestOnNPs(unittest.TestCase):
 
     def test_Phydms(self):
         """Runs ``phydms_comprehensive``."""
-        cmds = ['phydms_comprehensive', self.test_dir, self.alignment, self.prefs, '--ncpus', '-1', '--diffprefconc', '2.0']
+        cmds = ['phydms_comprehensive', self.test_dir, self.alignment, self.prefs, '--ncpus', '-1']
         sys.stderr.write('\nRunning phydms with the the following command:\n%s\n' % ' '.join(cmds))
         subprocess.call(cmds)
 
