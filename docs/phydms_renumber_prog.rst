@@ -16,7 +16,7 @@ This program will be useful for proteins for which the commonly used numbering s
 
     * ``*_stringencybysite.txt`` (if using ``--stringencybysite``)
 
-    * ``*_diffprefsbysite.txt`` (if using ``--diffprefsbysite``)
+    * ``*_diffprefsbysite.txt`` and ``*_diffprefsbysite_sumabs.txt`` (if using ``--diffprefsbysite``)
 
 
 Command-line usage

@@ -43,7 +43,7 @@ def main():
     assert len(renumber_d) == len(set(renumber_d.values())), "Duplicate new site numbers in %s" % args['renumberfile']
 
     # identify files to renumber
-    filesuffixes = ['_omegabysite.txt', '_stringencybysite.txt', '_diffprefsbysite.txt']
+    filesuffixes = ['_omegabysite.txt', '_stringencybysite.txt', '_diffprefsbysite.txt', '_diffprefsbysite_sumabs.txt']
     filestorenumber = []
     for outprefix in args['outprefixes']:
         files = []
@@ -52,8 +52,8 @@ def main():
                 files.append(outprefix)
             files += glob.glob('%s%s' % (outprefix, suffix))
         filestorenumber += files
-    if not filestorenumber:
-        raise ValueError("Failed to find any files with one of the expected suffixes (%s)" % ', '.join(filesuffixes))
+        if not files:
+            raise ValueError("Failed to find any files with one of the expected suffixes (%s) for outprefix %s" % (', '.join(filesuffixes), outprefix))
 
     # renumber 
     for oldfile in filestorenumber:
