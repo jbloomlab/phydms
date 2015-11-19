@@ -136,7 +136,6 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
     markerlw = 0.6 # line width for makers
     assert os.path.splitext(plotfile)[1].lower() == '.pdf', "plotfile %s does not end with extension '.pdf'"
     assert len(models) == len(yvalues) >= 1
-    assert not (isinstance(pointmarkercolor, list) and not points), "It doesn't make sense to set pointmarkercolor to a list if you're not using points"
     if modelgroups:
         assert len(modelgroups) == len(models), "modelgroups is not the same length as models"
         # make sure models in the same group are consecutive
