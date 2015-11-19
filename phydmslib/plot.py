@@ -161,17 +161,34 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
     else:
         rmargin = 0.1
     (height, widthper) = (2.5, 1.5)
-    totwidth = len(models) * widthper + lmargin + rmargin
+    violinwidth = 0.7
+    totwidth = lmargin + rmargin
+    if modelgroups:
+        firstmodel = True
+        withingroupspacing = violinwidth + 0.3 * (1.0 - violinwidth)
+        xs = []
+        for (imodel, igroup) in zip(models, modelgroups): 
+            if not firstmodel and (igroup == lastgroup != None):
+                xs.append(xs[-1] + withingroupspacing)
+                totwidth += withingroupspacing * widthper
+            elif firstmodel:
+                firstmodel = False
+                xs.append(0)
+                totwidth += widthper
+            else:
+                xs.append(xs[-1] + 1)
+                totwidth += widthper
+            lastgroup = igroup
+    else:
+        xs = [x for x in range(len(models))]
     totheight = height + tmargin + bmargin
     plt.figure(figsize=(totwidth, totheight))
     plt.axes([lmargin / totwidth, bmargin / totheight, 1.0 - (lmargin + rmargin) / totwidth, 1.0 - (tmargin + bmargin) / totheight])
     plt.ylabel(ylabel, fontsize=15)
-    xs = [x for x in range(len(models))]
-    violinwidth = 0.7
     plt.violinplot(yvalues, xs, widths=violinwidth, showextrema=False)
     xmargin = 0.2 * violinwidth / 2.0
-    xmin = -violinwidth / 2.0 - xmargin
-    xmax = len(models) - 1 + violinwidth / 2.0 + xmargin
+    xmin = xs[0] - violinwidth / 2.0 - xmargin
+    xmax = xs[-1] + violinwidth / 2.0 + xmargin
     plt.xlim(xmin, xmax)
     if isinstance(hlines, (int, float)):
         plt.hlines(hlines, xmin, xmax, colors='b', linewidths=1, linestyles='dotted')
@@ -180,10 +197,10 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
         line_ys = []
         line_xmins = []
         line_xmaxs = []
-        for i in range(len(models)):
+        for (i, ix) in enumerate(xs):
             line_ys += hlines[i]
-            line_xmins += [i - violinwidth / 2.0] * len(hlines[i])
-            line_xmaxs += [i + violinwidth / 2.0] * len(hlines[i])
+            line_xmins += [ix - violinwidth / 2.0] * len(hlines[i])
+            line_xmaxs += [ix + violinwidth / 2.0] * len(hlines[i])
         plt.hlines(line_ys, line_xmins, line_xmaxs, colors='b', linewidths=1, linestyles='dotted')
     if symmetrizey:
         (ymin, ymax) = plt.ylim()
@@ -203,8 +220,8 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
             assert len(pointmarkercolor) == len(points), "len(pointmarkercolor) = %d; len(points) = %d" % (len(pointmarkercolor), len(points))
         point_xs = []
         point_ys = []
-        for i in range(len(models)):
-            (model_xs, model_ys) = SmartJitter(points[i], yspace=(ymax - ymin) / 25., xspace=0.08, xcenter=i)
+        for (i, ix) in enumerate(xs):
+            (model_xs, model_ys) = SmartJitter(points[i], yspace=(ymax - ymin) / 25., xspace=0.08, xcenter=ix)
             point_xs += model_xs
             point_ys += model_ys
             if not isinstance(pointmarkercolor, str):
