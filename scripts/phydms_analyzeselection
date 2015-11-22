@@ -229,7 +229,7 @@ def main():
                     assert len(group) == 1, "found multiple groups"
                     group = group[0]
                     legendtitle = group
-                    if sname == groups[group][0]: # only one legend per group
+                    if sname == groups[group][0] and not args['nolegend']: # only one legend per group
                         legends.append(([d[sname]['pointmarkercolor_d'][site] for site in xsites], [str(site) for site in xsites], legendtitle))
                 pointmarkercolor.append([d[sname]['pointmarkercolor_d'][site] for site in xsites])
         else:
