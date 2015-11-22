@@ -180,6 +180,7 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
             lastgroup = igroup
     else:
         xs = [x for x in range(len(models))]
+        totwidth += widthper * len(models)
     totheight = height + tmargin + bmargin
     plt.figure(figsize=(totwidth, totheight))
     plt.axes([lmargin / totwidth, bmargin / totheight, 1.0 - (lmargin + rmargin) / totwidth, 1.0 - (tmargin + bmargin) / totheight])
