@@ -40,7 +40,7 @@ def main():
                     raise ValueError("Duplicate site number for %d in first column of %s" % (old_i, args['renumberfile']))
                 else:
                     renumber_d[old_i] = new_i
-    assert len(renumber_d) == len(set(renumber_d.values())), "Duplicate new site numbers in %s" % args['renumberfile']
+    assert len(renumber_d) == len(set(renumber_d.values())) + max(0, len([r for r in renumber_d.values() if r.lower() == 'none']) - 1), "Duplicate new site numbers in %s" % args['renumberfile']
 
     # identify files to renumber
     filesuffixes = ['_omegabysite.txt', '_stringencybysite.txt', '_diffprefsbysite.txt', '_diffprefsbysite_sumabs.txt']
@@ -72,7 +72,8 @@ def main():
                 else:
                     (site, remainder) = line.split(None, 1)
                     if site in renumber_d:
-                        newlines.append('%s\t%s' % (renumber_d[site], remainder))
+                        if renumber_d[site].lower() != 'none':
+                            newlines.append('%s\t%s' % (renumber_d[site], remainder))
                         foundsites.add(site)
                     else:
                         raise ValueError("Cannot renumber site %s in %s, as no new number was specified for this site. Offending line in %s:\n%s" % (site, oldfile, oldfile, line))

@@ -38,6 +38,14 @@ Command-line usage
 
     Note that a new site number must be specified for **every** site in each file to renumber, even if that new number just matches the old one. Similarly, every site listed in this ``renumberfile`` must be present in the files to be renumbered.
 
+    If you don't want to include a site in the output, indicate *None* for the new number, as in::
+
+        1 None
+        2 None
+        3 18A
+        4 19
+        5 20
+
    outprefix
     Every file listed here should either by the full name of a file to renumber, or the prefix of such a file (we look for files with this prefix and suffixes of ``_omegabysite.txt``, ``_stringencybsite.txt``, or ``_diffprefsbysite.txt``). You are allowed to use wildcard characters (``*``) in these prefixes.
 
