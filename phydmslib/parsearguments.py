@@ -175,7 +175,7 @@ def PhyDMSAnalyzeSelectionParser():
     parser.add_argument('--groupbyname', action='store_true', dest='groupbyname', help="Group selections with same first word in name specified by '--names'. Grouped selections must have same sites specified by '--selectedsites'.")
     parser.add_argument('--diffprefsline', help="Draw cutoff line on diffprefs plot: 'lowestpeak' indicates the lowest peak value for any selection file, otherwise specify a number between 0 and 1.")
     parser.set_defaults(nolegend=False)
-    parser.add_argument('--nologend', action='store_true', dest='nolegend', help="Don't place a legend even on plates with labeled selected sites.")
+    parser.add_argument('--nolegend', action='store_true', dest='nolegend', help="Don't place a legend even on plates with labeled selected sites.")
     return parser
 
 
