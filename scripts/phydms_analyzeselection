@@ -136,10 +136,12 @@ def main():
             print("\t%d of %d sites have %s < 1 at a FDR of %.3g (this corresponds to P <= %.3g)" % (name_d['nsignificant_lt1'], len(name_d['data']), stype, args['fdr'], name_d['pcutoff_lt1']))
 
     # read selected sites
+    sameselectedsites = False
     if args['selectedsites'] == None:
         args['selectedsites'] = [None] * len(args['selectionfiles'])
     elif len(args['selectedsites']) == 1:
         args['selectedsites'] = args['selectedsites'] * len(args['selectionfiles'])
+        sameselectedsites = True
     elif len(args['selectedsites']) != len(args['selectionfiles']):
         raise ValueError("You must either specify one entry for '--selectedsites' or the same number of entries as for 'selectionfiles'")
     for (name, selectedsites) in zip(names, args['selectedsites']):
@@ -230,7 +232,10 @@ def main():
                     group = group[0]
                     legendtitle = group
                     if sname == groups[group][0] and not args['nolegend']: # only one legend per group
-                        legends.append(([d[sname]['pointmarkercolor_d'][site] for site in xsites], [str(site) for site in xsites], legendtitle))
+                        if legends and sameselectedsites:
+                            pass
+                        else:
+                            legends.append(([d[sname]['pointmarkercolor_d'][site] for site in xsites], [str(site) for site in xsites], legendtitle))
                 pointmarkercolor.append([d[sname]['pointmarkercolor_d'][site] for site in xsites])
         else:
             pointmarkercolor = 'or'
