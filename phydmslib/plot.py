@@ -257,7 +257,11 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
             for (handle, name) in zip(handles, legendnames):
                 sortedhandles[sortedlegendnames.index(name)] = handle
             assert None not in sortedhandles
-            legend = plt.legend(sortedhandles, sortedlegendnames, bbox_to_anchor=(legendx, 0, legendfracwidth, legendtop), bbox_transform=plt.gcf().transFigure, fontsize=13, numpoints=1, title=('\\bf{%s\nsites}' % SplitText(legendtitle, maxchars=6)).replace('\n', '}\n\\bf{'), markerscale=0.25, handlelength=0.7, handletextpad=0.25, borderaxespad=0, labelspacing=0.2)
+            if legendtitle:
+                legendtitle = ('\\bf{%s\nsites}' % SplitText(legendtitle, maxchars=6)).replace('\n', '}\n\\bf{')
+            else:
+                legendtitle = '\\bf{sites}'
+            legend = plt.legend(sortedhandles, sortedlegendnames, bbox_to_anchor=(legendx, 0, legendfracwidth, legendtop), bbox_transform=plt.gcf().transFigure, fontsize=13, numpoints=1, title=legendtitle, markerscale=0.25, handlelength=0.7, handletextpad=0.25, borderaxespad=0, labelspacing=0.2)
             plt.gca().add_artist(legend)
             legendx += legendfracwidth
             plt.setp(legend.get_title(), fontsize=13)

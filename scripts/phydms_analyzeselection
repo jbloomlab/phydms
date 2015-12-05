@@ -230,7 +230,10 @@ def main():
                     group = [group for group in groups if sname in groups[group]]
                     assert len(group) == 1, "found multiple groups"
                     group = group[0]
-                    legendtitle = group
+                    if sameselectedsites:
+                        legendtitle = ''
+                    else:
+                        legendtitle = group
                     if sname == groups[group][0] and not args['nolegend']: # only one legend per group
                         if legends and sameselectedsites:
                             pass
