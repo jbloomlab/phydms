@@ -86,14 +86,14 @@ where :math:`x_1`, :math:`x_2`, and :math:`x_3` are the nucleotides at positions
 In `Bloom, Mol Biol Evol, 31:2753-2769`_, it is shown that the stationary state of the model defined by the selection terms alone is
 
 .. math::
-   f_x \propto \left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta},
+   f_{r,x} \propto \left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta},
 
 and furthermore that this selection-term only model is reversible (the derivation in `Bloom, Mol Biol Evol, 31:2753-2769`_ doesn't include the :math:`\omega` term, but carrying through the same derivation with this term yields the above result).
 
 Finally, `Bloom, Mol Biol Evol, 31:2753-2769`_ shows that given these stationary states, the overall model defined by :eq:`Prxy` is reversible and has stationary state
 
 .. math::
-   p_x = \frac{f_x \times q_x}{\sum_y f_y \times q_y} = \frac{\left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta} \times q_x}{\sum_y \left(\pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta} \times q_y}.
+   p_{r,x} = \frac{f_{r,x} \times q_x}{\sum_y f_y \times q_y} = \frac{\left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta} \times q_x}{\sum_y \left(\pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta} \times q_y}.
 
 Therefore, assuming that the preferences :math:`\pi_{r,a}` are known *a priori* for all amino acids :math:`a` at all sites :math:`r` (e.g. the preferences have been measured in a deep mutational scanning experiment), the substitution model is completely defined by giving values to the following six parameters: :math:`\omega`, :math:`\beta`, :math:`\kappa`, :math:`\phi_A`, :math:`\phi_C`, and :math:`\phi_G`. When fitting and *ExpCM* for a gene phylogeny, ``phydms`` assumes that these six parameters are constant across all sites, and optimizes their values by maximum likelihood.
 
