@@ -210,7 +210,7 @@ Another way to summarize the total difference in preferences is the half the abs
 .. math::
    :label: abs_sum_diffpref
 
-   \frac{1}{2} \sum_a \left|\pi_{r,a}\right|
+   \frac{1}{2} \sum_a \left|\Delta\pi_{r,a}\right|
 
 The theoretical maximum of this quantity is one.
 
