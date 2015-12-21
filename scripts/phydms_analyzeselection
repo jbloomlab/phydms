@@ -244,10 +244,15 @@ def main():
             pointmarkercolor = 'or'
         if stype == 'omega' or stype == 'stringency':
             (fixymin, fixymax) = (-args['maxlog10p'] - 0.2, args['maxlog10p'] + 0.2)
-            ylabel = {
-                'omega':'$\omega_r < 1 \leftarrow \log_{10} P \\rightarrow \omega_r > 1$',
-                'stringency':'$\\beta_r > 1 \leftarrow \log_{10} P \\rightarrow \\beta_r < 1$'
-                }[stype]
+            if stype == 'stringency':
+                ylabel = '$\\beta_r > 1 \leftarrow \log_{10} P \\rightarrow \\beta_r < 1$'
+            elif stype == 'omega':
+                if args['dNdSlabel']:
+                    ylabel = '$\\frac{dN}{dS} < 1 \leftarrow \log_{10} P \\rightarrow \\frac{dN}{dS} > 1$'
+                else:
+                    ylabel = '$\omega_r < 1 \leftarrow \log_{10} P \\rightarrow \omega_r > 1$'
+            else:
+                raise ValueError("Invalid stype %s" % stype)
             symmetrizey = True
             multfactor = {'omega':1, 'stringency':-1}[stype]
             for sname in snames:

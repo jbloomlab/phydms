@@ -176,6 +176,9 @@ def PhyDMSAnalyzeSelectionParser():
     parser.add_argument('--diffprefsline', help="Draw cutoff line on diffprefs plot: 'lowestpeak' indicates the lowest peak value for any selection file, otherwise specify a number between 0 and 1.")
     parser.set_defaults(nolegend=False)
     parser.add_argument('--nolegend', action='store_true', dest='nolegend', help="Don't place a legend even on plates with labeled selected sites.")
+    parser.set_defaults(dNdSlabel=False)
+    parser.add_argument('--dNdSlabel', action='store_true', dest='dNdSlabel', help="Label omega-by-site plots with 'dN/dS' rather than 'omega_r'.")
+
     return parser
 
 
