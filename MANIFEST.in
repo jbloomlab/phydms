@@ -6,7 +6,7 @@ include docs/*.py
 include docs/Makefile
 include docs/*.txt
 include tests/*
-recursive-include phydmslib *.rst *.pyx *.h
+recursive-include phydmslib *.rst *.pyx *.h __*
 
 global-exclude *.so
 global-exclude *.pyc
