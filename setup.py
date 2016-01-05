@@ -130,8 +130,8 @@ setup(
     license = 'GPLv3',
     install_requires = [
         'biopython>=1.65',
-        'cython>=0.21',
-        'dms_tools>=1.1.7',
+        'cython>=0.2',
+        'dms_tools>=1.1.9',
         'scipy>=0.16',
         'matplotlib>=1.4.3',
         ],

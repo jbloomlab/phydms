@@ -6,9 +6,11 @@ include docs/*.py
 include docs/Makefile
 include docs/*.txt
 include tests/*
-include phydmslib/*.pyx
-include phydmslib/*/README.rst
+recursive-include phydmslib *.rst *.pyx *.h
 
 global-exclude *.so
 global-exclude *.pyc
 global-exclude .git*
+global-exclude ._*
+global-exclude slurm-*
+global-exclude *.sbatch
