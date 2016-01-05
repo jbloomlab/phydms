@@ -1,0 +1,294 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Quick example &mdash; phydms 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="phydms 1.0.0 documentation" href="index.html" />
+    <link rel="next" title="the phydms program" href="phydms_prog.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="phydms_prog.html" title="the phydms program"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">phydms 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="quick-example">
+<span id="id1"></span><h1><a class="toc-backref" href="#id2">Quick example</a><a class="headerlink" href="#quick-example" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#quick-example" id="id2">Quick example</a><ul>
+<li><a class="reference internal" href="#input-data" id="id3">Input data</a></li>
+<li><a class="reference internal" href="#running-phydms" id="id4">Running phydms</a></li>
+<li><a class="reference internal" href="#substitution-model-comparison" id="id5">Substitution model comparison</a></li>
+<li><a class="reference internal" href="#identification-of-site-specific-selection" id="id6">Identification of site-specific selection</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="input-data">
+<h2><a class="toc-backref" href="#id3">Input data</a><a class="headerlink" href="#input-data" title="Permalink to this headline">¶</a></h2>
+<p>To perform an analysis with <a class="reference external" href="http://jbloom.github.io/phydms">phydms</a>, you need two pieces of input data:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>An alignment of homologous protein-coding genes.</li>
+<li>A file giving the site-specific amino-acid preferences of these genes, as might be obtained from a deep mutational scanning experiment. If you aren&#8217;t sure what these preferences are, then read <a class="reference internal" href="ExpCM.html#expcm"><em>Experimentally Informed Codon Models</em></a> and the references therein.</li>
+</ol>
+</div></blockquote>
+<p>For this quick example, we will use the alignment of 37 human influenza NP sequences described in <a class="reference external" href="https://dx.doi.org/10.1093/molbev/msv167">Doud et al, Mol Biol Evol, 32:2944-2960</a>. We assume that we have a FASTA file called <tt class="docutils literal"><span class="pre">humanNPs.fasta</span></tt> that contains these sequences. This file is equivalent to the human influenza sequences in Supplementary file 4 of <a class="reference external" href="https://dx.doi.org/10.1093/molbev/msv167">Doud et al, Mol Biol Evol, 32:2944-2960</a>. The first few lines of this file look like this:</p>
+<div class="highlight-python"><div class="highlight"><pre>&gt;2000.01_1_A/New_York/433/2000_HOST_Human_H3N2
+ATGGCGTCCCAAGGCACCAAACGGTCTTATGAACAGATGGAAACTGATGGGGATCGCCAGAATGCAACTGAGATTAGGGCATCCGTCGGGAAGATGATTGATGGAATTGGGAGATTCTACATCCAAATGTGCACTGAACTTAAACTCAGTGATTATGAAGGGCGGTTGATCCAGAACAGCTTGACAATAGAGAAAATGGTGCTCTCTGCTTTTGATGAGAGAAGGAATAGATATCTGGAAGAACACCCCAGCGCGGGGAAAGATCCTAAGAAAACTGGAGGGCCCATATACAGGAGAGTAGATGGAAAATGGATGAGGGAACTCGTCCTTTATGACAAAGAAGAAATAAGGCGAATCTGGCGCCAAGCCAACAATGGTGAGGATGCAACAGCTGGTCTAACTCACATGATGATCTGGCATTCCAATTTGAATGATACAACATACCAGAGGACAAGAGCTCTTGTTCGAACCGGAATGGATCCCAGAATGTGCTCTCTGATGCAGGGCTCGACTCTCCCTAGAAGGTCCGGAGCTGCAGGTGCTGCAGTCAAAGGAATCGGGACAATGGTGATGGAGCTGATCAGAATGGTCAAACGGGGGATCAACGATCGAAATTTCTGGAGAGGTGAGAATGGGAGGAAAACAAGAAGTGCTTATGAGAGAATGTGCAACATTCTTAAAGGAAAATTTCAAACAGCTGCACAAAGAGCAATGGTGGATCAAGTGAGAGAAAGTCGGAACCCAGGAAATGCTGAGATCGAAGATCTCATATTTTTGGCAAGATCTGCATTGATATTGAGAGGGTCAGTTGCTCACAAATCTTGCCTACCTGCCTGTGTGTATGGACCTGCAGTATCCAGTGGGTACGACTTCGAAAAAGAGGGATATTCCTTGGTGGGAATAGACCCTTTCAAACTACTTCAAAATAGCCAAGTATACAGCCTAATCAGACCTAACGAGAATCCAGCACACAAGAGTCAGCTGGTGTGGATGGCATGCCATTCTGCTGCATTTGAAGATTTAAGATTGTTAAGCTTCATCAGAGGGACCAAAGTATCTCCGCGGGGGAAACTTTCAACTAGAGGAGTACAAATTGCTTCAAATGAGAACATGGATAATATGGGATCGAGTACTCTTGAACTGAGAAGCGGATACTGGGCCATAAGGACCAGGAGTGGAGGAAACACTAATCAACAGAGGGCCTCCGCAGGCCAAATCAGTGTGCAACCTACGTTTTCTGTACAAAGAAACCTCCCATTTGAAAAGTCAACCGTCATGGCAGCATTCACTGGAAATACGGAAGGAAGAACCTCAGACATGAGGGCAGAAATCATAAGAATGATGGAAGGTGCAAAACCAGAAGAAGTGTCGTTCCGGGGGAGGGGAGTTTTCGAGCTCTCAGACGAGAAGGCAACGAACCCGATCGTGCCCTCTTTTGACATGAGTAATGAAGGATCTTATTTCTTCGGAGACAATGCAGAAGAGTACGACAAC
+&gt;2010.43_2_A/Managua/3244.02/2010_HOST_Human_H3N2
+ATGGCGTCCCAAGGCACCAAACGGTCTTATGAACAGATGGAAACTGATGGGGATCGCCAGAATGCAACTGAGATTAGGGCATCCGTCGGGAAGATGATTGATGGAATTGGGAGATTCTACATCCAAATGTGCACTGAACTTAAACTCAGTGATCATGAAGGGCGGTTGATCCAGAACAGCTTGACAATAGAGAAAATGGTACTCTCTGCTTTTGATGAAAGAAGGAATAAATACCTGGAAGAACACCCCAGCGCGGGGAAAGATCCCAAGAAAACTGGGGGGCCCATATACAGGAGAGTCGATGGGAAATGGATGAGGGAACTCGTCCTTTATGACAAAGAAGAAATAAGGCGAATCTGGCGCCAAGCCAACAATGGTGAGGATGCTACATCTGGTCTAACTCACATAATGATTTGGCATTCCAATTTGAATGATGCAACATACCAGAGGACAAGAGCTCTTGTTCGAACTGGAATGGATCCCAGAATGTGCTCTCTGATGCAGGGCTCGACTCTCCCTAGAAGGTCCGGAGCTGCAGGTGCTGCAGTCAAAGGAATCGGGACAATGGTGATGGAACTGATCAGAATGGTCAAACGGGGGATCAACGATCGAAATTTTTGGAGAGGTGAGAATGGGCGGAAAACAAGAAGTGCTTATGAGAGAATGTGCAACATTCTTAAAGGAAAATTTCAAACAGCTGCACAAAGAGCAATGGTGGATCAAGTGAGAGAAAGTCGGAACCCAGGAAACGCTGAGATCGAAGATCTCATATTTTTAGCAAGATCTGCATTGATATTGAGAGGATCAGTTGCTCACAAATCTTGCCTACCTGCCTGTGCGTATGGACCTGCAGTATCCAGTGGGTACGACTTCGAAAAAGAGGGATATTCCTTGGTGGGAATAGACCCTTTCAAACTACTTCAAAATAGCCAAATATACAGCTTAATCAGACCTAACGAGAATCCAGCACACAAGAGTCAGCTGGTGTGGATGGCATGCCATTCTGCTGCATTTGAAGATTTAAGATTGTTAAGCTTCATCAGAGGGACAAAAGTATCTCCTCGGGGGAAACTGTCAACTAGAGGAGTACAAATTGCTTCAAATGAGAACATGGATAATATGGGATCGAGCACTCTTGAACTGAGAAGCGGGTACTGGGCCATAAGGACCAGGAGTGGAGGAAACACTAATCAACAGAGGGCCTCCGCAGGCCAAACCAGTGTGCAACCTACGTTTTCTGTACAAAGAAACCTCCCATTTGAAAAGTCAACCATCATGGCAGCATTCACTGGAAATACGGAGGGAAGAACTTCAGACATGAGAGCAGAAATCATAAGAATGATGGAAAGTGCAAAACCAGAAGAAGTGTCATTCCGGGGGAGGGGAGTGTTCGAGCTCTCAGACGAGAAGGCAACGAACCCGATCGTGCCCTCTTTTGATATGAGTAATGAAGGATCTTATTTCTTCGGAGACAATGCAGAAGAGTACGACAAT
+</pre></div>
+</div>
+<p>We will use the site-specific amino-acid preferences for NP given in <a class="reference external" href="https://dx.doi.org/10.1093/molbev/msv167">Doud et al, Mol Biol Evol, 32:2944-2960</a> (these preferences are the average of those measured in the two sequence backgrounds A/Aichi/2/1968 and A/Puerto Rico/8/1934). These preferences were obtained from deep mutational scanning data processed by <a class="reference external" href="http://jbloom.github.io/dms_tools">dms_tools</a> into the <a class="reference external" href="http://jbloom.github.io/dms_tools/fileformats.html#preferences-file">preferences file format</a>, and are assumed to be in a file called <tt class="docutils literal"><span class="pre">prefs.txt</span></tt>. This file is equivalent to Supplementary file 3 of <a class="reference external" href="https://dx.doi.org/10.1093/molbev/msv167">Doud et al, Mol Biol Evol, 32:2944-2960</a>. Here are the first few lines of this file:</p>
+<div class="highlight-python"><div class="highlight"><pre># POSITION WT SITE_ENTROPY PI_A PI_C PI_D PI_E PI_F PI_G PI_H PI_I PI_K PI_L PI_M PI_N PI_P PI_Q PI_R PI_S PI_T PI_V PI_W PI_Y
+1 M 4.16557 0.0448959 0.0461868 0.0487332 0.0461879 0.0467506 0.0411084 0.0529134 0.0270247 0.046272 0.0439419 0.172267 0.0453542 0.0454932 0.0452166 0.0447873 0.0414766 0.0379993 0.0282543 0.0464337 0.0487029
+2 A 1.99168 0.658251 0.00668612 0.0052911 0.0296401 0.00564699 0.019848 0.00767229 0.00414258 0.00780895 0.00182799 0.0367587 0.00517087 0.00934743 0.00390342 0.00596331 0.0144603 0.0138282 0.148105 0.00982134 0.00582609
+3 S 3.7758 0.0780122 0.0165141 0.00485352 0.00418567 0.155017 0.0310392 0.104461 0.0239216 0.0102993 0.107051 0.0248013 0.0594595 0.0169042 0.0205734 0.0206575 0.124961 0.101368 0.0123348 0.0251918 0.0583932
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-phydms">
+<h2>Running <a class="reference external" href="http://jbloom.github.io/phydms">phydms</a><a class="headerlink" href="#running-phydms" title="Permalink to this headline">¶</a></h2>
+<p>First, we want to see if a <a class="reference internal" href="ExpCM.html#expcm"><em>Experimentally Informed Codon Models</em></a> using the preferences in <tt class="docutils literal"><span class="pre">prefs.txt</span></tt> actually describe the evolution of human influenza NP better than conventional non-site-specific substitution models. To do this, we run <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> using:</p>
+<div class="highlight-python"><div class="highlight"><pre>phydms_comprehensive NP_analysis/ humanNPs.fasta prefs.txt --ncpus -1
+</pre></div>
+</div>
+<p>Running this command creates the subdirectory <tt class="docutils literal"><span class="pre">./NP_analysis/</span></tt> which will contain the following files:</p>
+<div class="highlight-python"><div class="highlight"><pre>├── NP_analysis
+│   ├── averaged_ExpCM_prefs_diffprefsbysite.txt
+│   ├── averaged_ExpCM_prefs_diffprefsbysite_sumabs.txt
+│   ├── averaged_ExpCM_prefs.log
+│   ├── averaged_ExpCM_prefs_loglikelihood.txt
+│   ├── averaged_ExpCM_prefs_modelparams.txt
+│   ├── averaged_ExpCM_prefs_omegabysite.txt
+│   ├── averaged_ExpCM_prefs_stringencybysite.txt
+│   ├── averaged_ExpCM_prefs_tree.newick
+│   ├── ExpCM_prefs_diffprefsbysite.txt
+│   ├── ExpCM_prefs_diffprefsbysite_sumabs.txt
+│   ├── ExpCM_prefs.log
+│   ├── ExpCM_prefs_loglikelihood.txt
+│   ├── ExpCM_prefs_modelparams.txt
+│   ├── ExpCM_prefs_omegabysite.txt
+│   ├── ExpCM_prefs_stringencybysite.txt
+│   ├── ExpCM_prefs_tree.newick
+│   ├── log.log
+│   ├── modelcomparison.txt
+│   ├── YNGKP_M0.log
+│   ├── YNGKP_M0_loglikelihood.txt
+│   ├── YNGKP_M0_modelparams.txt
+│   ├── YNGKP_M0_tree.newick
+│   ├── YNGKP_M3.log
+│   ├── YNGKP_M3_loglikelihood.txt
+│   ├── YNGKP_M3_modelparams.txt
+│   ├── YNGKP_M3_omegabysite.txt
+│   └── YNGKP_M3_tree.newick
+</pre></div>
+</div>
+<p>The meaning of all of these files is detailed in <a class="reference internal" href="phydms_prog.html#phydms-prog"><em>the phydms program</em></a> and <a class="reference internal" href="phydms_comprehensive_prog.html#phydms-comprehensive-prog"><em>the phydms_comprehensive program</em></a>. Briefly, files with the prefix <tt class="docutils literal"><span class="pre">ExpCM_prefs</span></tt> give the results using the <em>ExpCM</em> informed by the preferences. Files with prefix <tt class="docutils literal"><span class="pre">averaged_ExpCM_prefs</span></tt> are for a control analysis in which the preferences have been averaged across sites. The <tt class="docutils literal"><span class="pre">YNGKP_M0</span></tt> and <tt class="docutils literal"><span class="pre">YNGKP_M3</span></tt> prefixes are for analyses with the <em>M0</em> and <em>M3</em> variants of the models of <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a>.</p>
+</div>
+<div class="section" id="substitution-model-comparison">
+<h2><a class="toc-backref" href="#id5">Substitution model comparison</a><a class="headerlink" href="#substitution-model-comparison" title="Permalink to this headline">¶</a></h2>
+<p>To quickly compare the models, we can look at the <tt class="docutils literal"><span class="pre">modelcomparison.txt</span></tt> table created by <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt>. Here are the results after converting this <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> table into HTML:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="4%" />
+<col width="10%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">model</th>
+<th class="head">AIC</th>
+<th class="head">log likelihood</th>
+<th class="head">number parameters (optimized + empirical): optimized values</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>ExpCM_prefs</td>
+<td>0.0</td>
+<td>-4415.2</td>
+<td>6 (6 + 0): beta = 2.92, omega = 0.77, kappa = 6.19, phiA = 0.37, phiC = 0.20, phiG = 0.22</td>
+</tr>
+<tr class="row-odd"><td>YNGKP_M3</td>
+<td>2484.1</td>
+<td>-5648.3</td>
+<td>15 (6 + 9): omega0 = 0.03, omega1 = 0.83, omega2 = 0.83, p0 = 0.86, p1 = 0.11, kappa = 6.32</td>
+</tr>
+<tr class="row-even"><td>averaged_ExpCM_prefs</td>
+<td>2600.9</td>
+<td>-5715.7</td>
+<td>6 (6 + 0): beta = 0.32, omega = 0.12, kappa = 6.51, phiA = 0.35, phiC = 0.18, phiG = 0.25</td>
+</tr>
+<tr class="row-odd"><td>YNGKP_M0</td>
+<td>2619.1</td>
+<td>-5719.8</td>
+<td>11 (2 + 9): omega = 0.11, kappa = 6.24</td>
+</tr>
+</tbody>
+</table>
+<p>Quick inspection of the <a class="reference external" href="https://en.wikipedia.org/wiki/Akaike_information_criterion">AIC</a> values in this table shows that the <em>ExpCM</em> is vastly superior to the other models. Note that the control model where the preferences are averaged across sites (<em>averaged_ExpCM_prefs</em>) is only about as good as a <em>YNGKP</em> model, showing that most of the improvement comes from capturing site-specific constraints. You can also observe that the fitted stringency parameter <span class="math">\(\beta\)</span> is greater than one for the <em>ExpCM</em>, indicating that natural evolution is more stringent than the experiment used to measure the preferences. Finally, note that <span class="math">\(\omega\)</span> (the dN/dS ratio) is quite small (<span class="math">\(\sim 0.1\)</span>) for the <em>YNGKP</em> models, but only slightly less than one for the <em>ExpCM</em>. This is because the site-specific amino-acid preferences already capture most of the contraints on the protein sequence. Overall, the results in this table are highly congruent with those in Table 1 of <a class="reference external" href="https://dx.doi.org/10.1093/molbev/msv167">Doud et al, Mol Biol Evol, 32:2944-2960</a>; however, they are not entirely identical because the <em>ExpCM</em> implemented by <a class="reference external" href="http://jbloom.github.io/phydms">phydms</a> differs slightly from that used in <a class="reference external" href="https://dx.doi.org/10.1093/molbev/msv167">Doud et al, Mol Biol Evol, 32:2944-2960</a>.</p>
+</div>
+<div class="section" id="identification-of-site-specific-selection">
+<h2><a class="toc-backref" href="#id6">Identification of site-specific selection</a><a class="headerlink" href="#identification-of-site-specific-selection" title="Permalink to this headline">¶</a></h2>
+<p>Sites under diversifying selection might have <span class="math">\(\omega_r\)</span> (the ratio of dN/dS) &gt; 1. The non-site-specific models <em>YNGKP_M3</em> and <em>averaged_ExpCM_prefs</em> both identify a very large number of sites (over 100) with <span class="math">\(\omega_r &lt; 1\)</span> at <span class="math">\(P \le 0.05\)</span>, but only one site with <span class="math">\(\omega_r &gt; 1\)</span> (these results are in <tt class="docutils literal"><span class="pre">./NP_analysis/YNGKP_M3_omegabysite.txt</span></tt> and <tt class="docutils literal"><span class="pre">./NP_analysis/averaged_ExpCM_prefs_omegabysite.txt</span></tt>). This finding is only of modest utility. Anyone with even a passing familiarity with protein evolution would be unsurprised by the fact that many sites are under some level of functional constraint (and so have a rate of nonsynonymous mutations that is less than the rate of synonymous mutations), so the fact that there are many <span class="math">\(\omega_r &lt; 1\)</span> sites under a non-site-specific model doesn&#8217;t provide much useful information.</p>
+<p>But when we look at the <span class="math">\(\omega_r\)</span> values obtained under the <a class="reference internal" href="ExpCM.html#expcm"><em>Experimentally Informed Codon Models</em></a> model, we get much different results. This model already accounts for most of the constraints on NP&#8217;s evolution, so few sites have strong evidence of <span class="math">\(\omega_r \ne 1\)</span>. Specifically, when we look at the first few lines of <tt class="docutils literal"><span class="pre">./NP_analysis/ExpCM_prefs_omegabysite.txt</span></tt>, we see:</p>
+<div class="highlight-python"><div class="highlight"><pre># site  omega   P   dLnL
+472 99.000  0.00199 4.778
+284 0.001   0.00434 4.067
+319 0.001   0.00723 3.607
+20  99.000  0.00852 3.460
+373 99.000  0.00936 3.376
+350 0.001   0.0126  3.113
+465 99.000  0.0149  2.966
+470 99.000  0.0158  2.911
+289 0.001   0.016   2.899
+</pre></div>
+</div>
+<p>Now we find many fewer sites with <span class="math">\(\omega_r &lt; 1\)</span>, but many more with <span class="math">\(\omega_r &gt; 1\)</span>. The difference is because this comparison is now asking if sites evolve faster or slower than expected <strong>given</strong> some plausible model for the actual constraints operating on NP&#8217;s evolution. The fast evolving sites here are therefore better candidates for being involved in some biologically important process not included in the deep mutational scanning experiments.</p>
+<p>We can also look at the site-specific stringency values (<span class="math">\(\beta_r\)</span>) obtained under the <a class="reference internal" href="ExpCM.html#expcm"><em>Experimentally Informed Codon Models</em></a> and listed in <tt class="docutils literal"><span class="pre">./NP_analysis/ExpCM_prefs_stringencybysite.txt</span></tt>. Here are the first few lines:</p>
+<div class="highlight-python"><div class="highlight"><pre># site  stringency_ratio    P   dLnL
+375 0.017   2.45e-05    8.903
+52  0.017   0.000249    6.709
+442 0.079   0.00048 6.097
+294 0.017   0.00399 4.145
+398 0.095   0.00858 3.454
+50  0.134   0.0103  3.291
+465 0.334   0.0123  3.132
+351 0.420   0.0125  3.121
+283 0.017   0.0126  3.110
+</pre></div>
+</div>
+<p>We see that there are several sites for which there is very strong evidence that <span class="math">\(\beta_r &lt; 1\)</span>. As discussed in <a class="reference internal" href="ExpCM.html#expcm"><em>Experimentally Informed Codon Models</em></a>, this indicates that these sites are probably under <strong>different</strong> constraints in natural evolution than those measured in the lab during the deep mutational scanning. This fact is also potentially biologically interesting.</p>
+<p>Finally, you might want to see which specific amino acids are unexpectedly favored or disfavored by natural evolution more than anticipated from the deep mutational scanning. This information is provided in the <tt class="docutils literal"><span class="pre">./NP_analysis/ExpCM_prefs_diffprefsbysite.txt</span></tt> file, which has the <a class="reference external" href="http://jbloom.github.io/dms_tools">dms_tools</a> <a class="reference external" href="http://jbloom.github.io/dms_tools/fileformats.html#differential-preferences-file">differential preferences file format</a>. Here are the first few lines:</p>
+<div class="highlight-python"><div class="highlight"><pre># POSITION WT RMS_dPI dPI_A dPI_C dPI_D dPI_E dPI_F dPI_G dPI_H dPI_I dPI_K dPI_L dPI_M dPI_N dPI_P dPI_Q dPI_R dPI_S dPI_T dPI_V dPI_W dPI_Y
+1 ? 0.0054602 -0.00109088 -0.00056453 -0.00108891 -0.00125535 -0.000617395 -0.000825462 -0.00129802 -0.00107999 -0.00249272 -0.00202186 0.0236839 -0.00145916 -0.00101602 -0.00112551 -0.00222488 -0.00140373 -0.0018838 -0.000760446 -0.000350133 -0.00112508
+2 ? 0.000905382 -0.00365815 0.00010107 0.000118787 2.0868e-05 0.000105629 9.45005e-05 0.000101899 0.000182448 0.000111788 0.000119843 2.56786e-05 0.000107759 0.000111716 0.000107354 0.000119253 0.000107919 0.000269405 0.00165618 9.42552e-05 0.000101797
+3 ? 0.0117273 -0.00227315 -1.84925e-05 0.000103205 9.00981e-05 -0.0211034 -2.02e-05 -0.0042788 4.69967e-05 6.14462e-06 -0.00705743 7.46465e-06 -0.000664213 -0.00013711 -1.53571e-05 1.94615e-05 0.0462434 -0.00954078 1.79158e-05 -1.80775e-05 -0.00140763
+4 ? 0.0128513 4.58248e-05 4.48221e-05 0.000127339 -0.000289767 -0.0242064 0.000105165 -0.000221029 -0.000643845 -0.000194136 -0.00102868 -1.8996e-05 -0.00165434 -0.00107047 0.0487178 2.44348e-06 -0.0183293 2.89232e-05 0.000101645 -2.39308e-05 -0.00149314
+</pre></div>
+</div>
+<p>This file is much harder to look at visually. So you might want to summarize the results using <tt class="docutils literal"><span class="pre">phydms_plotselection</span></tt>. You can do this by running:</p>
+<div class="highlight-python"><div class="highlight"><pre>phydms_plotselection NP_analysis/ExpCM_prefs selectionplot.pdf
+</pre></div>
+</div>
+<p>This command will create the following PDF plot:</p>
+<a class="reference internal image-reference" href="_images/example_phydms_plotselection_plot.pdf"><img alt="If your browser does not display inline PDF images, click on this text to open in a new window." class="align-center" src="_images/example_phydms_plotselection_plot.pdf" style="width: 85%;" /></a>
+<p>This plot shows us which sites appear to be under various forms of selection. The logo stacks, for instance, indicates that natural evolution disfavors <em>Asp</em> and favors <em>Gly</em> and <em>Asn</em> more than expected from the deep mutational scanning. We can also identify specific sites (such as 472) that are under strong diversifying selection (<span class="math">\(\omega_r &gt; 1\)</span>) and sites (such as 442) where the stringency (<span class="math">\(\beta_r\)</span>) for the experimentally measured preferences is much lower than expected.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Quick example</a><ul>
+<li><a class="reference internal" href="#input-data">Input data</a></li>
+<li><a class="reference internal" href="#running-phydms">Running phydms</a></li>
+<li><a class="reference internal" href="#substitution-model-comparison">Substitution model comparison</a></li>
+<li><a class="reference internal" href="#identification-of-site-specific-selection">Identification of site-specific selection</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="installation.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="phydms_prog.html"
+                        title="next chapter">the <tt class="docutils literal"><span class="pre">phydms</span></tt> program</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/quick_example.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="phydms_prog.html" title="the phydms program"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             >previous</a> |</li>
+        <li><a href="index.html">phydms 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Jesse D. Bloom.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3a0.
+    </div>
+  </body>
+</html>
