@@ -252,7 +252,7 @@ def main():
     logfile = "%s.log" % args['outprefix']
     if args['no_optimize']:
         to_remove = [omegafile, stringencyfile, diffprefsfile, sumabsdiffprefsfile, logfile]
-        assert args['tree'] == treefile, "When using --no_optimize, you must set 'tree' to the name of the file that would be expected to be created for this 'outprefix', which is %s in this case" % treefile
+        assert os.path.abspath(args['tree']) == os.path.abspath(treefile), "When using --no_optimize, you must set 'tree' to the name of the file that would be expected to be created for this 'outprefix', which is %s in this case" % treefile
     else:
         to_remove = [modelparamsfile, loglikelihoodfile, treefile, omegafile, stringencyfile, diffprefsfile, sumabsdiffprefsfile, logfile]
     for f in to_remove:
