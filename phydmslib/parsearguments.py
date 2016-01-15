@@ -223,6 +223,8 @@ def PhyDMSComprehensiveParser():
     parser.add_argument('--no-stringencybysite', dest='nostringencybysite', action='store_true', help="No fitting of site-specific stringency for ExpCM.")
     parser.set_defaults(nodiffprefsbysite=False)
     parser.add_argument('--no-diffprefsbysite', dest='nodiffprefsbysite', action='store_true', help="No fitting of differential preferences for ExpCM.")
+    parser.set_defaults(noavgprefs=False)
+    parser.add_argument('--no-avgprefs', dest='noavgprefs', action='store_true', help="No fitting of models with preferences averaged across sites for ExpCM.")
     parser.set_defaults(omegabysite_fixsyn=False)
     parser.add_argument('--omegabysite_fixsyn', action='store_true', dest='omegabysite_fixsyn', help="See 'phydms' option of the same name.")
     parser.add_argument('--diffprefconc', help="Parameters determining the concentration of the regularizing prior over the differential preferences for '--diffprefsbysite'. Defaults to value of the same param for 'phydms'.", type=FloatGreaterThanEqualToZero, nargs=2, metavar=('C1', 'C2'))

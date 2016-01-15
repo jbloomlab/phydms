@@ -171,9 +171,10 @@ def main():
         assert modelname not in filesuffixes, "Duplicate preferences file base name %s for %s; make names unique even after removing directory and extension" % (modelname, prefsfile)
         filesuffixes[modelname] = filesuffixlist
         models[modelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds, 0)
-        avgmodelname = 'averaged_%s' % modelname
-        models[avgmodelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--avgprefs'], 0)
-        filesuffixes[avgmodelname] = filesuffixlist
+        if not args['noavgprefs']:
+            avgmodelname = 'averaged_%s' % modelname
+            models[avgmodelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--avgprefs'], 0)
+            filesuffixes[avgmodelname] = filesuffixlist
         if args['randprefs']:
             randmodelname = 'randomized_%s' % modelname
             models[randmodelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--randprefs'], 0)
