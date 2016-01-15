@@ -150,7 +150,9 @@ usage: phydms_comprehensive [-h] [--treetopology TREETOPOLOGY] [--ncpus NCPUS]
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">--no-avgprefs=False</span></kbd></td>
 </tr>
-<tr><td>&nbsp;</td><td>No fitting of models with preferences averaged across sites for ExpCM.</td></tr>
+<tr><td>&nbsp;</td><td><p class="first">No fitting of models with preferences averaged across sites for ExpCM.</p>
+<p class="last">As described in the documentation for <tt class="docutils literal"><span class="pre">phydms</span></tt> (see <a class="reference internal" href="phydms_prog.html#phydms-prog"><em>the phydms program</em></a>), there are two sensible controls when using an <em>ExpCM</em> model: averaging the preferences across sites or randomizing them across sites. By default, <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> performs the averaging control (this is the <tt class="docutils literal"><span class="pre">--avgprefs</span></tt> option to <tt class="docutils literal"><span class="pre">phydms</span></tt>). Use this option if you do <strong>not</strong> want to include this averaging control.</p>
+</td></tr>
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">--omegabysite_fixsyn=False</span></kbd></td>
 </tr>
