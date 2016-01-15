@@ -1,7 +1,7 @@
 Changelog
 ===========
 
-1.0.dev2
+1.0.2
 --------
 * Fixed bug in file checks for ``--no_optimize`` option to ``phydms``
 

@@ -1,4 +1,4 @@
-__version__ = '1.0.dev2'
+__version__ = '1.0.2'
 __author__ = 'Jesse D. Bloom'
 __url__ = 'http://jbloom.github.io/phydms'
 __author_email__ = 'jbloom@fredhutch.org'
