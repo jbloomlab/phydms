@@ -7,6 +7,8 @@ Changelog
 
 * Add ``--no_avgprefs`` option for ``phydms_comprehensive``
 
+* Added output for site likelihoods under the fixed stringency parameter when using ``--stringencybysite``
+
 1.0.1
 --------
 * Included ``__*`` files in ``Bpp`` in MANIFEST for proper ``PyPI`` / ``pip`` installation

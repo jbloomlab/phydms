@@ -505,11 +505,11 @@ def main():
             logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
             logger.info('The model parameters (other than the stringency parameter) will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
             fitstringencyresults = FitStringencyBySitePool(codons, seqnames, seqs, aaprefs, fixedmodelparams, fixedstringencyvalue, treefile, args['recursion'], args['ncpus'], logger)
-            fitstringencyresults = [(d['P'], site, d['stringency_ratio'], d['dLnL']) for (site, d) in fitstringencyresults.items()]
+            fitstringencyresults = [(d['P'], site, d['stringency_ratio'], d['dLnL'], d['LnL_fixed']) for (site, d) in fitstringencyresults.items()]
             fitstringencyresults.sort()
             logger.info('Now writing the full results of the stringency-by-site analysis to %s\n' % stringencyfile)
             with open(stringencyfile, 'w') as f:
-                f.write("# Stringency fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of stringency = %.3f (the overall gene value).\n# P-values NOT corrected for multiple testing.\n# The stringency ratio is the ratio of the fitted value to the null (overall gene value).\n#\n# site\tstringency_ratio\tP\tdLnL\n%s" % (fixedstringencyvalue, '\n'.join(['%d\t%.3f\t%.3g\t%.3f' % (site, stringencyratio, p, lnl) for (p, site, stringencyratio, lnl) in fitstringencyresults])))
+                f.write("# Stringency fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of stringency = %.3f (the overall gene value).\n# P-values NOT corrected for multiple testing.\n# The stringency ratio is the ratio of the fitted value to the null (overall gene value).\n#\n# site\tstringency_ratio\tP\tdLnL\tLnL_fixed\n%s" % (fixedstringencyvalue, '\n'.join(['%d\t%.3f\t%.3g\t%.3f\t%.3f' % (site, stringencyratio, p, dlnl, lnlfixed) for (p, site, stringencyratio, dlnl, lnlfixed) in fitstringencyresults])))
 
         # optimize differential preferences for each site
         if args['diffprefsbysite']:
