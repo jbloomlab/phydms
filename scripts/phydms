@@ -393,6 +393,12 @@ def main():
         seqnames = [head for (head, seq) in alignment]
         seqs = [seq for (head, seq) in alignment]
 
+        # use old likelihood method for YNGPK models, new otherwise
+        if isinstance(model, str) and 'YNGKP' in model:
+            oldlikelihoodmethod = True
+        else:
+            oldlikelihoodmethod = False
+
         # now optimize tree 
         if args['no_optimize']:
             require_files = [modelparamsfile, loglikelihoodfile, treefile]
@@ -404,7 +410,7 @@ def main():
             with open(modelparamsfile) as f:
                 modelparams = dict([(line.split('=')[0].strip(), float(line.split('=')[1])) for line in f])
             allmodelparams = modelparams
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, treefile, model, args['infertopology'], fixedmodelparams=modelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], prefsasparams=False, recursion=args['recursion'])
+            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, treefile, model, args['infertopology'], fixedmodelparams=modelparams, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=True, addrateparameter=False, prefsasparams=False, recursion=args['recursion'])
             assert not tl.ModelParams(True), "There are unspecified model parameters to be optimized for --no_optimize: %s" % str(tl.ModelParams(True))
             if set(tl.ModelParams(False).keys()) != set(modelparams.keys()):
                 raise ValueError("The existing model params file %s does not have all of the expected parameters for this substitution model, so cannot use --no_optimize. Either the existing model parameters were created with a different model, or you used a YNGKP model without --fitF3X4 (this is currently incompatible with --no_optimize).")
@@ -415,10 +421,6 @@ def main():
                 (fd, temptreefile) = tempfile.mkstemp() # create temporary file to write tree for passing
                 with os.fdopen(fd, 'w') as f:
                     f.write(newicktree)
-                if isinstance(model, str) and 'YNGKP' in model:
-                    oldlikelihoodmethod = True
-                else:
-                    oldlikelihoodmethod = False
                 logger.info('Creating Bio++ object to optimize likelihood...')
                 tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], prefsasparams=False, recursion=args['recursion'])
             finally:
@@ -441,7 +443,7 @@ def main():
             with open(treefile, 'w') as f:
                 f.write(tl.NewickTree())
             allmodelparams = tl.ModelParams(False)
-            del tl
+        del tl
 
         # get number of cpus for multiprocessing
         if args['ncpus'] == -1:

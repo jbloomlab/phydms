@@ -190,9 +190,9 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
 
     // fix and initialize model parameters
     if ((! fixedmodelparams.empty()) || (! initializemodelparams.empty())) {
-        if (oldlikmethod) {
-            throw std::runtime_error("fixedmodelparams and initializemodelparams not guaranteed to work if using oldlikmethod");
-        }
+//        if (oldlikmethod) {
+//            throw std::runtime_error("fixedmodelparams and initializemodelparams not guaranteed to work if using oldlikmethod");
+//        }
         for (std::map<std::string, double>::iterator itr = fixedmodelparams.begin(); itr != fixedmodelparams.end(); itr++) {
             if (initializemodelparams.find(itr->first) != initializemodelparams.end()) {
                 throw std::runtime_error("Cannot specify a key in both fixedmodelparams and initializemodelparams, but you did for " + itr->first);
