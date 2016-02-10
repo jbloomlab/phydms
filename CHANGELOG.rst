@@ -1,8 +1,10 @@
 Changelog
 ===========
 
-1.0.dev3
+1.dev1
 -----------
+* Updated to newest versions of ``Bio++``
+
 * Added output for site likelihoods to log file under the fixed stringency parameter when using ``--stringencybysite``
 
 * Fixed ``--no_optimize`` method for *YNGKP_M3*, *YGNKP_M7*, and *YNGKP_M8* by making program use the old likelihood method for these models.
