@@ -390,7 +390,16 @@ namespace bpp
      * stored within the class and should not be modified outside the class.
      */
     virtual const std::vector<std::string>& getSupportedChars() const = 0;
-    
+
+    /**
+     * @return A list of all resolved character codes.
+     *
+     * Note for developers of new alphabets:
+     * we return a const reference here since the list is supposed to be
+     * stored within the class and should not be modified outside the class.
+     */
+    virtual const std::vector<std::string> & getResolvedChars() const = 0;
+
     /**
      * @return The int code for unknown characters.
      */

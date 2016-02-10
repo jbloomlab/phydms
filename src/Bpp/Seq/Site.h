@@ -41,6 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _SITE_H_
 
 #include "SymbolList.h"
+#include "CoreSite.h"
 #include "SiteExceptions.h"
 
 namespace bpp
@@ -59,13 +60,9 @@ namespace bpp
  * This should not be a constraint, since you never read sites directly from a file.
  */
 class Site:
+  public AbstractCoreSite,
   public BasicSymbolList 
 {  
-  private:
-    /**
-     * @brief The position associated to this site.
-     */
-    int position_;
 
   public:
     
@@ -159,14 +156,14 @@ class Site:
      *
      * @return This site position.
      */
-    virtual int getPosition() const { return position_; }
+    virtual int getPosition() const { return AbstractCoreSite::getPosition(); }
 
     /**
      * @brief Set the position of this site.
      *
      * @param position The new position of the site.
      */
-    virtual void setPosition(int position) { position_ = position; }
+    virtual void setPosition(int position) { AbstractCoreSite::setPosition(position); }
 };
 
 // Sites comparison operators overload
@@ -176,4 +173,3 @@ bool operator < (const Site& site1, const Site& site2);
 } //end of namespace bpp.
 
 #endif  //_SITE_H_
-

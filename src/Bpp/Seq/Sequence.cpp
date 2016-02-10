@@ -46,7 +46,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace bpp;
 
-// From the STL:
+ // From the STL:
 #include <iostream>
 
 using namespace std;
@@ -54,97 +54,109 @@ using namespace std;
 /* Constructors: **************************************************************/
 
 BasicSequence::BasicSequence(const Alphabet* alpha):
-  BasicSymbolList(alpha),
-  name_(),
-  comments_()
+  AbstractCoreSequence(),
+  BasicSymbolList(alpha)
 {}
 
-BasicSequence::BasicSequence(const std::string& name, const std::string& sequence, const Alphabet* alpha)
-throw (BadCharException) :
-	BasicSymbolList(alpha),
-	name_(name),
-  comments_()
+BasicSequence::BasicSequence(
+  const std::string& name,
+  const std::string& sequence,
+  const Alphabet* alpha
+) throw (BadCharException) :
+  AbstractCoreSequence(name),
+  BasicSymbolList(alpha)
 {
   if (sequence!="")
     setContent(sequence);
 }
 
-BasicSequence::BasicSequence(const std::string& name, const std::string& sequence, const Comments& comments, const Alphabet* alpha)
-  throw (BadCharException) :
-	BasicSymbolList(alpha),
-	name_(name),
-	comments_(comments)
+BasicSequence::BasicSequence(
+  const std::string& name,
+  const std::string& sequence,
+  const Comments& comments,
+  const Alphabet* alpha
+) throw (BadCharException) :
+  AbstractCoreSequence(name, comments),
+  BasicSymbolList(alpha)
 {
-  if (sequence!="")
+  if (sequence != "")
     setContent(sequence);
 }
 
-BasicSequence::BasicSequence(const std::string& name, const std::vector<std::string>& sequence, const Alphabet* alpha)
-throw (BadCharException) :
-	BasicSymbolList(sequence, alpha),
-	name_(name),
-  comments_()
+BasicSequence::BasicSequence(
+  const std::string& name,
+  const std::vector<std::string>& sequence,
+  const Alphabet* alpha
+) throw (BadCharException) :
+  AbstractCoreSequence(name),
+  BasicSymbolList(sequence, alpha)
 {}
 
-BasicSequence::BasicSequence(const std::string& name, const std::vector<std::string>& sequence, const Comments& comments, const Alphabet* alpha)
-  throw (BadCharException) :
-	BasicSymbolList(sequence, alpha),
-	name_(name),
-	comments_(comments)
+BasicSequence::BasicSequence(
+  const std::string& name,
+  const std::vector<std::string>& sequence,
+  const Comments& comments,
+  const Alphabet* alpha
+) throw (BadCharException) :
+  AbstractCoreSequence(name, comments),
+  BasicSymbolList(sequence, alpha)
 {}
 
-BasicSequence::BasicSequence(const std::string& name, const std::vector<int>& sequence, const Alphabet* alpha)
-  throw (BadIntException) :
-	BasicSymbolList(sequence, alpha),
-	name_(name),
-  comments_()
+BasicSequence::BasicSequence(
+  const std::string& name,
+  const std::vector<int>& sequence,
+  const Alphabet* alpha
+) throw (BadIntException) :
+  AbstractCoreSequence(name),
+  BasicSymbolList(sequence, alpha)
 {}
 
-BasicSequence::BasicSequence(const std::string& name, const std::vector<int>& sequence, const Comments& comments, const Alphabet* alpha)
-  throw (BadIntException) :
-	BasicSymbolList(sequence, alpha),
-	name_(name),
-	comments_(comments)
+BasicSequence::BasicSequence(
+  const std::string& name,
+  const std::vector<int>& sequence,
+  const Comments& comments,
+  const Alphabet* alpha
+) throw (BadIntException) :
+  AbstractCoreSequence(name, comments),
+  BasicSymbolList(sequence, alpha)
 {}
 
 /* Copy constructors: *********************************************************/
 
 BasicSequence::BasicSequence(const Sequence& s) :
-	BasicSymbolList(s),
-	name_(s.getName()),
-	comments_(s.getComments())
-{}
+  AbstractCoreSequence(s),
+  BasicSymbolList(s)
+{
+}
 
 BasicSequence::BasicSequence(const BasicSequence& s) :
-	BasicSymbolList(s),
-	name_(s.getName()),
-	comments_(s.getComments())
-{}
+  AbstractCoreSequence(s),
+  BasicSymbolList(s)
+{
+}
 
 /* Assignation operator: ******************************************************/
 
 BasicSequence& BasicSequence::operator=(const Sequence& s)
 {
+  AbstractCoreSequence::operator=(s);
   BasicSymbolList::operator=(s);
-	name_     = s.getName();
-	comments_ = s.getComments();
-	return *this;
+  return *this;
 }
 
 BasicSequence& BasicSequence::operator=(const BasicSequence& s)
 {
+  AbstractCoreSequence::operator=(s);
   BasicSymbolList::operator=(s);
-	name_     = s.getName();
-	comments_ = s.getComments();
-	return *this;
+  return *this;
 }
 
 /******************************************************************************/
 
 void BasicSequence::setContent(const std::string& sequence) throw (BadCharException)
 {
-	// Remove blanks in sequence
-	content_ = StringSequenceTools::codeSequence(TextTools::removeWhiteSpaces(sequence), getAlphabet());
+  // Remove blanks in sequence
+  content_ = StringSequenceTools::codeSequence(TextTools::removeWhiteSpaces(sequence), getAlphabet());
   //Warning, an exception may be thrown here!
 }
 
@@ -152,40 +164,40 @@ void BasicSequence::setContent(const std::string& sequence) throw (BadCharExcept
 
 void BasicSequence::setToSizeR(size_t newSize)
 {
-	// Size verification
-	size_t seqSize = content_.size();
-	if (newSize == seqSize) return;
+  // Size verification
+  size_t seqSize = content_.size();
+  if (newSize == seqSize) return;
 
-	if (newSize < seqSize)
+  if (newSize < seqSize)
   {
-		content_.resize(newSize);
-		return;
-	}
+    content_.resize(newSize);
+    return;
+  }
 
-	// Add gaps up to specified size
+  // Add gaps up to specified size
   int gap = getAlphabet()->getGapCharacterCode();
-	while (content_.size() < newSize) content_.push_back(gap);
+  while (content_.size() < newSize) content_.push_back(gap);
 }
 
 /******************************************************************************/
 
 void BasicSequence::setToSizeL(size_t newSize)
 {
-	// Size verification
-	size_t seqSize = content_.size();
-	if (newSize == seqSize) return;
+  // Size verification
+  size_t seqSize = content_.size();
+  if (newSize == seqSize) return;
 
-	if (newSize < seqSize)
+  if (newSize < seqSize)
   {
-		//We must truncate sequence from the left.
-		//This is a very unefficient method!
-		content_.erase(content_.begin(), content_.begin() + static_cast<ptrdiff_t>(seqSize - newSize));
-		return;
-	}
+    //We must truncate sequence from the left.
+    //This is a very unefficient method!
+    content_.erase(content_.begin(), content_.begin() + static_cast<ptrdiff_t>(seqSize - newSize));
+    return;
+  }
 
-	// Add gaps up to specified size
+  // Add gaps up to specified size
   int gap = getAlphabet()->getGapCharacterCode();
-	content_.insert(content_.begin(), newSize - seqSize, gap);
+  content_.insert(content_.begin(), newSize - seqSize, gap);
 }
 
 /******************************************************************************/
@@ -194,37 +206,37 @@ void BasicSequence::append(const Sequence& seq) throw (AlphabetMismatchException
 {
   if (seq.getAlphabet()->getAlphabetType() != getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("BasicSequence::append");
-	// Check list for incorrect characters
-	for (size_t i = 0; i < seq.size(); i++)
-		content_.push_back(seq[i]);
+  // Check list for incorrect characters
+  for (size_t i = 0; i < seq.size(); i++)
+    content_.push_back(seq[i]);
 }
 
 void BasicSequence::append(const std::vector<int>& content) throw (BadIntException)
 {
-	// Check list for incorrect characters
-	for (size_t i = 0; i < content.size(); i++)
-		if(!getAlphabet()->isIntInAlphabet(content[i]))
+  // Check list for incorrect characters
+  for (size_t i = 0; i < content.size(); i++)
+    if(!getAlphabet()->isIntInAlphabet(content[i]))
       throw BadIntException(content[i], "BasicSequence::append", getAlphabet());
-	//BasicSequence is valid:
-	for (size_t i = 0; i < content.size(); i++)
-		content_.push_back(content[i]);
+  //BasicSequence is valid:
+  for (size_t i = 0; i < content.size(); i++)
+    content_.push_back(content[i]);
 }
 
 void BasicSequence::append(const std::vector<std::string>& content) throw (BadCharException)
 {
-	// Check list for incorrect characters
-	for (size_t i = 0; i < content.size(); i++)
-		if(!getAlphabet()->isCharInAlphabet(content[i]))
+  // Check list for incorrect characters
+  for (size_t i = 0; i < content.size(); i++)
+    if(!getAlphabet()->isCharInAlphabet(content[i]))
       throw BadCharException(content[i], "BasicSequence::append", getAlphabet());
-	
-	//BasicSequence is valid:
-	for (size_t i = 0; i < content.size(); i++)
-		content_.push_back(getAlphabet()->charToInt(content[i]));
+  
+  //BasicSequence is valid:
+  for (size_t i = 0; i < content.size(); i++)
+    content_.push_back(getAlphabet()->charToInt(content[i]));
 }
 
 void BasicSequence::append(const std::string& content) throw (BadCharException)
 {
-	append(StringSequenceTools::codeSequence(content, getAlphabet()));
+  append(StringSequenceTools::codeSequence(content, getAlphabet()));
 }
 
 /******************************************************************************/

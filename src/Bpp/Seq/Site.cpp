@@ -51,28 +51,27 @@ using namespace std;
 
 /****************************************************************************************/
 
-Site::Site(const Alphabet* alpha) : BasicSymbolList(alpha), position_(0) {}
+Site::Site(const Alphabet* alpha) : AbstractCoreSite(), BasicSymbolList(alpha) {}
 
-Site::Site(const Alphabet* alpha, int position) : BasicSymbolList(alpha), position_(position) {}
+Site::Site(const Alphabet* alpha, int position) : AbstractCoreSite(position), BasicSymbolList(alpha) {}
 
-Site::Site(const vector<string>& site, const Alphabet* alpha) throw (BadCharException) : BasicSymbolList(site, alpha), position_(0) {}
+Site::Site(const vector<string>& site, const Alphabet* alpha) throw (BadCharException) : AbstractCoreSite(), BasicSymbolList(site, alpha) {}
 
-Site::Site(const vector<string>& site, const Alphabet* alpha, int position) throw (BadCharException) : BasicSymbolList(site, alpha), position_(position) {}
+Site::Site(const vector<string>& site, const Alphabet* alpha, int position) throw (BadCharException) : AbstractCoreSite(position), BasicSymbolList(site, alpha) {}
 
-Site::Site(const vector<int>& site, const Alphabet* alpha) throw (BadIntException) : BasicSymbolList(site, alpha), position_(0) {}
+Site::Site(const vector<int>& site, const Alphabet* alpha) throw (BadIntException) : AbstractCoreSite(), BasicSymbolList(site, alpha) {}
 
-Site::Site(const vector<int>& site, const Alphabet* alpha, int position) throw (BadIntException) : BasicSymbolList(site, alpha), position_(position) {}
+Site::Site(const vector<int>& site, const Alphabet* alpha, int position) throw (BadIntException) : AbstractCoreSite(position), BasicSymbolList(site, alpha) {}
 
 /****************************************************************************************/
 
-Site::Site(const Site& site): BasicSymbolList(site), position_(site.getPosition()) {}
+Site::Site(const Site& site): AbstractCoreSite(site.getPosition()), BasicSymbolList(site) {}
 
 Site& Site::operator=(const Site& s)
 {
-  SymbolList::operator=(s);
-	content_  = s.content_;
-	position_ = s.position_;
-	return *this;
+  AbstractCoreSite::operator=(s);
+  BasicSymbolList::operator=(s);
+  return *this;
 }
 
 /****************************************************************************************/
