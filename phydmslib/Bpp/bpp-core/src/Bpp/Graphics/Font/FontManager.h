@@ -46,6 +46,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <vector>
 
 #include "../../Text/TextTools.h"
+#include "../../Exceptions.h"
 
 namespace bpp
 {

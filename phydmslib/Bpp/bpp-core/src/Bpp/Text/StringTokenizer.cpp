@@ -95,12 +95,6 @@ StringTokenizer::StringTokenizer(const std::string& s, const std::string& delimi
 	}
 }
 
-const std::string& StringTokenizer::nextToken() throw (Exception)
-{
-	if (!hasMoreToken()) throw Exception("No more token in tokenizer.");
-	return tokens_[currentPosition_++];
-}
-
 void StringTokenizer::removeEmptyTokens()
 {
   for (size_t i = tokens_.size(); i > currentPosition_; i--)

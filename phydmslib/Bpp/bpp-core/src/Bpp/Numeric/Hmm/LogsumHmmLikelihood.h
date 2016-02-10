@@ -281,8 +281,11 @@ namespace bpp {
 
     void getHiddenStatesPosteriorProbabilities(std::vector< std::vector<double> >& probs, bool append = false) const throw (Exception);
 
+    void computeLikelihood();
   protected:
+
     void computeForward_();
+    
     void computeBackward_() const;
 
     void computeDLikelihood_() const

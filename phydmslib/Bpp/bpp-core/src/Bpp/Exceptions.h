@@ -45,6 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <stdexcept>
 #include <vector>
 #include <string>
+#include "Text/TextTools.h"
 
 namespace bpp
 {
@@ -311,7 +312,11 @@ class IndexOutOfBoundsException:
      * @param lowerBound Lower limit.
      * @param upperBound Upper limit.
      */
-    IndexOutOfBoundsException(const std::string& text, size_t badInt, size_t lowerBound, size_t upperBound);
+  IndexOutOfBoundsException(const std::string& text, size_t badInt, size_t lowerBound, size_t upperBound) :
+    Exception("out of [" + TextTools::toString(lowerBound) + ", " + TextTools::toString(upperBound) +  "])" + text),
+    badIndex_(badInt),
+    lowerBound_(lowerBound),
+    upperBound_(upperBound) {}
   
     virtual ~IndexOutOfBoundsException() throw() {}
 

@@ -115,9 +115,14 @@ void LogsumHmmLikelihood::fireParameterChanged(const ParameterList& pl)
   // (when both the alphabet and other parameter changed).
   if (alphabetChanged && !transitionsChanged) transitionMatrix_->setParametersValues(transitionMatrix_->getParameters());
   if (alphabetChanged && !emissionChanged) emissionProbabilities_->setParametersValues(emissionProbabilities_->getParameters());
-  
-  computeForward_();
+
   backLogLikelihoodUpToDate_=false;
+  computeLikelihood();
+}
+
+void LogsumHmmLikelihood::computeLikelihood()
+{
+  computeForward_();
 }
 
 /***************************************************************************************************************************/

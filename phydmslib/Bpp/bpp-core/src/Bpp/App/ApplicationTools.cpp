@@ -62,9 +62,11 @@ int ApplicationTools::warningLevel = 0;
 
 bool ApplicationTools::parameterExists(
   const std::string & parameterName,
-  std::map<std::string, std::string>& params)
+  const std::map<std::string, std::string>& params)
 {
-  return (params.find(parameterName) != params.end() && !TextTools::isEmpty(params[parameterName]));
+  std::map<std::string, std::string>::const_iterator it=params.find(parameterName);
+  
+  return (it != params.end() && !TextTools::isEmpty(it->second));
 }
 
 bool ApplicationTools::parameterExists(
@@ -226,20 +228,27 @@ int ApplicationTools::getIntParameter(
 
 std::string ApplicationTools::getStringParameter(
   const std::string& parameterName,
-  std::map<std::string, std::string>& params,
+  const std::map<std::string, std::string>& params,
   const std::string& defaultValue,
   const std::string& suffix,
   bool suffixIsOptional,
   int warn)
 {
   string sParam = defaultValue;
-  if (parameterExists(parameterName + suffix, params)) {
-    sParam = params[parameterName + suffix];
-  } else if (suffixIsOptional && parameterExists(parameterName, params)) {
-    sParam = params[parameterName];
-  } else if (warn <= warningLevel) {
-    displayWarning("Parameter " + parameterName + " not specified. Default used instead: " + defaultValue);
+  std::map<std::string, std::string>::const_iterator it1=params.find(parameterName + suffix);  
+  if (it1 != params.end() && !TextTools::isEmpty(it1->second))
+    sParam = it1->second;
+  else
+  {
+    std::map<std::string, std::string>::const_iterator it2=params.find(parameterName);  
+    if (suffixIsOptional && it2 != params.end() && !TextTools::isEmpty(it2->second))
+      sParam = it2->second;
+    else
+      if (warn <= warningLevel) {
+        displayWarning("Parameter " + parameterName + " not specified. Default used instead: " + defaultValue);
+      }
   }
+  
   return sParam;
 }
 
