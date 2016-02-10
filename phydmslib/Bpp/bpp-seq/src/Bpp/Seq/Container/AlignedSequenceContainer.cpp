@@ -121,6 +121,7 @@ AlignedSequenceContainer& AlignedSequenceContainer::operator=(const OrderedSeque
 AlignedSequenceContainer::~AlignedSequenceContainer()
 {
   // delete all sites:
+
   for (unsigned int i = 0; i < sites_.size(); i++)
   {
     if (sites_[i])

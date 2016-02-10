@@ -315,3 +315,13 @@ const std::vector<std::string>& AbstractAlphabet::getSupportedChars() const
 
 /******************************************************************************/
 
+const std::vector<std::string> & AbstractAlphabet::getResolvedChars() const
+{
+  charList_.clear();
+  for(size_t i = 0; i < alphabet_.size(); ++i)
+    // well, non-gap chars also
+    if(!isGap(alphabet_[i]->getLetter()) and !isUnresolved(alphabet_[i]->getLetter()))
+      charList_.push_back(alphabet_[i]->getLetter());
+
+  return charList_;
+}

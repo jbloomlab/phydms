@@ -67,7 +67,7 @@ class Fasta:
   public virtual ISequenceStream,
   public virtual OSequenceStream
 {
-  private:
+  protected:
 
     /**
      * @brief The maximum number of chars to be written on a line.
@@ -185,7 +185,16 @@ class Fasta:
       public:
         FileIndex(): index_(), fileSize_(0) {}
         ~FileIndex() {}
-        void build(const std::string& path) throw (Exception);
+        void build(const std::string& path) throw (Exception) {
+          build(path, false);
+        }
+        /**
+         * @brief Constructor
+         *
+         * @param path The path to the file.
+         * @param strictSequenceNames Tells if the sequence names should be restricted to the characters between '>' and the first blank one.
+         */
+        void build(const std::string& path, const bool strictSequenceNames) throw (Exception);
         std::streampos getSequencePosition(const std::string& id) const throw (Exception);
         size_t getNumberOfSequences() const throw (Exception) {
           return index_.size();
@@ -202,6 +211,7 @@ class Fasta:
          * @brief Get a sequence given its ID
          */
         void getSequence(const std::string& seqid, Sequence& seq, const std::string& path) const;
+        void getSequence(const std::string& seqid, Sequence& seq, const std::string& path, const bool strictSequenceNames) const;
       private:
         std::map<std::string, std::streampos> index_;
         std::streampos fileSize_;

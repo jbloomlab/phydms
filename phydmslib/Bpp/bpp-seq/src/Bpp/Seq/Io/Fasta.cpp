@@ -228,7 +228,7 @@ void Fasta::writeSequences(ostream& output, const SequenceContainer& sc) const t
 
 // FileIndex class
 
-void Fasta::FileIndex::build(const std::string& path) throw (Exception) {
+void Fasta::FileIndex::build(const std::string& path, const bool strictSequenceNames) throw (Exception) {
   // open the file
   std::ifstream f_in(path.c_str());
   // get the size of the file
@@ -243,6 +243,9 @@ void Fasta::FileIndex::build(const std::string& path) throw (Exception) {
     if (ch == '>') {
       pos = static_cast<int>(f_in.tellg()) - 1;
       std::getline(f_in, seq_id);
+      if (strictSequenceNames) {
+        seq_id = seq_id.substr(0, seq_id.find_first_of(" \t\n"));
+      }
       index_[seq_id] = pos;
     }
   }
@@ -280,7 +283,12 @@ void Fasta::FileIndex::write(const std::string& path) throw (Exception) {
 }
 
 void Fasta::FileIndex::getSequence(const std::string& seqid, Sequence& seq, const std::string& path) const {
+  getSequence(seqid, seq, path, false);
+}
+
+void Fasta::FileIndex::getSequence(const std::string& seqid, Sequence& seq, const std::string& path, const bool strictSequenceNames) const {
   Fasta fs(60);
+  fs.strictNames(strictSequenceNames);
   streampos seq_pos = this->getSequencePosition(seqid);
   std::ifstream fasta(path.c_str());
   fasta.seekg(seq_pos);

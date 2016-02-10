@@ -52,12 +52,16 @@ ADD_EXECUTABLE(test_bowker test_bowker.cpp)
 TARGET_LINK_LIBRARIES(test_bowker ${LIBS})
 ADD_TEST(test_bowker "test_bowker")
 
+ADD_EXECUTABLE(test_probseq test_probseq.cpp)
+TARGET_LINK_LIBRARIES(test_probseq ${LIBS})
+ADD_TEST(test_probseq "test_probseq")
+
 IF(UNIX)
-  SET_PROPERTY(TEST test_alphabets test_sequences test_io test_containers test_alignment_scores test_walker test_bowker PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}:../src")
+  SET_PROPERTY(TEST test_alphabets test_sequences test_io test_containers test_alignment_scores test_walker test_bowker test_probseq PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}:../src")
 ENDIF()
 
 IF(APPLE)
-  SET_PROPERTY(TEST test_alphabets test_sequences test_io test_containers test_alignment_scores test_walker test_bowker PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}:../src")
+  SET_PROPERTY(TEST test_alphabets test_sequences test_io test_containers test_alignment_scores test_walker test_bowker test_probseq PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}:../src")
 ENDIF()
 
 IF(WIN32)

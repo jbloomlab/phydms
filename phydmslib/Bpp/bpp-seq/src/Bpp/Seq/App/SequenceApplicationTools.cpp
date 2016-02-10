@@ -313,8 +313,9 @@ map<size_t, SiteContainer*> SequenceApplicationTools::getSiteContainers(
       if (args.find("remove_stop_codons") != args.end())
         args2["input.sequence.remove_stop_codons"] = args["remove_stop_codons"];
 
-      args2["genetic_code"] = ApplicationTools::getStringParameter("genetic_code", params, "", "", true, 0);
+      args2["genetic_code"] = ApplicationTools::getStringParameter("genetic_code", params, "", "", true, (dynamic_cast<const CodonAlphabet*>(alpha)?0:1));
 
+      ApplicationTools::displayMessage("");
       ApplicationTools::displayMessage("Data " + TextTools::toString(num));
 
       VectorSiteContainer* vsC = getSiteContainer(alpha, args2, "", true, verbose, warn);
@@ -363,6 +364,7 @@ VectorSiteContainer* SequenceApplicationTools::getSiteContainer(
   const SequenceContainer* seqCont = iAln->readAlignment(sequenceFilePath, alpha2);
 
   VectorSiteContainer* sites2 = new VectorSiteContainer(*dynamic_cast<const OrderedSequenceContainer*>(seqCont));
+
   delete seqCont;
 
   VectorSiteContainer* sites;
@@ -379,7 +381,6 @@ VectorSiteContainer* SequenceApplicationTools::getSiteContainer(
   }
   else
     sites = sites2;
-
 
   // Look for site selection:
   if (iAln->getFormatName() == "MASE file")

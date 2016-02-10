@@ -121,6 +121,3 @@ unsigned int AlphabetTools::getAlphabetCodingSize(const Alphabet* alphabet) thro
 {
   return getAlphabetCodingSize(*alphabet);
 }
-
-/**********************************************************************************************/
-

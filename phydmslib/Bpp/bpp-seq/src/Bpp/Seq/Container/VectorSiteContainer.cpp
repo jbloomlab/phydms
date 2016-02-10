@@ -514,10 +514,10 @@ Vint VectorSiteContainer::getSitePositions() const
 
 void VectorSiteContainer::setSitePositions(Vint vPositions)
 {
-  if (vPositions.size()!=sites_.size())
+  if (vPositions.size() != sites_.size())
     throw BadSizeException("VectorSiteContainer::setSitePositions bad size of positions vector", vPositions.size(), sites_.size());
   
-  int pos = 0; // first position is 1.
+  size_t pos = 0; // first position is 1.
   for (vector<Site*>::iterator i = sites_.begin(); i < sites_.end(); i++)
   {
     (*i)->setPosition(vPositions[pos++]);

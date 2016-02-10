@@ -51,6 +51,10 @@
 
 #include <typeinfo>
 
+// From the STL :
+#include <string>
+#include <vector>
+
 namespace bpp
 {
 /**
@@ -225,7 +229,7 @@ private:
     }
   }
 };
+
 } // end of namespace bpp.
 
 #endif  // _ALPHABETTOOLS_H_
-

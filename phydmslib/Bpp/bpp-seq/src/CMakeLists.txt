@@ -24,6 +24,10 @@ SET(CPP_FILES
   Bpp/Seq/Transliterator.cpp
   Bpp/Seq/DistanceMatrix.cpp
   Bpp/Seq/CodonSiteTools.cpp
+  Bpp/Seq/ProbabilisticSymbolList.cpp
+  Bpp/Seq/ProbabilisticSymbolListTools.cpp
+  Bpp/Seq/ProbabilisticSequence.cpp
+  Bpp/Seq/ProbabilisticSite.cpp
   Bpp/Seq/Alphabet/AbstractAlphabet.cpp
   Bpp/Seq/Alphabet/LetterAlphabet.cpp
   Bpp/Seq/Alphabet/AlphabetExceptions.cpp
@@ -68,9 +72,11 @@ SET(CPP_FILES
   Bpp/Seq/Container/CompressedVectorSiteContainer.cpp
   Bpp/Seq/Container/SiteContainerIterator.cpp
   Bpp/Seq/Container/SequenceContainerIterator.cpp
+  Bpp/Seq/Container/VectorProbabilisticSiteContainer.cpp
   Bpp/Seq/Io/Clustal.cpp
   Bpp/Seq/Io/Dcse.cpp
   Bpp/Seq/Io/Fasta.cpp
+  Bpp/Seq/Io/Pasta.cpp
   Bpp/Seq/Io/Mase.cpp
   Bpp/Seq/Io/MaseTools.cpp
   Bpp/Seq/Io/Phylip.cpp
@@ -115,6 +121,10 @@ SET(H_FILES
   Bpp/Seq/SymbolListTools.h
   Bpp/Seq/Transliterator.h
   Bpp/Seq/DistanceMatrix.h
+  Bpp/Seq/ProbabilisticSymbolList.h
+  Bpp/Seq/ProbabilisticSymbolListTools.h
+  Bpp/Seq/ProbabilisticSequence.h
+  Bpp/Seq/ProbabilisticSite.h
   Bpp/Seq/Alphabet/AbstractAlphabet.h
   Bpp/Seq/Alphabet/AlphabetExceptions.h
   Bpp/Seq/Alphabet/Alphabet.h
@@ -149,6 +159,7 @@ SET(H_FILES
   Bpp/Seq/Io/Clustal.h
   Bpp/Seq/Io/Dcse.h
   Bpp/Seq/Io/Fasta.h
+  Bpp/Seq/Io/Pasta.h
   Bpp/Seq/Io/IOSequence.h
   Bpp/Seq/Io/ISequence.h
   Bpp/Seq/Io/ISequenceStream.h
@@ -188,6 +199,7 @@ SET(H_FILES
   Bpp/Seq/Container/SiteContainer.h
   Bpp/Seq/Container/SiteContainerTools.h
   Bpp/Seq/Container/SiteContainerIterator.h
+  Bpp/Seq/Container/VectorProbabilisticSiteContainer.h
   Bpp/Seq/AlphabetIndex/AlphabetIndex1.h
   Bpp/Seq/AlphabetIndex/AlphabetIndex2.h
   Bpp/Seq/AlphabetIndex/UserAlphabetIndex1.h

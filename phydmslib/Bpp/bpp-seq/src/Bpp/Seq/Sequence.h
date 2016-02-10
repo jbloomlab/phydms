@@ -42,6 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _SEQUENCE_H_
 
 #include "SymbolList.h"
+#include "CoreSequence.h"
 #include "SequenceExceptions.h"
 
 // From the STL:
@@ -50,14 +51,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 namespace bpp
 {
-
-/**
- * @brief Declaration of Comments type.
- *
- * Comments are defined as a std::vector of std::strings to allow the later creation of a
- * full Comments class.
- */
-typedef std::vector<std::string> Comments;
 
 /**
  * @brief The sequence interface. 
@@ -72,6 +65,7 @@ typedef std::vector<std::string> Comments;
  * @see Alphabet
  */
 class Sequence:
+  public virtual CoreSequence,
   public virtual SymbolList
 {
   public:
@@ -79,55 +73,12 @@ class Sequence:
 
   public:
   
-#ifndef NO_VIRTUAL_COV
     Sequence* clone() const = 0;
-#endif
-    
-    /**
-     * @name Setting/getting the name of the sequence.
-     *
-     * @{
-     */
-     
-    /**
-     * @brief Get the name of this sequence.
-     *
-     * @return This sequence name.
-     */
-    virtual const std::string& getName() const = 0;
-    
-    /**
-     * @brief Set the name of this sequence.
-     *
-     * @param name The new name of the sequence.
-     */
-    virtual void setName(const std::string& name) = 0;    
-    /** @} */
-    
-    /**
-     * @name Setting/getting the comments associated to the sequence.
-     *
-     * @{
-     */
-     
-    /**
-     * @brief Get the comments associated to this sequence.
-     *
-     * @return The comments of the sequence.
-     */
-    virtual const Comments& getComments() const = 0;
-    
-    /**
-     * @brief Set the comments associated to this sequence.
-     *
-     * @param comments The new comments of the sequence.
-     */
-    virtual void setComments(const Comments& comments) = 0;
     
     /** @} */
     
     /**
-     * @name Adjusting the size of the sequence.
+     * @name Adjusting the content and size of the sequence.
      *
      * @{
      */
@@ -193,6 +144,7 @@ class Sequence:
      * @throw BadCharException If the content does not match the current alphabet.
      */
     virtual void append(const std::string& content) throw (BadCharException) = 0;
+
     /** @} */
 
 };
@@ -213,21 +165,10 @@ class Sequence:
  * @see Alphabet
  */
 class BasicSequence :
-  public Sequence,
-  public BasicSymbolList
+  public virtual Sequence,
+  public virtual AbstractCoreSequence,
+  public virtual BasicSymbolList
 {
-  private:
-
-    /**
-     * @brief The sequence name.
-     */
-    std::string name_;
-
-    /**
-     * @brief The sequence comments.
-     */
-    Comments comments_;
-
   public:
 
     /**
@@ -350,32 +291,6 @@ class BasicSequence :
     BasicSequence* clone() const { return new BasicSequence(*this); }
     /** @} */
         
-    
-    /**
-     * @name Setting/getting the name of the sequence.
-     *
-     * @{
-     */
-     
-    const std::string& getName() const { return name_; }
-    
-    void setName(const std::string& name) { name_ = name; }
-    
-    /** @} */
-    
-    /**
-     * @name Setting/getting the comments associated to the sequence.
-     *
-     * @{
-     */
-     
-    const Comments& getComments() const { return comments_; }
-    
-    void setComments(const Comments& comments) { comments_ = comments; }
-    
-    /** @} */
-    
-    
     /**
      * @name Adjusting the size of the sequence.
      *

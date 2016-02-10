@@ -335,7 +335,7 @@ namespace bpp
 
     // Class destructor
     virtual ~BasicSymbolList() {}
-
+    
   public:
 
     virtual const Alphabet* getAlphabet() const { return alphabet_; }

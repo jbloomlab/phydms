@@ -77,8 +77,8 @@ namespace bpp
     unsigned int getNumberOfTypes() const { return 2; }
     std::string getAlphabetType() const { return "Binary alphabet"; }
     int getUnknownCharacterCode() const { return 3; }
-    bool isUnresolved(int state) const { return state == 3; }
-    bool isUnresolved(const std::string& state) const { return false; }
+    bool isUnresolved(int state) const { return state > 1; }
+    bool isUnresolved(const std::string& state) const { return charToInt(state) > 1; }
 
     std::vector<int> getAlias(int state) const throw (BadIntException);
     std::vector<std::string> getAlias(const std::string& state) const throw (BadCharException);

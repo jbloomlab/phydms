@@ -156,6 +156,7 @@ namespace bpp
     std::string getGeneric(const std::vector<std::string>& states) const throw (AlphabetException);
     const std::vector<int>& getSupportedInts() const;
     const std::vector<std::string>& getSupportedChars() const;
+    const std::vector<std::string> & getResolvedChars() const;
     int getGapCharacterCode() const { return -1; }
     bool isGap(int state) const { return state == -1; }
     bool isGap(const std::string& state) const { return charToInt(state) == -1; }
