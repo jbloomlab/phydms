@@ -38,6 +38,7 @@
  */
 
 #include "TextTools.h"
+#include "../Exceptions.h"
 
 using namespace bpp;
 
@@ -299,7 +300,7 @@ std::string TextTools::toString(double d, int precision)
 
 /******************************************************************************/
 
-int TextTools::toInt(const std::string& s, char scientificNotation) throw (Exception)
+int TextTools::toInt(const std::string& s, char scientificNotation)
 {
   if (!isDecimalInteger(s, scientificNotation)) throw Exception("TextTools::toInt(). Invalid number specification: " + s);
   istringstream iss(s);
@@ -310,7 +311,7 @@ int TextTools::toInt(const std::string& s, char scientificNotation) throw (Excep
 
 /******************************************************************************/
 
-double TextTools::toDouble(const std::string& s, char dec, char scientificNotation) throw (Exception)
+double TextTools::toDouble(const std::string& s, char dec, char scientificNotation)
 {
   if (!isDecimalNumber(s, dec, scientificNotation)) throw Exception("TextTools::toDouble(). Invalid number specification: " + s);
   istringstream iss(s);
@@ -326,7 +327,7 @@ std::string TextTools::resizeRight(const std::string& s, size_t newSize, char fi
   if (s.size() > newSize)
     return s.substr(0, newSize);
   else
-    return s + string(newSize - s.size(), fill);
+    return s + std::string(newSize - s.size(), fill);
 }
 
 /******************************************************************************/
@@ -357,7 +358,6 @@ std::vector<std::string> TextTools::split(const std::string& s, size_t n)
 /******************************************************************************/
 
 std::string TextTools::removeSubstrings(const std::string& s, char blockBeginning, char blockEnding)
-throw (Exception)
 {
   string t = "";
   int blockCount = 0;
@@ -389,7 +389,6 @@ throw (Exception)
 /******************************************************************************/
 
 std::string TextTools::removeSubstrings(const std::string& s, char blockBeginning, char blockEnding, std::vector<string>& exceptionsBeginning, std::vector<string>& exceptionsEnding)
-throw (Exception)
 {
   string t = "";
   int blockCount = 0;
@@ -480,15 +479,6 @@ unsigned int TextTools::count(const std::string& s, const std::string& pattern)
     index = s.find(pattern, index + 1);
   }
   return count;
-}
-
-/******************************************************************************/
-
-bool TextTools::startsWith(const std::string& s, const std::string& pattern)
-{
-  if (s.size() < pattern.size())
-    return false;
-  return s.substr(0, pattern.size()) == pattern;
 }
 
 /******************************************************************************/

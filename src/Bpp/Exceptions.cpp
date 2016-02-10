@@ -76,12 +76,6 @@ NumberFormatException::NumberFormatException(const std::string& text, const std:
   badNumber_(badNumber) {}
 
 /******************************************************************************/
-  
-IndexOutOfBoundsException::IndexOutOfBoundsException(const std::string& text, size_t badInt, size_t lowerBound, size_t upperBound):
-  Exception("out of [" + TextTools::toString(lowerBound) + ", " + TextTools::toString(upperBound) +  "])" + text),
-  badIndex_(badInt),
-  lowerBound_(lowerBound),
-  upperBound_(upperBound) {}
 
 vector<size_t> IndexOutOfBoundsException::getBounds() const
 {

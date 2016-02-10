@@ -144,7 +144,7 @@ namespace bpp
      * @param params        The parameter list.
      * @return True is the parameter of specified name is in the list.
      */
-    static bool parameterExists(const std::string& parameterName, std::map<std::string, std::string>& params);
+    static bool parameterExists(const std::string& parameterName, const std::map<std::string, std::string>& params);
 
     static bool parameterExists(const std::string& parameterName, std::vector<std::string>& params);
 
@@ -212,7 +212,7 @@ namespace bpp
      */
     static std::string getStringParameter(
       const std::string& parameterName,
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& defaultValue,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
