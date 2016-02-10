@@ -10,7 +10,7 @@ Overview
 ------------
 ``phydms_comprehensive`` is a program that simplifies usage of ``phydms`` for standard analyses. Essentially, ``phydms_comprehensive`` runs ``phydms`` for several different models to enable model comparisons and identify selection.
 
-In its simplest usage, you simply provide ``phydms_comprehensive`` with an alignment and one or more files giving site-specific amino-acid preferences. The program then first uses ``phydms`` to infer a tree under the *YNGKP_M0* model (starting from a crude neighbor-joining tree), and then for each set of site-specific amino-acid preferences optimizes this tree (with fixed topology) for an *ExpCM* and a control *ExpCM* with the preferences averaged across sites (the ``phydms`` option ``--avgprefs``). The program also optimizes the tree using the *YNGKP_M3* model. For all models, it detects site-specific selection. It also creates a simple summary that enables comparison among the models.
+In its simplest usage, you simply provide ``phydms_comprehensive`` with an alignment and one or more files giving site-specific amino-acid preferences. The program then first uses ``phydms`` to infer a tree under the *YNGKP_M0* model (starting from a crude neighbor-joining tree), and then for each set of site-specific amino-acid preferences optimizes this tree (with fixed topology) for an *ExpCM* and a control *ExpCM* with the preferences averaged across sites (the ``phydms`` option ``--avgprefs``). The program also optimizes the tree using the *YNGKP_M8* model. For all models, it detects site-specific selection. It also creates a simple summary that enables comparison among the models.
 
 If this program hangs up on the initial inference of the tree with *YNGKP_M0*, then infer a tree using another tree-building program such as `codonPhyML`_ and then pass that via the ``--treetopology`` option.
 
@@ -39,7 +39,7 @@ Command-line usage
     By default, ``phydms_comprehensive`` uses ``phydms`` to infer a tree topology under the *YNGKP_M0* model starting from a crude neighbor-joining tree. If you want to instead fix the tree to some existing topology, use this argument and provide the name of a file giving a valid tree in Newick format.
 
    \-\-no-omegabysite 
-    By default, ``phydms_comprehensive`` infers a site-specific :math:`\omega_r` for the tree obtained using the *YNGKP_M3* model and for each *ExpCM*. Use this option if you do **not** want to do this.
+    By default, ``phydms_comprehensive`` infers a site-specific :math:`\omega_r` for the tree obtained using the *YNGKP_M8* model and for each *ExpCM*. Use this option if you do **not** want to do this.
 
    \-\-no-stringencybysite 
     By default, ``phydms_comprehensive`` infers a site-specific :math:`\beta_r` for each *ExpCM*. Use this option if you do **not** want to do this.
@@ -52,6 +52,9 @@ Command-line usage
 
    \-\-no-avgprefs
     As described in the documentation for ``phydms`` (see :ref:`phydms_prog`), there are two sensible controls when using an *ExpCM* model: averaging the preferences across sites or randomizing them across sites. By default, ``phydms_comprehensive`` performs the averaging control (this is the ``--avgprefs`` option to ``phydms``). Use this option if you do **not** want to include this averaging control.
+
+   \-\-yngkp
+    In addition the *ExpCM* models and the *YNGKP_M0* model, the program optimizes an additional *YNGKP* model. This additional model is also the one used to get the tree that is optimized for the ``omegabysite`` analyses. This option specifies which model that should be *M3* or *M8*. In the earliest versions of ``phydms``, it was *M3*, but it has now been switched to *M8*. See `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_ for details about these models.
 
    \-\-randprefs
     As described in the documentation for ``phydms`` (see :ref:`phydms_prog`), there are two sensible controls when using an *ExpCM* model: averaging the preferences across sites or randomizing them across sites. By default, ``phydms_comprehensive`` performs the averaging control (this is the ``--avgprefs`` option to ``phydms``) but not the randomization control (this is the ``--randprefs`` option to ``phydms``). Use this option if you also want to include the ``--randprefs`` control.
@@ -75,12 +78,14 @@ A file with the suffix ``_modelcomparison.txt`` (or just the name ``modelcompari
     model                    AIC    log likelihood number parameters (optimized + empirical): optimized values                                
     ======================== ====== ============== ===========================================================================================
     ExpCM_prefs              0.0    -4415.2        6 (6 + 0): beta = 2.92, omega = 0.77, kappa = 6.19, phiA = 0.37, phiC = 0.20, phiG = 0.22  
-    YNGKP_M3                 2484.1 -5648.3        15 (6 + 9): omega0 = 0.03, omega1 = 0.83, omega2 = 0.83, p0 = 0.86, p1 = 0.11, kappa = 6.32
+    YNGKP_M8                 2482.1 -5648.3        14 (5 + 9): pomegas = 0.08, omegas = 1.02, betap = 0.00, betaq = 4.34, kappa = 6.40
     averaged_ExpCM_prefs     2600.9 -5715.7        6 (6 + 0): beta = 0.32, omega = 0.12, kappa = 6.51, phiA = 0.35, phiC = 0.18, phiG = 0.25  
     YNGKP_M0                 2619.1 -5719.8        11 (2 + 9): omega = 0.11, kappa = 6.24                                                     
     ======================== ====== ============== ===========================================================================================
 
 In this table, ``ExpCM_prefs`` is the *ExpCM* created using the preferences in ``prefs.txt``, and ``averaged_ExpCM_prefs`` is the *ExpCM* created after averaging the preferences in ``prefs.txt`` across sites (the ``--avgprefs`` option to ``phydms``. 
+
+For the *YNGKP_M8* model, ``pomegas`` is the weight assigned to the positively selected (:math:`\omega \gt 1`) category, and ``omegas`` is the value of :math:`\omega` for this category. The ``betaq`` and ``betap`` parameters are the shape of the beta distribution for :math:`\omega < 1`.
 
 The models are ranked by `AIC`_ in terms of difference from the best fitting model. The third column shows the number of parameters. The *YNGKP* models have 9 empirical parameters corresponding to the codon frequencies estimated using the *F3X4* option.
 
@@ -104,7 +109,7 @@ then we expect output files with the following prefixes:
 
     * ``my_directory/YNGKP_M0_*`` : the *YNGKP_M0* model.
 
-    * ``my_directory/YNGKP_M3_*`` : the *YNGKP_M3* model.
+    * ``my_directory/YNGKP_M8_*`` : the *YNGKP_M8* model.
 
 
 .. include:: weblinks.txt

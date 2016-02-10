@@ -7,6 +7,8 @@ Changelog
 
 * Fixed ``--no_optimize`` method for *YNGKP_M3*, *YGNKP_M7*, and *YNGKP_M8* by making program use the old likelihood method for these models.
 
+* Added ``--yngkp`` option to ``phydms_comprehensive``, and changed default from *YNGKP_M3* to *YNGKP_M8*.
+
 1.0.2
 --------
 * Fixed bug in file checks for ``--no_optimize`` option to ``phydms``

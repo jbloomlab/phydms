@@ -127,22 +127,23 @@ These parameters correspond to those described in :ref:`ExpCM` as follows:
 
     * *123_Full.theta*, *123_Full.theta1*, and *123_Full.theta2* define the values of the nucleotide frequences :math:`\phi_A`, :math:`\phi_C`, :math:`\phi_G`, and :math:`\phi_T`. The definitions are :math:`\phi_C + \phi_G = \rm{\textit{123_Full.theta}}`, :math:`\phi_A / \left(\phi_A + \phi_T\right) = \rm{\textit{123_Full.theta1}}`, and :math:`\phi_G / \left(\phi_G + \phi_C\right) = \rm{\textit{123_Full.theta2}}`.
 
-Here is an example of the contents for a *YNGKP_M3* model::
+Here is an example of the contents for a *YNGKP_M8* model::
 
-    delta1 = 0.796641
-    delta2 = 0.001
-    kappa = 6.31961
-    omega0 = 0.0333836
-    theta1 = 0.861961
-    theta2 = 0.787932
+    kappa = 3.355859
+    omegas = 3.172927
+    p = 0.000100
+    p0 = 0.886637
+    q = 0.258658
 
-These parameters correspond to those described for the *M3* model by `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_ (three discrete categories of :math:`\omega`), with:
+These parameters correspond to those described for the *M8* model by `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_ (three discrete categories of :math:`\omega`), with:
 
     * *kappa* being :math:`\kappa`
 
-    * *omega0* being the value of :math:`\omega` for the first category, *omega0 + delta1* being the value of :math:`\omega` for the second category, and *omega0 + delta1 + delta2* being the value of :math:`\omega` for the third category.
+    * *p0* being the weight assigned to the :math:`\omega < 1` beta distributed values.
+   
+    * *p* and *q* being the shape parameters of the beta distribution.
 
-    * *theta1* being the weight assigned to the first :math:`\omega` category, *(1 - theta1) * theta2* being the weight assigned to the second :math:`\omega` category, and *(1 - theta1) * (1 - theta2)* being the weight assigned to the third :math:`\omega` category.
+    * *omegas* being the :math:`\omega` value of the category (weight *1 - p0*) with :math:`\omega > 1`.
                         
 Tree file
 ++++++++++++
