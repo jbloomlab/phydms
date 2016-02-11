@@ -61,7 +61,7 @@
 #include "../Model/Codon/CodonRateFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/CodonDistanceFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.h"
-#include "../Model/Codon/CodonDistanceFitnessPhaseFrequenciesSubstitutionModel.h"
+#include "../Model/Codon/SENCA.h"
 #include "../Model/RE08.h"
 #include "../Model/TS98.h"
 #include "../Model/G2001.h"
@@ -97,6 +97,7 @@
 #include "../Model/Protein/LLG08_EHO.h"
 #include "../Model/Protein/LG10_EX_EHO.h"
 #include "../Model/BinarySubstitutionModel.h"
+#include "../Model/FromMixtureSubstitutionModel.h"
 
 #include "../App/PhylogeneticsApplicationTools.h"
 
@@ -156,7 +157,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
   // / WORDS and CODONS
   // ///////////////////////////////
 
-  else if ((modelName == "Word") || (modelName == "Triplet") || (modelName.substr(0, 5) == "Codon"))
+  else if ((modelName == "Word") || (modelName == "Triplet") || (modelName.substr(0, 5) == "Codon") || (modelName == "SENCA") )
     model.reset(readWord_(alphabet, modelDescription, data));
 
 
@@ -244,34 +245,6 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
       throw Exception("Unknown Codon model: " + modelName);
   }
 
-
-  // //////////////////////////////////
-  // gBGC
-  // //////////////////////////////////
-
-  else if (modelName == "gBGC")
-  {
-    if (!(alphabetCode_ & NUCLEOTIDE))
-      throw Exception("BppOSubstitutionModelFormat::read. Nucleotide alphabet not supported.");
-    // We have to parse the nested model first:
-    string nestedModelDescription = args["model"];
-    if (TextTools::isEmpty(nestedModelDescription))
-      throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'model' for model 'gBGC'.");
-    if (verbose_)
-      ApplicationTools::displayResult("Biased gene conversion", modelName);
-    BppOSubstitutionModelFormat nestedReader(NUCLEOTIDE, true, true, false, verbose_, warningLevel_);
-    auto_ptr<NucleotideSubstitutionModel> nestedModel(dynamic_cast<NucleotideSubstitutionModel*>(nestedReader.read(alphabet, nestedModelDescription, data, false)));
-    map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
-
-    // Now we create the gBGC substitution model:
-    model.reset(new gBGC(dynamic_cast<const NucleicAlphabet*>(alphabet), nestedModel.release()));
-
-    // Then we update the parameter set:
-    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-    {
-      unparsedArguments_["gBGC." + it->first] = it->second;
-    }
-  }
 
   // //////////////////////////////////
   // YpR
@@ -464,11 +437,41 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         throw Exception("BppOSubstitutionModelFormat::read. Nucleotide alphabet not supported.");
       const NucleicAlphabet* alpha = dynamic_cast<const NucleicAlphabet*>(alphabet);
 
+      // //////////////////////////////////
+      // gBGC
+      // //////////////////////////////////
+      if (modelName.find("+gBGC") != string::npos)
+      {
+        string subModName=modelName.substr(0,modelName.find("+gBGC"));
+
+        if (verbose_)
+          ApplicationTools::displayResult("Biased gene conversion for", subModName);
+
+        string::size_type begin = modelDescription.find_first_of("(");
+        string::size_type end = modelDescription.find_last_of(")");
+
+        string nestedModelDescription = subModName+modelDescription.substr(begin,end-begin+1);
+        
+        BppOSubstitutionModelFormat nestedReader(NUCLEOTIDE, true, true, false, verbose_, warningLevel_);
+        auto_ptr<NucleotideSubstitutionModel> nestedModel(dynamic_cast<NucleotideSubstitutionModel*>(nestedReader.read(alphabet, nestedModelDescription, data, false)));
+        map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
+
+        // Now we create the gBGC substitution model:
+        model.reset(new gBGC(alpha, nestedModel.release()));
+
+        // Then we update the parameter set:
+        for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+        {
+          unparsedArguments_["gBGC." + it->first] = it->second;
+        }
+      }
+
+
       // /////////////////////////////////
       // / GTR
       // ///////////////////////////////
 
-      if (modelName == "GTR")
+      else if (modelName == "GTR")
       {
         model.reset(new GTR(alpha));
       }
@@ -636,9 +639,38 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         model.reset(new LG10_EX_EHO(alpha));	
       else if (modelName == "LGL08_CAT")
       {
+        if (args.find("nbCat")==args.end())
+          throw Exception("'nbCat' argument is compulsory for model 'LGL08_CAT'");
+          
         unsigned int nbCat = TextTools::to<unsigned int>(args["nbCat"]);
         model.reset(new LGL08_CAT(alpha, nbCat));
       }
+      // submodels of mixture models
+      else if (modelName.substr(0,9) == "LGL08_CAT")
+      {
+        string subModelName = modelName.substr(10);
+
+        size_t posp=modelDescription.find("(");
+
+        string modelDesc2=modelName.substr(0,9)+modelDescription.substr(posp);
+        
+        BppOSubstitutionModelFormat nestedReader(PROTEIN, true, true, false, verbose_, warningLevel_);
+
+        
+        MixedSubstitutionModel* nestedModel=dynamic_cast<MixedSubstitutionModel*>(nestedReader.read(alphabet, modelDesc2, data, false));
+      
+        // Check that nestedModel is fine and has subModel of given name
+        if (nestedModel==NULL)
+          throw Exception("Unknown model " + modelName + ".");
+        
+        if (nestedModel->getSubModelWithName(subModelName)==NULL)
+          throw Exception("BppOSubstitutionModelFormat::read. " + nestedModel->getName() + "argument for model 'FromModel' has no submodel with name " + subModelName + ".");
+
+       // Now we create the FromModel substitution model:
+        model.reset(new FromMixtureSubstitutionModel(*nestedModel, subModelName, modelDesc2));
+        
+        delete nestedModel;
+      }      
       else if (modelName == "Empirical")
       {
         string prefix = args["name"];
@@ -837,9 +869,12 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
 
   if (modelName == "Word")
   {
-    model.reset((v_nestedModelDescription.size() != nbmodels)
-                ? new WordSubstitutionModel(v_pSM[0], nbmodels)
-                : new WordSubstitutionModel(v_pSM));
+    if (v_nestedModelDescription.size() != nbmodels) {
+      model.reset(new WordSubstitutionModel(v_pSM[0], nbmodels));
+    } else {
+      ModelList ml(v_pSM);
+      model.reset(new WordSubstitutionModel(ml));
+    }
   }
 
   // /////////////////////////////////
@@ -869,7 +904,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       throw Exception("BppOSubstitutionModelFormat::readWord_(). No genetic code specified! Consider using 'setGeneticCode'.");
 
     
-    if (modelName.find("Dist") != string::npos)
+    if ((modelName.find("Dist") != string::npos) || (modelName=="SENCA"))
       pai2.reset((args.find("aadistance") == args.end()) ? 0 : SequenceApplicationTools::getAlphabetIndex2(&AlphabetTools::PROTEIN_ALPHABET, args["aadistance"]));
     
 
@@ -978,7 +1013,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
                       pFS.release(),
                       pai2.release()));
     }
-    else if (modelName == "CodonDistFitPhasFreq")
+    else if (modelName == "SENCA")
     {
       if (args.find("fitness") == args.end())
         throw Exception("Missing fitness in model " + modelName + ".");
@@ -995,20 +1030,18 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
 
       if (v_nestedModelDescription.size() != 3)
       {
-        model.reset(new CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(geneticCode_,
-                                                                              dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                                                                              pFit.release(),
-                                                                              pFS.release(),
-                                                                              pai2.release()));
+        model.reset(new SENCA(geneticCode_,
+                              dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                              pFit.release(),
+                              pai2.release()));
       }
       else
-        model.reset(new CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(
+        model.reset(new SENCA(
                       geneticCode_,
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
                       pFit.release(),
-                      pFS.release(),
                       pai2.release()));
     }
   }
@@ -1204,9 +1237,18 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
   const gBGC* gbgcModel = dynamic_cast<const gBGC*>(&model);
   if (gbgcModel)
   {
-    out << "model=";
+    StdStr sout;
+    
     const SubstitutionModel* nestedModel = gbgcModel->getNestedModel();
-    write(*nestedModel, out, globalAliases, writtenNames);
+    write(*nestedModel, sout, globalAliases, writtenNames);
+
+    string ss=sout.str();
+
+    string::size_type begin = ss.find_first_of("(");
+    string::size_type end = ss.find_last_of(")");
+
+    out << ss.substr(begin+1,end-begin-1);
+    
     comma = true;
   }
 
@@ -1252,6 +1294,15 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
     comma = true;
   }
 
+  // // Is it a FromMixture model?
+
+  // const FromMixtureSubstitutionModel* fromModel = dynamic_cast<const FromMixtureSubstitutionModel*>(&model);
+  // if (fromModel)
+  // {
+  //   out << "exch=" << coalaModel->getExch() << ",nbrAxes=" << coalaModel->getNbrOfAxes();
+  //   comma = true;
+  // }
+  
   // Regular model
   const FrequenciesSet* pfs = model.getFrequenciesSet();
   if (pfs)
@@ -1265,9 +1316,9 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
     comma = true;
   }
 
-  // Specific case of CodonFitnessSubstitutionModel
+  // Specific case of SENCA
 
-  const CodonDistanceFitnessPhaseFrequenciesSubstitutionModel* pCF = dynamic_cast<const CodonDistanceFitnessPhaseFrequenciesSubstitutionModel*>(&model);
+  const SENCA* pCF = dynamic_cast<const SENCA*>(&model);
   if (pCF)
   {
     if (comma)

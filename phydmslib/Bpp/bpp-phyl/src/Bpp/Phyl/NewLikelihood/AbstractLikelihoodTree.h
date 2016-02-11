@@ -136,12 +136,13 @@ namespace bpp
     /*
      * @brief recursively reset Likelihoods on all the Inner nodes.
      *
+     * This is done given the useLog
      */
     
-    void resetInnerLikelihoods(size_t nbSites, size_t nbStates, unsigned char DX)
+    void resetDownwardLikelihoods(size_t nbSites, size_t nbStates, unsigned char DX)
     {
       for (size_t i=0; i<nbClasses_; i++)
-        getRootData(i).resetInnerLikelihoods(nbSites, nbStates, DX);
+        getRootData(i).resetDownwardLikelihoods(nbSites, nbStates, DX);
     }
 
     /*
@@ -228,6 +229,38 @@ public:
     {
       return getNodeData(nodeId, nClass).getLikelihoodArray(DX);
     }
+
+    /**
+     * @brief returns if given node at given class uses log in arrays.
+     *
+     */
+    
+    bool usesLog(int nodeId, size_t nClass) const
+    {
+      return getNodeData(nodeId, nClass).usesLog();
+    }
+    
+    /**
+     * @brief returns if root at given class uses log in arrays.
+     *
+     */
+    
+    bool usesLogAtRoot(size_t nClass) const
+    {
+      return getRootData(nClass).usesLog();
+    }
+
+    /**
+     * @brief sets using log in all likelihood arrays.
+     *
+     */
+    
+    void setAllUseLog(bool useLog)
+    {
+      for (size_t i=0; i<nbClasses_;i++)
+        getRootData(i).setUseLogDownward(useLog);
+    }
+    
 
     /**
      * @brief Compute the posterior probabilities for each state and

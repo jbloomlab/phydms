@@ -63,7 +63,7 @@ SET(CPP_FILES
   Bpp/Phyl/NewLikelihood/MixtureSequenceEvolution.cpp
   Bpp/Phyl/NewLikelihood/HmmSequenceEvolution.cpp
   Bpp/Phyl/NewLikelihood/AutoCorrelationSequenceEvolution.cpp
-  Bpp/Phyl/NewLikelihood/HmmPhyloEmissionProbabilities.cpp
+  Bpp/Phyl/NewLikelihood/HmmProcessEmissionProbabilities.cpp
   Bpp/Phyl/NewLikelihood/ParametrizableTree.cpp
   Bpp/Phyl/NewLikelihood/AbstractLikelihoodNode.cpp
   Bpp/Phyl/NewLikelihood/AbstractLikelihoodTree.cpp
@@ -72,15 +72,21 @@ SET(CPP_FILES
   Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTreeCalculation.cpp
   Bpp/Phyl/NewLikelihood/ComputingNode.cpp
   Bpp/Phyl/NewLikelihood/ComputingTree.cpp
-  Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/OneProcessSequencePhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/MultiProcessPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/SumOfDataPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/SumOfPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/PartitionPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/HmmPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/AutoCorrelationPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MultiProcessSequencePhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAbstractPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAlignedPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/ProductOfPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/ProductOfAlignedPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureOfAlignedPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmPhyloEmissionProbabilities.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmOfAlignedPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationOfAlignedPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PartitionProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationProcessPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.cpp
   Bpp/Phyl/Mapping/SubstitutionRegister.cpp
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
@@ -103,9 +109,8 @@ SET(CPP_FILES
   Bpp/Phyl/Model/AbstractMixedSubstitutionModel.cpp
   Bpp/Phyl/Model/MixtureOfASubstitutionModel.cpp
   Bpp/Phyl/Model/MixtureOfSubstitutionModels.cpp
-  Bpp/Phyl/Model/RateDistributionFactory.cpp
+  Bpp/Phyl/Model/FromMixtureSubstitutionModel.cpp
   Bpp/Phyl/Model/RE08.cpp
-  Bpp/Phyl/Model/SubstitutionModelFactory.cpp
   Bpp/Phyl/Model/SubstitutionModelSet.cpp
   Bpp/Phyl/Model/MixedSubstitutionModelSet.cpp
   Bpp/Phyl/Model/SubstitutionModelSetTools.cpp
@@ -151,7 +156,7 @@ SET(CPP_FILES
   Bpp/Phyl/Model/Codon/CodonDistanceSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/CodonDistanceFitnessPhaseFrequenciesSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/SENCA.cpp
   Bpp/Phyl/Model/Codon/CodonRateSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonRateFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/YN98.cpp
@@ -259,7 +264,7 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h
   Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.h
-  Bpp/Phyl/NewLikelihood/HmmPhyloEmissionProbabilities.h
+  Bpp/Phyl/NewLikelihood/HmmProcessEmissionProbabilities.h
   Bpp/Phyl/NewLikelihood/SequenceEvolution.h
   Bpp/Phyl/NewLikelihood/OneProcessSequenceEvolution.h
   Bpp/Phyl/NewLikelihood/MultiProcessSequenceEvolution.h
@@ -280,20 +285,30 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/SitePartition.h
   Bpp/Phyl/NewLikelihood/ComputingNode.h
   Bpp/Phyl/NewLikelihood/ComputingTree.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/AbstractSequencePhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/OneProcessSequencePhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/MultiSequencePhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/MultiPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/MultiProcessPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/HmmPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/AutoCorrelationPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/HmmProcessAlphabet.h
-  Bpp/Phyl/NewLikelihood/SumOfDataPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/SumOfPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PartitionPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AlignedPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleDataPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AbstractSequencePhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MultiSequencePhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MultiPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MultiProcessSequencePhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationProcessPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmProcessAlphabet.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAbstractPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAlignedPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/ProductOfPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/ProductOfAlignedPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureOfAlignedPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmPhyloAlphabet.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmPhyloEmissionProbabilities.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmOfAlignedPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationOfAlignedPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PartitionProcessPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.h
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.h
@@ -323,9 +338,8 @@ SET(H_FILES
   Bpp/Phyl/Model/AbstractMixedSubstitutionModel.h
   Bpp/Phyl/Model/MixtureOfASubstitutionModel.h
   Bpp/Phyl/Model/MixtureOfSubstitutionModels.h
-  Bpp/Phyl/Model/RateDistributionFactory.h
+  Bpp/Phyl/Model/FromMixtureSubstitutionModel.h
   Bpp/Phyl/Model/RE08.h
-  Bpp/Phyl/Model/SubstitutionModelFactory.h
   Bpp/Phyl/Model/SubstitutionModel.h
   Bpp/Phyl/Model/SubstitutionModelSet.h
   Bpp/Phyl/Model/MixedSubstitutionModelSet.h
@@ -376,7 +390,7 @@ SET(H_FILES
   Bpp/Phyl/Model/Codon/CodonDistanceSubstitutionModel.h
   Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.h
-  Bpp/Phyl/Model/Codon/CodonDistanceFitnessPhaseFrequenciesSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/SENCA.h
   Bpp/Phyl/Model/Codon/CodonRateSubstitutionModel.h
   Bpp/Phyl/Model/Codon/CodonRateFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/Codon/YN98.h

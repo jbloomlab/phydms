@@ -360,11 +360,7 @@ namespace bpp
   
     bool isCompatibleWith(const SiteContainer& data) const;
 
-    bool hasDerivableParameter(const std::string& name) const
-    {
-      return hasBranchLengthParameter(name);
-    }
-    
+    bool hasDerivableParameter(const std::string& name) const;
 
     /**
      * @brief Get the number of states associated to this model set.
@@ -533,31 +529,6 @@ namespace bpp
       return *computingTree_.get();
     }
 
-    void multiplyUpwardPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int sonId, unsigned char DX) const
-    {
-      computingTree_->multiplyUpwardPartialLikelihoods(likelihoods_node, likelihoods_son, sonId, DX);
-    }
-
-    void multiplyDownwardPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_father, int sonId, unsigned char DX) const
-    {
-      computingTree_->multiplyDownwardPartialLikelihoods(likelihoods_node, likelihoods_father, sonId, DX);
-    }
-
-    void multiplyUpwardPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int sonId, const std::vector<size_t>& patterns, unsigned char DX) const
-    {
-      computingTree_->multiplyUpwardPartialLikelihoods(likelihoods_node, likelihoods_son, sonId, patterns, DX);
-    }
-
-    void multiplyUpwardPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, unsigned char DX) const
-    {
-      computingTree_->multiplyUpwardPartialLikelihoods(likelihoods_node, vLikelihoods_sons, nodeId, DX);
-    }
-
-    void multiplyUpwardPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns, unsigned char DX) const
-    {
-      computingTree_->multiplyUpwardPartialLikelihoods(likelihoods_node, vLikelihoods_sons, nodeId, vPatterns, DX);
-    }
-    
     friend class SubstitutionProcessCollection;
     
   };
