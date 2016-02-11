@@ -51,6 +51,7 @@
 
 // From the STL:
 #include <map>
+using namespace std;
 
 namespace bpp
 {
@@ -152,6 +153,11 @@ namespace bpp
     {
       return usePatterns_;
     }
+
+    /*
+     * @brief resets the likelihood arrays.
+     *
+     */
     
     void resetBelowLikelihoods(int nodeId, size_t nbSites, size_t nbStates, unsigned char DX) const
     {
@@ -171,6 +177,17 @@ namespace bpp
     }
 
     /*
+     * @brief set if log-likelihood should be computed at node.
+     *
+     */
+    
+    void setUseLog(int nodeId, bool useLog) const
+    {
+      for (size_t c = 0; c < vTree_.size(); ++c)
+        vTree_[c]->getNode(nodeId)->setUseLog(useLog);
+    }
+
+    /*
      * @brief reset the Above Likelihood arrays all the inner nodes:
      * resize to nbSites_ X nbStates_ set to 1
      *
@@ -178,24 +195,6 @@ namespace bpp
     
     void resetInnerAboveLikelihoods();
 
-
-    bool isUp2dateBelow(int nodeId, unsigned char DX) const
-    {
-      for (size_t c = 0; c < vTree_.size(); ++c)
-        if (!vTree_[c]->getNode(nodeId)->isUp2dateBelow(DX))
-          return false;
-      
-      return true;
-    }
-
-    bool isUp2dateAbove(int nodeId) const
-    {
-      for (size_t c = 0; c < vTree_.size(); ++c)
-        if (!vTree_[c]->getNode(nodeId)->isUp2dateAbove())
-          return false;
-      
-      return true;
-    }
 
     bool isAboveLikelihoodsInitialized() const
     {

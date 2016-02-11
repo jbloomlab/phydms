@@ -45,7 +45,8 @@ using namespace std;
 OneProcessSequenceEvolution::OneProcessSequenceEvolution(SubstitutionProcess& process, size_t nProc) :
   AbstractParameterAliasable(""),
   subsProc_(&process),
-  nProc_(nProc)
+  nProc_(nProc),
+  vProc_(std::vector<size_t>(1,nProc_))
 {
   includeParameters_(process.getSubstitutionModelParameters(true));
   includeParameters_(process.getRateDistributionParameters(true));
@@ -56,7 +57,8 @@ OneProcessSequenceEvolution::OneProcessSequenceEvolution(SubstitutionProcess& pr
 OneProcessSequenceEvolution::OneProcessSequenceEvolution(const OneProcessSequenceEvolution& evol) :
   AbstractParameterAliasable(evol),
   subsProc_(evol.subsProc_),
-  nProc_(evol.nProc_)
+  nProc_(evol.nProc_),
+  vProc_(evol.vProc_)
 {
 }
 
@@ -65,7 +67,8 @@ OneProcessSequenceEvolution& OneProcessSequenceEvolution::operator=(const OnePro
   AbstractParameterAliasable::operator=(evol);
   subsProc_=evol.subsProc_;
   nProc_=evol.nProc_; 
-
+  vProc_=evol.vProc_;
+  
   return *this;
 }
 

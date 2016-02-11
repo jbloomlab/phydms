@@ -278,7 +278,7 @@ throw (Exception)
     // Reset parameters to remove constraints:
     pl = f->getParameters().subList(parameters.getParameterNames());
   }
-
+  
   // ///////////////
   // Build optimizer:
 
@@ -465,7 +465,7 @@ throw (Exception)
 {
   DerivableSecondOrder* f = lik;
   ParameterList pl = parameters;
-
+  
 // Shall we use a molecular clock constraint on branch lengths?
   // auto_ptr<GlobalClockTreeLikelihoodFunctionWrapper> fclock;
   // if (useClock)
@@ -522,6 +522,7 @@ throw (Exception)
   // if (useClock)
   //   tmp.addParameters(fclock->getHeightParameters());
   fnum->setParametersToDerivate(tmp.getParameterNames());
+
   optimizer->setVerbose(verbose);
   optimizer->setProfiler(profiler);
   optimizer->setMessageHandler(messageHandler);

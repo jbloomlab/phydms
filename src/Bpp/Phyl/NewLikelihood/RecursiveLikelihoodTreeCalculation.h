@@ -87,14 +87,9 @@ namespace bpp
       int root1_, root2_; // Needed only in case of reparametrization of branch length at root node.
       // TODO: have to be initialized properly! We do not care of that for now. jdutheil on 11/12/12.
 
-      // booleans to say if the Dlikelihoods are null
-  
-      bool nullDLikelihood_;
-      bool nullD2Likelihood_;
-  
     public:
       /**
-       * @brief Build a new Simple Recursive Tree Likelihood object without data.
+       * @brief Build a new Recursive Tree Likelihood object without data.
        *
        * This constructor only initialize the parameters.
        * To compute a likelihood, you will need to call the setData() and the computeLikelihoodTree() methods.
@@ -158,19 +153,32 @@ namespace bpp
 
       const AbstractLikelihoodTree& getLikelihoodData() const { return *likelihoodData_.get(); }
 
-      double getLikelihoodForASite(size_t site);
-
-      double getLikelihoodForASiteForAState(size_t site, int state);
-
-      double getLikelihoodForASiteForAClass(size_t site, size_t classIndex);
-
-      double getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state);
+    protected:
       
-      double getDLikelihoodForASite(size_t site);
+      /**
+       * @brief check the ComputingNodes to update recursively the
+       * Likelihoods flags. If at least one ComputingNode has changed
+       * all Above Likelihood flags of the trees are set to false.
+       * Below DXLikelihood flags of the changed nodes are set to
+       * false, and all their ancestors.
+       *
+       *
+       * Set up2date_ to false if at least one ComputingNode has
+       * changed, otherwise does not change up2date_.
+       *
+       */
+      
 
-      double getD2LikelihoodForASite(size_t site);
+      void updateLikelihoodFlags_();
+      
 
-
+    public:
+      
+      void updateLikelihood()
+      {
+        updateLikelihoodFlags_();
+      }
+      
       /**
        * @brief Compute derivatives
        *
@@ -180,6 +188,11 @@ namespace bpp
 
       void computeTreeD2LogLikelihood(const std::string& variable);
 
+      /*
+       * @brief compute likelihood and set up2date_ to true.
+       *
+       */
+      
       void computeTreeLikelihood();
 
       /**
@@ -193,20 +206,8 @@ namespace bpp
     
       void computeLikelihoodsAtNode(int nodeId);
 
-    protected:
+    public:
 
-      /**
-       * @brief check the ComputingNodes to update recursively the
-       * Likelihoods flags. If at least one ComputingNode has changed
-       * all Above Likelihood flags of the trees are set to false.
-       * Below DXLikelihood flags of the changed nodes are set to
-       * false, and all their ancestors.
-       *
-       * @return if at least one ComputingNode has changed.
-       */
-      
-      bool updateLikelihoodFlags_();
-      
     };
 } // end of namespace bpp.
 

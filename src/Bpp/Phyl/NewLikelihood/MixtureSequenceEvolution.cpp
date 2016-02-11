@@ -51,7 +51,7 @@ MixtureSequenceEvolution::MixtureSequenceEvolution(
   simplex_(nProc.size(), 1, false, "Mixture.")
 {
   // initialize parameters:
-  addParameters_(simplex_.getIndependentParameters());
+  addParameters_(simplex_.getParameters());
 }
 
 void MixtureSequenceEvolution::setSubProcessProb(const Simplex& si)
@@ -78,6 +78,9 @@ void MixtureSequenceEvolution::fireParameterChanged(const ParameterList& paramet
 
 ParameterList MixtureSequenceEvolution::getNonDerivableParameters() const
 {
+  // patch, to be fixed properly later
+  return getIndependentParameters();
+  
   ParameterList pl = MultiProcessSequenceEvolution::getNonDerivableParameters();
   pl.addParameters(simplex_.getParameters());
   

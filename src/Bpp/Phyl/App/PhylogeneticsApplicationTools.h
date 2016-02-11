@@ -50,16 +50,16 @@
 #include "../Likelihood/ClockTreeLikelihood.h"
 #include "../Mapping/SubstitutionCount.h"
 #include <Bpp/Text/TextTools.h>
-#include <Bpp/Text/StringTokenizer.h>
 #include <Bpp/Io/OutputStream.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Numeric/Prob/MultipleDiscreteDistribution.h>
 #include <Bpp/Numeric/Function/Optimizer.h>
 
-#include "../NewLikelihood/SubstitutionProcess.h"
-#include "../NewLikelihood/SingleDataPhyloLikelihood.h"
+#include "../NewLikelihood/PhyloLikelihoods/SingleDataPhyloLikelihood.h"
+#include "../NewLikelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h"
 #include "../NewLikelihood/SubstitutionProcessCollection.h"
 #include "../NewLikelihood/SubstitutionProcessCollectionMember.h"
+#include "../NewLikelihood/SubstitutionProcess.h"
 #include "../NewLikelihood/SequenceEvolution.h"
 
 // From SeqLib:
@@ -598,13 +598,16 @@ namespace bpp
     
 
     /**
-     * @brief Build Phylogenies from parameters map.
+     * @brief Build a Phylogeny container from parameters map.
      *
      * Default data compression is simple.
      *
+     * The PhyloLikelihood with number 0 is a specific
+     * PhyloLikelihood, with name "result" in the BppO file.
+     *
      */
     
-    static std::map<size_t, PhyloLikelihood*> getPhyloLikelihoods(
+    static PhyloLikelihoodContainer* getPhyloLikelihoodContainer(
       SubstitutionProcessCollection& SPC,
       std::map<size_t, SequenceEvolution*>& mSeqEvol,
       const std::map<size_t, SiteContainer*>& mData,
@@ -957,17 +960,22 @@ namespace bpp
     static void printParameters(const SubstitutionProcessCollection* collection, OutputStream& out, int warn = 1);
 
     /**
-     * @brief Output a PhyloLikelihood description to a file.
+     * @brief Output the description of the  PhyloLikelihoods IN USE a
+     * a PhyloLikelihoodContainer to a file.
      *
-     * @param phylolike The PhyloLikelihood to serialize.
+     * Starting from PhyloLikelihood with number 0 (with name
+     * "result"), PhyloLikelihoods involved in the computation are
+     * successively serialized.
+     *
+     * @param phylocont The PhyloLikelihoodContainer to serialize.
      * @param out       The stream where to print.
      * @param warn  Set the warning level (0: always display warnings, >0 display warnings on demand).
      */
 
-    static void printParameters(const PhyloLikelihood* phylolike, OutputStream& out, int warn = 1);
+    static void printParameters(const PhyloLikelihoodContainer& phylocont, OutputStream& out, int warn = 1);
     
 
-    static void printParameters(const SingleDataPhyloLikelihood* phylolike, OutputStream& out, size_t nPhylo = 1, int warn = 1);
+    static void printParameters(const SingleDataPhyloLikelihood& phylolike, OutputStream& out, size_t nPhylo = 1, int warn = 1);
 
     /**
      * @brief Output a Sequence Evolution description to a file.
