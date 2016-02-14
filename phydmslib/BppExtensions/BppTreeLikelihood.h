@@ -28,9 +28,9 @@
 #include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/Likelihood/RHomogeneousMixedTreeLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/SequenceEvolution.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/PartitionSequenceEvolution.h>
-#include <Bpp/Phyl/NewLikelihood/PartitionPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PartitionProcessPhyloLikelihood.h>
 
 namespace bppextensions {
 
@@ -73,8 +73,10 @@ namespace bppextensions {
              *
              * @param recursion Recursion method used for likelihood. Can be "S" for simple or "D" for double.
              *
+             * @param useLog Do we compute the likelihoods using their logs? Only meaningful when not using oldlikelihoodmethod.
+             *
              */
-            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion);
+            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion, int useLog);
 
             /**
              *@brief Destructor

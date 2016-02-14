@@ -88,7 +88,7 @@ class TestOnNPs(unittest.TestCase):
             for site in actual.keys():
                 for aa in actual[site].keys():
                     (x, y) = (actual[site][aa], expected[site][aa])
-                    self.assertTrue(abs(x - y) < 0.005, "Unexpectedly large difference in diffpref for site %s, amino-acid %s in %s" % (site, aa, f))
+                    self.assertTrue(abs(x - y) < 0.02, "Unexpectedly large difference in diffpref for site %s, amino-acid %s in %s: got %g, expected %g" % (site, aa, f, x, y))
 
 
 if __name__ == '__main__':

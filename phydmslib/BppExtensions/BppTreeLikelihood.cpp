@@ -32,7 +32,7 @@ namespace patch
 
 
 // constructor
-bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion)
+bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion, int useLog)
 {
 
     // setup some parameters / options
@@ -302,7 +302,8 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
             throw std::runtime_error("Failed to cast to PartitionSequenceEvolution");
         }
         bool patterns = true; // is default, not sure exactly what it means
-        phylolikelihood = new bpp::PartitionPhyloLikelihood(*sites, *pse, 0, 0, verbose, patterns);
+        phylolikelihood = new bpp::PartitionProcessPhyloLikelihood(*sites, *pse, 0, 0, verbose, patterns);
+        phylolikelihood->setUseLog((bool) useLog);
 
     } else { // use the old likelihood method
         if (models.find(sharedmodelindex) == models.end()) {
@@ -376,6 +377,9 @@ double bppextensions::BppTreeLikelihood::LogLikelihood()
     }
     if (std::isinf(logL)) {
         throw std::runtime_error("Tree likelihood is zero. Perhaps you have branch lengths of zero, stop codons, or a very bad tree topology?");
+    }
+    if (std::isnan(logL)) {
+        throw std::runtime_error("Tree likelihood is nan. Some problem in likelihood computation. Or maybe you have branch lengths of zero, stop codons, or a very bad tree topology?");
     }
     return -logL;
 }
