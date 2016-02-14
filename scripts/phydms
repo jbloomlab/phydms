@@ -241,8 +241,8 @@ def main():
                 os.remove(outdir)
             os.mkdir(outdir)
 
-    # Don't use logarithms for computations
-    useLog = True
+    # Don't use logs; currently a bug gives likelihoods of nan when this is used
+    useLog = False
 
     # name files, remove if they already exist
     modelparamsfile = '%s_modelparams.txt' % args['outprefix']
