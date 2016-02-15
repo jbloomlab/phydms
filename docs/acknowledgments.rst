@@ -32,7 +32,7 @@ If you use ``phydms_plotselection`` to create a figure for your paper, please al
 
 If you use the optional dating of nodes in the phylogeny, you should also cite the `LSD`_ program, which is wrapped within `phydms`_ to perform the dating. The reference for `LSD`_ is:
 
-    * `To et al, Systematic Biology, doi 10.1093/sysbio/syv068`_
+    * `To et al, Systematic Biology, 65:82-97`_
 
 Finally, if you use `dms_tools`_ to process your deep mutational scanning data before feeding it into `phydms`_, please cite:
 

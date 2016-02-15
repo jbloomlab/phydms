@@ -28,6 +28,7 @@ import phydmslib
 import phydmslib.file_io
 import phydmslib.parsearguments
 import phydmslib.pybpp
+import phydmslib.pylsd
 import phydmslib.diffpref
 
 
@@ -252,12 +253,14 @@ def main():
     stringencyfile = '%s_stringencybysite.txt' % args['outprefix']
     diffprefsfile = '%s_diffprefsbysite.txt' % args['outprefix']
     sumabsdiffprefsfile = '%s_diffprefsbysite_sumabs.txt' % args['outprefix']
+    datedtreefile = '%s_datedtree.newick' % args['outprefix']
+    mrcadatefile = '%s_mrca_date.txt' % args['outprefix']
     logfile = "%s.log" % args['outprefix']
     if args['no_optimize']:
-        to_remove = [omegafile, stringencyfile, diffprefsfile, sumabsdiffprefsfile, logfile]
+        to_remove = [omegafile, stringencyfile, diffprefsfile, sumabsdiffprefsfile, datedtreefile, mrcadatefile, logfile]
         assert os.path.abspath(args['tree']) == os.path.abspath(treefile), "When using --no_optimize, you must set 'tree' to the name of the file that would be expected to be created for this 'outprefix', which is %s in this case" % treefile
     else:
-        to_remove = [modelparamsfile, loglikelihoodfile, treefile, omegafile, stringencyfile, diffprefsfile, sumabsdiffprefsfile, logfile]
+        to_remove = [modelparamsfile, loglikelihoodfile, treefile, omegafile, stringencyfile, diffprefsfile, sumabsdiffprefsfile, datedtreefile, mrcadatefile, logfile]
     for f in to_remove:
         if os.path.isfile(f):
             os.remove(f)
@@ -298,6 +301,33 @@ def main():
         alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'], checknewickvalid=True)
         seqnames = set([head for (head, seq) in alignment])
         logger.info('Read %d aligned codon sequences from %s. Each sequences consists of %d codons.\n' % (len(alignment), args['alignment'], len(alignment[0][1]) // 3))
+
+        # read the dates
+        if args['dateseqs']:
+            dates = {}
+            with open(args['dateseqs']) as f:
+                for line in f:
+                    if line.isspace() or line[0] == '#':
+                        continue
+                    entries = line.strip().split(None, 1)
+                    if len(entries) != 2:
+                        raise IOError("Not two entries in {0}\nOffending line:\n{1}".format(args['dateseqs'], line))
+                    try:
+                        date = float(entries[0])
+                    except ValueError:
+                        raise IOError("Not a numerical date in first entrly of line in {0}\nOffending line:\n{1}".format(args['dateseqs'], line))
+                    assert entries[1] not in dates, "Duplicate sequence name {0} in {1}".format(entries[1], args['dateseqs'])
+                    dates[entries[1]] = date
+            if seqnames != set(dates.keys()):
+                raise ValueError(
+                    ("Failed to match all sequence names in {0} to headers in {1}\n" +
+                    "The following are in {0} but not {1}:\n{2}\n" +
+                    "The following are in {1} but not {0}:\n{3}\n").format(
+                        args['dateseqs'],
+                        args['alignment'],
+                        '\n'.join(set(dates.keys()) - seqnames),
+                        '\n'.join(seqnames - set(dates.keys()))
+                        ))
 
         # process the substitution model
         if isinstance(args['model'], str) and yngkp_match.search(args['model']):
@@ -442,11 +472,24 @@ def main():
             logger.info("Here are the optimized model parameters (also being written to %s):\n\t%s" % (modelparamsfile, '\n\t'.join(modelparamstextlist)))
             with open(modelparamsfile, 'w') as f:
                 f.write('\n'.join(modelparamstextlist))
-            logger.info("Here is the optimized tree (also being written to %s):\n%s" % (treefile, tl.NewickTree()))
+            logger.info("Here is the optimized tree (also being written to %s):\n%s\n" % (treefile, tl.NewickTree()))
             with open(treefile, 'w') as f:
                 f.write(tl.NewickTree())
             allmodelparams = tl.ModelParams(False)
         del tl
+
+        # list of all codons
+        codons = [icodon for icodon in range(1, len(seqs[0]) // 3 + 1)]
+
+        # do sequence dating 
+        if args['dateseqs']:
+            logger.info('Dating the sequences using least-squares dating with the dates in {0}.'.format(args['dateseqs']))
+            mrcadate = phydmslib.pylsd.RunLSD(treefile, dates, 3 * len(codons), datedtreefile)
+            logger.info('The dated tree is in {0}'.format(datedtreefile))
+            assert os.path.isfile(args['dateseqs']), "Failed to create dated tree file {0}".format(datedtreefile)
+            logger.info("The date of the most recent-common ancestor is {0}; writing to {1}".format(mrcadate, mrcadatefile))
+            with open(mrcadatefile, 'w') as f:
+                f.write("MRCA_date = {0}".format(mrcadate))
 
         # get number of cpus for multiprocessing
         if args['ncpus'] == -1:
@@ -456,9 +499,6 @@ def main():
                 raise RuntimeError("Problem trying to determine number of available CPUs. Please manually specify the number of desired CPUs with '--ncpus' and try again.")
         logger.info("Using %d CPUs for the remaining computations.\n" % args['ncpus'])
         assert args['ncpus'] >= 1, "Failed to specify a number of CPUs that exceeds one: %d." % args['ncpus']
-
-        # list of all codons
-        codons = [icodon for icodon in range(1, len(seqs[0]) // 3 + 1)]
 
         # if debugging a site, specify on that site and print some information
         if args['debugsite']:

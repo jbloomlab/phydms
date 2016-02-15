@@ -72,6 +72,46 @@ def FormattedModelParams(model, modelparamstext):
         raise ValueError("unrecognized model for formatting: %s" % model)
 
 
+def TabulateMRCADates(mrcadatesfile, models, outprefix, mrca_dates_suffix):
+    """Writes file tabulating most-recent common ancestor dates.
+
+    *mrcadatesfile* : name of created file.
+
+    *models* : the *models* dictionary from *main*
+
+    *outprefix* : output prefix from *main*
+
+    *mrca_dates_suffix* : suffix of ``phydms`` output file with MRCA dates.
+    """
+    datalist = []
+    for modelname in models.keys():
+        fname = outprefix + modelname + mrca_dates_suffix
+        with open(fname) as f:
+            mrcadate = float(f.read().split('=')[-1])
+        datalist.append((mrcadate, modelname))
+    datalist.sort()
+    text = [['model', 'MRCA date']]
+    columnwidths = [len(s) for s in text[0]]
+    for (mrcadate, modelname) in datalist:
+        text.append([modelname.replace('_', ' '), '{0:.2f}'.format(mrcadate)])
+        columnwidths = [max(x, len(s)) for (x, s) in zip(columnwidths, text[-1])]
+    formatstring = ' '.join(['%-' + str(w) + 's' for w in columnwidths])
+    f = open(mrcadatesfile, 'w')
+    try:
+        f.write(' '.join(['=' * w for w in columnwidths]) + '\n')
+        wroteheader = False
+        for textline in text:
+            f.write(formatstring % tuple(textline) + '\n')
+            if not wroteheader:
+                f.write(' '.join(['=' * w for w in columnwidths]) + '\n')
+                wroteheader = True
+        f.write(' '.join(['=' * w for w in columnwidths]) + '\n')
+    except:
+        f.close()
+        os.remove(mrcadatesfile)
+        raise
+    f.close()
+
 
 def TabulateModelComparisons(modelcomparisonfile, models, outprefix, loglikelihoodsuffix, modelparamssuffix):
     """Writes file tabulating model comparisons.
@@ -148,13 +188,16 @@ def main():
 
     # set up models
     additionalcmds = []
+    if args['dateseqs']:
+        filesuffixlist += ['_datedtree.newick', '_mrca_date.txt']
+        additionalcmds += ['--dateseqs', args['dateseqs']]
     filesuffixes['YNGKP_M0'] = list(filesuffixlist)
+    models = {'YNGKP_M0':('YNGKP_M0', additionalcmds, 9)}
     if not args['noomegabysite']:
         additionalcmds.append('--omegabysite')
         if args['omegabysite_fixsyn']:
             additionalcmds.append('--omegabysite_fixsyn')
         filesuffixlist.append('_omegabysite.txt')
-    models = {'YNGKP_M0':('YNGKP_M0', [], 9)}
     filesuffixes['YNGKP_{0}'.format(args['yngkp'])] = list(filesuffixlist)
     models['YNGKP_{0}'.format(args['yngkp'])] = ('YNGKP_{0}'.format(args['yngkp']), additionalcmds, 9)
     expcmadditionalcmds = list(additionalcmds)
@@ -193,6 +236,7 @@ def main():
         logfile = "%s.log" % args['outprefix']
         args['outprefix'] = '%s_' % args['outprefix']
     modelcomparisonfile = '%smodelcomparison.txt' % args['outprefix']
+    mrcadatesfile = '{0}mrca_dates.txt'.format(args['outprefix'])
 
     # Set up to log everything to logfile.
     if os.path.isfile(logfile):
@@ -248,8 +292,10 @@ def main():
             for suffix in filesuffixes[modelname]:
                 fname = "%s%s%s" % (args['outprefix'], modelname, suffix)
                 outfiles.append(fname)
-        if os.path.isfile(modelcomparisonfile):
-            os.remove(modelcomparisonfile)
+        for fname in [modelcomparisonfile, mrcadatesfile]:
+            if os.path.isfile(fname):
+                os.remove(fname)
+                removed.append(fname)
         for fname in outfiles:
             if os.path.isfile(fname) and not args['use_existing']:
                 os.remove(fname)
@@ -329,6 +375,14 @@ def main():
         with open(modelcomparisonfile) as f:
             modelcomparisontext = f.read()
         logger.info("Here are the results of the model comparison:\n\t%s" % modelcomparisontext.replace('\n', '\n\t'))
+
+        # tabulate dates of MRCA
+        if args['dateseqs']:
+            logger.info("Tabulating dates of most-recent common ancestors and writing to {0}".format(mrcadatesfile))
+            TabulateMRCADates(mrcadatesfile, models, args['outprefix'], '_mrca_date.txt')
+            with open(mrcadatesfile) as f:
+                mrcadatestext = f.read()
+            logger.info("Here are the most-recent common ancestor dates:\n\t{1}".format(mrcadatestext.replace('\n', '\n\t')))
 
     except:
         logger.exception('Terminating %s at %s with ERROR' % (prog, time.asctime()))

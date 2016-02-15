@@ -51,8 +51,8 @@ def RunLSD(intree, dates, seqlength, outtree):
       that match those provided in *datefile*. The is the ``.date.newick``
       file produced by ``lsd``.
 
-    The return value of this function is a number giving the tMRCA (time
-    to most recent common ancestor).
+    The return value of this function is a number giving the date of the
+    most recent common ancestor.
     """
     assert not os.path.isfile(outtree), "outtree %s already exists. You must delete this file before calling RunLSD." % outtree
     assert isinstance(seqlength, int) and 1 <= seqlength, "seqlength must be integer >= 1"
@@ -61,7 +61,7 @@ def RunLSD(intree, dates, seqlength, outtree):
     tipnames = [clade.name for clade in Bio.Phylo.read(intree, 'newick').get_terminals()]
     assert len(set(tipnames)) == len(tipnames), "the tips in %s have duplicate names" % intree
     tipnames = set(tipnames)
-    abberrantnames = tipnames.symmetric_difference(set(dates.keys()))
+    abberrantnames = map(str, tipnames.symmetric_difference(set(dates.keys())))
     if abberrantnames:
         raise ValueError("intree %s and dates do not specify exactly matching sets of sequence names.\nThe mismatched ones are:\n%s" % (intree, ', '.join(abberrantnames)))
     assert all([not re.search('\s', tip) for tip in tipnames]), "Some of the tips specified in intree and dates have spaces -- this is not allowed"

@@ -21,9 +21,10 @@ class TestOnNPs(unittest.TestCase):
         self.expected_dir = './expected_NP_results/'
         self.test_dir = './NP_test_results/'
         self.prefs = 'avg_prefs.txt'
-        self.assertTrue(os.path.isfile(self.prefs), "Can't find required file %s" % self.prefs)
+        self.seqdates = 'seqdates.txt'
         self.alignment = 'smallNPs.fasta'
-        self.assertTrue(os.path.isfile(self.alignment), "Can't find required file %s" % self.alignment)
+        for f in [self.prefs, self.seqdates, self.alignment]:
+            self.assertTrue(os.path.isfile(f), "Can't find required file {0}".format(f))
         self.all_models = ['ExpCM_avg_prefs', 'averaged_ExpCM_avg_prefs', 'YNGKP_M0', 'YNGKP_M8']
         self.likelihood_files = ['%s_loglikelihood.txt' % model for model in self.all_models]
         self.params_files = ['%s_modelparams.txt' % model for model in self.all_models]
@@ -41,7 +42,7 @@ class TestOnNPs(unittest.TestCase):
 
     def test_Phydms(self):
         """Runs ``phydms_comprehensive``."""
-        cmds = ['phydms_comprehensive', self.test_dir, self.alignment, self.prefs, '--ncpus', '-1']
+        cmds = ['phydms_comprehensive', self.test_dir, self.alignment, self.prefs, '--ncpus', '-1', '--dateseqs', self.seqdates]
         sys.stderr.write('\nRunning phydms with the the following command:\n%s\n' % ' '.join(cmds))
         subprocess.call(cmds)
 

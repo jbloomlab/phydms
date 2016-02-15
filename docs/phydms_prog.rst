@@ -79,6 +79,22 @@ Command-line usage
    \-\-infertopology
     Note that sometimes the topology inference appears to fail (or at least hang up for a very long time). In that case, you may want to infer the topology with another program such as `codonPhyML`_ and then pass that topology via the ``tree`` argument rather than using ``--infertopology``.
 
+   \-\-dateseqs
+    This option specifies that we perform least-squares dating of the sequences. This may be useful if your sequences are sampled from different dates. The dating is performed using code from `LSD`_ (see `To et al, Systematic Biology, 65:82-97`_) which is embedded in `phydms`_.
+
+    This option estimates the dates of all internal nodes and re-roots the tree. The branch lengths are adjusted in the process. Essentially, this option is equivalent to running `LSD`_ with::
+
+        lsd -i intree -d dates -v -s seqlength -c -r as -o outtree
+    
+    With these options, variance weights are calculated based on the sequence length, temporal constraints are applied, and all root positions are searched with constraints on all branches.
+
+    The file specified by this argument should give the date for each sequence in ``alignment``. The first column should be the numerical date, and the second column should give the header (exactly matching that in ``alignment``). Empty line or lines beginning with ``#`` are ignored. For instance::
+
+        #DATE SEQUENCE
+        1968.5 A/Aichi/2/1968 (H3N2) NP
+        1918.0 A/Brevig Mission/1/1919 (H1N1) NP
+        2006.5 A/Solomon Islands/3/2006 (H1N1) NP
+
    \-\-minbrlen
     Regardless of the method used to set ``tree``, all branches with lengths less than this value will be set to this value in the initial starting tree. Branches can still end up with lengths less than this after subsequent optimization of this starting tree.
 
@@ -229,6 +245,16 @@ Here is an example of the first few lines::
     58  0.244982
     12  0.237037
     26  0.217145
+
+Dated tree file
++++++++++++++++++
+This file is created only if the ``--dateseqs`` option is being used. In that case, it is the tree after least-squares dating has been applied. The file has the suffix ``_datedtree.newick``.
+
+Most-recent common ancestor date file
++++++++++++++++++++++++++++++++++++++++++++
+This file is created only if the ``--dateseqs`` option is being used. In that case, it is the time to most-recent common ancestor based on the dated tree. The file has the suffix ``_mrca_date.txt``. Its contents are very simple, for instance::
+
+    MRCA_date = 103.135
 
 .. include:: weblinks.txt
    

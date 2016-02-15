@@ -50,6 +50,6 @@
 .. _`codonPhyML`: http://sourceforge.net/projects/codonphyml/
 .. _`LSD`: http://www.atgc-montpellier.fr/LSD/
 .. _`Olivier Gascuel`: http://www.lirmm.fr/~gascuel/
-.. _`To et al, Systematic Biology, doi 10.1093/sysbio/syv068`: https://dx.doi.org/10.1093/sysbio/syv068
+.. _`To et al, Systematic Biology, 65:82-97`: https://dx.doi.org/10.1093/sysbio/syv068
 .. _`latex`: https://www.latex-project.org/
 .. _`Benjamini-Hochberg`: https://en.wikipedia.org/wiki/False_discovery_rate#Benjamini.E2.80.93Hochberg_procedure
