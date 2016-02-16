@@ -27,12 +27,13 @@ class TestOnNPs(unittest.TestCase):
             self.assertTrue(os.path.isfile(f), "Can't find required file {0}".format(f))
         self.all_models = ['ExpCM_avg_prefs', 'averaged_ExpCM_avg_prefs', 'YNGKP_M0', 'YNGKP_M8']
         self.likelihood_files = ['%s_loglikelihood.txt' % model for model in self.all_models]
+        self.mrcadate_files = ['{0}_mrca_date.txt'.format(model) for model in self.all_models]
         self.params_files = ['%s_modelparams.txt' % model for model in self.all_models]
         self.bysite_files =\
                 ['%s_omegabysite.txt' % model for model in self.all_models if 'YNGKP_M0' not in model] +\
                 ['%s_stringencybysite.txt' % model for model in self.all_models if 'YNGKP' not in model]
         self.diffpref_files = ['%s_diffprefsbysite.txt' % model for model in self.all_models if 'YNGKP' not in model]
-        for f in self.likelihood_files + self.params_files + self.bysite_files + self.diffpref_files:
+        for f in self.likelihood_files + self.params_files + self.bysite_files + self.diffpref_files + self.mrcadate_files:
             fname = "%s/%s" % (self.expected_dir, f)
             self.assertTrue(os.path.isfile(fname), "Cannot find required file %s" % fname)
             toremove = "%s/%s" % (self.test_dir, f)
@@ -47,7 +48,7 @@ class TestOnNPs(unittest.TestCase):
         subprocess.call(cmds)
 
         sys.stderr.write('\nTesting for presence of expected output files...\n')
-        for f in self.likelihood_files + self.params_files + self.bysite_files + self.diffpref_files:
+        for f in self.likelihood_files + self.params_files + self.bysite_files + self.diffpref_files + self.mrcadate_files:
             fname = '%s/%s' % (self.test_dir, f)
             self.assertTrue(os.path.isfile(fname), "Failed to created expected file %s" % fname)
 
@@ -58,6 +59,14 @@ class TestOnNPs(unittest.TestCase):
             with open('%s/%s' % (self.test_dir, f)) as fin:
                 actual = float(fin.read().split('=')[-1])
             self.assertTrue(abs(expected - actual) < 1, "Unexpectedly large differences in %s: %g versus %g" % (f, expected, actual))
+
+        sys.stderr.write('\nTesting for expected MRCA dates...\n')
+        for f in self.mrcadate_files:
+            with open('{0}/{1}'.format(self.expected_dir, f)) as fin:
+                expected = float(fin.read().split('=')[-1])
+            with open('{0}/{1}'.format(self.test_dir, f)) as fin:
+                actual = float(fin.read().split('=')[-1])
+            self.assertTrue(abs(expected - actual) < 0.5, "Unexpectedly large differences in {0}: {1} versus {2}".format(f, expected, actual))
 
         sys.stderr.write('\nTesting for expected parameter values...\n')
         for f in self.params_files:

@@ -382,7 +382,7 @@ def main():
             TabulateMRCADates(mrcadatesfile, models, args['outprefix'], '_mrca_date.txt')
             with open(mrcadatesfile) as f:
                 mrcadatestext = f.read()
-            logger.info("Here are the most-recent common ancestor dates:\n\t{1}".format(mrcadatestext.replace('\n', '\n\t')))
+            logger.info("Here are the most-recent common ancestor dates:\n\t{0}".format(mrcadatestext.replace('\n', '\n\t')))
 
     except:
         logger.exception('Terminating %s at %s with ERROR' % (prog, time.asctime()))

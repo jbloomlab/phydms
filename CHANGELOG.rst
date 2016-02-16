@@ -3,6 +3,8 @@ Changelog
 
 1.dev1
 -----------
+* Added ``--dateseqs`` option ``phydms`` and ``phydms_comprehensive``.
+
 * Updated to newest versions of ``Bio++``
 
 * Added output for site likelihoods to log file under the fixed stringency parameter when using ``--stringencybysite``
