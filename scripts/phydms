@@ -241,9 +241,6 @@ def main():
                 os.remove(outdir)
             os.mkdir(outdir)
 
-    # Don't use logs; currently a bug gives likelihoods of nan when this is used
-    useLog = False
-
     # name files, remove if they already exist
     modelparamsfile = '%s_modelparams.txt' % args['outprefix']
     loglikelihoodfile = '%s_loglikelihood.txt' % args['outprefix']
@@ -413,7 +410,7 @@ def main():
             with open(modelparamsfile) as f:
                 modelparams = dict([(line.split('=')[0].strip(), float(line.split('=')[1])) for line in f])
             allmodelparams = modelparams
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, treefile, model, args['infertopology'], fixedmodelparams=modelparams, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=True, addrateparameter=False, prefsasparams=False, recursion=args['recursion'], useLog=useLog)
+            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, treefile, model, args['infertopology'], fixedmodelparams=modelparams, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=True, addrateparameter=False, prefsasparams=False, recursion=args['recursion'], useLog=args['useLog'])
             assert not tl.ModelParams(True), "There are unspecified model parameters to be optimized for --no_optimize: %s" % str(tl.ModelParams(True))
             if set(tl.ModelParams(False).keys()) != set(modelparams.keys()):
                 raise ValueError("The existing model params file %s does not have all of the expected parameters for this substitution model, so cannot use --no_optimize. Either the existing model parameters were created with a different model, or you used a YNGKP model without --fitF3X4 (this is currently incompatible with --no_optimize).")
@@ -425,7 +422,7 @@ def main():
                 with os.fdopen(fd, 'w') as f:
                     f.write(newicktree)
                 logger.info('Creating Bio++ object to optimize likelihood...')
-                tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], prefsasparams=False, recursion=args['recursion'], useLog=useLog)
+                tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], prefsasparams=False, recursion=args['recursion'], useLog=args['useLog'])
             finally:
                 if os.path.isfile(temptreefile):
                     os.remove(temptreefile)
@@ -494,7 +491,7 @@ def main():
             logger.info('The remaining model parameters will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
             if isinstance(model, str) and 'YNGKP' in model:
                 aaprefs = {}
-            fitomegaresults = FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams, fixedomegavalue, treefile, args['recursion'], args['ncpus'], logger, args['omegabysite_fixsyn'], useLog)
+            fitomegaresults = FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams, fixedomegavalue, treefile, args['recursion'], args['ncpus'], logger, args['omegabysite_fixsyn'], args['useLog'])
             fitomegaresults = [(d['P'], site, d['omega'], d['dLnL']) for (site, d) in fitomegaresults.items()]
             fitomegaresults.sort()
             logger.info('Now writing the full results of the omega-by-site analysis to %s\n' % omegafile)
@@ -509,7 +506,7 @@ def main():
             logger.info('Now optimizing a different stringency parameter for each site while keeping branch lengths and other model parameters fixed. This will be compared to a null model where the stringency parameter is equal to the overall gene value of %.2f.' % fixedstringencyvalue)
             logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
             logger.info('The model parameters (other than the stringency parameter) will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
-            fitstringencyresults = FitStringencyBySitePool(codons, seqnames, seqs, aaprefs, fixedmodelparams, fixedstringencyvalue, treefile, args['recursion'], args['ncpus'], logger, useLog)
+            fitstringencyresults = FitStringencyBySitePool(codons, seqnames, seqs, aaprefs, fixedmodelparams, fixedstringencyvalue, treefile, args['recursion'], args['ncpus'], logger, args['useLog'])
             fitstringencyresults = [(d['P'], site, d['stringency_ratio'], d['dLnL'], d['LnL_fixed']) for (site, d) in fitstringencyresults.items()]
             fitstringencyresults.sort()
             logger.info('Now writing the full results of the stringency-by-site analysis to %s\n' % stringencyfile)
@@ -526,7 +523,7 @@ def main():
             logger.info('The model parameters will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
             sites = [str(icodon) for icodon in codons]
             wts = dict([(isite, '?') for isite in sites])
-            diffprefs = FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodelparams, modelparams['stringencyparameter'], args['recursion'], args['diffprefsprior'], args['diffprefconc'], args['ncpus'], logger, useLog)
+            diffprefs = FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodelparams, modelparams['stringencyparameter'], args['recursion'], args['diffprefsprior'], args['diffprefconc'], args['ncpus'], logger, args['useLog'])
             logger.info('Writing the differences in preferences to %s' % diffprefsfile)
             pr_deltapi = dict([(isite, None) for isite in sites]) # empty, as we have no data here
             dms_tools.file_io.WriteDiffPrefs(diffprefsfile, sites, wts, diffprefs, pr_deltapi, pr_deltapi)

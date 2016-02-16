@@ -147,7 +147,10 @@ def main():
     filesuffixes = {} # keyed by model, values are list of suffixes
 
     # set up models
-    additionalcmds = []
+    if args['useLog']:
+        additionalcmds = ['--useLog']
+    else:
+        additionalcmds = []
     filesuffixes['YNGKP_M0'] = list(filesuffixlist)
     if not args['noomegabysite']:
         additionalcmds.append('--omegabysite')

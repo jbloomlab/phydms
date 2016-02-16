@@ -58,6 +58,11 @@ Command-line usage
    \-\-omegabysite_fixsyn
     This option is meaningful only if you are using ``--omegabysite``. If you use this option, then we compare a model in which we fit a nonsynonymous rate to each site to a model in which we fit nothing. The synonymous rate is not fit, and so is assumed to be equal to the overall value fit for the tree. According to `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_, in some cases this can yield greater power if there is relatively limited data. However, it comes with the risk of giving spurious results if there is substantial variation in the synonymous substitution rate among sites.  
 
+   \-\-useLog
+    This option specifies that we have `Bio++`_ use logarithms in the likelihood calculations. According to the `Bio++`_ developers, this prevents likelihoods of zero (log likelihoods of negative infinity) on large trees, but comes at the cost of slowing down the computations.
+
+    Right now, even if ``--useLog`` is **not** used, ``phydms`` will automatically use logarithms if a specific problem is encountered while fitting site-specific differential preferences, but otherwise does not use them. Unless you have a good reason to do otherwise, keeping this setup (i.e. keeping ``--useLog`` at its default value of *False*) is probably the best choice.
+
    \-\-stringencybysite
     The meaning of the :math:`\beta_r` values is described in :ref:`ExpCM`.
 
