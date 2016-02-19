@@ -36,36 +36,43 @@ def FitDiffPrefsForSite(seqnames, iseqs, treefile, imodel, fixedmodelparams, rec
     maxtries = 2 # number of different times we try with slightly different values if optimization fails initially
     optmethods = ['SLSQP', 'TNC', 'L-BFGS-B'] # try optimization methods in this order
     start = time.time()
+    initial_useLog = useLog
     converged = randinitprefs = False
     ntries = imethod = 0
     convergencestring = ''
-    while (not converged) and imethod < len(optmethods):
-        tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=True, recursion=recursion, useLog=useLog) 
-        initial_ll = tl.LogLikelihood()
+    while (not converged) and (imethod < len(optmethods)):
+        ntries += 1
         try:
+            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=True, recursion=recursion, useLog=useLog) 
+            initial_ll = tl.LogLikelihood()
             (prefs, iconvergencestring, converged) = phydmslib.diffpref.OptimizePrefs(tl, stringencyscaledprefs, site=1, prior=diffprefsprior, concentration=diffprefconc, randinitprefs=randinitprefs, optmethod=optmethods[imethod])
             convergencestring += '\n' + iconvergencestring
-        except RuntimeError as err:
-            # catch and try again with different initial values
-            if ntries >= maxtries and imethod + 1 >= len(optmethods):
-                raise
-            else:
-                ntries += 1
-                randinitprefs = ntries
-                convergencestring += "\nRetrying optimization for site %d with different initial values for the %d time after catching this error: %s" % (icodon, ntries, str(err))
-        else:
             tl.SetPreferences(prefs, 1)
             new_ll = tl.LogLikelihood()
-            ntries += 1
-            randinitprefs = ntries
-            if (not converged) and ntries <= maxtries:
-                convergencestring += "\nRetrying optimization for site %d with different initial values for the %d time after convergence failed with this message: %s" % (icodon, ntries, iconvergencestring)
-        if ntries > maxtries:
+        except RuntimeError as err:
+            converged = False
+            # catch and try again with different initial values
+            if ntries >= maxtries and imethod + 1 >= len(optmethods):
+                raise RuntimeError("Differential preference optimization failed for site {0}. Here is the full set of errors / attempts:\n{1}\n{2}".format(icodon, convergencestring, repr(err)))
+            else:
+                convergencestring += "\nRetrying optimization for site %d with different initial values for the %d time after catching this error: %s" % (icodon, ntries, repr(err))
+        randinitprefs = ntries
+        if (not converged) and ntries <= maxtries:
+            convergencestring += "\nRetrying optimization for site %d with different initial values for the %d time after convergence failed" % (icodon, ntries)
+        elif converged and (new_ll < initial_ll):
+            converged = False
+            convergencestring += '\nOptimization failed with new LnL of {0} that exceeds initial LnL of {1}'.format(new_ll, initial_ll)
+        if (not converged) and (ntries >= maxtries):
             ntries = 0
             randinitprefs = False
-            imethod += 1
-            if imethod < len(optmethods):
-                convergencestring += "\nSwitching to optimization method %s for site %d due to failures with method %s" % (optmethods[imethod], icodon, optmethods[imethod - 1])
+            if initial_useLog == useLog:
+                useLog = not useLog
+                convergencestring += '\nSwitching to a value of useLog = {0} for site {1}'.format(useLog, icodon)
+            else:
+                useLog = initial_useLog
+                imethod += 1
+                if imethod < len(optmethods):
+                    convergencestring += "\nSwitching to optimization method %s for site %d due to failures with method %s" % (optmethods[imethod], icodon, optmethods[imethod - 1])
     return (prefs, new_ll, initial_ll, convergencestring, converged, time.time() - start)
 
 
@@ -294,7 +301,7 @@ def main():
         logger.info('Reading alignment from %s' % args['alignment'])
         alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'], checknewickvalid=True)
         seqnames = set([head for (head, seq) in alignment])
-        logger.info('Read %d aligned codon sequences from %s. Each sequences consists of %d codons.\n' % (len(alignment), args['alignment'], len(alignment[0][1]) // 3))
+        logger.info('Read %d aligned codon sequences from %s. Each sequence consists of %d codons.\n' % (len(alignment), args['alignment'], len(alignment[0][1]) // 3))
 
         # process the substitution model
         if isinstance(args['model'], str) and yngkp_match.search(args['model']):
@@ -374,15 +381,6 @@ def main():
         if tipnames != seqnames:
             raise ValueError("The sequence names in alignment do not match those in tree.\nSequences in alignment but NOT in tree:\n\t%s\nSequences in tree but NOT in alignment:\n\t%s" % ('\n\t'.join(seqnames - tipnames), '\n\t'.join(tipnames - seqnames)))
         logger.info('This tree has %d tips nodes, matching the sequences in alignment.' % len([clade.name for clade in tree.get_terminals()]))
-        nadjustedbrlen = 0
-        for node in tree.get_terminals() + tree.get_nonterminals():
-            if node != tree.root and node.branch_length < args['minbrlen']:
-                node.branch_length = args['minbrlen']
-                nadjustedbrlen += 1
-        if nadjustedbrlen:
-            logger.info('Ensured that all branch lengths are >= minimum of %g by adjusting %d lengths up to this value.\n' % (args['minbrlen'], nadjustedbrlen))
-        else:
-            logger.info('Confirmed that all branch lengths are >= minimum of %g.\n' % args['minbrlen'])
         newicktree = tree.format('newick').strip()
         # remove internal node names because they cause problem in parsing tree later
         for node in tree.get_nonterminals():
@@ -421,6 +419,8 @@ def main():
                 (fd, temptreefile) = tempfile.mkstemp() # create temporary file to write tree for passing
                 with os.fdopen(fd, 'w') as f:
                     f.write(newicktree)
+                logger.info('Adjusting all branch lengths to >= {0}.\n'.format(args['minbrlen']))
+                phydmslib.file_io.SetMinBrLen(temptreefile, temptreefile, args['minbrlen'])
                 logger.info('Creating Bio++ object to optimize likelihood...')
                 tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], prefsasparams=False, recursion=args['recursion'], useLog=args['useLog'])
             finally:

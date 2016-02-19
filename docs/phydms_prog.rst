@@ -22,6 +22,8 @@ Command-line usage
    alignment
     This file should contain aligned DNA codon sequences. Stop codons are **not** allowed, except if a stop codon is the terminal character in all sequences, in which case they are automatically trimmed.
 
+    Each sequence in alignment must be unique (have at least one difference at non-gap characters).
+
     The headers must be unique strings that do **not** contain any of the following: spaces, commas, colons, semicolons, parentheses, square brackets, and single or double quotes.
 
    tree

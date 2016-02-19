@@ -215,6 +215,11 @@ def main():
     logger.info("%s\n" % versionstring)
     logger.info('Parsed the following command-line arguments:\n%s\n' % '\n'.join(['\t%s = %s' % tup for tup in args.iteritems()]))
 
+    # check alignment
+    logger.info('Checking that the alignment {0} is valid...'.format(args['alignment']))
+    alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'], checknewickvalid=True)
+    logger.info('Valid alignment specifying {0} sequences of length {1}.\n'.format(len(alignment), len(alignment[0][1])))
+
     # get number of available CPUs and assign to each model
     if args['ncpus'] == -1:
         try:

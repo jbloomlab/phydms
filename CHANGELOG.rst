@@ -5,6 +5,10 @@ Changelog
 -----------
 * Updated to newest versions of ``Bio++``
 
+* Added ``--useLog`` as option to ``phydms`` and ``phydms_comprehensive``, and made differential preferences automatically try logarithms when it encounters problems.
+
+* Don't allow identical sequences in ``alignment``.
+
 * Added output for site likelihoods to log file under the fixed stringency parameter when using ``--stringencybysite``
 
 * Fixed ``--no_optimize`` method for *YNGKP_M3*, *YGNKP_M7*, and *YNGKP_M8* by making program use the old likelihood method for these models.
