@@ -13,6 +13,7 @@ import importlib
 import math
 import cStringIO
 import Bio.SeqIO
+import Bio.Phylo
 import phydmslib
 
 
@@ -215,6 +216,20 @@ def ReadOmegaBySite(infile):
     return omegabysite
 
 
+def SetMinBrLen(intree, outtree, minbrlen):
+    """Sets all branch lengths to be >= a value.
+
+    Reads tree from *intree* newick file, adjusts all
+    branch lengths to be >= *minbrlen*, then writes to
+    *outtree*.
+    """
+    assert minbrlen >= 0, "minbrlen must be >= 0"
+    tree = Bio.Phylo.read(intree, 'newick')
+    for node in tree.get_terminals() + tree.get_nonterminals():
+        if node != tree.root:
+            node.branch_length = max(minbrlen, node.branch_length)
+    with open(outtree, 'w') as f:
+        f.write(tree.format('newick').strip())
 
 
 if __name__ == '__main__':
