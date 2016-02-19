@@ -46,6 +46,7 @@
 #include <Bpp/Phyl/Model/Codon/AbstractCodonSubstitutionModel.h>
 #include <Bpp/Phyl/Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.h>
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
+#include <Bpp/Numeric/Matrix/Matrix.h>
 
 namespace bppextensions
 {
@@ -154,6 +155,11 @@ namespace bppextensions
      */
     void setFreq(std::map<int,double>& frequencies);
 
+    /*
+     *@brief Overrides same function in AbstractSubstitutionModel to
+     * avoid giving nan results with useLog option.
+     */
+    virtual const bpp::Matrix<double>& getPij_t(double t) const;
   };
 
 } // end of namespace bppextensions.
