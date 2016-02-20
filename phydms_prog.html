@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>the phydms program &mdash; phydms 1.0.2 documentation</title>
+    <title>the phydms program &mdash; phydms 1.1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.0.2',
+        VERSION:     '1.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.0.2 documentation" href="index.html" />
+    <link rel="top" title="phydms 1.1.0 documentation" href="index.html" />
     <link rel="next" title="auxiliary programs" href="auxiliary_progs.html" />
     <link rel="prev" title="Quick example" href="quick_example.html" /> 
   </head>
@@ -44,7 +44,7 @@
         <li class="right" >
           <a href="quick_example.html" title="Quick example"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">phydms 1.0.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">phydms 1.1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -83,13 +83,14 @@
 </div>
 <div class="section" id="command-line-usage">
 <h2><a class="toc-backref" href="#id3">Command-line usage</a><a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
-<p>Phylogenetic inference using deep mutational scanning data. The &#8216;phydms&#8217; package is written by Jesse D. Bloom; it performs likelihood calculations using the Bio++ libraries (thanks to Julien Dutheil and Laurent Gueguen). Version 1.0.2. Full documentation at http://jbloom.github.io/phydms</p>
+<p>Phylogenetic inference using deep mutational scanning data. The &#8216;phydms&#8217; package is written by Jesse D. Bloom; it performs likelihood calculations using the Bio++ libraries (thanks to Julien Dutheil and Laurent Gueguen). Version 1.1.0. Full documentation at http://jbloom.github.io/phydms</p>
 <pre class="literal-block">
 usage: phydms [-h] [--omegabysite] [--stringencybysite] [--diffprefsbysite]
               [--infertopology] [--ncpus NCPUS] [--omegabysite_fixsyn]
               [--randprefs] [--avgprefs] [--fixbrlen] [--diffprefconc C1 C2]
               [--addrateparameter] [--fitF3X4] [--minbrlen MINBRLEN]
-              [--seed SEED] [--no_optimize] [--debugsite DEBUGSITE] [-v]
+              [--seed SEED] [--no_optimize] [--useLog] [--debugsite DEBUGSITE]
+              [-v]
               alignment tree model outprefix
 </pre>
 <dl class="docutils">
@@ -102,6 +103,7 @@ usage: phydms [-h] [--omegabysite] [--stringencybysite] [--diffprefsbysite]
 <kbd>alignment</kbd></td>
 <td><p class="first">Existing FASTA file with aligned codon sequences.</p>
 <p>This file should contain aligned DNA codon sequences. Stop codons are <strong>not</strong> allowed, except if a stop codon is the terminal character in all sequences, in which case they are automatically trimmed.</p>
+<p>Each sequence in alignment must be unique (have at least one difference at non-gap characters).</p>
 <p class="last">The headers must be unique strings that do <strong>not</strong> contain any of the following: spaces, commas, colons, semicolons, parentheses, square brackets, and single or double quotes.</p>
 </td></tr>
 <tr><td class="option-group">
@@ -230,6 +232,12 @@ The preferences file should be in the <a class="reference external" href="http:/
 <p class="last">This argument is intended for the case when you want to use a per-site optimization (such as <tt class="docutils literal"><span class="pre">--stringencybysite</span></tt>, <tt class="docutils literal"><span class="pre">--omegabysite</span></tt>, or <tt class="docutils literal"><span class="pre">--diffprefsbysite</span></tt>) without re-optimizing the entire tree. It assumes that you have <strong>previously</strong> run <tt class="docutils literal"><span class="pre">phydms</span></tt> with the same <tt class="docutils literal"><span class="pre">outprefix</span></tt> on the same set of sequences, and have already generated the <tt class="docutils literal"><span class="pre">_modelparams.txt</span></tt>, <tt class="docutils literal"><span class="pre">_tree.newick</span></tt>, and <tt class="docutils literal"><span class="pre">_loglikelihood.txt</span></tt> output files. It then simply uses those files and proceeds to the per-site optimization. This option currently does <strong>not</strong> work for <em>YNGKP</em> models that don&#8217;t use <tt class="docutils literal"><span class="pre">-fitF3X4</span></tt>. When using this option, you should specify a <tt class="docutils literal"><span class="pre">treefile</span></tt> that is the one created by the previous run with <tt class="docutils literal"><span class="pre">outprefix</span></tt>.</p>
 </td></tr>
 <tr><td class="option-group">
+<kbd><span class="option">--useLog=False</span></kbd></td>
+<td><p class="first">Use logarithms in likelihood calculations.</p>
+<p>This option specifies that we have <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a> use logarithms in the likelihood calculations. According to the <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a> developers, this prevents likelihoods of zero (log likelihoods of negative infinity) on large trees, but comes at the cost of slowing down the computations.</p>
+<p class="last">Right now, even if <tt class="docutils literal"><span class="pre">--useLog</span></tt> is <strong>not</strong> used, <tt class="docutils literal"><span class="pre">phydms</span></tt> will automatically use logarithms if a specific problem is encountered while fitting site-specific differential preferences, but otherwise does not use them. Unless you have a good reason to do otherwise, keeping this setup (i.e. keeping <tt class="docutils literal"><span class="pre">--useLog</span></tt> at its default value of <em>False</em>) is probably the best choice.</p>
+</td></tr>
+<tr><td class="option-group">
 <kbd><span class="option">--debugsite</span></kbd></td>
 <td>For debugging: fit site-specific selection to only this site.</td></tr>
 <tr><td class="option-group">
@@ -274,21 +282,21 @@ stringencyparameter = 2.92
 <li><em>123_Full.theta</em>, <em>123_Full.theta1</em>, and <em>123_Full.theta2</em> define the values of the nucleotide frequences <span class="math">\(\phi_A\)</span>, <span class="math">\(\phi_C\)</span>, <span class="math">\(\phi_G\)</span>, and <span class="math">\(\phi_T\)</span>. The definitions are <span class="math">\(\phi_C + \phi_G = \rm{\textit{123_Full.theta}}\)</span>, <span class="math">\(\phi_A / \left(\phi_A + \phi_T\right) = \rm{\textit{123_Full.theta1}}\)</span>, and <span class="math">\(\phi_G / \left(\phi_G + \phi_C\right) = \rm{\textit{123_Full.theta2}}\)</span>.</li>
 </ul>
 </div></blockquote>
-<p>Here is an example of the contents for a <em>YNGKP_M3</em> model:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">delta1</span> <span class="o">=</span> <span class="mf">0.796641</span>
-<span class="n">delta2</span> <span class="o">=</span> <span class="mf">0.001</span>
-<span class="n">kappa</span> <span class="o">=</span> <span class="mf">6.31961</span>
-<span class="n">omega0</span> <span class="o">=</span> <span class="mf">0.0333836</span>
-<span class="n">theta1</span> <span class="o">=</span> <span class="mf">0.861961</span>
-<span class="n">theta2</span> <span class="o">=</span> <span class="mf">0.787932</span>
+<p>Here is an example of the contents for a <em>YNGKP_M8</em> model:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">kappa</span> <span class="o">=</span> <span class="mf">3.355859</span>
+<span class="n">omegas</span> <span class="o">=</span> <span class="mf">3.172927</span>
+<span class="n">p</span> <span class="o">=</span> <span class="mf">0.000100</span>
+<span class="n">p0</span> <span class="o">=</span> <span class="mf">0.886637</span>
+<span class="n">q</span> <span class="o">=</span> <span class="mf">0.258658</span>
 </pre></div>
 </div>
-<p>These parameters correspond to those described for the <em>M3</em> model by <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a> (three discrete categories of <span class="math">\(\omega\)</span>), with:</p>
+<p>These parameters correspond to those described for the <em>M8</em> model by <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a> (three discrete categories of <span class="math">\(\omega\)</span>), with:</p>
 <blockquote>
 <div><ul class="simple">
 <li><em>kappa</em> being <span class="math">\(\kappa\)</span></li>
-<li><em>omega0</em> being the value of <span class="math">\(\omega\)</span> for the first category, <em>omega0 + delta1</em> being the value of <span class="math">\(\omega\)</span> for the second category, and <em>omega0 + delta1 + delta2</em> being the value of <span class="math">\(\omega\)</span> for the third category.</li>
-<li><em>theta1</em> being the weight assigned to the first <span class="math">\(\omega\)</span> category, <em>(1 - theta1) * theta2</em> being the weight assigned to the second <span class="math">\(\omega\)</span> category, and <em>(1 - theta1) * (1 - theta2)</em> being the weight assigned to the third <span class="math">\(\omega\)</span> category.</li>
+<li><em>p0</em> being the weight assigned to the <span class="math">\(\omega &lt; 1\)</span> beta distributed values.</li>
+<li><em>p</em> and <em>q</em> being the shape parameters of the beta distribution.</li>
+<li><em>omegas</em> being the <span class="math">\(\omega\)</span> value of the category (weight <em>1 - p0</em>) with <span class="math">\(\omega &gt; 1\)</span>.</li>
 </ul>
 </div></blockquote>
 </div>
@@ -450,7 +458,7 @@ stringencyparameter = 2.92
         <li class="right" >
           <a href="quick_example.html" title="Quick example"
              >previous</a> |</li>
-        <li><a href="index.html">phydms 1.0.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">phydms 1.1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

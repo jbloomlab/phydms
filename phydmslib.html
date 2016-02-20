@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>phydmslib package &mdash; phydms 1.0.2 documentation</title>
+    <title>phydmslib package &mdash; phydms 1.1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.0.2',
+        VERSION:     '1.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.0.2 documentation" href="index.html" />
+    <link rel="top" title="phydms 1.1.0 documentation" href="index.html" />
     <link rel="up" title="The phydmslib API" href="api.html" />
     <link rel="next" title="Acknowledgments and citations" href="acknowledgments.html" />
     <link rel="prev" title="The phydmslib API" href="api.html" /> 
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="api.html" title="The phydmslib API"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">phydms 1.0.2 documentation</a> &raquo;</li>
+        <li><a href="index.html">phydms 1.1.0 documentation</a> &raquo;</li>
           <li><a href="api.html" accesskey="U">The <tt class="docutils literal"><span class="pre">phydmslib</span></tt> API</a> &raquo;</li> 
       </ul>
     </div>  
@@ -340,6 +340,15 @@ specifying the value for that property.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="phydmslib.file_io.SetMinBrLen">
+<tt class="descclassname">phydmslib.file_io.</tt><tt class="descname">SetMinBrLen</tt><big>(</big><em>intree</em>, <em>outtree</em>, <em>minbrlen</em><big>)</big><a class="headerlink" href="#phydmslib.file_io.SetMinBrLen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets all branch lengths to be &gt;= a value.</p>
+<p>Reads tree from <em>intree</em> newick file, adjusts all
+branch lengths to be &gt;= <em>minbrlen</em>, then writes to
+<em>outtree</em>.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="phydmslib.file_io.Versions">
 <tt class="descclassname">phydmslib.file_io.</tt><tt class="descname">Versions</tt><big>(</big><big>)</big><a class="headerlink" href="#phydmslib.file_io.Versions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a string with version information.</p>
@@ -595,7 +604,7 @@ model parameters, optimizing branch lengths, and (for some models) optimizing
 tree topology.</p>
 <p>Objects are instantiated like this:</p>
 <blockquote>
-<div><em>bpptl = BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, fixedmodelparams, initializemodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, prefsasparams, recursion)</em></div></blockquote>
+<div><em>bpptl = BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, fixedmodelparams, initializemodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, prefsasparams, recursion, useLog)</em></div></blockquote>
 <p>where:</p>
 <blockquote>
 <div><ul>
@@ -679,6 +688,9 @@ use <em>SetPreferences</em>.</p>
 </li>
 <li><p class="first"><em>recursion</em> is the <tt class="docutils literal"><span class="pre">Bio++</span></tt> likelihood recursion, which can be &#8216;S&#8217; (simple)
 or &#8216;D&#8217; (double).</p>
+</li>
+<li><p class="first"><em>useLog</em> is a Boolean switch specifying if we perform likelihood
+calculations using logarithms.</p>
 </li>
 </ul>
 </div></blockquote>
@@ -894,7 +906,7 @@ have made a single point significant.</p>
         <li class="right" >
           <a href="api.html" title="The phydmslib API"
              >previous</a> |</li>
-        <li><a href="index.html">phydms 1.0.2 documentation</a> &raquo;</li>
+        <li><a href="index.html">phydms 1.1.0 documentation</a> &raquo;</li>
           <li><a href="api.html" >The <tt class="docutils literal"><span class="pre">phydmslib</span></tt> API</a> &raquo;</li> 
       </ul>
     </div>
