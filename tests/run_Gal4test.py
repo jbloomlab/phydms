@@ -1,4 +1,4 @@
-"""Tests ``phydms`` on a dataset of NP sequences.
+"""Tests ``phydms`` on a dataset of Gal4 sequences.
 
 Written by Jesse Bloom."""
 
@@ -11,25 +11,24 @@ import dms_tools.file_io
 
 
 
-class TestOnNPs(unittest.TestCase):
+class TestOnGal4(unittest.TestCase):
     """
     Runs ``phydms_comprehensive`` on test data, compares to known results.
     """
 
     def setUp(self):
         """Gets files set up appropriately."""
-        self.expected_dir = './expected_NP_results/'
-        self.test_dir = './NP_test_results/'
-        self.prefs = 'NP_prefs.txt'
+        self.expected_dir = './expected_Gal4_results/'
+        self.test_dir = './Gal4_test_results/'
+        self.prefs = 'Gal4_prefs.txt'
         self.assertTrue(os.path.isfile(self.prefs), "Can't find required file %s" % self.prefs)
-        self.alignment = 'smallNPs.fasta'
+        self.alignment = 'Gal4s.fasta'
         self.assertTrue(os.path.isfile(self.alignment), "Can't find required file %s" % self.alignment)
-        self.all_models = ['ExpCM_NP_prefs', 'averaged_ExpCM_NP_prefs', 'YNGKP_M0', 'YNGKP_M8']
+        self.all_models = ['ExpCM_Gal4_prefs', 'averaged_ExpCM_Gal4_prefs', 'YNGKP_M0', 'YNGKP_M3']
         self.likelihood_files = ['%s_loglikelihood.txt' % model for model in self.all_models]
         self.params_files = ['%s_modelparams.txt' % model for model in self.all_models]
         self.bysite_files =\
-                ['%s_omegabysite.txt' % model for model in self.all_models if 'YNGKP_M0' not in model] +\
-                ['%s_stringencybysite.txt' % model for model in self.all_models if 'YNGKP' not in model]
+                ['%s_omegabysite.txt' % model for model in self.all_models if 'YNGKP_M0' not in model]
         self.diffpref_files = ['%s_diffprefsbysite.txt' % model for model in self.all_models if 'YNGKP' not in model]
         for f in self.likelihood_files + self.params_files + self.bysite_files + self.diffpref_files:
             fname = "%s/%s" % (self.expected_dir, f)
@@ -41,7 +40,7 @@ class TestOnNPs(unittest.TestCase):
 
     def test_Phydms(self):
         """Runs ``phydms_comprehensive``."""
-        cmds = ['phydms_comprehensive', self.test_dir, self.alignment, self.prefs, '--ncpus', '-1']
+        cmds = ['phydms_comprehensive', self.test_dir, self.alignment, self.prefs, '--ncpus', '-1', '--yngkp', 'M3', '--no-stringencybysite']
         sys.stderr.write('\nRunning phydms with the the following command:\n%s\n' % ' '.join(cmds))
         subprocess.call(cmds)
 
