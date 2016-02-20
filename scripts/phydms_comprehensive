@@ -172,6 +172,8 @@ def main():
     elif args['diffprefconc']:
         raise ValueError("You can't specify --diffprefconc when using --nodiffprefsbysite")
     assert len(set(args['prefsfiles'])) == len(args['prefsfiles']), 'Entries in prefsfiles not unique'
+    if args['avgrandcontrol'] and (args['avgrandcontrol'] not in args['prefsfiles']):
+        raise ValueError("--avgrandcontrol specifies a file of {0}, which is not one of the ones included in prefsfiles, which are:\n{1}".format(args['avgrandcontrol'], '\n'.join(args['prefsfiles'])))
     for prefsfile in args['prefsfiles']:
         if re.search('\s', prefsfile):
             raise ValueError("There is a space in the preferences file name: %s" % prefsfile)
@@ -180,14 +182,23 @@ def main():
         assert modelname not in filesuffixes, "Duplicate preferences file base name %s for %s; make names unique even after removing directory and extension" % (modelname, prefsfile)
         filesuffixes[modelname] = filesuffixlist
         models[modelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds, 0)
-        if not args['noavgprefs']:
-            avgmodelname = 'averaged_%s' % modelname
-            models[avgmodelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--avgprefs'], 0)
-            filesuffixes[avgmodelname] = filesuffixlist
-        if args['randprefs']:
-            randmodelname = 'randomized_%s' % modelname
-            models[randmodelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--randprefs'], 0)
-            filesuffixes[randmodelname] = filesuffixlist
+        if args['avgrandcontrol']:
+            if prefsfile == args['avgrandcontrol']:
+                avgmodelname = 'averaged_%s' % modelname
+                models[avgmodelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--avgprefs'], 0)
+                filesuffixes[avgmodelname] = filesuffixlist
+                randmodelname = 'randomized_%s' % modelname
+                models[randmodelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--randprefs'], 0)
+                filesuffixes[randmodelname] = filesuffixlist
+        else:
+            if not args['noavgprefs']:
+                avgmodelname = 'averaged_%s' % modelname
+                models[avgmodelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--avgprefs'], 0)
+                filesuffixes[avgmodelname] = filesuffixlist
+            if args['randprefs']:
+                randmodelname = 'randomized_%s' % modelname
+                models[randmodelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--randprefs'], 0)
+                filesuffixes[randmodelname] = filesuffixlist
 
     # file names slightly different depending on whether outprefix is directory or file
     if args['outprefix'][-1] == '/':

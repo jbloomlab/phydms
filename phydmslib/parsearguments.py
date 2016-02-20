@@ -225,6 +225,7 @@ def PhyDMSComprehensiveParser():
     parser.add_argument('--no-diffprefsbysite', dest='nodiffprefsbysite', action='store_true', help="No fitting of differential preferences for ExpCM.")
     parser.set_defaults(noavgprefs=False)
     parser.add_argument('--no-avgprefs', dest='noavgprefs', action='store_true', help="No fitting of models with preferences averaged across sites for ExpCM.")
+    parser.add_argument('--avgrandcontrol', default='None', type=ExistingFile, help="Fit average and random controls only for ExpCM using this preference file. Overrides '--no-avgprefs' and '--randprefs'.")
     parser.set_defaults(omegabysite_fixsyn=False)
     parser.add_argument('--omegabysite_fixsyn', action='store_true', dest='omegabysite_fixsyn', help="See 'phydms' option of the same name.")
     parser.set_defaults(useLog=False)
