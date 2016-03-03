@@ -13,6 +13,7 @@ import importlib
 import math
 import cStringIO
 import Bio.SeqIO
+import Bio.Phylo
 import phydmslib
 
 
@@ -102,6 +103,12 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
         for (head, seq) in seqs:
             if disallowedheader.search(head):
                 raise ValueError("There is an invalid character in the following header in %s:\n%s" % (fastafile, head))
+    for (i, (head1, seq1)) in enumerate(seqs):
+        for (head2, seq2) in seqs[i + 1 : ]:
+            assert len(seq1) == len(seq2)
+            ndiffs = sum(map(lambda (x, y): 1 if (x != y and x != '-' and y != '-') else 0, zip(seq1, seq2)))
+            if ndiffs < 1:
+                raise ValueError("The alignment in {0} has duplicate sequences:\n{1}\n{2}\nPlease remove one of these so that all sequences are unique at non-gap positions.".format(fastafile, head1, head2))
     return seqs
 
 
@@ -209,6 +216,20 @@ def ReadOmegaBySite(infile):
     return omegabysite
 
 
+def SetMinBrLen(intree, outtree, minbrlen):
+    """Sets all branch lengths to be >= a value.
+
+    Reads tree from *intree* newick file, adjusts all
+    branch lengths to be >= *minbrlen*, then writes to
+    *outtree*.
+    """
+    assert minbrlen >= 0, "minbrlen must be >= 0"
+    tree = Bio.Phylo.read(intree, 'newick')
+    for node in tree.get_terminals() + tree.get_nonterminals():
+        if node != tree.root:
+            node.branch_length = max(minbrlen, node.branch_length)
+    with open(outtree, 'w') as f:
+        f.write(tree.format('newick').strip())
 
 
 if __name__ == '__main__':

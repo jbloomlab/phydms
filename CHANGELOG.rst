@@ -1,17 +1,30 @@
 Changelog
 ===========
 
-1.dev1
------------
+1.2.0
+------------
+* Updated ``Bio++`` again.
+
 * Added ``--dateseqs`` option ``phydms`` and ``phydms_comprehensive``.
 
+1.1.0
+-----------
 * Updated to newest versions of ``Bio++``
 
-* Added output for site likelihoods to log file under the fixed stringency parameter when using ``--stringencybysite``
+* Added ``--yngkp`` option to ``phydms_comprehensive``, and changed default from *YNGKP_M3* to *YNGKP_M8*.
+
+* Added ``--useLog`` as option to ``phydms`` and ``phydms_comprehensive``, and made differential preferences automatically try logarithms when it encounters problems.
+
+* Added ``--avgrandcontrol`` option to ``phydms_comprehensive``.
+
+* Disallowed identical sequences in ``alignment``.
+
+* Updated to newer versions of ``Bio++``
+
+* Added output for site likelihoods to log file under the fixed stringency parameter when using ``--stringencybysite``.
 
 * Fixed ``--no_optimize`` method for *YNGKP_M3*, *YGNKP_M7*, and *YNGKP_M8* by making program use the old likelihood method for these models.
 
-* Added ``--yngkp`` option to ``phydms_comprehensive``, and changed default from *YNGKP_M3* to *YNGKP_M8*.
 
 1.0.2
 --------

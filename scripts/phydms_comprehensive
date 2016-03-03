@@ -187,7 +187,10 @@ def main():
     filesuffixes = {} # keyed by model, values are list of suffixes
 
     # set up models
-    additionalcmds = []
+    if args['useLog']:
+        additionalcmds = ['--useLog']
+    else:
+        additionalcmds = []
     if args['dateseqs']:
         filesuffixlist += ['_datedtree.newick', '_mrca_date.txt']
         additionalcmds += ['--dateseqs', args['dateseqs']]
@@ -212,6 +215,8 @@ def main():
     elif args['diffprefconc']:
         raise ValueError("You can't specify --diffprefconc when using --nodiffprefsbysite")
     assert len(set(args['prefsfiles'])) == len(args['prefsfiles']), 'Entries in prefsfiles not unique'
+    if args['avgrandcontrol'] and (args['avgrandcontrol'] not in args['prefsfiles']):
+        raise ValueError("--avgrandcontrol specifies a file of {0}, which is not one of the ones included in prefsfiles, which are:\n{1}".format(args['avgrandcontrol'], '\n'.join(args['prefsfiles'])))
     for prefsfile in args['prefsfiles']:
         if re.search('\s', prefsfile):
             raise ValueError("There is a space in the preferences file name: %s" % prefsfile)
@@ -220,14 +225,23 @@ def main():
         assert modelname not in filesuffixes, "Duplicate preferences file base name %s for %s; make names unique even after removing directory and extension" % (modelname, prefsfile)
         filesuffixes[modelname] = filesuffixlist
         models[modelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds, 0)
-        if not args['noavgprefs']:
-            avgmodelname = 'averaged_%s' % modelname
-            models[avgmodelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--avgprefs'], 0)
-            filesuffixes[avgmodelname] = filesuffixlist
-        if args['randprefs']:
-            randmodelname = 'randomized_%s' % modelname
-            models[randmodelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--randprefs'], 0)
-            filesuffixes[randmodelname] = filesuffixlist
+        if args['avgrandcontrol']:
+            if prefsfile == args['avgrandcontrol']:
+                avgmodelname = 'averaged_%s' % modelname
+                models[avgmodelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--avgprefs'], 0)
+                filesuffixes[avgmodelname] = filesuffixlist
+                randmodelname = 'randomized_%s' % modelname
+                models[randmodelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--randprefs'], 0)
+                filesuffixes[randmodelname] = filesuffixlist
+        else:
+            if not args['noavgprefs']:
+                avgmodelname = 'averaged_%s' % modelname
+                models[avgmodelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--avgprefs'], 0)
+                filesuffixes[avgmodelname] = filesuffixlist
+            if args['randprefs']:
+                randmodelname = 'randomized_%s' % modelname
+                models[randmodelname] = ('ExpCM_%s' % prefsfile, expcmadditionalcmds + ['--randprefs'], 0)
+                filesuffixes[randmodelname] = filesuffixlist
 
     # file names slightly different depending on whether outprefix is directory or file
     if args['outprefix'][-1] == '/':
@@ -255,6 +269,11 @@ def main():
     logger.info('Progress is being logged to %s\n' % logfile)
     logger.info("%s\n" % versionstring)
     logger.info('Parsed the following command-line arguments:\n%s\n' % '\n'.join(['\t%s = %s' % tup for tup in args.iteritems()]))
+
+    # check alignment
+    logger.info('Checking that the alignment {0} is valid...'.format(args['alignment']))
+    alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'], checknewickvalid=True)
+    logger.info('Valid alignment specifying {0} sequences of length {1}.\n'.format(len(alignment), len(alignment[0][1])))
 
     # get number of available CPUs and assign to each model
     if args['ncpus'] == -1:

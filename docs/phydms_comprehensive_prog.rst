@@ -59,6 +59,9 @@ Command-line usage
    \-\-randprefs
     As described in the documentation for ``phydms`` (see :ref:`phydms_prog`), there are two sensible controls when using an *ExpCM* model: averaging the preferences across sites or randomizing them across sites. By default, ``phydms_comprehensive`` performs the averaging control (this is the ``--avgprefs`` option to ``phydms``) but not the randomization control (this is the ``--randprefs`` option to ``phydms``). Use this option if you also want to include the ``--randprefs`` control.
 
+   \-\-avgrandcontrol
+    As described in the documentation for ``phydms`` (see :ref:`phydms_prog`), there are two sensible controls for an *ExpCM* model: randomizing preferences among sites and averaging them across sites. The ``--no-avgprefs`` and ``--randprefs`` options specify whether to perform these controls for the *ExpCM* informed by each of the potentially numerous preferences specified in files listed in ``prefsfiles``. If you have a lot of preference files, you might only want to perform these controls for one of them. In that case, list that one file (which should also be listed in ``prefsfiles``) here. The only control will then be average and random preferences for this one file.
+
    \-\-use_existing
     Perhaps some of the output that ``phydms_comprehensive`` will create already exists, such as from a previous run. By default, ``phydsm_comprehensive`` deletes any existing output and re-creates everything from scratch. If you don't want to do that, then use this option. But be careful: ``phydms_comprehensive`` only looks for existing output by file name; if those files were actually generated using a different set of input data or program options, ``phydms_comprehensive`` has no way of determining this.
 
