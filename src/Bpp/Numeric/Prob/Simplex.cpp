@@ -285,10 +285,10 @@ void Simplex::setFrequencies(const std::vector<double>& probas)
         if (t >= dim_)
           break;
         else
-          i0 += vProb_[t];
+          i0 += probas[t];
         t += (1 << (li2 - 1));
         if (t < dim_)
-          i1 += vProb_[t];
+          i1 += probas[t];
         j++;
       }
       pl.addParameter(Parameter(getNamespace() + "theta" + TextTools::toString(i), i1 / (i0 + i1)));

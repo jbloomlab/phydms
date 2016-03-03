@@ -144,9 +144,22 @@ namespace bpp
      * @param params        The parameter list.
      * @return True is the parameter of specified name is in the list.
      */
-    static bool parameterExists(const std::string& parameterName, const std::map<std::string, std::string>& params);
+    static bool parameterExists(const std::string& parameterName, const std::map<std::string, std::string>& params)
+    {
+      std::map<std::string, std::string>::const_iterator it=params.find(parameterName);
+  
+      return (it != params.end() && !TextTools::isEmpty(it->second));
+    }
 
-    static bool parameterExists(const std::string& parameterName, std::vector<std::string>& params);
+
+    static bool parameterExists(const std::string& parameterName, std::vector<std::string>& params)
+    {
+      for (size_t i = 0; i < params.size(); ++i)
+        if (params[i] == parameterName)
+          return true;
+
+      return false;
+    }
 
     /**
      * @brief Returns a vector of parameter names that match a given pattern.
@@ -210,13 +223,33 @@ namespace bpp
      * @param warn             Tell if a warning must be sent in case the parameter is not found.
      * @return The corresponding value.
      */
+    
     static std::string getStringParameter(
       const std::string& parameterName,
       const std::map<std::string, std::string>& params,
       const std::string& defaultValue,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
-      int warn = 0);
+      int warn = 0)
+    {
+      std::string sParam = defaultValue;
+      std::map<std::string, std::string>::const_iterator it1=params.find(parameterName + suffix);  
+      if (it1 != params.end() && !TextTools::isEmpty(it1->second))
+        sParam = it1->second;
+      else
+      {
+        std::map<std::string, std::string>::const_iterator it2=params.find(parameterName);  
+        if (suffixIsOptional && it2 != params.end() && !TextTools::isEmpty(it2->second))
+          sParam = it2->second;
+        else
+          if (warn <= warningLevel) {
+            displayWarning("Parameter " + parameterName + " not specified. Default used instead: " + defaultValue);
+          }
+      }
+  
+      return sParam;
+    }
+    
 
     /**
      * @brief Get a boolean parameter.
