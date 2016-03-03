@@ -1,6 +1,10 @@
 Changelog
 ===========
 
+1.2.0
+------------
+* Updated ``Bio++`` again.
+
 1.1.0
 -----------
 * Added ``--yngkp`` option to ``phydms_comprehensive``, and changed default from *YNGKP_M3* to *YNGKP_M8*.

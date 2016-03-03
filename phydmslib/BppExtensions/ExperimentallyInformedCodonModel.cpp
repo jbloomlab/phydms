@@ -46,7 +46,6 @@
 
 #include "ExperimentallyInformedCodonModel.h"
 #include <Bpp/Numeric/NumConstants.h>
-#include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Phyl/Model/Nucleotide/K80.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h>
 
@@ -174,12 +173,4 @@ void bppextensions::ExperimentallyInformedCodonModel::setFreq(std::map<int,doubl
   updateMatrices(); */
 }
 
-const bpp::Matrix<double>& bppextensions::ExperimentallyInformedCodonModel::getPij_t(double t) const
-{
-    if (t <= bpp::NumConstants::SMALL()) {
-        bpp::MatrixTools::getId(size_, pijt_);
-        return pijt_;
-    } else {
-        return AbstractCodonSubstitutionModel::getPij_t(t);
-    }
-}
+
