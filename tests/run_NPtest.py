@@ -25,7 +25,7 @@ class TestOnNPs(unittest.TestCase):
         self.alignment = 'smallNPs.fasta'
         for f in [self.prefs, self.seqdates, self.alignment]:
             self.assertTrue(os.path.isfile(f), "Can't find required file {0}".format(f))
-        self.all_models = ['ExpCM_avg_prefs', 'averaged_ExpCM_avg_prefs', 'YNGKP_M0', 'YNGKP_M8']
+        self.all_models = ['ExpCM_NP_prefs', 'averaged_ExpCM_NP_prefs', 'YNGKP_M0', 'YNGKP_M8']
         self.likelihood_files = ['%s_loglikelihood.txt' % model for model in self.all_models]
         self.mrcadate_files = ['{0}_mrca_date.txt'.format(model) for model in self.all_models]
         self.params_files = ['%s_modelparams.txt' % model for model in self.all_models]
