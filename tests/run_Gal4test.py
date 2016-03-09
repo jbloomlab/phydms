@@ -40,7 +40,7 @@ class TestOnGal4(unittest.TestCase):
 
     def test_Phydms(self):
         """Runs ``phydms_comprehensive``."""
-        cmds = ['phydms_comprehensive', self.test_dir, self.alignment, self.prefs, '--ncpus', '-1', '--yngkp', 'M3', '--no-stringencybysite']
+        cmds = ['phydms_comprehensive', self.test_dir, self.alignment, self.prefs, '--ncpus', '-1', '--yngkp', 'M3', '--no-stringencybysite', '--fitF3X4']
         sys.stderr.write('\nRunning phydms with the the following command:\n%s\n' % ' '.join(cmds))
         subprocess.call(cmds)
 
