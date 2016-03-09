@@ -7,6 +7,8 @@ Changelog
 
 * Added ``--dateseqs`` option ``phydms`` and ``phydms_comprehensive``.
 
+* Fixed bug that was making *YNGKP* models always use ``--fitF3X4`` option.
+
 1.1.0
 -----------
 * Updated to newest versions of ``Bio++``

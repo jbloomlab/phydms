@@ -112,7 +112,7 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
     // set up substitution models
     if ((modelstring.length() >= 12) && (modelstring.substr(0, 6) == "YNGKP_")) {
         if (modelstring.substr(modelstring.length() - 8, 8) == "_empF3X4") {
-            std::string thetaparams = "1_Full.theta,1_Full.theta1,1_Full.theta2,2_Full.theta,2_Full.theta1,2_Full.theta2,3_Full.theta,3_Full.theta1,3_Full.theta2";
+            std::string thetaparams = "*_Full.theta*";
             if (optimizationparams["optimization.ignore_parameters"].empty()) {
                 optimizationparams["optimization.ignore_parameters"] = thetaparams;
             } else {
