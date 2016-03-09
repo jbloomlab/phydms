@@ -306,6 +306,7 @@ def main():
     yngkp_modelnames = [modelname for modelname in models.keys() if 'YNGKP' in modelname]
     assert len(models.keys()) == len(expcm_modelnames) + len(yngkp_modelnames), "not ExpCM or YNGKP:\n%s" % str(models.keys())
     ncpus_per_model = dict([(modelname, 1) for modelname in yngkp_modelnames])
+    ncpus_per_model['YNGKP_M0'] = args['ncpus'] # YNGKP_M0 runs first, so give it all CPUs
     nperexpcm = max(1, (args['ncpus'] - len(yngkp_modelnames) + 1) // len(expcm_modelnames)) # add one in numerator since YNGKP_M0 fit first
     for modelname in expcm_modelnames:
         ncpus_per_model[modelname] = nperexpcm
