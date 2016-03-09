@@ -144,6 +144,22 @@ def TreeFile(fname):
         raise argparse.ArgumentTypeError("Invalid value for tree: must be existing file, 'nj', or 'random'.")
 
 
+def YNGKPList(modellist):
+    """Returns list of YNGKP model variants if *modellist* is valid.
+
+    Removes *M0* if present.
+        
+    >>> YNGKPList("M0,M3,M7")
+    ['M3', 'M7']
+    """
+    models = [m for m in modellist.split(',') if m and m != 'M0'] # don't count M0 as always included
+    if not all([m in yngkp_modelvariants for m in models]):
+        raise argparse.ArgumentTypeError("YNGKP model list has invalid entries: {0}".format(modellist))
+    if len(models) != len(set(models)):
+        raise argparse.ArgumentTypeError("YNGKP model list has duplicated entries: {0}".format(modellist))
+    return models
+
+
 def ModelOption(model):
     """Returns *model* if a valid choice.
     
@@ -235,7 +251,7 @@ def PhyDMSComprehensiveParser():
     parser.add_argument('--omegabysite_fixsyn', action='store_true', dest='omegabysite_fixsyn', help="See 'phydms' option of the same name.")
     parser.set_defaults(useLog=False)
     parser.add_argument('--useLog', action='store_true', dest='useLog', help="See 'phydms' option of the same name.")
-    parser.add_argument('--yngkp', choices=['M3', 'M8'], default='M8', help="Variant of YNGKP model used to get tree & params for which we fit omega.")
+    parser.add_argument('--yngkp', default='M8', help="YNGKP models to use in addition to M0. Should be comma-separated list of models from the following: {0}".format(','.join([m for m in yngkp_modelvariants if m != 'M0'])), type=YNGKPList)
     parser.add_argument('--diffprefconc', help="Parameters determining the concentration of the regularizing prior over the differential preferences for '--diffprefsbysite'. Defaults to value of the same param for 'phydms'.", type=FloatGreaterThanEqualToZero, nargs=2, metavar=('C1', 'C2'))
     parser.set_defaults(randprefs=False)
     parser.add_argument('--randprefs', dest='randprefs', action='store_true', help="Include ExpCM models with randomized preferences.")

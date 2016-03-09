@@ -11,6 +11,8 @@ Changelog
 
 * Added *YNGKP_M1* and *YNKGP_M2* models.
 
+* Changed meaning of ``--yngkp`` option to ``phydms_comprehensive`` to allow multiple or no models beyond *YNGKP_M0*.
+
 1.1.0
 -----------
 * Updated to newest versions of ``Bio++``

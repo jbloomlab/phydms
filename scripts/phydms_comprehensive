@@ -37,6 +37,18 @@ def FormattedModelParams(model, modelparamstext):
         kappa = float(re.search('kappa = (\d+\.\d+)', modelparamstext).group(1))
         omega = float(re.search('omega = (\d+\.\d+)', modelparamstext).group(1))
         return 'omega = %.2f, kappa = %.2f' % (omega, kappa)
+    elif model == 'YNGKP_M1':
+        kappa = float(re.search('kappa = (\d+\.\d+)', modelparamstext).group(1))
+        omega0 = float(re.search('omega = (\d+\.\d+)', modelparamstext).group(1))
+        p0 = float(re.search('p0 = (\d+\.\d+)', modelparamstext).group(1))
+        return 'omega0 = {0:.2f}, p0 = {1:.2f}, kappa = {2:.2f}'.format(omega0, p0, kappa)
+    elif model == 'YNGKP_M2':
+        kappa = float(re.search('kappa = (\d+\.\d+)', modelparamstext).group(1))
+        omega0 = float(re.search('omega0 = (\d+\.\d+)', modelparamstext).group(1))
+        omega2 = float(re.search('omega2 = (\d+\.\d+)', modelparamstext).group(1))
+        theta1 = float(re.search('theta1 = (\d+\.\d+)', modelparamstext).group(1))
+        theta2 = float(re.search('theta2 = (\d+\.\d+)', modelparamstext).group(1))
+        return 'omega0 = {0:.2f}, omega2 = {1:.2f}, p0 = {2:.2f}, p1 = {3:.2f}, kappa = {4:.2f}'.format(omega0, omega2, theta1, (1 - theta1) * theta2, kappa)
     elif model == 'YNGKP_M3':
         kappa = float(re.search('kappa = (\d+\.\d+)', modelparamstext).group(1))
         omega0 = float(re.search('omega0 = (\d+\.\d+)', modelparamstext).group(1))
@@ -198,15 +210,17 @@ def main():
         yngkpadditionalcmds = ['--fitF3X4']
     else:
         yngkpadditionalcmds = []
-    filesuffixes['YNGKP_M0'] = list(filesuffixlist)
-    models = {'YNGKP_M0':('YNGKP_M0', additionalcmds + yngkpadditionalcmds, 9)}
     if not args['noomegabysite']:
         additionalcmds.append('--omegabysite')
         if args['omegabysite_fixsyn']:
             additionalcmds.append('--omegabysite_fixsyn')
         filesuffixlist.append('_omegabysite.txt')
-    filesuffixes['YNGKP_{0}'.format(args['yngkp'])] = list(filesuffixlist)
-    models['YNGKP_{0}'.format(args['yngkp'])] = ('YNGKP_{0}'.format(args['yngkp']), additionalcmds + yngkpadditionalcmds, 9)
+    filesuffixes['YNGKP_M0'] = list(filesuffixlist)
+    models = {'YNGKP_M0':('YNGKP_M0', additionalcmds + yngkpadditionalcmds, 9)}
+    for mvariant in args['yngkp']:
+        mname = 'YNGKP_' + mvariant
+        filesuffixes[mname] = list(filesuffixlist)
+        models[mname] = (mname, additionalcmds + yngkpadditionalcmds, 9)
     expcmadditionalcmds = list(additionalcmds)
     if not args['nostringencybysite']:
         expcmadditionalcmds += ['--stringencybysite'] 

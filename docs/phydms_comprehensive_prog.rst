@@ -39,7 +39,7 @@ Command-line usage
     By default, ``phydms_comprehensive`` uses ``phydms`` to infer a tree topology under the *YNGKP_M0* model starting from a crude neighbor-joining tree. If you want to instead fix the tree to some existing topology, use this argument and provide the name of a file giving a valid tree in Newick format.
 
    \-\-no-omegabysite 
-    By default, ``phydms_comprehensive`` infers a site-specific :math:`\omega_r` for the tree obtained using the *YNGKP_M8* model and for each *ExpCM*. Use this option if you do **not** want to do this.
+    By default, ``phydms_comprehensive`` infers a site-specific :math:`\omega_r` for the tree obtained using each *YNGKP* model and each *ExpCM*. Use this option if you do **not** want to do this.
 
    \-\-no-stringencybysite 
     By default, ``phydms_comprehensive`` infers a site-specific :math:`\beta_r` for each *ExpCM*. Use this option if you do **not** want to do this.
@@ -54,7 +54,7 @@ Command-line usage
     As described in the documentation for ``phydms`` (see :ref:`phydms_prog`), there are two sensible controls when using an *ExpCM* model: averaging the preferences across sites or randomizing them across sites. By default, ``phydms_comprehensive`` performs the averaging control (this is the ``--avgprefs`` option to ``phydms``). Use this option if you do **not** want to include this averaging control.
 
    \-\-yngkp
-    In addition the *ExpCM* models and the *YNGKP_M0* model, the program optimizes an additional *YNGKP* model. This additional model is also the one used to get the tree that is optimized for the ``omegabysite`` analyses. This option specifies which model that should be *M3* or *M8*. In the earliest versions of ``phydms``, it was *M3*, but it has now been switched to *M8*. See `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_ for details about these models.
+    In addition to the *YNGKP_M0* model (which is always used to optimize the initial tree), the program will also optimize any additional *YNGKP* model variants listed here. See the documentation for :ref:`phydms_prog` for more information about these model variants.
 
    \-\-randprefs
     As described in the documentation for ``phydms`` (see :ref:`phydms_prog`), there are two sensible controls when using an *ExpCM* model: averaging the preferences across sites or randomizing them across sites. By default, ``phydms_comprehensive`` performs the averaging control (this is the ``--avgprefs`` option to ``phydms``) but not the randomization control (this is the ``--randprefs`` option to ``phydms``). Use this option if you also want to include the ``--randprefs`` control.
