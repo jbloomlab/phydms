@@ -10,6 +10,9 @@ import argparse
 import phydmslib
 
 
+# allowed variants of YNGKP models
+yngkp_modelvariants = ['M0', 'M1', 'M2', 'M3', 'M7', 'M8']
+
 class ArgumentParserNoArgHelp(argparse.ArgumentParser):
     """Like *argparse.ArgumentParser*, but prints help when no arguments."""
     def error(self, message):
@@ -148,7 +151,8 @@ def ModelOption(model):
     
     Returns *('ExpCM', prefsfile)* if it specifies an ``ExpCM_`` model.
     """
-    if model in ['YNGKP_M0', 'YNGKP_M3', 'YNGKP_M7', 'YNGKP_M8']:
+    yngkpmatch = re.compile('^YNGKP_M[{0}]$'.format(''.join([m[1 : ] for m in yngkp_modelvariants])))
+    if yngkpmatch.search(model):
         return model
     elif len(model) > 6 and model[ : 6] == 'ExpCM_':
         fname = model[6 : ] 
@@ -248,7 +252,7 @@ def PhyDMSParser():
     parser = ArgumentParserNoArgHelp(description='Phylogenetic inference using deep mutational scanning data. %s Version %s. Full documentation at %s' % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('alignment', help='Existing FASTA file with aligned codon sequences.', type=ExistingFile)
     parser.add_argument('tree', help="Existing Newick tree file or 'random' or 'nj'.", type=TreeFile)
-    parser.add_argument('model', help="Codon substitution model: YNGKP_M0, YNGKP_M3, YNGKP_M7, YNGKP_M8, ExpCM_<prefsfile>", type=ModelOption)
+    parser.add_argument('model', help="Codon substitution model: YNGKP_<m> where <m> is {0}; or ExpCM_<prefsfile>".format(', '.join(yngkp_modelvariants)), type=ModelOption)
     parser.add_argument('outprefix', help='Prefix for output files.', type=str)
     parser.set_defaults(omegabysite=False)
     parser.add_argument('--omegabysite', dest='omegabysite', action='store_true', help="Fit a different omega (dN/dS) for each site, similar to FEL.")

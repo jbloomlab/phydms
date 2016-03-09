@@ -9,6 +9,8 @@ Changelog
 
 * Fixed bug that was making *YNGKP* models always use ``--fitF3X4`` option.
 
+* Added *YNGKP_M1* and *YNKGP_M2* models.
+
 1.1.0
 -----------
 * Updated to newest versions of ``Bio++``

@@ -29,6 +29,7 @@
 .. _`phydms`: http://jbloom.github.io/phydms
 .. _`phydms source code`: https://github.com/jbloom/phydms
 .. _`Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`: http://www.genetics.org/content/155/1/431
+.. _`Wong et al, Genetics, 168:1041-1051`: http://www.genetics.org/content/168/2/1041
 .. _`Bloom, Mol Biol Evol, 31:2753-2769`: http://mbe.oxfordjournals.org/content/31/10/2753
 .. _`Bloom, Mol Biol Evol, 31:1956-1978`: http://mbe.oxfordjournals.org/content/31/8/1956
 .. _`Bloom, BMC Bioinformatics, 16:168`: http://www.biomedcentral.com/1471-2105/16/168

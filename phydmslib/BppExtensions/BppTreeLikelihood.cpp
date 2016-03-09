@@ -12,6 +12,8 @@
 #include <Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h>
 #include <Bpp/Phyl/Io/BppOFrequenciesSetFormat.h>
 #include <Bpp/Phyl/Model/Codon/YN98.h>
+#include <Bpp/Phyl/Model/Codon/YNGKP_M1.h>
+#include <Bpp/Phyl/Model/Codon/YNGKP_M2.h>
 #include <Bpp/Phyl/Model/Codon/YNGKP_M3.h>
 #include <Bpp/Phyl/Model/Codon/YNGKP_M7.h>
 #include <Bpp/Phyl/Model/Codon/YNGKP_M8.h>
@@ -129,6 +131,12 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         // now set up the models
         if (modelstring.substr(6, 2) == "M0") {
             models[sharedmodelindex] = dynamic_cast<bpp::SubstitutionModel*>(new bpp::YN98(gcode, codonFreqs.release()));
+        }
+        else if (modelstring.substr(6, 2) == "M1") {
+            models[sharedmodelindex] = dynamic_cast<bpp::SubstitutionModel*>(new bpp::YNGKP_M1(gcode, codonFreqs.release()));
+        }
+        else if (modelstring.substr(6, 2) == "M2") {
+            models[sharedmodelindex] = dynamic_cast<bpp::SubstitutionModel*>(new bpp::YNGKP_M2(gcode, codonFreqs.release()));
         }
         else if (modelstring.substr(6, 2) == "M3") {
             models[sharedmodelindex] = dynamic_cast<bpp::SubstitutionModel*>(new bpp::YNGKP_M3(gcode, codonFreqs.release(), 3));

@@ -67,6 +67,19 @@ cdef class PyBppTreeLikelihood:
 
                 - *M0* is a single :math:`\omega` fit by maximum likelihood.
 
+                - *M1* is an :math:`\omega < 1` and an :math:`\omega = 1` with 
+                  proportions optimized. This is actually the ``M1a`` model
+                  in Wong et al, Genetics (2014) 
+                  (http://www.genetics.org/content/168/2/1041)
+                  rather than the original ``M1`` in Yang et al, 2000.
+
+                - *M2* is an :math:`\omega < 1`, an :math:`\omega = 1` , and
+                  an :math:`\omega > 1` with 
+                  proportions optimized. This is actually the ``M2a`` model
+                  in Wong et al, Genetics (2014) 
+                  (http://www.genetics.org/content/168/2/1041)
+                  rather than the original ``M2`` in Yang et al, 2000.
+
                 - *M3* is 3 discrete values of :math:`\omega` with weights and 
                   values optimized by maximum likelihood.
                

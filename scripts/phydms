@@ -234,7 +234,7 @@ def main():
     """Main body of script."""
 
     # some regular expressions used later
-    yngkp_match = re.compile('^YNGKP_M(?P<modelvariant>[0,3,7,8])$')
+    yngkp_match = re.compile('^YNGKP_M(?P<modelvariant>\d+)$')
 
     # Parse command line arguments
     parser = phydmslib.parsearguments.PhyDMSParser()
@@ -513,7 +513,7 @@ def main():
         # optimize a different omega for each site
         if args['omegabysite']:
             fixedomegavalue = 1.0 # null model fixes omega to this value
-            excludeparams = ['omega', 'p', 'q', 'omegas', 'p0', 'delta1', 'delta2', 'omega0', 'theta1', 'theta2'] # parameters related to omega, do not fix
+            excludeparams = ['omega', 'p', 'q', 'omegas', 'p0', 'delta1', 'delta2', 'omega0', 'omega2', 'theta1', 'theta2'] # parameters related to omega, do not fix
             fixedmodelparams = {}
             for (param, value) in allmodelparams.items():
                 for excludeparam in excludeparams:
