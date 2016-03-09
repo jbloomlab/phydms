@@ -194,15 +194,19 @@ def main():
     if args['dateseqs']:
         filesuffixlist += ['_datedtree.newick', '_mrca_date.txt']
         additionalcmds += ['--dateseqs', args['dateseqs']]
+    if args['fitF3X4']:
+        yngkpadditionalcmds = ['--fitF3X4']
+    else:
+        yngkpadditionalcmds = []
     filesuffixes['YNGKP_M0'] = list(filesuffixlist)
-    models = {'YNGKP_M0':('YNGKP_M0', additionalcmds, 9)}
+    models = {'YNGKP_M0':('YNGKP_M0', additionalcmds + yngkpadditionalcmds, 9)}
     if not args['noomegabysite']:
         additionalcmds.append('--omegabysite')
         if args['omegabysite_fixsyn']:
             additionalcmds.append('--omegabysite_fixsyn')
         filesuffixlist.append('_omegabysite.txt')
     filesuffixes['YNGKP_{0}'.format(args['yngkp'])] = list(filesuffixlist)
-    models['YNGKP_{0}'.format(args['yngkp'])] = ('YNGKP_{0}'.format(args['yngkp']), additionalcmds, 9)
+    models['YNGKP_{0}'.format(args['yngkp'])] = ('YNGKP_{0}'.format(args['yngkp']), additionalcmds + yngkpadditionalcmds, 9)
     expcmadditionalcmds = list(additionalcmds)
     if not args['nostringencybysite']:
         expcmadditionalcmds += ['--stringencybysite'] 
