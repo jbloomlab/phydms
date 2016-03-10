@@ -13,6 +13,8 @@ Changelog
 
 * Changed meaning of ``--yngkp`` option to ``phydms_comprehensive`` to allow multiple or no models beyond *YNGKP_M0*.
 
+* Added ``--gammarates`` option to ``phydms`` and ``phydms_comprehensive``.
+
 1.1.0
 -----------
 * Updated to newest versions of ``Bio++``

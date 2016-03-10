@@ -23,6 +23,7 @@
 #include <Bpp/Phyl/Io/IoTree.h>
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
+#include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Phyl/Likelihood/DiscreteRatesAcrossSitesTreeLikelihood.h>
 #include <Bpp/Phyl/Likelihood/NNIHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
@@ -75,8 +76,9 @@ namespace bppextensions {
              *
              * @param useLog Do we compute the likelihoods using their logs? Only meaningful when not using oldlikelihoodmethod.
              *
+             * @param ngammarates Number of gamma-distributed rate categories. Set to 1 for a single constant rate, otherwise an integer > 1 for gamma distributed rates.
              */
-            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion, int useLog);
+            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion, int useLog, int ngammarates);
 
             /**
              *@brief Destructor
@@ -173,7 +175,9 @@ namespace bppextensions {
             bpp::DiscreteRatesAcrossSitesTreeLikelihood *oldtreelikelihood;
             size_t sharedmodelindex;
             size_t sharedtreeindex;
+            size_t sharedrateindex;
             std::map<std::string, std::string> constrainedparams; // keyed by param, value is what it is constrained to
+            int nrates;
     };
 };
 

@@ -34,12 +34,13 @@ namespace patch
 
 
 // constructor
-bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion, int useLog)
+bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion, int useLog, int ngammarates)
 {
 
     // setup some parameters / options
     oldlikmethod = oldlikelihoodmethod != 0;
     verbose = false;
+    nrates = ngammarates;
     optimizationparams["optimization.reparametrization"] = "false";
     optimizationparams["optimization.profiler"] = "none";
     optimizationparams["optimization.backup.file"] = "none";
@@ -90,7 +91,7 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
 
     // initialize some values
     sharedtreeindex = 0;
-    size_t sharedrateindex = 0;
+    sharedrateindex = 0;
     sharedmodelindex = 0;
     sequenceevolution = 0;
     substitutionprocesscollection = 0;
@@ -237,7 +238,13 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
     } 
 
     // set up rate distribution
-    ratedistribution = new bpp::ConstantRateDistribution(); // just a single rate
+    if (ngammarates == 1) {
+        ratedistribution = new bpp::ConstantRateDistribution(); 
+    } else if (ngammarates > 1) {
+        ratedistribution = new bpp::GammaDiscreteRateDistribution(ngammarates);
+    } else {
+        throw std::runtime_error("ngammrates must be integer >= 1");
+    }
 
     // compute likelihoods
     oldtreelikelihood = 0;
@@ -407,6 +414,9 @@ std::map<std::string, double> bppextensions::BppTreeLikelihood::ModelParams()
 {
     std::map<std::string, double> modelparametersmap;
     if (oldlikmethod) {
+        if (nrates > 1) {
+            modelparametersmap["Gamma.alpha"] = oldtreelikelihood->getParameters().getParameterValue("Gamma.alpha");
+        }
         models[sharedmodelindex]->matchParametersValues(oldtreelikelihood->getParameters());
         std::vector<std::string> modelparameters = models[sharedmodelindex]->getIndependentParameters().getParameterNames();
         for (std::vector<std::string>::size_type i = 0; i != modelparameters.size(); ++i) {
@@ -414,6 +424,9 @@ std::map<std::string, double> bppextensions::BppTreeLikelihood::ModelParams()
             modelparametersmap[parametername] = models[sharedmodelindex]->getIndependentParameters().getParameterValue(parametername);
         }
     } else {
+        if (nrates > 1) {
+            modelparametersmap["Gamma.alpha"] = phylolikelihood->getParameters().getParameterValue("Gamma.alpha_" + patch::to_string(sharedrateindex));
+        }
         std::vector<size_t> modelnumbers = substitutionprocesscollection->getModelNumbers();
         for (size_t i = 0; i < modelnumbers.size(); i++) {
             const bpp::SubstitutionModel& imodel = substitutionprocesscollection->getModel(modelnumbers[i]);
