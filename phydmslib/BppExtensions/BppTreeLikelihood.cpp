@@ -209,7 +209,12 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
             for (std::map<size_t, bpp::SubstitutionModel*>::iterator imodel_itr = models.begin(); imodel_itr != models.end(); ++imodel_itr) {
                 if (imodel_itr->second->hasParameter(itr->first)) {
                     imodel_itr->second->setParameterValue(itr->first, itr->second);
+                } else if (itr->first == "Gamma.alpha") {
+                    if (nrates <= 1) {
+                        throw std::runtime_error("You shouldn't have a Gamma.alpha parameter as you don't appear to have set the option for gamma distributed rates");
+                    }
                 } else {
+                    // note that Gamma.alpha is set in initialization of GammaDiscreteRateDistribution
                     throw std::runtime_error("Cannot find parameter in fixedmodelparams: " + itr->first);
                 }
             }
@@ -241,7 +246,11 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
     if (ngammarates == 1) {
         ratedistribution = new bpp::ConstantRateDistribution(); 
     } else if (ngammarates > 1) {
-        ratedistribution = new bpp::GammaDiscreteRateDistribution(ngammarates);
+        if (fixedmodelparams.find("Gamma.alpha") == fixedmodelparams.end()) {
+            ratedistribution = new bpp::GammaDiscreteRateDistribution(ngammarates);
+        } else {
+            ratedistribution = new bpp::GammaDiscreteRateDistribution(ngammarates, fixedmodelparams["Gamma.alpha"]);
+        }
     } else {
         throw std::runtime_error("ngammrates must be integer >= 1");
     }
