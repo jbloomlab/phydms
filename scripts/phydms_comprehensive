@@ -208,19 +208,21 @@ def main():
         additionalcmds += ['--dateseqs', args['dateseqs']]
     if args['fitF3X4']:
         yngkpadditionalcmds = ['--fitF3X4']
+        yngkp_nempirical = 0
     else:
         yngkpadditionalcmds = []
+        yngkp_nempirical = 9
     if not args['noomegabysite']:
         additionalcmds.append('--omegabysite')
         if args['omegabysite_fixsyn']:
             additionalcmds.append('--omegabysite_fixsyn')
         filesuffixlist.append('_omegabysite.txt')
     filesuffixes['YNGKP_M0'] = list(filesuffixlist)
-    models = {'YNGKP_M0':('YNGKP_M0', additionalcmds + yngkpadditionalcmds, 9)}
+    models = {'YNGKP_M0':('YNGKP_M0', additionalcmds + yngkpadditionalcmds, yngkp_nempirical)}
     for mvariant in args['yngkp']:
         mname = 'YNGKP_' + mvariant
         filesuffixes[mname] = list(filesuffixlist)
-        models[mname] = (mname, additionalcmds + yngkpadditionalcmds, 9)
+        models[mname] = (mname, additionalcmds + yngkpadditionalcmds, yngkp_nempirical)
     expcmadditionalcmds = list(additionalcmds)
     if not args['nostringencybysite']:
         expcmadditionalcmds += ['--stringencybysite'] 
