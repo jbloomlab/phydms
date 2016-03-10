@@ -1,2 +1,11 @@
 kappa = 2.354442
 omega = 0.063759
+1_Full.theta = 0.394277
+1_Full.theta1 = 0.514221
+1_Full.theta2 = 0.574322
+2_Full.theta = 0.468452
+2_Full.theta1 = 0.475058
+2_Full.theta2 = 0.372929
+3_Full.theta = 0.498604
+3_Full.theta1 = 0.462093
+3_Full.theta2 = 0.625406
