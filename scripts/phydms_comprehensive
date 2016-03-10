@@ -35,6 +35,8 @@ def FormattedModelParams(model, modelparamstext):
     """Returns nicely formatted model parameters from ``phydms`` output."""
     if 'Gamma.alpha' in modelparamstext:
         gammashape = ', gamma rates shape = {0:.2f}'.format(re.search('Gamma\.alpha = (\d+\.\d+)', modelparamstext).group(1))
+    else:
+        gammashape = ''
     if model == 'YNGKP_M0':
         kappa = float(re.search('kappa = (\d+\.\d+)', modelparamstext).group(1))
         omega = float(re.search('omega = (\d+\.\d+)', modelparamstext).group(1))
