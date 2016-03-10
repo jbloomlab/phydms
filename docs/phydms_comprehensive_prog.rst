@@ -56,7 +56,7 @@ Command-line usage
    \-\-yngkp
     In addition to the *YNGKP_M0* model (which is always used to optimize the initial tree), the program will also optimize any additional *YNGKP* model variants listed here. See the documentation for :ref:`phydms_prog` for more information about these model variants.
 
-    If you don't want to include any additional *YNGKP* models beyond *M0*, use ``--yngkp ""'.
+    If you don't want to include any additional *YNGKP* models beyond *M0*, use ``--yngkp ""``.
 
    \-\-randprefs
     As described in the documentation for ``phydms`` (see :ref:`phydms_prog`), there are two sensible controls when using an *ExpCM* model: averaging the preferences across sites or randomizing them across sites. By default, ``phydms_comprehensive`` performs the averaging control (this is the ``--avgprefs`` option to ``phydms``) but not the randomization control (this is the ``--randprefs`` option to ``phydms``). Use this option if you also want to include the ``--randprefs`` control.
