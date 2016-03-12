@@ -34,7 +34,7 @@ def RunCmds(cmds):
 def FormattedModelParams(model, modelparamstext):
     """Returns nicely formatted model parameters from ``phydms`` output."""
     if 'Gamma.alpha' in modelparamstext:
-        gammashape = ', gamma rates shape = {0:.2f}'.format(re.search('Gamma\.alpha = (\d+\.\d+)', modelparamstext).group(1))
+        gammashape = ', gamma rates shape = {0:.2f}'.format(float(re.search('Gamma\.alpha = (\d+\.\d+)', modelparamstext).group(1)))
     else:
         gammashape = ''
     if model == 'YNGKP_M0':
