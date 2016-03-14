@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>phydmslib package &mdash; phydms 1.1.0 documentation</title>
+    <title>phydmslib package &mdash; phydms 1.2.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.1.0',
+        VERSION:     '1.2.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.1.0 documentation" href="index.html" />
+    <link rel="top" title="phydms 1.2.0 documentation" href="index.html" />
     <link rel="up" title="The phydmslib API" href="api.html" />
     <link rel="next" title="Acknowledgments and citations" href="acknowledgments.html" />
     <link rel="prev" title="The phydmslib API" href="api.html" /> 
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="api.html" title="The phydmslib API"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">phydms 1.1.0 documentation</a> &raquo;</li>
+        <li><a href="index.html">phydms 1.2.0 documentation</a> &raquo;</li>
           <li><a href="api.html" accesskey="U">The <tt class="docutils literal"><span class="pre">phydmslib</span></tt> API</a> &raquo;</li> 
       </ul>
     </div>  
@@ -501,6 +501,17 @@ on the version of <tt class="docutils literal"><span class="pre">phydms</span></
 <dd><p>Returns <em>fname</em> if an existing file or <em>random</em> or <em>nj</em>, otherwise an error.</p>
 </dd></dl>
 
+<dl class="function">
+<dt id="phydmslib.parsearguments.YNGKPList">
+<tt class="descclassname">phydmslib.parsearguments.</tt><tt class="descname">YNGKPList</tt><big>(</big><em>modellist</em><big>)</big><a class="headerlink" href="#phydmslib.parsearguments.YNGKPList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns list of YNGKP model variants if <em>modellist</em> is valid.</p>
+<p>Removes <em>M0</em> if present.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">YNGKPList</span><span class="p">(</span><span class="s">&quot;M0,M3,M7&quot;</span><span class="p">)</span>
+<span class="go">[&#39;M3&#39;, &#39;M7&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </div>
 <div class="section" id="module-phydmslib.plot">
 <span id="phydmslib-plot-module"></span><h2>phydmslib.plot module<a class="headerlink" href="#module-phydmslib.plot" title="Permalink to this headline">¶</a></h2>
@@ -604,7 +615,7 @@ model parameters, optimizing branch lengths, and (for some models) optimizing
 tree topology.</p>
 <p>Objects are instantiated like this:</p>
 <blockquote>
-<div><em>bpptl = BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, fixedmodelparams, initializemodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, prefsasparams, recursion, useLog)</em></div></blockquote>
+<div><em>bpptl = BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, fixedmodelparams, initializemodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, prefsasparams, recursion, useLog, ngammarates)</em></div></blockquote>
 <p>where:</p>
 <blockquote>
 <div><ul>
@@ -631,6 +642,17 @@ to get the equilibrium codon frequencies. For <em>XX</em>, the options are:</p>
 <blockquote>
 <div><ul class="simple">
 <li><em>M0</em> is a single <span class="math">\(\omega\)</span> fit by maximum likelihood.</li>
+<li><em>M1</em> is an <span class="math">\(\omega &lt; 1\)</span> and an <span class="math">\(\omega = 1\)</span> with 
+proportions optimized. This is actually the <tt class="docutils literal"><span class="pre">M1a</span></tt> model
+in Wong et al, Genetics (2014) 
+(<a class="reference external" href="http://www.genetics.org/content/168/2/1041">http://www.genetics.org/content/168/2/1041</a>)
+rather than the original <tt class="docutils literal"><span class="pre">M1</span></tt> in Yang et al, 2000.</li>
+<li><em>M2</em> is an <span class="math">\(\omega &lt; 1\)</span>, an <span class="math">\(\omega = 1\)</span> , and
+an <span class="math">\(\omega &gt; 1\)</span> with 
+proportions optimized. This is actually the <tt class="docutils literal"><span class="pre">M2a</span></tt> model
+in Wong et al, Genetics (2014) 
+(<a class="reference external" href="http://www.genetics.org/content/168/2/1041">http://www.genetics.org/content/168/2/1041</a>)
+rather than the original <tt class="docutils literal"><span class="pre">M2</span></tt> in Yang et al, 2000.</li>
 <li><em>M3</em> is 3 discrete values of <span class="math">\(\omega\)</span> with weights and 
 values optimized by maximum likelihood.</li>
 <li><em>M7</em> is 3 discrete values of <span class="math">\(\omega\)</span> between 0 and 1 drawn from
@@ -691,6 +713,12 @@ or &#8216;D&#8217; (double).</p>
 </li>
 <li><p class="first"><em>useLog</em> is a Boolean switch specifying if we perform likelihood
 calculations using logarithms.</p>
+</li>
+<li><p class="first"><em>ngammarates</em> specifies if we use gamma distributed rates. It
+should be an integer &gt;= 1. If it is one, there is just one constant
+rate. If it is &gt;= 1, then we use discrete gamma-distributed rates
+drawn from this many categories, with the shape parameter
+estimated by maximum likelihood.</p>
 </li>
 </ul>
 </div></blockquote>
@@ -809,8 +837,8 @@ In this file, the branch lengths are now in units of elapsed time
 that match those provided in <em>datefile</em>. The is the <tt class="docutils literal"><span class="pre">.date.newick</span></tt>
 file produced by <tt class="docutils literal"><span class="pre">lsd</span></tt>.</li>
 </ul>
-<p>The return value of this function is a number giving the tMRCA (time
-to most recent common ancestor).</p>
+<p>The return value of this function is a number giving the date of the
+most recent common ancestor.</p>
 </dd></dl>
 
 </div>
@@ -906,7 +934,7 @@ have made a single point significant.</p>
         <li class="right" >
           <a href="api.html" title="The phydmslib API"
              >previous</a> |</li>
-        <li><a href="index.html">phydms 1.1.0 documentation</a> &raquo;</li>
+        <li><a href="index.html">phydms 1.2.0 documentation</a> &raquo;</li>
           <li><a href="api.html" >The <tt class="docutils literal"><span class="pre">phydmslib</span></tt> API</a> &raquo;</li> 
       </ul>
     </div>

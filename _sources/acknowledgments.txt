@@ -6,7 +6,7 @@ Acknowledgments and citations
 
 Acknowledgments
 -----------------
-`phydms`_ is written by `Jesse Bloom`_.
+`phydms`_ is written by the `Bloom lab`_ (see https://github.com/jbloomlab/phydms/graphs/contributors for all contributors).
 
 `phydms`_ is completely reliant on the `Bio++`_ libraries; thanks to `Julien Dutheil`_ and `Laurent Gueguen`_ for developing these libraries and assisting in their use.
 
@@ -32,7 +32,7 @@ If you use ``phydms_plotselection`` to create a figure for your paper, please al
 
 If you use the optional dating of nodes in the phylogeny, you should also cite the `LSD`_ program, which is wrapped within `phydms`_ to perform the dating. The reference for `LSD`_ is:
 
-    * `To et al, Systematic Biology, doi 10.1093/sysbio/syv068`_
+    * `To et al, Systematic Biology, 65:82-97`_
 
 Finally, if you use `dms_tools`_ to process your deep mutational scanning data before feeding it into `phydms`_, please cite:
 
