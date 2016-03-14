@@ -30,6 +30,12 @@ This script runs ``phydms_comprehensive`` to compare models and infer site-speci
 
 This data set is similar to the one used in `Bloom 2015`_.
 
+Testing the ``phydms`` inferences on HIV Env
+----------------------------------------------
+To test ``phydms`` on a small set of clade B env genes (``env_alignment.fasta``) using unpublished preferences from Hugh Haddox in the Bloom lab, use::
+
+    python run_envtest.py
+
 
 .. _`Doud et al (2015)`: https://dx.doi.org/10.1093/molbev/msv167
 .. _`Kitzman et al (2014)`: http://www.nature.com/nmeth/journal/v12/n3/full/nmeth.3223.html
