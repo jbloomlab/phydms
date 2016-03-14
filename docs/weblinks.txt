@@ -1,9 +1,9 @@
 .. _`Bio++`: http://biopp.univ-montp2.fr/wiki/index.php/Main_Page
 .. _`Python`: https://www.python.org
-.. _`dms_tools`: http://jbloom.github.io/dms_tools
-.. _`dms_tools source code`: https://github.com/jbloom/dms_tools
-.. _`preferences file format`: http://jbloom.github.io/dms_tools/fileformats.html#preferences-file
-.. _`differential preferences file format`: http://jbloom.github.io/dms_tools/fileformats.html#differential-preferences-file
+.. _`dms_tools`: http://jbloomlab.github.io/dms_tools
+.. _`dms_tools source code`: https://github.com/jbloomlab/dms_tools
+.. _`preferences file format`: http://jbloomlab.github.io/dms_tools/fileformats.html#preferences-file
+.. _`differential preferences file format`: http://jbloomlab.github.io/dms_tools/fileformats.html#differential-preferences-file
 .. _`PyStan`: http://pystan.readthedocs.org/en/latest/
 .. _`GelmanRubin1992`: http://www.jstor.org/stable/2246093
 .. _`Kronecker delta`: http://en.wikipedia.org/wiki/Kronecker_delta
@@ -14,6 +14,7 @@
 .. _`weblogo`: https://code.google.com/p/weblogo/
 .. _`reference for weblogo`: http://genome.cshlp.org/content/14/6/1188
 .. _`Jesse Bloom`: http://labs.fhcrc.org/bloom
+.. _`Bloom lab`: http://labs.fhcrc.org/bloom
 .. _`GPL-compatible`: https://www.gnu.org/licenses/license-list.html#GPLCompatibleLicenses
 .. _`pip`: https://pypi.python.org/pypi/pip
 .. _`Python convention for local installation`: https://www.python.org/dev/peps/pep-0370/
@@ -26,8 +27,8 @@
 .. _`cython`: http://cython.org/
 .. _`weblogolib`: https://code.google.com/p/weblogo/
 .. _`PyPDF2`: https://pypi.python.org/pypi/PyPDF2
-.. _`phydms`: http://jbloom.github.io/phydms
-.. _`phydms source code`: https://github.com/jbloom/phydms
+.. _`phydms`: http://jbloomlab.github.io/phydms
+.. _`phydms source code`: https://github.com/jbloomlab/phydms
 .. _`Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`: http://www.genetics.org/content/155/1/431
 .. _`Wong et al, Genetics, 168:1041-1051`: http://www.genetics.org/content/168/2/1041
 .. _`Bloom, Mol Biol Evol, 31:2753-2769`: http://mbe.oxfordjournals.org/content/31/10/2753

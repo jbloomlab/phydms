@@ -15,6 +15,10 @@ Changelog
 
 * Added ``--gammarates`` option to ``phydms`` and ``phydms_comprehensive``.
 
+* Added env test to ``./tests/``
+
+* Changed source code and docs url from *jbloom* to *jbloomlab* account on ``GitHub``.
+
 1.1.0
 -----------
 * Updated to newest versions of ``Bio++``

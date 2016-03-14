@@ -6,7 +6,7 @@ Acknowledgments and citations
 
 Acknowledgments
 -----------------
-`phydms`_ is written by `Jesse Bloom`_.
+`phydms`_ is written by the `Bloom lab`_ (see https://github.com/jbloomlab/phydms/graphs/contributors for all contributors).
 
 `phydms`_ is completely reliant on the `Bio++`_ libraries; thanks to `Julien Dutheil`_ and `Laurent Gueguen`_ for developing these libraries and assisting in their use.
 

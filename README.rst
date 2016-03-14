@@ -12,8 +12,8 @@ The `phydms source code`_ is freely available under a `GPLv3`_ license (the `Bio
 
 .. _`Jesse Bloom`: http://research.fhcrc.org/bloom/en.html
 .. _`Bio++`: http://biopp.univ-montp2.fr/wiki/index.php/Main_Page
-.. _`phydms documentation`: http://jbloom.github.io/phydms/
-.. _`phydms source code`: https://github.com/jbloom/phydms
+.. _`phydms documentation`: http://jbloomlab.github.io/phydms/
+.. _`phydms source code`: https://github.com/jbloomlab/phydms
 .. _`Julien Dutheil`: http://kimura.univ-montp2.fr/jdutheil/CMS/index.php/
 .. _`Laurent Gueguen`: https://lbbe.univ-lyon1.fr/-Gueguen-Laurent-.html
 .. _`CeCILL`: http://www.cecill.info/licences.en.html
