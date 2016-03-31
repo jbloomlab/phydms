@@ -6,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>the phydms_plotselection program &mdash; phydms 1.2.0 documentation</title>
+    <title>the phydms_plotselection program &mdash; phydms 1.2.1 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.2.0',
+        VERSION:     '1.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,8 +23,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.2.0 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="phydms 1.2.1 documentation" href="index.html" />
     <link rel="up" title="auxiliary programs" href="auxiliary_progs.html" />
     <link rel="next" title="the phydms_analyzeselection program" href="phydms_analyzeselection_prog.html" />
     <link rel="prev" title="the phydms_comprehensive program" href="phydms_comprehensive_prog.html" /> 
@@ -45,8 +45,8 @@
         <li class="right" >
           <a href="phydms_comprehensive_prog.html" title="the phydms_comprehensive program"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">phydms 1.2.0 documentation</a> &raquo;</li>
-          <li><a href="auxiliary_progs.html" accesskey="U">auxiliary programs</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" accesskey="U">auxiliary programs</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -56,11 +56,11 @@
           <div class="body" role="main">
             
   <div class="section" id="the-phydms-plotselection-program">
-<span id="phydms-plotselection-prog"></span><h1><a class="toc-backref" href="#id1">the <tt class="docutils literal"><span class="pre">phydms_plotselection</span></tt> program</a><a class="headerlink" href="#the-phydms-plotselection-program" title="Permalink to this headline">¶</a></h1>
+<span id="phydms-plotselection-prog"></span><h1><a class="toc-backref" href="#id1">the <code class="docutils literal"><span class="pre">phydms_plotselection</span></code> program</a><a class="headerlink" href="#the-phydms-plotselection-program" title="Permalink to this headline">¶</a></h1>
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#the-phydms-plotselection-program" id="id1">the <tt class="docutils literal"><span class="pre">phydms_plotselection</span></tt> program</a><ul>
+<li><a class="reference internal" href="#the-phydms-plotselection-program" id="id1">the <code class="docutils literal"><span class="pre">phydms_plotselection</span></code> program</a><ul>
 <li><a class="reference internal" href="#overview" id="id2">Overview</a></li>
 <li><a class="reference internal" href="#command-line-usage" id="id3">Command-line usage</a></li>
 <li><a class="reference internal" href="#output-plot" id="id4">Output plot</a></li>
@@ -70,30 +70,30 @@
 </div>
 <div class="section" id="overview">
 <h2><a class="toc-backref" href="#id2">Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
-<p><tt class="docutils literal"><span class="pre">phydms_plotselection</span></tt> is a program that visually displays the site-specific selection inferred using <tt class="docutils literal"><span class="pre">phydms</span></tt> with an <em>ExpCM</em>. Specifically, it creates an <a class="reference internal" href="#output-plot">Output plot</a> that visualizes the following forms of selection:</p>
+<p><code class="docutils literal"><span class="pre">phydms_plotselection</span></code> is a program that visually displays the site-specific selection inferred using <code class="docutils literal"><span class="pre">phydms</span></code> with an <em>ExpCM</em>. Specifically, it creates an <a class="reference internal" href="#output-plot">Output plot</a> that visualizes the following forms of selection:</p>
 <blockquote>
 <div><ul class="simple">
-<li><em>differential selection</em> : this is the differential selection between natural evolution and the site-specific preferences for each amino acid at each site, as represented by the <span class="math">\(\Delta\pi_{r,a}\)</span> values described in <a class="reference internal" href="ExpCM.html#expcm"><em>Experimentally Informed Codon Models</em></a>.</li>
-<li><em>stringency by site</em> : this is the stringency with which natural evolution adheres to the site-specific preferences at each site, as represented by the <span class="math">\(\beta_r\)</span> values described in <a class="reference internal" href="ExpCM.html#expcm"><em>Experimentally Informed Codon Models</em></a>.</li>
-<li><em>omega by site</em> : this is the diversifying selection for nonsynonymous over synonymous change at each site, as represented by the <span class="math">\(\omega_r\)</span> values described in <a class="reference internal" href="ExpCM.html#expcm"><em>Experimentally Informed Codon Models</em></a>.</li>
+<li><em>differential selection</em> : this is the differential selection between natural evolution and the site-specific preferences for each amino acid at each site, as represented by the <span class="math">\(\Delta\pi_{r,a}\)</span> values described in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>.</li>
+<li><em>stringency by site</em> : this is the stringency with which natural evolution adheres to the site-specific preferences at each site, as represented by the <span class="math">\(\beta_r\)</span> values described in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>.</li>
+<li><em>omega by site</em> : this is the diversifying selection for nonsynonymous over synonymous change at each site, as represented by the <span class="math">\(\omega_r\)</span> values described in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>.</li>
 </ul>
 </div></blockquote>
-<p>You can run <tt class="docutils literal"><span class="pre">phydms_plotselection</span></tt> <strong>after</strong> you have used <tt class="docutils literal"><span class="pre">phydms</span></tt> (or <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt>) to infer the site-specific selection &#8211; <tt class="docutils literal"><span class="pre">phydms_plotselection</span></tt> requires that the output <tt class="docutils literal"><span class="pre">phydms</span></tt> files describing the site-specific selection already exist.</p>
-<p>If you need to change the site numbers from the sequential numbering in the <tt class="docutils literal"><span class="pre">phydms</span></tt> output, use <a class="reference internal" href="phydms_renumber_prog.html#phydms-renumber-prog"><em>the phydms_renumber program</em></a> to renumber this output before passing it to <tt class="docutils literal"><span class="pre">phydms_plotselection</span></tt>.</p>
-<p>The <a class="reference internal" href="#output-plot">Output plot</a> created by <tt class="docutils literal"><span class="pre">phydms_plotselection</span></tt> is created using <a class="reference external" href="http://matplotlib.org/">matplotlib</a> and the <a class="reference external" href="https://code.google.com/p/weblogo/">weblogolib</a> that comes with <a class="reference external" href="https://code.google.com/p/weblogo/">weblogo</a>.
-See below for information on <a class="reference internal" href="#command-line-usage">Command-line usage</a> for <tt class="docutils literal"><span class="pre">phydms_plotselection</span></tt>.</p>
+<p>You can run <code class="docutils literal"><span class="pre">phydms_plotselection</span></code> <strong>after</strong> you have used <code class="docutils literal"><span class="pre">phydms</span></code> (or <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code>) to infer the site-specific selection &#8211; <code class="docutils literal"><span class="pre">phydms_plotselection</span></code> requires that the output <code class="docutils literal"><span class="pre">phydms</span></code> files describing the site-specific selection already exist.</p>
+<p>If you need to change the site numbers from the sequential numbering in the <code class="docutils literal"><span class="pre">phydms</span></code> output, use <a class="reference internal" href="phydms_renumber_prog.html#phydms-renumber-prog"><span class="std std-ref">the phydms_renumber program</span></a> to renumber this output before passing it to <code class="docutils literal"><span class="pre">phydms_plotselection</span></code>.</p>
+<p>The <a class="reference internal" href="#output-plot">Output plot</a> created by <code class="docutils literal"><span class="pre">phydms_plotselection</span></code> is created using <a class="reference external" href="http://matplotlib.org/">matplotlib</a> and the <a class="reference external" href="https://code.google.com/p/weblogo/">weblogolib</a> that comes with <a class="reference external" href="https://code.google.com/p/weblogo/">weblogo</a>.
+See below for information on <a class="reference internal" href="#command-line-usage">Command-line usage</a> for <code class="docutils literal"><span class="pre">phydms_plotselection</span></code>.</p>
 </div>
 <div class="section" id="command-line-usage">
 <h2><a class="toc-backref" href="#id3">Command-line usage</a><a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
-<p>Visualization of site-specific selection inferred using &#8216;phydms&#8217; with an &#8216;ExpCM&#8217; model. The &#8216;phydms&#8217; package is written by Jesse D. Bloom; it performs likelihood calculations using the Bio++ libraries (thanks to Julien Dutheil and Laurent Gueguen). Version 1.dev2. Full documentation at http://jbloom.github.io/phydms</p>
-<pre class="literal-block">
-usage: phydms_plotselection [-h] [--omegabysite OMEGABYSITE]
-                            [--stringencybysite STRINGENCYBYSITE]
-                            [--nperline NPERLINE] [--numberevery NUMBEREVERY]
-                            [--diffprefheight DIFFPREFHEIGHT]
-                            [--updiffprefheight] [--minP MINP] [-v]
-                            diffprefsbysite plotfile
-</pre>
+<p>Visualization of site-specific selection inferred using &#8216;phydms&#8217; with an &#8216;ExpCM&#8217; model. The &#8216;phydms&#8217; package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a> for all contributors); it performs likelihood calculations using the Bio++ libraries (thanks to Julien Dutheil and Laurent Gueguen). Version 1.2.1. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">phydms_plotselection</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">omegabysite</span> <span class="n">OMEGABYSITE</span><span class="p">]</span>
+                            <span class="p">[</span><span class="o">--</span><span class="n">stringencybysite</span> <span class="n">STRINGENCYBYSITE</span><span class="p">]</span>
+                            <span class="p">[</span><span class="o">--</span><span class="n">nperline</span> <span class="n">NPERLINE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">numberevery</span> <span class="n">NUMBEREVERY</span><span class="p">]</span>
+                            <span class="p">[</span><span class="o">--</span><span class="n">diffprefheight</span> <span class="n">DIFFPREFHEIGHT</span><span class="p">]</span>
+                            <span class="p">[</span><span class="o">--</span><span class="n">updiffprefheight</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">minP</span> <span class="n">MINP</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span>
+                            <span class="n">diffprefsbysite</span> <span class="n">plotfile</span>
+</pre></div>
+</div>
 <dl class="docutils">
 <dt>Positional arguments:</dt>
 <dd><table class="first last docutils option-list" frame="void" rules="none">
@@ -137,18 +137,18 @@ usage: phydms_plotselection [-h] [--omegabysite OMEGABYSITE]
 <kbd><span class="option">--diffprefheight=1.0</span></kbd></td>
 </tr>
 <tr><td>&nbsp;</td><td><p class="first">Height of differential preferences logo stacks in each direction. If using &#8216;&#8211;updiffprefheight&#8217; then the height may be higher than this.</p>
-<p class="last">The logo stacks in the <a class="reference internal" href="#output-plot">Output plot</a> will have this height in both the positive and negative direction. You will get an error if the height of a logo stack exceeds this value. Note that the maximum possible differential preference logo stack height is 1 if the preferences are completely different between the natural evolution and those provided in the site-specific amino-acid preferences file. If you use <tt class="docutils literal"><span class="pre">--updiffprefheight</span></tt> then the logo stack height will be automatically increased (but <strong>never</strong> decreased) from the value specified here if necessary.</p>
+<p class="last">The logo stacks in the <a class="reference internal" href="#output-plot">Output plot</a> will have this height in both the positive and negative direction. You will get an error if the height of a logo stack exceeds this value. Note that the maximum possible differential preference logo stack height is 1 if the preferences are completely different between the natural evolution and those provided in the site-specific amino-acid preferences file. If you use <code class="docutils literal"><span class="pre">--updiffprefheight</span></code> then the logo stack height will be automatically increased (but <strong>never</strong> decreased) from the value specified here if necessary.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">--updiffprefheight=False</span></kbd></td>
 </tr>
 <tr><td>&nbsp;</td><td><p class="first">Automatically increase &#8216;&#8211;diffprefheight&#8217; to make it exceed max differential preferences.</p>
-<p class="last">Use this option if you want to automatically increase the logo stack height if the differential preferences at any site exceed <tt class="docutils literal"><span class="pre">--diffprefheight</span></tt>.</p>
+<p class="last">Use this option if you want to automatically increase the logo stack height if the differential preferences at any site exceed <code class="docutils literal"><span class="pre">--diffprefheight</span></code>.</p>
 </td></tr>
 <tr><td class="option-group">
 <kbd><span class="option">--minP=0.0001</span></kbd></td>
 <td><p class="first">Minimum plotted P-value for omega and stringency by site.</p>
-<p class="last">The overlays showing the stringency-by-site ratio and omega-by-site are colored by the <em>P</em>-value with which we can reject the null hypothesis that these quantities are equal to one. This coloring will span <em>P</em> values from 1 to <tt class="docutils literal"><span class="pre">--minP</span></tt>; any values less than <tt class="docutils literal"><span class="pre">--minP</span></tt> will be colored with the same color as <tt class="docutils literal"><span class="pre">--minP</span></tt>.</p>
+<p class="last">The overlays showing the stringency-by-site ratio and omega-by-site are colored by the <em>P</em>-value with which we can reject the null hypothesis that these quantities are equal to one. This coloring will span <em>P</em> values from 1 to <code class="docutils literal"><span class="pre">--minP</span></code>; any values less than <code class="docutils literal"><span class="pre">--minP</span></code> will be colored with the same color as <code class="docutils literal"><span class="pre">--minP</span></code>.</p>
 </td></tr>
 <tr><td class="option-group">
 <kbd><span class="option">-v</span>, <span class="option">--version</span></kbd></td>
@@ -160,7 +160,7 @@ usage: phydms_plotselection [-h] [--omegabysite OMEGABYSITE]
 </div>
 <div class="section" id="output-plot">
 <h2><a class="toc-backref" href="#id4">Output plot</a><a class="headerlink" href="#output-plot" title="Permalink to this headline">¶</a></h2>
-<p><tt class="docutils literal"><span class="pre">phydms_plotselection</span></tt> prints some basic information to the screen. But its primary output is a PDF plot that visualizes the differential selection. For each site, there is a logo stack with the height of each amino-acid single-letter code proportional to <span class="math">\(\Delta\pi_{r,a}\)</span>. In addition, if you are using <tt class="docutils literal"><span class="pre">--omegabysite</span></tt> or <tt class="docutils literal"><span class="pre">--stringencybysite</span></tt> there will be overlay bars that use colors to show the <em>P</em>-value with which we can reject the null hypothesis that <span class="math">\(\omega_r\)</span> and <span class="math">\(\beta_r / \beta\)</span> are not equal to one. These color bars indicate whether the fitted value of <span class="math">\(\omega_r\)</span> and <span class="math">\(\beta_r / \beta\)</span> are greater or less than one.</p>
+<p><code class="docutils literal"><span class="pre">phydms_plotselection</span></code> prints some basic information to the screen. But its primary output is a PDF plot that visualizes the differential selection. For each site, there is a logo stack with the height of each amino-acid single-letter code proportional to <span class="math">\(\Delta\pi_{r,a}\)</span>. In addition, if you are using <code class="docutils literal"><span class="pre">--omegabysite</span></code> or <code class="docutils literal"><span class="pre">--stringencybysite</span></code> there will be overlay bars that use colors to show the <em>P</em>-value with which we can reject the null hypothesis that <span class="math">\(\omega_r\)</span> and <span class="math">\(\beta_r / \beta\)</span> are not equal to one. These color bars indicate whether the fitted value of <span class="math">\(\omega_r\)</span> and <span class="math">\(\beta_r / \beta\)</span> are greater or less than one.</p>
 <p>Here is an example of a created plot:</p>
 <a class="reference internal image-reference" href="_images/example_phydms_plotselection_plot.pdf"><img alt="If your browser does not display inline PDF images, click on this text to open in a new window." class="align-center" src="_images/example_phydms_plotselection_plot.pdf" style="width: 85%;" /></a>
 </div>
@@ -174,7 +174,7 @@ usage: phydms_plotselection [-h] [--omegabysite OMEGABYSITE]
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">the <tt class="docutils literal"><span class="pre">phydms_plotselection</span></tt> program</a><ul>
+<li><a class="reference internal" href="#">the <code class="docutils literal"><span class="pre">phydms_plotselection</span></code> program</a><ul>
 <li><a class="reference internal" href="#overview">Overview</a></li>
 <li><a class="reference internal" href="#command-line-usage">Command-line usage</a></li>
 <li><a class="reference internal" href="#output-plot">Output plot</a></li>
@@ -184,10 +184,10 @@ usage: phydms_plotselection [-h] [--omegabysite OMEGABYSITE]
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="phydms_comprehensive_prog.html"
-                        title="previous chapter">the <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> program</a></p>
+                        title="previous chapter">the <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> program</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="phydms_analyzeselection_prog.html"
-                        title="next chapter">the <tt class="docutils literal"><span class="pre">phydms_analyzeselection</span></tt> program</a></p>
+                        title="next chapter">the <code class="docutils literal"><span class="pre">phydms_analyzeselection</span></code> program</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -203,9 +203,6 @@ usage: phydms_plotselection [-h] [--omegabysite OMEGABYSITE]
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -227,13 +224,13 @@ usage: phydms_plotselection [-h] [--omegabysite OMEGABYSITE]
         <li class="right" >
           <a href="phydms_comprehensive_prog.html" title="the phydms_comprehensive program"
              >previous</a> |</li>
-        <li><a href="index.html">phydms 1.2.0 documentation</a> &raquo;</li>
-          <li><a href="auxiliary_progs.html" >auxiliary programs</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" >auxiliary programs</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3a0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.
     </div>
   </body>
 </html>

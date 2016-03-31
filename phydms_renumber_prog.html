@@ -6,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>the phydms_renumber program &mdash; phydms 1.2.0 documentation</title>
+    <title>the phydms_renumber program &mdash; phydms 1.2.1 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.2.0',
+        VERSION:     '1.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,8 +23,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.2.0 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="phydms 1.2.1 documentation" href="index.html" />
     <link rel="up" title="auxiliary programs" href="auxiliary_progs.html" />
     <link rel="next" title="Experimentally Informed Codon Models" href="ExpCM.html" />
     <link rel="prev" title="the phydms_analyzeselection program" href="phydms_analyzeselection_prog.html" /> 
@@ -45,8 +45,8 @@
         <li class="right" >
           <a href="phydms_analyzeselection_prog.html" title="the phydms_analyzeselection program"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">phydms 1.2.0 documentation</a> &raquo;</li>
-          <li><a href="auxiliary_progs.html" accesskey="U">auxiliary programs</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" accesskey="U">auxiliary programs</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -56,11 +56,11 @@
           <div class="body" role="main">
             
   <div class="section" id="the-phydms-renumber-program">
-<span id="phydms-renumber-prog"></span><h1><a class="toc-backref" href="#id1">the <tt class="docutils literal"><span class="pre">phydms_renumber</span></tt> program</a><a class="headerlink" href="#the-phydms-renumber-program" title="Permalink to this headline">¶</a></h1>
+<span id="phydms-renumber-prog"></span><h1><a class="toc-backref" href="#id1">the <code class="docutils literal"><span class="pre">phydms_renumber</span></code> program</a><a class="headerlink" href="#the-phydms-renumber-program" title="Permalink to this headline">¶</a></h1>
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#the-phydms-renumber-program" id="id1">the <tt class="docutils literal"><span class="pre">phydms_renumber</span></tt> program</a><ul>
+<li><a class="reference internal" href="#the-phydms-renumber-program" id="id1">the <code class="docutils literal"><span class="pre">phydms_renumber</span></code> program</a><ul>
 <li><a class="reference internal" href="#overview" id="id2">Overview</a></li>
 <li><a class="reference internal" href="#command-line-usage" id="id3">Command-line usage</a></li>
 </ul>
@@ -69,23 +69,23 @@
 </div>
 <div class="section" id="overview">
 <h2><a class="toc-backref" href="#id2">Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
-<p><tt class="docutils literal"><span class="pre">phydms_renumber</span></tt> is a very simple program that can be used to renumber sites after analyses with <tt class="docutils literal"><span class="pre">phydms</span></tt>.</p>
-<p>This program will be useful for proteins for which the commonly used numbering scheme does <strong>not</strong> correspond with the sequential numbering output by <tt class="docutils literal"><span class="pre">phydms</span></tt>. Specifically, <tt class="docutils literal"><span class="pre">phydms</span></tt> always outputs site numbers going 1, 2, ... for the sites in the alignment that it is provided. But for many proteins, there are common numbering schemes that might not correspond to this. If you provide this alternative numbering scheme to <tt class="docutils literal"><span class="pre">phydms_renumber</span></tt> as <tt class="docutils literal"><span class="pre">renumberfile</span></tt>, it will renumber the by-site output files of <tt class="docutils literal"><span class="pre">phydms</span></tt>. These are:</p>
+<p><code class="docutils literal"><span class="pre">phydms_renumber</span></code> is a very simple program that can be used to renumber sites after analyses with <code class="docutils literal"><span class="pre">phydms</span></code>.</p>
+<p>This program will be useful for proteins for which the commonly used numbering scheme does <strong>not</strong> correspond with the sequential numbering output by <code class="docutils literal"><span class="pre">phydms</span></code>. Specifically, <code class="docutils literal"><span class="pre">phydms</span></code> always outputs site numbers going 1, 2, ... for the sites in the alignment that it is provided. But for many proteins, there are common numbering schemes that might not correspond to this. If you provide this alternative numbering scheme to <code class="docutils literal"><span class="pre">phydms_renumber</span></code> as <code class="docutils literal"><span class="pre">renumberfile</span></code>, it will renumber the by-site output files of <code class="docutils literal"><span class="pre">phydms</span></code>. These are:</p>
 <blockquote>
 <div><ul class="simple">
-<li><tt class="docutils literal"><span class="pre">*_omegabysite.txt</span></tt> (if using <tt class="docutils literal"><span class="pre">--omegabysite</span></tt>)</li>
-<li><tt class="docutils literal"><span class="pre">*_stringencybysite.txt</span></tt> (if using <tt class="docutils literal"><span class="pre">--stringencybysite</span></tt>)</li>
-<li><tt class="docutils literal"><span class="pre">*_diffprefsbysite.txt</span></tt> and <tt class="docutils literal"><span class="pre">*_diffprefsbysite_sumabs.txt</span></tt> (if using <tt class="docutils literal"><span class="pre">--diffprefsbysite</span></tt>)</li>
+<li><code class="docutils literal"><span class="pre">*_omegabysite.txt</span></code> (if using <code class="docutils literal"><span class="pre">--omegabysite</span></code>)</li>
+<li><code class="docutils literal"><span class="pre">*_stringencybysite.txt</span></code> (if using <code class="docutils literal"><span class="pre">--stringencybysite</span></code>)</li>
+<li><code class="docutils literal"><span class="pre">*_diffprefsbysite.txt</span></code> and <code class="docutils literal"><span class="pre">*_diffprefsbysite_sumabs.txt</span></code> (if using <code class="docutils literal"><span class="pre">--diffprefsbysite</span></code>)</li>
 </ul>
 </div></blockquote>
 </div>
 <div class="section" id="command-line-usage">
 <h2><a class="toc-backref" href="#id3">Command-line usage</a><a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
-<p>Renumber by-site output files from &#8216;phydms&#8217;. The &#8216;phydms&#8217; package is written by Jesse D. Bloom; it performs likelihood calculations using the Bio++ libraries (thanks to Julien Dutheil and Laurent Gueguen). Version 1.dev2. Full documentation at http://jbloom.github.io/phydms</p>
-<pre class="literal-block">
-usage: phydms_renumber [-h] [--renumberedprefix RENUMBEREDPREFIX]
-                       renumberfile outprefixes [outprefixes ...]
-</pre>
+<p>Renumber by-site output files from &#8216;phydms&#8217;. The &#8216;phydms&#8217; package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a> for all contributors); it performs likelihood calculations using the Bio++ libraries (thanks to Julien Dutheil and Laurent Gueguen). Version 1.2.1. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">phydms_renumber</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">renumberedprefix</span> <span class="n">RENUMBEREDPREFIX</span><span class="p">]</span>
+                       <span class="n">renumberfile</span> <span class="n">outprefixes</span> <span class="p">[</span><span class="n">outprefixes</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
 <dl class="docutils">
 <dt>Positional arguments:</dt>
 <dd><table class="first last docutils option-list" frame="void" rules="none">
@@ -96,20 +96,20 @@ usage: phydms_renumber [-h] [--renumberedprefix RENUMBEREDPREFIX]
 <kbd>renumberfile</kbd></td>
 <td><p class="first">Column 1 lists current number for a site; column 2 gives new number. Put &#8216;None&#8217; in column 2 if you want a site excluded from renumbered output. Lines beginning with &#8216;#&#8217; are ignored.</p>
 <p>Site numbers do not have to be purely numerical. Here is an example file:</p>
-<div class="highlight-python"><div class="highlight"><pre>1 17
-2 18
-3 18A
-4 19
-5 20
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">1</span> <span class="mi">17</span>
+<span class="mi">2</span> <span class="mi">18</span>
+<span class="mi">3</span> <span class="mi">18</span><span class="n">A</span>
+<span class="mi">4</span> <span class="mi">19</span>
+<span class="mi">5</span> <span class="mi">20</span>
 </pre></div>
 </div>
-<p>Note that a new site number must be specified for <strong>every</strong> site in each file to renumber, even if that new number just matches the old one. Similarly, every site listed in this <tt class="docutils literal"><span class="pre">renumberfile</span></tt> must be present in the files to be renumbered.</p>
+<p>Note that a new site number must be specified for <strong>every</strong> site in each file to renumber, even if that new number just matches the old one. Similarly, every site listed in this <code class="docutils literal"><span class="pre">renumberfile</span></code> must be present in the files to be renumbered.</p>
 <p>If you don&#8217;t want to include a site in the output, indicate <em>None</em> for the new number, as in:</p>
-<div class="last highlight-python"><div class="highlight"><pre>1 None
-2 None
-3 18A
-4 19
-5 20
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="mi">1</span> <span class="kc">None</span>
+<span class="mi">2</span> <span class="kc">None</span>
+<span class="mi">3</span> <span class="mi">18</span><span class="n">A</span>
+<span class="mi">4</span> <span class="mi">19</span>
+<span class="mi">5</span> <span class="mi">20</span>
 </pre></div>
 </div>
 </td></tr>
@@ -128,7 +128,7 @@ usage: phydms_renumber [-h] [--renumberedprefix RENUMBEREDPREFIX]
 <kbd><span class="option">--renumberedprefix=renumbered</span></kbd></td>
 </tr>
 <tr><td>&nbsp;</td><td><p class="first">Add this prefix followed by underscore to names of renumbered files.</p>
-<p class="last">If <tt class="docutils literal"><span class="pre">--renumberedprefix</span></tt> is <em>renumbered</em>, then the file <tt class="docutils literal"><span class="pre">ExpCM_omegabysite.txt</span></tt> will be renumbered in the newly created file <tt class="docutils literal"><span class="pre">renumbered_ExpCM_omegabysite.txt</span></tt>. The file <tt class="docutils literal"><span class="pre">mydirectory/ExpCM_omegabysite.txt</span></tt> will be renumbered into <tt class="docutils literal"><span class="pre">mydirectory/renumbered_omegabysite.txt</span></tt>.</p>
+<p class="last">If <code class="docutils literal"><span class="pre">--renumberedprefix</span></code> is <em>renumbered</em>, then the file <code class="docutils literal"><span class="pre">ExpCM_omegabysite.txt</span></code> will be renumbered in the newly created file <code class="docutils literal"><span class="pre">renumbered_ExpCM_omegabysite.txt</span></code>. The file <code class="docutils literal"><span class="pre">mydirectory/ExpCM_omegabysite.txt</span></code> will be renumbered into <code class="docutils literal"><span class="pre">mydirectory/renumbered_omegabysite.txt</span></code>.</p>
 </td></tr>
 </tbody>
 </table>
@@ -145,7 +145,7 @@ usage: phydms_renumber [-h] [--renumberedprefix RENUMBEREDPREFIX]
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">the <tt class="docutils literal"><span class="pre">phydms_renumber</span></tt> program</a><ul>
+<li><a class="reference internal" href="#">the <code class="docutils literal"><span class="pre">phydms_renumber</span></code> program</a><ul>
 <li><a class="reference internal" href="#overview">Overview</a></li>
 <li><a class="reference internal" href="#command-line-usage">Command-line usage</a></li>
 </ul>
@@ -154,7 +154,7 @@ usage: phydms_renumber [-h] [--renumberedprefix RENUMBEREDPREFIX]
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="phydms_analyzeselection_prog.html"
-                        title="previous chapter">the <tt class="docutils literal"><span class="pre">phydms_analyzeselection</span></tt> program</a></p>
+                        title="previous chapter">the <code class="docutils literal"><span class="pre">phydms_analyzeselection</span></code> program</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="ExpCM.html"
                         title="next chapter"><strong>Exp</strong>erimentally Informed <strong>C</strong>odon <strong>M</strong>odels</a></p>
@@ -173,9 +173,6 @@ usage: phydms_renumber [-h] [--renumberedprefix RENUMBEREDPREFIX]
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -197,13 +194,13 @@ usage: phydms_renumber [-h] [--renumberedprefix RENUMBEREDPREFIX]
         <li class="right" >
           <a href="phydms_analyzeselection_prog.html" title="the phydms_analyzeselection program"
              >previous</a> |</li>
-        <li><a href="index.html">phydms 1.2.0 documentation</a> &raquo;</li>
-          <li><a href="auxiliary_progs.html" >auxiliary programs</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" >auxiliary programs</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3a0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.
     </div>
   </body>
 </html>

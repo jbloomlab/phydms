@@ -6,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>the phydms_comprehensive program &mdash; phydms 1.2.0 documentation</title>
+    <title>the phydms_comprehensive program &mdash; phydms 1.2.1 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.2.0',
+        VERSION:     '1.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,8 +23,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.2.0 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="phydms 1.2.1 documentation" href="index.html" />
     <link rel="up" title="auxiliary programs" href="auxiliary_progs.html" />
     <link rel="next" title="the phydms_plotselection program" href="phydms_plotselection_prog.html" />
     <link rel="prev" title="auxiliary programs" href="auxiliary_progs.html" /> 
@@ -45,8 +45,8 @@
         <li class="right" >
           <a href="auxiliary_progs.html" title="auxiliary programs"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">phydms 1.2.0 documentation</a> &raquo;</li>
-          <li><a href="auxiliary_progs.html" accesskey="U">auxiliary programs</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" accesskey="U">auxiliary programs</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -56,17 +56,17 @@
           <div class="body" role="main">
             
   <div class="section" id="the-phydms-comprehensive-program">
-<span id="phydms-comprehensive-prog"></span><h1><a class="toc-backref" href="#id1">the <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> program</a><a class="headerlink" href="#the-phydms-comprehensive-program" title="Permalink to this headline">¶</a></h1>
+<span id="phydms-comprehensive-prog"></span><h1><a class="toc-backref" href="#id1">the <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> program</a><a class="headerlink" href="#the-phydms-comprehensive-program" title="Permalink to this headline">¶</a></h1>
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#the-phydms-comprehensive-program" id="id1">the <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> program</a><ul>
+<li><a class="reference internal" href="#the-phydms-comprehensive-program" id="id1">the <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> program</a><ul>
 <li><a class="reference internal" href="#overview" id="id2">Overview</a></li>
 <li><a class="reference internal" href="#command-line-usage" id="id3">Command-line usage</a></li>
 <li><a class="reference internal" href="#output-files" id="id4">Output files</a><ul>
 <li><a class="reference internal" href="#log-file" id="id5">Log file</a></li>
 <li><a class="reference internal" href="#model-comparison-file" id="id6">Model comparison file</a></li>
-<li><a class="reference internal" href="#phydms-output-for-each-model" id="id7"><tt class="docutils literal"><span class="pre">phydms</span></tt> output for each model</a></li>
+<li><a class="reference internal" href="#phydms-output-for-each-model" id="id7"><code class="docutils literal"><span class="pre">phydms</span></code> output for each model</a></li>
 </ul>
 </li>
 </ul>
@@ -75,26 +75,26 @@
 </div>
 <div class="section" id="overview">
 <h2><a class="toc-backref" href="#id2">Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
-<p><tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> is a program that simplifies usage of <tt class="docutils literal"><span class="pre">phydms</span></tt> for standard analyses. Essentially, <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> runs <tt class="docutils literal"><span class="pre">phydms</span></tt> for several different models to enable model comparisons and identify selection.</p>
-<p>In its simplest usage, you simply provide <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> with an alignment and one or more files giving site-specific amino-acid preferences. The program then first uses <tt class="docutils literal"><span class="pre">phydms</span></tt> to infer a tree under the <em>YNGKP_M0</em> model (starting from a crude neighbor-joining tree), and then for each set of site-specific amino-acid preferences optimizes this tree (with fixed topology) for an <em>ExpCM</em> and a control <em>ExpCM</em> with the preferences averaged across sites (the <tt class="docutils literal"><span class="pre">phydms</span></tt> option <tt class="docutils literal"><span class="pre">--avgprefs</span></tt>). The program also optimizes the tree using the <em>YNGKP_M8</em> model. For all models, it detects site-specific selection. It also creates a simple summary that enables comparison among the models.</p>
-<p>If this program hangs up on the initial inference of the tree with <em>YNGKP_M0</em>, then infer a tree using another tree-building program such as <a class="reference external" href="http://sourceforge.net/projects/codonphyml/">codonPhyML</a> and then pass that via the <tt class="docutils literal"><span class="pre">--treetopology</span></tt> option.</p>
-<p>You could get all of this output by simply running <tt class="docutils literal"><span class="pre">phydms</span></tt> repeatedly, but using <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> automates this process for you.</p>
+<p><code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> is a program that simplifies usage of <code class="docutils literal"><span class="pre">phydms</span></code> for standard analyses. Essentially, <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> runs <code class="docutils literal"><span class="pre">phydms</span></code> for several different models to enable model comparisons and identify selection.</p>
+<p>In its simplest usage, you simply provide <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> with an alignment and one or more files giving site-specific amino-acid preferences. The program then first uses <code class="docutils literal"><span class="pre">phydms</span></code> to infer a tree under the <em>YNGKP_M0</em> model (starting from a crude neighbor-joining tree), and then for each set of site-specific amino-acid preferences optimizes this tree (with fixed topology) for an <em>ExpCM</em> and a control <em>ExpCM</em> with the preferences averaged across sites (the <code class="docutils literal"><span class="pre">phydms</span></code> option <code class="docutils literal"><span class="pre">--avgprefs</span></code>). The program also optimizes the tree using the <em>YNGKP_M8</em> model. For all models, it detects site-specific selection. It also creates a simple summary that enables comparison among the models.</p>
+<p>If this program hangs up on the initial inference of the tree with <em>YNGKP_M0</em>, then infer a tree using another tree-building program such as <a class="reference external" href="http://sourceforge.net/projects/codonphyml/">codonPhyML</a> and then pass that via the <code class="docutils literal"><span class="pre">--treetopology</span></code> option.</p>
+<p>You could get all of this output by simply running <code class="docutils literal"><span class="pre">phydms</span></code> repeatedly, but using <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> automates this process for you.</p>
 <p>See below for information on <a class="reference internal" href="#command-line-usage">Command-line usage</a> and <a class="reference internal" href="#output-files">Output files</a>.</p>
 </div>
 <div class="section" id="command-line-usage">
 <h2><a class="toc-backref" href="#id3">Command-line usage</a><a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
-<p>Comprehensive phylogenetic model comparison and detection of selection using deep mutational scanning data. This program runs &#8216;phydms&#8217; to infer a tree topology, then compare substitution models, then detect selection at each site. The &#8216;phydms&#8217; package is written by Jesse D. Bloom; it performs likelihood calculations using the Bio++ libraries (thanks to Julien Dutheil and Laurent Gueguen). Version 1.dev2. Full documentation at http://jbloom.github.io/phydms</p>
-<pre class="literal-block">
-usage: phydms_comprehensive [-h] [--treetopology TREETOPOLOGY] [--ncpus NCPUS]
-                            [--no-omegabysite] [--no-stringencybysite]
-                            [--no-diffprefsbysite] [--no-avgprefs]
-                            [--dateseqs DATESEQS] [--gammarates]
-                            [--avgrandcontrol AVGRANDCONTROL]
-                            [--omegabysite_fixsyn] [--useLog] [--yngkp YNGKP]
-                            [--diffprefconc C1 C2] [--randprefs] [--fitF3X4]
-                            [--use_existing] [-v]
-                            outprefix alignment prefsfiles [prefsfiles ...]
-</pre>
+<p>Comprehensive phylogenetic model comparison and detection of selection using deep mutational scanning data. This program runs &#8216;phydms&#8217; to infer a tree topology, then compare substitution models, then detect selection at each site. The &#8216;phydms&#8217; package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a> for all contributors); it performs likelihood calculations using the Bio++ libraries (thanks to Julien Dutheil and Laurent Gueguen). Version 1.2.1. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">phydms_comprehensive</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">treetopology</span> <span class="n">TREETOPOLOGY</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ncpus</span> <span class="n">NCPUS</span><span class="p">]</span>
+                            <span class="p">[</span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">omegabysite</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">stringencybysite</span><span class="p">]</span>
+                            <span class="p">[</span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">diffprefsbysite</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">avgprefs</span><span class="p">]</span>
+                            <span class="p">[</span><span class="o">--</span><span class="n">dateseqs</span> <span class="n">DATESEQS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">gammarates</span><span class="p">]</span>
+                            <span class="p">[</span><span class="o">--</span><span class="n">avgrandcontrol</span> <span class="n">AVGRANDCONTROL</span><span class="p">]</span>
+                            <span class="p">[</span><span class="o">--</span><span class="n">omegabysite_fixsyn</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">useLog</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">yngkp</span> <span class="n">YNGKP</span><span class="p">]</span>
+                            <span class="p">[</span><span class="o">--</span><span class="n">diffprefconc</span> <span class="n">C1</span> <span class="n">C2</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">randprefs</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fitF3X4</span><span class="p">]</span>
+                            <span class="p">[</span><span class="o">--</span><span class="n">use_existing</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span>
+                            <span class="n">outprefix</span> <span class="n">alignment</span> <span class="n">prefsfiles</span> <span class="p">[</span><span class="n">prefsfiles</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
 <dl class="docutils">
 <dt>Positional arguments:</dt>
 <dd><table class="first last docutils option-list" frame="void" rules="none">
@@ -104,17 +104,17 @@ usage: phydms_comprehensive [-h] [--treetopology TREETOPOLOGY] [--ncpus NCPUS]
 <tr><td class="option-group">
 <kbd>outprefix</kbd></td>
 <td><p class="first">Prefix for output files.</p>
-<p class="last">This prefix can be a directory name (e.g. <tt class="docutils literal"><span class="pre">my_directory/</span></tt>) if you want to create a new directory. See <a class="reference internal" href="#output-files">Output files</a> for a description of the created files.</p>
+<p class="last">This prefix can be a directory name (e.g. <code class="docutils literal"><span class="pre">my_directory/</span></code>) if you want to create a new directory. See <a class="reference internal" href="#output-files">Output files</a> for a description of the created files.</p>
 </td></tr>
 <tr><td class="option-group">
 <kbd>alignment</kbd></td>
 <td><p class="first">Existing FASTA file with aligned codon sequences.</p>
-<p class="last">The alignment must meet the same specifications described in the <tt class="docutils literal"><span class="pre">phydms</span></tt> documentation for the argument of the same name (see <a class="reference internal" href="phydms_prog.html#phydms-prog"><em>the phydms program</em></a>).</p>
+<p class="last">The alignment must meet the same specifications described in the <code class="docutils literal"><span class="pre">phydms</span></code> documentation for the argument of the same name (see <a class="reference internal" href="phydms_prog.html#phydms-prog"><span class="std std-ref">the phydms program</span></a>).</p>
 </td></tr>
 <tr><td class="option-group">
 <kbd>prefsfiles</kbd></td>
 <td><p class="first">Existing files with site-specific amino-acid preferences.</p>
-<p class="last">Provide the name of one or more files giving site-specific amino-acid preferences. These files should meet the same specifications described in the <tt class="docutils literal"><span class="pre">phydms</span></tt> documentation for the <em>prefsfile</em> that should accompany an <em>ExpCM</em> (see <a class="reference internal" href="phydms_prog.html#phydms-prog"><em>the phydms program</em></a>).</p>
+<p class="last">Provide the name of one or more files giving site-specific amino-acid preferences. These files should meet the same specifications described in the <code class="docutils literal"><span class="pre">phydms</span></code> documentation for the <em>prefsfile</em> that should accompany an <em>ExpCM</em> (see <a class="reference internal" href="phydms_prog.html#phydms-prog"><span class="std std-ref">the phydms program</span></a>).</p>
 </td></tr>
 </tbody>
 </table>
@@ -127,7 +127,7 @@ usage: phydms_comprehensive [-h] [--treetopology TREETOPOLOGY] [--ncpus NCPUS]
 <tr><td class="option-group">
 <kbd><span class="option">--treetopology</span></kbd></td>
 <td><p class="first">Fix tree to this Newick topology.</p>
-<p class="last">By default, <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> uses <tt class="docutils literal"><span class="pre">phydms</span></tt> to infer a tree topology under the <em>YNGKP_M0</em> model starting from a crude neighbor-joining tree. If you want to instead fix the tree to some existing topology, use this argument and provide the name of a file giving a valid tree in Newick format.</p>
+<p class="last">By default, <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> uses <code class="docutils literal"><span class="pre">phydms</span></code> to infer a tree topology under the <em>YNGKP_M0</em> model starting from a crude neighbor-joining tree. If you want to instead fix the tree to some existing topology, use this argument and provide the name of a file giving a valid tree in Newick format.</p>
 </td></tr>
 <tr><td class="option-group">
 <kbd><span class="option">--ncpus=-1</span></kbd></td>
@@ -136,25 +136,25 @@ usage: phydms_comprehensive [-h] [--treetopology TREETOPOLOGY] [--ncpus NCPUS]
 <kbd><span class="option">--no-omegabysite=False</span></kbd></td>
 </tr>
 <tr><td>&nbsp;</td><td><p class="first">No fitting of site-specific omegas.</p>
-<p class="last">By default, <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> infers a site-specific <span class="math">\(\omega_r\)</span> for the tree obtained using each <em>YNGKP</em> model and each <em>ExpCM</em>. Use this option if you do <strong>not</strong> want to do this.</p>
+<p class="last">By default, <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> infers a site-specific <span class="math">\(\omega_r\)</span> for the tree obtained using each <em>YNGKP</em> model and each <em>ExpCM</em>. Use this option if you do <strong>not</strong> want to do this.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">--no-stringencybysite=False</span></kbd></td>
 </tr>
 <tr><td>&nbsp;</td><td><p class="first">No fitting of site-specific stringency for ExpCM.</p>
-<p class="last">By default, <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> infers a site-specific <span class="math">\(\beta_r\)</span> for each <em>ExpCM</em>. Use this option if you do <strong>not</strong> want to do this.</p>
+<p class="last">By default, <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> infers a site-specific <span class="math">\(\beta_r\)</span> for each <em>ExpCM</em>. Use this option if you do <strong>not</strong> want to do this.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">--no-diffprefsbysite=False</span></kbd></td>
 </tr>
 <tr><td>&nbsp;</td><td><p class="first">No fitting of differential preferences for ExpCM.</p>
-<p class="last">By default, <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> infers site-specific <span class="math">\(\Delta\pi_{r,a}\)</span> for each <em>ExpCM</em>. Use this option if you do <strong>not</strong> want to do this.</p>
+<p class="last">By default, <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> infers site-specific <span class="math">\(\Delta\pi_{r,a}\)</span> for each <em>ExpCM</em>. Use this option if you do <strong>not</strong> want to do this.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">--no-avgprefs=False</span></kbd></td>
 </tr>
 <tr><td>&nbsp;</td><td><p class="first">No fitting of models with preferences averaged across sites for ExpCM.</p>
-<p class="last">As described in the documentation for <tt class="docutils literal"><span class="pre">phydms</span></tt> (see <a class="reference internal" href="phydms_prog.html#phydms-prog"><em>the phydms program</em></a>), there are two sensible controls when using an <em>ExpCM</em> model: averaging the preferences across sites or randomizing them across sites. By default, <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> performs the averaging control (this is the <tt class="docutils literal"><span class="pre">--avgprefs</span></tt> option to <tt class="docutils literal"><span class="pre">phydms</span></tt>). Use this option if you do <strong>not</strong> want to include this averaging control.</p>
+<p class="last">As described in the documentation for <code class="docutils literal"><span class="pre">phydms</span></code> (see <a class="reference internal" href="phydms_prog.html#phydms-prog"><span class="std std-ref">the phydms program</span></a>), there are two sensible controls when using an <em>ExpCM</em> model: averaging the preferences across sites or randomizing them across sites. By default, <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> performs the averaging control (this is the <code class="docutils literal"><span class="pre">--avgprefs</span></code> option to <code class="docutils literal"><span class="pre">phydms</span></code>). Use this option if you do <strong>not</strong> want to include this averaging control.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">--dateseqs=None</span></kbd></td>
@@ -168,7 +168,7 @@ usage: phydms_comprehensive [-h] [--treetopology TREETOPOLOGY] [--ncpus NCPUS]
 <kbd><span class="option">--avgrandcontrol=None</span></kbd></td>
 </tr>
 <tr><td>&nbsp;</td><td><p class="first">Fit average and random controls only for ExpCM using this preference file. Overrides &#8216;&#8211;no-avgprefs&#8217; and &#8216;&#8211;randprefs&#8217;.</p>
-<p class="last">As described in the documentation for <tt class="docutils literal"><span class="pre">phydms</span></tt> (see <a class="reference internal" href="phydms_prog.html#phydms-prog"><em>the phydms program</em></a>), there are two sensible controls for an <em>ExpCM</em> model: randomizing preferences among sites and averaging them across sites. The <tt class="docutils literal"><span class="pre">--no-avgprefs</span></tt> and <tt class="docutils literal"><span class="pre">--randprefs</span></tt> options specify whether to perform these controls for the <em>ExpCM</em> informed by each of the potentially numerous preferences specified in files listed in <tt class="docutils literal"><span class="pre">prefsfiles</span></tt>. If you have a lot of preference files, you might only want to perform these controls for one of them. In that case, list that one file (which should also be listed in <tt class="docutils literal"><span class="pre">prefsfiles</span></tt>) here. The only control will then be average and random preferences for this one file.</p>
+<p class="last">As described in the documentation for <code class="docutils literal"><span class="pre">phydms</span></code> (see <a class="reference internal" href="phydms_prog.html#phydms-prog"><span class="std std-ref">the phydms program</span></a>), there are two sensible controls for an <em>ExpCM</em> model: randomizing preferences among sites and averaging them across sites. The <code class="docutils literal"><span class="pre">--no-avgprefs</span></code> and <code class="docutils literal"><span class="pre">--randprefs</span></code> options specify whether to perform these controls for the <em>ExpCM</em> informed by each of the potentially numerous preferences specified in files listed in <code class="docutils literal"><span class="pre">prefsfiles</span></code>. If you have a lot of preference files, you might only want to perform these controls for one of them. In that case, list that one file (which should also be listed in <code class="docutils literal"><span class="pre">prefsfiles</span></code>) here. The only control will then be average and random preferences for this one file.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">--omegabysite_fixsyn=False</span></kbd></td>
@@ -180,19 +180,19 @@ usage: phydms_comprehensive [-h] [--treetopology TREETOPOLOGY] [--ncpus NCPUS]
 <tr><td class="option-group">
 <kbd><span class="option">--yngkp=M8</span></kbd></td>
 <td><p class="first">YNGKP models to use in addition to M0. Should be comma-separated list of models from the following: M1,M2,M3,M7,M8</p>
-<p>In addition to the <em>YNGKP_M0</em> model (which is always used to optimize the initial tree), the program will also optimize any additional <em>YNGKP</em> model variants listed here. See the documentation for <a class="reference internal" href="phydms_prog.html#phydms-prog"><em>the phydms program</em></a> for more information about these model variants.</p>
-<p class="last">If you don&#8217;t want to include any additional <em>YNGKP</em> models beyond <em>M0</em>, use <tt class="docutils literal"><span class="pre">--yngkp</span> <span class="pre">&quot;&quot;</span></tt>.</p>
+<p>In addition to the <em>YNGKP_M0</em> model (which is always used to optimize the initial tree), the program will also optimize any additional <em>YNGKP</em> model variants listed here. See the documentation for <a class="reference internal" href="phydms_prog.html#phydms-prog"><span class="std std-ref">the phydms program</span></a> for more information about these model variants.</p>
+<p class="last">If you don&#8217;t want to include any additional <em>YNGKP</em> models beyond <em>M0</em>, use <code class="docutils literal"><span class="pre">--yngkp</span> <span class="pre">&quot;&quot;</span></code>.</p>
 </td></tr>
 <tr><td class="option-group">
 <kbd><span class="option">--diffprefconc</span></kbd></td>
 <td><p class="first">Parameters determining the concentration of the regularizing prior over the differential preferences for &#8216;&#8211;diffprefsbysite&#8217;. Defaults to value of the same param for &#8216;phydms&#8217;.</p>
-<p class="last">See the documentation for <tt class="docutils literal"><span class="pre">phydms</span></tt> for more details.</p>
+<p class="last">See the documentation for <code class="docutils literal"><span class="pre">phydms</span></code> for more details.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">--randprefs=False</span></kbd></td>
 </tr>
 <tr><td>&nbsp;</td><td><p class="first">Include ExpCM models with randomized preferences.</p>
-<p class="last">As described in the documentation for <tt class="docutils literal"><span class="pre">phydms</span></tt> (see <a class="reference internal" href="phydms_prog.html#phydms-prog"><em>the phydms program</em></a>), there are two sensible controls when using an <em>ExpCM</em> model: averaging the preferences across sites or randomizing them across sites. By default, <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> performs the averaging control (this is the <tt class="docutils literal"><span class="pre">--avgprefs</span></tt> option to <tt class="docutils literal"><span class="pre">phydms</span></tt>) but not the randomization control (this is the <tt class="docutils literal"><span class="pre">--randprefs</span></tt> option to <tt class="docutils literal"><span class="pre">phydms</span></tt>). Use this option if you also want to include the <tt class="docutils literal"><span class="pre">--randprefs</span></tt> control.</p>
+<p class="last">As described in the documentation for <code class="docutils literal"><span class="pre">phydms</span></code> (see <a class="reference internal" href="phydms_prog.html#phydms-prog"><span class="std std-ref">the phydms program</span></a>), there are two sensible controls when using an <em>ExpCM</em> model: averaging the preferences across sites or randomizing them across sites. By default, <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> performs the averaging control (this is the <code class="docutils literal"><span class="pre">--avgprefs</span></code> option to <code class="docutils literal"><span class="pre">phydms</span></code>) but not the randomization control (this is the <code class="docutils literal"><span class="pre">--randprefs</span></code> option to <code class="docutils literal"><span class="pre">phydms</span></code>). Use this option if you also want to include the <code class="docutils literal"><span class="pre">--randprefs</span></code> control.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">--fitF3X4=False</span></kbd></td>
@@ -202,7 +202,7 @@ usage: phydms_comprehensive [-h] [--treetopology TREETOPOLOGY] [--ncpus NCPUS]
 <kbd><span class="option">--use_existing=False</span></kbd></td>
 </tr>
 <tr><td>&nbsp;</td><td><p class="first">Use existing &#8216;phydms&#8217; output for a model if it exists. BE CAREFUL: no checks are performed to ensure calling options the same.</p>
-<p class="last">Perhaps some of the output that <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> will create already exists, such as from a previous run. By default, <tt class="docutils literal"><span class="pre">phydsm_comprehensive</span></tt> deletes any existing output and re-creates everything from scratch. If you don&#8217;t want to do that, then use this option. But be careful: <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> only looks for existing output by file name; if those files were actually generated using a different set of input data or program options, <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> has no way of determining this.</p>
+<p class="last">Perhaps some of the output that <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> will create already exists, such as from a previous run. By default, <code class="docutils literal"><span class="pre">phydsm_comprehensive</span></code> deletes any existing output and re-creates everything from scratch. If you don&#8217;t want to do that, then use this option. But be careful: <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> only looks for existing output by file name; if those files were actually generated using a different set of input data or program options, <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> has no way of determining this.</p>
 </td></tr>
 <tr><td class="option-group">
 <kbd><span class="option">-v</span>, <span class="option">--version</span></kbd></td>
@@ -214,44 +214,44 @@ usage: phydms_comprehensive [-h] [--treetopology TREETOPOLOGY] [--ncpus NCPUS]
 </div>
 <div class="section" id="output-files">
 <h2><a class="toc-backref" href="#id4">Output files</a><a class="headerlink" href="#output-files" title="Permalink to this headline">¶</a></h2>
-<p>Running <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> will create the following output files, all with the prefix specified by <tt class="docutils literal"><span class="pre">outprefix</span></tt>.</p>
+<p>Running <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> will create the following output files, all with the prefix specified by <code class="docutils literal"><span class="pre">outprefix</span></code>.</p>
 <div class="section" id="log-file">
 <h3><a class="toc-backref" href="#id5">Log file</a><a class="headerlink" href="#log-file" title="Permalink to this headline">¶</a></h3>
-<p>A file with the suffix <tt class="docutils literal"><span class="pre">.log</span></tt> will be created that summarizes the overall progress of <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt>. If <tt class="docutils literal"><span class="pre">outprefix</span></tt> is just a directory name, this file will be called <tt class="docutils literal"><span class="pre">log.log</span></tt>.</p>
+<p>A file with the suffix <code class="docutils literal"><span class="pre">.log</span></code> will be created that summarizes the overall progress of <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code>. If <code class="docutils literal"><span class="pre">outprefix</span></code> is just a directory name, this file will be called <code class="docutils literal"><span class="pre">log.log</span></code>.</p>
 </div>
 <div class="section" id="model-comparison-file">
 <h3><a class="toc-backref" href="#id6">Model comparison file</a><a class="headerlink" href="#model-comparison-file" title="Permalink to this headline">¶</a></h3>
-<p>A file with the suffix <tt class="docutils literal"><span class="pre">_modelcomparison.txt</span></tt> (or just the name <tt class="docutils literal"><span class="pre">modelcomparison.txt</span></tt> if <tt class="docutils literal"><span class="pre">outprefix</span></tt> is just a directory name) will be created that summarizes the model fitting. Here is an example of the file that would be created if <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> is passed a single <tt class="docutils literal"><span class="pre">prefsfiles</span></tt> with the name <tt class="docutils literal"><span class="pre">prefs.txt</span></tt>:</p>
-<div class="highlight-python"><div class="highlight"><pre>======================== ====== ============== ===========================================================================================
-model                    AIC    log likelihood number parameters (optimized + empirical): optimized values
-======================== ====== ============== ===========================================================================================
-ExpCM_prefs              0.0    -4415.2        6 (6 + 0): beta = 2.92, omega = 0.77, kappa = 6.19, phiA = 0.37, phiC = 0.20, phiG = 0.22
-YNGKP_M8                 2482.1 -5648.3        14 (5 + 9): pomegas = 0.08, omegas = 1.02, betap = 0.00, betaq = 4.34, kappa = 6.40
-averaged_ExpCM_prefs     2600.9 -5715.7        6 (6 + 0): beta = 0.32, omega = 0.12, kappa = 6.51, phiA = 0.35, phiC = 0.18, phiG = 0.25
-YNGKP_M0                 2619.1 -5719.8        11 (2 + 9): omega = 0.11, kappa = 6.24
-======================== ====== ============== ===========================================================================================
+<p>A file with the suffix <code class="docutils literal"><span class="pre">_modelcomparison.txt</span></code> (or just the name <code class="docutils literal"><span class="pre">modelcomparison.txt</span></code> if <code class="docutils literal"><span class="pre">outprefix</span></code> is just a directory name) will be created that summarizes the model fitting. Here is an example of the file that would be created if <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> is passed a single <code class="docutils literal"><span class="pre">prefsfiles</span></code> with the name <code class="docutils literal"><span class="pre">prefs.txt</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">========================</span> <span class="o">======</span> <span class="o">==============</span> <span class="o">===========================================================================================</span>
+<span class="n">model</span>                    <span class="n">AIC</span>    <span class="n">log</span> <span class="n">likelihood</span> <span class="n">number</span> <span class="n">parameters</span> <span class="p">(</span><span class="n">optimized</span> <span class="o">+</span> <span class="n">empirical</span><span class="p">):</span> <span class="n">optimized</span> <span class="n">values</span>
+<span class="o">========================</span> <span class="o">======</span> <span class="o">==============</span> <span class="o">===========================================================================================</span>
+<span class="n">ExpCM_prefs</span>              <span class="mf">0.0</span>    <span class="o">-</span><span class="mf">4415.2</span>        <span class="mi">6</span> <span class="p">(</span><span class="mi">6</span> <span class="o">+</span> <span class="mi">0</span><span class="p">):</span> <span class="n">beta</span> <span class="o">=</span> <span class="mf">2.92</span><span class="p">,</span> <span class="n">omega</span> <span class="o">=</span> <span class="mf">0.77</span><span class="p">,</span> <span class="n">kappa</span> <span class="o">=</span> <span class="mf">6.19</span><span class="p">,</span> <span class="n">phiA</span> <span class="o">=</span> <span class="mf">0.37</span><span class="p">,</span> <span class="n">phiC</span> <span class="o">=</span> <span class="mf">0.20</span><span class="p">,</span> <span class="n">phiG</span> <span class="o">=</span> <span class="mf">0.22</span>
+<span class="n">YNGKP_M8</span>                 <span class="mf">2482.1</span> <span class="o">-</span><span class="mf">5648.3</span>        <span class="mi">14</span> <span class="p">(</span><span class="mi">5</span> <span class="o">+</span> <span class="mi">9</span><span class="p">):</span> <span class="n">pomegas</span> <span class="o">=</span> <span class="mf">0.08</span><span class="p">,</span> <span class="n">omegas</span> <span class="o">=</span> <span class="mf">1.02</span><span class="p">,</span> <span class="n">betap</span> <span class="o">=</span> <span class="mf">0.00</span><span class="p">,</span> <span class="n">betaq</span> <span class="o">=</span> <span class="mf">4.34</span><span class="p">,</span> <span class="n">kappa</span> <span class="o">=</span> <span class="mf">6.40</span>
+<span class="n">averaged_ExpCM_prefs</span>     <span class="mf">2600.9</span> <span class="o">-</span><span class="mf">5715.7</span>        <span class="mi">6</span> <span class="p">(</span><span class="mi">6</span> <span class="o">+</span> <span class="mi">0</span><span class="p">):</span> <span class="n">beta</span> <span class="o">=</span> <span class="mf">0.32</span><span class="p">,</span> <span class="n">omega</span> <span class="o">=</span> <span class="mf">0.12</span><span class="p">,</span> <span class="n">kappa</span> <span class="o">=</span> <span class="mf">6.51</span><span class="p">,</span> <span class="n">phiA</span> <span class="o">=</span> <span class="mf">0.35</span><span class="p">,</span> <span class="n">phiC</span> <span class="o">=</span> <span class="mf">0.18</span><span class="p">,</span> <span class="n">phiG</span> <span class="o">=</span> <span class="mf">0.25</span>
+<span class="n">YNGKP_M0</span>                 <span class="mf">2619.1</span> <span class="o">-</span><span class="mf">5719.8</span>        <span class="mi">11</span> <span class="p">(</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">9</span><span class="p">):</span> <span class="n">omega</span> <span class="o">=</span> <span class="mf">0.11</span><span class="p">,</span> <span class="n">kappa</span> <span class="o">=</span> <span class="mf">6.24</span>
+<span class="o">========================</span> <span class="o">======</span> <span class="o">==============</span> <span class="o">===========================================================================================</span>
 </pre></div>
 </div>
-<p>In this table, <tt class="docutils literal"><span class="pre">ExpCM_prefs</span></tt> is the <em>ExpCM</em> created using the preferences in <tt class="docutils literal"><span class="pre">prefs.txt</span></tt>, and <tt class="docutils literal"><span class="pre">averaged_ExpCM_prefs</span></tt> is the <em>ExpCM</em> created after averaging the preferences in <tt class="docutils literal"><span class="pre">prefs.txt</span></tt> across sites (the <tt class="docutils literal"><span class="pre">--avgprefs</span></tt> option to <tt class="docutils literal"><span class="pre">phydms</span></tt>.</p>
-<p>For the <em>YNGKP_M8</em> model, <tt class="docutils literal"><span class="pre">pomegas</span></tt> is the weight assigned to the positively selected (<span class="math">\(\omega \gt 1\)</span>) category, and <tt class="docutils literal"><span class="pre">omegas</span></tt> is the value of <span class="math">\(\omega\)</span> for this category. The <tt class="docutils literal"><span class="pre">betaq</span></tt> and <tt class="docutils literal"><span class="pre">betap</span></tt> parameters are the shape of the beta distribution for <span class="math">\(\omega &lt; 1\)</span>.</p>
+<p>In this table, <code class="docutils literal"><span class="pre">ExpCM_prefs</span></code> is the <em>ExpCM</em> created using the preferences in <code class="docutils literal"><span class="pre">prefs.txt</span></code>, and <code class="docutils literal"><span class="pre">averaged_ExpCM_prefs</span></code> is the <em>ExpCM</em> created after averaging the preferences in <code class="docutils literal"><span class="pre">prefs.txt</span></code> across sites (the <code class="docutils literal"><span class="pre">--avgprefs</span></code> option to <code class="docutils literal"><span class="pre">phydms</span></code>.</p>
+<p>For the <em>YNGKP_M8</em> model, <code class="docutils literal"><span class="pre">pomegas</span></code> is the weight assigned to the positively selected (<span class="math">\(\omega \gt 1\)</span>) category, and <code class="docutils literal"><span class="pre">omegas</span></code> is the value of <span class="math">\(\omega\)</span> for this category. The <code class="docutils literal"><span class="pre">betaq</span></code> and <code class="docutils literal"><span class="pre">betap</span></code> parameters are the shape of the beta distribution for <span class="math">\(\omega &lt; 1\)</span>.</p>
 <p>The models are ranked by <a class="reference external" href="https://en.wikipedia.org/wiki/Akaike_information_criterion">AIC</a> in terms of difference from the best fitting model. The third column shows the number of parameters. The <em>YNGKP</em> models have 9 empirical parameters corresponding to the codon frequencies estimated using the <em>F3X4</em> option.</p>
-<p>Note that the table is in <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> format, and so can be converted to attractive HTML using <tt class="docutils literal"><span class="pre">rst2html</span></tt>.</p>
+<p>Note that the table is in <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> format, and so can be converted to attractive HTML using <code class="docutils literal"><span class="pre">rst2html</span></code>.</p>
 </div>
 <div class="section" id="phydms-output-for-each-model">
-<h3><a class="toc-backref" href="#id7"><tt class="docutils literal"><span class="pre">phydms</span></tt> output for each model</a><a class="headerlink" href="#phydms-output-for-each-model" title="Permalink to this headline">¶</a></h3>
-<p>For each individual model, there will also be all of the expected <tt class="docutils literal"><span class="pre">phydms</span></tt> output files as described in <a class="reference internal" href="phydms_prog.html#phydms-prog"><em>the phydms program</em></a>. These files will begin with the prefix specified by <tt class="docutils literal"><span class="pre">outprefix</span></tt>, which will be followed by a description of the model. For instance, if the command is:</p>
-<div class="highlight-python"><div class="highlight"><pre>phydms_comprehensive my_directory/ alignment.fasta prefs1.txt prefs2.txt
+<h3><a class="toc-backref" href="#id7"><code class="docutils literal"><span class="pre">phydms</span></code> output for each model</a><a class="headerlink" href="#phydms-output-for-each-model" title="Permalink to this headline">¶</a></h3>
+<p>For each individual model, there will also be all of the expected <code class="docutils literal"><span class="pre">phydms</span></code> output files as described in <a class="reference internal" href="phydms_prog.html#phydms-prog"><span class="std std-ref">the phydms program</span></a>. These files will begin with the prefix specified by <code class="docutils literal"><span class="pre">outprefix</span></code>, which will be followed by a description of the model. For instance, if the command is:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">phydms_comprehensive</span> <span class="n">my_directory</span><span class="o">/</span> <span class="n">alignment</span><span class="o">.</span><span class="n">fasta</span> <span class="n">prefs1</span><span class="o">.</span><span class="n">txt</span> <span class="n">prefs2</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 <p>then we expect output files with the following prefixes:</p>
 <blockquote>
 <div><ul class="simple">
-<li><tt class="docutils literal"><span class="pre">my_directory/ExpCM_prefs1_*</span></tt> : the <em>ExpCM</em> using the preferences in <tt class="docutils literal"><span class="pre">prefs1.txt</span></tt>.</li>
-<li><tt class="docutils literal"><span class="pre">my_directory/averaged_ExpCM_prefs1_*</span></tt> : the <em>ExpCM</em> using the preferences in <tt class="docutils literal"><span class="pre">prefs1.txt</span></tt> averaged across sites.</li>
-<li><tt class="docutils literal"><span class="pre">my_directory/ExpCM_prefs2_*</span></tt> : the <em>ExpCM</em> using the preferences in <tt class="docutils literal"><span class="pre">prefs2.txt</span></tt>.</li>
-<li><tt class="docutils literal"><span class="pre">my_directory/averaged_ExpCM_prefs2_*</span></tt> : the <em>ExpCM</em> using the preferences in <tt class="docutils literal"><span class="pre">prefs2.txt</span></tt> averaged across sites.</li>
-<li><tt class="docutils literal"><span class="pre">my_directory/YNGKP_M0_*</span></tt> : the <em>YNGKP_M0</em> model.</li>
-<li><tt class="docutils literal"><span class="pre">my_directory/YNGKP_M8_*</span></tt> : the <em>YNGKP_M8</em> model.</li>
+<li><code class="docutils literal"><span class="pre">my_directory/ExpCM_prefs1_*</span></code> : the <em>ExpCM</em> using the preferences in <code class="docutils literal"><span class="pre">prefs1.txt</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">my_directory/averaged_ExpCM_prefs1_*</span></code> : the <em>ExpCM</em> using the preferences in <code class="docutils literal"><span class="pre">prefs1.txt</span></code> averaged across sites.</li>
+<li><code class="docutils literal"><span class="pre">my_directory/ExpCM_prefs2_*</span></code> : the <em>ExpCM</em> using the preferences in <code class="docutils literal"><span class="pre">prefs2.txt</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">my_directory/averaged_ExpCM_prefs2_*</span></code> : the <em>ExpCM</em> using the preferences in <code class="docutils literal"><span class="pre">prefs2.txt</span></code> averaged across sites.</li>
+<li><code class="docutils literal"><span class="pre">my_directory/YNGKP_M0_*</span></code> : the <em>YNGKP_M0</em> model.</li>
+<li><code class="docutils literal"><span class="pre">my_directory/YNGKP_M8_*</span></code> : the <em>YNGKP_M8</em> model.</li>
 </ul>
 </div></blockquote>
 </div>
@@ -266,13 +266,13 @@ YNGKP_M0                 2619.1 -5719.8        11 (2 + 9): omega = 0.11, kappa =
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">the <tt class="docutils literal"><span class="pre">phydms_comprehensive</span></tt> program</a><ul>
+<li><a class="reference internal" href="#">the <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> program</a><ul>
 <li><a class="reference internal" href="#overview">Overview</a></li>
 <li><a class="reference internal" href="#command-line-usage">Command-line usage</a></li>
 <li><a class="reference internal" href="#output-files">Output files</a><ul>
 <li><a class="reference internal" href="#log-file">Log file</a></li>
 <li><a class="reference internal" href="#model-comparison-file">Model comparison file</a></li>
-<li><a class="reference internal" href="#phydms-output-for-each-model"><tt class="docutils literal"><span class="pre">phydms</span></tt> output for each model</a></li>
+<li><a class="reference internal" href="#phydms-output-for-each-model"><code class="docutils literal"><span class="pre">phydms</span></code> output for each model</a></li>
 </ul>
 </li>
 </ul>
@@ -284,7 +284,7 @@ YNGKP_M0                 2619.1 -5719.8        11 (2 + 9): omega = 0.11, kappa =
                         title="previous chapter">auxiliary programs</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="phydms_plotselection_prog.html"
-                        title="next chapter">the <tt class="docutils literal"><span class="pre">phydms_plotselection</span></tt> program</a></p>
+                        title="next chapter">the <code class="docutils literal"><span class="pre">phydms_plotselection</span></code> program</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -300,9 +300,6 @@ YNGKP_M0                 2619.1 -5719.8        11 (2 + 9): omega = 0.11, kappa =
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -324,13 +321,13 @@ YNGKP_M0                 2619.1 -5719.8        11 (2 + 9): omega = 0.11, kappa =
         <li class="right" >
           <a href="auxiliary_progs.html" title="auxiliary programs"
              >previous</a> |</li>
-        <li><a href="index.html">phydms 1.2.0 documentation</a> &raquo;</li>
-          <li><a href="auxiliary_progs.html" >auxiliary programs</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" >auxiliary programs</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3a0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.
     </div>
   </body>
 </html>
