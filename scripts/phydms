@@ -419,6 +419,11 @@ def main():
         if tipnames != seqnames:
             raise ValueError("The sequence names in alignment do not match those in tree.\nSequences in alignment but NOT in tree:\n\t%s\nSequences in tree but NOT in alignment:\n\t%s" % ('\n\t'.join(seqnames - tipnames), '\n\t'.join(tipnames - seqnames)))
         logger.info('This tree has %d tips nodes, matching the sequences in alignment.' % len([clade.name for clade in tree.get_terminals()]))
+        # next 4 lines necessary for biopython <= 1.66, which fails on trees with negative branch lengths
+        for node in tree.get_terminals() + tree.get_nonterminals():
+            if node != tree.root:
+                node.branch_length = max(0, node.branch_length)
+        # end of code necessary for tree parsing by biopython <= 1.66
         newicktree = tree.format('newick').strip()
         # remove internal node names because they cause problem in parsing tree later
         for node in tree.get_nonterminals():

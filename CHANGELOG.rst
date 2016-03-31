@@ -1,6 +1,10 @@
 Changelog
 ===========
 
+1.2.1
+----------
+* Eliminate negative branch lengths to avoid bug in ``biopython`` (<= version 1.66) at parsing them.
+
 1.2.0
 ------------
 * Updated ``Bio++`` again.
