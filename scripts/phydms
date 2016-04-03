@@ -32,7 +32,7 @@ import phydmslib.pylsd
 import phydmslib.diffpref
 
 
-def FitDiffPrefsForSite(seqnames, iseqs, treefile, imodel, fixedmodelparams, recursion, stringencyscaledprefs, diffprefsprior, diffprefconc, icodon, useLog, ngammarates):
+def FitDiffPrefsForSite(seqnames, iseqs, treefile, imodel, fixedmodelparams, recursion, stringencyscaledprefs, diffprefsprior, diffprefconc, icodon, useLog, ngammarates, ncats):
     """Fits preferences for a specific site, to be run in multiprocessing pool."""
     maxtries = 2 # number of different times we try with slightly different values if optimization fails initially
     optmethods = ['SLSQP', 'TNC', 'L-BFGS-B'] # try optimization methods in this order
@@ -44,7 +44,7 @@ def FitDiffPrefsForSite(seqnames, iseqs, treefile, imodel, fixedmodelparams, rec
     while (not converged) and (imethod < len(optmethods)):
         ntries += 1
         try:
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=True, recursion=recursion, useLog=useLog, ngammarates=ngammarates) 
+            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=True, recursion=recursion, useLog=useLog, ngammarates=ngammarates, ncats=ncats) 
             initial_ll = tl.LogLikelihood()
             (prefs, iconvergencestring, converged) = phydmslib.diffpref.OptimizePrefs(tl, stringencyscaledprefs, site=1, prior=diffprefsprior, concentration=diffprefconc, randinitprefs=randinitprefs, optmethod=optmethods[imethod])
             convergencestring += '\n' + iconvergencestring
@@ -77,7 +77,7 @@ def FitDiffPrefsForSite(seqnames, iseqs, treefile, imodel, fixedmodelparams, rec
     return (prefs, new_ll, initial_ll, convergencestring, converged, time.time() - start)
 
 
-def FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodelparams, stringencyparameter, recursion, diffprefsprior, diffprefconc, ncpus, logger, useLog, ngammarates):
+def FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodelparams, stringencyparameter, recursion, diffprefsprior, diffprefconc, ncpus, logger, useLog, ngammarates, ncats):
     """Fits a different preference to each site in a multiprocessing pool."""
     pool = multiprocessing.Pool(ncpus)
     diffprefs = {}
@@ -89,7 +89,7 @@ def FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodel
         prefsum = float(sum(stringencyscaledprefs[icodon].values()))
         stringencyscaledprefs[icodon] = dict([(aa, pref / prefsum) for (aa, pref) in stringencyscaledprefs[icodon].items()])
         imodel = ('ExpCM', {1:stringencyscaledprefs[icodon]})
-        poolresults[icodon] = pool.apply_async(FitDiffPrefsForSite, (seqnames, iseqs, treefile, imodel, fixedmodelparams, recursion, stringencyscaledprefs[icodon], diffprefsprior, diffprefconc, icodon, useLog, ngammarates))
+        poolresults[icodon] = pool.apply_async(FitDiffPrefsForSite, (seqnames, iseqs, treefile, imodel, fixedmodelparams, recursion, stringencyscaledprefs[icodon], diffprefsprior, diffprefconc, icodon, useLog, ngammarates, ncats))
     completed = dict([(icodon, False) for icodon in codons])
     while not all(completed.values()):
         time.sleep(1)
@@ -114,7 +114,7 @@ def FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodel
 
 
 
-def FitStringencyForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedstringencyvalue, treefile, recursion, useLog, ngammarates, numericaladjust=False):
+def FitStringencyForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedstringencyvalue, treefile, recursion, useLog, ngammarates, ncats, numericaladjust=False):
     """Fits stringency for a specific site, to be run in multiprocessing pool.
     
     *numericaladjust* is used for a recursive call that slightly adjusts (rounds) the model parameters.
@@ -135,7 +135,7 @@ def FitStringencyForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedstringe
             ifixedmodelparams['stringencyparameter'] = fixedstringencyvalue
         else:
             initializemodelparams = {'stringencyparameter':fixedstringencyvalue}
-        tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, initializemodelparams=initializemodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=False, recursion=recursion, useLog=useLog, ngammarates=ngammarates) 
+        tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, initializemodelparams=initializemodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=False, recursion=recursion, useLog=useLog, ngammarates=ngammarates, ncats=ncats) 
         tl.OptimizeLikelihood()
         iresults["LnL_%s" % fitstringency] = tl.LogLikelihood()
         if fitstringency == 'fitted':
@@ -144,13 +144,13 @@ def FitStringencyForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedstringe
     iresults['dLnL'] = iresults['LnL_fitted'] - iresults['LnL_fixed']
     if (not numericaladjust) and (abs(iresults['dLnL']) > 30 and (iresults['stringency_ratio'] > 5 or iresults['stringency_ratio'] < 0.2)):
         # suspicious values, try fitting with a numerical adjust
-        return FitStringencyForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedstringencyvalue, treefile, recursion, useLog, ngammarates, numericaladjust=True)
+        return FitStringencyForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedstringencyvalue, treefile, recursion, useLog, ngammarates, ncats, numericaladjust=True)
     iresults['P'] = scipy.stats.chi2.sf(2.0 * iresults['dLnL'], df=1)
     return (iresults, time.time() - start)
 
 
 
-def FitStringencyBySitePool(codons, seqnames, seqs, aaprefs, fixedmodelparams, fixedstringencyvalue, treefile, recursion, ncpus, logger, useLog, ngammarates):
+def FitStringencyBySitePool(codons, seqnames, seqs, aaprefs, fixedmodelparams, fixedstringencyvalue, treefile, recursion, ncpus, logger, useLog, ngammarates, ncats):
     """Fits a different stringency to each site in a multiprocessing pool."""
     pool = multiprocessing.Pool(ncpus)
     fitstringencyresults = {}
@@ -158,7 +158,7 @@ def FitStringencyBySitePool(codons, seqnames, seqs, aaprefs, fixedmodelparams, f
     for icodon in codons:
         iseqs = [seq[3 * icodon  - 3 : 3 * icodon] for seq in seqs]
         imodel = ('ExpCM', {1:aaprefs[icodon]})
-        poolresults[icodon] = pool.apply_async(FitStringencyForSite, (seqnames, iseqs, imodel, fixedmodelparams, fixedstringencyvalue, treefile, recursion, useLog, ngammarates))
+        poolresults[icodon] = pool.apply_async(FitStringencyForSite, (seqnames, iseqs, imodel, fixedmodelparams, fixedstringencyvalue, treefile, recursion, useLog, ngammarates, ncats))
     completed = dict([(icodon, False) for icodon in codons])
     while not all(completed.values()):
         time.sleep(1)
@@ -177,7 +177,7 @@ def FitStringencyBySitePool(codons, seqnames, seqs, aaprefs, fixedmodelparams, f
 
 
 
-def FitOmegaForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedomegavalue, treefile, recursion, omegabysite_fixsyn, useLog, ngammarates):
+def FitOmegaForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedomegavalue, treefile, recursion, omegabysite_fixsyn, useLog, ngammarates, ncats):
     """Fits omega for a specific site, to be run in multiprocessing pool."""
     iresults = {}
     start = time.time()
@@ -188,7 +188,7 @@ def FitOmegaForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedomegavalue, 
             initializemodelparams = {}
         else:
             initializemodelparams = {'omega':fixedomegavalue}
-        tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, initializemodelparams=initializemodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=(not omegabysite_fixsyn), prefsasparams=False, recursion=recursion, useLog=useLog, ngammarates=ngammarates) 
+        tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, initializemodelparams=initializemodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=(not omegabysite_fixsyn), prefsasparams=False, recursion=recursion, useLog=useLog, ngammarates=ngammarates, ncats=ncats) 
         tl.OptimizeLikelihood()
         iresults["LnL_%s" % fitomega] = tl.LogLikelihood()
         if fitomega == 'fitted':
@@ -198,7 +198,7 @@ def FitOmegaForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedomegavalue, 
     return (iresults, time.time() - start)
 
 
-def FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams, fixedomegavalue, treefile, recursion, ncpus, logger, omegabysite_fixsyn, useLog, ngammarates):
+def FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams, fixedomegavalue, treefile, recursion, ncpus, logger, omegabysite_fixsyn, useLog, ngammarates, ncats):
     """Fit a different omega to each site in a multiprocessing pool running *ncpus*."""
     pool = multiprocessing.Pool(ncpus)
     fitomegaresults = {}
@@ -211,7 +211,7 @@ def FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams,
         else:
             raise ValueError("Invalid model")
         iseqs = [seq[3 * icodon  - 3 : 3 * icodon] for seq in seqs]
-        poolresults[icodon] = pool.apply_async(FitOmegaForSite, (seqnames, iseqs, imodel, fixedmodelparams, fixedomegavalue, treefile, recursion, omegabysite_fixsyn, useLog, ngammarates))
+        poolresults[icodon] = pool.apply_async(FitOmegaForSite, (seqnames, iseqs, imodel, fixedmodelparams, fixedomegavalue, treefile, recursion, omegabysite_fixsyn, useLog, ngammarates, ncats))
     completed = dict([(icodon, False) for icodon in codons])
     while not all(completed.values()):
         time.sleep(1)
@@ -451,7 +451,7 @@ def main():
             with open(modelparamsfile) as f:
                 modelparams = dict([(line.split('=')[0].strip(), float(line.split('=')[1])) for line in f])
             allmodelparams = modelparams
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, treefile, model, args['infertopology'], fixedmodelparams=modelparams, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=True, addrateparameter=False, prefsasparams=False, recursion=args['recursion'], useLog=args['useLog'], ngammarates=ngammarates)
+            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, treefile, model, args['infertopology'], fixedmodelparams=modelparams, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=True, addrateparameter=False, prefsasparams=False, recursion=args['recursion'], useLog=args['useLog'], ngammarates=ngammarates, ncats=args['ncats'])
             assert not tl.ModelParams(True), "There are unspecified model parameters to be optimized for --no_optimize: %s" % str(tl.ModelParams(True))
             if set(tl.ModelParams(False).keys()) != set(modelparams.keys()):
                 raise ValueError("The existing model params file %s does not have all of the expected parameters for this substitution model, so cannot use --no_optimize. Either the existing model parameters were created with a different model, or you used a YNGKP model without --fitF3X4 (this is currently incompatible with --no_optimize).")
@@ -465,7 +465,7 @@ def main():
                 logger.info('Adjusting all branch lengths to >= {0}.\n'.format(args['minbrlen']))
                 phydmslib.file_io.SetMinBrLen(temptreefile, temptreefile, args['minbrlen'])
                 logger.info('Creating Bio++ object to optimize likelihood...')
-                tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], prefsasparams=False, recursion=args['recursion'], useLog=args['useLog'], ngammarates=ngammarates)
+                tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], prefsasparams=False, recursion=args['recursion'], useLog=args['useLog'], ngammarates=ngammarates, ncats=args['ncats'])
             finally:
                 if os.path.isfile(temptreefile):
                     os.remove(temptreefile)
@@ -544,7 +544,7 @@ def main():
             logger.info('The remaining model parameters will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
             if isinstance(model, str) and 'YNGKP' in model:
                 aaprefs = {}
-            fitomegaresults = FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams, fixedomegavalue, treefile, args['recursion'], args['ncpus'], logger, args['omegabysite_fixsyn'], args['useLog'], ngammarates)
+            fitomegaresults = FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams, fixedomegavalue, treefile, args['recursion'], args['ncpus'], logger, args['omegabysite_fixsyn'], args['useLog'], ngammarates, args['ncats'])
             fitomegaresults = [(d['P'], site, d['omega'], d['dLnL']) for (site, d) in fitomegaresults.items()]
             fitomegaresults.sort()
             logger.info('Now writing the full results of the omega-by-site analysis to %s\n' % omegafile)
@@ -559,7 +559,7 @@ def main():
             logger.info('Now optimizing a different stringency parameter for each site while keeping branch lengths and other model parameters fixed. This will be compared to a null model where the stringency parameter is equal to the overall gene value of %.2f.' % fixedstringencyvalue)
             logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
             logger.info('The model parameters (other than the stringency parameter) will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
-            fitstringencyresults = FitStringencyBySitePool(codons, seqnames, seqs, aaprefs, fixedmodelparams, fixedstringencyvalue, treefile, args['recursion'], args['ncpus'], logger, args['useLog'], ngammarates)
+            fitstringencyresults = FitStringencyBySitePool(codons, seqnames, seqs, aaprefs, fixedmodelparams, fixedstringencyvalue, treefile, args['recursion'], args['ncpus'], logger, args['useLog'], ngammarates, args['ncats'])
             fitstringencyresults = [(d['P'], site, d['stringency_ratio'], d['dLnL'], d['LnL_fixed']) for (site, d) in fitstringencyresults.items()]
             fitstringencyresults.sort()
             logger.info('Now writing the full results of the stringency-by-site analysis to %s\n' % stringencyfile)
@@ -576,7 +576,7 @@ def main():
             logger.info('The model parameters will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
             sites = [str(icodon) for icodon in codons]
             wts = dict([(isite, '?') for isite in sites])
-            diffprefs = FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodelparams, modelparams['stringencyparameter'], args['recursion'], args['diffprefsprior'], args['diffprefconc'], args['ncpus'], logger, args['useLog'], ngammarates)
+            diffprefs = FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodelparams, modelparams['stringencyparameter'], args['recursion'], args['diffprefsprior'], args['diffprefconc'], args['ncpus'], logger, args['useLog'], ngammarates, args['ncats'])
             logger.info('Writing the differences in preferences to %s' % diffprefsfile)
             pr_deltapi = dict([(isite, None) for isite in sites]) # empty, as we have no data here
             dms_tools.file_io.WriteDiffPrefs(diffprefsfile, sites, wts, diffprefs, pr_deltapi, pr_deltapi)

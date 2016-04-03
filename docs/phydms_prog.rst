@@ -44,11 +44,11 @@ Command-line usage
 
         - *YNGKP_M2* : an :math:`\omega < 1`, and :math:`\omega = 1`, and an :math:`\omega > 1` with the weights optimized by maximum likelihood (4 free parameters). This is actually the variant indicated as *M2a* in `Wong et al, Genetics, 168:1041-1051`_ rather than the original *M2* model in `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_.
 
-         - *YNGKP_M3* : three :math:`\omega` values and the weights (probabilities) of their categories optimized by maximum likelihood (5 free parameters).
+        - *YNGKP_M3* : three :math:`\omega` values and the weights (probabilities) of their categories optimized by maximum likelihood (5 free parameters).
  
-         - *YNGKP_M7* : three values of :math:`\omega` between zero and one drawn from a beta distribution with the two distribution parameters optimized by maximum likelihood (2 free parameters). 
+        - *YNGKP_M7* : ``--ncats`` values of :math:`\omega` between zero and one drawn from a beta distribution with the two distribution parameters optimized by maximum likelihood (2 free parameters). 
  
-         - *YNGKP_M8* : three values of :math:`\omega` between zero and one drawn from a beta distribution with the two distribution parameters optimized by maximum likelihood, plus another value of :math:`\omega > 1` with the value and weight optimized by maximum likelihood (4 free parameters). 
+        - *YNGKP_M8* : ``--ncats`` values of :math:`\omega` between zero and one drawn from a beta distribution with the two distribution parameters optimized by maximum likelihood, plus another value of :math:`\omega > 1` with the value and weight optimized by maximum likelihood (4 free parameters). 
 
     *ExpCM_<prefsfile>* is an :ref:`ExpCM` with amino-acid preferences taken from the file ``prefsfile``. 
     The preferences file should be in the `dms_tools`_ `preferences file format`_ for **amino acids** (any stop codon preferences if present are normalized away to zero). The preferences file must specify a preference for the amino acid encoded by every site in ``alignment``, using sequential 1, 2, ... numbering.

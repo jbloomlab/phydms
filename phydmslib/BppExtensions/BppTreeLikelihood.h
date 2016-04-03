@@ -77,8 +77,10 @@ namespace bppextensions {
              * @param useLog Do we compute the likelihoods using their logs? Only meaningful when not using oldlikelihoodmethod.
              *
              * @param ngammarates Number of gamma-distributed rate categories. Set to 1 for a single constant rate, otherwise an integer > 1 for gamma distributed rates.
+             *
+             * @param ncats Number of categories in beta distribution for YNGKP_M7 and YNGPK_M8
              */
-            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion, int useLog, int ngammarates);
+            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion, int useLog, int ngammarates, int ncats);
 
             /**
              *@brief Destructor
