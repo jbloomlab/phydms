@@ -18,7 +18,7 @@ from libcpp.map cimport map as cpp_map
 
 cdef extern from "BppExtensions/BppTreeLikelihood.h" namespace "bppextensions":
     cdef cppclass BppTreeLikelihood:
-        BppTreeLikelihood(vector[string], vector[string], string, string, bint, cpp_map[int, cpp_map[string, double]], cpp_map[string, double], cpp_map[string, double], bint, bint, bint, bint, char, bint, bint) except +
+        BppTreeLikelihood(vector[string], vector[string], string, string, bint, cpp_map[int, cpp_map[string, double]], cpp_map[string, double], cpp_map[string, double], bint, bint, bint, bint, char, bint, int, int) except +
         long NSeqs() except +
         long NSites() except +
         void NewickTree(string) except +
@@ -41,7 +41,7 @@ cdef class PyBppTreeLikelihood:
 
     Objects are instantiated like this:
 
-        *bpptl = BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, fixedmodelparams, initializemodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, prefsasparams, recursion, useLog, ngammarates)*
+        *bpptl = BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, fixedmodelparams, initializemodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, prefsasparams, recursion, useLog, ngammarates, ncats)*
 
     where:
 
@@ -141,6 +141,9 @@ cdef class PyBppTreeLikelihood:
           rate. If it is >= 1, then we use discrete gamma-distributed rates
           drawn from this many categories, with the shape parameter
           estimated by maximum likelihood.
+
+        * *ncats* is number of beta-distributed categories for *YNGKP_M7*
+          and *YNGKP_M8*
     """
 
     cdef BppTreeLikelihood *thisptr
@@ -149,7 +152,7 @@ cdef class PyBppTreeLikelihood:
 
     cdef dict codon_to_aa
 
-    def __cinit__(self, list seqnames, list seqs, str treefile, model, bint infertopology, fixedmodelparams, initializemodelparams, bint oldlikelihoodmethod, bint fixbrlen, bint addrateparameter, bint prefsasparams, str recursion, bint useLog, int ngammarates):
+    def __cinit__(self, list seqnames, list seqs, str treefile, model, bint infertopology, fixedmodelparams, initializemodelparams, bint oldlikelihoodmethod, bint fixbrlen, bint addrateparameter, bint prefsasparams, str recursion, bint useLog, int ngammarates, int ncats):
         """Initializes new *PyBppTreeLikelihood* object."""
         # 
         # set up codons, amino acids, nts
@@ -204,7 +207,7 @@ cdef class PyBppTreeLikelihood:
             model = 'ExpCM'
         else:
             raise ValueError("Invalid model of %s" % model)
-        self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixedmodelparams, initializemodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, prefsasparams, ord(recursion), useLog, ngammarates)
+        self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixedmodelparams, initializemodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, prefsasparams, ord(recursion), useLog, ngammarates, ncats)
         if self.thisptr is NULL:
             raise MemoryError("Failed to allocate pointer to BppTreeLikelihood")
 

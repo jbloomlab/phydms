@@ -5,6 +5,10 @@ Changelog
 --------
 * Fixed bug in handling *YNGKP_M7* model in output of ``phydms_comprehensive``
 
+* Added option ``--ncats`` option to set the number of categories for the distributed *omega* in the *YNGKP_M7* and *YNGKP_M8* models.
+
+* Fixed bug in ``--ngammarates`` that caused only one rate to be used.
+
 1.2.1
 ----------
 * Eliminate negative branch lengths to avoid bug in ``biopython`` (<= version 1.66) at parsing them.
