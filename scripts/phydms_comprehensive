@@ -66,6 +66,11 @@ def FormattedModelParams(model, modelparamstext):
         p1 = (1.0 - theta1) * theta2
         assert p0 + p1 <= 1, "Invalid conversions from theta to p giving summed p > 1"
         return ('omega0 = %.2f, omega1 = %.2f, omega2 = %.2f, p0 = %.2f, p1 = %.2f, kappa = %.2f' % (omega0, omega1, omega2, p0, p1, kappa)) + gammashape
+    elif model == 'YNGKP_M7':
+        kappa = float(re.search('kappa = (\d+\.\d+)', modelparamstext).group(1))
+        p = float(re.search('p = (\d+\.\d+)', modelparamstext).group(1))
+        q = float(re.search('q = (\d+\.\d+)', modelparamstext).group(1))
+        return ('betap = {p:.2f}, betaq = {q:.2f}, kappa = {kappa:.2f}'.format(p=p, q=q, kappa=kappa)) + gammashape
     elif model == 'YNGKP_M8':
         kappa = float(re.search('kappa = (\d+\.\d+)', modelparamstext).group(1))
         omegas = float(re.search('omegas = (\d+\.\d+)', modelparamstext).group(1))

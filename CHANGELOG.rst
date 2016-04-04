@@ -1,6 +1,10 @@
 Changelog
 ===========
 
+1.2.2
+--------
+* Fixed bug in handling *YNGKP_M7* model in output of ``phydms_comprehensive``
+
 1.2.1
 ----------
 * Eliminate negative branch lengths to avoid bug in ``biopython`` (<= version 1.66) at parsing them.
