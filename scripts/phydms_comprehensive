@@ -208,10 +208,9 @@ def main():
     filesuffixes = {} # keyed by model, values are list of suffixes
 
     # set up models
+    additionalcmds = ['--ncats', str(args['ncats'])]
     if args['useLog']:
-        additionalcmds = ['--useLog']
-    else:
-        additionalcmds = []
+        additionalcmds.append('--useLog')
     if args['gammarates']:
         additionalcmds += ['--gammarates']
     if args['dateseqs']:
