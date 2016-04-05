@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>the phydms program &mdash; phydms 1.2.1 documentation</title>
+    <title>the phydms program &mdash; phydms 1.2.2 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.2.1',
+        VERSION:     '1.2.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.2.1 documentation" href="index.html" />
+    <link rel="top" title="phydms 1.2.2 documentation" href="index.html" />
     <link rel="next" title="auxiliary programs" href="auxiliary_progs.html" />
     <link rel="prev" title="Quick example" href="quick_example.html" /> 
   </head>
@@ -44,7 +44,7 @@
         <li class="right" >
           <a href="quick_example.html" title="Quick example"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -85,11 +85,11 @@
 </div>
 <div class="section" id="command-line-usage">
 <h2><a class="toc-backref" href="#id3">Command-line usage</a><a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
-<p>Phylogenetic inference using deep mutational scanning data. The &#8216;phydms&#8217; package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a> for all contributors); it performs likelihood calculations using the Bio++ libraries (thanks to Julien Dutheil and Laurent Gueguen). Version 1.2.1. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
+<p>Phylogenetic inference using deep mutational scanning data. The &#8216;phydms&#8217; package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a> for all contributors); it performs likelihood calculations using the Bio++ libraries (thanks to Julien Dutheil and Laurent Gueguen). Version 1.2.2. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">phydms</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">omegabysite</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">stringencybysite</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">diffprefsbysite</span><span class="p">]</span>
-              <span class="p">[</span><span class="o">--</span><span class="n">infertopology</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">gammarates</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dateseqs</span> <span class="n">DATESEQS</span><span class="p">]</span>
-              <span class="p">[</span><span class="o">--</span><span class="n">ncpus</span> <span class="n">NCPUS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">omegabysite_fixsyn</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">randprefs</span><span class="p">]</span>
-              <span class="p">[</span><span class="o">--</span><span class="n">avgprefs</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fixbrlen</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">diffprefconc</span> <span class="n">C1</span> <span class="n">C2</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">infertopology</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">gammarates</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ncats</span> <span class="n">NCATS</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">dateseqs</span> <span class="n">DATESEQS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ncpus</span> <span class="n">NCPUS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">omegabysite_fixsyn</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">randprefs</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">avgprefs</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fixbrlen</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">diffprefconc</span> <span class="n">C1</span> <span class="n">C2</span><span class="p">]</span>
               <span class="p">[</span><span class="o">--</span><span class="n">addrateparameter</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fitF3X4</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">minbrlen</span> <span class="n">MINBRLEN</span><span class="p">]</span>
               <span class="p">[</span><span class="o">--</span><span class="n">seed</span> <span class="n">SEED</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">no_optimize</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">useLog</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">debugsite</span> <span class="n">DEBUGSITE</span><span class="p">]</span>
               <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span>
@@ -130,14 +130,10 @@
 <li><em>YNGKP_M0</em> : a single <span class="math">\(\omega\)</span> is optimized by maximum likelihood (1 free parameter)</li>
 <li><em>YNGKP_M1</em> : an <span class="math">\(\omega &lt; 1\)</span> and an <span class="math">\(\omega = 1\)</span> with the weights optimized by maximum likelihood (two free parameters). This is actually the variant indicated as <em>M1a</em> in <a class="reference external" href="http://www.genetics.org/content/168/2/1041">Wong et al, Genetics, 168:1041-1051</a> rather than the original <em>M1</em> model in <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a>.</li>
 <li><em>YNGKP_M2</em> : an <span class="math">\(\omega &lt; 1\)</span>, and <span class="math">\(\omega = 1\)</span>, and an <span class="math">\(\omega &gt; 1\)</span> with the weights optimized by maximum likelihood (4 free parameters). This is actually the variant indicated as <em>M2a</em> in <a class="reference external" href="http://www.genetics.org/content/168/2/1041">Wong et al, Genetics, 168:1041-1051</a> rather than the original <em>M2</em> model in <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a>.</li>
-</ul>
-<blockquote>
-<div><ul class="simple">
 <li><em>YNGKP_M3</em> : three <span class="math">\(\omega\)</span> values and the weights (probabilities) of their categories optimized by maximum likelihood (5 free parameters).</li>
-<li><em>YNGKP_M7</em> : three values of <span class="math">\(\omega\)</span> between zero and one drawn from a beta distribution with the two distribution parameters optimized by maximum likelihood (2 free parameters).</li>
-<li><em>YNGKP_M8</em> : three values of <span class="math">\(\omega\)</span> between zero and one drawn from a beta distribution with the two distribution parameters optimized by maximum likelihood, plus another value of <span class="math">\(\omega &gt; 1\)</span> with the value and weight optimized by maximum likelihood (4 free parameters).</li>
+<li><em>YNGKP_M7</em> : <code class="docutils literal"><span class="pre">--ncats</span></code> values of <span class="math">\(\omega\)</span> between zero and one drawn from a beta distribution with the two distribution parameters optimized by maximum likelihood (2 free parameters).</li>
+<li><em>YNGKP_M8</em> : <code class="docutils literal"><span class="pre">--ncats</span></code> values of <span class="math">\(\omega\)</span> between zero and one drawn from a beta distribution with the two distribution parameters optimized by maximum likelihood, plus another value of <span class="math">\(\omega &gt; 1\)</span> with the value and weight optimized by maximum likelihood (4 free parameters).</li>
 </ul>
-</div></blockquote>
 </div></blockquote>
 <p class="last"><em>ExpCM_&lt;prefsfile&gt;</em> is an <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a> with amino-acid preferences taken from the file <code class="docutils literal"><span class="pre">prefsfile</span></code>.
 The preferences file should be in the <a class="reference external" href="http://jbloomlab.github.io/dms_tools">dms_tools</a> <a class="reference external" href="http://jbloomlab.github.io/dms_tools/fileformats.html#preferences-file">preferences file format</a> for <strong>amino acids</strong> (any stop codon preferences if present are normalized away to zero). The preferences file must specify a preference for the amino acid encoded by every site in <code class="docutils literal"><span class="pre">alignment</span></code>, using sequential 1, 2, ... numbering.</p>
@@ -186,6 +182,9 @@ The preferences file should be in the <a class="reference external" href="http:/
 <tr><td>&nbsp;</td><td><p class="first">Draw the substitution rate from 4-category discrete gamma distribution with optimized shape parameter.</p>
 <p class="last">Rather than a single substitution rate, the likelihood is a linear combination of those computed using four different rates drawn from a 4-category discrete gamma distribution. The shape parameter of this distribution is optimized by maixmum likelihood (the mean is fixed to one). This adds one parameter, and will increase the program&#8217;s runtime.</p>
 </td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--ncats=6</span></kbd></td>
+<td>Number of beta-distributed categories for YNGKP M7 and M8.</td></tr>
 <tr><td class="option-group">
 <kbd><span class="option">--dateseqs</span></kbd></td>
 <td><p class="first">Perform least-squares sequence dating. Specify file with column 1 = date, column 2 = sequence header; columns are space delimited.</p>
@@ -500,7 +499,7 @@ The preferences file should be in the <a class="reference external" href="http:/
         <li class="right" >
           <a href="quick_example.html" title="Quick example"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
