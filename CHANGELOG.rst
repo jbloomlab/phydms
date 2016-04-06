@@ -5,6 +5,8 @@ Changelog
 ----------
 * Updated docs
 
+* Handle negative MRCAs for ``--dateseqs`` without error
+
 1.2.2
 --------
 * Fixed bug in handling *YNGKP_M7* model in output of ``phydms_comprehensive``

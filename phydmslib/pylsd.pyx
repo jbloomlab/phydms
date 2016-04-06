@@ -97,7 +97,7 @@ def RunLSD(intree, dates, seqlength, outtree):
         assert os.path.isfile(outtreeresults) and os.path.isfile(outtreedated), "Failed to find expected files %s and %s\nFiles in outtreedir %s are:\n%s" % (outtreeresults, outtreedated, outtreedir, ', '.join(os.listdir(outtreedir)))
         with open(outtreedated) as f:
             treetext = f.read()
-        tmrca_match = re.compile('Tree 1 rate\s(?P<rate>\d+\.\d+),{0,1}\stMRCA\s(?P<tmrca>\d+\.\d+),{0,1}\sobjective[_\s]function\s(?P<objective>\d+\.\d+)')
+        tmrca_match = re.compile('Tree 1 rate\s(?P<rate>\d+\.\d+),{0,1}\stMRCA\s(?P<tmrca>\-{0,1}\d+\.\d+),{0,1}\sobjective[_\s]function\s(?P<objective>\d+\.\d+)')
         with open(outtreeresults) as f:
             resultstext = f.read()
         m = tmrca_match.search(resultstext)
