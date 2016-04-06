@@ -1,6 +1,10 @@
 Changelog
 ===========
 
+1.2.dev3
+----------
+* Updated docs
+
 1.2.2
 --------
 * Fixed bug in handling *YNGKP_M7* model in output of ``phydms_comprehensive``
