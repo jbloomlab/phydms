@@ -134,7 +134,8 @@ def main():
                 overlay=overlay,
                 fix_limits=fix_limits,
                 fixlongname=True,
-                overlay_cmap='bwr'
+                overlay_cmap='bwr',
+                custom_cmap=args['colormap']
             )
     assert os.path.isfile(args['plotfile']), "Failed to create plotfile %s" % args['plotfile']
 

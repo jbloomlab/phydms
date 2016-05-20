@@ -225,6 +225,7 @@ def PhyDMSPlotSelectionParser():
     parser.set_defaults(updiffprefheight=False)
     parser.add_argument('--updiffprefheight', dest='updiffprefheight', action='store_true', help="Automatically increase '--diffprefheight' to make it exceed max differential preferences.")
     parser.add_argument('--minP', type=FloatGreaterThanZero, default=1e-4, help="Minimum plotted P-value for omega and stringency by site.")
+    parser.add_argument('--colormap', type=str, default='jet', help='Colormap for amino-acid hydrophobicity. Must specify a valid ``pylab`` color map')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
 
