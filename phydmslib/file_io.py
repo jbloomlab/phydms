@@ -107,8 +107,8 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
         for (head2, seq2) in seqs[i + 1 : ]:
             assert len(seq1) == len(seq2)
             ndiffs = sum(map(lambda (x, y): 1 if (x != y and x != '-' and y != '-') else 0, zip(seq1, seq2)))
-            if ndiffs < 1:
-                raise ValueError("The alignment in {0} has duplicate sequences:\n{1}\n{2}\nPlease remove one of these so that all sequences are unique at non-gap positions.".format(fastafile, head1, head2))
+#            if ndiffs < 1:
+#                raise ValueError("The alignment in {0} has duplicate sequences:\n{1}\n{2}\nPlease remove one of these so that all sequences are unique at non-gap positions.".format(fastafile, head1, head2))
     return seqs
 
 

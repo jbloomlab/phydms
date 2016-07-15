@@ -1,11 +1,15 @@
 Changelog
 ===========
 
-1.2.dev3
+1.2.3
 ----------
 * Updated docs
 
 * Handle negative MRCAs for ``--dateseqs`` without error
+
+* Added option ``--colormap`` to ``phydms_plotselection``.
+
+* Removed requirements that input sequences be unique in ``alignment``.
 
 1.2.2
 --------
