@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>the phydms_comprehensive program &mdash; phydms 1.2.2 documentation</title>
+    <title>the phydms_comprehensive program &mdash; phydms 1.2.3 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.2.2',
+        VERSION:     '1.2.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.2.2 documentation" href="index.html" />
+    <link rel="top" title="phydms 1.2.3 documentation" href="index.html" />
     <link rel="up" title="auxiliary programs" href="auxiliary_progs.html" />
     <link rel="next" title="the phydms_plotselection program" href="phydms_plotselection_prog.html" />
     <link rel="prev" title="auxiliary programs" href="auxiliary_progs.html" /> 
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="auxiliary_progs.html" title="auxiliary programs"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.2 documentation</a> &raquo;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.3 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" accesskey="U">auxiliary programs</a> &raquo;</li> 
       </ul>
     </div>  
@@ -83,7 +83,7 @@
 </div>
 <div class="section" id="command-line-usage">
 <h2><a class="toc-backref" href="#id3">Command-line usage</a><a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
-<p>Comprehensive phylogenetic model comparison and detection of selection using deep mutational scanning data. This program runs &#8216;phydms&#8217; to infer a tree topology, then compare substitution models, then detect selection at each site. The &#8216;phydms&#8217; package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a> for all contributors); it performs likelihood calculations using the Bio++ libraries (thanks to Julien Dutheil and Laurent Gueguen). Version 1.2.2. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
+<p>Comprehensive phylogenetic model comparison and detection of selection using deep mutational scanning data. This program runs &#8216;phydms&#8217; to infer a tree topology, then compare substitution models, then detect selection at each site. The &#8216;phydms&#8217; package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a> for all contributors); it performs likelihood calculations using the Bio++ libraries (thanks to Julien Dutheil and Laurent Gueguen). Version 1.2.3. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">phydms_comprehensive</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">treetopology</span> <span class="n">TREETOPOLOGY</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ncpus</span> <span class="n">NCPUS</span><span class="p">]</span>
                             <span class="p">[</span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">omegabysite</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">stringencybysite</span><span class="p">]</span>
                             <span class="p">[</span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">diffprefsbysite</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">avgprefs</span><span class="p">]</span>
@@ -239,6 +239,17 @@
 <p>For the <em>YNGKP_M8</em> model, <code class="docutils literal"><span class="pre">pomegas</span></code> is the weight assigned to the positively selected (<span class="math">\(\omega \gt 1\)</span>) category, and <code class="docutils literal"><span class="pre">omegas</span></code> is the value of <span class="math">\(\omega\)</span> for this category. The <code class="docutils literal"><span class="pre">betaq</span></code> and <code class="docutils literal"><span class="pre">betap</span></code> parameters are the shape of the beta distribution for <span class="math">\(\omega &lt; 1\)</span>.</p>
 <p>The models are ranked by <a class="reference external" href="https://en.wikipedia.org/wiki/Akaike_information_criterion">AIC</a> in terms of difference from the best fitting model. The third column shows the number of parameters. The <em>YNGKP</em> models have 9 empirical parameters corresponding to the codon frequencies estimated using the <em>F3X4</em> option.</p>
 <p>Note that the table is in <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> format, and so can be converted to attractive HTML using <code class="docutils literal"><span class="pre">rst2html</span></code>.</p>
+<p>If <code class="docutils literal"><span class="pre">--dateseqs</span></code> is being used, then a file giving the estimated dates to most recent common ancestor (MRCA) is also generated with the suffix <code class="docutils literal"><span class="pre">_mrca_dates.txt</span></code> (or just the name <code class="docutils literal"><span class="pre">mrca_dates.txt</span></code> if <code class="docutils literal"><span class="pre">outprefix</span></code> is just a directory name). Here is an example of such a file:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">=======================</span> <span class="o">=========</span>
+<span class="n">model</span>                   <span class="n">MRCA</span> <span class="n">date</span>
+<span class="o">=======================</span> <span class="o">=========</span>
+<span class="n">ExpCM</span> <span class="n">NP</span> <span class="n">prefs</span>          <span class="mf">1911.14</span>
+<span class="n">YNGKP</span> <span class="n">M0</span>                <span class="mf">1911.87</span>
+<span class="n">averaged</span> <span class="n">ExpCM</span> <span class="n">NP</span> <span class="n">prefs</span> <span class="mf">1911.95</span>
+<span class="n">YNGKP</span> <span class="n">M8</span>                <span class="mf">1912.05</span>
+<span class="o">=======================</span> <span class="o">=========</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="phydms-output-for-each-model">
 <h3><a class="toc-backref" href="#id7"><code class="docutils literal"><span class="pre">phydms</span></code> output for each model</a><a class="headerlink" href="#phydms-output-for-each-model" title="Permalink to this headline">¶</a></h3>
@@ -298,8 +309,8 @@
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
@@ -324,13 +335,13 @@
         <li class="right" >
           <a href="auxiliary_progs.html" title="auxiliary programs"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.2 documentation</a> &raquo;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.3 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" >auxiliary programs</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
     </div>
   </body>
 </html>

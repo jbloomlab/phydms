@@ -96,6 +96,17 @@ The models are ranked by `AIC`_ in terms of difference from the best fitting mod
 
 Note that the table is in `reStructuredText`_ format, and so can be converted to attractive HTML using ``rst2html``.
 
+If ``--dateseqs`` is being used, then a file giving the estimated dates to most recent common ancestor (MRCA) is also generated with the suffix ``_mrca_dates.txt`` (or just the name ``mrca_dates.txt`` if ``outprefix`` is just a directory name). Here is an example of such a file::
+
+    ======================= =========
+    model                   MRCA date
+    ======================= =========
+    ExpCM NP prefs          1911.14
+    YNGKP M0                1911.87
+    averaged ExpCM NP prefs 1911.95
+    YNGKP M8                1912.05
+    ======================= =========
+
 ``phydms`` output for each model
 ++++++++++++++++++++++++++++++++++
 For each individual model, there will also be all of the expected ``phydms`` output files as described in :ref:`phydms_prog`. These files will begin with the prefix specified by ``outprefix``, which will be followed by a description of the model. For instance, if the command is::

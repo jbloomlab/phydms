@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>phydmslib package &mdash; phydms 1.2.2 documentation</title>
+    <title>phydmslib package &mdash; phydms 1.2.3 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.2.2',
+        VERSION:     '1.2.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.2.2 documentation" href="index.html" />
+    <link rel="top" title="phydms 1.2.3 documentation" href="index.html" />
     <link rel="up" title="The phydmslib API" href="api.html" />
     <link rel="next" title="Acknowledgments and citations" href="acknowledgments.html" />
     <link rel="prev" title="The phydmslib API" href="api.html" /> 
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="api.html" title="The phydmslib API"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.2 documentation</a> &raquo;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.3 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="api.html" accesskey="U">The <code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &raquo;</li> 
       </ul>
     </div>  
@@ -513,92 +513,8 @@ on the version of <code class="docutils literal"><span class="pre">phydms</span>
 </dd></dl>
 
 </div>
-<div class="section" id="module-phydmslib.plot">
-<span id="phydmslib-plot-module"></span><h2>phydmslib.plot module<a class="headerlink" href="#module-phydmslib.plot" title="Permalink to this headline">¶</a></h2>
-<p>Module for plotting.</p>
-<dl class="function">
-<dt id="phydmslib.plot.PlotSignificantOmega">
-<code class="descclassname">phydmslib.plot.</code><code class="descname">PlotSignificantOmega</code><span class="sig-paren">(</span><em>plotfile</em>, <em>models</em>, <em>ngt</em>, <em>nlt</em>, <em>nsites</em>, <em>fdr</em>, <em>usetex=True</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.plot.PlotSignificantOmega" title="Permalink to this definition">¶</a></dt>
-<dd><p>Makes a PDF slopegraph of the number of sites with significant omega.</p>
-<p><em>plotfile</em> : name of created PDF.</p>
-<p><em>models</em> : list of model names as strings</p>
-<p><em>ngt</em> : list of same length as <em>models</em> giving number of sites with
-<em>omega</em> &gt; 1.</p>
-<p><em>nlt</em> : list of same length as <em>models</em> giving number of sites with
-<em>omega</em> &lt; 1.</p>
-<p><em>nsites</em> : total number of sites (used for y-axis label).</p>
-<p><em>fdr</em> : false discovery rate (used for y-axis label).</p>
-<p><em>usetex</em> : use LaTex formatting of strings?</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="phydmslib.plot.SelectionViolinPlot">
-<code class="descclassname">phydmslib.plot.</code><code class="descname">SelectionViolinPlot</code><span class="sig-paren">(</span><em>plotfile</em>, <em>ylabel</em>, <em>models</em>, <em>yvalues</em>, <em>symmetrizey</em>, <em>hlines=None</em>, <em>points=None</em>, <em>pointmarkercolor='or'</em>, <em>usetex=True</em>, <em>legends=False</em>, <em>fixymin=None</em>, <em>fixymax=None</em>, <em>modelgroups=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.plot.SelectionViolinPlot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates violin plot showing distribution of selection and significant sites.</p>
-<p>Calling arguments:</p>
-<p><em>plotfile</em> : name of PDF plot to create.</p>
-<p><em>ylabel</em> : ylabel for the plot.</p>
-<p><em>models</em> : list of models for which we create violin plots.</p>
-<p><em>yvalues</em> : list of the same length as <em>models</em>, each entry is a list
-of the Y-values (such as P-values).</p>
-<p><em>symmetrizey</em> : make y-axis symmetric around zero?</p>
-<p><em>hlines</em> : if not <em>None</em>, list of the same length as <em>models</em> with each entry
-a list giving y-value for where we draw horizontal lines for that <em>model</em>. 
-Alternatively, can be a single number &#8211; in that case, we draw a horizontal
-line across the whole plot at that number.</p>
-<p><em>points</em> : if not <em>None</em>, list of the same length as <em>models</em> with each entry
-a list giving the y-value for points to be placed for that <em>model</em>.</p>
-<p><em>pointmarkercolor</em> : specifies marker and color of points in <em>points</em>. 
-Should either a length-two string giving marker and color for all points
-(such as <em>or</em> for circles, red) or a list of lists of the same length
-as <em>points</em> with each entry specifying the marker and color for that point.</p>
-<p><em>usetex</em> : use LaTex formatting of strings?</p>
-<p><em>legends</em> : Create legend(s) with names of points specified by <em>pointmarkercolor</em>?
-If it is not <em>False</em> or <em>None</em>, then <em>legends</em> should be a list. Each entry
-should be a 3-tuple <em>(markercolors, names, title)</em>. In this tuple,
-<em>markercolors</em> and <em>names</em> are lists of the same
-length, with <em>markercolors</em> being a list of marker / color (e.g. <em>or</em>
-for circles, red) and <em>names</em> being a list of the string corresponding
-to each marker / color; <em>title</em> is the title for the legend.</p>
-<p><em>fixymin</em> : if not <em>None</em>, the y-minimum is fixed to this value.</p>
-<p><em>fixymax</em> : if not <em>None</em>, the y-maximum is fixed to this value.</p>
-<p><em>modelgroups</em> : do we &#8220;group&#8221; models on the x-axis? If so, set this to a list
-of the same length as <em>models</em> with each entry being the group to which
-that model is assigned. For instance, if <em>models</em> is 
-<em>[&#8216;ExpCM&#8217;, &#8216;YNGKP&#8217;, &#8216;ExpCM&#8217;, &#8216;YNGKP&#8217;]</em>,
-then <em>modelgroups</em> might be <em>[&#8216;HA&#8217;, &#8216;HA&#8217;, &#8216;NP&#8217;, &#8216;NP&#8217;]</em>. In this case,
-the two groups are indicated with a line and a label on the x-axis.
-Models in the same group must be consecutive. If any entry is <em>None</em>,
-the corresponding model is not assigned a group.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="phydmslib.plot.SmartJitter">
-<code class="descclassname">phydmslib.plot.</code><code class="descname">SmartJitter</code><span class="sig-paren">(</span><em>ys</em>, <em>yspace</em>, <em>xspace</em>, <em>xcenter</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.plot.SmartJitter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Smartly horizontally spaces points with assigned y-values to decrease overlap.</p>
-<p>Divides y-axis into bins, in each bin spaces points horizontally with the largest
-y-value point in the center and lower y-value points spreading out horizontally.</p>
-<p><em>ys</em> is a list of y-coordinates of the points.</p>
-<p><em>yspace</em> is the spacing between y-axis bins.</p>
-<p><em>xspace</em> is the spacing between points in the same bin on the x-axis.</p>
-<p><em>xcenter</em> is the center for the y-axis.</p>
-<p>The return value is <em>(smart_xs, smart_ys)</em>, which is a list with the
-x and y values of the spaced points.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="phydmslib.plot.SplitText">
-<code class="descclassname">phydmslib.plot.</code><code class="descname">SplitText</code><span class="sig-paren">(</span><em>text</em>, <em>maxchars</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.plot.SplitText" title="Permalink to this definition">¶</a></dt>
-<dd><p>Splits text by word and then breaks long words.</p>
-<p><em>text</em> is the text to split, <em>maxchars</em> is the max characters
-per line. First splits every word onto a new line, then 
-splits long words.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">SplitText</span><span class="p">(</span><span class="s1">&#39;lactamase ExpCM&#39;</span><span class="p">,</span> <span class="n">maxchars</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="go">&#39;lact-\namase\nExpCM&#39;</span>
-</pre></div>
-</div>
-</dd></dl>
-
+<div class="section" id="phydmslib-plot-module">
+<h2>phydmslib.plot module<a class="headerlink" href="#phydmslib-plot-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-phydmslib.pybpp">
 <span id="phydmslib-pybpp-module"></span><h2>phydmslib.pybpp module<a class="headerlink" href="#module-phydmslib.pybpp" title="Permalink to this headline">¶</a></h2>
@@ -883,7 +799,7 @@ have made a single point significant.</p>
 <li><a class="reference internal" href="#module-phydmslib.diffpref">phydmslib.diffpref module</a></li>
 <li><a class="reference internal" href="#module-phydmslib.file_io">phydmslib.file_io module</a></li>
 <li><a class="reference internal" href="#module-phydmslib.parsearguments">phydmslib.parsearguments module</a></li>
-<li><a class="reference internal" href="#module-phydmslib.plot">phydmslib.plot module</a></li>
+<li><a class="reference internal" href="#phydmslib-plot-module">phydmslib.plot module</a></li>
 <li><a class="reference internal" href="#module-phydmslib.pybpp">phydmslib.pybpp module</a></li>
 <li><a class="reference internal" href="#module-phydmslib.pylsd">phydmslib.pylsd module</a></li>
 <li><a class="reference internal" href="#module-phydmslib.utils">phydmslib.utils module</a></li>
@@ -908,8 +824,8 @@ have made a single point significant.</p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
@@ -934,13 +850,13 @@ have made a single point significant.</p>
         <li class="right" >
           <a href="api.html" title="The phydmslib API"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.2 documentation</a> &raquo;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.3 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="api.html" >The <code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
     </div>
   </body>
 </html>
