@@ -119,6 +119,15 @@ def FloatGreaterThanZero(x):
         raise argparse.ArgumentTypeError("%r not a float greater than zero" % x)
 
 
+def FloatBetweenZeroAndOne(x):
+    """Returns *x* only if *0 <= x <= 1*, otherwise raises error."""
+    x = float(x)
+    if 0 <= x <= 1:
+        return x
+    else:
+        raise argparse.ArgumentTypeError("{0} not a float between 0 and 1.".format(x))
+
+
 def ExistingFile(fname):
     """If *fname* is name of an existing file return it, otherwise an error.
     
@@ -198,7 +207,7 @@ def PhyDMSAnalyzeSelectionParser():
     parser.add_argument('--nolegend', action='store_true', dest='nolegend', help="Don't place a legend even on plates with labeled selected sites.")
     parser.set_defaults(dNdSlabel=False)
     parser.add_argument('--dNdSlabel', action='store_true', dest='dNdSlabel', help="Label omega-by-site plots with 'dN/dS' rather than 'omega_r'.")
-
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
 
 
@@ -208,8 +217,37 @@ def PhyDMSRenumberParser():
     parser.add_argument('renumberfile', type=ExistingFile, help="Column 1 lists current number for a site; column 2 gives new number. Put 'None' in column 2 if you want a site excluded from renumbered output. Lines beginning with '#' are ignored.")
     parser.add_argument('outprefixes', help="Output prefixes for which we renumber files with appropriate suffixes. Use '*' as a wildcard character.", nargs='+')
     parser.add_argument('--renumberedprefix', default='renumbered', help='Add this prefix followed by underscore to names of renumbered files.')
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
 
+
+def PhyDMSPrepAlignmentParser():
+    """Returns *argparse.ArgumentParser* for ``phydms_prepalignment``."""
+    parser = ArgumentParserNoArgHelp(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+            description="""Prepare alignment of protein-coding DNA sequences. 
+            How this is done is specified by the options below,
+            which are performed in order.
+            {0} Version {1}. Full documentation at {2}""".format(
+            phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__)
+            )
+
+    parser.add_argument('inseqs', type=ExistingFile, help="FASTA file giving input coding sequences. Should already be aligned unless using '--pairwisealign'.")
+    parser.add_argument('alignment', help='Name of created output FASTA alignment.')
+    parser.add_argument('refseq', help="Reference sequence in 'inseqs': specify substring found ONLY in header for that sequence.")
+    parser.set_defaults(no_purgeambiguous=False)
+    parser.add_argument('--no-purgeambiguous', dest='no_purgeambiguous', action='store_true', help='By default sequences with ambiguous nucleotides are purged; with this option they are not.')
+    parser.set_defaults(pairwisealign=False)
+    parser.add_argument('--pairwisealign', dest='pairwisealign', action='store_true', help="Pairwise align each sequence to 'refseq' at codon level using 'needle' to build alignment on proteins.")
+    parser.add_argument('--needlecmd', default='needle', help="Command to run EMBOSS needle if using '--pairwisealign'.")
+    parser.add_argument('--maxgapfrac', type=FloatBetweenZeroAndOne, default=0.5, help="Purge any sequences with >= this many gaps relative to 'refseq' after stripping sites that are gapped in 'refseq'.")
+    parser.add_argument('--minDNAidentity', type=FloatBetweenZeroAndOne, help="Only retain sequences with >= this DNA identity to 'refseq' at aligned positions.", default=0)
+    parser.add_argument('--minprotidentity', type=FloatBetweenZeroAndOne, help="Only retain sequences with >= this protein identity to 'refseq' at aligned positions.", default=0)
+    parser.set_defaults(no_checkheaders=False)
+    parser.add_argument('--no-checkheaders', dest='no_checkheaders', action='store_true', help="Unless you use this option, the following characters in headers are replaced by underscores: spaces, commas, colons, semicolons, parentheses, square brackets, single quotes, double quotes. Also, a check is performed to make sure each header is unique.")
+    parser.set_defaults(plotretained=False)
+    parser.add_argument('--plotretained', dest='plotretained', action='store_true', help="Make a PDF with same root name as 'alignment' showing the retained and purged sequences as function of protein and DNA identity to 'refseq'. Does not show sequences purged due to '--maxgapfrac'.")
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
+    return parser
 
 
 def PhyDMSPlotSelectionParser():

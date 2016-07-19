@@ -1,0 +1,219 @@
+#!python
+
+"""Simple script to prep alignments for ``phydms``.
+
+Written by Jesse Bloom."""
+
+
+import os
+import re
+import subprocess
+import Bio.SeqIO
+import phydmslib.parsearguments
+import phydmslib.file_io
+
+
+def CodonAlignmentFromProtAlignment(seqs, prots, refprot, needlecmd):
+    """Returns codon alignment from protein alignment.
+
+    Each sequence is pairwise aligned to *refprot*.
+
+    *seqs* is a list of *Bio.SeqRecord.SeqRecord* codon sequences
+    and *prots* is corresponding list of proteins.
+
+    *refprot* is a string giving the reference protein sequence.
+    We pairwise align the translation of each sequence to *refseq*
+    and strip away any gaps relative to *refseq.
+    """
+    assert len(prots) == len(seqs)
+    try:
+        needlerefseq = '_needlerefseq.txt'
+        needleprots = '_needleprots.txt'
+        needleout = '_needleout.txt'
+        with open(needlerefseq, 'w') as f:
+            f.write('>refseq\n' + str(refprot))
+        with open(needleprots, 'w') as f:
+            f.write('\n'.join(['>s{0}\n{1}'.format(i, str(prot)) for (i, prot) in enumerate(prots)]))
+        needle_cline = Bio.Emboss.Applications.NeedleCommandline(needlecmd)
+        needle_cline.asequence = needlerefseq
+        needle_cline.bsequence = needleprots
+        needle_cline.gapopen = 10.0
+        needle_cline.gapextend = 0.5
+        needle_cline.outfile = needleout
+        needle_cline()
+        alignment = [a for a in Bio.AlignIO.parse(needleout, 'emboss')]
+        assert len(alignment) == len(seqs)
+        assert all([str(a[1].seq).replace('-', '') == str(prot[1]) for (a, prot) in zip(alignment, prots)])
+        assert all([len(a) == 2 for a in alignment])
+        assert all([str(a[0].seq).replace('-', '') == str(refprot) for a in alignment])
+        codonalignment = []
+        for (a, codonseq) in zip(alignment, seqs):
+            header = codonseq.description
+            codonseq = str(codonseq.seq)
+            alignedrefprot = str(a[0].seq)
+            alignedprot = str(a[1].seq)
+            assert len(alignedprot) == len(alignedrefprot)
+            alignedcodonseq = []
+            icodon = 0
+            for (aa, aaref) in zip(alignedprot, alignedrefprot):
+                if aaref == '-':
+                    assert aa != '-'
+                    icodon += 1
+                elif aa == '-':
+                    alignedcodonseq.append('---')
+                else:
+                    assert len(codonseq) >= icodon * 3 + 3, "Looking for codon %d in a sequence of %d codons" % (icodon * 3 + 3, len(codonseq))
+                    alignedcodonseq.append(codonseq[icodon * 3 : icodon * 3 + 3])
+                    icodon += 1
+            alignedcodonseq = ''.join(alignedcodonseq)
+            assert len(refprot) * 3 == len(alignedcodonseq), ">refprot %d\n%s\n>alignedcodonseq %d\n%s" % (len(refprot), refprot, len(alignedcodonseq), alignedcodonseq)
+            codonalignment.append((header, alignedcodonseq))
+    finally:
+        for f in [needlerefseq, needleprots, needleout]:
+            if os.path.isfile(f):
+                os.remove(f)
+    return codonalignment
+
+
+def main():
+    """Main body of script."""
+
+    # Parse command line arguments
+    parser = phydmslib.parsearguments.PhyDMSPrepAlignmentParser()
+    args = vars(parser.parse_args())
+    prog = parser.prog
+
+    # print some basic information
+    print('\nBeginning execution of %s in directory %s at time %s\n' % (prog, os.getcwd(), time.asctime()))
+    print("%s\n" % phydmslib.file_io.Versions())
+    print('Parsed the following command-line arguments:\n%s\n' % '\n'.join(['\t%s = %s' % tup for tup in args.iteritems()]))
+
+    seqs = list(Bio.SeqIO.parse(args['inseqs'], 'fasta'))
+    print("Read {0} sequences from {1}".format(len(seqs), args['inseqs']))
+
+    # purge ambiguous nucleotide sequences
+    if not args['no_purgeambiguous']:
+        seqmatch = re.compile('^[ACTG-]+$')
+        seqs = [seq for seq in seqs if seqmatch.search(str(seq.seq))]
+        print("Retained {0} sequences after purging any with ambiguous nucleotides.".format(len(seqs)))
+
+    # get reference sequence
+    refseq = [seq for seq in seqs if args['refseq'] in seq.description]
+    if len(refseq) == 1:
+        refseq = refseq[1]
+        refseqhead = refseq.description
+        try:
+            refprot = str(refseq.seq.translate(gap='-', stop_symbol='*'))
+            assert refprot.count('-') != len(refprot), "refseq is all gaps."
+        except:
+            raise ValueError("Cannot translate refseq {0}".format(refseqhead))
+        refseq = str(refseq.seq)
+        print("Using the following as reference sequence: {0}".format(refseqhead))
+    elif len(refseq) < 1:
+        raise ValueError("Failed to find any sequence with a header that contained refseq identifier of {0}".format(args['refseq']))
+    else:
+        raise ValueError("Found multiple sequences with headers that contained refseq identifier of {0}".format(args['refseqs']))
+
+    # make sure all sequences translate
+    prots = []
+    for seq in seqs:
+        if len(seq) % 3 != 0:
+            raise ValueError("Sequence length of {0} not a multiple of 3 for {1}".format(len(seq), seq.description))
+        try:
+            prot = seq.seq.translate(gap='-', stop_symbol='*')
+            prots.append(prot)
+        except:
+            raise ValueError("Problem translating DNA to protein for {0}".format(seq.description))
+
+    # pairwise align if needed, strip gaps relative to refseq
+    if args['pairwisealign']:
+        try:
+            embossversion = subprocess.check_output([args['needlecmd'], '-version']).strip()
+        except OSError:
+            raise ValueError("The needle command of {0} is not valid. Is needle installed at this path?".format(args['needlecmd']))
+        print("Making pairwise codon alignments using needle from {0}".format(embossversion))
+        alignment = CodonAlignmentFromProtAlignment(seqs, prots, refprot, args['needlecmd'])   
+        assert len(alignment) == len(seqs)
+    else:
+        assert all([len(seq) == len(refseq) for seq in seqs]), "Sequences are not all of the same length. Are you sure they are already aligned?"
+        # strip gaps relative to refseq
+        gappedsites = set([i for (i, nt) in enumerate(refseq)])
+        alignment = []
+        for seq in seqs:
+            head = seq.description
+            seq = ''.join([x for (i, x) in enumerate(str(seq.seq)) if i not in gappedsites])
+            alignment.append((head, seq))
+
+    # check gap stripping
+    refseq = refseq.replace('-', '')
+    refprot = refprot.replace('-', '')
+    print("After stripping gaps relative to refseq, all sequences are of length {0}".format(len(refseq)))
+    assert len(refseq) % 3 == 0, "Length not a multiple of 3"
+    assert all([len(refseq) == len(seq) for (head, seq) in alignment]), "Not all seqs of same length."
+
+    # purge sequences with excessive gaps
+    maxgaps = args['maxgapfrac'] * len(refseq)
+    alignment = [(head, seq) for (head, seq) in alignment if seq.count('-') <= maxgaps]
+    print("After removing sequences with over {0} fraction gaps relative to refseq, there are {1} remaining.".format(args['maxgapfrac'], len(alignment)))
+
+    # make alignment list of *(head, seq, prot)*
+    newalignment = []
+    foundrefseq = False
+    for (head, seq) in alignment:
+        prot = str(Bio.Seq.Seq(seq).translate(gap='-', stop_symbol='*'))
+        newalignment.append((head, seq, prot))
+        if head == refseqhead:
+            assert not foundrefseq
+            foundrefseq = True
+            assert prot == refprot
+            assert seq == refseq
+    alignment = newalignment
+    
+    # trim last position if stop codon in refprot
+    if '*' in refprot:
+        if refprot.count('*') == 1 and refprot[-1] == '*':
+            refprot = refprot[ : -1]
+            refseq = refseq[ : -3]
+            print("Trimming terminal stop codon; sequences now of length {0}".format(len(refseq)))
+            alignment = [(head, seq[ : -3], prot[ : -3]) for (head, seq, prot) in alignment]
+        else:
+            raise ValueError("refseq has stop codon not at the terminal position")
+
+    # get rid of any sequences with non-terminal stop codons
+    newalignment = []
+    for (head, seq, prot) in alignment:
+        if prot.count('*') == 0:
+            newalignment.append((head, seq, prot))
+        elif prot.count('*') > 1:
+            pass
+        else:
+            if prot.replace('-', '')[-1] == '*':
+                # stop codon is at end, so make a gap instead
+                i = prot.index('*')
+                prot = list(prot)
+                prot[i] = '-'
+                prot = ''.join(prot)
+                seq = list(seq)
+                seq[3 * i : 3 * i + 3] = '---'
+                seq = ''.join(seq)
+                newalignment.append((head, prot, seq))
+            else:
+                pass # stop codon not at end
+    alignment = newalignment
+    print("After purging sequences with non-terminal stop codons, {0} remain.".format(len(alignment)))
+
+    # do minprotidentity / minDNAidentity
+    raise RuntimeError('implementation not yet complete, do not use this program')
+
+    # purge overly identical, somehow favoring common sequences
+
+    # check headers
+
+    # make plot
+
+    # program done
+    print('\nSuccessful completion of %s' % prog)
+
+
+if __name__ == '__main__':
+    main() # run the script

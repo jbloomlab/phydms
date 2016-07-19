@@ -1,6 +1,10 @@
 Changelog
 ===========
 
+1.2.dev4
+-------
+* Added ``phydms_prepalignment`` program.
+
 1.2.3
 ----------
 * Updated docs
