@@ -42,9 +42,14 @@ def MAFFT_CDSandProtAlignments(headseqprots, mafftcmd, tempfileprefix):
     seq_d = dict([(head, seq) for (head, seq, prot) in headseqprots])
     prot_d = dict([(head, prot) for (head, seq, prot) in headseqprots])
 
-    unalignedprotsfile = '_' + tempfileprefix + '_unaligned_mafft_prots.fasta'
-    alignedprotsfile = '_' + tempfileprefix + '_aligned_mafft_prots.fasta'
-    outputfile = '_' + tempfileprefix + '_maff_output.txt'
+    (tempfiledir, tempfilebase) = (os.path.dirname(tempfileprefix), os.path.basename(tempfileprefix))
+    if tempfiledir:
+        tempfileprefix = tempfiledir + '/_' + tempfilebase
+    else:
+        tempfileprefix = tempfilebase
+    unalignedprotsfile = tempfileprefix + '_unaligned_mafft_prots.fasta'
+    alignedprotsfile = tempfileprefix + '_aligned_mafft_prots.fasta'
+    outputfile = tempfileprefix + '_mafft_output.txt'
     with open(unalignedprotsfile, 'w') as f:
         f.write('\n'.join(['>{0}\n{1}'.format(head, prot) for (head, seq, prot) in headseqprots]))
 
@@ -58,12 +63,12 @@ def MAFFT_CDSandProtAlignments(headseqprots, mafftcmd, tempfileprefix):
     alignedseqprots_by_head = {}
     for alignedprotrecord in Bio.SeqIO.parse(alignedprotsfile, 'fasta'):
         head = alignedprotrecord.description
-        alignedprot = str(alignedprot.seq)
+        alignedprot = str(alignedprotrecord.seq)
         prot = prot_d[head]
         seq = seq_d[head]
         assert ('-' not in prot) and ('-' not in seq), "Already gaps in seq or prot"
         assert len(alignedprot) >= len(prot)
-        assert len(alignedprot.remove('-')) == len(prot)
+        assert len(alignedprot.replace('-', '')) == len(prot)
         assert len(seq) == len(prot) * 3
         alignedseq = []
         i = 0 # keeps track of position in unaligned prot

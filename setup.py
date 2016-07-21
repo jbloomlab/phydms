@@ -138,7 +138,7 @@ setup(
     platforms = 'Linux',
     packages = ['phydmslib'],
     package_dir = {'phydmslib':'phydmslib'},
-#    ext_modules = lazy_cythonize(extensions),
+    ext_modules = lazy_cythonize(extensions),
     scripts = [
             'scripts/phydms',
             'scripts/phydms_comprehensive',
