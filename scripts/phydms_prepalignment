@@ -1,78 +1,91 @@
 #!python
 
-"""Simple script to prep alignments for ``phydms``.
+"""Prep coding sequence alignments for ``phydms``.
 
 Written by Jesse Bloom."""
 
 
 import os
 import re
+import time
 import subprocess
+import matplotlib
+matplotlib.use('pdf')
+import matplotlib.pyplot as plt
+plt.style.use('ggplot')
 import Bio.SeqIO
+import Bio.Data.CodonTable
 import phydmslib.parsearguments
 import phydmslib.file_io
 
 
-def CodonAlignmentFromProtAlignment(seqs, prots, refprot, needlecmd):
-    """Returns codon alignment from protein alignment.
+_cleanheader = re.compile('[\s\:\;\(\)\[\]\,\'\"]')
+def CleanHeader(head):
+    """Returns copy of header with problem characters replaced by underscore."""
+    return _cleanheader.sub('_', head)
 
-    Each sequence is pairwise aligned to *refprot*.
 
-    *seqs* is a list of *Bio.SeqRecord.SeqRecord* codon sequences
-    and *prots* is corresponding list of proteins.
+def MAFFT_CDSandProtAlignments(headseqprots, mafftcmd, tempfileprefix):
+    """Uses MAFFT to align CDS sequences from protein sequences.
 
-    *refprot* is a string giving the reference protein sequence.
-    We pairwise align the translation of each sequence to *refseq*
-    and strip away any gaps relative to *refseq.
+    *headseqprots* is a list of *(header, ntseq, protseq)* strings.
+
+    *mafftcmd* is command to run MAFFT.
+
+    *tempfileprefix* prefix for temporary files that are created,
+    then destroyed if function completes normally.
+
+    The return value is *alignedheadseqprots*, which is like
+    *headseqprots* except coding and protein sequences are aligned.
+    The sequence order is preserved in this list.
     """
-    assert len(prots) == len(seqs)
-    try:
-        needlerefseq = '_needlerefseq.txt'
-        needleprots = '_needleprots.txt'
-        needleout = '_needleout.txt'
-        with open(needlerefseq, 'w') as f:
-            f.write('>refseq\n' + str(refprot))
-        with open(needleprots, 'w') as f:
-            f.write('\n'.join(['>s{0}\n{1}'.format(i, str(prot)) for (i, prot) in enumerate(prots)]))
-        needle_cline = Bio.Emboss.Applications.NeedleCommandline(needlecmd)
-        needle_cline.asequence = needlerefseq
-        needle_cline.bsequence = needleprots
-        needle_cline.gapopen = 10.0
-        needle_cline.gapextend = 0.5
-        needle_cline.outfile = needleout
-        needle_cline()
-        alignment = [a for a in Bio.AlignIO.parse(needleout, 'emboss')]
-        assert len(alignment) == len(seqs)
-        assert all([str(a[1].seq).replace('-', '') == str(prot[1]) for (a, prot) in zip(alignment, prots)])
-        assert all([len(a) == 2 for a in alignment])
-        assert all([str(a[0].seq).replace('-', '') == str(refprot) for a in alignment])
-        codonalignment = []
-        for (a, codonseq) in zip(alignment, seqs):
-            header = codonseq.description
-            codonseq = str(codonseq.seq)
-            alignedrefprot = str(a[0].seq)
-            alignedprot = str(a[1].seq)
-            assert len(alignedprot) == len(alignedrefprot)
-            alignedcodonseq = []
-            icodon = 0
-            for (aa, aaref) in zip(alignedprot, alignedrefprot):
-                if aaref == '-':
-                    assert aa != '-'
-                    icodon += 1
-                elif aa == '-':
-                    alignedcodonseq.append('---')
-                else:
-                    assert len(codonseq) >= icodon * 3 + 3, "Looking for codon %d in a sequence of %d codons" % (icodon * 3 + 3, len(codonseq))
-                    alignedcodonseq.append(codonseq[icodon * 3 : icodon * 3 + 3])
-                    icodon += 1
-            alignedcodonseq = ''.join(alignedcodonseq)
-            assert len(refprot) * 3 == len(alignedcodonseq), ">refprot %d\n%s\n>alignedcodonseq %d\n%s" % (len(refprot), refprot, len(alignedcodonseq), alignedcodonseq)
-            codonalignment.append((header, alignedcodonseq))
-    finally:
-        for f in [needlerefseq, needleprots, needleout]:
-            if os.path.isfile(f):
-                os.remove(f)
-    return codonalignment
+    seq_d = dict([(head, seq) for (head, seq, prot) in headseqprots])
+    prot_d = dict([(head, prot) for (head, seq, prot) in headseqprots])
+
+    unalignedprotsfile = '_' + tempfileprefix + '_unaligned_mafft_prots.fasta'
+    alignedprotsfile = '_' + tempfileprefix + '_aligned_mafft_prots.fasta'
+    outputfile = '_' + tempfileprefix + '_maff_output.txt'
+    with open(unalignedprotsfile, 'w') as f:
+        f.write('\n'.join(['>{0}\n{1}'.format(head, prot) for (head, seq, prot) in headseqprots]))
+
+    with open(alignedprotsfile,'w') as stdout, open(outputfile, 'w') as stderr:
+        subprocess.check_call(
+                [mafftcmd, '--auto', unalignedprotsfile], 
+                stdout=stdout, 
+                stderr=stderr,
+                )
+
+    alignedseqprots_by_head = {}
+    for alignedprotrecord in Bio.SeqIO.parse(alignedprotsfile, 'fasta'):
+        head = alignedprotrecord.description
+        alignedprot = str(alignedprot.seq)
+        prot = prot_d[head]
+        seq = seq_d[head]
+        assert ('-' not in prot) and ('-' not in seq), "Already gaps in seq or prot"
+        assert len(alignedprot) >= len(prot)
+        assert len(alignedprot.remove('-')) == len(prot)
+        assert len(seq) == len(prot) * 3
+        alignedseq = []
+        i = 0 # keeps track of position in unaligned prot
+        for aa in alignedprot:
+            if aa == '-':
+                alignedseq.append('---')
+            else:
+                assert aa == prot[i]
+                alignedseq.append(seq[3 * i : 3 * i + 3])
+                i += 1
+        alignedseqprots_by_head[head] = (''.join(alignedseq), alignedprot)
+
+    # get back to original input order
+    alignedheadseqprots = []
+    for (head, seq, prot) in headseqprots:
+        (alignedseq, alignedprot) = alignedseqprots_by_head[head]
+        alignedheadseqprots.append((head, alignedseq, alignedprot))
+
+    for f in [unalignedprotsfile, alignedprotsfile, outputfile]:
+        os.remove(f)
+
+    return alignedheadseqprots
 
 
 def main():
@@ -88,128 +101,235 @@ def main():
     print("%s\n" % phydmslib.file_io.Versions())
     print('Parsed the following command-line arguments:\n%s\n' % '\n'.join(['\t%s = %s' % tup for tup in args.iteritems()]))
 
-    seqs = list(Bio.SeqIO.parse(args['inseqs'], 'fasta'))
+    plot = os.path.splitext(args['alignment'])[0] + '.pdf'
+    for f in [plot, args['alignment']]:
+        if os.path.isfile(f):
+            print("Removing existing output file {0}".format(f))
+            os.remove(f)
+
+    # get keepseqs and purgeseqs as sets
+    for argname in ['keepseqs', 'purgeseqs']:
+        argvalue = args[argname]
+        if argvalue:
+            if len(argvalue) == 1 and argvalue[0] and os.path.isfile(argvalue[0]):
+                with open(argvalue[0]) as f:
+                    args[argname] = set([line.strip() for line in f.readlines() if line and not line.isspace()])
+                print("Read {0} sequences from the --{1} file {2}".format(len(args[argname]), argname, argvalue[0]))
+            else:
+                args[argname] = set([x for x in argvalue if x])
+                print("There are {0} sequences specified by --{1}".format(len(args[argname]), argname))
+        else:
+            args[argname] = set([])
+
+    # read sequences
+    seqs = []
+    for seq in Bio.SeqIO.parse(args['inseqs'], 'fasta'):
+        seq.seq = seq.seq.upper()
+        seqs.append(seq)
     print("Read {0} sequences from {1}".format(len(seqs), args['inseqs']))
 
+    # sequences to purge
+    cleanseqs = []
+    for seq in seqs:
+        head = seq.description
+        cleanhead = CleanHeader(head)
+        for purgename in args['purgeseqs']:
+            if (purgename in head) or (purgename in cleanhead):
+                break
+        else:
+            cleanseqs.append(seq)
+    seqs = cleanseqs
+    print("Retained {0} after removing those specified for purging by '--purgeseqs.'".format(len(seqs)))
+
+    # remove gaps if sequences not pre-aligned
+    if not args['prealigned']:
+        for (i, seq) in enumerate(seqs):
+            seqs[i].seq = seqs[i].seq.ungap(gap='-')
+
+    # check length divisible by 3
+    seqs = [seq for seq in seqs if len(seq) % 3 == 0]
+    print("Retained {0} sequences after removing any with length not multiple of 3.".format(len(seqs)))
+
     # purge ambiguous nucleotide sequences
-    if not args['no_purgeambiguous']:
-        seqmatch = re.compile('^[ACTG-]+$')
-        seqs = [seq for seq in seqs if seqmatch.search(str(seq.seq))]
-        print("Retained {0} sequences after purging any with ambiguous nucleotides.".format(len(seqs)))
+    seqmatch = re.compile('^[ACTG-]+$')
+    seqs = [seq for seq in seqs if seqmatch.search(str(seq.seq))]
+    print("Retained {0} sequences after purging any with ambiguous nucleotides.".format(len(seqs)))
+
+    # make sure all sequences translate without premature stops
+    prots = []
+    for i in range(len(seqs)):
+        try:
+            prots.append(str(seqs[i].seq.translate(gap='-', stop_symbol='*')))
+        except Bio.Data.CodonTable.TranslationError:
+            seqs.pop(i) # doesn't translate
+    if args['prealigned']:
+        for i in range(len(seqs)):
+            prot = prots[i]
+            if (prot.count('*') == 1) and prots.replace('-', '')[-1] == '*':
+                # convert terminal stop to gap, trimmed later if all sites gapped
+                istop = prot.index('*')
+                prot = prots[i]
+                prot[istop] = '-'
+                prots[i] = ''.join(prot)
+                # introduce gap requires making seq mutable
+                iseq = seqs[i].seq.tomutable()
+                iseq[3 * istop : 3 * istop + 3] = '---'
+                seqs[i].seq = iseq.toseq()
+            elif prot.count('*') >= 1:
+                # premature stop
+                seqs.pop(i)
+                prots.pop(i)
+    else:
+        for i in range(len(seqs)):
+            prot = prots[i]
+            if prot.count('*') == 1 and prots[-1] == '*':
+                # trim terminal stop
+                prots[i] = prots[i][ : -1]
+                seqs[i].seq = seqs[i].seq[ : -3]
+            elif prot.count('*') >= 1:
+                # premature stop
+                seqs.pop(i)
+                prots.pop(i)
+    print("Retained {0} sequences after purging any with premature stops or that are otherwise un-translateable.".format(len(seqs)))
 
     # get reference sequence
-    refseq = [seq for seq in seqs if args['refseq'] in seq.description]
+    refseq = [seq for seq in seqs if (args['refseq'] in seq.description) or (args['refseq'] in CleanHeader(seq.description))]
     if len(refseq) == 1:
-        refseq = refseq[1]
-        refseqhead = refseq.description
-        try:
-            refprot = str(refseq.seq.translate(gap='-', stop_symbol='*'))
-            assert refprot.count('-') != len(refprot), "refseq is all gaps."
-        except:
-            raise ValueError("Cannot translate refseq {0}".format(refseqhead))
-        refseq = str(refseq.seq)
-        print("Using the following as reference sequence: {0}".format(refseqhead))
+        refseq = refseq[0]
+        print("Using the following as reference sequence: {0}".format(refseq.description))
     elif len(refseq) < 1:
         raise ValueError("Failed to find any sequence with a header that contained refseq identifier of {0}".format(args['refseq']))
     else:
         raise ValueError("Found multiple sequences with headers that contained refseq identifier of {0}".format(args['refseqs']))
 
-    # make sure all sequences translate
-    prots = []
-    for seq in seqs:
-        if len(seq) % 3 != 0:
-            raise ValueError("Sequence length of {0} not a multiple of 3 for {1}".format(len(seq), seq.description))
-        try:
-            prot = seq.seq.translate(gap='-', stop_symbol='*')
-            prots.append(prot)
-        except:
-            raise ValueError("Problem translating DNA to protein for {0}".format(seq.description))
-
-    # pairwise align if needed, strip gaps relative to refseq
-    if args['pairwisealign']:
-        try:
-            embossversion = subprocess.check_output([args['needlecmd'], '-version']).strip()
-        except OSError:
-            raise ValueError("The needle command of {0} is not valid. Is needle installed at this path?".format(args['needlecmd']))
-        print("Making pairwise codon alignments using needle from {0}".format(embossversion))
-        alignment = CodonAlignmentFromProtAlignment(seqs, prots, refprot, args['needlecmd'])   
-        assert len(alignment) == len(seqs)
-    else:
-        assert all([len(seq) == len(refseq) for seq in seqs]), "Sequences are not all of the same length. Are you sure they are already aligned?"
-        # strip gaps relative to refseq
-        gappedsites = set([i for (i, nt) in enumerate(refseq)])
-        alignment = []
-        for seq in seqs:
-            head = seq.description
-            seq = ''.join([x for (i, x) in enumerate(str(seq.seq)) if i not in gappedsites])
-            alignment.append((head, seq))
-
-    # check gap stripping
-    refseq = refseq.replace('-', '')
-    refprot = refprot.replace('-', '')
-    print("After stripping gaps relative to refseq, all sequences are of length {0}".format(len(refseq)))
-    assert len(refseq) % 3 == 0, "Length not a multiple of 3"
-    assert all([len(refseq) == len(seq) for (head, seq) in alignment]), "Not all seqs of same length."
-
-    # purge sequences with excessive gaps
-    maxgaps = args['maxgapfrac'] * len(refseq)
-    alignment = [(head, seq) for (head, seq) in alignment if seq.count('-') <= maxgaps]
-    print("After removing sequences with over {0} fraction gaps relative to refseq, there are {1} remaining.".format(args['maxgapfrac'], len(alignment)))
-
-    # make alignment list of *(head, seq, prot)*
-    newalignment = []
+    # For removing sequences, we make two lists: sequences to always keeps,
+    # then other sequences ordered by frequency that protein occurs.
+    # This allows us to preferentially retain common sequences.
+    seqs_alwayskeep = [] # entries are (head, seq, prot) as strings
+    protcounts = {} # keyed by protein, values are lists of (head, seq, prot)
     foundrefseq = False
-    for (head, seq) in alignment:
-        prot = str(Bio.Seq.Seq(seq).translate(gap='-', stop_symbol='*'))
-        newalignment.append((head, seq, prot))
-        if head == refseqhead:
-            assert not foundrefseq
+    assert len(seqs) == len(prots)
+    for (seqrecord, prot) in zip(seqs, prots):
+        head = seqrecord.description
+        cleanhead = CleanHeader(head)
+        seq = str(seqrecord.seq)
+        if head == refseq.description:
             foundrefseq = True
-            assert prot == refprot
-            assert seq == refseq
-    alignment = newalignment
-    
-    # trim last position if stop codon in refprot
-    if '*' in refprot:
-        if refprot.count('*') == 1 and refprot[-1] == '*':
-            refprot = refprot[ : -1]
-            refseq = refseq[ : -3]
-            print("Trimming terminal stop codon; sequences now of length {0}".format(len(refseq)))
-            alignment = [(head, seq[ : -3], prot[ : -3]) for (head, seq, prot) in alignment]
+            seqs_alwayskeep.insert(0, (cleanhead, seq, prot))
         else:
-            raise ValueError("refseq has stop codon not at the terminal position")
-
-    # get rid of any sequences with non-terminal stop codons
-    newalignment = []
-    for (head, seq, prot) in alignment:
-        if prot.count('*') == 0:
-            newalignment.append((head, seq, prot))
-        elif prot.count('*') > 1:
-            pass
-        else:
-            if prot.replace('-', '')[-1] == '*':
-                # stop codon is at end, so make a gap instead
-                i = prot.index('*')
-                prot = list(prot)
-                prot[i] = '-'
-                prot = ''.join(prot)
-                seq = list(seq)
-                seq[3 * i : 3 * i + 3] = '---'
-                seq = ''.join(seq)
-                newalignment.append((head, prot, seq))
+            for keepsubstring in args['keepseqs']:
+                if (keepsubstring in head) or (keepsubstring in cleanhead):
+                    seqs_alwayskeep.append((cleanhead, seq, prot))
+                    break
             else:
-                pass # stop codon not at end
-    alignment = newalignment
-    print("After purging sequences with non-terminal stop codons, {0} remain.".format(len(alignment)))
+                if prot in protcounts:
+                    protcounts[prot].append((cleanhead, seq, prot))
+                else:
+                    protcounts[prot] = [(cleanhead, seq, prot)]
+    assert len(seqs) == len(seqs_alwayskeep) + sum([len(x) for x in protcounts.values()]), "Somehow lost sequences when looking for unique seqs."
+    assert foundrefseq, "Never found refseq to add to seqs_alwayskeep"
+    # get one unique copy of each protein sorted by number of copies
+    seqs_unique = sorted([(len(x), x[0]) for x in protcounts.values()], reverse=True)
+    seqs_unique = [seqtup for (count, seqtup) in seqs_unique]
+    print("Purged sequences encoding redundant proteins, being sure to retain reference sequence and any specified by '--keepseqs'. Overall, {0} sequences remain.".format(len(seqs_unique) + len(seqs_alwayskeep)))
+    heads = [tup[0] for tup in seqs_unique] + [tup[0] for tup in seqs_alwayskeep]
+    assert len(heads) == len(set(heads)), "Found sequences with non-unique cleaned headers:\n%s".format('\n'.join([head for head in heads if heads.count(head) > 1]))
 
-    # do minprotidentity / minDNAidentity
-    raise RuntimeError('implementation not yet complete, do not use this program')
+    if args['prealigned']:
+        print("You specified '--prealigned', so the sequences are NOT being aligned.")
+        # make sure sequences all the same length
+        seqlengths = [len(tup[1]) for tup in seqs_unique + seqs_alwayskeep]
+        assert all([seqlengths[0] == n for n in seqlengths]), "You indicated sequences are pre-aligned with the '--prealigned option, but they are not all of the same length."
+    else:
+        # align all sequences
+        try:
+            mafftversion = subprocess.check_output([args['mafft'], '--version'], stderr=subprocess.STDOUT).strip()
+            print("Aligning sequences with MAFFT using {0} {1}".format(args['mafft'], mafftversion))
+        except OSError:
+            raise ValueError("The mafft command of {0} is not valid. Is mafft installed at this path?".format(args['mafft']))
+        alignment = MAFFT_CDSandProtAlignments(seqs_unique + seqs_alwayskeep, args['mafft'], args['alignment'])
+        seqs_unique = alignment[ : len(seqs_unique)]
+        seqs_alwayskeep = alignment[len(seqs_unique) : ]
+        seqlengths = [len(tup[1]) for tup in seqs_unique + seqs_alwayskeep]
+        assert all([seqlengths[0] == n for n in seqlengths]), "MAFFT alignment failed to yield sequences all of the same length."
 
-    # purge overly identical, somehow favoring common sequences
+    # strip gaps relative refseq
+    assert seqs_alwayskeep[0][0] == refseq.description
+    refseqprot = seqs_alwayskeep[0][2]
+    gapped = set([i for i in range(len(refseqprot)) if refseqprot[i] == '-'])
+    for xlist in [seqs_alwayskeep, seqs_unique]:
+        for (i, (head, seq, prot)) in enumerate(xlist):
+            strippedprot = ''.join([aa for (j, aa) in enumerate(prot) if j not in gapped])
+            strippedseq = ''.join([seq[3 * j : 3 * j + 3] for j in range(len(prot)) if j not in gapped])
+            xlist[i] = (head, strippedseq, strippedprot)
+    refseqprot = seqs_alwayskeep[0][2] # with gaps removed
+    assert '-' not in refseqprot, "Gap stripping from reference sequence failed."
+    refseq = seqs_alwayskeep[0][1] # with gaps removed
+    assert '-' not in refseq, "Gap stripping from reference sequence failed."
+    print("After stripping gaps relative to reference sequence, all proteins are of length {0}".format(len(refseqprot)))
 
-    # check headers
+    # make seqs_unique, seq_always be *(head, seq, prot, ntident, protident)
+    refseqprotlength = float(len(refseqprot))
+    refseqlength = float(len(refseq))
+    for xlist in [seqs_alwayskeep, seqs_unique]:
+        for (i, (head, seq, prot)) in enumerate(xlist):
+            protident = sum([x == y for (x, y) in zip(prot, refseqprot)]) / refseqprotlength
+            ntident = sum([x == y for (x, y) in zip(seq, refseq)]) / refseqlength
+            xlist[i] = (head, seq, prot, ntident, protident)
+
+    # purge sequences that don't meet identity threshold
+    purged_idents = [] # list of *(ntident, protident)* for purged sequences
+    for xlist in [seqs_alwayskeep, seqs_unique]:
+        remove_indices = []
+        for (i, (head, seq, prot, ntident, protident)) in enumerate(xlist):
+            if protident < args['minidentity']:
+                purged_idents.append((ntident, protident))
+                remove_indices.append(i)
+        for i in sorted(remove_indices, reverse=True):
+            del xlist[i]
+    print("Retained {0} sequences after purging those with < {1} protein identity to reference sequence.".format(len(seqs_alwayskeep + seqs_unique), args['minidentity']))
+
+    # purge sequences that don't meet uniqueness threshold
+    alignment = seqs_alwayskeep
+    for (head, seq, prot, ntident, protident) in seqs_unique:
+        for (head2, seq2, prot2, ntident2, protident2) in alignment:
+            protdiffs = sum([x != y for (x, y) in zip(prot, prot2)])
+            if protdiffs < args['minuniqueness']:
+                purged_idents.append((ntident, protident))
+                break
+        else:
+            alignment.append((head, seq, prot, ntident, protident))
+    print("Retained {0} sequences after purging those without at least {1} amino-acid differences with other retained sequences.".format(len(alignment), args['minuniqueness']))
+
+    # write final alignment of coding sequences
+    print("Writing the final alignment of {0} coding sequences to {1}".format(len(alignment), args['alignment']))
+    with open(args['alignment'], 'w') as f:
+        for (head, seq, prot, ntident, protident) in alignment:
+            f.write('>{0}\n{1}\n'.format(head, seq))
 
     # make plot
+    retained_idents = [(ntident, protident) for (head, seq, prot, ntident, protident) in alignment]
+    print("Plotting retained and purged sequences to {0}".format(plot))
+    fig = plt.figure()
+    points = []
+    labels = []
+    for (label, idents, color, marker, alpha) in [
+            ('purged', purged_idents, 'b', 'o', 0.25), 
+            ('retained', retained_idents, 'r', 'd', 0.5)
+            ]:
+        pt = plt.scatter(
+                [tup[0] for tup in idents],
+                [tup[1] for tup in idents],
+                c=color,
+                marker=marker,
+                s=30,
+                alpha=alpha)
+        points.append(pt)
+        labels.append(label)
+    plt.xlabel('DNA identity relative to refseq', fontsize=14)
+    plt.ylabel('protein identity relative to refseq', fontsize=14)
+    plt.legend(points, labels, scatterpoints=1, loc='upper left', fontsize=14)
+    plt.savefig(plot)
 
     # program done
     print('\nSuccessful completion of %s' % prog)

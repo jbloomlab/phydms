@@ -21,6 +21,14 @@ class ArgumentParserNoArgHelp(argparse.ArgumentParser):
         self.print_help()
         sys.exit(2)
 
+class ArgumentDefaultsRawDescriptionFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
+    """Print default arguments and raw text description formatter.
+
+    Based on this:
+    http://stackoverflow.com/questions/18462610/argumentparser-epilog-and-description-formatting-in-conjunction-with-argumentdef
+    """
+    pass
+
 
 def NonNegativeInt(n):
     """If *n* is non-negative integer returns it, otherwise an error.
@@ -54,7 +62,7 @@ def NonNegativeInt(n):
         return n
 
 def IntGreaterThanZero(n):
-    """If *n* is an integter > 0, returns it, otherwise an error."""
+    """If *n* is an integer > 0, returns it, otherwise an error."""
     try:
         n = int(n)
     except:
@@ -223,29 +231,49 @@ def PhyDMSRenumberParser():
 
 def PhyDMSPrepAlignmentParser():
     """Returns *argparse.ArgumentParser* for ``phydms_prepalignment``."""
-    parser = ArgumentParserNoArgHelp(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-            description="""Prepare alignment of protein-coding DNA sequences. 
-            How this is done is specified by the options below,
-            which are performed in order.
-            {0} Version {1}. Full documentation at {2}""".format(
-            phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__)
-            )
-
-    parser.add_argument('inseqs', type=ExistingFile, help="FASTA file giving input coding sequences. Should already be aligned unless using '--pairwisealign'.")
-    parser.add_argument('alignment', help='Name of created output FASTA alignment.')
+    parser = ArgumentParserNoArgHelp(formatter_class=ArgumentDefaultsRawDescriptionFormatter,
+            description='\n'.join([
+            "Prepare alignment of protein-coding DNA sequences.\n",
+            "Steps:",
+            " * Any sequences specified by '--purgeseqs' are removed.",
+            " * Sequences not of length divisible by 3 are removed.",
+            " * Sequences with ambiguous nucleotides are removed.",
+            " * Sequences with non-terminal stop codons are removed;",
+            "   terminal stop codons are trimmed.",
+            " * Sequences that do not encode unique proteins are removed",
+            "   unless they are specified for retention by '--keepseqs'.",
+            " * A multiple sequence alignment is built using MAFFT.",
+            "   This step is skipped if you specify '--prealigned'.",
+            " * Sites gapped in reference sequence are stripped.",
+            " * Sequences with too little protein identity to reference",
+            "   sequence are removed, counting both mismatches and unstripped",
+            "   gaps as differences. Identity cutoff set by '--minidentity'.",
+            " * Sequences too similar to other sequences are removed. An",
+            "   effort is made to keep one representative of sequences found",
+            "   many times in input set. Uniqueness threshold set ",
+            "   by '--minuniqueness'. You can specify sequences to not",
+            "   remove via '--keepseqs'.",
+            " * Problematic characters in header names are replaced by",
+            "   underscores. This is any space, comma, colon, semicolon",
+            "   parenthesis, bracket, single quote, or double quote.",
+            " * An alignment is written, as well as a plot with same root",
+            "   but extension '.pdf' that shows divergence from reference",
+            "   of all sequences retained and purged due to identity or",
+            "   uniqueness.\n",
+            phydmslib.__acknowledgments__,
+            'Version {0}'.format(phydmslib.__version__),
+            'Full documentation at {0}'.format(phydmslib.__url__),
+            ]))
+    parser.add_argument('inseqs', type=ExistingFile, help="FASTA file giving input coding sequences.")
+    parser.add_argument('alignment', help="Name of created output FASTA alignment. PDF plot has same root, but extension '.pdf'.")
     parser.add_argument('refseq', help="Reference sequence in 'inseqs': specify substring found ONLY in header for that sequence.")
-    parser.set_defaults(no_purgeambiguous=False)
-    parser.add_argument('--no-purgeambiguous', dest='no_purgeambiguous', action='store_true', help='By default sequences with ambiguous nucleotides are purged; with this option they are not.')
-    parser.set_defaults(pairwisealign=False)
-    parser.add_argument('--pairwisealign', dest='pairwisealign', action='store_true', help="Pairwise align each sequence to 'refseq' at codon level using 'needle' to build alignment on proteins.")
-    parser.add_argument('--needlecmd', default='needle', help="Command to run EMBOSS needle if using '--pairwisealign'.")
-    parser.add_argument('--maxgapfrac', type=FloatBetweenZeroAndOne, default=0.5, help="Purge any sequences with >= this many gaps relative to 'refseq' after stripping sites that are gapped in 'refseq'.")
-    parser.add_argument('--minDNAidentity', type=FloatBetweenZeroAndOne, help="Only retain sequences with >= this DNA identity to 'refseq' at aligned positions.", default=0)
-    parser.add_argument('--minprotidentity', type=FloatBetweenZeroAndOne, help="Only retain sequences with >= this protein identity to 'refseq' at aligned positions.", default=0)
-    parser.set_defaults(no_checkheaders=False)
-    parser.add_argument('--no-checkheaders', dest='no_checkheaders', action='store_true', help="Unless you use this option, the following characters in headers are replaced by underscores: spaces, commas, colons, semicolons, parentheses, square brackets, single quotes, double quotes. Also, a check is performed to make sure each header is unique.")
-    parser.set_defaults(plotretained=False)
-    parser.add_argument('--plotretained', dest='plotretained', action='store_true', help="Make a PDF with same root name as 'alignment' showing the retained and purged sequences as function of protein and DNA identity to 'refseq'. Does not show sequences purged due to '--maxgapfrac'.")
+    parser.set_defaults(prealigned=False)
+    parser.add_argument('--prealigned', action='store_true', dest='prealigned', help="Sequences in 'inseqs' are already aligned, do NOT re-align.")
+    parser.add_argument('--mafft', help="Path to MAFFT (http://mafft.cbrc.jp/alignment/software/).", default='mafft')
+    parser.add_argument('--minidentity', type=FloatBetweenZeroAndOne, help="Purge sequences with <= this protein identity to 'refseq'.", default=0.7)
+    parser.add_argument('--minuniqueness', type=IntGreaterThanZero, default=2, help="Require each sequence to have >= this many protein differences relative to other sequences.")
+    parser.add_argument('--purgeseqs', nargs='*', help="Specify sequences to always purge. Any sequences with any of the substrings specified here are always removed. The substrings can either be passed as repeated arguments here, or as the name of an existing file which has one substring per line.")
+    parser.add_argument('--keepseqs', nargs='*', help="Do not remove for lack of uniqueness any of these sequences. Specified in the same fashion as for '--purgseqs'.")
     parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
 
