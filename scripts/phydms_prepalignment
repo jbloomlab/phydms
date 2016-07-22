@@ -162,11 +162,17 @@ def main():
 
     # make sure all sequences translate without premature stops
     prots = []
+    remove_indices = []
     for i in range(len(seqs)):
         try:
             prots.append(str(seqs[i].seq.translate(gap='-', stop_symbol='*')))
         except Bio.Data.CodonTable.TranslationError:
+            remove_indices.append(i) # doesn't translate
             seqs.pop(i) # doesn't translate
+    for i in sorted(remove_indices, reverse=True):
+        del seqs[i]
+    assert len(prots) == len(seqs)
+    remove_indices = []
     if args['prealigned']:
         for i in range(len(seqs)):
             prot = prots[i]
@@ -182,8 +188,7 @@ def main():
                 seqs[i].seq = iseq.toseq()
             elif prot.count('*') >= 1:
                 # premature stop
-                seqs.pop(i)
-                prots.pop(i)
+                remove_indices.append(i)
     else:
         for i in range(len(seqs)):
             prot = prots[i]
@@ -193,8 +198,10 @@ def main():
                 seqs[i].seq = seqs[i].seq[ : -3]
             elif prot.count('*') >= 1:
                 # premature stop
-                seqs.pop(i)
-                prots.pop(i)
+                remove_indices.append(i)
+    for i in sorted(remove_indices, reverse=True):
+        del prots[i]
+        del seqs[i]
     print("Retained {0} sequences after purging any with premature stops or that are otherwise un-translateable.".format(len(seqs)))
 
     # get reference sequence
