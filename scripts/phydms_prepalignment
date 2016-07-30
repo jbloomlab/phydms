@@ -168,7 +168,6 @@ def main():
             prots.append(str(seqs[i].seq.translate(gap='-', stop_symbol='*')))
         except Bio.Data.CodonTable.TranslationError:
             remove_indices.append(i) # doesn't translate
-            seqs.pop(i) # doesn't translate
     for i in sorted(remove_indices, reverse=True):
         del seqs[i]
     assert len(prots) == len(seqs)
@@ -176,7 +175,7 @@ def main():
     if args['prealigned']:
         for i in range(len(seqs)):
             prot = prots[i]
-            if (prot.count('*') == 1) and prots.replace('-', '')[-1] == '*':
+            if (prot.count('*') == 1) and prot.replace('-', '')[-1] == '*':
                 # convert terminal stop to gap, trimmed later if all sites gapped
                 istop = prot.index('*')
                 prot = prots[i]
@@ -192,7 +191,7 @@ def main():
     else:
         for i in range(len(seqs)):
             prot = prots[i]
-            if prot.count('*') == 1 and prots[-1] == '*':
+            if prot.count('*') == 1 and prot[-1] == '*':
                 # trim terminal stop
                 prots[i] = prots[i][ : -1]
                 seqs[i].seq = seqs[i].seq[ : -3]
