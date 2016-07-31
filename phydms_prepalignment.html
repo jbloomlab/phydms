@@ -1,0 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>the phydms_prepalignment program &mdash; phydms 1.2.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.2.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="phydms 1.2.4 documentation" href="index.html" />
+    <link rel="up" title="auxiliary programs" href="auxiliary_progs.html" />
+    <link rel="next" title="the phydms_plotselection program" href="phydms_plotselection_prog.html" />
+    <link rel="prev" title="the phydms_comprehensive program" href="phydms_comprehensive_prog.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="phydms_plotselection_prog.html" title="the phydms_plotselection program"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="phydms_comprehensive_prog.html" title="the phydms_comprehensive program"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.4 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" accesskey="U">auxiliary programs</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="the-phydms-prepalignment-program">
+<span id="phydms-prepalignment-prog"></span><h1><a class="toc-backref" href="#id2">the <code class="docutils literal"><span class="pre">phydms_prepalignment</span></code> program</a><a class="headerlink" href="#the-phydms-prepalignment-program" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#the-phydms-prepalignment-program" id="id2">the <code class="docutils literal"><span class="pre">phydms_prepalignment</span></code> program</a><ul>
+<li><a class="reference internal" href="#overview" id="id3">Overview</a></li>
+<li><a class="reference internal" href="#command-line-usage" id="id4">Command-line usage</a></li>
+<li><a class="reference internal" href="#examples" id="id5">Examples</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id3">Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">phydms_prepalignment</span></code> is a program that is useful for preparing your sequence alignment for input to <code class="docutils literal"><span class="pre">phydms</span></code>.</p>
+<p>It can help you make <strong>codon</strong>-level alignments from protein alignments of translated coding sequences. It also performs basic checks on sequences, and can remove overly diverged or similar sequences. The basic notion is that you have some reference sequence (presumably what you used for the deep mutational scanning), and want to get homologs aligned to that for analysis.</p>
+<p>See below for information on <a class="reference internal" href="#command-line-usage">Command-line usage</a> and <a class="reference internal" href="#examples">Examples</a>.</p>
+</div>
+<div class="section" id="command-line-usage">
+<h2><a class="toc-backref" href="#id4">Command-line usage</a><a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
+<p><p>Prepare alignment of protein-coding DNA sequences.</p>
+<dl class="docutils">
+<dt>Steps:</dt>
+<dd><ul class="first last simple">
+<li>Any sequences specified by &#8216;&#8211;purgeseqs&#8217; are removed.</li>
+<li>Sequences not of length divisible by 3 are removed.</li>
+<li>Sequences with ambiguous nucleotides are removed.</li>
+<li>Sequences with non-terminal stop codons are removed;
+terminal stop codons are trimmed.</li>
+<li>Sequences that do not encode unique proteins are removed
+unless they are specified for retention by &#8216;&#8211;keepseqs&#8217;.</li>
+<li>A multiple sequence alignment is built using MAFFT.
+This step is skipped if you specify &#8216;&#8211;prealigned&#8217;.</li>
+<li>Sites gapped in reference sequence are stripped.</li>
+<li>Sequences with too little protein identity to reference
+sequence are removed, counting both mismatches and unstripped
+gaps as differences. Identity cutoff set by &#8216;&#8211;minidentity&#8217;.</li>
+<li>Sequences too similar to other sequences are removed. An
+effort is made to keep one representative of sequences found
+many times in input set. Uniqueness threshold set 
+by &#8216;&#8211;minuniqueness&#8217;. You can specify sequences to not
+remove via &#8216;&#8211;keepseqs&#8217;.</li>
+<li>Problematic characters in header names are replaced by
+underscores. This is any space, comma, colon, semicolon
+parenthesis, bracket, single quote, or double quote.</li>
+<li>An alignment is written, as well as a plot with same root
+but extension &#8216;.pdf&#8217; that shows divergence from reference
+of all sequences retained and purged due to identity or
+uniqueness.</li>
+</ul>
+</dd>
+</dl>
+<p>The &#8216;phydms&#8217; package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a> for all contributors); it performs likelihood calculations using the Bio++ libraries (thanks to Julien Dutheil and Laurent Gueguen).
+Version 1.2.3
+Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
+</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">phydms_prepalignment</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">prealigned</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">mafft</span> <span class="n">MAFFT</span><span class="p">]</span>
+                            <span class="p">[</span><span class="o">--</span><span class="n">minidentity</span> <span class="n">MINIDENTITY</span><span class="p">]</span>
+                            <span class="p">[</span><span class="o">--</span><span class="n">minuniqueness</span> <span class="n">MINUNIQUENESS</span><span class="p">]</span>
+                            <span class="p">[</span><span class="o">--</span><span class="n">purgeseqs</span> <span class="p">[</span><span class="n">PURGESEQS</span> <span class="p">[</span><span class="n">PURGESEQS</span> <span class="o">...</span><span class="p">]]]</span>
+                            <span class="p">[</span><span class="o">--</span><span class="n">keepseqs</span> <span class="p">[</span><span class="n">KEEPSEQS</span> <span class="p">[</span><span class="n">KEEPSEQS</span> <span class="o">...</span><span class="p">]]]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span>
+                            <span class="n">inseqs</span> <span class="n">alignment</span> <span class="n">refseq</span>
+</pre></div>
+</div>
+<dl class="docutils">
+<dt>Positional arguments:</dt>
+<dd><table class="first last docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd>inseqs</kbd></td>
+<td>FASTA file giving input coding sequences.</td></tr>
+<tr><td class="option-group">
+<kbd>alignment</kbd></td>
+<td>Name of created output FASTA alignment. PDF plot has same root, but extension &#8216;.pdf&#8217;.</td></tr>
+<tr><td class="option-group">
+<kbd>refseq</kbd></td>
+<td>Reference sequence in &#8216;inseqs&#8217;: specify substring found ONLY in header for that sequence.</td></tr>
+</tbody>
+</table>
+</dd>
+<dt>Options:</dt>
+<dd><table class="first last docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--prealigned=False</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Sequences in &#8216;inseqs&#8217; are already aligned, do NOT re-align.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--mafft=mafft</span></kbd></td>
+<td>Path to MAFFT (http://mafft.cbrc.jp/alignment/software/).</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--minidentity=0.7</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Purge sequences with &lt;= this protein identity to &#8216;refseq&#8217;.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--minuniqueness=2</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Require each sequence to have &gt;= this many protein differences relative to other sequences.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--purgeseqs</span></kbd></td>
+<td>Specify sequences to always purge. Any sequences with any of the substrings specified here are always removed. The substrings can either be passed as repeated arguments here, or as the name of an existing file which has one substring per line.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--keepseqs</span></kbd></td>
+<td>Do not remove for lack of uniqueness any of these sequences. Specified in the same fashion as for &#8216;&#8211;purgseqs&#8217;.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-v</span>, <span class="option">--version</span></kbd></td>
+<td>show program&#8217;s version number and exit</td></tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</div>
+<div class="section" id="examples">
+<h2><a class="toc-backref" href="#id5">Examples</a><a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>Let&#8217;s say we have some unaligned homologous protein-coding sequences in <code class="docutils literal"><span class="pre">SUMO1_orthologs.fasta</span></code>. Let&#8217;s say we want to use as our reference sequence the human ortholog, which has the header <code class="docutils literal"><span class="pre">&gt;ENSP00000376077_Hsap/1-303</span></code> (note the <em>Hsap</em>, indicating <em>Homo sapiens</em>). We can build a codon alignment with:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">phydms_prepalignment</span> <span class="n">SUMO1_orthologs</span><span class="o">.</span><span class="n">fasta</span> <span class="n">SUMO1_alignment</span><span class="o">.</span><span class="n">fasta</span> <span class="n">Hsap</span> <span class="o">--</span><span class="n">minidentity</span> <span class="mf">0.7</span> <span class="o">--</span><span class="n">minuniqueness</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<p>This creates the alignment <code class="docutils literal"><span class="pre">SUMO1_alignment.fasta</span></code> in which all gaps relative to the <em>Homo sapiens</em> orthologs are stripped, all sequences have at least 70% identity to the <em>Homo sapiens</em> ortholog, and all sequences have at least two protein differences from other retained homologs.</p>
+<p>In addition to creating the alignment, the plot <code class="docutils literal"><span class="pre">SUMO1_alignment.pdf</span></code> is crated which shows the nucleotide and protein divergence from the reference <em>Homo sapiens</em> sequence of all homologs that passed the filters related to no premature stops, divisible by 3, and no stop codons. Here is that plot:</p>
+<div class="figure align-center" id="id1">
+<a class="reference internal image-reference" href="_images/SUMO1_alignment.jpg"><img alt="SUMO1_alignment.jpg" src="_images/SUMO1_alignment.jpg" style="width: 40%;" /></a>
+<p class="caption"><span class="caption-text">A <code class="docutils literal"><span class="pre">jpg</span></code> version of the plot <code class="docutils literal"><span class="pre">SUMO1_alignment.pdf</span></code>.</span></p>
+</div>
+<p>Sometimes there may be certain sequences you do <strong>not</strong> want to purge even if they have too high an identity to other sequences. For instance, maybe you want to keep the chimpanzee and gorilla homologs (which have <em>Panu</em> and <em>Ggor</em> in their headers) even though they are less than two amino-acid mutations from the human ortholog. In this case, use <code class="docutils literal"><span class="pre">--keepseqs</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">phydms_prepalignment</span> <span class="n">SUMO1_orthologs</span><span class="o">.</span><span class="n">fasta</span> <span class="n">SUMO1_alignment</span><span class="o">.</span><span class="n">fasta</span> <span class="n">Hsap</span> <span class="o">--</span><span class="n">minidentity</span> <span class="mf">0.7</span> <span class="o">--</span><span class="n">minuniqueness</span> <span class="mi">2</span> <span class="o">--</span><span class="n">keepseqs</span> <span class="n">Panu</span> <span class="n">Ggor</span>
+</pre></div>
+</div>
+<p>If there are many such sequences, you can also list them in a file, such as <code class="docutils literal"><span class="pre">keepseqsfile.txt</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Panu</span>
+<span class="n">Ggor</span>
+</pre></div>
+</div>
+<p>and then specify this file to <code class="docutils literal"><span class="pre">--keepseqs</span></code> as:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">phydms_prepalignment</span> <span class="n">SUMO1_orthologs</span><span class="o">.</span><span class="n">fasta</span> <span class="n">SUMO1_alignment</span><span class="o">.</span><span class="n">fasta</span> <span class="n">Hsap</span> <span class="o">--</span><span class="n">minidentity</span> <span class="mf">0.7</span> <span class="o">--</span><span class="n">minuniqueness</span> <span class="mi">2</span> <span class="o">--</span><span class="n">keepseqs</span> <span class="n">keepseqsfile</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>If there are sequences that you specifically want to exclude, you can do something similar with <code class="docutils literal"><span class="pre">--purgseqs</span></code>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">the <code class="docutils literal"><span class="pre">phydms_prepalignment</span></code> program</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#command-line-usage">Command-line usage</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="phydms_comprehensive_prog.html"
+                        title="previous chapter">the <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> program</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="phydms_plotselection_prog.html"
+                        title="next chapter">the <code class="docutils literal"><span class="pre">phydms_plotselection</span></code> program</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/phydms_prepalignment.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="phydms_plotselection_prog.html" title="the phydms_plotselection program"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="phydms_comprehensive_prog.html" title="the phydms_comprehensive program"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.4 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" >auxiliary programs</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Jesse D. Bloom.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
