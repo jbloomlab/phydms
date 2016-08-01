@@ -380,6 +380,10 @@ def PhyDMSParser():
     # comment out this option for now as the double recursion seems not to work properly
     #parser.add_argument('--recursion', choices=['S', 'D'], default='S', help='Likelihood recursion for Bio++.')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
+    
+    ##divPressure
+    parser.add_argument('--divpressure', type=ExistingFile, help="Specify file with column 1 = position, column 2 = diversification pressure; columns are space delimited.")
+
     return parser
 
 
