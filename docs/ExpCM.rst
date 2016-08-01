@@ -216,5 +216,8 @@ The theoretical maximum of this quantity is one.
 
 Unfortunately, ``phydms`` does not currently include any method for statistically testing (e.g. P-values) the hypothesis that any given :math:`\Delta\pi_{r,a}` is not equal to zero. So instead, you will have to keep in mind that these values are regularized (and so do not typically become substantially non-zero without some reasonable statistical evidence), and then manually inspect them for interesting trends.
 
+Specifiying diversifying pressure at sites
+----------------------------------------------
+In some cases, it might be possible to specify *a prior* expections for the diversifying pressure at each site. For instance, in a virus...
 
 .. include:: weblinks.txt
