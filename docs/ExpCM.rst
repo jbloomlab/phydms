@@ -218,6 +218,23 @@ Unfortunately, ``phydms`` does not currently include any method for statisticall
 
 Specifiying diversifying pressure at sites
 ----------------------------------------------
-In some cases, it might be possible to specify *a prior* expections for the diversifying pressure at each site. For instance, in a virus...
+In some cases, it might be possible to specify *a priori* expections for the diversifying pressure at each site. For instance, viruses benefit from mutations in sites targeted by the immune system and, consequently, these sites have a higher rate of substitution compared to other, non-target sites in the same gene. We can incorporate this expectation of non-uniform diversifying pressure across a gene into our selection terms :math:`F_{r,xy}` in order to better reflect natural evolution in our substitution model.
+
+Let :math:`\delta_{r}` be the pre-determined, diversifying pressure for site :math:`r` in the protein. We then replace :math:`\omega` in equation (3) with the expression :math:`\omega_{1}\times\left(1+\omega_{2}\times\delta_{r}\right)`, resulting in selection terms: 
+
+.. math::
+   :label: Frxy
+
+   F_{r,xy} = 
+   \begin{cases}
+   1 & \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
+   \omega_{1}\times\left(1+\omega_{2}\times\delta_{r}\right) & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
+   \omega_{1}\times\left(1+\omega_{2}\times\delta_{r}\right) \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} & \mbox{otherwise.}
+   \end{cases}
+   
+Whereas before :math:`\omega` reflected the rate of non-synonymous to synonymous mutation across the entire gene, now :math:`\omega_{1}` reflects a gene-wide rate of mutation after taking into account the site specific acceleration or retardation of non-synonomous to synonymous mutations, :math:`\omega_{2}\times\delta_{r}`. These new selection terms in equation (12) are identical the selection terms in equation (3) when :math:`\omega_{2}` is equal to zero, or when there are no sites with a mutation rate above or below the baseline expectation of the gene.
+
+This results in a total of seven parameters, :math:`\omega_{1}`, :math:`\omega_{2}`, :math:`\beta`, :math:`\kappa`, :math:`\phi_A`, :math:`\phi_C`, and :math:`\phi_G`, an increase of one from the model defined in equations (1) and (3).
+
 
 .. include:: weblinks.txt
