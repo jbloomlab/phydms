@@ -218,12 +218,12 @@ Unfortunately, ``phydms`` does not currently include any method for statisticall
 
 Specifiying diversifying pressure at sites
 ----------------------------------------------
-In some cases, it might be possible to specify *a priori* expections for the diversifying pressure at each site. For instance, viruses benefit from mutations in sites targeted by the immune system and, consequently, these sites have a higher rate of substitution compared to other, non-target sites in the same gene. We can incorporate this expectation of non-uniform diversifying pressure across a gene into our selection terms :math:`F_{r,xy}` in order to better reflect natural evolution in our substitution model.
+In some cases, it might be possible to specify *a priori* expections for the diversifying pressure at each site. For instance, viruses benefit from amino-acid change in sites targeted by the immune system and, consequently, these sites have a higher rate of amino-acid substitution than expected given their level of inherent functional constraint. We can incorporate our expectations for diversifying pressure  at specific sites into the selection terms :math:`F_{r,xy}` in order to better reflect our expectations about diversifying selection. 
 
-Let :math:`\delta_{r}` be the pre-determined, diversifying pressure for site :math:`r` in the protein. We then replace :math:`\omega` in equation (3) with the expression :math:`\omega_{1}\times\left(1+\omega_{2}\times\delta_{r}\right)`, resulting in selection terms: 
+Let :math:`\delta_{r}` be the pre-determined diversifying pressure for amino-acid change at site :math:`r` in the protein. A large positive value of :math:`\delta_r` corresponds to high pressure for amino-acid diversification, and negative value corresponds to expected pressure against amino-acid diversification beyond that captured in the amino-acid preferences.  We then replace :math:`\omega` in Equation :eq:`Frxy` with the expression :math:`\omega_{1}\times\left(1+\omega_{2}\times\delta_{r}\right)`, resulting in selection terms: 
 
 .. math::
-   :label: Frxy
+   :label: Frxy_divpressure
 
    F_{r,xy} = 
    \begin{cases}
@@ -232,9 +232,9 @@ Let :math:`\delta_{r}` be the pre-determined, diversifying pressure for site :ma
    \omega_{1}\times\left(1+\omega_{2}\times\delta_{r}\right) \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} & \mbox{otherwise.}
    \end{cases}
    
-Whereas before :math:`\omega` reflected the rate of non-synonymous to synonymous mutation across the entire gene, now :math:`\omega_{1}` reflects a gene-wide rate of mutation after taking into account the site specific acceleration or retardation of non-synonomous to synonymous mutations, :math:`\omega_{2}\times\delta_{r}`. These new selection terms in equation (12) are identical the selection terms in equation (3) when :math:`\omega_{2}` is equal to zero, or when there are no sites with a mutation rate above or below the baseline expectation of the gene.
+Whereas before :math:`\omega` reflected the elevation of non-synonymous substitutin rate (averaged across the entire gene) beyond that expected given the amino-acid preferences, now :math:`\omega_{1}` reflects a gene-wide rate of elevated non-synonymous substitution after taking into account the expected sites of diversifying pressure (as represented by :math:`\delta_r`) weighted by :math:`\omega_{2}\times\delta_{r}`. These new selection terms in equation Equation :eq:`Frxy_divpressure` are identical the selection terms in Equation :eq:`Frxy` when :math:`\omega_{2} = 0`.
 
-This results in a total of seven parameters, :math:`\omega_{1}`, :math:`\omega_{2}`, :math:`\beta`, :math:`\kappa`, :math:`\phi_A`, :math:`\phi_C`, and :math:`\phi_G`, an increase of one from the model defined in equations (1) and (3).
+This results in a total of seven free parameters: :math:`\omega_{1}`, :math:`\omega_{2}`, :math:`\beta`, :math:`\kappa`, :math:`\phi_A`, :math:`\phi_C`, and :math:`\phi_G`, an increase of one from the model with :math:`F_{r,xy}` defined by Equation :eq:`Frxy`. A likelihood ratio test can therefore by used to test if adding the specified site-specific diversifying pressure represented by the :math:`\delta_r` values actually improves the description of the gene's evolution.
 
 
 .. include:: weblinks.txt
