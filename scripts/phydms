@@ -229,6 +229,7 @@ def FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams,
     return fitomegaresults
     
 def ReadDivPressure(fileName):
+    """Read in diversifying pressure file and return dictionary of sites their corresponding diversifying pressure."""
     with open(fileName) as f:
         lines = [line for line in f.readlines() if (not line.isspace()) and line[0] != '#']
         divPressure = {}
