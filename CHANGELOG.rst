@@ -1,6 +1,10 @@
 Changelog
 ===========
 
+1.2.dev5
+----------
+* Bug fix in ``phydms_prepalignment``
+
 1.2.4
 -------
 * Added ``phydms_prepalignment`` program.

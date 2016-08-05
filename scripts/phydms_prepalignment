@@ -178,7 +178,7 @@ def main():
             if (prot.count('*') == 1) and prot.replace('-', '')[-1] == '*':
                 # convert terminal stop to gap, trimmed later if all sites gapped
                 istop = prot.index('*')
-                prot = prots[i]
+                prot = list(prots[i])
                 prot[istop] = '-'
                 prots[i] = ''.join(prot)
                 # introduce gap requires making seq mutable
