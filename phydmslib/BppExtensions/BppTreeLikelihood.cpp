@@ -19,6 +19,7 @@
 #include <Bpp/Phyl/Model/Codon/YNGKP_M8.h>
 #include "BppTreeLikelihood.h"
 #include "ExperimentallyInformedCodonModel.h"
+#include "ExpCM_divpressure.h"
 
 // This function is a patch for the fact that there is a bug in some g++ so that to_string isn't included.
 // See: http://stackoverflow.com/questions/12975341/to-string-is-not-a-member-of-std-says-so-g
@@ -184,7 +185,8 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
                 init_rprefs[icodon] = preferences[isite][codon];    
             }
             rprefs->setFrequenciesFromAlphabetStatesFrequencies(init_rprefs);
-            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM.", prefsasparams != 0));
+            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM.", prefsasparams != 0, true,5,3));
+            //models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExpCM_divpressure(gcode, rprefs, "ExpCM.", prefsasparams != 0));
             if (! models[isite]) {
                 throw std::runtime_error("error casting ExperimentallyInformedCodonModel");
             }
@@ -489,6 +491,7 @@ std::map<std::string, double> bppextensions::BppTreeLikelihood::GetPreferences(l
         throw std::runtime_error("There is not a site with key " + patch::to_string(isite) + ". Are you sure you are using ExpCM with just one model?");
     }
     bppextensions::ExperimentallyInformedCodonModel *model = dynamic_cast<bppextensions::ExperimentallyInformedCodonModel*>(models[isite]);
+    //bppextensions::ExpCM_divpressure *model = dynamic_cast<bppextensions::ExpCM_divpressure*>(models[isite]);
     if (! model) {
         throw std::runtime_error("You did not use an ExpCM model");
     }
@@ -528,6 +531,7 @@ void bppextensions::BppTreeLikelihood::SetPreferences(std::map<std::string, doub
         throw std::runtime_error("There is not a site with key " + patch::to_string(isite) + ". Are you sure you are using ExpCM with just one model?");
     }
     bppextensions::ExperimentallyInformedCodonModel *model = dynamic_cast<bppextensions::ExperimentallyInformedCodonModel*>(models[isite]);
+    //bppextensions::ExpCM_divpressure *model = dynamic_cast<bppextensions::ExpCM_divpressure*>(models[isite]);
     if (! model) {
         throw std::runtime_error("You did not use an ExpCM model");
     }

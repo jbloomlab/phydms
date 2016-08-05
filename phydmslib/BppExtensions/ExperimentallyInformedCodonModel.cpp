@@ -48,22 +48,30 @@
 #include <Bpp/Numeric/NumConstants.h>
 #include <Bpp/Phyl/Model/Nucleotide/K80.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h>
+#include <iostream>
 
 
 bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonModel(
     const bpp::GeneticCode* gCode,
     bpp::FrequenciesSet* preferences,
     const std::string& prefix,
-    bool prefsasparams) :
+    bool prefsasparams,
+    bool divpressure,
+    double maxdeltar,
+    double mindeltar) :
   AbstractParameterAliasable(prefix),
   AbstractCodonSubstitutionModel(gCode, new bpp::K80(dynamic_cast<const bpp::CodonAlphabet*>(gCode->getSourceAlphabet())->getNucleicAlphabet()), prefix),
   AbstractCodonPhaseFrequenciesSubstitutionModel(bpp::CodonFrequenciesSet::getFrequenciesSetForCodons(bpp::CodonFrequenciesSet::F1X4, gCode), prefix),
   prefix_(""),
   preferences_(preferences),
   omega_(1),
+  omega2_(0),
   stringencyparameter_(1),
   rateparameter_(1),
-  prefsasparams_(prefsasparams)
+  prefsasparams_(prefsasparams),
+  divpressure_(divpressure),
+  maxdeltar_(maxdeltar),
+  mindeltar_(mindeltar)
 {
   if (dynamic_cast<bpp::CodonFrequenciesSet*>(preferences) == NULL) {
     throw std::runtime_error("Invalid preferences");
@@ -75,6 +83,21 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
     addParameters_(preferences_->getParameters());
   }
   addParameter_(new bpp::Parameter(prefix + "omega", 1, new bpp::IntervalConstraint(0.001, 99, true, true), true));
+  if (divpressure){
+  	if (mindeltar >= 0){
+  		addParameter_(new bpp::Parameter(prefix + "omega2", 1, new bpp::IntervalConstraint((-1.0/maxdeltar), 99, true, true), true));
+  	}
+  	else if (maxdeltar <= 0){
+		addParameter_(new bpp::Parameter(prefix + "omega2", 1, new bpp::IntervalConstraint(-99,(-1.0/mindeltar), true, true), true));
+  	}
+  	else if (maxdeltar == 0 && mindeltar ==0){
+  		addParameter_(new bpp::Parameter(prefix + "omega2", 1, new bpp::IntervalConstraint(-99,99, true, true), true));
+  	}
+  	else{
+  		addParameter_(new bpp::Parameter(prefix + "omega2", 1, new bpp::IntervalConstraint((-1.0/maxdeltar),(-1.0/mindeltar), true, true), true));
+  		std::cout<<(-1.0/maxdeltar)<<"\n";
+  	}
+  }
   addParameter_(new bpp::Parameter(prefix + "stringencyparameter", 1, new bpp::IntervalConstraint(0.1, 10.0, true, true), true));
   updateMatrices();
 }
@@ -93,6 +116,9 @@ void bppextensions::ExperimentallyInformedCodonModel::fireParameterChanged(const
 {
   AbstractCodonPhaseFrequenciesSubstitutionModel::fireParameterChanged(parameters);
   omega_ = getParameterValue("omega");
+  if(divpressure_){
+  	omega2_ = getParameterValue("omega2");
+  }
   stringencyparameter_ = getParameterValue("stringencyparameter");
   if (hasParameter("rateparameter")) {
       rateparameter_ = getParameterValue("rateparameter");
@@ -123,7 +149,7 @@ double bppextensions::ExperimentallyInformedCodonModel::getCodonsMulRate(size_t 
     } else {
       fixationprob = std::log(pi_j / pi_i) / (1 - (pi_i / pi_j));  // correct version of Halpern and Bruno (1998) equation; note that their paper has a typo
     }
-    return omega_ * rateparameter_
+    return omega_ * (1+omega2_) * rateparameter_
       * AbstractCodonSubstitutionModel::getCodonsMulRate(i,j)
       * AbstractCodonPhaseFrequenciesSubstitutionModel::getCodonsMulRate(i,j)
       * fixationprob;

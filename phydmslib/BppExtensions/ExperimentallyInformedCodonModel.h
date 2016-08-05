@@ -76,16 +76,23 @@ namespace bppextensions
     std::string prefName_;
     bpp::FrequenciesSet* preferences_;
     double omega_; // dN/dS ratio
+    double omega2_;
     double stringencyparameter_;
     double rateparameter_;
     bool prefsasparams_;
+    bool divpressure_;
+    double maxdeltar_;
+    double mindeltar_;
 
   public:
     ExperimentallyInformedCodonModel(
         const bpp::GeneticCode* gCode,
         bpp::FrequenciesSet* preferences, 
         const std::string& prefix,
-        bool prefsasparams);
+        bool prefsasparams,
+        bool divpressure,
+        double maxdeltar,
+        double mindeltar);
 
     ExperimentallyInformedCodonModel(const ExperimentallyInformedCodonModel& model):
       AbstractParameterAliasable(model),
@@ -94,9 +101,11 @@ namespace bppextensions
       prefix_(model.prefix_),
       preferences_(model.preferences_->clone()),
       omega_(model.omega_),
+      omega2_(model.omega2_),
       stringencyparameter_(model.stringencyparameter_),
       rateparameter_(model.rateparameter_),
       prefsasparams_(model.prefsasparams_)
+      
     {} 
 
     ExperimentallyInformedCodonModel& operator=(const ExperimentallyInformedCodonModel& model) {
@@ -107,9 +116,13 @@ namespace bppextensions
       if (preferences_) delete preferences_;
       preferences_ = model.preferences_->clone();
       omega_ = model.omega_;
+      omega2_ = model.omega2_;
       stringencyparameter_ = model.stringencyparameter_;
       rateparameter_ = model.rateparameter_;
       prefsasparams_ = model.prefsasparams_;
+      divpressure_ = model.divpressure_;
+      maxdeltar_ = model.maxdeltar_;
+      mindeltar_ = model.mindeltar_;
       return *this;
     }
 
