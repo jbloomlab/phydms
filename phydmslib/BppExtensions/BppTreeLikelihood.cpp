@@ -19,7 +19,6 @@
 #include <Bpp/Phyl/Model/Codon/YNGKP_M8.h>
 #include "BppTreeLikelihood.h"
 #include "ExperimentallyInformedCodonModel.h"
-#include "ExpCM_divpressure.h"
 
 // This function is a patch for the fact that there is a bug in some g++ so that to_string isn't included.
 // See: http://stackoverflow.com/questions/12975341/to-string-is-not-a-member-of-std-says-so-g

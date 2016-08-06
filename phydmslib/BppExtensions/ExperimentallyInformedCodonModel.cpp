@@ -84,14 +84,14 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
   }
   addParameter_(new bpp::Parameter(prefix + "omega", 1, new bpp::IntervalConstraint(0.001, 99, true, true), true));
   if (divpressure){
-  	if (mindeltar >= 0){
+    if (maxdeltar == 0 && mindeltar ==0){
+  		addParameter_(new bpp::Parameter(prefix + "omega2", 1, new bpp::IntervalConstraint(-99,99, true, true), true));
+  	}
+  	else if (mindeltar >= 0){
   		addParameter_(new bpp::Parameter(prefix + "omega2", 1, new bpp::IntervalConstraint((-1.0/maxdeltar), 99, true, true), true));
   	}
   	else if (maxdeltar <= 0){
 		addParameter_(new bpp::Parameter(prefix + "omega2", 1, new bpp::IntervalConstraint(-99,(-1.0/mindeltar), true, true), true));
-  	}
-  	else if (maxdeltar == 0 && mindeltar ==0){
-  		addParameter_(new bpp::Parameter(prefix + "omega2", 1, new bpp::IntervalConstraint(-99,99, true, true), true));
   	}
   	else{
   		addParameter_(new bpp::Parameter(prefix + "omega2", 1, new bpp::IntervalConstraint((-1.0/maxdeltar),(-1.0/mindeltar), true, true), true));
