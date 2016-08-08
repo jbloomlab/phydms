@@ -179,12 +179,12 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
             for (size_t icodon = 0; icodon < rprefs->getNumberOfFrequencies(); icodon++) {
                 codon = rprefs->getAlphabet()->intToChar((int) icodon);
                 if (preferences[isite].find(codon) == preferences[isite].end()) {
-                    throw std::runtime_error("Failed to find codon " + codon + "\n");
+                    throw std::runtime_error("Failed to find preferences for codon " + codon + "\n");
                 }
                 init_rprefs[icodon] = preferences[isite][codon];    
             }
             rprefs->setFrequenciesFromAlphabetStatesFrequencies(init_rprefs);
-            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM.", prefsasparams != 0, true,5,3));
+            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM.", prefsasparams != 0, true,5,-5, 1.0));
             //models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExpCM_divpressure(gcode, rprefs, "ExpCM.", prefsasparams != 0));
             if (! models[isite]) {
                 throw std::runtime_error("error casting ExperimentallyInformedCodonModel");

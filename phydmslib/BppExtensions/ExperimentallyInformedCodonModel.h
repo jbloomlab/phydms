@@ -70,6 +70,8 @@ namespace bppextensions
    *
    * @param maxdeltar The minimum diversifying pressure across all sites
    *
+   * @param delatar The diversifying pressure
+   *
    * Reference:
    * -  Bloom JD (2014), _Molecular Biology and Evolution_ 31(10):2753-2769.
    */
@@ -89,6 +91,7 @@ namespace bppextensions
     double rateparameter_;
     bool prefsasparams_;
     bool divpressure_;
+    double deltar_;
 
   public:
     ExperimentallyInformedCodonModel(
@@ -98,7 +101,8 @@ namespace bppextensions
         bool prefsasparams,
         bool divpressure,
         double maxdeltar,
-        double mindeltar);
+        double mindeltar,
+        double deltar);
 
     ExperimentallyInformedCodonModel(const ExperimentallyInformedCodonModel& model):
       AbstractParameterAliasable(model),
@@ -111,7 +115,8 @@ namespace bppextensions
       stringencyparameter_(model.stringencyparameter_),
       rateparameter_(model.rateparameter_),
       prefsasparams_(model.prefsasparams_),
-      divpressure_(model.divpressure_)
+      divpressure_(model.divpressure_),
+      deltar_(model.deltar_)
       
     {} 
 
@@ -128,6 +133,7 @@ namespace bppextensions
       rateparameter_ = model.rateparameter_;
       prefsasparams_ = model.prefsasparams_;
       divpressure_ = model.divpressure_;
+      deltar_ = model.deltar_;
       
       return *this;
     }

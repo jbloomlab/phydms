@@ -220,7 +220,7 @@ Specifiying diversifying pressure at sites
 ----------------------------------------------
 In some cases, it might be possible to specify *a priori* expections for the diversifying pressure at each site. For instance, viruses benefit from amino-acid change in sites targeted by the immune system and, consequently, these sites have a higher rate of amino-acid substitution than expected given their level of inherent functional constraint. We can incorporate our expectations for diversifying pressure  at specific sites into the selection terms :math:`F_{r,xy}`.
 
-Let :math:`\delta_{r}` be the pre-determined diversifying pressure for amino-acid change at site :math:`r` in the protein. A large positive value of :math:`\delta_r` corresponds to high pressure for amino-acid diversification, and negative value corresponds to expected pressure against amino-acid diversification beyond that captured in the amino-acid preferences.  We then replace :math:`\omega` in Equation :eq:`Frxy` with the expression :math:`\omega_{1}\times\left(1+\omega_{2}\times\delta_{r}\right)`, resulting in selection terms: 
+Let :math:`\delta_{r}` be the pre-determined diversifying pressure for amino-acid change at site :math:`r` in the protein. A large positive value of :math:`\delta_r` corresponds to high pressure for amino-acid diversification, and negative value corresponds to expected pressure against amino-acid diversification beyond that captured in the amino-acid preferences.  We then replace :math:`\omega` in Equation :eq:`Frxy` with the expression :math:`\omega\times\left(1+\omega_{2}\times\delta_{r}\right)`, resulting in selection terms: 
 
 .. math::
    :label: Frxy_divpressure
@@ -228,23 +228,23 @@ Let :math:`\delta_{r}` be the pre-determined diversifying pressure for amino-aci
    F_{r,xy} = 
    \begin{cases}
    1 & \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
-   \omega_{1}\times\left(1+\omega_{2}\times\delta_{r}\right) & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
-   \omega_{1}\times\left(1+\omega_{2}\times\delta_{r}\right) \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} & \mbox{otherwise.}
+   \omega\times\left(1+\omega_{2}\times\delta_{r}\right) & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
+   \omega\times\left(1+\omega_{2}\times\delta_{r}\right) \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} & \mbox{otherwise.}
    \end{cases}
    
-Whereas before :math:`\omega` reflected the elevation of non-synonymous substitutin rate (averaged across the entire gene) beyond that expected given the amino-acid preferences, now :math:`\omega_{1}` reflects a gene-wide rate of elevated non-synonymous substitution after taking into account the expected sites of diversifying pressure (as represented by :math:`\delta_r`) weighted by :math:`\omega_{2}\times\delta_{r}`. These new selection terms in equation Equation :eq:`Frxy_divpressure` are identical the selection terms in Equation :eq:`Frxy` when :math:`\omega_{2} = 0`.
+Whereas before :math:`\omega` reflected the elevation of non-synonymous substitutin rate (averaged across the entire gene) beyond that expected given the amino-acid preferences, now :math:`\omega` reflects a gene-wide rate of elevated non-synonymous substitution after taking into account the expected sites of diversifying pressure (as represented by :math:`\delta_r`) weighted by :math:`\omega_{2}\times\delta_{r}`. These new selection terms in equation Equation :eq:`Frxy_divpressure` are identical the selection terms in Equation :eq:`Frxy` when :math:`\omega_{2} = 0`.
 
-To ensure a positive value of :math:`\omega_{1}\times\left(1+\omega_{2}\times\delta_{r}\right)` with :math:`-\infty<\delta_{r}<\infty`, :math:`\omega_{1}` and :math:`\omega_{2}` are constrained in the following ways:
+To ensure a positive value of :math:`\omega\times\left(1+\omega_{2}\times\delta_{r}\right)` with :math:`-\infty<\delta_{r}<\infty`, :math:`\omega` and :math:`\omega_{2}` are constrained in the following ways:
 
-:math:`\omega_{1}>0`
+:math:`\omega>0`
 
 :math:`\begin{cases}
-\frac{-1}{\max_{\delta_{r}}}<\omega_{2}<\infty & \text{when }\min_{\delta_{r}}>0\\
--\infty<\omega_{2}<\frac{-1}{\min_{\delta_{r}}} & \text{when }\max_{\delta_{r}}<0\\
-\frac{-1}{\max_{\delta_{r}}}<\omega_{2}<\frac{-1}{\min_{\delta_{r}}} & \text{otherwise}\\
+\frac{-1}{\max_r\delta_r}<\omega_{2}<\infty & \text{when }\min_r\delta_r>0\\
+-\infty<\omega_{2}<\frac{-1}{\min_r\delta_r} & \text{when }\max_r\delta_r<0\\
+\frac{-1}{\max_r\delta_r}<\omega_{2}<\frac{-1}{\min_r\delta_r} & \text{otherwise}\\
 \end{cases}`
 
-This results in a total of seven free parameters: :math:`\omega_{1}`, :math:`\omega_{2}`, :math:`\beta`, :math:`\kappa`, :math:`\phi_A`, :math:`\phi_C`, and :math:`\phi_G`, an increase of one from the model with :math:`F_{r,xy}` defined by Equation :eq:`Frxy`. A likelihood ratio test can therefore by used to test if adding the specified site-specific diversifying pressure represented by the :math:`\delta_r` values actually improves the description of the gene's evolution.
+This results in a total of seven free parameters: :math:`\omega`, :math:`\omega_{2}`, :math:`\beta`, :math:`\kappa`, :math:`\phi_A`, :math:`\phi_C`, and :math:`\phi_G`, an increase of one from the model with :math:`F_{r,xy}` defined by Equation :eq:`Frxy`. A likelihood ratio test can therefore by used to test if adding the specified site-specific diversifying pressure represented by the :math:`\delta_r` values actually improves the description of the gene's evolution.
 
 
 .. include:: weblinks.txt
