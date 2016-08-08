@@ -62,6 +62,14 @@ namespace bppextensions
    *
    *@param prefsasparams Are the preferences defined as model parameters?
    *
+   * @param divpressure 
+   *
+   * @param divpressure Are site-specific diversifying pressures given? 
+   *
+   * @param mindeltar The maximum diversifying pressure across all sites
+   *
+   * @param maxdeltar The minimum diversifying pressure across all sites
+   *
    * Reference:
    * -  Bloom JD (2014), _Molecular Biology and Evolution_ 31(10):2753-2769.
    */
@@ -81,8 +89,6 @@ namespace bppextensions
     double rateparameter_;
     bool prefsasparams_;
     bool divpressure_;
-    double maxdeltar_;
-    double mindeltar_;
 
   public:
     ExperimentallyInformedCodonModel(
@@ -104,7 +110,8 @@ namespace bppextensions
       omega2_(model.omega2_),
       stringencyparameter_(model.stringencyparameter_),
       rateparameter_(model.rateparameter_),
-      prefsasparams_(model.prefsasparams_)
+      prefsasparams_(model.prefsasparams_),
+      divpressure_(model.divpressure_)
       
     {} 
 
@@ -121,8 +128,7 @@ namespace bppextensions
       rateparameter_ = model.rateparameter_;
       prefsasparams_ = model.prefsasparams_;
       divpressure_ = model.divpressure_;
-      maxdeltar_ = model.maxdeltar_;
-      mindeltar_ = model.mindeltar_;
+      
       return *this;
     }
 

@@ -69,9 +69,7 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
   stringencyparameter_(1),
   rateparameter_(1),
   prefsasparams_(prefsasparams),
-  divpressure_(divpressure),
-  maxdeltar_(maxdeltar),
-  mindeltar_(mindeltar)
+  divpressure_(divpressure)
 {
   if (dynamic_cast<bpp::CodonFrequenciesSet*>(preferences) == NULL) {
     throw std::runtime_error("Invalid preferences");
@@ -84,9 +82,12 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
   }
   addParameter_(new bpp::Parameter(prefix + "omega", 1, new bpp::IntervalConstraint(0.001, 99, true, true), true));
   if (divpressure){
-    if (maxdeltar == 0 && mindeltar ==0){
-  		addParameter_(new bpp::Parameter(prefix + "omega2", 1, new bpp::IntervalConstraint(-99,99, true, true), true));
-  	}
+  	if (maxdeltar < mindeltar){
+  		throw std::runtime_error("Minimum diversifying pressure should not be larger than maximum diversifying pressure.\n");
+  		}
+  	else if (maxdeltar == mindeltar){
+  		throw std::runtime_error("All diversifying pressures are the same.\n");
+  		}
   	else if (mindeltar >= 0){
   		addParameter_(new bpp::Parameter(prefix + "omega2", 1, new bpp::IntervalConstraint((-1.0/maxdeltar), 99, true, true), true));
   	}
