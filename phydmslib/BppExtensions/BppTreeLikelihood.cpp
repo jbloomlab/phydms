@@ -173,13 +173,14 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         }
         std::map<int, double> init_rprefs;
         std::string codon;
-        bool divpressureBool;
         double divpressuremax;
         double divpressuremin;
-        if (divpressure == 1){
-            divpressuremax=divpressureValues.begin()->second;
-            divpressuremin=divpressureValues.begin()->second;
-            divpressureBool = true;
+        if (divpressure) {
+            if (nsites != (long) divpressureValues.size()) {
+                throw runtime_error("number of sites isn't equal to number of div pressure values");
+            }
+            divpressuremax = divpressureValues.begin()->second;
+            divpressuremin = divpressureValues.begin()->second;
             for (std::map<int, double>::iterator itr = divpressureValues.begin(); itr != divpressureValues.end(); itr++) {
                 if(itr->second > divpressuremax){
                     divpressuremax = itr->second;
@@ -188,18 +189,15 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
                     divpressuremin = itr->second;
                 }
             }
-        }else{
-        divpressuremax = 0;
-        divpressuremin = 0;
-        divpressureBool = false;
+        } else {
+            divpressuremax = 0;
+            divpressuremin = 0;
         }
         for (long isite = 1; isite <= nsites; isite++) {
-            double isitedivpressure =0;
-            if (divpressureBool){
+            double isitedivpressure = 0;
+            if (divpressure) {
                 isitedivpressure = divpressureValues[isite];
-            }else{
-                isitedivpressure = -1;
-            }
+            } 
             bpp::FullCodonFrequenciesSet *rprefs = new bpp::FullCodonFrequenciesSet(gcode);
             init_rprefs.clear();
             for (size_t icodon = 0; icodon < rprefs->getNumberOfFrequencies(); icodon++) {
@@ -210,7 +208,7 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
                 init_rprefs[icodon] = preferences[isite][codon];    
             }
             rprefs->setFrequenciesFromAlphabetStatesFrequencies(init_rprefs);
-            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM.", prefsasparams != 0, divpressureBool,divpressuremax,divpressuremin,isitedivpressure));
+            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM.", prefsasparams != 0, divpressure != 0, divpressuremax, divpressuremin, isitedivpressure));
             if (! models[isite]) {
                 throw std::runtime_error("error casting ExperimentallyInformedCodonModel");
             }

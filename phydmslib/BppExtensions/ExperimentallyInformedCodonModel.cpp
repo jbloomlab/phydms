@@ -70,6 +70,7 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
   stringencyparameter_(1),
   rateparameter_(1),
   prefsasparams_(prefsasparams),
+  deltar_(deltar),
   divpressure_(divpressure)
 {
   if (dynamic_cast<bpp::CodonFrequenciesSet*>(preferences) == NULL) {
