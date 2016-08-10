@@ -12,6 +12,12 @@ To run the simple *doctest* tests in the modules::
     python run_doctests.py
 
 
+Testing ``phydms_prepalignment``
+----------------------------------
+Tests script for preparing codon alignments. Note that this test requires that you have `MAFFT`_ installed. Run with::
+
+    python run_prepalignment_test.py
+
 Testing the ``phydms`` inferences on a small NP data set
 ----------------------------------------------------------
 To test ``phydms`` on a small data set of human influenza NPs (``smallNPs.fasta``) using the preferences reported in `Doud et al (2015)`_ (file ``NP_prefs.txt``), do::
@@ -40,3 +46,4 @@ To test ``phydms`` on a small set of clade B env genes (``env_alignment.fasta``)
 .. _`Doud et al (2015)`: https://dx.doi.org/10.1093/molbev/msv167
 .. _`Kitzman et al (2014)`: http://www.nature.com/nmeth/journal/v12/n3/full/nmeth.3223.html
 .. _`Bloom (2015)`: http://dx.doi.org/10.1101/037689
+.. _`MAFFT`: http://mafft.cbrc.jp/alignment/software/
