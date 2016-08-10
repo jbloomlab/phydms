@@ -98,11 +98,13 @@ cdef class PyBppTreeLikelihood:
               So for instance, *model* might be *YNGKP_M0_empF3X4*.
 
             - Experimentally informed substitution models are specified by the
-              2-tuple *('ExpCM', aaprefs)* where *aaprefs* is a dictionary
+              3-tuple *('ExpCM', aaprefs, divpressure)*. *aaprefs* is a dictionary
               keyed by integers for every codon site for the sequences in
               *seqs* (1, 2, ... numbering) and the values are dictionaries
               keyed by all 20 amino-acids with values the numerical preference
-              for that amino acid at that site.
+              for that amino acid at that site. *divpressure* is None if no diversifying
+              pressures are specified or a dictionary keyed by integers for every codon
+              site and the values are diversifying pressures.
 
         * *infertopology* is a Boolean switch specifying if we infer tree topology or
           fix topology to that in *treefile*. Must be *False* if using 
@@ -144,6 +146,12 @@ cdef class PyBppTreeLikelihood:
 
         * *ncats* is number of beta-distributed categories for *YNGKP_M7*
           and *YNGKP_M8*
+        
+        * *divpressure* is 1 if diversifying pressure are given and 0 if not
+        
+        * *divpressureValues* is a dictionary of diversifying pressures keyed by the amino 
+          acid site if diversifying
+          pressures are given and an empty dictionary otherwise.
     """
 
     cdef BppTreeLikelihood *thisptr
