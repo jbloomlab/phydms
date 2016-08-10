@@ -79,8 +79,12 @@ namespace bppextensions {
              * @param ngammarates Number of gamma-distributed rate categories. Set to 1 for a single constant rate, otherwise an integer > 1 for gamma distributed rates.
              *
              * @param ncats Number of categories in beta distribution for YNGKP_M7 and YNGPK_M8
+             *
+             * @param divpressure Are diversifying pressures given? 1 if yes and 0 if no
+             *
+             * @param divpressureValues Site-specific diversifying pressures, keyed by integer site (1, 2, ... numbering), value is a float. Empty dictionary if divpressure is 0.
              */
-            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion, int useLog, int ngammarates, int ncats);
+            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion, int useLog, int ngammarates, int ncats, int divpressure, std::map<int, double> divpressureValues);
 
             /**
              *@brief Destructor

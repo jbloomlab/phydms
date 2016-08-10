@@ -19,6 +19,7 @@
 #include <Bpp/Phyl/Model/Codon/YNGKP_M8.h>
 #include "BppTreeLikelihood.h"
 #include "ExperimentallyInformedCodonModel.h"
+#include <map>
 
 // This function is a patch for the fact that there is a bug in some g++ so that to_string isn't included.
 // See: http://stackoverflow.com/questions/12975341/to-string-is-not-a-member-of-std-says-so-g
@@ -34,9 +35,8 @@ namespace patch
 
 
 // constructor
-bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion, int useLog, int ngammarates, int ncats)
+bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion, int useLog, int ngammarates, int ncats, int divpressure, std::map<int, double> divpressureValues)
 {
-
     // setup some parameters / options
     oldlikmethod = oldlikelihoodmethod != 0;
     verbose = false;
@@ -173,7 +173,33 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
         }
         std::map<int, double> init_rprefs;
         std::string codon;
+        bool divpressureBool;
+        double divpressuremax;
+        double divpressuremin;
+        if (divpressure == 1){
+            divpressuremax=divpressureValues.begin()->second;
+            divpressuremin=divpressureValues.begin()->second;
+            divpressureBool = true;
+            for (std::map<int, double>::iterator itr = divpressureValues.begin(); itr != divpressureValues.end(); itr++) {
+                if(itr->second > divpressuremax){
+                    divpressuremax = itr->second;
+                }
+                if(itr->second < divpressuremin){
+                    divpressuremin = itr->second;
+                }
+            }
+        }else{
+        divpressuremax = 0;
+        divpressuremin = 0;
+        divpressureBool = false;
+        }
         for (long isite = 1; isite <= nsites; isite++) {
+            double isitedivpressure =0;
+            if (divpressureBool){
+                isitedivpressure = divpressureValues[isite];
+            }else{
+                isitedivpressure = -1;
+            }
             bpp::FullCodonFrequenciesSet *rprefs = new bpp::FullCodonFrequenciesSet(gcode);
             init_rprefs.clear();
             for (size_t icodon = 0; icodon < rprefs->getNumberOfFrequencies(); icodon++) {
@@ -184,8 +210,7 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
                 init_rprefs[icodon] = preferences[isite][codon];    
             }
             rprefs->setFrequenciesFromAlphabetStatesFrequencies(init_rprefs);
-            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM.", prefsasparams != 0, true,5,-5, 1.0));
-            //models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExpCM_divpressure(gcode, rprefs, "ExpCM.", prefsasparams != 0));
+            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM.", prefsasparams != 0, divpressureBool,divpressuremax,divpressuremin,isitedivpressure));
             if (! models[isite]) {
                 throw std::runtime_error("error casting ExperimentallyInformedCodonModel");
             }

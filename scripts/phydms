@@ -418,7 +418,7 @@ def main():
                     avg_prefs[aa] /= float(len(aaprefs))
                 for r in aaprefs.keys():
                     aaprefs[r] = avg_prefs
-            model = ('ExpCM', aaprefs)
+            model = ('ExpCM', aaprefs, divpressure)
         else:
             raise ValueError("Invalid model of %s" % args['model'])
 

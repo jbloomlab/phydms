@@ -82,20 +82,20 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
     addParameters_(preferences_->getParameters());
   }
   float const smallnumber = 0.0001; // small number to avoid omega of zero, or omega * (1 + omega2 * delta) that is negative
-  addParameter_(new bpp::Parameter(prefix + "omega", 1, new bpp::IntervalConstraint(smallnumber, 99, true, true), true));
+  addParameter_(new bpp::Parameter(prefix + "omega", omega_, new bpp::IntervalConstraint(smallnumber, 99, true, true), true));
   if (divpressure){
   	if (maxdeltar - mindeltar < smallnumber){
   		throw std::runtime_error("Maximum diversifying selection not sufficiently larger than minimum diversifying selection. Rescale your diversiying selection numbers to be larger.\n");
   		}
   	else if (maxdeltar != mindeltar){
   		if (mindeltar >= 0){
-  			addParameter_(new bpp::Parameter(prefix + "omega2", 1, new bpp::IntervalConstraint((-1.0/maxdeltar) + smallnumber, 99, true, true), true));
+  			addParameter_(new bpp::Parameter(prefix + "omega2", omega2_, new bpp::IntervalConstraint((-1.0/maxdeltar) + smallnumber, 99, true, true), true));
   		}
   		else if (maxdeltar <= 0){
-			addParameter_(new bpp::Parameter(prefix + "omega2", -1, new bpp::IntervalConstraint(-99,(-1.0/mindeltar) - smallnumber, true, true), true));
+			addParameter_(new bpp::Parameter(prefix + "omega2", omega2_, new bpp::IntervalConstraint(-99,(-1.0/mindeltar) - smallnumber, true, true), true));
   		}
   		else{
-  			addParameter_(new bpp::Parameter(prefix + "omega2", 0, new bpp::IntervalConstraint((-1.0/maxdeltar) + smallnumber ,(-1.0/mindeltar) - smallnumber, true, true), true));
+  			addParameter_(new bpp::Parameter(prefix + "omega2", omega2_, new bpp::IntervalConstraint((-1.0/maxdeltar) + smallnumber ,(-1.0/mindeltar) - smallnumber, true, true), true));
   			}
   	}
   }
