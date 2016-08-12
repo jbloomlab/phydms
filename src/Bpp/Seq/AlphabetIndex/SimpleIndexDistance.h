@@ -62,7 +62,7 @@ class SimpleIndexDistance :
   public virtual AlphabetIndex2
 {
 private:
-  std::auto_ptr<AlphabetIndex1> index_;
+  std::unique_ptr<AlphabetIndex1> index_;
   bool sym_;
 
 public:

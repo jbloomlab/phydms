@@ -295,7 +295,7 @@ void SequenceWithAnnotation::merge(const SequenceWithAnnotation& swa)
       newTypes.erase(it);
     } else {
       //Extend annotation to the right:
-      auto_ptr<SequenceAnnotation> anno(getAnnotation(types[i]).clone());
+      unique_ptr<SequenceAnnotation> anno(getAnnotation(types[i]).clone());
       anno->init(swa);
       getAnnotation(types[i]).merge(*anno);
     }

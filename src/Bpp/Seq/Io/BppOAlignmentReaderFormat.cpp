@@ -58,7 +58,7 @@ IAlignment* BppOAlignmentReaderFormat::read(const std::string& description) thro
   unparsedArguments_.clear();
   string format = "";
   KeyvalTools::parseProcedure(description, format, unparsedArguments_);
-  auto_ptr<IAlignment> iAln;
+  unique_ptr<IAlignment> iAln;
   if (format == "Mase")
   {
     iAln.reset(new Mase());

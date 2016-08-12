@@ -55,7 +55,7 @@ OSequence* BppOSequenceWriterFormat::read(const std::string& description) throw 
   string format = "";
   KeyvalTools::parseProcedure(description, format, unparsedArguments_);
   unsigned int ncol = ApplicationTools::getParameter<unsigned int>("length", unparsedArguments_, 100, "", true, warningLevel_);
-  auto_ptr<OSequence> oSeq;
+  unique_ptr<OSequence> oSeq;
   if (format == "Fasta")
   {
     oSeq.reset(new Fasta(ncol));

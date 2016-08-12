@@ -71,13 +71,9 @@ namespace bpp {
      * @name The Clonable interface.
      * @{
      */
-#ifdef NO_VIRTUAL_COV
-    Clonable*
-#else
-    AlphabetNumericState*
-#endif
-    clone() const { return new AlphabetNumericState(* this); }
+    AlphabetNumericState* clone() const { return new AlphabetNumericState(* this); }
     /** @} */
+
     /**
      * @brief Get the state value.
      *

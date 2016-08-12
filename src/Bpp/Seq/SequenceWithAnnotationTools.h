@@ -105,12 +105,7 @@ namespace bpp {
        * @name The Clonable interface
        * @{
        */
-#ifdef NO_VIRTUAL_COV
-      Clonable*
-#else
-      SequenceMask*
-#endif
-      clone() const { return new SequenceMask(*this); }
+      SequenceMask* clone() const { return new SequenceMask(*this); }
       /** @} */
 
     public:

@@ -88,7 +88,7 @@ public:
    * @param pAlpha The Pointer to the Alphabet to be used.
    * @param num the length of the words.
    */
-  WordAlphabet(const Alphabet* pAlpha, unsigned int num);
+  WordAlphabet(const Alphabet* pAlpha, size_t num);
 
   WordAlphabet(const WordAlphabet& bia) : AbstractAlphabet(bia), vAbsAlph_(bia.vAbsAlph_) {}
 

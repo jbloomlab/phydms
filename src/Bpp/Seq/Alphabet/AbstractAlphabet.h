@@ -126,9 +126,7 @@ namespace bpp
       return *this;
     }
 
-#ifndef NO_VIRTUAL_COV
     virtual AbstractAlphabet* clone() const = 0;
-#endif
 
     virtual ~AbstractAlphabet()
     {

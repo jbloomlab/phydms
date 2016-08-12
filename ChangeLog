@@ -1,3 +1,6 @@
+07/03/16 Julien Dutheil
+* Much faster getCompleteSites (does not check for positions)
+
 23/09/14 -*- Version 2.2.0 -*- 
 
 23/09/14 Julien Dutheil

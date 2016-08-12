@@ -59,7 +59,7 @@ ISequence* BppOSequenceReaderFormat::read(const std::string& description) throw 
   unparsedArguments_.clear();
   string format = "";
   KeyvalTools::parseProcedure(description, format, unparsedArguments_);
-  auto_ptr<ISequence> iSeq;
+  unique_ptr<ISequence> iSeq;
   if (format == "Mase")
   {
     iSeq.reset(new Mase());

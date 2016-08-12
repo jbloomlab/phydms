@@ -96,23 +96,13 @@ class AbstractIAlignment:
     }
  
     virtual
-#if defined(NO_VIRTUAL_COV)
-    SiteContainer*
-#else
-    AlignedSequenceContainer*
-#endif
-    readAlignment(const std::string& path , const Alphabet* alpha) const throw (Exception)
+    AlignedSequenceContainer* readAlignment(const std::string& path , const Alphabet* alpha) const throw (Exception)
     {
       return readAlignmentFromFile(path, alpha);
     }
  
     virtual
-#if defined(NO_VIRTUAL_COV)
-    SiteContainer*
-#else
-    AlignedSequenceContainer*
-#endif
-    readAlignment(std::istream& input, const Alphabet* alpha) const throw (Exception)
+    AlignedSequenceContainer* readAlignment(std::istream& input, const Alphabet* alpha) const throw (Exception)
     {
       return readAlignmentFromStream(input, alpha);
     }

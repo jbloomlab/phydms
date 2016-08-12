@@ -53,7 +53,7 @@ ISequenceStream* BppOSequenceStreamReaderFormat::read(const std::string& descrip
   unparsedArguments_.clear();
   string format = "";
   KeyvalTools::parseProcedure(description, format, unparsedArguments_);
-  auto_ptr<ISequenceStream> iSeq;
+  unique_ptr<ISequenceStream> iSeq;
   if (format == "Fasta")
   {
     bool strictNames = ApplicationTools::getBooleanParameter("strict_names", unparsedArguments_, false, "", true, false);

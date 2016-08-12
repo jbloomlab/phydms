@@ -80,9 +80,7 @@ namespace bpp
       return *this;
     }
 
-#ifndef NO_VIRTUAL_COV
     virtual NucleicAlphabet* clone() const = 0;
-#endif
 
     virtual ~NucleicAlphabet() {}
 

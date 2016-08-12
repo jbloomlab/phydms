@@ -82,7 +82,8 @@ SiteContainer* SiteContainerTools::getCompleteSites(const SiteContainer& sites)
   CompleteSiteContainerIterator csi(sites);
   while (csi.hasMoreSites())
   {
-    noGapCont->addSite(*csi.nextSite());
+    noGapCont->addSite(*csi.nextSite(), false);
+    // We do not check positions, we suppose that the container passed as an argument is correct.
   }
   return noGapCont;
 }
@@ -96,10 +97,10 @@ SiteContainer* SiteContainerTools::getSelectedSites(
   vector<string> seqNames = sequences.getSequencesNames();
   VectorSiteContainer* sc = new VectorSiteContainer(seqNames.size(), sequences.getAlphabet());
   sc->setSequencesNames(seqNames, false);
-  for (unsigned int i = 0; i < selection.size(); i++)
+  for (size_t i = 0; i < selection.size(); i++)
   {
     sc->addSite(sequences.getSite(selection[i]), false);
-    // We do not check names, we suppose that the container passed as an argument is correct.
+    // We do not check positions, we suppose that the container passed as an argument is correct.
     // WARNING: what if selection contains many times the same indice? ...
   }
   sc->setGeneralComments(sequences.getGeneralComments());
@@ -567,9 +568,9 @@ throw (AlphabetMismatchException)
   if (seq1.getAlphabet()->getAlphabetType() != s.getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("SiteContainerTools::alignNW", seq1.getAlphabet(), s.getAlphabet());
   // Check that sequences have no gap!
-  auto_ptr<Sequence> s1(seq1.clone());
+  unique_ptr<Sequence> s1(seq1.clone());
   SequenceTools::removeGaps(*s1);
-  auto_ptr<Sequence> s2(seq2.clone());
+  unique_ptr<Sequence> s2(seq2.clone());
   SequenceTools::removeGaps(*s2);
 
   // 1) Initialize matrix:
@@ -668,9 +669,9 @@ throw (AlphabetMismatchException)
   if (seq1.getAlphabet()->getAlphabetType() != s.getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("SiteContainerTools::alignNW", seq1.getAlphabet(), s.getAlphabet());
   // Check that sequences have no gap!
-  auto_ptr<Sequence> s1(seq1.clone());
+  unique_ptr<Sequence> s1(seq1.clone());
   SequenceTools::removeGaps(*s1);
-  auto_ptr<Sequence> s2(seq2.clone());
+  unique_ptr<Sequence> s2(seq2.clone());
   SequenceTools::removeGaps(*s2);
 
   // 1) Initialize matrix:

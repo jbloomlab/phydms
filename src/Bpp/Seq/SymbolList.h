@@ -67,9 +67,7 @@ namespace bpp
      *
      * @{
      */
-#ifndef NO_VIRTUAL_COV
     SymbolList* clone() const = 0;
-#endif
     /** @} */
 
     // Class destructor
@@ -325,12 +323,7 @@ namespace bpp
      *
      * @{
      */
-#ifdef NO_VIRTUAL_COV
-    Clonable*
-#else
-    BasicSymbolList*
-#endif
-    clone() const { return new BasicSymbolList(* this); }
+    BasicSymbolList* clone() const { return new BasicSymbolList(* this); }
     /** @} */
 
     // Class destructor
@@ -458,9 +451,7 @@ namespace bpp
   public:
     virtual ~SymbolListListener() {}
 
-#ifndef NO_VIRTUAL_COV
     virtual SymbolListListener* clone() const = 0;
-#endif
 
   public:
     virtual bool isRemovable() const = 0;
@@ -567,12 +558,7 @@ namespace bpp
      *
      * @{
      */
-#ifdef NO_VIRTUAL_COV
-    Clonable*
-#else
-    EdSymbolList*
-#endif
-    clone() const { return new EdSymbolList(* this); }
+    EdSymbolList* clone() const { return new EdSymbolList(* this); }
     /** @} */
 
     // Class destructor

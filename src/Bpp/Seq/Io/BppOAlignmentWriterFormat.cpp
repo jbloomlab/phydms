@@ -58,7 +58,7 @@ OAlignment* BppOAlignmentWriterFormat::read(const std::string& description) thro
   string format = "";
   KeyvalTools::parseProcedure(description, format, unparsedArguments_);
   unsigned int ncol = ApplicationTools::getParameter<unsigned int>("length", unparsedArguments_, 100, "", true, warningLevel_);
-  auto_ptr<OAlignment> oAln;
+  unique_ptr<OAlignment> oAln;
   if (format == "Fasta")
   {
     oAln.reset(new Fasta(ncol));

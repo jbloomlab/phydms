@@ -289,15 +289,37 @@ int main() {
     cout << container.getSequence(i).toString() << endl;
   cout << endl;
 
+  // DNA ...
+  Fasta * dna_fasta = new Fasta();
+  cout << endl << "created a handler of type : " << fasta->getFormatName() << endl;
+  string dna_fasta_in = ">another dna sequence\nACG\n";
+  istringstream dna_fasta_iss(dna_fasta_in);
+  cout << "read the following into binary container..." << endl;
+  cout << endl << dna_fasta_in << endl;
+  dna_fasta->appendSequencesFromStream(dna_fasta_iss, dna_container);
+  cout << "OK." << endl;
+
+  cout << "DNA container contains : " << endl << endl;
+  for(size_t i = 0; i < dna_container.getNumberOfSequences(); ++i)
+    cout << dna_container.getSequence(i).toString() << endl;
+  cout << endl;
+
   // *** the probabilistic version ***
   Pasta * pasta = new Pasta();
   cout << "created a handler of type : " << pasta->getFormatName() << endl;
 
-  string pasta_in = ">another binary probabilistic sequence\n0.8 0.4 0.333\n";
+  string pasta_in = "0 1\n>a binary probabilistic sequence\n0.64 0.36\n0 1\n0.3 0.7\n";
   istringstream pasta_iss(pasta_in);
   cout << "read the following into binary probabilistic container..." << endl;
   cout << endl << pasta_in << endl;
   pasta->appendSequencesFromStream(pasta_iss, p_container);
+  cout << "OK." << endl;
+
+  string pasta_in2 = ">another binary probabilistic sequence\n0.8 0.4 0.333\n";
+  istringstream pasta_iss2(pasta_in2);
+  cout << "read the following into binary probabilistic container (in fast-track way for binary alphabets)..." << endl;
+  cout << endl << pasta_in2 << endl;
+  pasta->appendSequencesFromStream(pasta_iss2, p_container);
   cout << "OK." << endl;
 
   cout << "binary probabilistic container contains : " << endl << endl;
@@ -306,4 +328,30 @@ int main() {
     cout << endl;
   }
 
+  // DNA...
+  Pasta * dna_pasta = new Pasta();
+  cout << "created a handler of type : " << pasta->getFormatName() << endl;
+
+  string dna_pasta_in = "A C G T\n>a dna prob. sequence\n0.1834088 0.6140376 0.132227880 0.07032571\n0.4960896 0.0523049 0.123549944 0.32805560\n";
+  istringstream dna_pasta_iss(dna_pasta_in);
+  cout << "read the following into dna prob. container" << endl;
+  cout << endl << dna_pasta_in << endl;
+  dna_pasta->appendSequencesFromStream(dna_pasta_iss, dna_p_container);
+  cout << "OK." << endl;
+
+  string dna_pasta_in2 = "C T A G\n>another dna prob. sequence\n0.1885256 0.2023275 0.570924031 0.03822292\n0.1122945 0.2366416 0.004093129 0.64697079\n";
+  istringstream dna_pasta_iss2(dna_pasta_in2);
+  cout << "read the following (permuted) sequence into dna prob. container" << endl;
+  cout << endl << dna_pasta_in2 << endl;
+  dna_pasta->appendSequencesFromStream(dna_pasta_iss2, dna_p_container);
+  cout << "OK." << endl;
+
+  cout << "dna prob. container contains : " << endl << endl;
+  for(size_t i = 0; i < dna_p_container.getNumberOfProbabilisticSequences(); ++i) {
+    DataTable::write(dna_p_container.getProbabilisticSequence(i).getContent(), cout);
+    cout << endl;
+  }
+
+  // the end
+  return 0;
 }
