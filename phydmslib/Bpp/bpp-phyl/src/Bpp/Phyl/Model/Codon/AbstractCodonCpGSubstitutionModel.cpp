@@ -1,12 +1,11 @@
 //
-// File: HmmSequenceEvolution.cpp
-// Created by: Laurent Guéguen
-// Created on: vendredi 1 mai 2015, à 21h 13
+// File: AbstractCodonDistanceSubstitutionModel.cpp
+// Created by:  Laurent Gueguen
+// Created on: Feb 2009
 //
 
 /*
    Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
-
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
 
@@ -37,45 +36,34 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "HmmSequenceEvolution.h"
+#include "AbstractCodonCpGSubstitutionModel.h"
+#include <Bpp/Numeric/NumConstants.h>
+
+using namespace bpp;
 
 using namespace std;
-using namespace bpp;
 
 /******************************************************************************/
 
-HmmSequenceEvolution::HmmSequenceEvolution(
-  SubstitutionProcessCollection* processColl,
-  std::vector<size_t>& nProc) :
-  MultiProcessSequenceEvolution(processColl, nProc, "HMM."),
-  hmmAlph_(),
-  hmmTransMat_()
+AbstractCodonCpGSubstitutionModel::AbstractCodonCpGSubstitutionModel(
+  const std::string& prefix) :
+  CodonSubstitutionModel(),
+  AbstractParameterAliasable(prefix),
+  rho_(1)
 {
-  hmmAlph_ = std::unique_ptr<HmmProcessAlphabet>(new HmmProcessAlphabet(processColl_, nProc));
-
-  hmmTransMat_ = std::unique_ptr<FullHmmTransitionMatrix>(new FullHmmTransitionMatrix(hmmAlph_.get(), "HMM."));
-
-  // initialize parameters:
-  addParameters_(hmmAlph_->getParameters());
-  addParameters_(hmmTransMat_->getParameters());
+  addParameter_(new Parameter(prefix + "rho", 1, new IntervalConstraint(NumConstants::SMALL(), 999, true, true), true));
 }
 
-
-void HmmSequenceEvolution::setNamespace(const std::string& nameSpace)
+void AbstractCodonCpGSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
-  deleteParameters_(hmmAlph_->getParameters().getParameterNames());
-  deleteParameters_(hmmTransMat_->getParameters().getParameterNames());
-
-  hmmAlph_->setNamespace(nameSpace);
-  hmmTransMat_->setNamespace(nameSpace);
-
-  addParameters_(hmmAlph_->getParameters());
-  addParameters_(hmmTransMat_->getParameters());
+  rho_ = getParameterValue("rho");
 }
 
-void HmmSequenceEvolution::fireParameterChanged(const ParameterList& parameters)
+double AbstractCodonCpGSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
-  MultiProcessSequenceEvolution::fireParameterChanged(parameters);
-  hmmAlph_->matchParametersValues(parameters);
-  hmmTransMat_->matchParametersValues(parameters);
+  int ii=static_cast<int>(i);
+  int ij=static_cast<int>(j);
+
+  return ((ii%16==7  && (ii-ij==2 || ij-ii==8)) || ((ii-1)/4==6 && (ii-ij==8 || (ij-ii==32))))?rho_:1;
 }
+

@@ -55,15 +55,13 @@ class SimpleSubstitutionProcess :
     public AbstractSubstitutionProcess
 {
 protected:
-  std::auto_ptr<SubstitutionModel> model_;
+  std::unique_ptr<SubstitutionModel> model_;
 
 private:
   /**
    * @brief The related Computing Tree
-   *
    */
-
-  mutable std::auto_ptr<ComputingTree> computingTree_;
+  mutable std::unique_ptr<ComputingTree> computingTree_;
 
 public:
   SimpleSubstitutionProcess(SubstitutionModel* model, ParametrizableTree* tree, bool checkRooted);
@@ -76,6 +74,8 @@ public:
   SimpleSubstitutionProcess* clone() const { return new SimpleSubstitutionProcess(*this); }
 
   size_t getNumberOfStates() const { return model_->getNumberOfStates(); }
+
+  size_t getNumberOfModels() const { return 1; }
 
   bool hasDerivableParameter(const std::string& name) const {
     return !model_->getIndependentParameters().hasParameter(name);
