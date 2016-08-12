@@ -228,25 +228,6 @@ double RandomTools::qNorm(double prob, double mu, double sigma)
   return RandomTools::qNorm(prob) * sigma + mu;
 }
 
-
-double RandomTools::lnGamma (double alpha)
-{
-  double x = alpha, f = 0, z;
-
-  if (x < 7)
-  {
-    f = 1;  z = x - 1;
-    while (++z < 7)
-      f *= z;
-    x = z;   f = -log(f);
-  }
-  z = 1 / (x * x);
-  return f + (x - 0.5) * log(x) - x + .918938533204673
-         + (((-.000595238095238 * z + .000793650793651) * z - .002777777777778) * z
-            + .083333333333333) / x;
-}
-
-
 double RandomTools::incompleteGamma (double x, double alpha, double ln_gamma_alpha)
 {
   size_t i;

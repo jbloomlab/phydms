@@ -100,11 +100,7 @@ namespace bpp
     }
 
   public:
-#ifndef NO_VIRTUAL_COV
     MetaOptimizerInfos* clone() const { return new MetaOptimizerInfos(*this); }
-#else
-    Clonable* clone() const { return new MetaOptimizerInfos(*this); }
-#endif
 
   public:
     /**

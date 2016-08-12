@@ -136,7 +136,7 @@ class AbstractNumericalDerivative:
     double getInterval() const { return h_; }
     
     /**
-     * @brief Set the list of parameters to derivate.
+     * @brief Set the list of parameters to derivate numerically.
      *
      * @param variables A list of all parameter names.
      */
@@ -162,17 +162,14 @@ class AbstractNumericalDerivative:
     double getFirstOrderDerivative(const std::string& variable) const
       throw (Exception)
     {
-      if (function1_)
-      {
-        try
-        {
-          return function1_->getFirstOrderDerivative(variable);
-        }
-        catch (Exception& e) {}
-      }    
       std::map<std::string, size_t>::iterator it = index_.find(variable);
-      if (computeD1_ && it != index_.end()) return der1_[it->second];
-      else throw Exception("First order derivative not computed for variable " + variable + "."); 
+      if (computeD1_ && it != index_.end())
+        return der1_[it->second];
+
+      if (function1_)
+        return function1_->getFirstOrderDerivative(variable);
+
+      throw Exception("First order derivative not computed for variable " + variable + "."); 
     }
     /** @} */
     
@@ -188,35 +185,29 @@ class AbstractNumericalDerivative:
     double getSecondOrderDerivative(const std::string& variable) const
       throw (Exception)
     {
-      if (function2_)
-      {
-        try
-        {
-          return function2_->getSecondOrderDerivative(variable);
-        }
-        catch(Exception & e) {}
-      }    
       std::map<std::string, size_t>::iterator it = index_.find(variable);
-      if(computeD2_ && it != index_.end()) return der2_[it->second];
-      else throw Exception("Second order derivative not computed for variable " + variable + "."); 
+      if(computeD2_ && it != index_.end())
+        return der2_[it->second];
+
+      if (function2_)
+        return function2_->getSecondOrderDerivative(variable);
+
+      throw Exception("Second order derivative not computed for variable " + variable + "."); 
     }
 
     double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const
       throw (Exception)
     {
-      if (function2_)
-      {
-        try
-        {
-          return function2_->getSecondOrderDerivative(variable1, variable2);
-        }
-        catch(Exception & e) {}
-      }    
       std::map<std::string, size_t>::iterator it1 = index_.find(variable1);
       std::map<std::string, size_t>::iterator it2 = index_.find(variable2);
       if(computeCrossD2_ && it1 != index_.end() && it2 != index_.end()) return crossDer2_(it1->second, it2->second);
-      else throw Exception("Cross second order derivative not computed for variables " + variable1 + " and " + variable2 + "."); 
+
+      if (function2_)
+        return function2_->getSecondOrderDerivative(variable1, variable2);
+
+      throw Exception("Cross second order derivative not computed for variables " + variable1 + " and " + variable2 + "."); 
     }
+  
     /** @} */
      
     /**

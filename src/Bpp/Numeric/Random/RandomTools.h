@@ -194,7 +194,7 @@ namespace bpp
       }
     }
 
-   template<class T>
+    template<class T>
     static T pickOne(const std::vector<T>& v) throw (EmptyVectorException<T>) {
       if (v.empty())
         throw EmptyVectorException<T>("RandomTools::pickOne: input vector is empty", &v);
@@ -375,15 +375,10 @@ namespace bpp
     /**
      * @brief Computes \f$ln\left(\Gamma\left(\alpha\right)\right)\f$ given \f$\alpha\f$.
      * 
-     * Returns ln(gamma(alpha)) for alpha>0, accurate to 10 decimal places.  
-     * Stirling's formula is used for the central polynomial part of the procedure.
-     * Pike MC & Hill ID (1966) Algorithm 291: Logarithm of the gamma function.
-     * Communications of the Association for Computing Machinery, 9:684
-     *
      * @param alpha Alpha parameter.
      * @return \f$ln\left(\Gamma\left(\alpha\right)\right)\f$
      */
-    static double lnGamma (double alpha);
+    static double lnGamma(double alpha) { return std::lgamma(alpha); }
 
     /**
      * @brief Returns the incomplete gamma ratio I(x,alpha).
@@ -477,11 +472,12 @@ namespace bpp
 
      * @{
      */
+
     /**
      * @brief Normal cumulative function.
      *
      * Returns Prob{x<=z} where x ~ N(0,1)
-     
+     * 
      * @param z the value.
      * @return The corresponding probability.
      */
@@ -509,8 +505,7 @@ namespace bpp
      * @param alpha, beta Alpha and Beta parameters.
      * @return \f$ln\left(Beta\left(\alpha,\beta\right)\right)\f$
      */
-
-    static double lnBeta (double alpha, double beta);
+    static double lnBeta(double alpha, double beta);
 
     /**
      * @brief Returns the regularized incomplete beta function

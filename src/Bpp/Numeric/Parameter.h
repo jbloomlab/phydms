@@ -70,12 +70,7 @@ namespace bpp
       return *this;
     }
 
-#ifndef NO_VIRTUAL_COV
-    ParameterEvent*
-#else
-    Clonable*
-#endif
-    clone() const { return new ParameterEvent(*this); }
+    ParameterEvent* clone() const { return new ParameterEvent(*this); }
 
   public:
     const Parameter* getParameter() const { return parameter_; }
@@ -93,12 +88,7 @@ namespace bpp
     public virtual Clonable
   {
   public:
-#ifndef NO_VIRTUAL_COV
-    ParameterListener*
-#else
-    Clonable*
-#endif
-    clone() const = 0;
+    ParameterListener* clone() const = 0;
 
   public:
 
@@ -191,12 +181,7 @@ namespace bpp
   
     virtual ~Parameter();
     
-#ifndef NO_VIRTUAL_COV
-    Parameter*
-#else
-    Clonable*
-#endif
-    clone() const { return new Parameter(*this); }
+    Parameter* clone() const { return new Parameter(*this); }
     
   public:
 

@@ -81,12 +81,7 @@ public:
 
   virtual ~CorrespondenceAnalysis() {}
 
-#ifndef NO_VIRTUAL_COV
-  CorrespondenceAnalysis*
-#else
-  Clonable*
-#endif
-  clone() const { return new CorrespondenceAnalysis(*this); }
+  CorrespondenceAnalysis* clone() const { return new CorrespondenceAnalysis(*this); }
 
 public:
   double getSumOfAllValues() const throw (Exception) { return n_; }

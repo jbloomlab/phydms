@@ -52,22 +52,36 @@ int main() {
   string one = "one";
   string two = "two";
   string three = "three";
+  unsigned int r1 = 1;
   unsigned int r3 = 3;
   cout << "Creating node zero." << endl;
   grObs.createNode(&zero);
   grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");
   cout << "Creating node one from the number zero." << endl;
-  grObs.createNode(&zero,&one);
+  grObs.createNode(&one);
+  grObs.link(&zero,&one,&r1);
   grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");
+  cout << "The father branch of zero is " << *(grObs.getBranchToFather(&one)) << endl;
+  cout << "The father node of one is " << *(grObs.getFather(&one)) << endl;
+  
+//   cout << "unlink 0->1 and relink with setFather()";
+//   grObs.unlink(&zero,&one);
+//   grObs.setFather(&one,&zero);
+//FIXME: setFather only works with valid tree (wich cannot be true…)
+  grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");
+  
+  
   cout << "Creating node two from the number one." << endl;
   grObs.createNode(&one,&two);
   grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");
-  cout << "Linking two to one." << endl;
+  cout << "Linking two to zero." << endl;
   grObs.link(&two,&zero,&r3);
-  grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");
+  grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");  
   cout << "Linking one to three." << endl;
   grObs.createNode(&one,&three);
   grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");
+  
+
   cout << "Linking three to zero." << endl;
   grObs.link(&three,&zero);
   grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");
@@ -76,6 +90,8 @@ int main() {
   vector<string*> fromThree = grObs.getOutgoingNeighbors(&two);
   bool test = (*(fromOne.begin()) == &one) && (*(fromThree.begin()) == &zero);
   grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");
+  
+  
   
   cout << "Is this a tree?\n    " << (grObs.isValid()? "TRUE":"FALSE") << endl;
   

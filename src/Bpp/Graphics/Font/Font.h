@@ -73,12 +73,7 @@ class Font:
 
     virtual ~Font() {}
 
-#ifdef NO_VIRTUAL_COV
-    Clonable*
-#else
-    Font*
-#endif
-    clone() const { return new Font(*this); }
+    Font* clone() const { return new Font(*this); }
 
   private:
     void init_();

@@ -129,11 +129,7 @@ namespace bpp
     Optimizer() {}
     virtual ~Optimizer() {}
 
-#if defined(NO_VIRTUAL_COV)
-    Clonable* clone() const = 0;
-#else
     Optimizer* clone() const = 0;
-#endif
 	
   public:
 		

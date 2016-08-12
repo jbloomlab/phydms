@@ -71,12 +71,7 @@ namespace bpp
     OptimizationStopCondition() {}
     virtual ~OptimizationStopCondition() {}
 
-#ifndef NO_VIRTUAL_COV
-    OptimizationStopCondition *
-#else
-    Clonable*
-#endif
-    clone() const = 0;
+    OptimizationStopCondition * clone() const = 0;
 	
   public:
 
@@ -293,12 +288,7 @@ namespace bpp
 		
     virtual ~FunctionStopCondition();
 
-#ifndef NO_VIRTUAL_COV
-    FunctionStopCondition*
-#else
-    Clonable*
-#endif
-    clone() const { return new FunctionStopCondition(*this); }
+    FunctionStopCondition* clone() const { return new FunctionStopCondition(*this); }
 	
   public:
     void init();

@@ -71,9 +71,9 @@ private:
   /**
    * @brief The alphabet describing the hidden states.
    */
-  std::auto_ptr<HmmStateAlphabet> hiddenAlphabet_;
-  std::auto_ptr<HmmTransitionMatrix> transitionMatrix_;
-  std::auto_ptr<HmmEmissionProbabilities> emissionProbabilities_;
+  std::unique_ptr<HmmStateAlphabet> hiddenAlphabet_;
+  std::unique_ptr<HmmTransitionMatrix> transitionMatrix_;
+  std::unique_ptr<HmmEmissionProbabilities> emissionProbabilities_;
 
   /**
    * @brief The likelihood array.
@@ -135,9 +135,9 @@ public:
   {
     AbstractHmmLikelihood::operator=(lik);
     AbstractParametrizable::operator=(lik);
-    hiddenAlphabet_        = std::auto_ptr<HmmStateAlphabet>(dynamic_cast<HmmStateAlphabet*>(lik.hiddenAlphabet_->clone()));
-    transitionMatrix_      = std::auto_ptr<HmmTransitionMatrix>(dynamic_cast<HmmTransitionMatrix*>(lik.transitionMatrix_->clone()));
-    emissionProbabilities_ = std::auto_ptr<HmmEmissionProbabilities>(dynamic_cast<HmmEmissionProbabilities*>(lik.emissionProbabilities_->clone()));
+    hiddenAlphabet_        = std::unique_ptr<HmmStateAlphabet>(dynamic_cast<HmmStateAlphabet*>(lik.hiddenAlphabet_->clone()));
+    transitionMatrix_      = std::unique_ptr<HmmTransitionMatrix>(dynamic_cast<HmmTransitionMatrix*>(lik.transitionMatrix_->clone()));
+    emissionProbabilities_ = std::unique_ptr<HmmEmissionProbabilities>(dynamic_cast<HmmEmissionProbabilities*>(lik.emissionProbabilities_->clone()));
     likelihood1_           = lik.likelihood1_;
     likelihood2_           = lik.likelihood2_;
     logLik_                = lik.logLik_;
@@ -154,12 +154,7 @@ public:
 
   virtual ~LowMemoryRescaledHmmLikelihood() {}
 
-#ifndef NO_VIRTUAL_COV
-  LowMemoryRescaledHmmLikelihood*
-#else
-  Clonable*
-#endif
-  clone() const { return new LowMemoryRescaledHmmLikelihood(*this); }
+  LowMemoryRescaledHmmLikelihood* clone() const { return new LowMemoryRescaledHmmLikelihood(*this); }
 
 public:
   const HmmStateAlphabet& getHmmStateAlphabet() const { return *hiddenAlphabet_; }

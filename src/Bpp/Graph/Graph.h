@@ -26,7 +26,7 @@ namespace bpp
     typedef unsigned int Edge;
     virtual ~Graph() {}
 
-    
+    //TODO: interface  from SimpleGraph
   };
 }
 
@@ -173,7 +173,7 @@ private:
     /**
     * Private version of getIncomingNeighbors or getOutgoingNeighbors.
     * Common code of these function shared here.
-    * @param node node to find in or outgoing neighbors
+    * @param node node to  in or outgoing neighbors
     * @param outgoing boolean: if tue, outgoing; else incoming
     */
     std::vector<Node> getNeighbors_(Node node,bool outgoing=true) const;
@@ -392,6 +392,7 @@ public:
     
     /**
     * Get nodes located at the extremities of an edge
+    * 
     * @return a pair of the Nodes at each extremity of the edge
     *        example : N1--E1-->N2; getNodes(E1) will return (N1,N2);
     */

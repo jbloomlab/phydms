@@ -231,12 +231,7 @@ namespace bpp {
     }
     
 
-#ifndef NO_VIRTUAL_COV
-    LogsumHmmLikelihood*
-#else
-    Clonable*
-#endif
-    clone() const { return new LogsumHmmLikelihood(*this); }
+    LogsumHmmLikelihood* clone() const { return new LogsumHmmLikelihood(*this); }
 
   public:
     const HmmStateAlphabet& getHmmStateAlphabet() const { return *hiddenAlphabet_; }

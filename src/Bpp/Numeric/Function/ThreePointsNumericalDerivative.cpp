@@ -53,7 +53,7 @@ throw (ParameterNotFoundException, ConstraintException)
       function2_->enableSecondOrderDerivatives(false);
     function_->setParameters(parameters);
     f2_ = function_->getValue();
-    if ((abs(f2_) >= NumConstants::VERY_BIG()) || isnan(f2_))
+    if ((abs(f2_) >= NumConstants::VERY_BIG()) || std::isnan(f2_))
     {
       for (size_t i = 0; i < variables_.size(); ++i)
       {
@@ -103,7 +103,7 @@ throw (ParameterNotFoundException, ConstraintException)
 
           p = p.subList(0);
           f1_ = function_->getValue();
-          if ((abs(f1_) >= NumConstants::VERY_BIG()) || isnan(f1_))
+          if ((abs(f1_) >= NumConstants::VERY_BIG()) || std::isnan(f1_))
             throw ConstraintException("f1_ too large", &p[0], f1_);
           else
             hf1 = h;
@@ -137,7 +137,7 @@ throw (ParameterNotFoundException, ConstraintException)
 
             p = p.subList(0);
             f3_ = function_->getValue();
-            if ((abs(f3_) >= NumConstants::VERY_BIG()) || isnan(f3_))
+            if ((abs(f3_) >= NumConstants::VERY_BIG()) || std::isnan(f3_))
               throw ConstraintException("f3_ too large", &p[0], f3_);
             else
               hf3 = h;

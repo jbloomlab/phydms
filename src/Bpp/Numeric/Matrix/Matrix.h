@@ -129,7 +129,7 @@ template<class Scalar>
 class RowMatrix :
   public Matrix<Scalar>
 {
-private:
+protected:
   std::vector< std::vector<Scalar> > m_;
 
 public:
@@ -173,7 +173,7 @@ public:
     return *this;
   }
 
-  virtual ~RowMatrix() {}
+//  virtual ~RowMatrix() {}
 
 public:
   RowMatrix* clone() const { return new RowMatrix(*this); }
@@ -194,6 +194,11 @@ public:
   }
 
   const std::vector<Scalar>& getRow(size_t i) const
+  {
+    return m_[i];
+  }
+
+  std::vector<Scalar>& getRow(size_t i) 
   {
     return m_[i];
   }

@@ -62,7 +62,7 @@ class ParameterList :
   public Clonable
 {
 private:
-  std::vector<Parameter*> parameters_;
+  std::vector<std::shared_ptr<Parameter> > parameters_;
 
 public:
   /**
@@ -93,8 +93,17 @@ public:
    * @return The parameter at a given position.
    * @warning No check is performed on the validity of the index given as input!
    */
+  
   virtual const Parameter& operator[](size_t i) const { return *parameters_[i]; }
   virtual Parameter& operator[](size_t i) { return *parameters_[i]; }
+
+  /**
+   * @return The shared_ptr parameter at a given position.
+   * @warning No check is performed on the validity of the index given as input!
+   */
+  
+  virtual const std::shared_ptr<Parameter>& get_at(size_t i) const { return parameters_[i]; }
+  virtual std::shared_ptr<Parameter>& get_at(size_t i) { return parameters_[i]; }
 
   /**
    * @brief Get the parameter with name <i>name</i>.
@@ -104,6 +113,8 @@ public:
    * @throw ParameterNotFoundException If no parameter with the given name is found.
    */
   virtual const Parameter& getParameter(const std::string& name) const throw (ParameterNotFoundException);
+
+  const std::shared_ptr<Parameter>& getSharedParameter(const std::string& name) const throw (ParameterNotFoundException);
 
   /**
    * @brief Get the value of the parameter with name <i>name</i>.
@@ -199,7 +210,17 @@ public:
    *
    * @param param A ppointer toward the parameter to add to the list.
    */
+
   virtual void addParameter(Parameter* param) throw (ParameterException);
+
+  /**
+   * @brief Share a parameter at the end of the list.
+   *
+   * @param param The shared_ptr parameter to add to the list.
+   */
+  
+  virtual void shareParameter(const std::shared_ptr<Parameter>& param) throw (ParameterException);
+
 
   /**
    * @brief Change given parameter.
@@ -208,14 +229,27 @@ public:
    * @param param The parameter to add to the list.
    * @throw IndexOutOfBoundsException if the index is not valid.
    */
+  
   virtual void setParameter(size_t index, const Parameter& param) throw (IndexOutOfBoundsException);
+
+//  virtual void setParameter(size_t index, Parameter* param) throw (IndexOutOfBoundsException);
 
   /**
    * @brief Add new parameters at the end of the list.
    *
-   * @param params The parameter list containing the new paramters to add to the list.
+   * @param params The parameter list containing the new parameters to
+   * add to the list.
    */
   virtual void addParameters(const ParameterList& params) throw (ParameterException);
+
+  /**
+   * @brief Share parameters with a given list. They are added the end of this list.
+   *
+   * @param params The parameter list containing the parameters to
+   * share with to the list.
+   */
+  
+  virtual void shareParameters(const ParameterList& params) throw (ParameterException);
 
   /**
    * @brief Add parameters to the list. If the parameter already
