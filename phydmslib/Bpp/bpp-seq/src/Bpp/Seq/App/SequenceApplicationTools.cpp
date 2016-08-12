@@ -40,6 +40,7 @@
 
 #include "SequenceApplicationTools.h"
 #include "../Alphabet/BinaryAlphabet.h"
+#include "../Alphabet/LexicalAlphabet.h"
 #include "../Alphabet/DefaultAlphabet.h"
 #include "../Alphabet/CodonAlphabet.h"
 #include "../Alphabet/AlphabetTools.h"
@@ -78,36 +79,78 @@ Alphabet* SequenceApplicationTools::getAlphabet(
   bool allowGeneric,
   int warn) throw (Exception)
 {
-  Alphabet* chars;
+  Alphabet* chars = 0;
+  
   string alphtt = ApplicationTools::getStringParameter("alphabet", params, "DNA", suffix, suffixIsOptional, warn);
 
-  string alphabet = "";
   map<string, string> args;
-  int flag = 0;
 
+  string alphabet;
   KeyvalTools::parseProcedure(alphtt, alphabet, args);
-  unsigned int lg = 1;
 
   if (alphabet == "Word")
   {
-    if (args.find("length") == args.end())
-      throw Exception("Missing length parameter for Word alphabet");
-    lg = TextTools::to<unsigned int>(args["length"]);
-    if (args.find("letter") == args.end())
-      throw Exception("Missing letter alphabet for Word alphabet");
-    alphabet = args["letter"];
-    flag = 1;
+    if (args.find("letter") != args.end())
+    {
+      args["alphabet"]=args["letter"];
+      
+      Alphabet* inAlphabet = SequenceApplicationTools::getAlphabet(args, suffix, suffixIsOptional, false, allowGeneric, warn+1);
+      
+      if (args.find("length") == args.end())
+        throw Exception("Missing length parameter for Word alphabet");
+
+      size_t lg = TextTools::to<unsigned int>(args["length"]);
+
+      chars = new WordAlphabet(inAlphabet, lg);
+    }
+    else
+    {
+      size_t indAlph = 1;
+      vector<const Alphabet*> vAlph;
+
+      while (args.find("alphabet" + TextTools::toString(indAlph)) != args.end())
+      {
+        map<string,string> args2;
+        args2["alphabet"]=args["alphabet" + TextTools::toString(indAlph)];
+
+        vAlph.push_back(SequenceApplicationTools::getAlphabet(args2, suffix, suffixIsOptional, verbose, allowGeneric, warn));
+        indAlph++;
+      }
+
+      if (vAlph.size() == 0)
+        throw Exception("SequenceApplicationTools::getAlphabet. At least one alphabet  is compulsory for Word alphabet");
+
+      chars = new WordAlphabet(vAlph);
+    }
   }
   else if (alphabet == "RNY")
   {
     if (args.find("letter") == args.end())
       throw Exception("Missing letter alphabet for RNY alphabet");
-    alphabet = args["letter"];
-    flag = 2;
-  }
 
-  if (alphabet == "Binary")
+    args["alphabet"]=args["letter"];
+      
+    Alphabet* inAlphabet = SequenceApplicationTools::getAlphabet(args, suffix, suffixIsOptional, verbose, allowGeneric, warn);
+
+    if (AlphabetTools::isNucleicAlphabet(inAlphabet))
+    {
+      chars = new RNY(*(dynamic_cast<NucleicAlphabet*>(chars)));
+      alphabet = "RNY(" + alphabet + ")";
+    }
+    else
+      throw Exception("RNY needs a Nucleic Alphabet, instead of " + args["letter"]);
+  }
+  else if (alphabet == "Binary")
     chars = new BinaryAlphabet();
+  else if (alphabet == "Lexicon")
+  {
+    vector<string> vWord = ApplicationTools::getVectorParameter<string>("words", args, ',', "()");
+
+    if (vWord.size()==0)
+      throw Exception("SequenceApplicationTools::getAlphabet. 'words' list is missing or empty for Lexicon alphabet");
+    
+    chars = new LexicalAlphabet(vWord);
+  }
   else if (alphabet == "DNA")
   {
     bool mark = ApplicationTools::getBooleanParameter("bangAsGap", args, false, "", true, warn + 1);
@@ -150,35 +193,12 @@ Alphabet* SequenceApplicationTools::getAlphabet(
 
 
     chars = new CodonAlphabet(pnalph);
-    alphabet = alphabet + "(" + alphn + ")";
   }
   else
     throw Exception("Alphabet not known: " + alphabet);
 
-  if (flag == 1)
-  {
-    chars = new WordAlphabet(chars, lg);
-    string al = " ";
-    for (unsigned i = 0; i < lg; i++)
-    {
-      al += alphabet + " ";
-    }
-    alphabet = "Word(" + al + ")";
-  }
-  else if (flag == 2)
-  {
-    if (AlphabetTools::isNucleicAlphabet(chars))
-    {
-      chars = new RNY(*(dynamic_cast<NucleicAlphabet*>(chars)));
-      alphabet = "RNY(" + alphabet + ")";
-    }
-    else
-      throw Exception("RNY needs a Nucleic Alphabet, instead of " + alphabet);
-  }
-
-
   if (verbose)
-    ApplicationTools::displayResult("Alphabet type ", alphabet);
+    ApplicationTools::displayResult("Alphabet type ", chars->getAlphabetType());
   return chars;
 }
 
@@ -236,7 +256,7 @@ SequenceContainer* SequenceApplicationTools::getSequenceContainer(
   string sequenceFilePath = ApplicationTools::getAFilePath("input.sequence.file", params, true, true, suffix, suffixIsOptional, "none", warn);
   string sequenceFormat = ApplicationTools::getStringParameter("input.sequence.format", params, "Fasta()", suffix, suffixIsOptional, warn);
   BppOSequenceReaderFormat bppoReader(warn);
-  auto_ptr<ISequence> iSeq(bppoReader.read(sequenceFormat));
+  unique_ptr<ISequence> iSeq(bppoReader.read(sequenceFormat));
   if (verbose)
   {
     ApplicationTools::displayResult("Sequence file " + suffix, sequenceFilePath);
@@ -347,7 +367,7 @@ VectorSiteContainer* SequenceApplicationTools::getSiteContainer(
   string sequenceFilePath = ApplicationTools::getAFilePath("input.sequence.file", params, true, true, suffix, suffixIsOptional, "none", warn);
   string sequenceFormat = ApplicationTools::getStringParameter("input.sequence.format", params, "Fasta()", suffix, suffixIsOptional, warn);
   BppOAlignmentReaderFormat bppoReader(warn);
-  auto_ptr<IAlignment> iAln(bppoReader.read(sequenceFormat));
+  unique_ptr<IAlignment> iAln(bppoReader.read(sequenceFormat));
   map<string, string> args(bppoReader.getUnparsedArguments());
   if (verbose)
   {
@@ -634,7 +654,7 @@ VectorSiteContainer* SequenceApplicationTools::getSitesToAnalyse(
     if (option == "yes")
     {
       string codeDesc = ApplicationTools::getStringParameter("genetic_code", params, "Standard", "", true, warn);
-      auto_ptr<GeneticCode> gCode(getGeneticCode(ca->getNucleicAlphabet(), codeDesc));
+      unique_ptr<GeneticCode> gCode(getGeneticCode(ca->getNucleicAlphabet(), codeDesc));
       sitesToAnalyse2 = dynamic_cast<VectorSiteContainer*>(SiteContainerTools::removeStopCodonSites(*sitesToAnalyse, *gCode));
       delete sitesToAnalyse;
     }
@@ -659,7 +679,7 @@ void SequenceApplicationTools::writeSequenceFile(
   string sequenceFilePath = ApplicationTools::getAFilePath("output.sequence.file", params, true, false, suffix, false, "none", warn);
   string sequenceFormat   = ApplicationTools::getStringParameter("output.sequence.format", params, "Fasta", suffix, false, warn);
   BppOSequenceWriterFormat bppoWriter(warn);
-  auto_ptr<OSequence> oSeq(bppoWriter.read(sequenceFormat));
+  unique_ptr<OSequence> oSeq(bppoWriter.read(sequenceFormat));
   if (verbose)
   {
     ApplicationTools::displayResult("Output sequence file " + suffix, sequenceFilePath);
@@ -682,7 +702,7 @@ void SequenceApplicationTools::writeAlignmentFile(
   string sequenceFilePath = ApplicationTools::getAFilePath("output.sequence.file", params, true, false, suffix, false, "none", warn);
   string sequenceFormat   = ApplicationTools::getStringParameter("output.sequence.format", params, "Fasta", suffix, false, warn);
   BppOAlignmentWriterFormat bppoWriter(warn);
-  auto_ptr<OAlignment> oAln(bppoWriter.read(sequenceFormat));
+  unique_ptr<OAlignment> oAln(bppoWriter.read(sequenceFormat));
   if (verbose)
   {
     ApplicationTools::displayResult("Output alignment file " + suffix, sequenceFilePath);

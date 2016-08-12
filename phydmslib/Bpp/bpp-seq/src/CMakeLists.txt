@@ -42,6 +42,7 @@ SET(CPP_FILES
   Bpp/Seq/Alphabet/RNY.cpp
   Bpp/Seq/Alphabet/BinaryAlphabet.cpp
   Bpp/Seq/Alphabet/IntegerAlphabet.cpp
+  Bpp/Seq/Alphabet/LexicalAlphabet.cpp
   Bpp/Seq/Alphabet/NumericAlphabet.cpp
   Bpp/Seq/GeneticCode/GeneticCode.cpp
   Bpp/Seq/GeneticCode/StandardGeneticCode.cpp
@@ -143,6 +144,7 @@ SET(H_FILES
   Bpp/Seq/Alphabet/WordAlphabet.h
   Bpp/Seq/Alphabet/RNY.h
   Bpp/Seq/Alphabet/BinaryAlphabet.h
+  Bpp/Seq/Alphabet/LexicalAlphabet.h
   Bpp/Seq/Alphabet/IntegerAlphabet.h
   Bpp/Seq/Alphabet/AlphabetNumericState.h
   Bpp/Seq/Alphabet/NumericAlphabet.h

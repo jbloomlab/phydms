@@ -52,7 +52,7 @@ using namespace std;
 
 /********************************************************************************/
 
-bool Pasta::nextSequence(istream & input, ProbabilisticSequence & seq) const throw (Exception) {
+bool Pasta::nextSequence(istream & input, ProbabilisticSequence & seq, bool hasLabels, vector<int> & permutationMap) const throw (Exception) {
 
   if(!input)
     throw IOException("Pasta::nextSequence : can't read from istream input");
@@ -159,31 +159,59 @@ bool Pasta::nextSequence(istream & input, ProbabilisticSequence & seq) const thr
 
   seq.setName(seqname);
 
-  // finally, add pairs of probabilities that (binary) character is 0, resp. 1
+  /* finally, deal with the content */
 
-  // setup the names first
-  string names[] = {"0","1"};
-  vector<string> names_v(names,names+2);
-  DataTable content(names_v); // a data table with 2 columns for p(0), p(1)
+  // there is a header that specifies to which character each
+  // probability is associated
+  if(hasLabels) {
 
-  // now add the rows
-  for(vector<string>::const_iterator i = tokens.begin(); i != tokens.end(); ++i) {
+    DataTable content(permutationMap.size());
+    vector<string>::const_iterator i = tokens.begin();
+    while(i != tokens.end()) {
 
-    // the following will throw an exception if v[i] is not a properly
-    // formatted double : a check that we want to have
-    int precision = 10; // I think this will be more than enough
-    string pair[] = {TextTools::toString(double(1) - TextTools::toDouble(*i,'.','E'), precision), *i};
-    vector<string> pair_v(pair,pair+2);
-    content.addRow(pair_v); // p(0), p(1)
+      // junk up the tokens into groups of alphabetsize, and permute
+      // according to how the header is permuted
+      string row[permutationMap.size()];
+      for(vector<int>::const_iterator j = permutationMap.begin(); j != permutationMap.end(); ++j) {
+	if(i == tokens.end())
+	  throw Exception("Pasta::nextSequence : input is incomplete");
+	row[*j] = *i;
+      	++i;
+      }
+
+      vector<string> row_v(row,row+permutationMap.size());
+      content.addRow(row_v);
+    }
+
+    // finally set the content
+    seq.setContent(content);
   }
+  // o.w., we assume that each probability is that a (binary)
+  // character is 1
+  else {
 
-  // finally, we set the content of the sequence to the above.  Since
-  // any number format exception was taken care of above, as well as
-  // that each sequence must be of the same length by construction of
-  // a (named) DataTable object, the only thing left that could go
-  // wrong is that p(0) + p(1) != 1 : a check that is done in the call
-  // of the function below
-  seq.setContent(content);
+    DataTable content(2);
+
+    // fill in pairs of probabilities that (binary) character is 0,
+    // resp. 1
+    for(vector<string>::const_iterator i = tokens.begin(); i != tokens.end(); ++i) {
+
+      // the following will throw an exception if v[i] is not a properly
+      // formatted double : a check that we want to have
+      int precision = 10; // I think this will be more than enough
+      string pair[] = {TextTools::toString(double(1) - TextTools::toDouble(*i,'.','E'), precision), *i};
+      vector<string> pair_v(pair,pair+2);
+      content.addRow(pair_v); // p(0), p(1)
+    }
+
+    // finally, we set the content of the sequence to the above.
+    // Since any number format exception was taken care of above, as
+    // well as that each sequence must be of the same length by
+    // construction of a DataTable object, the only thing left that
+    // could go wrong is that p(0) + p(1) != 1 : a check that is done
+    // in the call of the function below
+    seq.setContent(content);
+  }
 
   return res;
 }
@@ -248,6 +276,11 @@ void Pasta::appendSequencesFromStream(istream & input, VectorProbabilisticSiteCo
   string line = "";
   Comments cmts;
 
+  // labels for the states
+  bool hasLabels = false;
+  vector<string> labels;
+  vector<int> permutationMap;
+
   while(!input.eof() && hasSeq) {
 
     last_c = c;
@@ -278,13 +311,54 @@ void Pasta::appendSequencesFromStream(istream & input, VectorProbabilisticSiteCo
       line.append(1,c);
     }
 
+    // detect/get labels for the states
+    if(!header && c != '>') {
+
+      hasLabels = true;
+      input.putback(c);
+      c = last_c;
+
+      getline(input, line);
+      StringTokenizer st(line, " \t\n", false, false);
+
+      while(st.hasMoreToken()) {
+	string s = st.nextToken();
+	labels.push_back(s);
+      }
+
+      /* check labels against alphabet of the container */
+      vector<string> resolved_chars = container.getAlphabet()->getResolvedChars();
+      string states = "<";
+      for(vector<string>::const_iterator i = resolved_chars.begin(); i != resolved_chars.end(); ++i)
+	states += " " + *i;
+      states += " >";
+
+      // check if size is the same
+      if(labels.size() != resolved_chars.size())
+	throw DimensionException("Pasta::appendSequencesFromStream. ", labels.size(), resolved_chars.size());
+
+      // build permutation map on the content, error should one exist
+      for(vector<string>::const_iterator i = labels.begin(); i != labels.end(); ++i) {
+	bool found = false;
+
+	for(int j = 0; j < int(resolved_chars.size()); ++j)
+	  if(*i == resolved_chars[j]) {
+	      permutationMap.push_back(j);
+	      found = true;
+	  }
+	
+	if(!found)
+	  throw Exception("Pasta::appendSequencesFromStream. Label " + TextTools::toString(*i) + " is not found in alphabet " + TextTools::toString(states) + ".");
+      }		
+    }
+
     // detect the sequence
     if(c == '>' && last_c == '\n') {
 
       input.putback(c);
       c = last_c;
       BasicProbabilisticSequence tmpseq(container.getAlphabet()); // add probabilistic sequences instead
-      hasSeq = nextSequence(input, tmpseq);
+      hasSeq = nextSequence(input, tmpseq, hasLabels, permutationMap);
       container.addSequence(tmpseq, checkNames_);
     }
   }

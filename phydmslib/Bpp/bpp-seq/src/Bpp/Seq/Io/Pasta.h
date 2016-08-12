@@ -40,8 +40,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _BPP_SEQ_IO_PASTA_H_
 #define _BPP_SEQ_IO_PASTA_H_
 
-#include "Fasta.h"
-
 #include "../ProbabilisticSequence.h"
 #include "../Container/VectorProbabilisticSiteContainer.h"
 
@@ -58,9 +56,18 @@ namespace bpp
  * form of probability of presence of each character state at each
  * site.  See implementation of methods below for more details
  */
-class Pasta :
-  public Fasta
+class Pasta
 {
+
+ protected :
+
+  /**
+   * @breif The maximum number of chars to be written on a line.
+   */
+  unsigned int charsByLine_; // Number of chars by line (output only)
+  bool checkNames_;          // If names must be checked
+  bool extended_;            // If using HUPO-PSI extensions
+  bool strictNames_;         // If name is between '>' and first space
 
  public :
 
@@ -72,7 +79,7 @@ class Pasta :
    * @param extended Tell if we should read general comments and sequence comments in HUPO-PSI format.
    * @param strictSequenceNames Tells if the sequence names should be restricted to the characters between '>' and the first blank one.
    */
-  Pasta(unsigned int charsByLine = 100, bool checkSequenceNames = true, bool extended = false, bool strictSequenceNames = false) : Fasta(charsByLine, checkSequenceNames, extended, strictSequenceNames) {}
+ Pasta(unsigned int charsByLine = 100, bool checkSequenceNames = true, bool extended = false, bool strictSequenceNames = false) : charsByLine_(charsByLine), checkNames_(checkSequenceNames), extended_(extended), strictNames_(strictSequenceNames) {}
 
   // class destructor
   virtual ~Pasta() {}
@@ -87,30 +94,30 @@ class Pasta :
   const std::string getFormatName() const { return "PASTA file"; }
 
   /**
-   * @name The ISequenceStream interface
+   * @name The "ISequenceStream interface"
    *
    * @{
    */
-  bool nextSequence(std::istream & input, ProbabilisticSequence & seq) const throw (Exception);
+  bool nextSequence(std::istream& input, ProbabilisticSequence& seq, bool hasLabels, std::vector<int> & permutationMap) const throw (Exception);
   /**
    * @}
    */
 
   /**
-   * @name The OSequenceStream interface
+   * @name The "OSequenceStream interface"
    *
    * @{
    */
-  void writeSequence(std::ostream & output, const ProbabilisticSequence & seq) const throw (Exception);
+  void writeSequence(std::ostream& output, const ProbabilisticSequence& seq) const throw (Exception);
   /**
    * @}
    */
 
   /**
-   * @name The AbstractISequence interface
+   * @name The "AbstractISequence interface"
    *
    */
-  void appendSequencesFromStream(std::istream & input, VectorProbabilisticSiteContainer & container) const throw (Exception);
+  void appendSequencesFromStream(std::istream& input, VectorProbabilisticSiteContainer& container) const throw (Exception);
   /**
    * @}
    */

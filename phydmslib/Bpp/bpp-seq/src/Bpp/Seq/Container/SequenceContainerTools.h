@@ -111,7 +111,7 @@ class SequenceContainerTools
     template<class ContFrom, class ContTo, class Seq>
     static void convertContainer(const ContFrom& input, ContTo& output) {
       for (size_t i = 0; i < input.getNumberOfSequences(); ++i) {
-        std::auto_ptr<Seq> seq(new Seq(input.getSequence(i)));
+        std::unique_ptr<Seq> seq(new Seq(input.getSequence(i)));
         output.addSequence(*seq);
       }
     }

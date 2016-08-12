@@ -97,23 +97,13 @@ class AbstractISequence:
     }
  
     virtual
-#if defined(NO_VIRTUAL_COV)
-    SequenceContainer*
-#else
-    VectorSequenceContainer*
-#endif
-    readSequences(std::istream& input, const Alphabet* alpha) const throw (Exception)
+    VectorSequenceContainer* readSequences(std::istream& input, const Alphabet* alpha) const throw (Exception)
     {
       return readSequencesFromStream(input, alpha);
     }
 
     virtual
-#if defined(NO_VIRTUAL_COV)
-    SequenceContainer*
-#else
-    VectorSequenceContainer*
-#endif
-    readSequences(const std::string& path , const Alphabet* alpha) const throw (Exception)
+    VectorSequenceContainer* readSequences(const std::string& path , const Alphabet* alpha) const throw (Exception)
     {
       return readSequencesFromFile(path, alpha);
     }

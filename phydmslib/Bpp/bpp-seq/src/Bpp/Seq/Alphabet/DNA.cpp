@@ -88,9 +88,9 @@ DNA::DNA(bool exclamationMarkCountsAsGap)
 
 std::vector<int> DNA::getAlias(int state) const throw (BadIntException) 
 {
-	if (!isIntInAlphabet(state))
+  if (!isIntInAlphabet(state))
     throw BadIntException(state, "DNA::getAlias(int): Specified base unknown.");
-	vector<int> v;
+  vector<int> v;
   const NucleicAlphabetState& st = getState(state);
   if (state == -1)
     v.push_back(-1);

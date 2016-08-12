@@ -61,9 +61,9 @@ int test(const Alphabet* alphabet, unsigned int size, unsigned int rep) {
   //ofstream out("pvalues.txt", ios::out);
   for (unsigned int i = 0; i < rep; ++i) {
     ApplicationTools::displayGauge(i, rep-1);
-    auto_ptr<BasicSequence> seq1(getRandomSequence(alphabet, size));
-    auto_ptr<BasicSequence> seq2(getRandomSequence(alphabet, size));
-    auto_ptr<BowkerTest> test(SequenceTools::bowkerTest(*seq1, *seq2));
+    unique_ptr<BasicSequence> seq1(getRandomSequence(alphabet, size));
+    unique_ptr<BasicSequence> seq2(getRandomSequence(alphabet, size));
+    unique_ptr<BowkerTest> test(SequenceTools::bowkerTest(*seq1, *seq2));
     double p = test->getPValue();
     if (p <= 0.01) n01++;
     if (p <= 0.05) n05++;
@@ -90,7 +90,7 @@ int main() {
   RNA* alpha = new RNA();
   BasicSequence seq1("seq1", "----AUGCCG---GCGU----UUU----G--G-CCGACGUGUUUU--", alpha);
   BasicSequence seq2("seq2", "---GAAGGCG---G-GU----UUU----GC-GACCGACG--UUUU--", alpha);
-  auto_ptr<BowkerTest> btest(SequenceTools::bowkerTest(seq1, seq2));
+  unique_ptr<BowkerTest> btest(SequenceTools::bowkerTest(seq1, seq2));
   cout << btest->getStatistic() << "\t" << btest->getPValue() << endl;
   delete alpha;
 

@@ -42,6 +42,7 @@
 
 #include "AlphabetIndex1.h"
 #include "../Alphabet/ProteicAlphabet.h"
+#include "../Alphabet/AlphabetTools.h"
 
 namespace bpp
 {

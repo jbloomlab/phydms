@@ -124,12 +124,7 @@ namespace bpp {
        * @name The Clonable interface
        * @{
        */
-#ifdef NO_VIRTUAL_COV
-      Clonable*
-#else
-      SequenceQuality*
-#endif
-      clone() const { return new SequenceQuality(*this); }
+      SequenceQuality* clone() const { return new SequenceQuality(*this); }
       /** @} */
 
     public:
@@ -522,12 +517,7 @@ namespace bpp {
        * @name The Clonable interface
        * @{
        */
-#ifdef NO_VIRTUAL_COV
-      Clonable*
-#else
-      SequenceWithQuality*
-#endif
-      clone() const { return new SequenceWithQuality(*this); }
+      SequenceWithQuality* clone() const { return new SequenceWithQuality(*this); }
       /** @} */
 
       /**

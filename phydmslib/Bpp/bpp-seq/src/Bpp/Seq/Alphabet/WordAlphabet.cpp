@@ -55,11 +55,11 @@ WordAlphabet::WordAlphabet(const vector<const Alphabet*>& vAlpha) :
   build_();
 }
 
-WordAlphabet::WordAlphabet(const Alphabet* pAlpha, unsigned int num) :
+WordAlphabet::WordAlphabet(const Alphabet* pAlpha, size_t num) :
   AbstractAlphabet(),
   vAbsAlph_(0)
 {
-  for (unsigned int i = 0; i < num; i++)
+  for (size_t i = 0; i < num; i++)
   {
     vAbsAlph_.push_back(pAlpha);
   }
@@ -126,20 +126,23 @@ void WordAlphabet::build_()
   for (size_t i = 0; i < states.size(); ++i) {
     registerState(states[i]);
   }
-  //jdutheil on 24/07/14: this should not be necessary anymore.
-  //remap();
 }
 
 /******************************************************************************/
 
 std::string WordAlphabet::getAlphabetType() const
 {
-  string s = "Word alphabet:";
+  string s = "Word(";
   for (unsigned int i = 0; i < vAbsAlph_.size(); i++)
   {
-    s += " " +  vAbsAlph_[i]->getAlphabetType();
+    if (i!=0)
+      s += ",";
+
+    s += "alphabet"+TextTools::toString(i+1)+"="+vAbsAlph_[i]->getAlphabetType();
   }
 
+  s += ")";
+  
   return s;
 }
 

@@ -79,7 +79,7 @@ void AbstractAlphabet::registerState(AlphabetState* st) throw (Exception) {
 void AbstractAlphabet::setState(size_t pos, AlphabetState* st)
   throw (Exception, IndexOutOfBoundsException) {
     if (pos > alphabet_.size())
-      throw IndexOutOfBoundsException("AbstractAlphabet::setState: incorect position", pos, 0, alphabet_.size());
+      throw IndexOutOfBoundsException("AbstractAlphabet::setState: incorrect position", pos, 0, alphabet_.size());
     // Delete the state if not empty
     if (alphabet_[pos] != 0)
       delete alphabet_[pos];
@@ -147,7 +147,7 @@ AlphabetState& AbstractAlphabet::getState(int num) throw (BadIntException) {
 
 AlphabetState& AbstractAlphabet::getStateAt(size_t pos) throw (IndexOutOfBoundsException) {
   if (pos > alphabet_.size())
-    throw IndexOutOfBoundsException("AbstractAlphabet::getStateAt: incorect position", pos, 0, alphabet_.size());
+    throw IndexOutOfBoundsException("AbstractAlphabet::getStateAt: incorrect position", pos, 0, alphabet_.size());
   return * (alphabet_[pos]);
 }
 
@@ -155,7 +155,7 @@ AlphabetState& AbstractAlphabet::getStateAt(size_t pos) throw (IndexOutOfBoundsE
 
 const AlphabetState& AbstractAlphabet::getStateAt(size_t pos) const throw (IndexOutOfBoundsException) {
   if (pos > alphabet_.size())
-    throw IndexOutOfBoundsException("AbstractAlphabet::getStateAt: incorect position", pos, 0, alphabet_.size());
+    throw IndexOutOfBoundsException("AbstractAlphabet::getStateAt: incorrect position", pos, 0, alphabet_.size());
   return * (alphabet_[pos]);
 }
 

@@ -139,10 +139,7 @@ namespace bpp
    *
    * @{
    */
-#ifndef NO_VIRTUAL_COV
   Alphabet* clone() const = 0;
-#endif
-  
   /** @} */
 
   public:

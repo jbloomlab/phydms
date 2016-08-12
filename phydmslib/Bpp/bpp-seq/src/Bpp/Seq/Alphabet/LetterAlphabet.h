@@ -77,9 +77,7 @@ namespace bpp {
       
     }
     
-#ifndef NO_VIRTUAL_COV
     virtual LetterAlphabet* clone() const = 0;
-#endif
 
     virtual ~LetterAlphabet() {}
 
