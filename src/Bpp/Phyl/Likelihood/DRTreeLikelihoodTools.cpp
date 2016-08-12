@@ -55,22 +55,24 @@ VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRat
   
   const DiscreteDistribution* rDist = drl.getRateDistribution();
   Vdouble rcProbs = rDist->getProbabilities();
-  if(drl.getTree().isLeaf(nodeId))
+  if (drl.getTree().isLeaf(nodeId))
   {
     VVdouble larray = drl.getLikelihoodData()->getLeafLikelihoods(nodeId);
-    for(size_t i = 0; i < nSites; i++)
+    for (size_t i = 0; i < nSites; i++)
     {
       VVdouble * postProb_i = & postProb[i];
       postProb_i->resize(nClasses);
       Vdouble * larray_i = & larray[i];
-      for(size_t c = 0; c < nClasses; c++)
+      //In case of generic character:
+      double sumprobs = VectorTools::sum(*larray_i);
+      for (size_t c = 0; c < nClasses; c++)
       {
         Vdouble * postProb_i_c = & (* postProb_i)[c];
         postProb_i_c->resize(nStates);
         double * rcProb = & rcProbs[c];
-        for(size_t x = 0; x < nStates; x++)
+        for (size_t x = 0; x < nStates; x++)
         {
-          (* postProb_i_c)[x] = (* larray_i)[x] * (* rcProb);
+          (* postProb_i_c)[x] = (* larray_i)[x] * (* rcProb) / sumprobs;
         }
       }
     }

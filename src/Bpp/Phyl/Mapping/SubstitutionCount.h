@@ -41,6 +41,7 @@
 #define _SUBSTITUTIONCOUNT_H_
 
 #include "SubstitutionRegister.h"
+#include "CategorySubstitutionRegister.h"
 #include "../Model/SubstitutionModel.h"
 
 #include <Bpp/Numeric/Matrix/Matrix.h>
@@ -167,7 +168,7 @@ namespace bpp
     public virtual SubstitutionCount
   {
   protected:
-    std::auto_ptr<SubstitutionRegister> register_;
+    std::unique_ptr<SubstitutionRegister> register_;
 
   public:
     AbstractSubstitutionCount(SubstitutionRegister* reg):

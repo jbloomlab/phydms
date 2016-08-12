@@ -55,16 +55,13 @@ class RateAcrossSitesSubstitutionProcess :
   public AbstractSubstitutionProcess
 {
 private:
-  std::auto_ptr<SubstitutionModel> model_;
-  std::auto_ptr<DiscreteDistribution> rDist_;
+  std::unique_ptr<SubstitutionModel> model_;
+  std::unique_ptr<DiscreteDistribution> rDist_;
 
   /**
    * @brief The related Computing Tree
-   *
    */
-
-  mutable std::auto_ptr<ComputingTree> computingTree_;
-
+  mutable std::unique_ptr<ComputingTree> computingTree_;
 
 public:
   RateAcrossSitesSubstitutionProcess(
@@ -81,6 +78,8 @@ public:
   RateAcrossSitesSubstitutionProcess* clone() const { return new RateAcrossSitesSubstitutionProcess(*this); }
 
   size_t getNumberOfStates() const { return model_->getNumberOfStates(); }
+
+  size_t getNumberOfModels() const { return 1; }
 
   bool hasDerivableParameter(const std::string& name) const {
     return !(model_->getIndependentParameters().hasParameter(name) ||

@@ -81,7 +81,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
   string freqName;
   map<string, string> args;
   KeyvalTools::parseProcedure(freqDescription, freqName, args);
-  auto_ptr<FrequenciesSet> pFS;
+  unique_ptr<FrequenciesSet> pFS;
 
   if (freqName == "Fixed")
   {
@@ -188,7 +188,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       }
 
       BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
-      auto_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
+      unique_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
       {
@@ -265,7 +265,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       string sAFS = args["frequency"];
 
       BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
-      auto_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
+      unique_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -336,7 +336,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     {
       string sPFS = args["protein_frequencies"];
       BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
-      auto_ptr<ProteinFrequenciesSet> pPFS(dynamic_cast<ProteinFrequenciesSet*>(nestedReader.read(pPA, sPFS, data, false)));
+      unique_ptr<ProteinFrequenciesSet> pPFS(dynamic_cast<ProteinFrequenciesSet*>(nestedReader.read(pPA, sPFS, data, false)));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -384,7 +384,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
         string sAFS = args["frequency"];
         
         BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
-        auto_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
+        unique_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
         if (pFS2->getName()!="Full")
           throw Exception("BppOFrequenciesSetFormat::read. The frequency option in F1X4 can only be Full");
         
@@ -571,7 +571,9 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
   string name = pfreqset->getName();
   out << name << "(";
 
-  if ((name == "Fixed") || (name == "F0"))
+  bool oValues=false;
+  
+  if ((name == "Fixed") || (name == "F0") || (name== "Full"))
   {
     vector<double> vf = pfreqset->getFrequencies();
     out << "values=(";
@@ -582,9 +584,13 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
       out << vf[i];
     }
     out << ")";
-    out << ")";
-    out.setPrecision(p);
-    return;
+
+    vector<string> npl=pl.getParameterNames();
+    writtenNames.insert(writtenNames.end(), npl.begin(), npl.end());
+
+    comma=true;
+    
+    oValues=true;
   }
 
   
@@ -702,10 +708,13 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
   }
 
 // All remaining parameters
-  const BppOParametrizableFormat* bIO = new BppOParametrizableFormat();
-
-  bIO->write(pfreqset, out, globalAliases, pl.getParameterNames(), writtenNames, true, comma);
-  delete bIO;
+  if (!oValues)
+  {
+    const BppOParametrizableFormat* bIO = new BppOParametrizableFormat();
+  
+    bIO->write(pfreqset, out, globalAliases, pl.getParameterNames(), writtenNames, true, comma);
+    delete bIO;
+  }
   
   out << ")";
   out.setPrecision(p);
