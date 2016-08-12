@@ -11,17 +11,7 @@ IF(NOT CMAKE_BUILD_TYPE)
       FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-SET(CMAKE_CXX_FLAGS "-Wall -Weffc++ -Wshadow -Wconversion")
-IF(NOT NO_VIRTUAL_COV)
-  SET(NO_VIRTUAL_COV FALSE CACHE BOOL
-      "Disable covariant return type with virtual inheritance, for compilers that do not support it."
-      FORCE)
-ENDIF(NOT NO_VIRTUAL_COV)
-
-IF(NO_VIRTUAL_COV)
-  MESSAGE("-- Covariant return with virtual inheritance disabled.")
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNO_VIRTUAL_COV=1")
-ENDIF(NO_VIRTUAL_COV)
+SET(CMAKE_CXX_FLAGS " -std=c++11 -Wall -Weffc++ -Wshadow -Wconversion")
 
 # Libtool-like version number
 # CURRENT:REVISION:AGE => file.so.(C-A).A.R
@@ -90,13 +80,6 @@ SET(CPACK_SOURCE_IGNORE_FILES
  ".*\\\\..*\\\\.swp"
  "src/\\\\..*"
  "src/libbpp*"
- "debian/tmp"
- "debian/libbpp.*/"
- "debian/libbpp.*\\\\.so.*"
- "debian/libbpp.*\\\\.a"
- "debian/libbpp.*\\\\.substvars"
- "debian/libbpp.*\\\\.debhelper"
- "debian/debhelper\\\\.log"
  "html"
  "Core.tag"
  "Testing"
@@ -128,11 +111,6 @@ IF("${CMAKE_GENERATOR}" MATCHES "Make")
 ENDIF()
 
 IF (UNIX)
-#This creates deb packages:
-ADD_CUSTOM_TARGET(origdist COMMAND cp ${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar.gz ../${CPACK_DEBSOURCE_PACKAGE_FILE_NAME}.tar.gz)
-ADD_DEPENDENCIES(origdist dist)
-ADD_CUSTOM_TARGET(deb dpkg-buildpackage -uc -us -i${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar.gz)
-ADD_DEPENDENCIES(deb origdist)
 
 #This creates rpm packages:
 ADD_CUSTOM_TARGET(rpm rpmbuild -ta ${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar.gz)

@@ -668,7 +668,7 @@ public:
   static T logSumExp(const std::vector<T>& v1)
   {
     T M = max(v1);
-    if (isinf(M))
+    if (std::isinf(M))
       return M;
     
     T x = std::exp(v1[0] - M);
@@ -695,7 +695,7 @@ public:
       size = v1.size();
 
     T M = max(v1);
-    if (isinf(M))
+    if (std::isinf(M))
       throw BadNumberException("VectorTools::logSumExp", M);
     
     T x = v2[0] * std::exp(v1[0] - M);
@@ -715,7 +715,7 @@ public:
   static T logMeanExp(const std::vector<T>& v1)
   {
     T M = max(v1);
-    if (isinf(M))
+    if (std::isinf(M))
       return M;
 
     T x = std::exp(v1[0] - M);
@@ -736,7 +736,7 @@ public:
   static T sumExp(const std::vector<T>& v1)
   {
     T M = max(v1);
-    if (isinf(M))
+    if (std::isinf(M))
       return (M<0?0:M);
 
     T x = std::exp(v1[0] - M);
@@ -758,12 +758,12 @@ public:
   {
     size_t size;
     if (v1.size() != v2.size())
-      throw DimensionException("VectorTools::logsumexp", v1.size(), v2.size());
+      throw DimensionException("VectorTools::sumExp", v1.size(), v2.size());
     else
       size = v1.size();
 
     T M = max(v1);
-    if (isinf(M))
+    if (std::isinf(M))
       throw BadNumberException("VectorTools::sumExp", M);
 
     T x = v2[0] * std::exp(v1[0] - M);

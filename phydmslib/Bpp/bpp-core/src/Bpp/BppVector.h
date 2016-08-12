@@ -79,12 +79,7 @@ class BppVector: public Clonable
      *
      * @{
      */
-#ifdef NO_VIRTUAL_COV
-    Clonable*
-#else
-    BppVector<TYPE>*
-#endif
-    clone() const { return new BppVector<TYPE>(*this); }
+    BppVector<TYPE> * clone() const { return new BppVector<TYPE>(*this); }
     /** @} */
 
     const std::vector<TYPE>& toSTL() const { return vector_; }

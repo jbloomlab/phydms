@@ -75,12 +75,7 @@ class BppString: public virtual Clonable
 		 *
 		 * @{
 		 */
-#ifdef NO_VIRTUAL_COV
-    Clonable*
-#else
-		BppString*
-#endif
-    clone() const { return new BppString(*this); }
+		BppString * clone() const { return new BppString(*this); }
 		/** @} */
 
     const std::string& toSTL() const { return text_; }

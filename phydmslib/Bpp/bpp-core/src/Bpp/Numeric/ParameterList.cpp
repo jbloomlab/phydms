@@ -54,7 +54,7 @@ ParameterList::ParameterList(const ParameterList& pl) :
   // Now copy all parameters:
   for (unsigned int i = 0; i < size(); i++)
   {
-    parameters_[i] = dynamic_cast<Parameter*>(pl.parameters_[i]->clone());
+    parameters_[i] = shared_ptr<Parameter>(pl.parameters_[i]->clone());
   }
 }
 
@@ -62,16 +62,13 @@ ParameterList::ParameterList(const ParameterList& pl) :
 
 ParameterList& ParameterList::operator=(const ParameterList& pl)
 {
-  // First delete all parameters:
-  reset();
-
   // Then resize the vector:
   parameters_.resize(pl.size());
 
   // Now copy all parameters:
   for (unsigned int i = 0; i < pl.size(); i++)
   {
-    parameters_[i] = dynamic_cast<Parameter*>(pl.parameters_[i]->clone());
+    parameters_[i] = shared_ptr<Parameter>(pl.parameters_[i]->clone());
   }
 
   return *this;
@@ -90,18 +87,31 @@ const Parameter& ParameterList::getParameter(const std::string& name) const thro
 {
   for (unsigned int i = 0; i < size(); i++)
   {
-    const Parameter* p = parameters_[i];
+    const Parameter* p = parameters_[i].get();
     if (p->getName() == name) return *p;
   }
   throw ParameterNotFoundException("ParameterList::getParameter('name').", name);
 }
 
 /******************************************************************************/
+const shared_ptr<Parameter>& ParameterList::getSharedParameter(const std::string& name) const throw (ParameterNotFoundException)
+{
+  for (unsigned int i = 0; i < size(); i++)
+  {
+    const shared_ptr<Parameter>& p = parameters_[i];
+    if (p->getName() == name)
+      return p;
+  }
+  throw ParameterNotFoundException("ParameterList::getParameter('name').", name);
+}
+
+
+/******************************************************************************/
 double ParameterList::getParameterValue(const std::string& name) const throw (ParameterNotFoundException)
 {
   for (unsigned int i = 0; i < size(); i++)
   {
-    const Parameter* p = parameters_[i];
+    const Parameter* p = parameters_[i].get();
     if (p->getName() == name) return p->getValue();
   }
   throw ParameterNotFoundException("ParameterList::getParameterValue('name').", name);
@@ -112,7 +122,7 @@ Parameter& ParameterList::getParameter(const std::string& name) throw (Parameter
 {
   for (unsigned int i = 0; i < size(); i++)
   {
-    Parameter* p = parameters_[i];
+    Parameter* p = parameters_[i].get();
     if (p->getName() == name) return *p;
   }
   throw ParameterNotFoundException("ParameterList::getParameter('name').", name);
@@ -145,7 +155,8 @@ ParameterList ParameterList::subList(const std::vector<size_t>& parameters) cons
   ParameterList pl;
   for (unsigned int i = 0; i < parameters.size(); i++)
   {
-    if (parameters[i] < size()) pl.parameters_.push_back(dynamic_cast<Parameter*>(parameters_[parameters[i]]->clone()));
+    if (parameters[i] < size())
+      pl.parameters_.push_back(shared_ptr<Parameter>(parameters_[parameters[i]]->clone()));
   }
   return pl;
 }
@@ -154,7 +165,8 @@ ParameterList ParameterList::subList(const std::vector<size_t>& parameters) cons
 ParameterList ParameterList::subList(size_t parameter) const
 {
   ParameterList pl;
-  if (parameter < size()) pl.parameters_.push_back(dynamic_cast<Parameter*>(parameters_[parameter]->clone()));
+  if (parameter < size())
+    pl.parameters_.push_back(shared_ptr<Parameter>(parameters_[parameter]->clone()));
   return pl;
 }
 
@@ -166,7 +178,7 @@ ParameterList ParameterList::getCommonParametersWith(const ParameterList& params
   {
     const Parameter& p = params[i];
     if (hasParameter(p.getName()))
-      pl.parameters_.push_back(dynamic_cast<Parameter*>(p.clone()));                                                                        
+      pl.parameters_.push_back(shared_ptr<Parameter>(p.clone()));
     // We use push_back instead of addParameter because we are sure the name is not duplicated.
   }
 
@@ -225,7 +237,8 @@ void ParameterList::addParameter(const Parameter& param) throw (ParameterExcepti
 {
   if (hasParameter(param.getName()))
     throw ParameterException("ParameterList::addParameter. Parameter with name '" + param.getName() + "' already exists.", &param);
-  parameters_.push_back(dynamic_cast<Parameter*>(param.clone()));
+  parameters_.push_back(shared_ptr<Parameter>(param.clone()));
+  
 }
 
 /******************************************************************************/
@@ -234,17 +247,28 @@ void ParameterList::addParameter(Parameter* param) throw (ParameterException)
 {
   if (hasParameter(param->getName()))
     throw ParameterException("ParameterList::addParameter. Parameter with name '" + param->getName() + "' already exists.", param);
-  parameters_.push_back(param);
+  parameters_.push_back(shared_ptr<Parameter>(param));
 }
+
+/******************************************************************************/
+
+void ParameterList::shareParameter(const std::shared_ptr<Parameter>& param) throw (ParameterException)
+{
+  if (hasParameter(param->getName()))
+    setParameterValue(param->getName(), param->getValue());
+  else
+    parameters_.push_back(param);
+}
+
 
 /******************************************************************************/
 
 void ParameterList::setParameter(size_t index, const Parameter& param) throw (IndexOutOfBoundsException)
 {
   if (index >= size()) throw IndexOutOfBoundsException("ParameterList::setParameter.", index, 0, size());
-  delete parameters_[index];
-  parameters_[index] = dynamic_cast<Parameter*>(param.clone());
+  parameters_[index] = shared_ptr<Parameter>(param.clone());
 }
+
 
 /******************************************************************************/
 
@@ -255,7 +279,7 @@ void ParameterList::includeParameters(const ParameterList& params)
     if (hasParameter(params[i].getName()))
       setParameterValue(params[i].getName(), params[i].getValue());
     else
-      parameters_.push_back(dynamic_cast<Parameter*>(params[i].clone()));
+      parameters_.push_back(shared_ptr<Parameter>(params[i].clone()));
   }
 }
 
@@ -267,6 +291,17 @@ throw (ParameterException)
   for (unsigned int i = 0; i < params.size(); i++)
   {
     addParameter(params[i]);
+  }
+}
+
+/******************************************************************************/
+
+void ParameterList::shareParameters(const ParameterList& params)
+  throw (ParameterException)
+{
+  for (unsigned int i = 0; i < params.size(); i++)
+  {
+    shareParameter(params.get_at(i));
   }
 }
 
@@ -285,15 +320,15 @@ void ParameterList::setAllParametersValues(const ParameterList& params)
 throw (ParameterNotFoundException, ConstraintException)
 {
   // First we check if all values are correct:
-  for (vector<Parameter*>::iterator it = parameters_.begin(); it < parameters_.end(); it++)
+  for (vector<shared_ptr<Parameter> >::iterator it = parameters_.begin(); it < parameters_.end(); it++)
   {
     const Parameter* p = &params.getParameter((*it)->getName());
     if ((*it)->hasConstraint() && !(*it)->getConstraint()->isCorrect(p->getValue()))
-      throw ConstraintException("ParameterList::setParametersValues()", *it, p->getValue());
+      throw ConstraintException("ParameterList::setParametersValues()", (*it).get(), p->getValue());
   }
 
   // If all values are ok, we set them:
-  for (vector<Parameter*>::iterator it = parameters_.begin(); it < parameters_.end(); it++)
+  for (vector<shared_ptr<Parameter> >::iterator it = parameters_.begin(); it < parameters_.end(); it++)
   {
     const Parameter* p = &params.getParameter((*it)->getName());
     (*it)->setValue(p->getValue());
@@ -305,7 +340,7 @@ throw (ParameterNotFoundException, ConstraintException)
 void ParameterList::setParametersValues(const ParameterList& params)
 {
   // First we check if all values are correct:
-  for (vector<Parameter*>::const_iterator it = params.parameters_.begin(); it < params.parameters_.end(); it++)
+  for (vector<shared_ptr<Parameter> >::const_iterator it = params.parameters_.begin(); it < params.parameters_.end(); it++)
   {
     if (hasParameter((*it)->getName()))
     {
@@ -317,7 +352,7 @@ void ParameterList::setParametersValues(const ParameterList& params)
 
   // If all values are ok, we set them:
   {
-    for (vector<Parameter*>::const_iterator it = params.parameters_.begin(); it < params.parameters_.end(); it++)
+    for (vector<shared_ptr<Parameter> >::const_iterator it = params.parameters_.begin(); it < params.parameters_.end(); it++)
     {
       if (hasParameter((*it)->getName()))
       {
@@ -333,20 +368,20 @@ void ParameterList::setParametersValues(const ParameterList& params)
 bool ParameterList::testParametersValues(const ParameterList& params) const
 {
   // First we check if all values are correct:
-  for (vector<Parameter*>::const_iterator it = params.parameters_.begin(); it < params.parameters_.end(); it++)
+  for (vector<shared_ptr<Parameter> >::const_iterator it = params.parameters_.begin(); it < params.parameters_.end(); it++)
   {
     if (hasParameter((*it)->getName()))
     {
       const Parameter* p = &getParameter((*it)->getName());
       if (p->hasConstraint() && !p->getConstraint()->isCorrect((*it)->getValue()))
-        throw ConstraintException("ParameterList::matchParametersValues()", p, (*it)->getValue());
+        throw ConstraintException("ParameterList::testParametersValues()", p, (*it)->getValue());
     }
   }
 
   // If all values are ok, we test them:
   bool ch = 0;
 
-  for (vector<Parameter*>::const_iterator it = params.parameters_.begin(); it < params.parameters_.end(); it++)
+  for (vector<shared_ptr<Parameter> >::const_iterator it = params.parameters_.begin(); it < params.parameters_.end(); it++)
   {
     if (hasParameter((*it)->getName()))
     {
@@ -364,7 +399,7 @@ bool ParameterList::matchParametersValues(const ParameterList& params, vector<si
 throw (ConstraintException)
 {
   // First we check if all values are correct:
-  for (vector<Parameter*>::const_iterator it = params.parameters_.begin(); it < params.parameters_.end(); it++)
+  for (vector<shared_ptr<Parameter> >::const_iterator it = params.parameters_.begin(); it < params.parameters_.end(); it++)
   {
     if (hasParameter((*it)->getName()))
     {
@@ -378,7 +413,7 @@ throw (ConstraintException)
   bool ch = 0;
 
   size_t pos = 0;
-  for (vector<Parameter*>::const_iterator it = params.parameters_.begin(); it < params.parameters_.end(); it++)
+  for (vector<shared_ptr<Parameter> >::const_iterator it = params.parameters_.begin(); it < params.parameters_.end(); it++)
   {
     if (hasParameter((*it)->getName()))
     {
@@ -399,7 +434,7 @@ throw (ConstraintException)
 void ParameterList::setAllParameters(const ParameterList& params)
 throw (ParameterNotFoundException)
 {
-  for (vector<Parameter*>::iterator it = parameters_.begin(); it < parameters_.end(); it++)
+  for (vector<shared_ptr<Parameter> >::iterator it = parameters_.begin(); it < parameters_.end(); it++)
   {
     const Parameter* p = &params.getParameter((*it)->getName());
     **it = *p;
@@ -410,7 +445,7 @@ throw (ParameterNotFoundException)
 void ParameterList::setParameters(const ParameterList& params)
 throw (ParameterNotFoundException)
 {
-  for (vector<Parameter*>::const_iterator it = params.parameters_.begin(); it < params.parameters_.end(); it++)
+  for (vector<shared_ptr<Parameter> >::const_iterator it = params.parameters_.begin(); it < params.parameters_.end(); it++)
   {
     Parameter* p = &getParameter((*it)->getName());
     *p = **it;
@@ -422,7 +457,7 @@ bool ParameterList::hasParameter(const std::string& name) const
 {
   for (unsigned int i = 0; i < size(); i++)
   {
-    const Parameter* p = parameters_[i];
+    const Parameter* p = parameters_[i].get();
     if (p->getName() == name)
       return true;
   }
@@ -432,7 +467,7 @@ bool ParameterList::hasParameter(const std::string& name) const
 /******************************************************************************/
 void ParameterList::matchParameters(const ParameterList& params)
 {
-  for (vector<Parameter*>::const_iterator it = params.parameters_.begin(); it < params.parameters_.end(); it++)
+  for (vector<shared_ptr<Parameter> >::const_iterator it = params.parameters_.begin(); it < params.parameters_.end(); it++)
   {
     if (hasParameter((*it)->getName()))
     {
@@ -447,10 +482,10 @@ void ParameterList::deleteParameter(const std::string& name) throw (ParameterNot
 {
   for (unsigned int i = 0; i < size(); i++)
   {
-    Parameter* p = parameters_[i];
+    Parameter* p = parameters_[i].get();
+    
     if (p->getName() == name)
     {
-      delete p;
       parameters_.erase(parameters_.begin() + i);
       return;
     }
@@ -481,8 +516,8 @@ void ParameterList::deleteParameters(const std::vector<std::string>& names, bool
 void ParameterList::deleteParameter(size_t index) throw (IndexOutOfBoundsException)
 {
   if (index >= size()) throw IndexOutOfBoundsException("ParameterList::deleteParameter.", index, 0, size());
-  Parameter* p = parameters_[index];
-  delete p;
+  // Parameter* p = parameters_[index].get();
+  // delete p;
   parameters_.erase(parameters_.begin() + static_cast<ptrdiff_t>(index));
 }
 
@@ -495,8 +530,8 @@ void ParameterList::deleteParameters(const std::vector<size_t>& indices) throw (
   {
     size_t index = *i;
     if (index >= size()) throw IndexOutOfBoundsException("ParameterList::deleteParameter.", index, 0, size());
-    Parameter* p = parameters_[index];
-    delete p;
+//    Parameter* p = parameters_[index].get();
+//    delete p;
     parameters_.erase(parameters_.begin() + static_cast<ptrdiff_t>(index));
   }
 }
@@ -528,10 +563,6 @@ void ParameterList::printParameters(OutputStream& out) const
 /******************************************************************************/
 void ParameterList::reset()
 {
-  for (unsigned int i = 0; i < size(); i++)
-  {
-    delete parameters_[i];
-  }
   parameters_.resize(0);
 }
 

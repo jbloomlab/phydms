@@ -72,7 +72,7 @@ DiscreteDistribution* BppODiscreteDistributionFormat::read(
 {
   unparsedArguments_.clear();
   string distName;
-  auto_ptr<DiscreteDistribution> rDist;
+  unique_ptr<DiscreteDistribution> rDist;
   map<string, string> args;
   KeyvalTools::parseProcedure(distDescription, distName, args);
 

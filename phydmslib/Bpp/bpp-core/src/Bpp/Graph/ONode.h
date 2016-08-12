@@ -68,9 +68,7 @@ namespace bpp {
        *
        * @{
        */
-#ifndef NO_VIRTUAL_COV      
       ONode * clone() const = 0;
-#endif
       /** @} */
 
       /**

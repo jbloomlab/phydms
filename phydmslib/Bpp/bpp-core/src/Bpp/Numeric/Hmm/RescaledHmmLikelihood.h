@@ -64,9 +64,9 @@ namespace bpp {
     /**
      * @brief The alphabet describing the hidden states.
      */
-    std::auto_ptr<HmmStateAlphabet> hiddenAlphabet_;
-    std::auto_ptr<HmmTransitionMatrix> transitionMatrix_;
-    std::auto_ptr<HmmEmissionProbabilities> emissionProbabilities_;
+    std::unique_ptr<HmmStateAlphabet> hiddenAlphabet_;
+    std::unique_ptr<HmmTransitionMatrix> transitionMatrix_;
+    std::unique_ptr<HmmEmissionProbabilities> emissionProbabilities_;
 
     /**
      * @brief The likelihood arrays.
@@ -162,9 +162,9 @@ namespace bpp {
     {
       AbstractHmmLikelihood::operator=(lik);
       AbstractParametrizable::operator=(lik);
-      hiddenAlphabet_        = std::auto_ptr<HmmStateAlphabet>(dynamic_cast<HmmStateAlphabet*>(lik.hiddenAlphabet_->clone()));
-      transitionMatrix_      = std::auto_ptr<HmmTransitionMatrix>(dynamic_cast<HmmTransitionMatrix*>(lik.transitionMatrix_->clone()));
-      emissionProbabilities_ = std::auto_ptr<HmmEmissionProbabilities>(dynamic_cast<HmmEmissionProbabilities*>(lik.emissionProbabilities_->clone()));
+      hiddenAlphabet_        = std::unique_ptr<HmmStateAlphabet>(dynamic_cast<HmmStateAlphabet*>(lik.hiddenAlphabet_->clone()));
+      transitionMatrix_      = std::unique_ptr<HmmTransitionMatrix>(dynamic_cast<HmmTransitionMatrix*>(lik.transitionMatrix_->clone()));
+      emissionProbabilities_ = std::unique_ptr<HmmEmissionProbabilities>(dynamic_cast<HmmEmissionProbabilities*>(lik.emissionProbabilities_->clone()));
       likelihood_            = lik.likelihood_;
       dLikelihood_           = lik.dLikelihood_;
       d2Likelihood_          = lik.d2Likelihood_;
@@ -186,12 +186,7 @@ namespace bpp {
 
     virtual ~RescaledHmmLikelihood() {}
 
-#ifndef NO_VIRTUAL_COV
-    RescaledHmmLikelihood*
-#else
-    Clonable*
-#endif
-    clone() const { return new RescaledHmmLikelihood(*this); }
+    RescaledHmmLikelihood* clone() const { return new RescaledHmmLikelihood(*this); }
 
   public:
     const HmmStateAlphabet& getHmmStateAlphabet() const { return *hiddenAlphabet_; }

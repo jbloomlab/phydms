@@ -129,15 +129,11 @@ class Function:
 class DerivableFirstOrder:
   public virtual Function
 {
-  public:
+ public:
     DerivableFirstOrder() {}
     virtual ~DerivableFirstOrder() {}
 
-#if defined(NO_VIRTUAL_COV)
-    Clonable* clone() const = 0;
-#else
     DerivableFirstOrder* clone() const = 0;
-#endif
 
   public:
 
@@ -193,11 +189,7 @@ class DerivableSecondOrder:
     DerivableSecondOrder() {}
     virtual ~DerivableSecondOrder() {}
 
-#if defined(NO_VIRTUAL_COV)
-    Clonable* clone() const = 0;
-#else
     DerivableSecondOrder* clone() const = 0;
-#endif
 
   public:
 
@@ -448,11 +440,7 @@ class InfinityFunctionWrapper:
       constraintMatch_(false) {}
     virtual ~InfinityFunctionWrapper() {}
 
-#if defined(NO_VIRTUAL_COV)
-    Clonable* clone() const { return new InfinityFunctionWrapper(*this); }
-#else
     InfinityFunctionWrapper* clone() const { return new InfinityFunctionWrapper(*this); }
-#endif
 
   public:
 
@@ -553,11 +541,7 @@ class InfinityDerivableFirstOrderWrapper :
     InfinityDerivableFirstOrderWrapper(DerivableFirstOrder* function) : InfinityFunctionWrapper(function) {}
     virtual ~InfinityDerivableFirstOrderWrapper() {}
     
-#if defined(NO_VIRTUAL_COV)
-    Clonable* clone() const { return new InfinityDerivableFirstOrderWrapper(*this); }
-#else
     InfinityDerivableFirstOrderWrapper* clone() const { return new InfinityDerivableFirstOrderWrapper(*this); }
-#endif
 
   public:
     
@@ -587,11 +571,7 @@ class InfinityDerivableSecondOrderWrapper :
       InfinityDerivableFirstOrderWrapper(function) {}
     virtual ~InfinityDerivableSecondOrderWrapper() {}
 
-#if defined(NO_VIRTUAL_COV)
-    Clonable* clone() const { return new InfinityDerivableSecondOrderWrapper(*this); }
-#else
     InfinityDerivableSecondOrderWrapper* clone() const { return new InfinityDerivableSecondOrderWrapper(*this); }
-#endif
 
   public:
 

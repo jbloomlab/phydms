@@ -79,9 +79,7 @@ namespace bpp
   {
   public:
 
-#ifndef NO_VIRTUAL_COV
     virtual HmmLikelihood* clone() const = 0;
-#endif
 
     virtual const HmmStateAlphabet& getHmmStateAlphabet() const = 0;
     virtual HmmStateAlphabet& getHmmStateAlphabet() = 0;

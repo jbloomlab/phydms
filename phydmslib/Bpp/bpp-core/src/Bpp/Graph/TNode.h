@@ -76,9 +76,7 @@ namespace bpp {
        *
        * @{
        */
-#ifndef NO_VIRTUAL_COV      
       TNode * clone() const = 0;
-#endif
       /** @} */
 
       /**

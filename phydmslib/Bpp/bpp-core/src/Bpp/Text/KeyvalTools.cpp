@@ -57,7 +57,7 @@ void KeyvalTools::singleKeyval(const std::string& desc, std::string& key, std::s
 
 void KeyvalTools::multipleKeyvals(const std::string& desc, std::map<std::string,std::string>& keyvals, const std::string& split, bool nested) throw (KeyvalException)
 {
-  auto_ptr<StringTokenizer> st;
+  unique_ptr<StringTokenizer> st;
   if (nested)
     st.reset(new NestedStringTokenizer(desc, "(", ")", split));
   else
@@ -118,7 +118,7 @@ std::string KeyvalTools::changeKeyvals(const std::string& desc, const std::map<s
 
   string desckv=desc.substr(begin + 1, end - begin - 1);
 
-  auto_ptr<StringTokenizer> st;
+  unique_ptr<StringTokenizer> st;
   if (nested)
     st.reset(new NestedStringTokenizer(desckv, "(", ")", split));
   else

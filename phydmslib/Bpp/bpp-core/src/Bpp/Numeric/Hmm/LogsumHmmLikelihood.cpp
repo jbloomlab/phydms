@@ -392,9 +392,7 @@ void LogsumHmmLikelihood::computeDForward_() const
 
   partialDLogLikelihoods_.clear();
 
-  double x;
-
-  vector<double> num(nbStates_);
+  vector<double> num(nbStates_), num2(nbStates_);
 
   //Transition probabilities:
   const ColMatrix<double> trans(transitionMatrix_->getPij());
@@ -402,7 +400,7 @@ void LogsumHmmLikelihood::computeDForward_() const
   //Initialisation:
   const vector<double>* emissions = &(*emissionProbabilities_)(0);
   const vector<double>* dEmissions = &emissionProbabilities_->getDEmissionProbabilities(0);
-  
+
   for (size_t j = 0; j < nbStates_; j++)
     dLogLikelihood_[0][j] = (*dEmissions)[j] / (*emissions)[j];
 
@@ -419,36 +417,25 @@ void LogsumHmmLikelihood::computeDForward_() const
     emissions = &(*emissionProbabilities_)(i);
     dEmissions = &emissionProbabilities_->getDEmissionProbabilities(i);
 
+    for (size_t kp = 0; kp < nbStates_; kp++)
+      num[kp]=logLikelihood_[iip+kp];
+
+    num-=num[VectorTools::whichMax(num)];
+
     if (i < nextBrkPt)
     {
       for (size_t j = 0; j < nbStates_; j++)
       {
-        x=(*dEmissions)[j]/(*emissions)[j];
+        num2=dLogLikelihood_[i-1]*trans.getCol(j);
 
-        for (size_t k = 0; k < nbStates_; k++)
-        {
-          for (size_t kp = 0; kp < nbStates_; kp++)
-            num[kp]=logLikelihood_[iip+kp]-logLikelihood_[iip+k];
-
-          x+=dLogLikelihood_[i-1][k]*trans(k,j)/VectorTools::sumExp(num,trans.getCol(j));
-        }
-        
-        dLogLikelihood_[i][j] = x;
+        dLogLikelihood_[i][j] = (*dEmissions)[j]/(*emissions)[j] + VectorTools::sumExp(num,num2)/VectorTools::sumExp(num,trans.getCol(j));
       }
     }      
     else //Reset markov chain:
     {
       //Termination of previous segment
-      x = 0;
-      for (size_t k = 0; k < nbStates_; k++)
-      {
-        for (size_t kp = 0; kp < nbStates_; kp++)
-          num[kp]=logLikelihood_[iip+kp]-logLikelihood_[iip+k];
-        
-        x += dLogLikelihood_[i-1][k] / VectorTools::sumExp(num);
-      }
-          
-      partialDLogLikelihoods_.push_back(x);
+
+      partialDLogLikelihoods_.push_back(VectorTools::sumExp(num,dLogLikelihood_[i-1])/VectorTools::sumExp(num));
 
       for (size_t j = 0; j < nbStates_; j++)
         dLogLikelihood_[i][j] = (*dEmissions)[j] / (*emissions)[j];
@@ -462,17 +449,13 @@ void LogsumHmmLikelihood::computeDForward_() const
   }
   
   //Termination:
-  x=0;
-  for (size_t k = 0; k < nbStates_; k++)
-  {
-    for (size_t kp = 0; kp < nbStates_; kp++)
-      num[kp]=logLikelihood_[nbStates_*(nbSites_-1)+kp]-logLikelihood_[nbStates_*(nbSites_-1)+k];
+  for (size_t kp = 0; kp < nbStates_; kp++)
+    num[kp]=logLikelihood_[nbStates_*(nbSites_-1)+kp];
+
+  num-=num[VectorTools::whichMax(num)];
             
-    x += dLogLikelihood_[nbSites_-1][k] / VectorTools::sumExp(num);
-  }
-          
-  partialDLogLikelihoods_.push_back(x);
-  
+  partialDLogLikelihoods_.push_back(VectorTools::sumExp(num,dLogLikelihood_[nbSites_-1])/VectorTools::sumExp(num));
+
   //Compute dLogLikelihood
   
   dLogLik_ = 0;
@@ -503,9 +486,7 @@ void LogsumHmmLikelihood::computeD2Forward_() const
 
   partialD2LogLikelihoods_.clear();
   
-  double x, z, snum;
-
-  vector<double> num(nbStates_);
+  vector<double> num(nbStates_),num2(nbStates_),num3(nbStates_);
   
   //Transition probabilities:
   const ColMatrix<double> trans(transitionMatrix_->getPij());
@@ -532,45 +513,33 @@ void LogsumHmmLikelihood::computeD2Forward_() const
     dEmissions = &emissionProbabilities_->getDEmissionProbabilities(i);
     d2Emissions = &emissionProbabilities_->getD2EmissionProbabilities(i);
 
+    for (size_t kp = 0; kp < nbStates_; kp++)
+      num[kp]=logLikelihood_[iip+kp];
+
+    num-=num[VectorTools::whichMax(num)];
+
     if (i < nextBrkPt)
     {
       for (size_t j = 0; j < nbStates_; j++)
       {
-        x=(*d2Emissions)[j] / (*emissions)[j] - pow((*dEmissions)[j] / (*emissions)[j],2);
+        double den=VectorTools::sumExp(num,trans.getCol(j));
 
-        for (size_t k = 0; k < nbStates_; k++)
-        {
-          for (size_t kp = 0; kp < nbStates_; kp++)
-            num[kp]=logLikelihood_[iip+kp]-logLikelihood_[iip+k];
-          snum=VectorTools::sumExp(num,trans.getCol(j));
+        num2=dLogLikelihood_[i-1]*trans.getCol(j);
 
-          
-          z=d2LogLikelihood_[i-1][k]+pow(dLogLikelihood_[i-1][k],2)
-            - dLogLikelihood_[i-1][k] * VectorTools::sumExp(num, trans.getCol(j) * dLogLikelihood_[i-1])/snum;
+        num3=(dLogLikelihood_[i-1]*dLogLikelihood_[i-1]+d2LogLikelihood_[i-1])*trans.getCol(j);
 
-          x += z * trans(k,j) / snum;
-        }
-
-        d2LogLikelihood_[i][j] = x;
+        d2LogLikelihood_[i][j] =  VectorTools::sumExp(num,num3)/den - pow(VectorTools::sumExp(num,num2)/den,2);
       }
     }
     else //Reset markov chain:
     {
-      x=0;
-      
       //Termination of previous segment:
-      for (size_t k = 1; k < nbStates_; k++)
-      {
-        for (size_t kp = 0; kp < nbStates_; kp++)
-          num[kp]=logLikelihood_[iip+kp]-logLikelihood_[iip+k];
-        
-        snum=VectorTools::sumExp(num);
-        
-        x += (d2LogLikelihood_[i-1][k]+pow(dLogLikelihood_[i-1][k],2)
-              - dLogLikelihood_[i-1][k] * VectorTools::sumExp(num, dLogLikelihood_[i-1])/snum)/snum;
-      }
-      
-      partialD2LogLikelihoods_.push_back(x);
+
+      double den=VectorTools::sumExp(num);
+
+      num2=dLogLikelihood_[i-1]*dLogLikelihood_[i-1]+d2LogLikelihood_[i-1];
+
+      partialD2LogLikelihoods_.push_back(VectorTools::sumExp(num,num2)/den-pow(VectorTools::sumExp(num,dLogLikelihood_[i-1])/den,2));
       
       for (size_t j = 0; j < nbStates_; j++)
         d2LogLikelihood_[i][j] = (*d2Emissions)[j] / (*emissions)[j] - pow((*dEmissions)[j] / (*emissions)[j],2);
@@ -583,21 +552,19 @@ void LogsumHmmLikelihood::computeD2Forward_() const
   }  
 
   //Termination:
-  x=0;
-  for (size_t k = 0; k < nbStates_; k++)
-  {
-    for (size_t kp = 0; kp < nbStates_; kp++)
-      num[kp]=logLikelihood_[nbStates_*(nbSites_-1)+kp]-logLikelihood_[nbStates_*(nbSites_-1)+k];
-    
-    snum=VectorTools::sumExp(num);
-    
-    x += (d2LogLikelihood_[nbSites_-1][k]+pow(dLogLikelihood_[nbSites_-1][k],2)
-          - dLogLikelihood_[nbSites_-1][k] * VectorTools::sumExp(num, dLogLikelihood_[nbSites_-1])/snum)/snum;
-  }
+  for (size_t kp = 0; kp < nbStates_; kp++)
+    num[kp]=logLikelihood_[nbStates_*(nbSites_-1)+kp];
 
-  partialD2LogLikelihoods_.push_back(x);
+  num-=num[VectorTools::whichMax(num)];
+
+  double den=VectorTools::sumExp(num);
+
+  num2=dLogLikelihood_[nbSites_-1]*dLogLikelihood_[nbSites_-1]+d2LogLikelihood_[nbSites_-1];
+
+  partialD2LogLikelihoods_.push_back(VectorTools::sumExp(num,num2)/den-pow(VectorTools::sumExp(num,dLogLikelihood_[nbSites_-1])/den,2));
+
   
-  //Compute dLogLikelihood
+  //Compute d2LogLikelihood
   
   d2LogLik_ = 0;
   vector<double> copy = partialD2LogLikelihoods_; //We need to keep the original order for posterior decoding.

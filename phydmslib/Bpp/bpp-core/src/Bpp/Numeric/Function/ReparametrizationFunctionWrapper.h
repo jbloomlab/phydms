@@ -107,11 +107,7 @@ class ReparametrizationFunctionWrapper:
 
     virtual ~ReparametrizationFunctionWrapper() {}
 
-#if defined(NO_VIRTUAL_COV)
-    Clonable* clone() const { return new ReparametrizationFunctionWrapper(*this); }
-#else
     ReparametrizationFunctionWrapper* clone() const { return new ReparametrizationFunctionWrapper(*this); }
-#endif
 
   private:
     void init_(bool verbose);
@@ -177,11 +173,7 @@ class ReparametrizationDerivableFirstOrderWrapper:
     
     virtual ~ReparametrizationDerivableFirstOrderWrapper() {}
 
-#if defined(NO_VIRTUAL_COV)
-    Clonable* clone() const { return new ReparametrizationDerivableFirstOrderWrapper(*this); }
-#else
     ReparametrizationDerivableFirstOrderWrapper* clone() const { return new ReparametrizationDerivableFirstOrderWrapper(*this); }
-#endif
 
   private:
     void init_(bool verbose);
@@ -237,11 +229,7 @@ class ReparametrizationDerivableSecondOrderWrapper:
     
     virtual ~ReparametrizationDerivableSecondOrderWrapper() {}
 
-#if defined(NO_VIRTUAL_COV)
-    Clonable* clone() const { return new ReparametrizationDerivableSecondOrderWrapper(*this); }
-#else
     ReparametrizationDerivableSecondOrderWrapper* clone() const { return new ReparametrizationDerivableSecondOrderWrapper(*this); }
-#endif
 
   private:
     void init_(bool verbose);

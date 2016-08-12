@@ -73,9 +73,7 @@ namespace bpp
     
     virtual ~MultipleDiscreteDistribution() {}
 
-#ifndef NO_VIRTUAL_COV
     MultipleDiscreteDistribution * clone() const = 0;
-#endif
 
   public:
 

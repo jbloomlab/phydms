@@ -190,7 +190,7 @@ namespace bpp
   Graph::Edge SimpleTreeGraph<GraphImpl>::getBranchToFather(Graph::Node node) const
   {
     Node father = getFather(node);
-    return GraphImpl::getBranch(father,node);
+    return GraphImpl::getEdge(father,node);
   }
   
   template <class GraphImpl>

@@ -72,12 +72,7 @@ class BppBoolean: public virtual Clonable
 		 *
 		 * @{
 		 */
-#ifdef NO_VIRTUAL_COV
-    Clonable*
-#else
-		BppBoolean*
-#endif
-    clone() const { return new BppBoolean(*this); }
+		BppBoolean * clone() const { return new BppBoolean(*this); }
 		/** @} */
 
     const bool getValue() const { return value_; }

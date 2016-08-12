@@ -166,9 +166,11 @@ exit 0
 %{_prefix}/include/*
 
 %changelog
-* Mon Jul 21 2014 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.2.0-1
-- New options in BppApplication
-- Improved support for CLang.
+* Wed Sep 17 2014 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.2.0-1
+- Reparametrization wrapper debugged
+- Improved and rationalized display of warning messages
+- Possibility to set random seed in applications
+- Code checked for compilation with CLang.
 * Mon Mar 04 2013 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.1.0-1
 - Extended range classes
 - Improved initialization of static members

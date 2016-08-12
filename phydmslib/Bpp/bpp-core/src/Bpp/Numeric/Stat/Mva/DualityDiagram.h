@@ -106,12 +106,7 @@ public:
 
   virtual ~DualityDiagram();
 
-#ifndef NO_VIRTUAL_COV
-  DualityDiagram*
-#else
-  Clonable*
-#endif
-  clone() const { return new DualityDiagram(*this); }
+  DualityDiagram* clone() const { return new DualityDiagram(*this); }
 
 private:
   void check_(

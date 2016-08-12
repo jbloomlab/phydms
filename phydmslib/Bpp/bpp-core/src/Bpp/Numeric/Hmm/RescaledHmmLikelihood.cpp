@@ -133,7 +133,7 @@ void RescaledHmmLikelihood::computeForward_()
     size_t ii = i * nbStates_;
     for (size_t j = 0; j < nbStates_; j++) {
       trans[ii + j] = transitionMatrix_->Pij(j, i);
-      if (isnan(trans[ii + j]))
+      if (std::isnan(trans[ii + j]))
         throw Exception("RescaledHmmLikelihood::computeForward_. NaN transition probability");
       if (trans[ii + j] < 0)
         throw Exception("RescaledHmmLikelihood::computeForward_. Negative transition probability: " + TextTools::toString(trans[ii + j]));
@@ -248,12 +248,12 @@ void RescaledHmmLikelihood::computeForward_()
 
 void RescaledHmmLikelihood::computeBackward_() const
 {
-  if (backLikelihood_.size()==0)
-    {
-      backLikelihood_.resize(nbSites_);
-      for (size_t i=0;i<nbSites_;i++)
-        backLikelihood_[i].resize(nbStates_);
-    }
+  if (backLikelihood_.size() == 0)
+  {
+    backLikelihood_.resize(nbSites_);
+    for (size_t i = 0; i < nbSites_; i++)
+      backLikelihood_[i].resize(nbStates_);
+  }
 
   double x;
 
@@ -308,17 +308,17 @@ void RescaledHmmLikelihood::computeBackward_() const
     }
   }
 
-  backLikelihoodUpToDate_=true;
+  backLikelihoodUpToDate_ = true;
 }
 
 /***************************************************************************************************************************/
 
 double RescaledHmmLikelihood::getLikelihoodForASite(size_t site) const
 {
-  Vdouble probs=getHiddenStatesPosteriorProbabilitiesForASite(site);
-  double x=0;
-  for (size_t i=0;i<nbStates_;i++)
-    x+=probs[i]*(*emissionProbabilities_)(site,i);
+  Vdouble probs = getHiddenStatesPosteriorProbabilitiesForASite(site);
+  double x = 0;
+  for (size_t i = 0; i < nbStates_; i++)
+    x += probs[i] * (*emissionProbabilities_)(site,i);
 
   return x;
 }
@@ -329,11 +329,11 @@ Vdouble RescaledHmmLikelihood::getLikelihoodForEachSite() const
   getHiddenStatesPosteriorProbabilities(vv);
 
   Vdouble ret(nbSites_);
-  for (size_t i=0;i<nbSites_;i++)
+  for (size_t i = 0; i < nbSites_; i++)
     {
-      ret[i]=0;
-      for (size_t j=0;j<nbStates_;j++)
-        ret[i]+=vv[i][j]*(*emissionProbabilities_)(i,j);
+      ret[i] = 0;
+      for (size_t j = 0; j < nbStates_; j++)
+        ret[i] += vv[i][j] * (*emissionProbabilities_)(i,j);
     }
 
   return ret;
@@ -362,21 +362,21 @@ void RescaledHmmLikelihood::getHiddenStatesPosteriorProbabilities(std::vector< s
   size_t offset = append ? probs.size() : 0;
   probs.resize(offset + nbSites_);
   for (size_t i = 0; i < nbSites_; i++)
-    {
-      probs[offset + i].resize(nbStates_);
-    }
+  {
+    probs[offset + i].resize(nbStates_);
+  }
 
   if (!backLikelihoodUpToDate_)
     computeBackward_();
   
   for (size_t i = 0; i < nbSites_; i++)
+  {
+    size_t ii = i * nbStates_;
+    for (size_t j = 0; j < nbStates_; j++)
     {
-      size_t ii = i * nbStates_;
-      for (size_t j = 0; j < nbStates_; j++)
-        {
-          probs[offset + i][j] = likelihood_[ii + j] * backLikelihood_[i][j];
-        }
+      probs[offset + i][j] = likelihood_[ii + j] * backLikelihood_[i][j];
     }
+  }
 }
 
 /***************************************************************************************************************************/

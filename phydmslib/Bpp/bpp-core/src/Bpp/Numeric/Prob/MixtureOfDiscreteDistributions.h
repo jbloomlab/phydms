@@ -97,11 +97,7 @@ public:
 
   MixtureOfDiscreteDistributions& operator=(const MixtureOfDiscreteDistributions& mdd);
 
-#if defined(NO_VIRTUAL_COV)
-  Clonable* clone() const { return new MixtureOfDiscreteDistributions(*this); }
-#else
   MixtureOfDiscreteDistributions* clone() const { return new MixtureOfDiscreteDistributions(*this); }
-#endif
 
 public:
   std::string getName() const {return "Mixture"; }

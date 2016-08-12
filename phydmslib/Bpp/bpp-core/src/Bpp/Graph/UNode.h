@@ -94,9 +94,7 @@ namespace bpp {
        *
        * @{
        */
-#ifndef NO_VIRTUAL_COV      
       UNode * clone() const = 0;
-#endif
       /** @} */
 
       /**

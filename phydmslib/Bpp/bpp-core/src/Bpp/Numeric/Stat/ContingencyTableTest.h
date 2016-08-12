@@ -74,12 +74,7 @@ class ContingencyTableTest:
     ContingencyTableTest(const std::vector< std::vector<size_t> >& table, unsigned int nbPermutations = 0, bool warn = true);
     virtual ~ContingencyTableTest() {}
 
-#ifndef NO_VIRTUAL_COV
-    ContingencyTableTest*
-#else
-    Clonable*
-#endif
-    clone() const { return new ContingencyTableTest(*this); }
+    ContingencyTableTest* clone() const { return new ContingencyTableTest(*this); }
 
   public:
     std::string getName() const { return "Test on contingency table."; }

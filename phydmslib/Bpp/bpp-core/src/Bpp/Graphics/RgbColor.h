@@ -66,12 +66,7 @@ class RGBColor:
     RGBColor(): red_(0), green_(0), blue_(0) {} 
     virtual ~RGBColor() {}
 
-#ifdef NO_VIRTUAL_COV
-    Clonable*
-#else
-    RGBColor*
-#endif
-    clone() const { return new RGBColor(*this); }
+    RGBColor* clone() const { return new RGBColor(*this); }
 
   public:
     bool operator==(const RGBColor & color) const
