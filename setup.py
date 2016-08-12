@@ -85,7 +85,7 @@ def extensions():
                 'phydmslib.pybpp',\
                 sources=bppextension_sources,\
                 language='c++',\
-                extra_compile_args=['-I%s/include' % x for x in dynamically_link_bpp_dirs] + ['-O2'],\
+                extra_compile_args=['-I%s/include' % x for x in dynamically_link_bpp_dirs] + ['-O2', '-std=c++11'],\
                 extra_link_args=['-L%s/lib/' % x for x in dynamically_link_bpp_dirs] + ['-lbpp-core', '-lbpp-seq', '-lbpp-phyl'],\
                 ),\
             ]
@@ -96,7 +96,7 @@ def extensions():
                 sources=bppextension_sources + bpp_sources,\
                 language='c++',\
                 include_dirs=include_dirs,\
-                extra_compile_args=['-O2'],\
+                extra_compile_args=['-O2', '-std=c++11'],\
                 ),\
             ]
     # now add LSD extension
@@ -107,7 +107,7 @@ def extensions():
             sources=['phydmslib/pylsd.pyx', 'phydmslib/LSDExtensions/lsd.cpp'] + [f for f in glob.glob('phydmslib/LSD/lsd/src/*.cpp') if 'lsd.cpp' not in f],
             language='c++',
             include_dirs=['phydmslib/LSD/lsd/src'],
-            extra_compile_args=['-O2', '-Wno-sign-compare', '-Wno-unused-result', '-Wno-maybe-uninitialized', '-Wno-unused-variable'], # these last three arguments supress warnings otherwise produced by the LSD code
+            extra_compile_args=['-O2', '-std=c++11', '-Wno-sign-compare', '-Wno-unused-result', '-Wno-maybe-uninitialized', '-Wno-unused-variable'], # these last three arguments supress warnings otherwise produced by the LSD code
             )
         )
     return cythonize(ext)
