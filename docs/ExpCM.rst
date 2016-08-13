@@ -134,8 +134,8 @@ One way to test for differential selection is to fit a different stringency para
    F_{r,xy} = 
    \begin{cases}
    1 & \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
-   \omega_r & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
-   \omega_r \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta_r} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta_r}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta_r} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta_r}\right)} & \mbox{otherwise.}
+   \omega & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
+   \omega \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta_r} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta_r}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta_r} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta_r}\right)} & \mbox{otherwise.}
    \end{cases}
 
 and then fit a value for :math:`\beta_r`. We compare the likelihood using this fitted value of :math:`\beta_r` to that obtained when using the value :math:`\beta` obtained by fitting a single :math:`\beta` over the entire gene, and compute the ratio :math:`\beta_r / \beta`. The null hypothesis is that :math:`\beta_r / \beta = 1`. We compute a P-value for rejection of this null hypothesis using a :math:`\chi_1^2` test; note that the P-values reported by ``phydms`` are **not** adjusted for multiple-hypothesis testing, so you will want to make such an adjustment if testing the hypothesis that any site has :math:`\beta_r / \beta \ne 1`. This analysis can be performed using ``phydms`` with the ``--stringencybysite`` option. Note that ``phydms`` reports the ratio :math:`\beta_r / \beta`, **not** the value of :math:`\beta_r` itself.
@@ -155,8 +155,8 @@ To identify differential selection, we first fix the tree / branch lengths and a
     F_{r,xy} = 
     \begin{cases}
     1 & \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
-    \omega_r & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\hat{\pi}_{r,\mathcal{A}\left(x\right)} = \hat{\pi}_{r,\mathcal{A}\left(y\right)}$} \\
-    \omega_r \times \frac{\ln\left(\hat{\pi}_{r,\mathcal{A}\left(y\right)} / \hat{\pi}_{r,\mathcal{A}\left(x\right)}\right)}{1 - \left(\hat{\pi}_{r,\mathcal{A}\left(x\right)} / \hat{\pi}_{r,\mathcal{A}\left(y\right)}\right)} & \mbox{otherwise.}.
+    \omega & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\hat{\pi}_{r,\mathcal{A}\left(x\right)} = \hat{\pi}_{r,\mathcal{A}\left(y\right)}$} \\
+    \omega \times \frac{\ln\left(\hat{\pi}_{r,\mathcal{A}\left(y\right)} / \hat{\pi}_{r,\mathcal{A}\left(x\right)}\right)}{1 - \left(\hat{\pi}_{r,\mathcal{A}\left(x\right)} / \hat{\pi}_{r,\mathcal{A}\left(y\right)}\right)} & \mbox{otherwise.}.
     \end{cases}
 
 Simply fitting the model defined above with these 19 :math:`\hat{\pi}_{r,a}` values will probably overfit the data since we are including 19 new parameters. We therefore regularize the parameters by defining a prior that favors :math:`\hat{\pi}_{r,a} = \left(\pi_{r,a}\right)^{\beta}`. 
