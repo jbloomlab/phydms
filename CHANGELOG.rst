@@ -1,9 +1,11 @@
 Changelog
 ===========
 
-1.2.dev5
+1.2.5
 ----------
 * Bug fix in ``phydms_prepalignment``
+
+* Added more recent version of ``Bio++`` code
 
 1.2.4
 -------
