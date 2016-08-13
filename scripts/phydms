@@ -227,7 +227,23 @@ def FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams,
     pool.terminate()
     assert len(fitomegaresults) == len(codons)
     return fitomegaresults
-
+    
+def ReadDivPressure(fileName):
+    """Read in diversifying pressure file and return dictionary of sites their corresponding diversifying pressure."""
+    with open(fileName) as f:
+        lines = [line for line in f.readlines() if (not line.isspace()) and line[0] != '#']
+        divPressure = {}
+        for line in lines:
+            entries = line.split()
+            try:
+                assert len(entries) ==2
+                site = int(entries[0])
+                divValue = float(entries[1])
+            except:
+                raise ValueError("Not an integer followed by a float in line of {0}: \n{1}".format(fileName,line))
+            assert site not in divPressure, "Duplicate diversifying pressure specified for site {0}".format(site)
+            divPressure[site] = divValue
+    return divPressure
 
 
 def main():
@@ -343,7 +359,7 @@ def main():
 
         # process the substitution model
         if isinstance(args['model'], str) and yngkp_match.search(args['model']):
-            for argname in ['stringencybysite', 'diffprefsbysite', 'randprefs', 'avgprefs']:
+            for argname in ['stringencybysite', 'diffprefsbysite', 'randprefs', 'avgprefs', 'divpressure']:
                 if args[argname]:
                     raise ValueError("You can use '--%s' only with an ExpCM model" % argname)
             modelvariant = yngkp_match.search(args['model']).group('modelvariant')
@@ -370,6 +386,12 @@ def main():
             assert len(set(sites)) == len(sites), "There are non-unique sites in the preferences file"
             if not (min(sites) == 1 and max(sites) - min(sites) == len(sites) - 1):
                 raise ValueError("Sites in preferences file must start at 1 and be consecutive")
+            if args['divpressure']:
+                divpressure = ReadDivPressure(args['divpressure'])
+                assert set(divpressure.keys()) == set(sites), "The site labels must be the same for diversifying pressure and preferences"
+                logger.info('Successfully read diversifying pressure from %s for all %s sites.',args['divpressure'], len(divpressure.keys()))
+            else:
+                divpressure = None
             pi_means = dms_tools.utils.RemoveStopFromPreferences(pi_means)
             aas = pi_means['1'].keys()
             if set(aas) != set(Bio.Alphabet.IUPAC.IUPACProtein.letters):
@@ -396,7 +418,7 @@ def main():
                     avg_prefs[aa] /= float(len(aaprefs))
                 for r in aaprefs.keys():
                     aaprefs[r] = avg_prefs
-            model = ('ExpCM', aaprefs)
+            model = ('ExpCM', aaprefs, divpressure)
         else:
             raise ValueError("Invalid model of %s" % args['model'])
 

@@ -78,6 +78,9 @@ Command-line usage
    \-\-diffprefsbysite
     The meaning of the :math:`\Delta\pi_{r,a}` values is described in :ref:`ExpCM`.
 
+   \-\-divpressure
+    Only for *ExpCM* models. This option specifies the name of the file with the predetermined diversifying pressure for each site, :math:`\delta_{r}`. ``phydms`` will fit :math:`\omega_{1}` and :math:`\omega_{2}` as described in :ref:`ExpCM`.
+
    \-\-randprefs
     Only for *ExpCM* models. This option randomly reassigns the preferences among sites. This can be used as a control -- randomizing the preferences should make them lose their efficacy for describing evolution.
 

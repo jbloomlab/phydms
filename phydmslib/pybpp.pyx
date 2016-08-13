@@ -18,7 +18,7 @@ from libcpp.map cimport map as cpp_map
 
 cdef extern from "BppExtensions/BppTreeLikelihood.h" namespace "bppextensions":
     cdef cppclass BppTreeLikelihood:
-        BppTreeLikelihood(vector[string], vector[string], string, string, bint, cpp_map[int, cpp_map[string, double]], cpp_map[string, double], cpp_map[string, double], bint, bint, bint, bint, char, bint, int, int) except +
+        BppTreeLikelihood(vector[string], vector[string], string, string, bint, cpp_map[int, cpp_map[string, double]], cpp_map[string, double], cpp_map[string, double], bint, bint, bint, bint, char, bint, int, int, int, cpp_map[int, double]) except +
         long NSeqs() except +
         long NSites() except +
         void NewickTree(string) except +
@@ -98,11 +98,13 @@ cdef class PyBppTreeLikelihood:
               So for instance, *model* might be *YNGKP_M0_empF3X4*.
 
             - Experimentally informed substitution models are specified by the
-              2-tuple *('ExpCM', aaprefs)* where *aaprefs* is a dictionary
+              3-tuple *('ExpCM', aaprefs, divpressure)*. *aaprefs* is a dictionary
               keyed by integers for every codon site for the sequences in
               *seqs* (1, 2, ... numbering) and the values are dictionaries
               keyed by all 20 amino-acids with values the numerical preference
-              for that amino acid at that site.
+              for that amino acid at that site. *divpressure* is None if no diversifying
+              pressures are specified or a dictionary keyed by integers for every codon
+              site and the values are diversifying pressures.
 
         * *infertopology* is a Boolean switch specifying if we infer tree topology or
           fix topology to that in *treefile*. Must be *False* if using 
@@ -144,6 +146,12 @@ cdef class PyBppTreeLikelihood:
 
         * *ncats* is number of beta-distributed categories for *YNGKP_M7*
           and *YNGKP_M8*
+        
+        * *divpressure* is 1 if diversifying pressure are given and 0 if not
+        
+        * *divpressureValues* is a dictionary of diversifying pressures keyed by the amino 
+          acid site if diversifying
+          pressures are given and an empty dictionary otherwise.
     """
 
     cdef BppTreeLikelihood *thisptr
@@ -188,8 +196,14 @@ cdef class PyBppTreeLikelihood:
             modelvariant = int(yngkp_match.search(model).group('modelvariant'))
             if modelvariant != 0 and infertopology:
                 raise ValueError("Cannot infer topology with %s" % model)
-        elif isinstance(model, tuple) and len(model) == 2 and model[0] == 'ExpCM':
+        elif isinstance(model, tuple) and len(model) == 3 and model[0] == 'ExpCM':
             assert isinstance(model[1], dict), "Second entry in model tuple not preferences dict"
+            if not (isinstance(model[2], dict)): 
+                divpressureValues = {}
+                divpressure = 0
+            else:
+                divpressureValues = model[2]
+                divpressure = 1
             sites = model[1].keys()
             assert len(sites) == len(set(sites)) and min(sites) == 1 and max(sites) == len(seqs[0]) // 3, "Invalid sites in preferences: %s" % str(sites)
             for (r, rprefs) in model[1].items():
@@ -207,7 +221,7 @@ cdef class PyBppTreeLikelihood:
             model = 'ExpCM'
         else:
             raise ValueError("Invalid model of %s" % model)
-        self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixedmodelparams, initializemodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, prefsasparams, ord(recursion), useLog, ngammarates, ncats)
+        self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixedmodelparams, initializemodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, prefsasparams, ord(recursion), useLog, ngammarates, ncats, divpressure, divpressureValues)
         if self.thisptr is NULL:
             raise MemoryError("Failed to allocate pointer to BppTreeLikelihood")
 

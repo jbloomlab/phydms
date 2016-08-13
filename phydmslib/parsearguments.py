@@ -365,6 +365,7 @@ def PhyDMSParser():
     parser.set_defaults(fixbrlen=False)
     parser.add_argument('--fixbrlen', dest='fixbrlen', action='store_true', help="Fix branch lengths to those of initial 'tree'. Consider using '--addrateparameter' too.")
     parser.add_argument('--diffprefconc', help="Parameters determining the concentration of the regularizing prior over the differential preferences for '--diffprefsbysite'. Larger values favor smaller diff prefs.", type=FloatGreaterThanEqualToZero, nargs=2, metavar=('C1', 'C2'), default=[150, 0.5])
+    parser.add_argument('--divpressure', type=ExistingFile, help="Specify known diversifying pressure at sites: provide file with column 1 = position, column 2 = diversification pressure; columns are space delimited.")
     parser.set_defaults(addrateparameter=False)
     parser.add_argument('--addrateparameter', dest='addrateparameter', action='store_true', help="Add parameter scaling substitution rate. Only allowed with '--fixbrlen'.")
     parser.set_defaults(fitF3X4=False)
