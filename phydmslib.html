@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>phydmslib package &mdash; phydms 1.2.4 documentation</title>
+    <title>phydmslib package &mdash; phydms 1.2.5 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.2.4',
+        VERSION:     '1.2.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.2.4 documentation" href="index.html" />
+    <link rel="top" title="phydms 1.2.5 documentation" href="index.html" />
     <link rel="up" title="The phydmslib API" href="api.html" />
     <link rel="next" title="Acknowledgments and citations" href="acknowledgments.html" />
     <link rel="prev" title="The phydmslib API" href="api.html" /> 
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="api.html" title="The phydmslib API"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.4 documentation</a> &raquo;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.5 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="api.html" accesskey="U">The <code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &raquo;</li> 
       </ul>
     </div>  
@@ -361,6 +361,15 @@ on the version of <code class="docutils literal"><span class="pre">phydms</span>
 <span id="phydmslib-parsearguments-module"></span><h2>phydmslib.parsearguments module<a class="headerlink" href="#module-phydmslib.parsearguments" title="Permalink to this headline">¶</a></h2>
 <p>Module for parsing arguments.</p>
 <dl class="class">
+<dt id="phydmslib.parsearguments.ArgumentDefaultsRawDescriptionFormatter">
+<em class="property">class </em><code class="descclassname">phydmslib.parsearguments.</code><code class="descname">ArgumentDefaultsRawDescriptionFormatter</code><span class="sig-paren">(</span><em>prog</em>, <em>indent_increment=2</em>, <em>max_help_position=24</em>, <em>width=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ArgumentDefaultsRawDescriptionFormatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argparse.ArgumentDefaultsHelpFormatter</span></code>, <code class="xref py py-class docutils literal"><span class="pre">argparse.RawDescriptionHelpFormatter</span></code></p>
+<p>Print default arguments and raw text description formatter.</p>
+<p>Based on this:
+<a class="reference external" href="http://stackoverflow.com/questions/18462610/argumentparser-epilog-and-description-formatting-in-conjunction-with-argumentdef">http://stackoverflow.com/questions/18462610/argumentparser-epilog-and-description-formatting-in-conjunction-with-argumentdef</a></p>
+</dd></dl>
+
+<dl class="class">
 <dt id="phydmslib.parsearguments.ArgumentParserNoArgHelp">
 <em class="property">class </em><code class="descclassname">phydmslib.parsearguments.</code><code class="descname">ArgumentParserNoArgHelp</code><span class="sig-paren">(</span><em>prog=None</em>, <em>usage=None</em>, <em>description=None</em>, <em>epilog=None</em>, <em>version=None</em>, <em>parents=[]</em>, <em>formatter_class=&lt;class 'argparse.HelpFormatter'&gt;</em>, <em>prefix_chars='-'</em>, <em>fromfile_prefix_chars=None</em>, <em>argument_default=None</em>, <em>conflict_handler='error'</em>, <em>add_help=True</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ArgumentParserNoArgHelp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argparse.ArgumentParser</span></code></p>
@@ -378,6 +387,12 @@ on the version of <code class="docutils literal"><span class="pre">phydms</span>
 <code class="descclassname">phydmslib.parsearguments.</code><code class="descname">ExistingFile</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ExistingFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>If <em>fname</em> is name of an existing file return it, otherwise an error.</p>
 <p><em>fname</em> can also be the string &#8216;None&#8217;, in which case we return <em>None</em>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="phydmslib.parsearguments.FloatBetweenZeroAndOne">
+<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">FloatBetweenZeroAndOne</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.FloatBetweenZeroAndOne" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <em>x</em> only if <em>0 &lt;= x &lt;= 1</em>, otherwise raises error.</p>
 </dd></dl>
 
 <dl class="function">
@@ -428,7 +443,7 @@ on the version of <code class="docutils literal"><span class="pre">phydms</span>
 <dl class="function">
 <dt id="phydmslib.parsearguments.IntGreaterThanZero">
 <code class="descclassname">phydmslib.parsearguments.</code><code class="descname">IntGreaterThanZero</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.IntGreaterThanZero" title="Permalink to this definition">¶</a></dt>
-<dd><p>If <em>n</em> is an integter &gt; 0, returns it, otherwise an error.</p>
+<dd><p>If <em>n</em> is an integer &gt; 0, returns it, otherwise an error.</p>
 </dd></dl>
 
 <dl class="function">
@@ -487,6 +502,12 @@ on the version of <code class="docutils literal"><span class="pre">phydms</span>
 <dt id="phydmslib.parsearguments.PhyDMSPlotSelectionParser">
 <code class="descclassname">phydmslib.parsearguments.</code><code class="descname">PhyDMSPlotSelectionParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSPlotSelectionParser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an <em>argparse.ArgumentParser</em> for <code class="docutils literal"><span class="pre">phydms_plotselection</span></code>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="phydmslib.parsearguments.PhyDMSPrepAlignmentParser">
+<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">PhyDMSPrepAlignmentParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSPrepAlignmentParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <em>argparse.ArgumentParser</em> for <code class="docutils literal"><span class="pre">phydms_prepalignment</span></code>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -934,7 +955,7 @@ have made a single point significant.</p>
         <li class="right" >
           <a href="api.html" title="The phydmslib API"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.4 documentation</a> &raquo;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.5 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="api.html" >The <code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &raquo;</li> 
       </ul>
     </div>

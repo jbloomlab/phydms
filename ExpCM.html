@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Experimentally Informed Codon Models &mdash; phydms 1.2.4 documentation</title>
+    <title>Experimentally Informed Codon Models &mdash; phydms 1.2.5 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.2.4',
+        VERSION:     '1.2.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.2.4 documentation" href="index.html" />
+    <link rel="top" title="phydms 1.2.5 documentation" href="index.html" />
     <link rel="next" title="The phydmslib API" href="api.html" />
     <link rel="prev" title="the phydms_renumber program" href="phydms_renumber_prog.html" /> 
   </head>
@@ -44,7 +44,7 @@
         <li class="right" >
           <a href="phydms_renumber_prog.html" title="the phydms_renumber program"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.4 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.5 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -154,8 +154,8 @@ The <span class="math">\(\omega\)</span> parameter is not a ratio of nonsynonymo
 <span class="eqno">(5)</span>\[\begin{split}F_{r,xy} =
 \begin{cases}
 1 &amp; \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
-\omega_r &amp; \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
-\omega_r \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta_r} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta_r}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta_r} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta_r}\right)} &amp; \mbox{otherwise.}
+\omega &amp; \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
+\omega \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta_r} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta_r}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta_r} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta_r}\right)} &amp; \mbox{otherwise.}
 \end{cases}\end{split}\]</div>
 <p>and then fit a value for <span class="math">\(\beta_r\)</span>. We compare the likelihood using this fitted value of <span class="math">\(\beta_r\)</span> to that obtained when using the value <span class="math">\(\beta\)</span> obtained by fitting a single <span class="math">\(\beta\)</span> over the entire gene, and compute the ratio <span class="math">\(\beta_r / \beta\)</span>. The null hypothesis is that <span class="math">\(\beta_r / \beta = 1\)</span>. We compute a P-value for rejection of this null hypothesis using a <span class="math">\(\chi_1^2\)</span> test; note that the P-values reported by <code class="docutils literal"><span class="pre">phydms</span></code> are <strong>not</strong> adjusted for multiple-hypothesis testing, so you will want to make such an adjustment if testing the hypothesis that any site has <span class="math">\(\beta_r / \beta \ne 1\)</span>. This analysis can be performed using <code class="docutils literal"><span class="pre">phydms</span></code> with the <code class="docutils literal"><span class="pre">--stringencybysite</span></code> option. Note that <code class="docutils literal"><span class="pre">phydms</span></code> reports the ratio <span class="math">\(\beta_r / \beta\)</span>, <strong>not</strong> the value of <span class="math">\(\beta_r\)</span> itself.</p>
 <p>Significant support for <span class="math">\(\beta_r / \beta &lt; 1\)</span> indicates that preferences don&#8217;t actual describe the constraints on the gene&#8217;s evolution accurately. Unfortunately, the ratio alone does not tell which particular amino acids are more or less disfavored by natural evolution, but a ratio &lt; 1 does indicate that flatter preferences (more uniform across amino acids) do describe the evolution of the site better than the preferences encapsulated in the <span class="math">\(\pi_{r,a}\)</span> values. A value of <span class="math">\(\beta_r / \beta &gt; 1\)</span> indicates that natural selection favors the amino acids with high <span class="math">\(\pi_{r,a}\)</span>, but that at the specific site <span class="math">\(r\)</span> this preference is more stringent than for the typical site in the gene (i.e. the preferences point in the direction of actual selection, but actual selection is more stringent at this site than suggested by the preferences).</p>
@@ -168,8 +168,8 @@ The <span class="math">\(\omega\)</span> parameter is not a ratio of nonsynonymo
 <span class="eqno">(6)</span>\[\begin{split} F_{r,xy} =
  \begin{cases}
  1 &amp; \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
- \omega_r &amp; \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\hat{\pi}_{r,\mathcal{A}\left(x\right)} = \hat{\pi}_{r,\mathcal{A}\left(y\right)}$} \\
- \omega_r \times \frac{\ln\left(\hat{\pi}_{r,\mathcal{A}\left(y\right)} / \hat{\pi}_{r,\mathcal{A}\left(x\right)}\right)}{1 - \left(\hat{\pi}_{r,\mathcal{A}\left(x\right)} / \hat{\pi}_{r,\mathcal{A}\left(y\right)}\right)} &amp; \mbox{otherwise.}.
+ \omega &amp; \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\hat{\pi}_{r,\mathcal{A}\left(x\right)} = \hat{\pi}_{r,\mathcal{A}\left(y\right)}$} \\
+ \omega \times \frac{\ln\left(\hat{\pi}_{r,\mathcal{A}\left(y\right)} / \hat{\pi}_{r,\mathcal{A}\left(x\right)}\right)}{1 - \left(\hat{\pi}_{r,\mathcal{A}\left(x\right)} / \hat{\pi}_{r,\mathcal{A}\left(y\right)}\right)} &amp; \mbox{otherwise.}.
  \end{cases}\end{split}\]</div>
 <p>Simply fitting the model defined above with these 19 <span class="math">\(\hat{\pi}_{r,a}\)</span> values will probably overfit the data since we are including 19 new parameters. We therefore regularize the parameters by defining a prior that favors <span class="math">\(\hat{\pi}_{r,a} = \left(\pi_{r,a}\right)^{\beta}\)</span>.</p>
 <p>Although a Dirichlet prior peaked on the preferences might seem attractive, it performs poorly in practice because the <em>maximum a posteriori</em> is very different for small preferences depending on their exact magnitude &#8211; for instance, under a Dirichlet prior we will have very different costs of increasing the differential preference by 0.1 depending on whether the <em>a priori</em> peak estimate is <span class="math">\(10^{-3}\)</span> or <span class="math">\(10^{-4}\)</span>. This is undesirable, so instead we use a prior based on the product of inverse-quadratics.</p>
@@ -259,7 +259,7 @@ The <span class="math">\(\omega\)</span> parameter is not a ratio of nonsynonymo
         <li class="right" >
           <a href="phydms_renumber_prog.html" title="the phydms_renumber program"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.4 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
