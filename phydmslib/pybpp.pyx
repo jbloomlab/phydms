@@ -192,6 +192,7 @@ cdef class PyBppTreeLikelihood:
         # now construct object after processing the model
         yngkp_match = re.compile('^YNGKP_M(?P<modelvariant>\d+)_(emp|fit)F3X4$')
         cdef cpp_map[int, cpp_map[string, double]] preferences  # only needs to be filled with values if using ExpCM
+        divpressureValues = {}
         if isinstance(model, str) and yngkp_match.search(model):
             modelvariant = int(yngkp_match.search(model).group('modelvariant'))
             if modelvariant != 0 and infertopology:
@@ -199,7 +200,6 @@ cdef class PyBppTreeLikelihood:
         elif isinstance(model, tuple) and len(model) == 3 and model[0] == 'ExpCM':
             assert isinstance(model[1], dict), "Second entry in model tuple not preferences dict"
             if not (isinstance(model[2], dict)): 
-                divpressureValues = {}
                 divpressure = 0
             else:
                 divpressureValues = model[2]
