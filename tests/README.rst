@@ -42,7 +42,15 @@ To test ``phydms`` on a small set of clade B env genes (``env_alignment.fasta``)
 
     python run_envtest.py
 
+Testing the ``phydms`` inferences with diversifying pressure
+----------------------------------------------
+To test ``phydms`` on a small set of simulated NP sequences under diversifying pressure (``simulatedNPs.fasta``) use::
 
+    run_divpressuretest.py
+    
+This script runs ``phydms`` with the flag --divpressure. It puts its results in ``./divpressure_test_results`` and compares these results to the ones in ``./expected_divpressure_results``.  
+For more information on how the sequences were simulated see ``README.txt`` in ``./expected_divpressure_results/simulated_sequences``.
+.
 .. _`Doud et al (2015)`: https://dx.doi.org/10.1093/molbev/msv167
 .. _`Kitzman et al (2014)`: http://www.nature.com/nmeth/journal/v12/n3/full/nmeth.3223.html
 .. _`Bloom (2015)`: http://dx.doi.org/10.1101/037689
