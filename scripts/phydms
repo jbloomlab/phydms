@@ -88,7 +88,7 @@ def FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodel
         stringencyscaledprefs[icodon] = dict([(aa, pref**stringencyparameter) for (aa, pref) in aaprefs[icodon].items()])
         prefsum = float(sum(stringencyscaledprefs[icodon].values()))
         stringencyscaledprefs[icodon] = dict([(aa, pref / prefsum) for (aa, pref) in stringencyscaledprefs[icodon].items()])
-        imodel = ('ExpCM', {1:stringencyscaledprefs[icodon]})
+        imodel = ('ExpCM', {1:stringencyscaledprefs[icodon]}, None)
         poolresults[icodon] = pool.apply_async(FitDiffPrefsForSite, (seqnames, iseqs, treefile, imodel, fixedmodelparams, recursion, stringencyscaledprefs[icodon], diffprefsprior, diffprefconc, icodon, useLog, ngammarates, ncats))
     completed = dict([(icodon, False) for icodon in codons])
     while not all(completed.values()):
@@ -157,7 +157,7 @@ def FitStringencyBySitePool(codons, seqnames, seqs, aaprefs, fixedmodelparams, f
     poolresults = {}
     for icodon in codons:
         iseqs = [seq[3 * icodon  - 3 : 3 * icodon] for seq in seqs]
-        imodel = ('ExpCM', {1:aaprefs[icodon]})
+        imodel = ('ExpCM', {1:aaprefs[icodon]}, None)
         poolresults[icodon] = pool.apply_async(FitStringencyForSite, (seqnames, iseqs, imodel, fixedmodelparams, fixedstringencyvalue, treefile, recursion, useLog, ngammarates, ncats))
     completed = dict([(icodon, False) for icodon in codons])
     while not all(completed.values()):
@@ -207,7 +207,7 @@ def FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams,
         if model[ : 7] == 'YNGKP_M':
             imodel = 'YNGKP_M0_fitF3X4' # single omega for the site, M0 model
         elif isinstance(model, tuple) and model[0] == 'ExpCM':
-            imodel = ('ExpCM', {1:aaprefs[icodon]})
+            imodel = ('ExpCM', {1:aaprefs[icodon]}, None)
         else:
             raise ValueError("Invalid model")
         iseqs = [seq[3 * icodon  - 3 : 3 * icodon] for seq in seqs]
@@ -387,6 +387,8 @@ def main():
             if not (min(sites) == 1 and max(sites) - min(sites) == len(sites) - 1):
                 raise ValueError("Sites in preferences file must start at 1 and be consecutive")
             if args['divpressure']:
+                for otherarg in ['stringencybysite', 'omegabysite', 'diffprefsbysite']:
+                    raise ValueError("You cannot simultaneously use --divpressure and --{0}".format(otherarg))
                 divpressure = ReadDivPressure(args['divpressure'])
                 assert set(divpressure.keys()) == set(sites), "The site labels must be the same for diversifying pressure and preferences"
                 logger.info('Successfully read diversifying pressure from %s for all %s sites.',args['divpressure'], len(divpressure.keys()))
