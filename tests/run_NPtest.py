@@ -20,9 +20,9 @@ class TestOnNPs(unittest.TestCase):
         """Gets files set up appropriately."""
         self.expected_dir = './expected_NP_results/'
         self.test_dir = './NP_test_results/'
-        self.prefs = 'NP_prefs.txt'
-        self.seqdates = 'seqdates.txt'
-        self.alignment = 'smallNPs.fasta'
+        self.prefs = self.expected_dir + 'NP_prefs.txt'
+        self.seqdates = self.expected_dir + 'seqdates.txt'
+        self.alignment = self.expected_dir + 'smallNPs.fasta'
         for f in [self.prefs, self.seqdates, self.alignment]:
             self.assertTrue(os.path.isfile(f), "Can't find required file {0}".format(f))
         self.all_models = ['ExpCM_NP_prefs', 'averaged_ExpCM_NP_prefs', 'YNGKP_M0', 'YNGKP_M8']

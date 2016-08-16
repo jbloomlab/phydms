@@ -20,8 +20,8 @@ class TestOnEnvs(unittest.TestCase):
         """Gets files set up appropriately."""
         self.expected_dir = './expected_env_results/'
         self.test_dir = './env_test_results/'
-        self.prefs = 'env_prefs.txt'
-        self.alignment = 'env_alignment.fasta'
+        self.prefs = self.expected_dir + 'env_prefs.txt'
+        self.alignment = self.expected_dir + 'env_alignment.fasta'
         for f in [self.prefs, self.alignment]:
             self.assertTrue(os.path.isfile(f), "Can't find required file {0}".format(f))
         self.all_models = ['ExpCM_env_prefs', 'averaged_ExpCM_env_prefs', 'YNGKP_M0']

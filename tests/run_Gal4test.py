@@ -20,9 +20,9 @@ class TestOnGal4(unittest.TestCase):
         """Gets files set up appropriately."""
         self.expected_dir = './expected_Gal4_results/'
         self.test_dir = './Gal4_test_results/'
-        self.prefs = 'Gal4_prefs.txt'
+        self.prefs = self.expected_dir + 'Gal4_prefs.txt'
         self.assertTrue(os.path.isfile(self.prefs), "Can't find required file %s" % self.prefs)
-        self.alignment = 'Gal4s.fasta'
+        self.alignment = self.expected_dir + 'Gal4s.fasta'
         self.assertTrue(os.path.isfile(self.alignment), "Can't find required file %s" % self.alignment)
         self.all_models = ['ExpCM_Gal4_prefs', 'averaged_ExpCM_Gal4_prefs', 'YNGKP_M0', 'YNGKP_M3']
         self.likelihood_files = ['%s_loglikelihood.txt' % model for model in self.all_models]
