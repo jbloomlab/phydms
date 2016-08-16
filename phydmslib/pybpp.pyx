@@ -18,7 +18,7 @@ from libcpp.map cimport map as cpp_map
 
 cdef extern from "BppExtensions/BppTreeLikelihood.h" namespace "bppextensions":
     cdef cppclass BppTreeLikelihood:
-        BppTreeLikelihood(vector[string], vector[string], string, string, bint, cpp_map[int, cpp_map[string, double]], cpp_map[string, double], cpp_map[string, double], bint, bint, bint, bint, char, bint, int, int, int, cpp_map[int, double]) except +
+        BppTreeLikelihood(vector[string], vector[string], string, string, bint, cpp_map[int, cpp_map[string, double]], string, cpp_map[string, double], cpp_map[string, double], bint, bint, bint, bint, char, bint, int, int, int, cpp_map[int, double]) except +
         long NSeqs() except +
         long NSites() except +
         void NewickTree(string) except +
@@ -41,7 +41,7 @@ cdef class PyBppTreeLikelihood:
 
     Objects are instantiated like this:
 
-        *bpptl = BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, fixedmodelparams, initializemodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, prefsasparams, recursion, useLog, ngammarates, ncats)*
+        *bpptl = PyBppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, fixedmodelparams, initializemodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, prefsasparams, recursion, useLog, ngammarates, ncats)*
 
     where:
 
@@ -98,13 +98,22 @@ cdef class PyBppTreeLikelihood:
               So for instance, *model* might be *YNGKP_M0_empF3X4*.
 
             - Experimentally informed substitution models are specified by the
-              3-tuple *('ExpCM', aaprefs, divpressure)*. *aaprefs* is a dictionary
-              keyed by integers for every codon site for the sequences in
-              *seqs* (1, 2, ... numbering) and the values are dictionaries
-              keyed by all 20 amino-acids with values the numerical preference
-              for that amino acid at that site. *divpressure* is None if no diversifying
-              pressures are specified or a dictionary keyed by integers for every codon
-              site and the values are diversifying pressures.
+              4-tuple *('ExpCM', aaprefs, divpressure, fixationmodel)*. 
+              In this tuple:
+              
+                - *aaprefs* is a dictionary
+                  keyed by integers for every codon site for the sequences in
+                  *seqs* (1, 2, ... numbering) and the values are dictionaries
+                  keyed by all 20 amino-acids with values the numerical preference
+                  for that amino acid at that site. 
+                      
+                - *divpressure* is None if no diversifying pressures are
+                  specified or a dictionary keyed by integers for every codon
+                  site and the values are diversifying pressures.
+
+                - *fixationmodel* specifies the model relating the preferences
+                  to the fixation probabilities. Options are:
+                  'HalperBruno', 'FracTolerated', and 'gwF'.
 
         * *infertopology* is a Boolean switch specifying if we infer tree topology or
           fix topology to that in *treefile*. Must be *False* if using 
@@ -174,6 +183,7 @@ cdef class PyBppTreeLikelihood:
         self.codon_to_aa = dict([(codon, str(Bio.Seq.Seq(codon).translate())) for codon in self.codons])
         #
         # some error checking on calling variables
+        assert fixationmodel in ['HalpernBruno', 'FracTolerated', 'gwF'], "Invalid fixationmodel of {0}".format(fixationmodel)
         if addrateparameter and not fixbrlen:
             raise ValueError("It makes no sense to use addrateparameter without fixbrlen")
         assert len(seqnames) == len(seqs) > 0, "seqnames and seqs must be non-empty and specify the same number of entries"
@@ -221,7 +231,7 @@ cdef class PyBppTreeLikelihood:
             model = 'ExpCM'
         else:
             raise ValueError("Invalid model of %s" % model)
-        self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixedmodelparams, initializemodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, prefsasparams, ord(recursion), useLog, ngammarates, ncats, divpressure, divpressureValues)
+        self.thisptr = new BppTreeLikelihood(seqnames, seqs, treefile, model, infertopology, preferences, fixationmodel, fixedmodelparams, initializemodelparams, oldlikelihoodmethod, fixbrlen, addrateparameter, prefsasparams, ord(recursion), useLog, ngammarates, ncats, divpressure, divpressureValues)
         if self.thisptr is NULL:
             raise MemoryError("Failed to allocate pointer to BppTreeLikelihood")
 

@@ -60,6 +60,8 @@ namespace bppextensions {
              *
              * @param preferences Site-specific amino-acid preferences, keyed by integer site (1, 2, ... numbering), then maps keyed by codon and values preference. Value does not matter if modelstring is not "ExpCM".
              *
+             * @fixationmodel String specifying how we compute fixation probabilities from preferences. See Python wrapper for a list of valid values.
+             *
              * @param fixedmodelparams A map giving model parameters that should be fixed. Key is string name of model parameter, value is what it is fixed to. You will get an error if you specify a parameter that does not exist with that name.
              *
              * @param initializemodelparams A map giving model parameters that should be initialized but not fixed. Key is string name of model parameter, value is what it is initialized to. You will get an error if you specify a parameter that does not exist with that name, or if an entry is duplicated in fixedmodelparams.
@@ -84,7 +86,7 @@ namespace bppextensions {
              *
              * @param divpressureValues Site-specific diversifying pressures, keyed by integer site (1, 2, ... numbering), value is a float. Empty dictionary if divpressure is 0.
              */
-            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion, int useLog, int ngammarates, int ncats, int divpressure, std::map<int, double> divpressureValues);
+            BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::string fixationmodel, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion, int useLog, int ngammarates, int ncats, int divpressure, std::map<int, double> divpressureValues);
 
             /**
              *@brief Destructor

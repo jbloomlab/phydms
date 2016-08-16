@@ -59,7 +59,8 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
     bool divpressure,
     double maxdeltar,
     double mindeltar,
-    double deltar) :
+    double deltar, 
+    std::string fixationmodel) :
   AbstractParameterAliasable(prefix),
   AbstractCodonSubstitutionModel(gCode, new bpp::K80(dynamic_cast<const bpp::CodonAlphabet*>(gCode->getSourceAlphabet())->getNucleicAlphabet()), prefix),
   AbstractCodonPhaseFrequenciesSubstitutionModel(bpp::CodonFrequenciesSet::getFrequenciesSetForCodons(bpp::CodonFrequenciesSet::F1X4, gCode), prefix),
@@ -71,7 +72,8 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
   rateparameter_(1),
   prefsasparams_(prefsasparams),
   deltar_(deltar),
-  divpressure_(divpressure)
+  divpressure_(divpressure),
+  fixationmodel_(fixationmodel)
 {
   if (dynamic_cast<bpp::CodonFrequenciesSet*>(preferences) == NULL) {
     throw std::runtime_error("Invalid preferences");
@@ -101,6 +103,10 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
   	}
   }
   addParameter_(new bpp::Parameter(prefix + "stringencyparameter", 1, new bpp::IntervalConstraint(0.1, 10.0, true, true), true));
+  f_gwF_ = 0.5;
+  if (fixationmodel == "gwF") {
+    addParameter(new bpp::Parameter(prefix + "f_gwF", f_gwF_, new bpp::IntervalConstraint(0, 1, true, true), true));
+  }
   updateMatrices();
 }
 
@@ -120,6 +126,9 @@ void bppextensions::ExperimentallyInformedCodonModel::fireParameterChanged(const
   omega_ = getParameterValue("omega");
   if(divpressure_){
   	omega2_ = getParameterValue("omega2");
+  }
+  if (fixationmodel_ == "gwF") {
+    f_gwF_ = getParameterValue("f_gwF");
   }
   stringencyparameter_ = getParameterValue("stringencyparameter");
   if (hasParameter("rateparameter")) {
@@ -142,14 +151,28 @@ double bppextensions::ExperimentallyInformedCodonModel::getCodonsMulRate(size_t 
     double fixationprob;
     double pi_i = std::pow(preferences_->getFrequencies()[i], stringencyparameter_);
     double pi_j = std::pow(preferences_->getFrequencies()[j], stringencyparameter_);
-    if (pi_j == pi_i) {
-      fixationprob = 1;
-    } else if (pi_i == 0) {
-      fixationprob = 1000.0; // very large value of starting codon has zero preference
-    } else if (pi_j == 0) {
-      fixationprob = 0;
+    if (fixationmodel == "HalpernBruno") {
+      if (pi_j == pi_i) {
+        fixationprob = 1;
+      } else if (pi_i == 0) {
+        fixationprob = 1000.0; // very large value if starting codon has zero preference
+      } else if (pi_j == 0) {
+        fixationprob = 0;
+      } else {
+        fixationprob = std::log(pi_j / pi_i) / (1 - (pi_i / pi_j));  // correct version of Halpern and Bruno (1998) equation; note that their paper has a typo
+      }
+    } else if (fixationmodel == "FracTolerated") {
+        fixationprob = pi_j;
+    } else if (fixationmodel == "gwF") {
+        if (pi_j == 0) {
+          fixationprob = 0;
+        } else if (pi_i == 0) {
+          fixationprob = 1000.0; // very large value if starting codon has zero preference
+        } else {
+          fixationprob = std::pow(pi_j, 1 - f_gwF_) / std::(pi_i, f_gwF_);
+        }
     } else {
-      fixationprob = std::log(pi_j / pi_i) / (1 - (pi_i / pi_j));  // correct version of Halpern and Bruno (1998) equation; note that their paper has a typo
+      throw std::runtime_error("Invalid fixationmodel");
     }
     return omega_ * (1+omega2_*deltar_) * rateparameter_
       * AbstractCodonSubstitutionModel::getCodonsMulRate(i,j)

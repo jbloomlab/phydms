@@ -348,6 +348,7 @@ def PhyDMSParser():
     parser.add_argument('--diffprefsbysite', dest='diffprefsbysite', action='store_true', help="Infer differential preferences for each site, only for ExpCM.")
     parser.set_defaults(infertopology=False)
     parser.add_argument('--infertopology', dest='infertopology', action='store_true', help="Infer topology starting from 'tree'; otherwise topology fixed to 'tree'. Requires YNGKP_M0 model.")
+    parser.add_argument('--fixationmodel', default='HalpernBruno', choices=['HalpernBruno', 'FracTolerated', 'gwF'], help='How to calculate the "fixation probabilities" from the preferences.')
     parser.set_defaults(gammarates=False)
     parser.add_argument('--gammarates', dest='gammarates', action='store_true', help="Draw the substitution rate from 4-category discrete gamma distribution with optimized shape parameter.")
     parser.add_argument('--ncats', default=6, help="Number of beta-distributed categories for YNGKP M7 and M8.", type=IntGreaterThanZero)

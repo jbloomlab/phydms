@@ -70,9 +70,12 @@ namespace bppextensions
    *
    * @param maxdeltar The minimum diversifying pressure across all sites
    *
-   * @param delatar The diversifying pressure
+   * @param deltar The diversifying pressure
    *
-   * Reference:
+   * @param Method for getting fixation probs from preferences. Can be "HalpernBruno", "FracTolerated", "gwF"
+   *
+   * References:
+   * -  Bloom JD (2016), _bioRxiv_, DOI: 10.1101/037689 (2016)
    * -  Bloom JD (2014), _Molecular Biology and Evolution_ 31(10):2753-2769.
    */
   class ExperimentallyInformedCodonModel :
@@ -92,6 +95,8 @@ namespace bppextensions
     bool prefsasparams_;
     bool divpressure_;
     double deltar_;
+    double f_gwF_;
+    std::string fixationmodel_;
 
   public:
     ExperimentallyInformedCodonModel(
@@ -102,7 +107,8 @@ namespace bppextensions
         bool divpressure,
         double maxdeltar,
         double mindeltar,
-        double deltar);
+        double deltar,
+        std::string fixationmodel);
 
     ExperimentallyInformedCodonModel(const ExperimentallyInformedCodonModel& model):
       AbstractParameterAliasable(model),
@@ -116,7 +122,8 @@ namespace bppextensions
       rateparameter_(model.rateparameter_),
       prefsasparams_(model.prefsasparams_),
       divpressure_(model.divpressure_),
-      deltar_(model.deltar_)
+      deltar_(model.deltar_),
+      fixationmodel_(model.fixationmodel_)
       
     {} 
 
@@ -134,6 +141,7 @@ namespace bppextensions
       prefsasparams_ = model.prefsasparams_;
       divpressure_ = model.divpressure_;
       deltar_ = model.deltar_;
+      fixationmodel = model.fixationmodel_;
       
       return *this;
     }

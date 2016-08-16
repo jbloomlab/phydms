@@ -35,7 +35,7 @@ namespace patch
 
 
 // constructor
-bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion, int useLog, int ngammarates, int ncats, int divpressure, std::map<int, double> divpressureValues)
+bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seqnames, std::vector<std::string> seqs, std::string treefile, std::string modelstring, int infertopology, std::map<int, std::map<std::string, double> > preferences, std::string fixationmodel, std::map<std::string, double> fixedmodelparams, std::map<std::string, double> initializemodelparams, int oldlikelihoodmethod, int fixbrlen, int addrateparameter, int prefsasparams, char recursion, int useLog, int ngammarates, int ncats, int divpressure, std::map<int, double> divpressureValues)
 {
     // setup some parameters / options
     oldlikmethod = oldlikelihoodmethod != 0;
@@ -208,7 +208,7 @@ bppextensions::BppTreeLikelihood::BppTreeLikelihood(std::vector<std::string> seq
                 init_rprefs[icodon] = preferences[isite][codon];    
             }
             rprefs->setFrequenciesFromAlphabetStatesFrequencies(init_rprefs);
-            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM.", prefsasparams != 0, divpressure != 0, divpressuremax, divpressuremin, isitedivpressure));
+            models[isite] = dynamic_cast<bpp::SubstitutionModel*>(new bppextensions::ExperimentallyInformedCodonModel(gcode, rprefs, "ExpCM.", prefsasparams != 0, divpressure != 0, divpressuremax, divpressuremin, isitedivpressure, fixationmodel));
             if (! models[isite]) {
                 throw std::runtime_error("error casting ExperimentallyInformedCodonModel");
             }
@@ -513,7 +513,6 @@ std::map<std::string, double> bppextensions::BppTreeLikelihood::GetPreferences(l
         throw std::runtime_error("There is not a site with key " + patch::to_string(isite) + ". Are you sure you are using ExpCM with just one model?");
     }
     bppextensions::ExperimentallyInformedCodonModel *model = dynamic_cast<bppextensions::ExperimentallyInformedCodonModel*>(models[isite]);
-    //bppextensions::ExpCM_divpressure *model = dynamic_cast<bppextensions::ExpCM_divpressure*>(models[isite]);
     if (! model) {
         throw std::runtime_error("You did not use an ExpCM model");
     }
@@ -553,7 +552,6 @@ void bppextensions::BppTreeLikelihood::SetPreferences(std::map<std::string, doub
         throw std::runtime_error("There is not a site with key " + patch::to_string(isite) + ". Are you sure you are using ExpCM with just one model?");
     }
     bppextensions::ExperimentallyInformedCodonModel *model = dynamic_cast<bppextensions::ExperimentallyInformedCodonModel*>(models[isite]);
-    //bppextensions::ExpCM_divpressure *model = dynamic_cast<bppextensions::ExpCM_divpressure*>(models[isite]);
     if (! model) {
         throw std::runtime_error("You did not use an ExpCM model");
     }

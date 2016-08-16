@@ -3,7 +3,9 @@ Changelog
 
 1.3.dev0
 -----------
-* Added ``--divpressure`` option to analyzing diversifying pressure at sites.
+* Added ``--divpressure`` option for analyzing diversifying pressure at sites.
+
+* Added ``--fixationmodel`` option to allow different ways to relate preferences to fixation probabilities.
 
 1.2.5
 ----------
