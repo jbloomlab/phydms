@@ -388,7 +388,8 @@ def main():
                 raise ValueError("Sites in preferences file must start at 1 and be consecutive")
             if args['divpressure']:
                 for otherarg in ['stringencybysite', 'omegabysite', 'diffprefsbysite']:
-                    raise ValueError("You cannot simultaneously use --divpressure and --{0}".format(otherarg))
+                    if args[otherarg]:
+                        raise ValueError("You cannot simultaneously use --divpressure and --{0}".format(otherarg))
                 divpressure = ReadDivPressure(args['divpressure'])
                 assert set(divpressure.keys()) == set(sites), "The site labels must be the same for diversifying pressure and preferences"
                 logger.info('Successfully read diversifying pressure from %s for all %s sites.',args['divpressure'], len(divpressure.keys()))
