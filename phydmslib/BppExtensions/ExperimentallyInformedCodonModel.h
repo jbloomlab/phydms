@@ -93,8 +93,8 @@ namespace bppextensions
     double stringencyparameter_;
     double rateparameter_;
     bool prefsasparams_;
-    bool divpressure_;
     double deltar_;
+    bool divpressure_;
     double f_gwF_;
     std::string fixationmodel_;
 
@@ -121,8 +121,9 @@ namespace bppextensions
       stringencyparameter_(model.stringencyparameter_),
       rateparameter_(model.rateparameter_),
       prefsasparams_(model.prefsasparams_),
-      divpressure_(model.divpressure_),
       deltar_(model.deltar_),
+      divpressure_(model.divpressure_),
+      f_gwF_(model.f_gwF_),
       fixationmodel_(model.fixationmodel_)
       
     {} 
@@ -139,8 +140,9 @@ namespace bppextensions
       stringencyparameter_ = model.stringencyparameter_;
       rateparameter_ = model.rateparameter_;
       prefsasparams_ = model.prefsasparams_;
-      divpressure_ = model.divpressure_;
       deltar_ = model.deltar_;
+      divpressure_ = model.divpressure_;
+      f_gwF = model.f_gwF_;
       fixationmodel_ = model.fixationmodel_;
       
       return *this;
