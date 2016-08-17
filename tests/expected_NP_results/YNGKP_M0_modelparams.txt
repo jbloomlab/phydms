@@ -1,5 +1,3 @@
-kappa = 6.257109
-omega = 0.112985
 1_Full.theta = 0.467043
 1_Full.theta1 = 0.617916
 1_Full.theta2 = 0.611789
@@ -9,3 +7,5 @@ omega = 0.112985
 3_Full.theta = 0.425317
 3_Full.theta1 = 0.573805
 3_Full.theta2 = 0.520999
+kappa = 6.257109
+omega = 0.112985
