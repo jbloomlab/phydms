@@ -141,7 +141,7 @@ namespace bppextensions
       prefsasparams_ = model.prefsasparams_;
       divpressure_ = model.divpressure_;
       deltar_ = model.deltar_;
-      fixationmodel = model.fixationmodel_;
+      fixationmodel_ = model.fixationmodel_;
       
       return *this;
     }

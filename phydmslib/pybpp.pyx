@@ -183,7 +183,6 @@ cdef class PyBppTreeLikelihood:
         self.codon_to_aa = dict([(codon, str(Bio.Seq.Seq(codon).translate())) for codon in self.codons])
         #
         # some error checking on calling variables
-        assert fixationmodel in ['HalpernBruno', 'FracTolerated', 'gwF'], "Invalid fixationmodel of {0}".format(fixationmodel)
         if addrateparameter and not fixbrlen:
             raise ValueError("It makes no sense to use addrateparameter without fixbrlen")
         assert len(seqnames) == len(seqs) > 0, "seqnames and seqs must be non-empty and specify the same number of entries"
@@ -207,7 +206,7 @@ cdef class PyBppTreeLikelihood:
             modelvariant = int(yngkp_match.search(model).group('modelvariant'))
             if modelvariant != 0 and infertopology:
                 raise ValueError("Cannot infer topology with %s" % model)
-        elif isinstance(model, tuple) and len(model) == 3 and model[0] == 'ExpCM':
+        elif isinstance(model, tuple) and len(model) == 4 and model[0] == 'ExpCM':
             assert isinstance(model[1], dict), "Second entry in model tuple not preferences dict"
             if not (isinstance(model[2], dict)): 
                 divpressure = 0
@@ -228,6 +227,8 @@ cdef class PyBppTreeLikelihood:
                     else:
                         raise ValueError("Invalid aa of %s" % aa)
                     assert isinstance(preferences[r][codon], float), "preference not a number for site %d codon %d" % (r, codon)
+            fixationmodel = model[3]
+            assert fixationmodel in ['HalperBruno', 'FracTolerated', 'gwF'], "Invalid fixationmodel of {0}".format(fixationmodel)
             model = 'ExpCM'
         else:
             raise ValueError("Invalid model of %s" % model)
