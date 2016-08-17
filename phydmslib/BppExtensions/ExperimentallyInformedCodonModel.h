@@ -90,8 +90,8 @@ namespace bppextensions
     double stringencyparameter_;
     double rateparameter_;
     bool prefsasparams_;
-    bool divpressure_;
     double deltar_;
+    bool divpressure_;
 
   public:
     ExperimentallyInformedCodonModel(
@@ -115,8 +115,8 @@ namespace bppextensions
       stringencyparameter_(model.stringencyparameter_),
       rateparameter_(model.rateparameter_),
       prefsasparams_(model.prefsasparams_),
-      divpressure_(model.divpressure_),
-      deltar_(model.deltar_)
+      deltar_(model.deltar_),
+      divpressure_(model.divpressure_)
       
     {} 
 
@@ -132,8 +132,8 @@ namespace bppextensions
       stringencyparameter_ = model.stringencyparameter_;
       rateparameter_ = model.rateparameter_;
       prefsasparams_ = model.prefsasparams_;
-      divpressure_ = model.divpressure_;
       deltar_ = model.deltar_;
+      divpressure_ = model.divpressure_;
       
       return *this;
     }

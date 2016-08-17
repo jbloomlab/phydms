@@ -162,6 +162,7 @@ cdef class PyBppTreeLikelihood:
 
     def __cinit__(self, list seqnames, list seqs, str treefile, model, bint infertopology, fixedmodelparams, initializemodelparams, bint oldlikelihoodmethod, bint fixbrlen, bint addrateparameter, bint prefsasparams, str recursion, bint useLog, int ngammarates, int ncats):
         """Initializes new *PyBppTreeLikelihood* object."""
+        cdef int divpressure = 0
         # 
         # set up codons, amino acids, nts
         self.nts = list(Bio.Alphabet.IUPAC.IUPACUnambiguousDNA.letters)
@@ -199,9 +200,7 @@ cdef class PyBppTreeLikelihood:
                 raise ValueError("Cannot infer topology with %s" % model)
         elif isinstance(model, tuple) and len(model) == 3 and model[0] == 'ExpCM':
             assert isinstance(model[1], dict), "Second entry in model tuple not preferences dict"
-            if not (isinstance(model[2], dict)): 
-                divpressure = 0
-            else:
+            if (isinstance(model[2], dict)): 
                 divpressureValues = model[2]
                 divpressure = 1
             sites = model[1].keys()
