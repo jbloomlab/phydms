@@ -5,6 +5,8 @@ Changelog
 -----------
 * Added ``--divpressure`` option to analyzing diversifying pressure at sites.
 
+* Bug fix in ``phydms_prepalignment``
+
 1.2.5
 ----------
 * Bug fix in ``phydms_prepalignment``
