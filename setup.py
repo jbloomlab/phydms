@@ -124,7 +124,7 @@ setup(
     author = metadata['author'],
     author_email = metadata['author_email'],
     url = metadata['url'],
-    download_url = 'https://github.com/jbloom/phydms/tarball/%s' % metadata['version'], # assumes appropriate tagged version is on GitHub
+    download_url = 'https://github.com/jbloomlab/phydms/tarball/%s' % metadata['version'], # assumes appropriate tagged version is on GitHub
     description = 'Phylogenetic analyses informed by deep mutational scanning data.',
     long_description = readme,
     license = 'GPLv3',
