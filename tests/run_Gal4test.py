@@ -42,7 +42,7 @@ class TestOnGal4(unittest.TestCase):
         """Runs ``phydms_comprehensive``."""
         cmds = ['phydms_comprehensive', self.test_dir, self.alignment, self.prefs, '--ncpus', '-1', '--yngkp', 'M3', '--no-stringencybysite', '--fitF3X4']
         sys.stderr.write('\nRunning phydms with the the following command:\n%s\n' % ' '.join(cmds))
-        subprocess.call(cmds)
+        subprocess.check_call(cmds)
 
         sys.stderr.write('\nTesting for presence of expected output files...\n')
         for f in self.likelihood_files + self.params_files + self.bysite_files + self.diffpref_files:
@@ -77,7 +77,7 @@ class TestOnGal4(unittest.TestCase):
             for site in actual.keys():
                 self.assertTrue(abs(actual[site]['P'] - expected[site]['P']) < 0.025 * max(actual[site]['P'], expected[site]['P']), "Unexpectedly large difference in P for %s in %s: %g versus %g" % (site, f, actual[site]['P'], expected[site]['P']))
                 if actual[site]['P'] < 0.1:
-                    self.assertTrue(abs(actual[site]['value'] - expected[site]['value']) < 0.025 * max(actual[site]['value'], expected[site]['value']), "Unexpectedly large difference in value for %s in %s: %g versus %g" % (site, f, actual[site]['value'], expected[site]['value']))
+                    self.assertTrue(abs(actual[site]['value'] - expected[site]['value']) < max(0.002, 0.025 * max(actual[site]['value'], expected[site]['value'])), "Unexpectedly large difference in value for %s in %s: %g versus %g" % (site, f, actual[site]['value'], expected[site]['value']))
 
         sys.stderr.write("\nTesting for expected differential preferences at each site...\n")
         for f in self.diffpref_files:
