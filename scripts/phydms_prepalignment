@@ -265,7 +265,7 @@ def main():
         assert all([seqlengths[0] == n for n in seqlengths]), "MAFFT alignment failed to yield sequences all of the same length."
 
     # strip gaps relative refseq
-    assert seqs_alwayskeep[0][0] == refseq.description
+    assert seqs_alwayskeep[0][0] == CleanHeader(refseq.description), "Expected refseq to have this header:\t{0}\nFound this:\t{1}".format(refseq.description, seqs_alwayskeep[0][0])
     refseqprot = seqs_alwayskeep[0][2]
     gapped = set([i for i in range(len(refseqprot)) if refseqprot[i] == '-'])
     for xlist in [seqs_alwayskeep, seqs_unique]:

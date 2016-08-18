@@ -7,6 +7,8 @@ Changelog
 
 * Added ``--fixationmodel`` option to allow different ways to relate preferences to fixation probabilities.
 
+* Bug fix in ``phydms_prepalignment``
+
 1.2.5
 ----------
 * Bug fix in ``phydms_prepalignment``
