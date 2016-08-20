@@ -76,7 +76,7 @@ class TestOnEnvs(unittest.TestCase):
             for site in actual.keys():
                 self.assertTrue(abs(actual[site]['P'] - expected[site]['P']) < 0.025 * max(actual[site]['P'], expected[site]['P']), "Unexpectedly large difference in P for %s in %s: %g versus %g" % (site, f, actual[site]['P'], expected[site]['P']))
                 if actual[site]['P'] < 0.1:
-                    self.assertTrue(abs(actual[site]['value'] - expected[site]['value']) < 0.025 * max(actual[site]['value'], expected[site]['value']), "Unexpectedly large difference in value for %s in %s: %g versus %g" % (site, f, actual[site]['value'], expected[site]['value']))
+                    self.assertTrue(abs(actual[site]['value'] - expected[site]['value']) < max(0.002, 0.025 * max(actual[site]['value'], expected[site]['value'])), "Unexpectedly large difference in value for %s in %s: %g versus %g" % (site, f, actual[site]['value'], expected[site]['value']))
 
         sys.stderr.write("\nTesting for expected differential preferences at each site...\n")
         for f in self.diffpref_files:
