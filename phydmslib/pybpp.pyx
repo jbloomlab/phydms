@@ -203,6 +203,7 @@ cdef class PyBppTreeLikelihood:
         yngkp_match = re.compile('^YNGKP_M(?P<modelvariant>\d+)_(emp|fit)F3X4$')
         cdef cpp_map[int, cpp_map[string, double]] preferences  # only needs to be filled with values if using ExpCM
         divpressureValues = {}
+        fixationmodel = 'not applicable'
         if isinstance(model, str) and yngkp_match.search(model):
             modelvariant = int(yngkp_match.search(model).group('modelvariant'))
             if modelvariant != 0 and infertopology:
