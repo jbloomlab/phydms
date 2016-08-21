@@ -204,12 +204,12 @@ def main():
     print("Retained {0} sequences after purging any with premature stops or that are otherwise un-translateable.".format(len(seqs)))
 
     # get reference sequence
-    refseq = [seq for seq in seqs if (args['refseq'] in seq.description) or (args['refseq'] in CleanHeader(seq.description))]
+    refseq = [seq for seq in seqs if (args['refseq'] in seq.description) or (CleanHeader(args['refseq']) in seq.description)]
     if len(refseq) == 1:
         refseq = refseq[0]
         print("Using the following as reference sequence: {0}".format(refseq.description))
     elif len(refseq) < 1:
-        raise ValueError("Failed to find any sequence with a header that contained refseq identifier of {0}".format(args['refseq']))
+        raise ValueError("Failed to find any sequence with a header that contained refseq identifier of {0}\nWas reference sequence purged due to not being translate-able?".format(args['refseq']))
     else:
         raise ValueError("Found multiple sequences with headers that contained refseq identifier of {0}".format(args['refseqs']))
 
