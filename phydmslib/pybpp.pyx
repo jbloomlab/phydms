@@ -113,7 +113,7 @@ cdef class PyBppTreeLikelihood:
 
                 - *fixationmodel* specifies the model relating the preferences
                   to the fixation probabilities. Options are:
-                  'HalperBruno', 'FracTolerated', and 'gwF'.
+                  'HalpernBruno', 'FracTolerated', and 'gwF'.
 
         * *infertopology* is a Boolean switch specifying if we infer tree topology or
           fix topology to that in *treefile*. Must be *False* if using 
@@ -228,7 +228,7 @@ cdef class PyBppTreeLikelihood:
                         raise ValueError("Invalid aa of %s" % aa)
                     assert isinstance(preferences[r][codon], float), "preference not a number for site %d codon %d" % (r, codon)
             fixationmodel = model[3]
-            assert fixationmodel in ['HalperBruno', 'FracTolerated', 'gwF'], "Invalid fixationmodel of {0}".format(fixationmodel)
+            assert fixationmodel in ['HalpernBruno', 'FracTolerated', 'gwF'], "Invalid fixationmodel of {0}".format(fixationmodel)
             model = 'ExpCM'
         else:
             raise ValueError("Invalid model of %s" % model)
