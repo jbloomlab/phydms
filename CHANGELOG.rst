@@ -7,7 +7,7 @@ Changelog
 
 * Added ``--fixationmodel`` option to allow different ways to relate preferences to fixation probabilities.
 
-* Bug fix in ``phydms_prepalignment``
+* In ``phydms_prepalignment``: bug fixes, and have ``mafft`` use all available threads.
 
 1.2.5
 ----------

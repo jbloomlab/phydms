@@ -55,7 +55,7 @@ def MAFFT_CDSandProtAlignments(headseqprots, mafftcmd, tempfileprefix):
 
     with open(alignedprotsfile,'w') as stdout, open(outputfile, 'w') as stderr:
         subprocess.check_call(
-                [mafftcmd, '--auto', unalignedprotsfile], 
+                [mafftcmd, '--auto', '--thread', '-1', unalignedprotsfile], 
                 stdout=stdout, 
                 stderr=stderr,
                 )
