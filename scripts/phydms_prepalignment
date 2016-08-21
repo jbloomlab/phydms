@@ -140,6 +140,9 @@ def main():
         cleanhead = CleanHeader(head)
         for purgename in args['purgeseqs']:
             if (purgename in head) or (purgename in cleanhead):
+                for keepname in args['keepseqs']:
+                    if (keepname in head) or (keepname in cleanhead):
+                        raise ValueError("--purgseqs and --keepseqs conflict about what to do with {0}".format(head))
                 break
         else:
             cleanseqs.append(seq)
@@ -225,6 +228,7 @@ def main():
         cleanhead = CleanHeader(head)
         seq = str(seqrecord.seq)
         if head == refseq.description:
+            assert not foundrefseq, "Duplicate reference sequences"
             foundrefseq = True
             seqs_alwayskeep.insert(0, (cleanhead, seq, prot))
         else:
@@ -279,7 +283,7 @@ def main():
     assert '-' not in refseq, "Gap stripping from reference sequence failed."
     print("After stripping gaps relative to reference sequence, all proteins are of length {0}".format(len(refseqprot)))
 
-    # make seqs_unique, seq_always be *(head, seq, prot, ntident, protident)
+    # make seqs_unique, seq_alwayskeep be *(head, seq, prot, ntident, protident)*
     refseqprotlength = float(len(refseqprot))
     refseqlength = float(len(refseq))
     for xlist in [seqs_alwayskeep, seqs_unique]:
@@ -290,7 +294,7 @@ def main():
 
     # purge sequences that don't meet identity threshold
     purged_idents = [] # list of *(ntident, protident)* for purged sequences
-    for xlist in [seqs_alwayskeep, seqs_unique]:
+    for xlist in [seqs_unique]:
         remove_indices = []
         for (i, (head, seq, prot, ntident, protident)) in enumerate(xlist):
             if protident < args['minidentity']:

@@ -7,7 +7,7 @@ Changelog
 
 * Added ``--fixationmodel`` option to allow different ways to relate preferences to fixation probabilities.
 
-* In ``phydms_prepalignment``: bug fixes, and have ``mafft`` use all available threads.
+* In ``phydms_prepalignment``: bug fixes, have ``mafft`` use all available threads, and keep seqs in ``--keepseqs`` regardless of identity to refseq.
 
 1.2.5
 ----------

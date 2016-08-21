@@ -39,7 +39,7 @@ In addition to creating the alignment, the plot ``SUMO1_alignment.pdf`` is crate
 
    A ``jpg`` version of the plot ``SUMO1_alignment.pdf``.
 
-Sometimes there may be certain sequences you do **not** want to purge even if they have too high an identity to other sequences. For instance, maybe you want to keep the chimpanzee and gorilla homologs (which have *Panu* and *Ggor* in their headers) even though they are less than two amino-acid mutations from the human ortholog. In this case, use ``--keepseqs``::
+Sometimes there may be certain sequences you do **not** want to purge even if they lack uniqueness or identity to the reference sequence. For instance, maybe you want to keep the chimpanzee and gorilla homologs (which have *Panu* and *Ggor* in their headers) even though they are less than two amino-acid mutations from the human ortholog. In this case, use ``--keepseqs``::
 
     phydms_prepalignment SUMO1_orthologs.fasta SUMO1_alignment.fasta Hsap --minidentity 0.7 --minuniqueness 2 --keepseqs Panu Ggor
 

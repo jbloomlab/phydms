@@ -273,7 +273,7 @@ def PhyDMSPrepAlignmentParser():
     parser.add_argument('--minidentity', type=FloatBetweenZeroAndOne, help="Purge sequences with <= this protein identity to 'refseq'.", default=0.7)
     parser.add_argument('--minuniqueness', type=IntGreaterThanZero, default=2, help="Require each sequence to have >= this many protein differences relative to other sequences.")
     parser.add_argument('--purgeseqs', nargs='*', help="Specify sequences to always purge. Any sequences with any of the substrings specified here are always removed. The substrings can either be passed as repeated arguments here, or as the name of an existing file which has one substring per line.")
-    parser.add_argument('--keepseqs', nargs='*', help="Do not remove for lack of uniqueness any of these sequences. Specified in the same fashion as for '--purgseqs'.")
+    parser.add_argument('--keepseqs', nargs='*', help="Do not purge any of these sequences for lack of identity or uniqueness. Specified in the same fashion as for '--purgeseqs'.")
     parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
 
