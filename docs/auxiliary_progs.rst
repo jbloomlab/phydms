@@ -14,6 +14,6 @@ These auxiliary programs are installed as part of `phydms`_. All of them can be 
    phydms_plotselection_prog
    phydms_analyzeselection_prog
    phydms_renumber_prog
-
+   phydms_testdivpressure_prog
 .. include:: weblinks.txt
    

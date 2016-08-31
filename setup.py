@@ -146,5 +146,6 @@ setup(
             'scripts/phydms_renumber',
             'scripts/phydms_plotselection',
             'scripts/phydms_analyzeselection',
+            'scripts/phydms_testdivpressure',
             ],
 )
