@@ -78,7 +78,7 @@ def tabulateResults(fileList, modelComparisonName):
         with open(file + "_loglikelihood.txt") as f:
             loglikelihoodtext = f.read()
             LL = float(re.search('log likelihood = (-\d+\.\d+)', loglikelihoodtext).group(1))
-        if type =="nodiversifyingpressure":
+        if type =="noDiversifyingpressure":
             type = "none"
         elif type.startswith("random"):
             type = "random"
