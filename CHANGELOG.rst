@@ -7,6 +7,8 @@ Changelog
 
 * Bug fix in ``phydms_prepalignment``
 
+* Added ``phydms_testdivpressure``
+
 1.2.5
 ----------
 * Bug fix in ``phydms_prepalignment``
