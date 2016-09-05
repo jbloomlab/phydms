@@ -43,7 +43,6 @@ def randomizeDivpressure(divpressureFile,numberRandomizations,outprefix):
         random.seed(seed)
         random.shuffle(divpressures)
         randomDivpressureFile = outdir+'/%s_random_%s.txt' %((divpressureFile.split(".")[-2]), str(seed))
-        print randomDivpressureFile
         with open(randomDivpressureFile, 'w') as f:
             f.write('\n'.join('{0} {1}'.format(site, dp) for (site, dp) in zip(sites, divpressures)))
         fileList.append(randomDivpressureFile)
@@ -198,8 +197,15 @@ def main():
         cmds = ['phydms', args['alignment'], treefile, ExpCMmodel, modelOutprefix, '--ncpus', "1"]
         logger.info('Starting analysis. The command is: %s\n' % (' '.join(cmds)))
         subprocess.check_call(cmds)
+        for fname in [modelOutprefix + suffix for suffix in filesuffixlist]:
+            if not os.path.isfile(fname):
+                raise RuntimeError("phydms failed to created expected output file %s." % fname)
+            logger.info("Found expected output file %s" % fname)
+        logger.info('Analysis successful for %s\n' % modelOutprefix)
+        assert os.path.isfile(treefile)
         treefile = '%s_tree.newick' % modelOutprefix 
         modelOutputprefixList.append(modelOutprefix)
+
 
         #run the various divpresssure scenarios (true, random)
         for divpressureFile in args["divpressure"]:
@@ -214,7 +220,6 @@ def main():
                     modelOutprefix = args["outprefix"] + os.path.splitext(os.path.basename(file))[0]
                     cmds = ['phydms', args['alignment'], treefile, ExpCMmodel, modelOutprefix, '--divpressure', file,'--ncpus', "1",'--fixbrlen','--addrateparameter']
                     logger.info('Starting analysis. The command is: %s\n' % (' '.join(cmds)))
-                    print "here is the modelOutprefix"
                     pool, outprefixes, completed, started= setupMultiprocessing(cmds, pool, outprefixes, completed, started, modelOutprefix)
                     modelOutputprefixList.append(modelOutprefix)
                     
@@ -227,11 +232,11 @@ def main():
                 outfiles.append(fname)
         for fname in [modelcomparisonfile]:
             if os.path.isfile(fname):
-                os.remove(fname)
+                #os.remove(fname)
                 removed.append(fname)
         for fname in outfiles:
             if os.path.isfile(fname):
-                os.remove(fname)
+                #os.remove(fname)
                 removed.append(fname)
         if removed:
             logger.info('Removed the following existing files that have names that match the names of output files that will be created: %s\n' % ', '.join(removed))
@@ -263,7 +268,6 @@ def main():
                 
         # tabulate model comparison
         logger.info("Tabulating model comparisons and writing to %s" % modelcomparisonfile)
-        TabulateModelComparisons(modelcomparisonfile, models, args['outprefix'], '_loglikelihood.txt', '_modelparams.txt')
         tabulateResults(modelOutputprefixList, modelcomparisonfile)
         with open(modelcomparisonfile) as f:
             modelcomparisontext = f.read()
