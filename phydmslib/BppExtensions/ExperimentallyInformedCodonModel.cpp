@@ -106,6 +106,12 @@ bppextensions::ExperimentallyInformedCodonModel::ExperimentallyInformedCodonMode
   f_gwF_ = 0.5;
   if (fixationmodel == "gwF") {
     addParameter_(new bpp::Parameter(prefix + "f_gwF", f_gwF_, new bpp::IntervalConstraint(0, 1, true, true), true));
+    // we need sum to compute fixation probabilities for gwF method
+    scaledprefsum_ = 0.0;
+    for (size_t i = 0; i < preferences_->getNumberOfFrequencies(); i++) {
+      double pi_i = std::pow(preferences_->getFrequencies()[i], stringencyparameter_);
+      scaledprefsum_ += pi_i;
+    }
   }
   updateMatrices();
 }
@@ -127,15 +133,21 @@ void bppextensions::ExperimentallyInformedCodonModel::fireParameterChanged(const
   if(divpressure_){
   	omega2_ = getParameterValue("omega2");
   }
-  if (fixationmodel_ == "gwF") {
-    f_gwF_ = getParameterValue("f_gwF");
-  }
   stringencyparameter_ = getParameterValue("stringencyparameter");
   if (hasParameter("rateparameter")) {
       rateparameter_ = getParameterValue("rateparameter");
   }
   if (prefsasparams_) {
       preferences_->matchParametersValues(parameters);
+  }
+  if (fixationmodel_ == "gwF") {
+    f_gwF_ = getParameterValue("f_gwF");
+    // we need sum to compute fixation probabilities for gwF method
+    scaledprefsum_ = 0.0;
+    for (size_t i = 0; i < preferences_->getNumberOfFrequencies(); i++) {
+      double pi_i = std::pow(preferences_->getFrequencies()[i], stringencyparameter_);
+      scaledprefsum_ += pi_i;
+    }
   }
   // this next call MUST be last!
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
@@ -173,7 +185,7 @@ double bppextensions::ExperimentallyInformedCodonModel::getCodonsMulRate(size_t 
         } else if (pi_i == 0) {
           fixationprob = 1000.0; // very large value if starting codon has zero preference
         } else {
-          fixationprob = std::pow(pi_j, 1 - f_gwF_) / std::pow(pi_i, f_gwF_);
+          fixationprob = std::pow(pi_j / scaledprefsum_, 1 - f_gwF_) / std::pow(pi_i / scaledprefsum_, f_gwF_);
         }
     } else {
       throw std::runtime_error("Invalid fixationmodel");

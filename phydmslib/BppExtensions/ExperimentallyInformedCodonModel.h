@@ -88,6 +88,7 @@ namespace bppextensions
     std::string prefix_;
     std::string prefName_;
     bpp::FrequenciesSet* preferences_;
+    double scaledprefsum_;
     double omega_; // dN/dS ratio
     double omega2_;
     double stringencyparameter_;
