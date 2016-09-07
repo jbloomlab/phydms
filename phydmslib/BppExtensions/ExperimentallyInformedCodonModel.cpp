@@ -162,7 +162,11 @@ double bppextensions::ExperimentallyInformedCodonModel::getCodonsMulRate(size_t 
         fixationprob = std::log(pi_j / pi_i) / (1 - (pi_i / pi_j));  // correct version of Halpern and Bruno (1998) equation; note that their paper has a typo
       }
     } else if (fixationmodel_ == "FracTolerated") {
-        fixationprob = pi_j;
+        if (pi_j > pi_i) {
+            fixationprob = 1.0;
+        } else {
+            fixationprob = pi_j / pi_i;
+        }
     } else if (fixationmodel_ == "gwF") {
         if (pi_j == 0) {
           fixationprob = 0;
