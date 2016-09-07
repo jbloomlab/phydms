@@ -9,6 +9,8 @@ Changelog
 
 * In ``phydms_prepalignment``: bug fixes, have ``mafft`` use all available threads, and keep seqs in ``--keepseqs`` regardless of identity to refseq.
 
+* Added ``phydms_testdivpressure``
+
 1.2.5
 ----------
 * Bug fix in ``phydms_prepalignment``

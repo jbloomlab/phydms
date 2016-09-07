@@ -383,6 +383,20 @@ def PhyDMSParser():
     #parser.add_argument('--recursion', choices=['S', 'D'], default='S', help='Likelihood recursion for Bio++.')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
+    
+    
+def PhyDMSTestdivpressureParser():
+    """Returns *argparse.ArgumentParser* for ``phdyms_testdivpressure`` script."""
+    parser = ArgumentParserNoArgHelp(description="Test different models of diversifying pressure. This program runs 'phydms' and compares model log likelihoods with and without diversifying pressures. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('outprefix', help='Prefix for output files.', type=str)
+    parser.add_argument('alignment', help='Existing FASTA file with aligned codon sequences.', type=ExistingFile)
+    parser.add_argument('prefsfile', help='Existing file with site-specific amino-acid preferences.', type=ExistingFile)
+    parser.add_argument('divpressure', help='List of existing files with diversifying pressure at each site', type=ExistingFile, nargs='+')
+    parser.add_argument('--treetopology', help='Fix tree to this Newick topology.', default=None)
+    parser.add_argument('--randomizations', help = 'Number diversifying pressure randomizations.', default=0, type=NonNegativeInt)
+    parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; -1 means all available.', type=int)
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
+    return parser
 
 
 if __name__ == '__main__':
