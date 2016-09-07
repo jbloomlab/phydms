@@ -61,6 +61,17 @@ Command-line usage
    \-\-omegabysite
     If using a YNGKP model, then the :math:`\omega_r` value is nearly analogous that obtained using the *FEL* model described by `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_. If using and *ExpCM*, then :math:`\omega_r` has the meaning described in :ref:`ExpCM`. Essentially, we fix all other model / tree parameters and then compare a model that fits a synonymous and nonsynonymous rate to each site to a null model that only fits a synonymous rate; there is evidence for :math:`\omega_r \ne 1` if fitting both nonsynonymous and synonymous rate gives sufficiently better likelihood than fitting synonymous rate alone. See also the ``--omegabysite_fixsyn`` option.
 
+   \-\-fixationmodel 
+    These options specify how to compute the "fixation" terms :math:`F_{r,xy}` in :ref:`ExpCM`.
+    
+    The *HalpernBruno* model is based on that described by `Halpern and Bruno, Mol Biol Evol, 15:910-917`_, and is given in the description in :ref:`ExpCM`. This model assumes that the preferences are related to the fitness coefficients for individual mutations.
+
+    *FracTolerated* and *gwF* provide two alternative ways of computing :math:`F_{r,xy}` from the amino-acid preferences. 
+
+    The *FracTolerated* method is that described in `Bloom, Mol Biol Evol, 31:1956-1978`_. Essentially, it uses the Metropolis sampling criteria: :math:`F_{r,xy} = \begin{cases} 1 & \mbox{if } \pi_{r,\operatorname{A}\left(y\right)} > \pi_{r,\operatorname{A}\left(x\right)} \\ \pi_{r,\operatorname{A}\left(y\right)} / \pi_{r,\operatorname{A}\left(x\right)} & \mbox{otherwise.} \end{cases}`
+
+    The *gwF* method is based on Goldman-Whelan generalized weighted frequencies method. For a description of this method, see `Goldman and Whelan, Mol Biol Evol, 19:1821-1831`_ and also `Knudsen and Miyamoto, BMC Evol Biol, 5:21`_. In this approach, :math:`F_{r,xy} = \frac{\left(\pi_{r,\operatorname{A}\left(y\right)}\right)^{\left(1 - f_{gwF}\right)}}{\left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{f_{gwF}}}` where :math:`f_{gwF}` can range from zero to one. Note that this method introduces one additional parameter, :math:`f_{gwF}`, relative to the *HalpernBruno* and *FracTolerated* methods.
+
    \-\-omegabysite_fixsyn
     This option is meaningful only if you are using ``--omegabysite``. If you use this option, then we compare a model in which we fit a nonsynonymous rate to each site to a model in which we fit nothing. The synonymous rate is not fit, and so is assumed to be equal to the overall value fit for the tree. According to `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_, in some cases this can yield greater power if there is relatively limited data. However, it comes with the risk of giving spurious results if there is substantial variation in the synonymous substitution rate among sites.  
 

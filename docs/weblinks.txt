@@ -55,3 +55,6 @@
 .. _`To et al, Systematic Biology, 65:82-97`: https://dx.doi.org/10.1093/sysbio/syv068
 .. _`latex`: https://www.latex-project.org/
 .. _`Benjamini-Hochberg`: https://en.wikipedia.org/wiki/False_discovery_rate#Benjamini.E2.80.93Hochberg_procedure
+.. _`Goldman and Whelan, Mol Biol Evol, 19:1821-1831`: http://mbe.oxfordjournals.org/content/19/11/1821.long
+.. _`Knudsen and Miyamoto, BMC Evol Biol, 5:21`: http://bmcevolbiol.biomedcentral.com/articles/10.1186/1471-2148-5-21
+

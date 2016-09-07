@@ -4,14 +4,6 @@ phydmslib package
 Submodules
 ----------
 
-phydmslib..__metadata module
-----------------------------
-
-.. automodule:: phydmslib..__metadata
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 phydmslib.diffpref module
 -------------------------
 
