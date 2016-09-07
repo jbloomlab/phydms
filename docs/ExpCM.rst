@@ -13,15 +13,13 @@ Overview
 
 Specifically, for each gene, we assume that we know the preference :math:`\pi_{r,a}` of site :math:`r` for each amino-acid :math:`a` (we constrain :math:`1 = \sum_a \pi_{r,a}`). Typically, these preferences might be measured in deep mutational scanning experiments. For a description of how the preferences can be inferred from experimental data, see `Bloom, BMC Bioinformatics, 16:168`_. 
 
-For examples of previous studies that have used experimentally measured site-specific amino-acid preferences in phylogenetic analyses, see:
+Key references on *ExpCM* are as follows:
+
+    * `Bloom, bioRxiv, DOI 10.1101/037689`_
 
     * `Bloom, Mol Biol Evol, 31:1956-1978`_
 
     * `Bloom, Mol Biol Evol, 31:2753-2769`_
-
-    * `Thyagarajan and Bloom, eLife, 3:e03300`_
-
-    * `Doud et al, Mol Biol Evol, 32:2944-2960`_
 
 These experimentally informed site-specific substitution models closely parallel those used in studies that infer the site-specific information from natural sequences; see `Rodrigue and Lartillot, PNAS, 107:4629-4634`_. For a more general discussion of models of this form, see `Halpern and Bruno, Mol Biol Evol, 15:910-917`_ and `McCandlish and Stoltzfus, Quarterly Review of Biology, 89:225-252`_.
 
