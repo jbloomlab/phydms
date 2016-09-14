@@ -95,7 +95,7 @@ def getResultsFromOneRun(file):
         type = "random"
     else:
         type = "true"
-    newLine= ",".join([str(x) for x in [file,type,LL, kappa, omega, omega2, beta, phiA, phiC, phiG]])+"\n"
+    newLine= ",".join([str(x) for x in [file,type,LL, omega, omega2, kappa, beta, phiA, phiC, phiG]])+"\n"
     return newLine
     
 def RunCmds(cmds):
