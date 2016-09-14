@@ -31,6 +31,7 @@ Contents
    phydms_prog
    auxiliary_progs
    ExpCM
+   implementation
    api
    acknowledgments
    indices_and_tables

@@ -1,6 +1,11 @@
 Changelog
 ===========
 
+2.0.dev0
+-------------
+* Version 2 involves a complete re-write of the implementation the likelihood calculations. We eliminate the dependence on ``Bio++`` and instead use custom coded calculations without derivatives. All tree topology inference is eliminated, some options are removed, numerical values are expected to be slightly different, and speed should be greatly enhanced.
+
+
 1.3.dev0
 -----------
 * Added ``--divpressure`` option for analyzing diversifying pressure at sites.
