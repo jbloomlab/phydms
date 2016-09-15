@@ -69,12 +69,21 @@ The derivatives are:
 .. math::
    :label: dphi_deta
 
-   \frac{\partial \phi_w}{\partial \eta_i} = 
+   \frac{\partial \phi_w}{\partial \eta_i} 
+   & = & 
    \begin{cases}
    \left(\prod_{j = 0}^{i - 1} \eta_j\right)\left(\prod_{j = i + 1}^{w - 1}\eta_j\right) \left(1 - \eta_w\right) = \frac{\phi_w}{\eta_i} & \mbox{if $i < w$} \\
    -\prod_{j = 0}^{w - 1} \eta_j = \frac{\phi_w}{\eta_i - 1}& \mbox{if $i = w$} \\
    0 & \mbox{if $i > w$} \\
+   \end{cases} \\
+   & = & 
+   \begin{cases}
+   \frac{\phi_{w}}{\eta_i - \delta_{iw}} & \mbox{if $i \le w$,} \\
+   0 & \mbox{otherwise,}
    \end{cases}
+
+where :math:`\delta_{ij}` is the Kronecker-delta, equal to 1 if :math:`i = j` and 0 otherwise.
+
 
 Given these definitions, the free parameters in and *ExpCM* model are :math:`\kappa`, :math:`\eta_0`, :math:`\eta_1`, :math:`\eta_2`, :math:`\beta`, and :math:`\omega`.
 
@@ -97,9 +106,8 @@ Here are the derivatives of :math:`P_{r,xy}` with respect to each of these param
    \frac{\partial P_{r,xy}}{\partial \eta_i}
    =
    \begin{cases}
-   \frac{P_{r,xy}}{\phi_w} \frac{\partial \phi_w}{\partial \eta_i} = \frac{P_{r,xy}}{\eta_i} & \mbox{if $x$ is converted to $y$ by a single-nucleotide mutation to $w > i$,} \\
-   \frac{P_{r,xy}}{\phi_w} \frac{\partial \phi_w}{\partial \eta_i} = \frac{P_{r,xy}}{\eta_i - 1} & \mbox{if $x$ is converted to $y$ by a single-nucleotide mutation to $w = i$,} \\
-   0 & \mbox{if $x$ and $y$ differ by more than one nucleotide,} \\
+   \frac{P_{r,xy}}{\phi_w} \frac{\partial \phi_w}{\partial \eta_i} = \frac{P_{r,xy}}{\eta_i - \delta_{iw}} & \mbox{if $x$ is converted to $y$ by a single-nucleotide mutation to $w \ge i$,} \\
+   0 & \mbox{if $i > w$ or $x$ and $y$ differ by more than one nucleotide,} \\
    -\sum_z \frac{\partial P_{r,xz}}{\partial \eta_i} & \mbox{if $x = y$.}
    \end{cases}
 
@@ -146,9 +154,9 @@ and
 .. math::
    :label: qx
    
-   q_x = \phi_{x_1}\phi_{x_2}\phi_{x_3}
+   q_x = \phi_{x_0}\phi_{x_1}\phi_{x_2}
 
-where :math:`x_1`, :math:`x_2`, and :math:`x_3` are the nucleotides at the first, second, and third positions of codon :math:`x`.
+where :math:`x_0`, :math:`x_1`, and :math:`x_2` are the nucleotides at the first, second, and third positions of codon :math:`x`.
 
 The derivatives of the stationary state with respect to :math:`\kappa` and :math:`\omega` are zero as these do not affect that state, so:
 
@@ -176,7 +184,22 @@ The stationary state is also sensitive to the values of :math:`\eta_0`, :math:`\
    {\left(\sum_z q_z f_{r,z}\right)^2} \\
    &=& \frac{\partial q_x}{\partial \eta_i}\frac{p_{r,x}}{q_x} - p_{r,x} \frac{\sum_z f_{r,z} \frac{\partial q_z}{\partial \eta_i}}{\sum_z q_z f_{r,z}} 
 
-where the :math:`\frac{\partial q_x}{\partial \eta_i}` terms are straightforward if tedious to compute.
+where the :math:`\frac{\partial q_x}{\partial \eta_i}` terms are:
 
+.. math::
+   :label: dqx_deta
+
+   \frac{\partial q_x}{\partial \eta_i} & = & 
+   \frac{\partial \phi_{x_0}}{\partial \eta_i} \phi_{x_1} \phi_{x_2} +
+   \frac{\partial \phi_{x_1}}{\partial \eta_i} \phi_{x_0} \phi_{x_2} +
+   \frac{\partial \phi_{x_2}}{\partial \eta_i} \phi_{x_0} \phi_{x_1} \\
+   & = & 
+   \sum_{j=0}^{2} \frac{\partial \phi_{x_j}}{\partial \eta_i} \prod_{k \ne j} \phi_{x_k} \\
+   & = &
+   q_x \sum_{j=0}^{2} \frac{1}{\phi_{x_j}} \frac{\partial \phi_{x_j}}{\partial \eta_i} \\
+   & = &
+   q_x \sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le x_j \right)}{\eta_i - \delta_{ix_j}}
+
+where :math:`\operatorname{bool}\left(i \le j\right)` is 1 if :math:`i \le j` and 0 otherwise.
 
 .. include:: weblinks.txt
