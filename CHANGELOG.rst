@@ -5,6 +5,7 @@ Changelog
 -------------
 * Version 2 involves a complete re-write of the implementation the likelihood calculations. We eliminate the dependence on ``Bio++`` and instead use custom coded calculations without derivatives. All tree topology inference is eliminated, some options are removed, numerical values are expected to be slightly different, and speed should be greatly enhanced.
 
+* Version 2 also makes all the code compatible with Python 3.
 
 1.3.dev0
 -----------
