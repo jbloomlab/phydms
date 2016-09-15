@@ -11,10 +11,10 @@ import tempfile
 import platform
 import importlib
 import math
-import cStringIO
+import io
 import Bio.SeqIO
 import Bio.Phylo
-import phydmslib
+import _metadata
 
 
 def Versions():
@@ -28,7 +28,7 @@ def Versions():
             '\tTime and date: %s' % time.asctime(),
             '\tPlatform: %s' % platform.platform(),
             '\tPython version: %s' % sys.version.replace('\n', ' '),
-            '\tphydms version: %s' % phydmslib.__version__,
+            '\tphydms version: %s' % _metadata.__version__,
             ]
     for modname in ['Bio', 'cython', 'dms_tools', 'scipy', 'matplotlib']:
         try:
@@ -106,7 +106,7 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
     for (i, (head1, seq1)) in enumerate(seqs):
         for (head2, seq2) in seqs[i + 1 : ]:
             assert len(seq1) == len(seq2)
-            ndiffs = sum(map(lambda (x, y): 1 if (x != y and x != '-' and y != '-') else 0, zip(seq1, seq2)))
+            ndiffs = sum([1 if (x_y[0] != x_y[1] and x_y[0] != '-' and x_y[1] != '-') else 0 for x_y in zip(seq1, seq2)])
 #            if ndiffs < 1:
 #                raise ValueError("The alignment in {0} has duplicate sequences:\n{1}\n{2}\nPlease remove one of these so that all sequences are unique at non-gap positions.".format(fastafile, head1, head2))
     return seqs
@@ -123,9 +123,9 @@ def ReadStringencyBySite(infile):
     by the three string keys *stringency*, *P*, and *dLnL* each
     specifying the value for that property.
 
-    >>> f = cStringIO.StringIO()
-    >>> f.write("# site stringency_ratio P dLnL\\n1 0.017 2.45e-05 8.9\\n2 0.079 0.0005 6.1\\n")
-    >>> f.seek(0)
+    >>> f = io.StringIO()
+    >>> n = f.write(u"# site stringency_ratio P dLnL\\n1 0.017 2.45e-05 8.9\\n2 0.079 0.0005 6.1\\n")
+    >>> n = f.seek(0)
     >>> stringencybysite = ReadStringencyBySite(f)
     >>> set(stringencybysite.keys()) == set(['1', '2'])
     True
@@ -175,9 +175,9 @@ def ReadOmegaBySite(infile):
     by the three string keys *omega*, *P*, and *dLnL* each specifying
     the value for that property.
     
-    >>> f = cStringIO.StringIO()
-    >>> f.write("# site omega P dLnL\\n1 2.73 0.0012 4.6\\n2 0.03 0.09 1.2\\n")
-    >>> f.seek(0)
+    >>> f = io.StringIO()
+    >>> n = f.write(u"# site omega P dLnL\\n1 2.73 0.0012 4.6\\n2 0.03 0.09 1.2\\n")
+    >>> n = f.seek(0)
     >>> omegabysite = ReadOmegaBySite(f)
     >>> set(omegabysite.keys()) == set(['1', '2'])
     True

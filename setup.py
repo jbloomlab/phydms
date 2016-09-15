@@ -14,8 +14,9 @@ try:
 except ImportError:
     raise ImportError("You must install setuptools")
 
-if (sys.version_info[0], sys.version_info[1]) != (2, 7):
-    raise RuntimeError('phydms is currently only compatible with Python 2.7.\nYou are using Python %d.%d' % (sys.version_info[0], sys.version_info[1]))
+if not ((sys.version_info[0] == 2 and sys.version_info[1] == 7) or
+        (sys.version_info[0] == 3 and sys.version_info[1] >= 4)):
+    raise RuntimeError('phydms is currently only tested with Python 2.7, or Python 3.4 or higher.\nYou are using Python %d.%d' % (sys.version_info[0], sys.version_info[1]))
 
 # get metadata, which is specified in another file
 metadata = {}
