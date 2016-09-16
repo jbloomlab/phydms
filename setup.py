@@ -52,7 +52,6 @@ setup(
         'scipy>=0.16',
         'matplotlib>=1.5.1',
         ],
-    platforms = 'Linux',
     packages = ['phydmslib'],
     package_dir = {'phydmslib':'phydmslib'},
     scripts = [
