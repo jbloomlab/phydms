@@ -13,8 +13,6 @@ To build the documentation, you will need to have installed:
     
     * `sphinx-argparse`_ 
 
-    * `sphinx-apidoc`_ 
-
 Then simply type::
 
     make html
@@ -33,5 +31,4 @@ Note that the configuration automatically created by ``sphinx-quickstart`` has b
 
 .. _`reStructuredText`: http://docutils.sourceforge.net/docs/user/rst/quickref.html
 .. _`sphinx`: http://sphinx-doc.org/
-.. _`sphinx-apidoc`: http://sphinx-doc.org/man/sphinx-apidoc.html
 .. _`sphinx-argparse`: http://sphinx-argparse.readthedocs.org
