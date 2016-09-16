@@ -48,9 +48,9 @@ setup(
     license = 'GPLv3',
     install_requires = [
         'biopython>=1.67',
-#        'dms_tools>=1.1.16',
         'scipy>=0.16',
         'matplotlib>=1.5.1',
+        'natsort>=5.0.1',
         ],
     packages = ['phydmslib'],
     package_dir = {'phydmslib':'phydmslib'},

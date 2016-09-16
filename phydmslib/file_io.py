@@ -14,7 +14,7 @@ import math
 import io
 import Bio.SeqIO
 import Bio.Phylo
-import _metadata
+import phydmslib
 
 
 def Versions():
@@ -28,9 +28,9 @@ def Versions():
             '\tTime and date: %s' % time.asctime(),
             '\tPlatform: %s' % platform.platform(),
             '\tPython version: %s' % sys.version.replace('\n', ' '),
-            '\tphydms version: %s' % _metadata.__version__,
+            '\tphydms version: %s' % phydmslib.__version__,
             ]
-    for modname in ['Bio', 'cython', 'dms_tools', 'scipy', 'matplotlib']:
+    for modname in ['Bio', 'scipy', 'matplotlib']:
         try:
             v = importlib.import_module(modname).__version__
             s.append('\t%s version: %s' % (modname, v))

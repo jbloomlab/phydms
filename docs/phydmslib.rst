@@ -4,10 +4,10 @@ phydmslib package
 Submodules
 ----------
 
-phydmslib.diffpref module
--------------------------
+phydmslib.constants module
+--------------------------
 
-.. automodule:: phydmslib.diffpref
+.. automodule:: phydmslib.constants
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,6 +16,14 @@ phydmslib.file_io module
 ------------------------
 
 .. automodule:: phydmslib.file_io
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+phydmslib.models module
+-----------------------
+
+.. automodule:: phydmslib.models
     :members:
     :undoc-members:
     :show-inheritance:
@@ -32,22 +40,6 @@ phydmslib.plot module
 ---------------------
 
 .. automodule:: phydmslib.plot
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-phydmslib.pybpp module
-----------------------
-
-.. automodule:: phydmslib.pybpp
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-phydmslib.pylsd module
-----------------------
-
-.. automodule:: phydmslib.pylsd
     :members:
     :undoc-members:
     :show-inheritance:

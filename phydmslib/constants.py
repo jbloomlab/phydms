@@ -6,6 +6,12 @@
 
 *LARGE_NUMBER* : used as an upper limit for values that can be large.
 
+*n_nt* : number of nucleotides
+
+*n_aa* : number of amino acids
+
+*n_codon* : number of codons
+
 *nt_to_index* : dictionary mapping one-letter nucleotides to integer indices.
 
 *index_to_nt* : inverse of *nt_to_index*.
@@ -31,11 +37,13 @@ LARGE_NUMBER = 1e4
 
 index_to_nt = dict(enumerate(sorted(Bio.Alphabet.IUPAC.IUPACUnambiguousDNA.letters)))
 nt_to_index = dict([(nt, index) for (index, nt) in index_to_nt.items()])
-assert len(index_to_nt) == len(nt_to_index)
+n_nt = len(index_to_nt)
+assert len(index_to_nt) == len(nt_to_index) == n_nt
 
 index_to_aa = dict(enumerate(sorted(Bio.Alphabet.IUPAC.IUPACProtein.letters)))
 aa_to_index = dict([(aa, index) for (index, aa) in index_to_aa.items()])
-assert len(index_to_aa) == len(aa_to_index)
+n_aa = len(index_to_aa)
+assert len(index_to_aa) == len(aa_to_index) == n_aa
 
 codon_to_index = {}
 index_to_codon = {}
@@ -51,4 +59,5 @@ for nt1 in nt_to_index.keys():
                 index_to_codon[i] = codon
                 translate_by_index[i] = aa_to_index[aa]
                 i += 1
-assert len(codon_to_index) == len(index_to_codon) == len(translate_by_index)
+n_codon = len(codon_to_index)
+assert len(codon_to_index) == len(index_to_codon) == len(translate_by_index) == n_codon

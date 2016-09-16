@@ -33,31 +33,31 @@ class ArgumentDefaultsRawDescriptionFormatter(argparse.ArgumentDefaultsHelpForma
 def NonNegativeInt(n):
     """If *n* is non-negative integer returns it, otherwise an error.
 
-    >>> print "%d" % NonNegativeInt('8')
+    >>> print("%d" % NonNegativeInt('8'))
     8
 
     >>> NonNegativeInt('8.1')
     Traceback (most recent call last):
        ...
-    ArgumentTypeError: 8.1 is not an integer
+    ValueError: 8.1 is not an integer
 
-    >>> print "%d" % NonNegativeInt('0')
+    >>> print("%d" % NonNegativeInt('0'))
     0
 
     >>> NonNegativeInt('-1')
     Traceback (most recent call last):
        ...
-    ArgumentTypeError: -1 is not non-negative
+    ValueError: -1 is not non-negative
 
     """
     if not isinstance(n, str):
-        raise argparse.ArgumentTypeError('%r is not a string' % n)
+        raise ValueError('%r is not a string' % n)
     try:
        n = int(n)
     except:
-        raise argparse.ArgumentTypeError('%s is not an integer' % n)
+        raise ValueError('%s is not an integer' % n)
     if n < 0:
-        raise argparse.ArgumentTypeError('%d is not non-negative' % n)
+        raise ValueError('%d is not non-negative' % n)
     else:
         return n
 
@@ -66,9 +66,9 @@ def IntGreaterThanZero(n):
     try:
         n = int(n)
     except:
-        raise argparse.ArgumentTypeError("%s is not an integer" % n)
+        raise ValueError("%s is not an integer" % n)
     if n <= 0:
-        raise argparser.ArgumentTypeError("%d is not > 0" % n)
+        raise ValueError("%d is not > 0" % n)
     else:
         return n
 
@@ -81,16 +81,16 @@ def FloatGreaterThanEqualToZero(x):
     >>> print('%.1f' % FloatGreaterThanEqualToZero('-1.1'))
     Traceback (most recent call last):
        ...
-    ArgumentTypeError: -1.1 not float greater than or equal to zero
+    ValueError: -1.1 not float greater than or equal to zero
     """
     try:
         x = float(x)
     except:
-        raise argparse.ArgumentTypeError("%r not float greater than or equal to zero" % x)
+        raise ValueError("%r not float greater than or equal to zero" % x)
     if x >= 0:
         return x
     else:
-        raise argparse.ArgumentTypeError("%r not float greater than or equal to zero" % x)
+        raise ValueError("%r not float greater than or equal to zero" % x)
 
 
 def FloatGreaterThanOne(x):
@@ -99,7 +99,7 @@ def FloatGreaterThanOne(x):
     if x > 1:
         return x
     else:
-        raise argparse.ArgumentTypeError("%r not a float greater than one" % x)
+        raise ValueError("%r not a float greater than one" % x)
 
 
 def FloatGreaterThanZero(x):
@@ -107,24 +107,19 @@ def FloatGreaterThanZero(x):
 
     Designed based on this: http://stackoverflow.com/questions/12116685/how-can-i-require-my-python-scripts-argument-to-be-a-float-between-0-0-1-0-usin
 
-    >>> print "%.3f" % FloatGreaterThanZero('0.1')
+    >>> print("%.3f" % FloatGreaterThanZero('0.1'))
     0.100
 
     >>> FloatGreaterThanZero('0.0')
     Traceback (most recent call last):
         ...
-    ArgumentTypeError: 0.0 not a float greater than zero
-
-    >>> FloatGreaterThanZero('hi')
-    Traceback (most recent call last):
-        ...
-    ValueError: could not convert string to float: hi
+    ValueError: 0.0 not a float greater than zero
     """
     x = float(x)
     if x > 0:
         return x
     else:
-        raise argparse.ArgumentTypeError("%r not a float greater than zero" % x)
+        raise ValueError("%r not a float greater than zero" % x)
 
 
 def FloatBetweenZeroAndOne(x):
@@ -133,7 +128,7 @@ def FloatBetweenZeroAndOne(x):
     if 0 <= x <= 1:
         return x
     else:
-        raise argparse.ArgumentTypeError("{0} not a float between 0 and 1.".format(x))
+        raise ValueError("{0} not a float between 0 and 1.".format(x))
 
 
 def ExistingFile(fname):
@@ -145,20 +140,20 @@ def ExistingFile(fname):
     elif fname.lower() == 'none':
         return None
     else:
-        raise argparse.ArgumentTypeError("%s must specify a valid file name or 'None'" % fname)
+        raise ValueError("%s must specify a valid file name or 'None'" % fname)
 
 
 def TreeFile(fname):
     """Returns *fname* if an existing file or *random* or *nj*, otherwise an error."""
     if os.path.isfile(fname):
         if fname.lower() in ['random', 'nj']:
-            raise argparse.ArgumentTypeError("Ambiguous meaning of tree since there is an existing file named %s" % fname)
+            raise ValueError("Ambiguous meaning of tree since there is an existing file named %s" % fname)
         else:
             return fname
     elif fname.lower() in ['random', 'nj']:
         return fname.lower()
     else:
-        raise argparse.ArgumentTypeError("Invalid value for tree: must be existing file, 'nj', or 'random'.")
+        raise ValueError("Invalid value for tree: must be existing file, 'nj', or 'random'.")
 
 
 def YNGKPList(modellist):
@@ -171,9 +166,9 @@ def YNGKPList(modellist):
     """
     models = [m for m in modellist.split(',') if m and m != 'M0'] # don't count M0 as always included
     if not all([m in yngkp_modelvariants for m in models]):
-        raise argparse.ArgumentTypeError("YNGKP model list has invalid entries: {0}".format(modellist))
+        raise ValueError("YNGKP model list has invalid entries: {0}".format(modellist))
     if len(models) != len(set(models)):
-        raise argparse.ArgumentTypeError("YNGKP model list has duplicated entries: {0}".format(modellist))
+        raise ValueError("YNGKP model list has duplicated entries: {0}".format(modellist))
     return models
 
 
@@ -192,9 +187,9 @@ def ModelOption(model):
         if os.path.isfile(fname):
             return ('ExpCM', fname)
         else:
-            raise argparse.ArgumentTypeError("ExpCM_ must be followed by the name of an existing file. You specified the following, which is not an existing file: %s" % fname)
+            raise ValueError("ExpCM_ must be followed by the name of an existing file. You specified the following, which is not an existing file: %s" % fname)
     else:
-        raise argparse.ArgumentTypeError("Invalid model")
+        raise ValueError("Invalid model")
 
 
 def PhyDMSAnalyzeSelectionParser():

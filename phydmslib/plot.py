@@ -6,7 +6,7 @@ import math
 import matplotlib
 matplotlib.use('pdf')
 import matplotlib.pyplot as plt
-import dms_tools.utils
+import natsort
 
 
 def SplitText(text, maxchars):
@@ -251,8 +251,7 @@ def SelectionViolinPlot(plotfile, ylabel, models, yvalues, symmetrizey, hlines=N
             handles = [matplotlib.lines.Line2D([0], [0], marker=marker, color=color, markersize=markersize, alpha=alpha, lw=markerlw, linestyle='None') for (marker, color) in markercolors]
             # put in natural sort order
             assert len(set(legendnames)) == len(legendnames), "Duplicate legendnames entry"
-            sortedlegendnames = list(legendnames)
-            dms_tools.utils.NaturalSort(sortedlegendnames)
+            sortedlegendnames = natsort.natsorted(list(legendnames))
             sortedhandles = [None] * len(sortedlegendnames)
             for (handle, name) in zip(handles, legendnames):
                 sortedhandles[sortedlegendnames.index(name)] = handle
