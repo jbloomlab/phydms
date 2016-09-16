@@ -48,7 +48,7 @@ setup(
     license = 'GPLv3',
     install_requires = [
         'biopython>=1.67',
-        'dms_tools>=1.1.16',
+#        'dms_tools>=1.1.16',
         'scipy>=0.16',
         'matplotlib>=1.5.1',
         ],
