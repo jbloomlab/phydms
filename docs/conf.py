@@ -35,6 +35,16 @@ extensions = [
     'sphinxarg.ext',
 ]
 
+# Ensure that the __init__ method gets documented.
+# Taken from here: https://developer.ridgerun.com/wiki/index.php/How_to_generate_sphinx_documentation_for_python_code_running_in_an_embedded_system
+def skip(app, what, name, obj, skip, options):
+    if name == "__init__":
+        return False
+    return skip
+
+def setup(app):
+    app.connect("autodoc-skip-member", skip)
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -58,7 +68,8 @@ copyright = u'2015, Jesse D. Bloom'
 # The short X.Y version.
 # Read in the version from file
 versionfile = '../phydmslib/_metadata.py'
-versiontext = open(versionfile).read()
+with open(versionfile) as f:
+    versiontext = f.read()
 versionstring = re.search("__version__ = ['\"]([^'\"]+)['\"]", versiontext)
 if not versionstring:
     raise RuntimeError("Unable to parse version number from %s" % versionfile)
