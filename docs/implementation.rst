@@ -54,13 +54,21 @@ where :math:`\pi_{r,a}` is the preference of site :math:`r` for amino acid :math
 We define a variable transformation of the four nucleotide frequency parameters :math:`\phi_w` (three of which are unique). 
 This transformation aids in numerical optimization. 
 Specifically, we number the four nucleotides in alphabetical order so that :math:`w = 0` denotes *A*, :math:`w = 1` denotes *C*, :math:`w = 2` denotes *G*, and :math:`w = 3` denotes *T*. 
-We then define the three free variables :math:`\eta_0`, :math:`\eta_1`, and :math:`\eta_2`, all of which are constrained to fall between zero and one, as well as defining the constant :math:`\eta_3 = 0`.
+We then define the three free variables :math:`\eta_0`, :math:`\eta_1`, and :math:`\eta_2`, all of which are constrained to fall between zero and one.
+For notational convenience in the formulas below, we also define :math:`\eta_3 = 0` -- note however that :math:`\eta_3` is not a free parameter, as it is always zero.
 We define :math:`\phi_w` in terms of these :math:`\eta_i` variables by
 
 .. math::
    :label: phi_from_eta
 
-   \phi_w = \left(\prod_{i = 0}^{w - 1} \eta_i\right) \left(1 - \eta_w\right).
+   \phi_w = \left(\prod_{i = 0}^{w - 1} \eta_i\right) \left(1 - \eta_w\right)
+
+or conversely
+
+.. math::
+   :label: eta_from_phi
+
+   \eta_w = 1 - \phi_w / \left(\prod_{i = 0}^{w - 1} \eta_i\right).
 
 Note that setting :math:`\eta_w = \frac{3 - w}{4 - w}` makes all of the :math:`\phi_w` values equal to :math:`\frac{1}{4}`.
 

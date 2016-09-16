@@ -1,30 +1,28 @@
 """Defines constants and nucleotide / amino acid / codon indices.
 
-*ALMOST_ZERO* : used as a lower limit for values that should remain > 0.
-
-*ALMOST_ONE* : used as an upper limit for values that should remain > 1.
-
-*LARGE_NUMBER* : used as an upper limit for values that can be large.
-
-*n_nt* : number of nucleotides
-
-*n_aa* : number of amino acids
-
-*n_codon* : number of codons
-
-*nt_to_index* : dictionary mapping one-letter nucleotides to integer indices.
-
-*index_to_nt* : inverse of *nt_to_index*.
-
-*aa_to_index* : dictionary mapping one-letter amino acids to integer indices.
-
-*index_to_aa* : inverse of *aa_to_index*.
-
-*codon_to_index* : dictionary mapping non-stop codons to integer indices.
-
-*index_to_codon* : inverse of *codon_to_index*.
-
-*translate_by_index* : dictionary mapping codon indices to amino-acid indices.
+Constants defined:
+    `ALMOST_ZERO` (float)
+        lower limit for values that should remain > 0
+    `N_NT` (int)
+        number of nucleotides
+    `N_AA` (int)
+        number of amino acids
+    `N_CODON` (int) 
+        number of codons
+    `NT_TO_INDEX` (dict)
+        mapping of one-letter nucleotides to integer indices
+    `INDEX_TO_NT` (dict)
+        inverse of `NT_TO_INDEX`
+    `AA_TO_INDEX` (dict)
+        mapping of one-letter amino acids to integer indices
+    `INDEX_TO_AA` (dict)
+        inverse of `AA_TO_INDEX`
+    `CODON_TO_INDEX` (dict):
+        mapping of non-stop codons to integer indices
+    `INDEX_TO_CODON` (dict)
+        inverse of `CODON_TO_INDEX`
+    `TRANSLATE_BY_INDEX` (dict)
+        mapping of codon indices to amino-acid indices
 """
 
 import Bio.Alphabet.IUPAC
@@ -32,32 +30,39 @@ import Bio.Seq
 
 
 ALMOST_ZERO = 1.0e-5
-ALMOST_ONE = 1.0 - ALMOST_ZERO
-LARGE_NUMBER = 1e4
 
-index_to_nt = dict(enumerate(sorted(Bio.Alphabet.IUPAC.IUPACUnambiguousDNA.letters)))
-nt_to_index = dict([(nt, index) for (index, nt) in index_to_nt.items()])
-n_nt = len(index_to_nt)
-assert len(index_to_nt) == len(nt_to_index) == n_nt
+INDEX_TO_NT = dict(enumerate(sorted(Bio.Alphabet.IUPAC.IUPACUnambiguousDNA.letters)))
+NT_TO_INDEX = dict([(nt, i) for (i, nt) in INDEX_TO_NT.items()])
+N_NT = len(INDEX_TO_NT)
+assert len(INDEX_TO_NT) == len(NT_TO_INDEX) == N_NT
 
-index_to_aa = dict(enumerate(sorted(Bio.Alphabet.IUPAC.IUPACProtein.letters)))
-aa_to_index = dict([(aa, index) for (index, aa) in index_to_aa.items()])
-n_aa = len(index_to_aa)
-assert len(index_to_aa) == len(aa_to_index) == n_aa
+INDEX_TO_AA = dict(enumerate(sorted(Bio.Alphabet.IUPAC.IUPACProtein.letters)))
+AA_TO_INDEX = dict([(aa, i) for (i, aa) in INDEX_TO_AA.items()])
+N_AA = len(INDEX_TO_AA)
+assert len(INDEX_TO_AA) == len(AA_TO_INDEX) == N_AA
 
-codon_to_index = {}
-index_to_codon = {}
-translate_by_index = {}
+CODON_TO_INDEX = {}
+INDEX_TO_CODON = {}
+TRANSLATE_BY_INDEX = {}
 i = 0
-for nt1 in nt_to_index.keys():
-    for nt2 in nt_to_index.keys():
-        for nt3 in nt_to_index.keys():
+for nt1 in NT_TO_INDEX.keys():
+    for nt2 in NT_TO_INDEX.keys():
+        for nt3 in NT_TO_INDEX.keys():
             codon = nt1 + nt2 + nt3
             aa = str(Bio.Seq.Seq(codon).translate())
             if aa != '*':
-                codon_to_index[codon] = i
-                index_to_codon[i] = codon
-                translate_by_index[i] = aa_to_index[aa]
+                CODON_TO_INDEX[codon] = i
+                INDEX_TO_CODON[i] = codon
+                TRANSLATE_BY_INDEX[i] = AA_TO_INDEX[aa]
                 i += 1
-n_codon = len(codon_to_index)
-assert len(codon_to_index) == len(index_to_codon) == len(translate_by_index) == n_codon
+N_CODON = len(CODON_TO_INDEX)
+assert len(CODON_TO_INDEX) == len(INDEX_TO_CODON) == len(TRANSLATE_BY_INDEX) == N_CODON
+
+# delete variables so they aren't in namespace if import * used
+del i, nt1, nt2, nt3, codon
+# following lines needed because list comprehension indices remain
+# in Python2 but not Python3, and we want to be compatible with both
+if 'nt' in locals():
+    del nt
+if 'aa' in locals():
+    del aa
