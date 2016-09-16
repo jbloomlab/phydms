@@ -57,7 +57,7 @@ setup(
     scripts = [
             'scripts/phydms',
 #            'scripts/phydms_comprehensive',
-#            'scripts/phydms_prepalignment',
+            'scripts/phydms_prepalignment',
 #            'scripts/phydms_renumber',
 #            'scripts/phydms_plotselection',
 #            'scripts/phydms_analyzeselection',

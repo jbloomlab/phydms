@@ -104,7 +104,7 @@ def main():
     # print some basic information
     print('\nBeginning execution of %s in directory %s at time %s\n' % (prog, os.getcwd(), time.asctime()))
     print("%s\n" % phydmslib.file_io.Versions())
-    print('Parsed the following command-line arguments:\n%s\n' % '\n'.join(['\t%s = %s' % tup for tup in args.iteritems()]))
+    print('Parsed the following command-line arguments:\n%s\n' % '\n'.join(['\t%s = %s' % tup for tup in args.items()]))
 
     plot = os.path.splitext(args['alignment'])[0] + '.pdf'
     for f in [plot, args['alignment']]:
