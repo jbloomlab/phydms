@@ -53,7 +53,7 @@ def tabulateResults(fileList, modelComparisonName):
     Creates a csv summarizes the results from each model
     """
     finalOutput = []
-    finalOutput.append("Name,DiversifyingPressure,LogLikelihood,Omega,Omega2,kappa,betta, phiA, phiC, phiG\n")
+    finalOutput.append("Name,DiversifyingPressure,LogLikelihood,Omega,Omega2,kappa,beta,phiA,phiC,phiG\n")
     for file in fileList:
         newLine = getResultsFromOneRun(file)
         finalOutput.append(newLine)
@@ -142,6 +142,7 @@ def main():
     ExpCMmodel = "ExpCM_" + args["prefsfile"] 
     modelOutputprefixList = []   
     modelcomparisonfile = args["outprefix"] + "modelcomparison.csv"
+    
 
     
     #Set up to log everything to logfile.
@@ -183,6 +184,7 @@ def main():
     outprefixes = {} # holds outprefix for model name
     
     try:
+            
         #first estimate tree with phydms using YNGKP_M0 model
         modelname = 'YNGKP_M0'
         outprefix = "%s%s" % (args['outprefix'], modelname)
@@ -235,23 +237,25 @@ def main():
                     modelOutputprefixList.append(modelOutprefix)
         print modelOutputprefixList
                     
-    # remove existing output files
+# remove existing output files
         outfiles = []
         removed = []
         for modelname in modelOutputprefixList:
-            for suffix in filesuffixlist:
-                fname = "%s%s" % (modelname, suffix)
-                outfiles.append(fname)
+            if "noDiversifyingpressure" not in modelname:
+                for suffix in filesuffixlist:
+                    fname = "%s%s" % (modelname, suffix)
+                    outfiles.append(fname)
         for fname in [modelcomparisonfile]:
             if os.path.isfile(fname):
-                #os.remove(fname)
+                os.remove(fname)
                 removed.append(fname)
         for fname in outfiles:
             if os.path.isfile(fname):
-                #os.remove(fname)
+                os.remove(fname)
                 removed.append(fname)
         if removed:
             logger.info('Removed the following existing files that have names that match the names of output files that will be created: %s\n' % ', '.join(removed))
+            
     #Running the different scenarios
         while not all(completed.values()):
             nrunning = started.values().count(True) - completed.values().count(True)
