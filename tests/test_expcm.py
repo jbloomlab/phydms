@@ -3,6 +3,7 @@
 Written by Jesse Bloom."""
 
 
+import random
 import unittest
 import scipy
 from phydmslib.constants import *
@@ -11,28 +12,41 @@ import phydmslib.models
 
 class testExpCM(unittest.TestCase):
 
-    def setUp(self):
-        """Initialize `ExpCM` with specific values."""
+    def test_ExpCM(self):
+        """Initialize `ExpCM`, test values, update, test again."""
+
+        # create preferences
         scipy.random.seed(1)
-        self.omega = 0.7
-        self.kappa = 2.5
-        self.beta = 1.5
-        self.phi = scipy.random.dirichlet([2] * N_NT)
+        random.seed(1)
         self.nsites = 4
         self.prefs = []
         for r in range(self.nsites):
             self.prefs.append(dict(zip(AA_TO_INDEX.keys(), 
                     scipy.random.dirichlet([0.5] * N_AA))))
-        self.expcm = phydmslib.models.ExpCM(self.prefs, kappa=self.kappa,
-                omega=self.omega, beta=self.beta, phi=self.phi)
+
+        # create initial ExpCM
+        params = {'omega':0.7, 'kappa':2.5, 'beta':1.5,
+                  'phi':scipy.random.dirichlet([2] * N_NT)}
+        self.expcm = phydmslib.models.ExpCM(self.prefs, kappa=params['kappa'],
+                omega=params['omega'], beta=params['beta'], phi=params['phi'])
+        self.assertTrue(scipy.allclose(params['phi'], self.expcm.phi))
+        self.check_ExpCM_attributes()
+
+        # now update values and re-check several times
+        for update in range(5):
+            params = {'omega':random.uniform(ALMOST_ZERO, 5),
+                      'kappa':random.uniform(1.0, 10.0),
+                      'beta':random.uniform(ALMOST_ZERO, 4),
+                      'eta':scipy.random.dirichlet([2] * (N_NT - 1))
+                     }
+            self.expcm.updateParams(omega=params['omega'], beta=params['beta'],
+                    kappa=params['kappa'], eta=params['eta'])
+            self.check_ExpCM_attributes()
 
 
-    def test_initialize_ExpCM(self):
-        """Make sure `ExpCM` initialized to expected values."""
+    def check_ExpCM_attributes(self):
+        """Make sure `ExpCM` has the expected attribute values."""
         self.assertEqual(self.nsites, self.expcm.nsites)
-
-        # make sure phi is correct
-        self.assertTrue(scipy.allclose(self.phi, self.expcm.phi))
 
         # make sure Prxy has rows summing to zero
         self.assertFalse(scipy.isnan(self.expcm.Prxy).any())
@@ -50,8 +64,7 @@ class testExpCM(unittest.TestCase):
         for r in range(self.nsites):
             self.assertTrue(scipy.allclose(1, self.expcm.prx[r].sum()))
 
-        # check that prx is eigenvector or Prxy for the same r,
-        # but not different r
+        # prx is eigenvector or Prxy for the same r, but not different r
         for r in range(self.nsites):
             self.assertTrue(scipy.allclose(0, scipy.dot(self.expcm.prx[r],
                     self.expcm.Prxy[r])))

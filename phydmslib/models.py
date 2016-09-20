@@ -18,9 +18,10 @@ class ExpCM:
     Attributes should **only** be updated via the `updateParams`
     method, do **not** set attributes directly.
 
-    The attributes are listed below. Note that the first
-    few are set directly, and then most of the rest are defined
-    in terms of other attributes.
+    The attributes are listed below. Note that only the first
+    few represent independent parameters of the model. The rest
+    are dependent attributes that are calculated from these
+    independent parameters.
 
     Attributes: 
         `nsites` (int)
@@ -118,11 +119,11 @@ class ExpCM:
             eta[w] = 1.0 - self.phi[w] / etaprod
             etaprod *= eta[w]
 
-        # define attributes for calling params, initialize to None
-        assert kappa != None
-        assert omega != None
-        assert beta != None
-        self.kappa = self.omega = self.beta = self.eta = None
+        # set attributes to calling params
+        self.kappa = kappa
+        self.omega = omega
+        self.beta = beta
+        self.eta = eta
 
         # define other params, initialized appropriately
         self.piAx_piAy_beta = scipy.zeros((self.nsites, N_CODON, N_CODON), 
@@ -134,30 +135,36 @@ class ExpCM:
         self.Frxy = scipy.ones((self.nsites, N_CODON, N_CODON), dtype='float')
         self.frx = scipy.zeros((self.nsites, N_CODON), dtype='float')
         
-        self.updateParams(kappa=kappa, omega=omega, beta=beta, eta=eta)
+        self.updateParams(update_all=True)
 
-    def updateParams(self, kappa=None, omega=None, beta=None, eta=None):
+    def updateParams(self, kappa=None, omega=None, beta=None, eta=None,
+            update_all=False):
         """Update model params.
 
         This method is the **only** acceptable way to update `ExpCM`
         model parameters. Any arguments that are not set to the
-        default value of `None` are updated if they changed. This method
-        then automatically updates any other `ExpCM` attributes
-        that need to be changed as a result of the parameter update.
+        default value of `None` are updated to the new value. This
+        method then updates any other dependent `ExpCM` attributes.
 
         Args:
             `kappa`, `omega`, `beta`, and `eta`
-                Meanings described in main class doc string.
-        """
-        changed = set([]) # contains string names of changed params
+                Attribute meanings described in main class doc string.
+            `update_all` (bool)
+                If `True`, update all dependent attributes using
+                current values of model parameters.
 
-        if eta is not None and eta != self.eta:
+        """
+        if update_all:
+            changed = set(['kappa', 'eta', 'beta', 'omega'])
+        else:
+            changed = set([]) # contains string names of changed params
+
+        if (eta is not None) and (eta != self.eta).any():
             assert (isinstance(eta, scipy.ndarray) and eta.shape == (3,) 
                     and eta.dtype == float), "eta not array of 3 floats"
             assert (eta > 0).all() and (eta < 1).all(),\
                     "eta must be > 0 and < 1"
             self.eta = eta
-            self._update_phi()
             changed.add('eta')
 
         if kappa != None and kappa != self.kappa:
@@ -179,6 +186,7 @@ class ExpCM:
             changed.add('beta')
 
         if 'eta' in changed:
+            self._update_phi()
             self._update_Qxy()
             self._update_qx()
         elif 'kappa' in changed:
