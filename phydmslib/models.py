@@ -57,11 +57,25 @@ class ExpCM:
         `pi_codon` (`numpy.ndarray` of floats, shape `(nsites, N_CODON)`)
             `pi_codon[r][x]` is preference of site `r` for amino acid
             encoded by codon `x`.
+        `ln_pi_codon` (`numpy.ndarray` floats, shape `(nsites, N_CODON)`)
+            Natural logarithm of `pi_codon`.
         `piAx_piAy` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
             `piAx_piAy[r][x][y]` is ratio of preference for amino acid
             encoded by codon `x` divided by pref for that encoded by `y`.
         `piAx_piAy_beta` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
             Equal to `piAx_piAy` raised to the power of `beta`.
+        `dPrxy_dkappa` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
+            Derivative of `Prxy` with respect to `kappa`
+        `dPrxy_domega` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
+            Derivative of `Prxy` with respect to `omega`
+        `dPrxy_dbeta` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
+            Derivative of `Prxy` with respect to `beta`
+        `dPrxy_deta` (`numpy.ndarray` floats, shape `(N_NT - 1, nsites, N_CODON, N_CODON)`)
+            `dPrxy_deta[i]` is derivative of `Prxy` with respect to `eta[i]`
+        `dprx_dbeta (`numpy.ndarray` floats, shape `(nsites, N_CODON)`)
+            Derivative of `prx` with respect to `beta`.
+        `dprx_deta` (`numpy.ndarray` floats, shape `(N_NT - 1, nsites, N_CODON)`)
+            `dprx_deta[i]` is derivative of `prx` with respect to `eta[i]`
     """
 
     def __init__(self, prefs, kappa=1.0, omega=1.0, beta=1.0,
@@ -73,7 +87,8 @@ class ExpCM:
                 List of dicts giving amino-acid preferences for
                 each site. Each dict keyed by amino acid letter
                 codes, value is pref > 0 and < 1. Must sum to 1 
-                at each site.
+                at each site. All values are adjusted to be >=
+                ALMOST_ZERO.
             `kappa`, `omega`, `beta`, and `phi`
                 Meanings described in main class doc string.
         """
@@ -100,6 +115,8 @@ class ExpCM:
         # set up attributes defined solely in terms of preferences
         self.pi_codon = scipy.full((self.nsites, N_CODON), -1, dtype='float')
         self._update_pi_codon()
+        self.ln_pi_codon = scipy.full((self.nsites, N_CODON), -1, dtype='float')
+        self._update_ln_pi_codon()
         self.piAx_piAy = scipy.full((self.nsites, N_CODON, N_CODON), -1, 
                 dtype='float')
         self._update_piAx_piAy()
@@ -134,6 +151,20 @@ class ExpCM:
         self.qx = scipy.zeros(N_CODON, dtype='float')
         self.Frxy = scipy.ones((self.nsites, N_CODON, N_CODON), dtype='float')
         self.frx = scipy.zeros((self.nsites, N_CODON), dtype='float')
+        self.dPrxy_dkappa  = scipy.zeros((self.nsites, N_CODON, N_CODON), 
+                dtype='float')
+        self.dPrxy_domega  = scipy.zeros((self.nsites, N_CODON, N_CODON), 
+                dtype='float')
+        self.dPrxy_dbeta  = scipy.zeros((self.nsites, N_CODON, N_CODON), 
+                dtype='float')
+        self.dPrxy_deta  = scipy.zeros((N_NT - 1, self.nsites, N_CODON, 
+                N_CODON), dtype='float')
+        self.dprx_dbeta = scipy.zeros((self.nsites, N_CODON), dtype='float')
+        self.dprx_deta = scipy.zeros((N_NT - 1, self.nsites, N_CODON), 
+                dtype='float')
+
+        # indexes diagonals in square matrices
+        self._diag_indices = scipy.diag_indices(N_CODON)
         
         self.updateParams(update_all=True)
 
@@ -200,10 +231,16 @@ class ExpCM:
             self._update_Frxy()
 
         if ('beta' in changed) or ('eta' in changed):
-            self._update_Prxy()
             self._update_prx()
-        elif changed:
+            self._update_dprx_dbeta()
+            self._update_dprx_deta()
+
+        if changed:
             self._update_Prxy()
+            self._update_dPrxy_dkappa()
+            self._update_dPrxy_domega()
+            self._update_dPrxy_dbeta()
+            self._update_dPrxy_deta()
 
     def _update_phi(self):
         """Update `phi` using current `eta`."""
@@ -232,6 +269,12 @@ class ExpCM:
             for a in range(N_AA):
                 scipy.copyto(self.pi_codon[r], self.pi[r][a], 
                 where=(CODON_TO_AA == a))
+
+    def _update_ln_pi_codon(self):
+        """Update `ln_pi_codon` using current `pi_codon`."""
+        with scipy.errstate(divide='raise', under='raise', over='raise',
+                invalid='raise'):
+            self.ln_pi_codon = scipy.log(self.pi_codon)
 
     def _update_piAx_piAy(self):
         """Update `piAx_piAy` from `pi_codon`."""
@@ -265,10 +308,7 @@ class ExpCM:
     def _update_Prxy(self):
         """Update `Prxy` using current `Frxy` and `Qxy`."""
         scipy.copyto(self.Prxy, self.Frxy * self.Qxy)
-        diag_indices = scipy.diag_indices(N_CODON)
-        for r in range(self.nsites):
-            scipy.fill_diagonal(self.Prxy[r], 0)
-            self.Prxy[r][diag_indices] = -scipy.sum(self.Prxy[r], axis=1)
+        self._fill_diagonals(self.Prxy)
 
     def _update_prx(self):
         """Update `prx` using current `frx` and `qx`."""
@@ -278,7 +318,59 @@ class ExpCM:
             for r in range(self.nsites):
                 self.prx[r] /= self.prx[r].sum()
 
+    def _update_dPrxy_dkappa(self):
+        """Update `dPrxy_dkappa` using current `Prxy` and `kappa`."""
+        scipy.copyto(self.dPrxy_dkappa, self.Prxy / self.kappa, 
+                where=CODON_TRANSITION)
+        self._fill_diagonals(self.dPrxy_dkappa)
+        
+    def _update_dPrxy_domega(self):
+        """Update `dPrxy_domega` using current `Prxy` and `omega`."""
+        scipy.copyto(self.dPrxy_domega, self.Prxy / self.omega, 
+                where=CODON_NONSYN)
+        self._fill_diagonals(self.dPrxy_domega)
 
+    def _update_dPrxy_dbeta(self):
+        """Update `dPrxy_dbeta` using `Prxy`, `Frxy`, `piAx_piAy_beta`, and `beta`."""
+        scipy.copyto(self.dPrxy_dbeta, (self.Prxy * (1 - self.Frxy
+                * self.piAx_piAy_beta)) / self.beta, where=CODON_NONSYN)
+        self._fill_diagonals(self.dPrxy_dbeta)
+
+    def _update_dPrxy_deta(self):
+        """Update `dPrxy_deta` using `Prxy` and `eta`."""
+        for i in range(N_NT - 1):
+            for w in range(i, N_NT):
+                scipy.copyto(self.dPrxy_deta[i], self.Prxy / (self.eta[i]
+                        - int(i == w)), where=CODON_NT_MUT[w])
+            self._fill_diagonals(self.dPrxy_deta[i])
+            
+    def _update_dprx_dbeta(self):
+        """Update `dprx_dbeta` using `prx` and `ln_pi_codon`."""
+        for r in range(self.nsites):
+            scipy.copyto(self.dprx_dbeta[r], self.prx[r] * (self.ln_pi_codon[r]
+                    - scipy.dot(self.ln_pi_codon[r], self.prx[r])))
+
+    def _update_dprx_deta(self):
+        """Update `dprx_deta` using `prx` and `eta`."""
+        boolterm = scipy.ndarray(N_CODON, dtype='float')
+        with scipy.errstate(divide='raise', under='raise', over='raise',
+                invalid='raise'):
+            for i in range(N_NT - 1):
+                boolterm.fill(0)
+                for j in range(3):
+                    for xj in range(i, N_NT):
+                        boolterm += 1 / (self.eta[i] - CODON_NT[j][i].astype(
+                                'float'))
+                for r in range(self.nsites):
+                    scipy.copyto(self.dprx_deta[i][r], self.prx[r] * 
+                            (boolterm - scipy.dot(boolterm, self.prx[r])))
+
+    def _fill_diagonals(self, m):
+        """Fills diagonals of `nsites` matrices in `m` so rows sum to 0."""
+        assert m.shape == (self.nsites, N_CODON, N_CODON)
+        for r in range(self.nsites):
+            scipy.fill_diagonal(m[r], 0)
+            m[r][self._diag_indices] = -scipy.sum(m[r], axis=1)
 
 if __name__ == '__main__':
     import doctest

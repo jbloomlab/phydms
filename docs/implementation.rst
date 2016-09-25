@@ -103,7 +103,7 @@ Here are the derivatives of :math:`P_{r,xy}` with respect to each of these param
    \frac{\partial P_{r,xy}}{\partial \kappa} 
    &=& 
    \begin{cases}
-   \phi_w \times F_{r,xy} & \mbox{if $x$ is converted to $y$ by a transition of a nucleotide to $w$,} \\
+   \frac{P_{r,xy}}{\kappa} & \mbox{if $x$ is converted to $y$ by a transition of a nucleotide to $w$,} \\
    0 & \mbox{if $x$ and $y$ differ by something other than a single transition,} \\
    -\sum_z \frac{\partial P_{r,xz}}{\partial \kappa} & \mbox{if $x = y$.}
    \end{cases}
@@ -180,9 +180,11 @@ The stationary state is sensitive to the value of :math:`\beta`, with derivative
 .. math::
    :label: dprx_dbeta
 
-   \frac{\partial p_{r,x}}{\partial \beta} =
+   \frac{\partial p_{r,x}}{\partial \beta} &=&
    \frac{p_{r,x}\left[\ln\left(\pi_{r,\operatorname{A}\left(x\right)}\right)\left(\sum_z f_{r,z} q_z\right) - \sum_z \ln\left(\pi_{r,\operatorname{A}\left(z\right)}\right) f_{r,z} q_z\right]}
-   {\sum_z q_z f_{r,z}}
+   {\sum_z q_z f_{r,z}} \\
+   &=& p_{r,x} \left(\ln\left(\pi_{r,\operatorname{A}\left(x\right)}\right) - \frac{\sum_z \ln\left(\pi_{r,\operatorname{A}\left(z\right)}\right) f_{r,z} q_z}{\sum_z q_z f_{r,z}}\right) \\
+   &=& p_{r,x} \left(\ln\left(\pi_{r,\operatorname{A}\left(x\right)}\right) - \sum_z \ln\left(\pi_{r,\operatorname{A}\left(z\right)}\right) p_{r,z}\right)
 
 The stationary state is also sensitive to the values of :math:`\eta_0`, :math:`\eta_1`, and :math:`\eta_2`:
 
@@ -210,6 +212,14 @@ where the :math:`\frac{\partial q_x}{\partial \eta_i}` terms are:
    & = &
    q_x \sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le x_j \right)}{\eta_i - \delta_{ix_j}}
 
-where :math:`\operatorname{bool}\left(i \le j\right)` is 1 if :math:`i \le j` and 0 otherwise.
+where :math:`\operatorname{bool}\left(i \le j\right)` is 1 if :math:`i \le j` and 0 otherwise, and so
+
+.. math::
+   :label: dprx_detai_2
+
+   \frac{\partial p_{r,x}}{\partial \eta_i} & = &
+   p_{r,x} 
+   \left[\sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le x_j \right)}{\eta_i - \delta_{ix_j}} - \sum_z p_{r,z} \sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le z_j \right)}{\eta_i - \delta_{iz_j}} \right]
+   \\ 
 
 .. include:: weblinks.txt
