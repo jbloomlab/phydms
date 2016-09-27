@@ -63,9 +63,9 @@ CODON_TO_INDEX = {}
 INDEX_TO_CODON = {}
 CODON_TO_AA = []
 i = 0
-for nt1 in NT_TO_INDEX.keys():
-    for nt2 in NT_TO_INDEX.keys():
-        for nt3 in NT_TO_INDEX.keys():
+for nt1 in sorted(NT_TO_INDEX.keys()):
+    for nt2 in sorted(NT_TO_INDEX.keys()):
+        for nt3 in sorted(NT_TO_INDEX.keys()):
             codon = nt1 + nt2 + nt3
             aa = str(Bio.Seq.Seq(codon).translate())
             if aa != '*':
