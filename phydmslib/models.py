@@ -297,7 +297,8 @@ class ExpCM:
             scipy.copyto(self.Frxy, -self.omega * scipy.log(
                     self.piAx_piAy_beta) / (1 - self.piAx_piAy_beta), 
                     where=CODON_NONSYN)
-        scipy.copyto(self.Frxy, self.omega, where=(1 == self.piAx_piAy_beta))
+        scipy.copyto(self.Frxy, self.omega, where=(scipy.logical_and(CODON_NONSYN,
+                1 == self.piAx_piAy_beta)))
         assert not scipy.isnan(self.Frxy).any(), "NaN values in Frxy"
         assert not scipy.isinf(self.Frxy).any(), "Infinite values in Frxy"
 
