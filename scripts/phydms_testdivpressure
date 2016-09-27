@@ -53,7 +53,7 @@ def tabulateResults(fileList, modelComparisonName):
     Creates a csv summarizes the results from each model
     """
     finalOutput = []
-    finalOutput.append("Name,DiversifyingPressure,LogLikelihood,Omega,Omega2,kappa,beta,phiA,phiC,phiG\n")
+    finalOutput.append("Name,DiversifyingPressureName,DiversifyingPressureType,LogLikelihood,Omega,Omega2,kappa,beta,phiA,phiC,phiG\n")
     for file in fileList:
         newLine = getResultsFromOneRun(file)
         finalOutput.append(newLine)
@@ -91,11 +91,14 @@ def getResultsFromOneRun(file):
             print "Couldn't find a Log likelihood for %s" %(file+"_loglikelihood.txt")
     if "noDiversifyingpressure" in file:
         type = "none"
+        divpressureName = "none"
     elif "random" in file:
         type = "random"
+        divpressureName = "_".join(file.split("_")[1:-2])
     else:
         type = "true"
-    newLine= ",".join([str(x) for x in [file,type,LL, omega, omega2, kappa, beta, phiA, phiC, phiG]])+"\n"
+        divpressureName = "_".join(file.split("_")[1:])
+    newLine= ",".join([str(x) for x in [file,divpressureName,type,LL, omega, omega2, kappa, beta, phiA, phiC, phiG]])+"\n"
     return newLine
     
 def RunCmds(cmds):
@@ -235,7 +238,6 @@ def main():
                     	cmds = ['phydms', args['alignment'], treefile, ExpCMmodel, modelOutprefix, '--divpressure', file,'--ncpus', "1",'--fixbrlen','--addrateparameter']
                     pool, outprefixes, completed, started= setupMultiprocessing(cmds, pool, outprefixes, completed, started, modelOutprefix)
                     modelOutputprefixList.append(modelOutprefix)
-        print modelOutputprefixList
                     
 # remove existing output files
         outfiles = []

@@ -62,13 +62,13 @@ Model comparison file
 +++++++++++++++++++++++++
 A file with the suffix ``_modelcomparison.csv`` (or just the name ``modelcomparison.txt`` if ``outprefix`` is just a directory name) will be created that summarizes the model fitting. Here is an example of the file that would be created if ``phydms_testdivpressure`` is passed a single ``divpressure`` with the name ``divpressure1.txt`` and ``--randomizations`` is set to one.::
 
-    ==================================== ===================== ============== ====== ======= ========
-     Model                                DiversifyingPressure  LogLikelihood  Omega  Omega2  ...etc                               
-    ==================================== ===================== ============== ====== ======= ========
-     divpressure1                         true                   -1100.2       0.3    1.5
-     divpressure1_random0                 random                 -1104.3       0.6    0.03
-     divpressure1_noDiversifyingpresure   none                   -1104.4       0.7    N/A
-    ==================================== ===================== ======================================
+    ==================================== =========================== ===================== ============== ====== ======= ========
+     Model                                DiveresifyingPressureName   DiversifyingPressure  LogLikelihood  Omega  Omega2  ...etc                               
+    ==================================== =========================== ===================== ============== ====== ======= ========
+     divpressure1                         divpressure1                true                   -1100.2       0.3    1.5
+     divpressure1_random_0                divpressure1                random                 -1104.3       0.6    0.03
+     divpressure1_noDiversifyingpresure   none                        none                   -1104.4       0.7    N/A
+    ==================================== =========================== ===================== ============== ====== ======= ========
 
 ``phydms`` output for each model
 ++++++++++++++++++++++++++++++++++
