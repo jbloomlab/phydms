@@ -43,7 +43,7 @@ class testExpCM(unittest.TestCase):
         self.assertTrue(scipy.allclose(beta, self.expcm.beta))
 
         # now check ExpCM attributes / derivates, updating several times
-        for update in range(3):
+        for update in range(2):
             self.params = {'omega':random.uniform(ALMOST_ZERO, 5),
                       'kappa':random.uniform(1.0, 10.0),
                       'beta':random.uniform(ALMOST_ZERO, 3),
@@ -104,8 +104,8 @@ class testExpCM(unittest.TestCase):
                     if not CODON_SINGLEMUT[x][y]:
                         Prxy = 0
                     else:
-                        w = NT_TO_INDEX[[y for (x, y) in zip(INDEX_TO_CODON[x], 
-                                INDEX_TO_CODON[y]) if x != y][0]]
+                        w = NT_TO_INDEX[[ynt for (xnt, ynt) in zip(INDEX_TO_CODON[x], 
+                                INDEX_TO_CODON[y]) if xnt != ynt][0]]
                         if w == 0:
                             phiw = 1 - eta0                            
                         elif w == 1:
@@ -132,7 +132,7 @@ class testExpCM(unittest.TestCase):
                             ('Prxy', self.expcm.Prxy[r][x][y], Prxy),
                             ('dPrxy_dkappa', self.expcm.dPrxy_dkappa[r][x][y], sympy.diff(Prxy, kappa)),
                             ('dPrxy_domega', self.expcm.dPrxy_domega[r][x][y], sympy.diff(Prxy, omega)),
-#                            ('dPrxy_dbeta', self.expcm.dPrxy_dbeta[r][x][y], sympy.diff(Prxy, beta)),
+                            ('dPrxy_dbeta', self.expcm.dPrxy_dbeta[r][x][y], sympy.diff(Prxy, beta)),
                             ('dPrxy_deta0', self.expcm.dPrxy_deta[0][r][x][y], sympy.diff(Prxy, eta0)),
                             ('dPrxy_deta1', self.expcm.dPrxy_deta[1][r][x][y], sympy.diff(Prxy, eta1)),
                             ('dPrxy_deta2', self.expcm.dPrxy_deta[2][r][x][y], sympy.diff(Prxy, eta2)),

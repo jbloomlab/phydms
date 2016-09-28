@@ -333,7 +333,7 @@ class ExpCM:
 
     def _update_dPrxy_dbeta(self):
         """Update `dPrxy_dbeta` using `Prxy`, `Frxy`, `piAx_piAy_beta`, and `beta`."""
-        scipy.copyto(self.dPrxy_dbeta, (self.Prxy * (1 - self.Frxy
+        scipy.copyto(self.dPrxy_dbeta, (self.Prxy * (1 - self.Frxy / self.omega
                 * self.piAx_piAy_beta)) / self.beta, where=CODON_NONSYN)
         self._fill_diagonals(self.dPrxy_dbeta)
 
