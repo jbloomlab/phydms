@@ -1,11 +1,15 @@
 """Tests `phydmslib.models.ExpCM` class.
 
-Written by Jesse Bloom."""
+Written by Jesse Bloom.
+
+Uses `sympy` to make sure attributes and derivatives of attributes
+are correct for `ExpCM` implemented in `phydmslib.models`."""
 
 
 import random
 import unittest
 import scipy
+import sympy
 from phydmslib.constants import *
 import phydmslib.models
 
@@ -16,33 +20,39 @@ class testExpCM(unittest.TestCase):
         """Initialize `ExpCM`, test values, update, test again."""
 
         # create preferences
-        scipy.random.seed(1)
         random.seed(1)
-        self.nsites = 4
+        scipy.random.seed(1)
+        self.nsites = 2
         self.prefs = []
         for r in range(self.nsites):
-            self.prefs.append(dict(zip(AA_TO_INDEX.keys(), 
-                    scipy.random.dirichlet([0.5] * N_AA))))
+            rprefs = scipy.random.dirichlet([0.5] * N_AA)
+            rprefs[rprefs < ALMOST_ZERO] = ALMOST_ZERO
+            rprefs /= rprefs.sum()
+            self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
 
         # create initial ExpCM
-        params = {'omega':0.7, 'kappa':2.5, 'beta':1.5,
-                  'phi':scipy.random.dirichlet([2] * N_NT)}
-        self.expcm = phydmslib.models.ExpCM(self.prefs, kappa=params['kappa'],
-                omega=params['omega'], beta=params['beta'], phi=params['phi'])
-        self.assertTrue(scipy.allclose(params['phi'], self.expcm.phi))
-        self.check_ExpCM_attributes()
+        phi = scipy.random.dirichlet([2] * N_NT)
+        omega = 0.7
+        kappa = 2.5
+        beta = 2.1
+        self.expcm = phydmslib.models.ExpCM(self.prefs, phi=phi, omega=omega,
+                kappa=kappa, beta=beta)
+        self.assertTrue(scipy.allclose(phi, self.expcm.phi))
+        self.assertTrue(scipy.allclose(omega, self.expcm.omega))
+        self.assertTrue(scipy.allclose(kappa, self.expcm.kappa))
+        self.assertTrue(scipy.allclose(beta, self.expcm.beta))
 
-        # now update values and re-check several times
-        for update in range(5):
-            params = {'omega':random.uniform(ALMOST_ZERO, 5),
+        # now check ExpCM attributes / derivates, updating several times
+        for update in range(3):
+            self.params = {'omega':random.uniform(ALMOST_ZERO, 5),
                       'kappa':random.uniform(1.0, 10.0),
-                      'beta':random.uniform(ALMOST_ZERO, 4),
+                      'beta':random.uniform(ALMOST_ZERO, 3),
                       'eta':scipy.random.dirichlet([2] * (N_NT - 1))
                      }
-            self.expcm.updateParams(omega=params['omega'], beta=params['beta'],
-                    kappa=params['kappa'], eta=params['eta'])
+            self.expcm.updateParams(omega=self.params['omega'], beta=self.params['beta'],
+                    kappa=self.params['kappa'], eta=self.params['eta'])
             self.check_ExpCM_attributes()
-
+            self.check_ExpCM_derivatives()
 
     def check_ExpCM_attributes(self):
         """Make sure `ExpCM` has the expected attribute values."""
@@ -71,6 +81,68 @@ class testExpCM(unittest.TestCase):
             if r > 0:
                 self.assertFalse(scipy.allclose(0, scipy.dot(self.expcm.prx[r],
                         self.expcm.Prxy[r - 1])))
+
+    def check_ExpCM_derivatives(self):
+        """Use `sympy` to check values and derivatives of `ExpCM` attributes."""
+        (Prxy, Qxy, phiw, beta, omega, eta0, eta1, eta2, kappa) = sympy.symbols(
+                 'Prxy, Qxy, phiw, beta, omega, eta0, eta1, eta2, kappa')
+
+        values = {'beta':self.params['beta'],
+                  'omega':self.params['omega'],
+                  'kappa':self.params['kappa'],
+                  'eta0':self.params['eta'][0],
+                  'eta1':self.params['eta'][1],
+                  'eta2':self.params['eta'][2],
+                  }
+
+        # check Prxy
+        for r in range(self.nsites):
+            for x in range(N_CODON):
+                pirAx = self.prefs[r][INDEX_TO_AA[CODON_TO_AA[x]]]
+                for y in [yy for yy in range(N_CODON) if yy != x]:
+                    pirAy = self.prefs[r][INDEX_TO_AA[CODON_TO_AA[y]]]
+                    if not CODON_SINGLEMUT[x][y]:
+                        Prxy = 0
+                    else:
+                        w = NT_TO_INDEX[[y for (x, y) in zip(INDEX_TO_CODON[x], 
+                                INDEX_TO_CODON[y]) if x != y][0]]
+                        if w == 0:
+                            phiw = 1 - eta0                            
+                        elif w == 1:
+                            phiw = eta0 * (1 - eta1)
+                        elif w == 2:
+                            phiw = eta0 * eta1 * (1 - eta2)
+                        elif w == 3:
+                            phiw = eta0 * eta1 * eta2
+                        else:
+                            raise ValueError("Invalid w")
+                        self.assertTrue(scipy.allclose(float(phiw.subs(values)), 
+                                self.expcm.phi[w]))
+                        if CODON_TRANSITION[x][y]:
+                            Qxy = kappa * phiw
+                        else:
+                            Qxy = phiw
+                        self.assertTrue(scipy.allclose(float(Qxy.subs(values)), 
+                                self.expcm.Qxy[x][y]))
+                        if CODON_NONSYN[x][y]:
+                            Prxy = Qxy * omega * (-beta * scipy.log(pirAx / pirAy) / (1 - (pirAx / pirAy)**beta))
+                        else:
+                            Prxy = Qxy
+                    for (name, actual, expect) in [
+                            ('Prxy', self.expcm.Prxy[r][x][y], Prxy),
+                            ('dPrxy_dkappa', self.expcm.dPrxy_dkappa[r][x][y], sympy.diff(Prxy, kappa)),
+                            ('dPrxy_domega', self.expcm.dPrxy_domega[r][x][y], sympy.diff(Prxy, omega)),
+#                            ('dPrxy_dbeta', self.expcm.dPrxy_dbeta[r][x][y], sympy.diff(Prxy, beta)),
+                            ('dPrxy_deta0', self.expcm.dPrxy_deta[0][r][x][y], sympy.diff(Prxy, eta0)),
+                            ('dPrxy_deta1', self.expcm.dPrxy_deta[1][r][x][y], sympy.diff(Prxy, eta1)),
+                            ('dPrxy_deta2', self.expcm.dPrxy_deta[2][r][x][y], sympy.diff(Prxy, eta2)),
+                            ]:
+                        if Prxy == 0:
+                            expectval = 0
+                        else:
+                            expectval = float(expect.subs(values))
+                        self.assertTrue(scipy.allclose(actual, expectval, atol=1e-5),
+                                "{0}: {1} vs {2}".format(name, actual, expectval))
 
 
 if __name__ == '__main__':
