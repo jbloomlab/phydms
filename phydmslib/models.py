@@ -359,12 +359,12 @@ class ExpCM:
             for i in range(N_NT - 1):
                 boolterm.fill(0)
                 for j in range(3):
-                    for xj in range(i, N_NT):
-                        boolterm += 1 / (self.eta[i] - CODON_NT[j][i].astype(
-                                'float'))
+                    boolterm += ((i <= CODON_NT_INDEX[j]).astype('float') / 
+                            (self.eta[i] - (i == CODON_NT_INDEX[j]).astype(
+                            'float')))
                 for r in range(self.nsites):
-                    scipy.copyto(self.dprx_deta[i][r], self.prx[r] * 
-                            (boolterm - scipy.dot(boolterm, self.prx[r])))
+                    scipy.copyto(self.dprx_deta[i][r], self.prx[r] * (boolterm
+                            - scipy.dot(boolterm, self.prx[r]) / self.prx[r].sum()))
 
     def _fill_diagonals(self, m):
         """Fills diagonals of `nsites` matrices in `m` so rows sum to 0."""
@@ -372,6 +372,7 @@ class ExpCM:
         for r in range(self.nsites):
             scipy.fill_diagonal(m[r], 0)
             m[r][self._diag_indices] = -scipy.sum(m[r], axis=1)
+
 
 if __name__ == '__main__':
     import doctest

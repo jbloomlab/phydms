@@ -219,7 +219,10 @@ where :math:`\operatorname{bool}\left(i \le j\right)` is 1 if :math:`i \le j` an
 
    \frac{\partial p_{r,x}}{\partial \eta_i} & = &
    p_{r,x} 
-   \left[\sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le x_j \right)}{\eta_i - \delta_{ix_j}} - \sum_z p_{r,z} \sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le z_j \right)}{\eta_i - \delta_{iz_j}} \right]
+   \left[\sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le x_j \right)}{\eta_i - \delta_{ix_j}} - \frac{\sum_z f_{r,z} q_z \sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le z_j \right)}{\eta_i - \delta_{iz_j}}}{\sum_z q_z f_{r,z}} \right] \\
+   & = &
+   p_{r,x} 
+   \left[\sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le x_j \right)}{\eta_i - \delta_{ix_j}} - \frac{\sum_z p_{r,z} \sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le z_j \right)}{\eta_i - \delta_{iz_j}}}{\sum_z p_{r,z}} \right]
    \\ 
 
 .. include:: weblinks.txt

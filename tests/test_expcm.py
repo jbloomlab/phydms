@@ -85,7 +85,7 @@ class testExpCM(unittest.TestCase):
     def check_ExpCM_derivatives(self):
         """Use `sympy` to check values and derivatives of `ExpCM` attributes."""
         (Prxy, Qxy, phiw, beta, omega, eta0, eta1, eta2, kappa) = sympy.symbols(
-                 'Prxy, Qxy, phiw, beta, omega, eta0, eta1, eta2, kappa')
+                'Prxy, Qxy, phiw, beta, omega, eta0, eta1, eta2, kappa')
 
         values = {'beta':self.params['beta'],
                   'omega':self.params['omega'],
@@ -143,6 +143,43 @@ class testExpCM(unittest.TestCase):
                             expectval = float(expect.subs(values))
                         self.assertTrue(scipy.allclose(actual, expectval, atol=1e-5),
                                 "{0}: {1} vs {2}".format(name, actual, expectval))
+
+        # check prx
+        qxs = [sympy.Symbol('qx{0}'.format(x)) for x in range(N_CODON)]
+        frxs = [sympy.Symbol('frx{0}'.format(x)) for x in range(N_CODON)]
+        prx = sympy.Symbol('prx')
+        phixs = [sympy.Symbol('phix{0}'.format(w)) for w in range(3)]
+        for r in range(self.nsites):
+            for x in range(N_CODON):
+                pirAx = self.prefs[r][INDEX_TO_AA[CODON_TO_AA[x]]]
+                frxs[x] = pirAx**beta
+                xcodon = INDEX_TO_CODON[x]
+                assert len(phixs) == len(xcodon)
+                for (w, xwnt) in enumerate(xcodon):
+                    xw = NT_TO_INDEX[xwnt]
+                    if xw == 0:
+                        phixs[w] = 1 - eta0
+                    elif xw == 1:
+                        phixs[w] = eta0 * (1 - eta1)
+                    elif xw == 2:
+                        phixs[w] = eta0 * eta1 * (1 - eta2)
+                    elif xw == 3:
+                        phixs[w] = eta0 * eta1 * eta2
+                    else:
+                        raise ValueError("invalid xw")
+                qxs[x] = phixs[0] * phixs[1] * phixs[2]
+            for x in range(N_CODON):
+                prx = frxs[x] * qxs[x] / sum(frx * qx for (frx, qx) in zip(frxs, qxs))
+                for (name, actual, expect) in [
+                        ('prx', self.expcm.prx[r][x], prx),
+                        ('dprx_dbeta', self.expcm.dprx_dbeta[r][x], sympy.diff(prx, beta)),
+                        ('dprx_deta0', self.expcm.dprx_deta[0][r][x], sympy.diff(prx, eta0)),
+                        ('dprx_deta1', self.expcm.dprx_deta[1][r][x], sympy.diff(prx, eta1)),
+                        ('dprx_deta2', self.expcm.dprx_deta[2][r][x], sympy.diff(prx, eta2)),
+                        ]:
+                    expectval = float(expect.subs(values))
+                    self.assertTrue(scipy.allclose(actual, expectval, atol=1e-5),
+                            "{0}: {1} vs {2}".format(name, actual, expectval))
 
 
 if __name__ == '__main__':

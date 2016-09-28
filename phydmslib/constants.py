@@ -36,6 +36,8 @@ Constants defined:
         nucleotide mutation `w`.
     `CODON_NT` (`numpy.ndarray` of bools, shape `(3, N_NT, N_CODON)`)
         Element `[j][w][x]` is `True` iff nt `j` of codon `x` is `w`.
+    `CODON_NT_INDEX` (`numpy.ndarray` of int, shape `(3, N_CODON)`)
+        Element `[j][x]` gives index of nt at position `j` of codon `x`.
     `CODON_NONSYN` (`numpy.ndarray` of bools, shape `(N_CODON, N_CODON)`)
         Element `[x][y]` is `True` iff mutating  `x` to `y` is nonsynonymous
 """
@@ -85,12 +87,14 @@ CODON_TRANSITION = scipy.full((N_CODON, N_CODON), False, dtype='bool')
 CODON_SINGLEMUT = scipy.full((N_CODON, N_CODON), False, dtype='bool')
 CODON_NT_MUT = scipy.full((N_NT, N_CODON, N_CODON), False, dtype='bool')
 CODON_NT = scipy.full((3, N_NT, N_CODON), False, dtype='bool')
+CODON_NT_INDEX = scipy.full((3, N_CODON), -1, dtype='int')
 CODON_NONSYN = scipy.full((N_CODON, N_CODON), False, dtype='bool')
 for (x, codonx) in INDEX_TO_CODON.items():
     for (i, ntx) in enumerate(codonx):
         for w in range(N_NT):
             if INDEX_TO_NT[w] == ntx:
                 CODON_NT[i][w][x] = True
+                CODON_NT_INDEX[i][x] = w
     for (y, codony) in INDEX_TO_CODON.items():
         if CODON_TO_AA[x] != CODON_TO_AA[y]:
             CODON_NONSYN[x][y] = True
@@ -104,6 +108,7 @@ for (x, codonx) in INDEX_TO_CODON.items():
                 CODON_TRANSITION[x][y] = True
 assert CODON_SINGLEMUT.sum() == CODON_NT_MUT.sum() > CODON_TRANSITION.sum()
 assert CODON_NT.sum() == N_CODON * 3
+assert (CODON_NT_INDEX != -1).all()
 
 # delete variables so they aren't in namespace if import * used on this module
 del i, nt1, nt2, nt3, codon, codonx, codony, x, y, ntx, nty, w, diffs
