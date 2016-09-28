@@ -22,7 +22,7 @@ import phydmslib.file_io
 import phydmslib.parsearguments
 import random
 
-def randomizeDivpressure(divpressureFile,numberRandomizations,outprefix):
+def randomizeDivpressure(divpressureFile,numberRandomizations,outprefix,seed):
     """Randomizes the diversifying pressures value the number of times specified by the user
        Each randomization is written to a file in the directory 'randomFiles'
        Returns a list of the new file names 
@@ -39,10 +39,10 @@ def randomizeDivpressure(divpressureFile,numberRandomizations,outprefix):
     assert all([len(line) == 2 for line in lines])
     sites = [tup[0] for tup in lines]
     divpressures = [tup[1] for tup in lines]
-    for seed in range(int(numberRandomizations)):
-        random.seed(seed)
+    for increase in range(int(numberRandomizations)):
+        random.seed(seed+increase)
         random.shuffle(divpressures)
-        randomDivpressureFile = outdir+'/%s_random_%s.txt' %((divpressureFile.split(".")[-2]), str(seed))
+        randomDivpressureFile = outdir+'/%s_random_%s.txt' %((divpressureFile.split(".")[-2]), str(seed+increase))
         with open(randomDivpressureFile, 'w') as f:
             f.write('\n'.join('{0} {1}'.format(site, dp) for (site, dp) in zip(sites, divpressures)))
         fileList.append(randomDivpressureFile)
@@ -53,42 +53,54 @@ def tabulateResults(fileList, modelComparisonName):
     Creates a csv summarizes the results from each model
     """
     finalOutput = []
-    finalOutput.append("Name,DiversifyingPressure,LogLikelihood,Omega,Omega2,kappa,betta, phiA, phiC, phiG\n")
+    finalOutput.append("Name,DiversifyingPressureName,DiversifyingPressureType,LogLikelihood,Omega,Omega2,kappa,beta,phiA,phiC,phiG\n")
     for file in fileList:
-        name = os.path.basename(file)
-        type = name.split("_")[-1]
-        with open(file + "_modelparams.txt") as f:
-            modelparamstext = f.read()
-            kappa = re.search('123_K80.kappa = (\d+\.\d+)', modelparamstext).group(1)
-            omega = float(re.search('omega = (\d+\.\d+)', modelparamstext).group(1))
-            if re.search('omega2 = (\d+\.\d+)', modelparamstext):
-                omega2 = float(re.search('omega2 = (\d+\.\d+)', modelparamstext).group(1))
-            elif re.search('omega2 = (-\d+\.\d+)', modelparamstext):
-                omega2 = float(re.search('omega2 = (-\d+\.\d+)', modelparamstext).group(1))
-            else:
-                omega2 = "N/A"
-            beta = float(re.search('stringencyparameter = (\d+\.\d+)', modelparamstext).group(1))
-            theta = float(re.search('123_Full.theta = (\d+\.\d+)', modelparamstext).group(1))
-            theta1 = float(re.search('123_Full.theta1 = (\d+\.\d+)', modelparamstext).group(1))
-            theta2 = float(re.search('123_Full.theta2 = (\d+\.\d+)', modelparamstext).group(1))
-        phiA = theta1 * (1.0 - theta)
-        phiC = (1.0 - theta2) * theta
-        phiG = theta * theta2
-        with open(file + "_loglikelihood.txt") as f:
-            loglikelihoodtext = f.read()
-            LL = float(re.search('log likelihood = (-\d+\.\d+)', loglikelihoodtext).group(1))
-        if type =="noDiversifyingpressure":
-            type = "none"
-        elif type.startswith("random"):
-            type = "random"
-        else:
-            type = "true"
-        newLine= ",".join([str(x) for x in [file,type,LL, kappa, omega, omega2, beta, phiA, phiC, phiG]])+"\n"
+        newLine = getResultsFromOneRun(file)
         finalOutput.append(newLine)
-        with open(modelComparisonName,'wb') as f:
-            for item in finalOutput:
-                f.write(item)
-
+    #no diversifying pressure
+    with open(modelComparisonName,'wb') as f:
+        for item in finalOutput:
+            f.write(item)
+            
+def getResultsFromOneRun(file):
+    name = os.path.basename(file)
+    with open(file + "_modelparams.txt") as f:
+        modelparamstext = f.read()
+        kappa = re.search('123_K80.kappa = (\d+\.\d+)', modelparamstext).group(1)
+        omega = float(re.search('omega = (\d+\.\d+)', modelparamstext).group(1))
+        if re.search('omega2 = (\d+\.\d+)', modelparamstext):
+            omega2 = float(re.search('omega2 = (\d+\.\d+)', modelparamstext).group(1))
+        elif re.search('omega2 = (-\d+\.\d+)', modelparamstext):
+            omega2 = float(re.search('omega2 = (-\d+\.\d+)', modelparamstext).group(1))
+        else:
+            omega2 = "N/A"
+        beta = float(re.search('stringencyparameter = (\d+\.\d+)', modelparamstext).group(1))
+        theta = float(re.search('123_Full.theta = (\d+\.\d+)', modelparamstext).group(1))
+        theta1 = float(re.search('123_Full.theta1 = (\d+\.\d+)', modelparamstext).group(1))
+        theta2 = float(re.search('123_Full.theta2 = (\d+\.\d+)', modelparamstext).group(1))
+    phiA = theta1 * (1.0 - theta)
+    phiC = (1.0 - theta2) * theta
+    phiG = theta * theta2
+    with open(file + "_loglikelihood.txt") as f:
+        loglikelihoodtext = f.read()
+        if re.search('log likelihood = (-\d+\.\d+)', loglikelihoodtext):
+            LL = float(re.search('log likelihood = (-\d+\.\d+)', loglikelihoodtext).group(1))
+        elif re.search('log likelihood = (-\d+)', loglikelihoodtext):
+            LL = float(re.search('log likelihood = (-\d+)', loglikelihoodtext).group(1))
+        else:
+            print "Couldn't find a Log likelihood for %s" %(file+"_loglikelihood.txt")
+    if "noDiversifyingpressure" in file:
+        type = "none"
+        divpressureName = "none"
+    elif "random" in file:
+        type = "random"
+        divpressureName = "_".join(file.split("_")[1:-2])
+    else:
+        type = "true"
+        divpressureName = "_".join(file.split("_")[1:])
+    newLine= ",".join([str(x) for x in [file,divpressureName,type,LL, omega, omega2, kappa, beta, phiA, phiC, phiG]])+"\n"
+    return newLine
+    
 def RunCmds(cmds):
     """Runs the command line arguments in *cmds* using *subprocess*."""
     try:
@@ -114,7 +126,7 @@ def main():
     args = vars(parser.parse_args())
     prog = parser.prog
 
-    # create output directory if needed
+#create output directory if needed
     outdir = os.path.dirname(args['outprefix'])
     if outdir:
         if not os.path.isdir(outdir):
@@ -132,7 +144,8 @@ def main():
         args['outprefix'] = '%s_' % args['outprefix']
     ExpCMmodel = "ExpCM_" + args["prefsfile"] 
     modelOutputprefixList = []   
-    modelcomparisonfile = args["outprefix"] + "modelcomparison.txt"
+    modelcomparisonfile = args["outprefix"] + "modelcomparison.csv"
+    
 
     
     #Set up to log everything to logfile.
@@ -147,7 +160,7 @@ def main():
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     logfile_handler.setFormatter(formatter)
 
-    #print some basic information
+#     #print some basic information
     logger.info('Beginning execution of %s in directory %s\n' % (prog, os.getcwd()))
     logger.info('Progress is being logged to %s\n' % logfile)
     logger.info("%s\n" % versionstring)
@@ -172,8 +185,9 @@ def main():
     started = {} # holds whether process started for model name
     completed = {} # holds whether process completed for model name
     outprefixes = {} # holds outprefix for model name
-#     
+    
     try:
+            
         #first estimate tree with phydms using YNGKP_M0 model
         modelname = 'YNGKP_M0'
         outprefix = "%s%s" % (args['outprefix'], modelname)
@@ -191,7 +205,7 @@ def main():
             logger.info("Found expected output file %s" % fname)
         logger.info('Analysis successful for %s\n' % modelname)
         assert os.path.isfile(treefile)
-        
+         
         #Then optimize the tree using ExpCM without diversifying pressure and update treefile
         modelOutprefix = args["outprefix"]+"noDiversifyingpressure"
         cmds = ['phydms', args['alignment'], treefile, ExpCMmodel, modelOutprefix, '--ncpus', "1"]
@@ -215,31 +229,35 @@ def main():
             pool, outprefixes, completed, started = setupMultiprocessing(cmds, pool, outprefixes, completed, started, modelOutprefix)
             modelOutputprefixList.append(modelOutprefix)
             if args["randomizations"]:
-                randomFileList = randomizeDivpressure(divpressureFile,args["randomizations"],args["outprefix"])
+                randomFileList = randomizeDivpressure(divpressureFile,args["randomizations"],args["outprefix"], args["randomseed"])
                 for file in randomFileList:
                     modelOutprefix = args["outprefix"] + os.path.splitext(os.path.basename(file))[0]
-                    cmds = ['phydms', args['alignment'], treefile, ExpCMmodel, modelOutprefix, '--divpressure', file,'--ncpus', "1",'--fixbrlen','--addrateparameter']
-                    logger.info('Starting analysis. The command is: %s\n' % (' '.join(cmds)))
+                    if args["optimizebrlen"]:
+                    	cmds = ['phydms', args['alignment'], treefile, ExpCMmodel, modelOutprefix, '--divpressure', file,'--ncpus', "1"]
+                    else:
+                    	cmds = ['phydms', args['alignment'], treefile, ExpCMmodel, modelOutprefix, '--divpressure', file,'--ncpus', "1",'--fixbrlen','--addrateparameter']
                     pool, outprefixes, completed, started= setupMultiprocessing(cmds, pool, outprefixes, completed, started, modelOutprefix)
                     modelOutputprefixList.append(modelOutprefix)
                     
-    # remove existing output files
+# remove existing output files
         outfiles = []
         removed = []
         for modelname in modelOutputprefixList:
-            for suffix in filesuffixlist:
-                fname = "%s%s" % (modelname, suffix)
-                outfiles.append(fname)
+            if "noDiversifyingpressure" not in modelname:
+                for suffix in filesuffixlist:
+                    fname = "%s%s" % (modelname, suffix)
+                    outfiles.append(fname)
         for fname in [modelcomparisonfile]:
             if os.path.isfile(fname):
-                #os.remove(fname)
+                os.remove(fname)
                 removed.append(fname)
         for fname in outfiles:
             if os.path.isfile(fname):
-                #os.remove(fname)
+                os.remove(fname)
                 removed.append(fname)
         if removed:
             logger.info('Removed the following existing files that have names that match the names of output files that will be created: %s\n' % ', '.join(removed))
+            
     #Running the different scenarios
         while not all(completed.values()):
             nrunning = started.values().count(True) - completed.values().count(True)
@@ -252,11 +270,9 @@ def main():
             for (modelname, p) in pool.items():
                 if started[modelname] and (not completed[modelname]) and (not p.is_alive()): # process just completed
                     completed[modelname] = True
-                    logger.info('Analysis completed for %s' % modelname)
                     for fname in [outprefixes[modelname] + suffix for suffix in filesuffixlist]:
                         if not os.path.isfile(fname):
                             raise RuntimeError("phydms failed to created expected output file %s." % fname)
-                        logger.info("Found expected output file %s" % fname)
                     logger.info('Analysis successful for %s\n' % modelname)
             time.sleep(1)
 
@@ -265,7 +281,7 @@ def main():
         for fname in outfiles:
             if not os.path.isfile(fname):
                 raise RuntimeError("Cannot find expected output file %s" % fname)
-                
+                 
         # tabulate model comparison
         logger.info("Tabulating model comparisons and writing to %s" % modelcomparisonfile)
         tabulateResults(modelOutputprefixList, modelcomparisonfile)
