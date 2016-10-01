@@ -4,7 +4,7 @@
 the ``phydms`` program
 =======================================
 
-.. contents::
+.. contents:: 
 
 Overview
 ------------

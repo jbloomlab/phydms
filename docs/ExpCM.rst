@@ -230,7 +230,7 @@ Let :math:`\delta_{r}` be the pre-determined diversifying pressure for amino-aci
    \omega\times\left(1+\omega_{2}\times\delta_{r}\right) \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} & \mbox{otherwise.}
    \end{cases}
    
-Whereas before :math:`\omega` reflected the elevation of non-synonymous substitutin rate (averaged across the entire gene) beyond that expected given the amino-acid preferences, now :math:`\omega` reflects a gene-wide rate of elevated non-synonymous substitution after taking into account the expected sites of diversifying pressure (as represented by :math:`\delta_r`) weighted by :math:`\omega_{2}\times\delta_{r}`. These new selection terms in equation Equation :eq:`Frxy_divpressure` are identical the selection terms in Equation :eq:`Frxy` when :math:`\omega_{2} = 0`.
+Whereas before :math:`\omega` reflected the elevation of non-synonymous substitution rate (averaged across the entire gene) beyond that expected given the amino-acid preferences, now :math:`\omega` reflects a gene-wide rate of elevated non-synonymous substitution after taking into account the expected sites of diversifying pressure (as represented by :math:`\delta_r`) weighted by :math:`\omega_{2}\times\delta_{r}`. These new selection terms in equation Equation :eq:`Frxy_divpressure` are identical the selection terms in Equation :eq:`Frxy` when :math:`\omega_{2} = 0`.
 
 To ensure a positive value of :math:`\omega\times\left(1+\omega_{2}\times\delta_{r}\right)` with :math:`-\infty<\delta_{r}<\infty`, :math:`\omega` and :math:`\omega_{2}` are constrained in the following ways:
 
@@ -242,7 +242,7 @@ To ensure a positive value of :math:`\omega\times\left(1+\omega_{2}\times\delta_
 \frac{-1}{\max_r\delta_r}<\omega_{2}<\frac{-1}{\min_r\delta_r} & \text{otherwise}\\
 \end{cases}`
 
-This results in a total of seven free parameters: :math:`\omega`, :math:`\omega_{2}`, :math:`\beta`, :math:`\kappa`, :math:`\phi_A`, :math:`\phi_C`, and :math:`\phi_G`, an increase of one from the model with :math:`F_{r,xy}` defined by Equation :eq:`Frxy`. A likelihood ratio test can therefore by used to test if adding the specified site-specific diversifying pressure represented by the :math:`\delta_r` values actually improves the description of the gene's evolution.
+This results in a total of seven free parameters: :math:`\omega`, :math:`\omega_{2}`, :math:`\beta`, :math:`\kappa`, :math:`\phi_A`, :math:`\phi_C`, and :math:`\phi_G`, an increase of one from the model with :math:`F_{r,xy}` defined by Equation :eq:`Frxy`. A likelihood ratio test can therefore by used to test if adding the pre-determined site-specific diversifying pressure represented by the :math:`\delta_r` values actually improves the description of the gene's evolution.
 
 
 .. include:: weblinks.txt
