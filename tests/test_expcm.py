@@ -50,8 +50,9 @@ class testExpCM(unittest.TestCase):
                       'eta':scipy.random.dirichlet([2] * (N_NT - 1))
                      }
             self.expcm.updateParams(self.params)
-            self.check_ExpCM_attributes()
-            self.check_ExpCM_derivatives()
+#            self.check_ExpCM_attributes()
+#            self.check_ExpCM_derivatives()
+            self.check_ExpCM_matrix_exponentials()
 
     def check_ExpCM_attributes(self):
         """Make sure `ExpCM` has the expected attribute values."""
@@ -179,6 +180,17 @@ class testExpCM(unittest.TestCase):
                     expectval = float(expect.subs(values))
                     self.assertTrue(scipy.allclose(actual, expectval, atol=1e-5),
                             "{0}: {1} vs {2}".format(name, actual, expectval))
+
+    def check_ExpCM_matrix_exponentials(self):
+        """Makes sure matrix exponentials of ExpCM are as expected."""
+        for r in range(self.nsites):
+            # from diag is recomputed Prxy after diagonalization
+            fromdiag = scipy.dot(self.expcm.Ainv[r], scipy.dot(scipy.diag(
+                    self.expcm.D[r]), self.expcm.A[r]))
+            print(self.expcm.Prxy[r])
+            print(fromdiag)
+            self.assertTrue(scipy.allclose(self.expcm.Prxy[r], fromdiag))
+
 
 
 if __name__ == '__main__':

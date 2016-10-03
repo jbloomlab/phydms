@@ -7,6 +7,8 @@ in `phydmslib.constants`.
 
 
 import scipy
+import scipy.sparse
+import scipy.linalg
 from phydmslib.constants import *
 
 
@@ -80,6 +82,14 @@ class ExpCM:
             array is `(nsites, N_CODON)` except for *eta*, for which it is
             `(N_NT - 1, nsites, N_CODON)` with the first index ranging over
             each element in `eta`.
+        `D` (`numpy.ndarray` floats, shape `(nsites, N_CODON)`
+            Element r is diagonal of :math:`\mathbf{D_r}` diagonal matrix where
+            :math:`\mathbf{P_r} = \mathbf{A_r}^{-1} \mathbf{D_r} \mathbf{A_r}`
+        `A` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`
+            Element r is :math:`\mathbf{A_r}` matrix.
+        `Ainv` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`
+            Element r is :math:`\mathbf{A_r}^{-1}` matrix.
+
     """
 
     def __init__(self, prefs, kappa=1.0, omega=1.0, beta=1.0, phi=scipy.ones(N_NT) / N_NT,
@@ -161,6 +171,9 @@ class ExpCM:
         self.qx = scipy.zeros(N_CODON, dtype='float')
         self.Frxy = scipy.ones((self.nsites, N_CODON, N_CODON), dtype='float')
         self.frx = scipy.zeros((self.nsites, N_CODON), dtype='float')
+        self.D = scipy.zeros((self.nsites, N_CODON), dtype='float')
+        self.A = scipy.zeros((self.nsites, N_CODON, N_CODON), dtype='float')
+        self.Ainv = scipy.zeros((self.nsites, N_CODON, N_CODON), dtype='float')
         self.dPrxy = {}
         self.dprx = {}
         for param in self.freeparams:
@@ -251,6 +264,7 @@ class ExpCM:
 
         if update_all or changed:
             self._update_Prxy()
+            self._update_Prxy_diag()
             self._update_dPrxy()
 
     def _update_phi(self):
@@ -321,6 +335,24 @@ class ExpCM:
         """Update `Prxy` using current `Frxy` and `Qxy`."""
         scipy.copyto(self.Prxy, self.Frxy * self.Qxy)
         self._fill_diagonals(self.Prxy)
+
+    def _update_Prxy_diag(self):
+        """Updates `D`, `A`, and `Ainv` using current `Prxy`."""
+        for r in range(self.nsites):
+            pr_half = scipy.sparse.diags(self.prx[r]**0.5, 0)
+            pr_neghalf = scipy.sparse.diags(self.prx[r]**-0.5, 0)
+            # Eigendecomposition of pr**0.5 Pr pr**-0.5,
+            # but since sparse dot only allows first matrix to be sparse,
+            # instead doing (pr**-0.5 (pr**0.5 Pr)^T)^T which is the same
+            symm_pr = (pr_neghalf.dot(pr_half.dot(self.Prxy[r]
+                    ).transpose())).transpose()
+            assert scipy.allclose(symm_pr, symm_pr.transpose())
+            (eigvals, eigvecs) = scipy.linalg.eigh(symm_pr)
+            assert scipy.allclose(scipy.linalg.inv(eigvecs), eigvecs.transpose())
+            assert scipy.allclose(symm_pr, scipy.dot(eigvecs.transpose(), scipy.dot(scipy.diag(eigvals), eigvecs)))
+            scipy.copyto(self.D[r], eigvals)
+            scipy.copyto(self.A[r], pr_half.dot(eigvecs.transpose()).transpose())
+            scipy.copyto(self.Ainv[r], pr_neghalf.dot(eigvecs.transpose()))
 
     def _update_prx(self):
         """Update `prx` using current `frx` and `qx`."""

@@ -225,4 +225,43 @@ where :math:`\operatorname{bool}\left(i \le j\right)` is 1 if :math:`i \le j` an
    \left[\sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le x_j \right)}{\eta_i - \delta_{ix_j}} - \frac{\sum_z p_{r,z} \sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le z_j \right)}{\eta_i - \delta_{iz_j}}}{\sum_z p_{r,z}} \right]
    \\ 
 
+Exponents of the substitution matrix and derivatives
+-------------------------------------------------------
+The definitions above can be used to define a set of matrices :math:`\mathbf{P_r} = \left[P_{r,xy}\right]` that give the rate of transition from codon :math:`x` to :math:`y` at site :math:`r`. A key computation is to compute the probability of a transition in some amount of elapsed time :math:`\mu t`. These probabilities are given by 
+
+.. math::
+   :label: Mr
+   
+   \mathbf{M_r}\left(\mu t\right) = e^{\mu t\mathbf{P_r}}.
+
+In this section, we deal with how to compute :math:`\mathbf{M_r}\left(\mu t\right)` and its derivatives.
+
+Because :math:`\mathbf{P_r}` is reversible with stationary state given by the vector :math:`\mathbf{p_r} = \left[p_{r,x}\right]`, then as described by `Bryant, Galtier, and Poursat (2005) <http://www.maths.otago.ac.nz/~dbryant/Papers/04IHPLikelihood.pdf>`_, the matrix :math:`\left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{1}{2}} \mathbf{P_r} \left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{-1}{2}}` is symmetric.
+
+We can use a numerical routine to compute the eigenvalues and orthonormal eigenvectors. 
+Let :math:`\mathbf{D_r}` be a diagonal matrix with elements equal to the eigenvalues, let :math:`\mathbf{B_r}` be the matrix whose columns are the right orthonormal eigenvectors (in the same order as the eigenvalues), and note that :math:`\mathbf{B_r}^{-1} = \mathbf{B_r}^T`.
+Then we have :math:`\left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{1}{2}} \mathbf{P_r} \left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{-1}{2}} = \mathbf{B_r}^T \mathbf{D_r} \mathbf{B_r}` or equivalently
+
+.. math::
+
+   \mathbf{P_r} = \mathbf{A_r}^{-1} \mathbf{D_r} \mathbf{A_r}
+
+where
+
+.. math::
+
+   \mathbf{A_r}^{-1} = \left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{-1}{2}} \mathbf{B_r}^T
+
+and 
+
+.. math::
+
+   \mathbf{A_r} = \mathbf{B_r} \left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{1}{2}}.
+
+The matrix exponentials are then easily calculated as
+
+.. math::
+
+   \mathbf{M_r}\left(\mu t\right) = e^{\mu t\mathbf{P_r}} = \mathbf{A_r}^{-1} e^{\mu t \mathbf{D_r}} \mathbf{A_r}
+
 .. include:: weblinks.txt
