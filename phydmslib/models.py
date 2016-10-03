@@ -35,11 +35,14 @@ class ExpCM:
         `beta` (float > 0)
             Stringency parameter re-scaling amino-acid preferences.
         `phi` (`numpy.ndarray` of floats, length `N_NT`)
-            Nucleotide frequency params summing to one, can be
+            Nucleotide frequency params summing to one, is
             computed from `eta`.
         `eta` (`numpy.ndarray` of floats, length `N_NT - 1`)
             Transformation of the nucleotide frequency params in `phi`;
             all entries are > 0 and < 1.
+        `freeparams` (list of strings)
+            List of the model parameters that are free to be optimized. Can
+            include `eta` but **not** `phi`, as they represent same thing.
         `Prxy` (`numpy.ndarray` of floats, shape `(nsites, N_CODON, N_CODON)`
             `Prxy[r][x][y]` is substitution rate from codon `x` to `y` at `r`.
             Diagonal elements make rows sum to zero for each `Prxy[r]`.
@@ -64,22 +67,23 @@ class ExpCM:
             encoded by codon `x` divided by pref for that encoded by `y`.
         `piAx_piAy_beta` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
             Equal to `piAx_piAy` raised to the power of `beta`.
-        `dPrxy_dkappa` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
-            Derivative of `Prxy` with respect to `kappa`
-        `dPrxy_domega` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
-            Derivative of `Prxy` with respect to `omega`
-        `dPrxy_dbeta` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
-            Derivative of `Prxy` with respect to `beta`
-        `dPrxy_deta` (`numpy.ndarray` floats, shape `(N_NT - 1, nsites, N_CODON, N_CODON)`)
-            `dPrxy_deta[i]` is derivative of `Prxy` with respect to `eta[i]`
-        `dprx_dbeta (`numpy.ndarray` floats, shape `(nsites, N_CODON)`)
-            Derivative of `prx` with respect to `beta`.
-        `dprx_deta` (`numpy.ndarray` floats, shape `(N_NT - 1, nsites, N_CODON)`)
-            `dprx_deta[i]` is derivative of `prx` with respect to `eta[i]`
+        `dPrxy` (dict)
+            Keyed by each string in `freeparams`, each value is `numpy.ndarray`
+            of floats giving derivative of `Prxy` with respect to that parameter.
+            The shape of each array `(nsites, N_CODON, N_CODON)` except for 
+            *eta*, for which it is `(N_NT - 1, nsites, N_CODON, N_CODON)` with
+            the first index ranging over each element in `eta`.
+        `dprx` (dict)
+            Keyed by each string in `freeparams`, each value is `numpy.ndarray`
+            of floats giving derivative of `prx` with respect to that parameter,
+            or 0 if if `prx` does not depend on parameter. The shape of each
+            array is `(nsites, N_CODON)` except for *eta*, for which it is
+            `(N_NT - 1, nsites, N_CODON)` with the first index ranging over
+            each element in `eta`.
     """
 
-    def __init__(self, prefs, kappa=1.0, omega=1.0, beta=1.0,
-            phi=scipy.ones(N_NT) / N_NT):
+    def __init__(self, prefs, kappa=1.0, omega=1.0, beta=1.0, phi=scipy.ones(N_NT) / N_NT,
+            freeparams=['kappa', 'omega', 'beta', 'eta']):
         """Initialize an `ExpCM` object.
 
         Args: 
@@ -89,11 +93,17 @@ class ExpCM:
                 codes, value is pref > 0 and < 1. Must sum to 1 
                 at each site. All values are adjusted to be >=
                 ALMOST_ZERO.
-            `kappa`, `omega`, `beta`, and `phi`
-                Meanings described in main class doc string.
+            `kappa`, `omega`, `beta`, `phi`, `freeparams`.
+                Parameters with meanings described in main class doc string.
         """
         self.nsites = len(prefs)
         assert self.nsites > 0, "No preferences specified"
+
+        allowedfreeparams = ['kappa', 'omega', 'beta', 'eta']
+        assert all(map(lambda x: x in allowedfreeparams, freeparams)),\
+                "Invalid entry in freeparams\nGot: {0}\nAllowed: {1}".format(
+                ', '.join(freeparams), ', '.join(allowedparams))
+        self.freeparams = list(freeparams)
 
         # put prefs in pi, adjust to > ALMOST_ZERO
         self.pi = scipy.ndarray((self.nsites, N_AA), dtype='float')
@@ -151,96 +161,97 @@ class ExpCM:
         self.qx = scipy.zeros(N_CODON, dtype='float')
         self.Frxy = scipy.ones((self.nsites, N_CODON, N_CODON), dtype='float')
         self.frx = scipy.zeros((self.nsites, N_CODON), dtype='float')
-        self.dPrxy_dkappa  = scipy.zeros((self.nsites, N_CODON, N_CODON), 
-                dtype='float')
-        self.dPrxy_domega  = scipy.zeros((self.nsites, N_CODON, N_CODON), 
-                dtype='float')
-        self.dPrxy_dbeta  = scipy.zeros((self.nsites, N_CODON, N_CODON), 
-                dtype='float')
-        self.dPrxy_deta  = scipy.zeros((N_NT - 1, self.nsites, N_CODON, 
-                N_CODON), dtype='float')
-        self.dprx_dbeta = scipy.zeros((self.nsites, N_CODON), dtype='float')
-        self.dprx_deta = scipy.zeros((N_NT - 1, self.nsites, N_CODON), 
-                dtype='float')
+        self.dPrxy = {}
+        self.dprx = {}
+        for param in self.freeparams:
+            if param in ['kappa', 'omega', 'beta']:
+                self.dPrxy[param] = scipy.zeros((self.nsites, N_CODON, N_CODON), 
+                        dtype='float')
+                if param == 'beta':
+                    self.dprx[param] = scipy.zeros((self.nsites, N_CODON), dtype='float')
+                else:
+                    self.dprx[param] = 0.0
+            elif param == 'eta':
+                self.dPrxy[param] = scipy.zeros((N_NT - 1, self.nsites, N_CODON,
+                        N_CODON), dtype='float')
+                self.dprx[param] = scipy.zeros((N_NT - 1, self.nsites, N_CODON),
+                        dtype='float')
+            else:
+                raise ValueError("Unrecognized param {0}".format(param))
 
         # indexes diagonals in square matrices
         self._diag_indices = scipy.diag_indices(N_CODON)
         
-        self.updateParams(update_all=True)
+        self.updateParams({}, update_all=True)
 
-    def updateParams(self, kappa=None, omega=None, beta=None, eta=None,
-            update_all=False):
+    def updateParams(self, newvalues, update_all=False):
         """Update model params.
 
         This method is the **only** acceptable way to update `ExpCM`
-        model parameters. Any arguments that are not set to the
-        default value of `None` are updated to the new value. This
-        method then updates any other dependent `ExpCM` attributes.
+        model parameters. This method automatically updates
+        any other dependent `ExpCM` attributes after updating
+        the parameters to the new value.
 
         Args:
-            `kappa`, `omega`, `beta`, and `eta`
-                Attribute meanings described in main class doc string.
+            `newvalues` (dict)
+                Can be keyed by any parameter in `freeparams`.
             `update_all` (bool)
                 If `True`, update all dependent attributes using
                 current values of model parameters.
 
         """
-        if update_all:
-            changed = set(['kappa', 'eta', 'beta', 'omega'])
-        else:
-            changed = set([]) # contains string names of changed params
+        assert all(map(lambda x: x in self.freeparams, newvalues.keys())),\
+                "Invalid entry in newvalues: {0}\nfreeparams: {1}".format(
+                ', '.join(newvalues.keys()), ', '.join(self.freeparams))
+        changed = set([]) # contains string names of changed params
 
-        if (eta is not None) and (eta != self.eta).any():
-            assert (isinstance(eta, scipy.ndarray) and eta.shape == (3,) 
-                    and eta.dtype == float), "eta not array of 3 floats"
-            assert (eta > 0).all() and (eta < 1).all(),\
+        if ('eta' in newvalues) and (newvalues['eta'] != self.eta).any():
+            self.eta = newvalues['eta']
+            assert (isinstance(self.eta, scipy.ndarray) and self.eta.shape == (3,) 
+                    and self.eta.dtype == float), "eta not array of 3 floats"
+            assert (self.eta > 0).all() and (self.eta < 1).all(),\
                     "eta must be > 0 and < 1"
-            self.eta = eta
             changed.add('eta')
 
-        if kappa != None and kappa != self.kappa:
-            assert isinstance(kappa, float) and kappa > 0,\
+        if ('kappa' in newvalues) and newvalues['kappa'] != self.kappa:
+            self.kappa = newvalues['kappa']
+            assert isinstance(self.kappa, float) and self.kappa > 0,\
                     "kappa must be float > 0"
-            self.kappa = kappa
             changed.add('kappa')
 
-        if omega != None and omega != self.omega:
-            assert isinstance(omega, float) and omega > 0,\
+        if ('omega' in newvalues) and newvalues['omega'] != self.omega:
+            self.omega = newvalues['omega']
+            assert isinstance(self.omega, float) and self.omega > 0,\
                     "omega must be float > 0"
-            self.omega = omega
             changed.add('omega')
 
-        if beta != None and beta != self.beta:
-            assert isinstance(beta, float) and beta > 0,\
+        if ('beta' in newvalues) and newvalues['beta'] != self.beta:
+            self.beta = newvalues['beta']
+            assert isinstance(self.beta, float) and self.beta > 0,\
                     "beta must be float > 0"
-            self.beta = beta
             changed.add('beta')
 
-        if 'eta' in changed:
+        if update_all or ('eta' in changed):
             self._update_phi()
             self._update_Qxy()
             self._update_qx()
         elif 'kappa' in changed:
             self._update_Qxy()
 
-        if 'beta' in changed:
+        if update_all or ('beta' in changed):
             self._update_piAx_piAy_beta()
             self._update_Frxy()
             self._update_frx()
         elif 'omega' in changed:
             self._update_Frxy()
 
-        if ('beta' in changed) or ('eta' in changed):
+        if update_all or ('beta' in changed) or ('eta' in changed):
             self._update_prx()
-            self._update_dprx_dbeta()
-            self._update_dprx_deta()
+            self._update_dprx()
 
-        if changed:
+        if update_all or changed:
             self._update_Prxy()
-            self._update_dPrxy_dkappa()
-            self._update_dPrxy_domega()
-            self._update_dPrxy_dbeta()
-            self._update_dPrxy_deta()
+            self._update_dPrxy()
 
     def _update_phi(self):
         """Update `phi` using current `eta`."""
@@ -319,52 +330,46 @@ class ExpCM:
             for r in range(self.nsites):
                 self.prx[r] /= self.prx[r].sum()
 
-    def _update_dPrxy_dkappa(self):
-        """Update `dPrxy_dkappa` using current `Prxy` and `kappa`."""
-        scipy.copyto(self.dPrxy_dkappa, self.Prxy / self.kappa, 
-                where=CODON_TRANSITION)
-        self._fill_diagonals(self.dPrxy_dkappa)
-        
-    def _update_dPrxy_domega(self):
-        """Update `dPrxy_domega` using current `Prxy` and `omega`."""
-        scipy.copyto(self.dPrxy_domega, self.Prxy / self.omega, 
-                where=CODON_NONSYN)
-        self._fill_diagonals(self.dPrxy_domega)
-
-    def _update_dPrxy_dbeta(self):
-        """Update `dPrxy_dbeta` using `Prxy`, `Frxy`, `piAx_piAy_beta`, and `beta`."""
-        scipy.copyto(self.dPrxy_dbeta, (self.Prxy * (1 - self.Frxy / self.omega
-                * self.piAx_piAy_beta)) / self.beta, where=CODON_NONSYN)
-        self._fill_diagonals(self.dPrxy_dbeta)
-
-    def _update_dPrxy_deta(self):
-        """Update `dPrxy_deta` using `Prxy` and `eta`."""
-        for i in range(N_NT - 1):
-            for w in range(i, N_NT):
-                scipy.copyto(self.dPrxy_deta[i], self.Prxy / (self.eta[i]
-                        - int(i == w)), where=CODON_NT_MUT[w])
-            self._fill_diagonals(self.dPrxy_deta[i])
-            
-    def _update_dprx_dbeta(self):
-        """Update `dprx_dbeta` using `prx` and `ln_pi_codon`."""
-        for r in range(self.nsites):
-            scipy.copyto(self.dprx_dbeta[r], self.prx[r] * (self.ln_pi_codon[r]
-                    - scipy.dot(self.ln_pi_codon[r], self.prx[r])))
-
-    def _update_dprx_deta(self):
-        """Update `dprx_deta` using `prx` and `eta`."""
-        boolterm = scipy.ndarray(N_CODON, dtype='float')
-        with scipy.errstate(divide='raise', under='raise', over='raise',
-                invalid='raise'):
+    def _update_dPrxy(self):
+        """Update `dPrxy`."""
+        if 'kappa' in self.freeparams:
+            scipy.copyto(self.dPrxy['kappa'], self.Prxy / self.kappa, 
+                    where=CODON_TRANSITION)
+            self._fill_diagonals(self.dPrxy['kappa'])
+        if 'omega' in self.freeparams:
+            scipy.copyto(self.dPrxy['omega'], self.Prxy / self.omega, 
+                    where=CODON_NONSYN)
+            self._fill_diagonals(self.dPrxy['omega'])
+        if 'beta' in self.freeparams:
+            scipy.copyto(self.dPrxy['beta'], (self.Prxy * (1 - self.Frxy / self.omega
+                    * self.piAx_piAy_beta)) / self.beta, where=CODON_NONSYN)
+            self._fill_diagonals(self.dPrxy['beta'])
+        if 'eta' in self.freeparams:
             for i in range(N_NT - 1):
-                boolterm.fill(0)
-                for j in range(3):
-                    boolterm += ((i <= CODON_NT_INDEX[j]).astype('float') / 
-                            (self.eta[i] - (i == CODON_NT_INDEX[j]).astype(
-                            'float')))
-                for r in range(self.nsites):
-                    scipy.copyto(self.dprx_deta[i][r], self.prx[r] * (boolterm
-                            - scipy.dot(boolterm, self.prx[r]) / self.prx[r].sum()))
+                for w in range(i, N_NT):
+                    scipy.copyto(self.dPrxy['eta'][i], self.Prxy / (self.eta[i]
+                            - int(i == w)), where=CODON_NT_MUT[w])
+                self._fill_diagonals(self.dPrxy['eta'][i])
+            
+    def _update_dprx(self):
+        """Update `dprx`."""
+        if 'beta' in self.freeparams:
+            for r in range(self.nsites):
+                scipy.copyto(self.dprx['beta'][r], self.prx[r] * (self.ln_pi_codon[r]
+                        - scipy.dot(self.ln_pi_codon[r], self.prx[r])))
+        if 'eta' in self.freeparams:
+            boolterm = scipy.ndarray(N_CODON, dtype='float')
+            with scipy.errstate(divide='raise', under='raise', over='raise',
+                    invalid='raise'):
+                for i in range(N_NT - 1):
+                    boolterm.fill(0)
+                    for j in range(3):
+                        boolterm += ((i <= CODON_NT_INDEX[j]).astype('float') / 
+                                (self.eta[i] - (i == CODON_NT_INDEX[j]).astype(
+                                'float')))
+                    for r in range(self.nsites):
+                        scipy.copyto(self.dprx['eta'][i][r], self.prx[r] * (boolterm
+                                - scipy.dot(boolterm, self.prx[r]) / self.prx[r].sum()))
 
     def _fill_diagonals(self, m):
         """Fills diagonals of `nsites` matrices in `m` so rows sum to 0."""

@@ -49,8 +49,7 @@ class testExpCM(unittest.TestCase):
                       'beta':random.uniform(ALMOST_ZERO, 3),
                       'eta':scipy.random.dirichlet([2] * (N_NT - 1))
                      }
-            self.expcm.updateParams(omega=self.params['omega'], beta=self.params['beta'],
-                    kappa=self.params['kappa'], eta=self.params['eta'])
+            self.expcm.updateParams(self.params)
             self.check_ExpCM_attributes()
             self.check_ExpCM_derivatives()
 
@@ -130,12 +129,12 @@ class testExpCM(unittest.TestCase):
                             Prxy = Qxy
                     for (name, actual, expect) in [
                             ('Prxy', self.expcm.Prxy[r][x][y], Prxy),
-                            ('dPrxy_dkappa', self.expcm.dPrxy_dkappa[r][x][y], sympy.diff(Prxy, kappa)),
-                            ('dPrxy_domega', self.expcm.dPrxy_domega[r][x][y], sympy.diff(Prxy, omega)),
-                            ('dPrxy_dbeta', self.expcm.dPrxy_dbeta[r][x][y], sympy.diff(Prxy, beta)),
-                            ('dPrxy_deta0', self.expcm.dPrxy_deta[0][r][x][y], sympy.diff(Prxy, eta0)),
-                            ('dPrxy_deta1', self.expcm.dPrxy_deta[1][r][x][y], sympy.diff(Prxy, eta1)),
-                            ('dPrxy_deta2', self.expcm.dPrxy_deta[2][r][x][y], sympy.diff(Prxy, eta2)),
+                            ('dPrxy_dkappa', self.expcm.dPrxy['kappa'][r][x][y], sympy.diff(Prxy, kappa)),
+                            ('dPrxy_domega', self.expcm.dPrxy['omega'][r][x][y], sympy.diff(Prxy, omega)),
+                            ('dPrxy_dbeta', self.expcm.dPrxy['beta'][r][x][y], sympy.diff(Prxy, beta)),
+                            ('dPrxy_deta0', self.expcm.dPrxy['eta'][0][r][x][y], sympy.diff(Prxy, eta0)),
+                            ('dPrxy_deta1', self.expcm.dPrxy['eta'][1][r][x][y], sympy.diff(Prxy, eta1)),
+                            ('dPrxy_deta2', self.expcm.dPrxy['eta'][2][r][x][y], sympy.diff(Prxy, eta2)),
                             ]:
                         if Prxy == 0:
                             expectval = 0
@@ -172,10 +171,10 @@ class testExpCM(unittest.TestCase):
                 prx = frxs[x] * qxs[x] / sum(frx * qx for (frx, qx) in zip(frxs, qxs))
                 for (name, actual, expect) in [
                         ('prx', self.expcm.prx[r][x], prx),
-                        ('dprx_dbeta', self.expcm.dprx_dbeta[r][x], sympy.diff(prx, beta)),
-                        ('dprx_deta0', self.expcm.dprx_deta[0][r][x], sympy.diff(prx, eta0)),
-                        ('dprx_deta1', self.expcm.dprx_deta[1][r][x], sympy.diff(prx, eta1)),
-                        ('dprx_deta2', self.expcm.dprx_deta[2][r][x], sympy.diff(prx, eta2)),
+                        ('dprx_dbeta', self.expcm.dprx['beta'][r][x], sympy.diff(prx, beta)),
+                        ('dprx_deta0', self.expcm.dprx['eta'][0][r][x], sympy.diff(prx, eta0)),
+                        ('dprx_deta1', self.expcm.dprx['eta'][1][r][x], sympy.diff(prx, eta1)),
+                        ('dprx_deta2', self.expcm.dprx['eta'][2][r][x], sympy.diff(prx, eta2)),
                         ]:
                     expectval = float(expect.subs(values))
                     self.assertTrue(scipy.allclose(actual, expectval, atol=1e-5),
