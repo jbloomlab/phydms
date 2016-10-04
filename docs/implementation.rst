@@ -264,4 +264,30 @@ The matrix exponentials are then easily calculated as
 
    \mathbf{M_r}\left(\mu t\right) = e^{\mu t\mathbf{P_r}} = \mathbf{A_r} e^{\mu t \mathbf{D_r}} \mathbf{A_r}^{-1}
 
+We also want to calculate the derivatives of :math:`\mathbf{M_r}\left(\mu t\right)` with respect to the other parameters on which :math:`P_{r,xy}` depends (e.g., :math:`\beta`, :math:`\eta_i`, :math:`\kappa`, and :math:`\omega`). 
+
+According to `Kalbeisch and Lawless (1985) <https://www.jstor.org/stable/2288545?seq=1#page_scan_tab_contents>`_ (see also `Kenney and Gu (2012) <http://www.mathstat.dal.ca/~hgu/hession.pdf>`_ and `Bloom et al (2011) <http://dx.plos.org/10.1371/journal.pone.0022201>`_), the derivative with respect to some parameter :math:`z` is given by
+
+.. math::
+
+   \frac{\partial \mathbf{M_r}\left(\mu t\right)}{\partial z} = \mathbf{A_r} \mathbf{V_{r,z}} \mathbf{A_r}^{-1}
+
+where the elements of :math:`\mathbf{V_{r,z}}` are
+
+.. math::
+
+   V_{xy}^{r,z} = 
+   \begin{cases}
+   B_{xy}^{r,z} \frac{\exp\left(\mu t D^r_{xx}\right) - \exp\left(\mu t D^r_{yy}\right)}{D^r_{xx} - D^r_{yy}} & \mbox{if $x \ne y$ and $D_{xx}^r \ne D_{yy}^r$}, \\
+   B_{xy}^{r,z} \mu t \exp\left(\mu t D^r_{xx}\right) & \mbox{if $x \ne y$ and $D_{xx}^r = D_{yy}^r$}, \\
+   B_{xx}^{r,z} \mu t \exp\left(\mu t D_{xx}^r\right)& \mbox{if $x = y$}, 
+   \end{cases}
+
+where :math:`D^r_{xx}` and :math:`D^r_{yy}` are the diagonal elements of :math:`\mathbf{D_r}`, and :math:`B_{xy}^{r,z}` are the elements of the matrix :math:`\mathbf{B_r,z}` defined by
+
+.. math::
+ 
+   \mathbf{B_{r,z}} = \mathbf{A_r}^{-1} \frac{\partial \mathbf{P_r}}{\partial z} \mathbf{A_r}.
+
+
 .. include:: weblinks.txt
