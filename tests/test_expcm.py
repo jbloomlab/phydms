@@ -9,6 +9,7 @@ are correct for `ExpCM` implemented in `phydmslib.models`."""
 import random
 import unittest
 import scipy
+import scipy.linalg
 import sympy
 from phydmslib.constants import *
 import phydmslib.models
@@ -184,11 +185,16 @@ class testExpCM(unittest.TestCase):
     def check_ExpCM_matrix_exponentials(self):
         """Makes sure matrix exponentials of ExpCM are as expected."""
         for r in range(self.nsites):
-            # from diag is recomputed Prxy after diagonalization
+            # fromdiag is recomputed Prxy after diagonalization
             fromdiag = scipy.dot(self.expcm.A[r], scipy.dot(scipy.diag(
                     self.expcm.D[r]), self.expcm.Ainv[r]))
             self.assertTrue(scipy.allclose(self.expcm.Prxy[r], fromdiag,
-                    atol=1e-5), "Max diff: {0}".format((self.expcm.Prxy[r] - fromdiag).max()))
+                    atol=1e-5), "Max diff {0}".format((self.expcm.Prxy[r] - fromdiag).max()))
+
+            for t in [0.02, 0.2, 2.0]:
+                direct = scipy.linalg.expm(self.expcm.Prxy[r] * t)
+                self.assertTrue(scipy.allclose(self.expcm.Mrt(r, t), direct),
+                        "Max diff {0}".format((self.expcm.Mrt(r, t) - direct).max()))
 
 
 

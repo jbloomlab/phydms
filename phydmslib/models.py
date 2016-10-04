@@ -265,25 +265,24 @@ class ExpCM:
             self._update_Prxy_diag()
             self._update_dPrxy()
 
-    def Mt(self, t):
-        """Matrix exponential `M(t) = exp(t * Pr)`.
+    def Mrt(self, r, t):
+        """Matrix exponential `Mr(t) = exp(t * Pr)`.
 
         Uses `D`, `A`, and `Ainv` to compute exponential of `Prxy`, 
         which is substitution probability after time `t`.
 
         Args:
             `t` (float > 0)
+            `r` (int >= 0 and < nsites)
 
         Returns:
-            `Mt` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
-                `Mt[r][x][y]` is probability `r` changes from `x` to `y`
+            `Mrt` (`numpy.ndarray` floats, shape `(N_CODON, N_CODON)`)
+                `Mrt[x][y]` is probability `r` changes from `x` to `y`
                 in time `t`.
         """
-        if isinstance(t, float) and t > 0:
-            raise RuntimeError('not yet implemented')
-            return Mt
-        else:
-            raise ValueError("t not float:\n{0}".format(t))
+        assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
+        assert 0 <= r < self.nsites
+        return scipy.dot(self.A[r] * scipy.exp(self.D[r] * t), self.Ainv[r])
 
     def _update_phi(self):
         """Update `phi` using current `eta`."""
