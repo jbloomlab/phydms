@@ -7,7 +7,6 @@ in `phydmslib.constants`.
 
 
 import scipy
-import scipy.sparse
 import scipy.linalg
 from phydmslib.constants import *
 
@@ -211,7 +210,6 @@ class ExpCM:
             `update_all` (bool)
                 If `True`, update all dependent attributes using
                 current values of model parameters.
-
         """
         assert all(map(lambda x: x in self.freeparams, newvalues.keys())),\
                 "Invalid entry in newvalues: {0}\nfreeparams: {1}".format(
@@ -266,6 +264,26 @@ class ExpCM:
             self._update_Prxy()
             self._update_Prxy_diag()
             self._update_dPrxy()
+
+    def Mt(self, t):
+        """Matrix exponential `M(t) = exp(t * Pr)`.
+
+        Uses `D`, `A`, and `Ainv` to compute exponential of `Prxy`, 
+        which is substitution probability after time `t`.
+
+        Args:
+            `t` (float > 0)
+
+        Returns:
+            `Mt` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
+                `Mt[r][x][y]` is probability `r` changes from `x` to `y`
+                in time `t`.
+        """
+        if isinstance(t, float) and t > 0:
+            raise RuntimeError('not yet implemented')
+            return Mt
+        else:
+            raise ValueError("t not float:\n{0}".format(t))
 
     def _update_phi(self):
         """Update `phi` using current `eta`."""
@@ -339,20 +357,17 @@ class ExpCM:
     def _update_Prxy_diag(self):
         """Updates `D`, `A`, and `Ainv` using current `Prxy`."""
         for r in range(self.nsites):
-            pr_half = scipy.sparse.diags(self.prx[r]**0.5, 0)
-            pr_neghalf = scipy.sparse.diags(self.prx[r]**-0.5, 0)
-            # Eigendecomposition of pr**0.5 Pr pr**-0.5,
-            # but since sparse dot only allows first matrix to be sparse,
-            # instead doing (pr**-0.5 (pr**0.5 Pr)^T)^T which is the same
-            symm_pr = (pr_neghalf.dot(pr_half.dot(self.Prxy[r]
-                    ).transpose())).transpose()
-            assert scipy.allclose(symm_pr, symm_pr.transpose())
-            (eigvals, eigvecs) = scipy.linalg.eigh(symm_pr)
-            assert scipy.allclose(scipy.linalg.inv(eigvecs), eigvecs.transpose())
-            assert scipy.allclose(symm_pr, scipy.dot(eigvecs.transpose(), scipy.dot(scipy.diag(eigvals), eigvecs)))
-            scipy.copyto(self.D[r], eigvals)
-            scipy.copyto(self.A[r], pr_half.dot(eigvecs.transpose()).transpose())
-            scipy.copyto(self.Ainv[r], pr_neghalf.dot(eigvecs.transpose()))
+            pr_half = self.prx[r]**0.5
+            pr_neghalf = self.prx[r]**-0.5
+            #symm_pr = scipy.dot(scipy.diag(pr_half), scipy.dot(self.Prxy[r], scipy.diag(pr_neghalf)))
+            symm_pr = (pr_half * (self.Prxy[r] * pr_neghalf).transpose()).transpose()
+            #assert scipy.allclose(symm_pr, symm_pr.transpose())
+            (evals, evecs) = scipy.linalg.eigh(symm_pr)
+            #assert scipy.allclose(scipy.linalg.inv(evecs), evecs.transpose())
+            #assert scipy.allclose(symm_pr, scipy.dot(evecs, scipy.dot(scipy.diag(evals), evecs.transpose())))
+            scipy.copyto(self.D[r], evals)
+            scipy.copyto(self.Ainv[r], evecs.transpose() * pr_half)
+            scipy.copyto(self.A[r], (pr_neghalf * evecs.transpose()).transpose())
 
     def _update_prx(self):
         """Update `prx` using current `frx` and `qx`."""

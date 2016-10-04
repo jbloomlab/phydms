@@ -187,8 +187,8 @@ class testExpCM(unittest.TestCase):
             # from diag is recomputed Prxy after diagonalization
             fromdiag = scipy.dot(self.expcm.A[r], scipy.dot(scipy.diag(
                     self.expcm.D[r]), self.expcm.Ainv[r]))
-            self.assertTrue(scipy.allclose(self.expcm.Prxy[r], 
-                    fromdiag, atol=1e-6))
+            self.assertTrue(scipy.allclose(self.expcm.Prxy[r], fromdiag,
+                    atol=1e-5), "Max diff: {0}".format((self.expcm.Prxy[r] - fromdiag).max()))
 
 
 

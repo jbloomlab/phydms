@@ -240,28 +240,28 @@ Because :math:`\mathbf{P_r}` is reversible with stationary state given by the ve
 
 We can use a numerical routine to compute the eigenvalues and orthonormal eigenvectors. 
 Let :math:`\mathbf{D_r}` be a diagonal matrix with elements equal to the eigenvalues, let :math:`\mathbf{B_r}` be the matrix whose columns are the right orthonormal eigenvectors (in the same order as the eigenvalues), and note that :math:`\mathbf{B_r}^{-1} = \mathbf{B_r}^T`.
-Then we have :math:`\left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{1}{2}} \mathbf{P_r} \left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{-1}{2}} = \mathbf{B_r}^T \mathbf{D_r} \mathbf{B_r}` or equivalently
+Then we have :math:`\left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{1}{2}} \mathbf{P_r} \left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{-1}{2}} = \mathbf{B_r} \mathbf{D_r} \mathbf{B_r}^T` or equivalently
 
 .. math::
 
-   \mathbf{P_r} = \mathbf{A_r}^{-1} \mathbf{D_r} \mathbf{A_r}
+   \mathbf{P_r} = \mathbf{A_r} \mathbf{D_r} \mathbf{A_r}^{-1}
 
 where
 
 .. math::
 
-   \mathbf{A_r}^{-1} = \left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{-1}{2}} \mathbf{B_r}^T
+   \mathbf{A_r} = \left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{-1}{2}} \mathbf{B_r}
 
 and 
 
 .. math::
 
-   \mathbf{A_r} = \mathbf{B_r} \left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{1}{2}}.
+   \mathbf{A_r}^{-1} = \mathbf{B_r}^T \left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{1}{2}}.
 
 The matrix exponentials are then easily calculated as
 
 .. math::
 
-   \mathbf{M_r}\left(\mu t\right) = e^{\mu t\mathbf{P_r}} = \mathbf{A_r}^{-1} e^{\mu t \mathbf{D_r}} \mathbf{A_r}
+   \mathbf{M_r}\left(\mu t\right) = e^{\mu t\mathbf{P_r}} = \mathbf{A_r} e^{\mu t \mathbf{D_r}} \mathbf{A_r}^{-1}
 
 .. include:: weblinks.txt
