@@ -53,18 +53,18 @@ def tabulateResults(fileList, modelComparisonName):
     Creates a csv summarizes the results from each model
     """
     finalOutput = []
-    finalOutput.append("Name,DiversifyingPressureName,DiversifyingPressureType,LogLikelihood,Omega,Omega2,kappa,beta,phiA,phiC,phiG\n")
-    for file in fileList:
-        newLine = getResultsFromOneRun(file)
+    finalOutput.append("Name,DiversifyingPressureName,DiversifyingPressureType,LogLikelihood,omega,omega2,kappa,beta,phiA,phiC,phiG\n")
+    for fname in fileList:
+        newLine = getResultsFromOneRun(fname)
         finalOutput.append(newLine)
     #no diversifying pressure
     with open(modelComparisonName,'wb') as f:
         for item in finalOutput:
             f.write(item)
             
-def getResultsFromOneRun(file):
-    name = os.path.basename(file)
-    with open(file + "_modelparams.txt") as f:
+def getResultsFromOneRun(fname):
+    name = os.path.basename(fname)
+    with open(fname + "_modelparams.txt") as f:
         modelparamstext = f.read()
         kappa = re.search('123_K80.kappa = (\d+\.\d+)', modelparamstext).group(1)
         omega = float(re.search('omega = (\d+\.\d+)', modelparamstext).group(1))
@@ -81,7 +81,7 @@ def getResultsFromOneRun(file):
     phiA = theta1 * (1.0 - theta)
     phiC = (1.0 - theta2) * theta
     phiG = theta * theta2
-    with open(file + "_loglikelihood.txt") as f:
+    with open(fname + "_loglikelihood.txt") as f:
         loglikelihoodtext = f.read()
         if re.search('log likelihood = (-\d+\.\d+)', loglikelihoodtext):
             LL = float(re.search('log likelihood = (-\d+\.\d+)', loglikelihoodtext).group(1))
@@ -89,16 +89,16 @@ def getResultsFromOneRun(file):
             LL = float(re.search('log likelihood = (-\d+)', loglikelihoodtext).group(1))
         else:
             print "Couldn't find a Log likelihood for %s" %(file+"_loglikelihood.txt")
-    if "noDiversifyingpressure" in file:
+    if "noDiversifyingpressure" in name:
         type = "none"
         divpressureName = "none"
-    elif "random" in file:
+    elif "random" in name:
         type = "random"
-        divpressureName = "_".join(file.split("_")[1:-2])
+        divpressureName = "_".join(name.split("_")[:-2])
     else:
         type = "true"
-        divpressureName = "_".join(file.split("_")[1:])
-    newLine= ",".join([str(x) for x in [file,divpressureName,type,LL, omega, omega2, kappa, beta, phiA, phiC, phiG]])+"\n"
+        divpressureName = name
+    newLine= ",".join([str(x) for x in [fname,divpressureName,type,LL, omega, omega2, kappa, beta, phiA, phiC, phiG]])+"\n"
     return newLine
     
 def RunCmds(cmds):

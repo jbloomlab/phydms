@@ -63,15 +63,16 @@ A file with the suffix ``.log`` will be created that summarizes the overall prog
 
 Model comparison file
 +++++++++++++++++++++++++
-A file with the suffix ``_modelcomparison.csv`` (or just the name ``modelcomparison.txt`` if ``outprefix`` is just a directory name) will be created that summarizes the model fitting. Here is an example of the file that would be created if ``phydms_testdivpressure`` is passed a single ``divpressure`` with the name ``divpressure1.txt`` and ``--randomizations`` is set to one.::
+A file with the suffix ``_modelcomparison.csv`` (or just the name ``modelcomparison.txt`` if ``outprefix`` is just a directory name) will be created that summarizes the model fitting. Here is an example of the file that would be created if ``phydms_testdivpressure`` was passed a single ``divpressure`` with the name ``divpressure1.txt`` and ``--randomizations`` was set to one.
 
-    ==================================== =========================== ===================== ============== ====== ======= ========
-     Model                                DiveresifyingPressureName   DiversifyingPressure  LogLikelihood  Omega  Omega2  ...etc                               
-    ==================================== =========================== ===================== ============== ====== ======= ========
-     divpressure1                         divpressure1                true                   -1100.2       0.3    1.5
-     divpressure1_random_0                divpressure1                random                 -1104.3       0.6    0.03
-     divpressure1_noDiversifyingpresure   none                        none                   -1104.4       0.7    N/A
-    ==================================== =========================== ===================== ============== ====== ======= ========
+
+.. csv-table:: modelcomparison.csv
+   :header: "Name","DiversifyingPressureName","DiversifyingPressureType","LogLikelihood","omega","omega2","kappa","beta","phiA","phiC","phiG"
+   :widths: 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10
+
+   "noDiversifyingpressure","none","none",-7306.12,0.709701,"N/A",4.069475,2.045563,0.388787,0.186856,0.2175507
+   "divpressure1","divpressure1","true",-7295.2,0.576956,1.027609,4.097212,2.031828,0.387518,0.187517,0.217087
+   "divpressure1_random_0","divpressure1","random",-7305.14,0.737622,-0.241151,4.073150,2.044787,0.388257,0.187045,0.2176979
 
 ``phydms`` output for each model
 ++++++++++++++++++++++++++++++++++
