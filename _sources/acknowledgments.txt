@@ -16,7 +16,11 @@ The optional dating of nodes in the phylogenies uses the `LSD`_ source code, whi
 
 Citations
 ------------
-There is currently no citation for `phydms`_, but the following references describe initial versions of the :ref:`ExpCM` incorporated into `phydms`_:
+The current citation for `phydms`_ is:
+
+   * `Bloom, bioRxiv, DOI 10.1101/037689`_
+
+The following references are also relevant:
 
     * `Bloom, Mol Biol Evol, 31:1956-1978`_
 

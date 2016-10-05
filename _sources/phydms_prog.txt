@@ -4,7 +4,7 @@
 the ``phydms`` program
 =======================================
 
-.. contents::
+.. contents:: 
 
 Overview
 ------------
@@ -61,6 +61,17 @@ Command-line usage
    \-\-omegabysite
     If using a YNGKP model, then the :math:`\omega_r` value is nearly analogous that obtained using the *FEL* model described by `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_. If using and *ExpCM*, then :math:`\omega_r` has the meaning described in :ref:`ExpCM`. Essentially, we fix all other model / tree parameters and then compare a model that fits a synonymous and nonsynonymous rate to each site to a null model that only fits a synonymous rate; there is evidence for :math:`\omega_r \ne 1` if fitting both nonsynonymous and synonymous rate gives sufficiently better likelihood than fitting synonymous rate alone. See also the ``--omegabysite_fixsyn`` option.
 
+   \-\-fixationmodel 
+    The ExpCM relate the "fixation" probabilities of nonsynonymous mutations to the preferences for the wildtype and mutant amino acids. These relationships are found in the definition of the :math:`F_{r,xy}` terms in :ref:`ExpCM`.
+
+    This option allows you to specify different relationships between the preferences and fixation probabilities.
+    
+    The *HalpernBruno* method is based on that described by `Halpern and Bruno, Mol Biol Evol, 15:910-917`_. In this formulation, the probability is :math:`\frac{\ln\left[\left(\pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta}\right]}{1 - \left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta}}`. This is the method used in the definition of :math:`F_{r,xy}` in :ref:`ExpCM`.
+
+    The *FracTolerated* method is that described in `Bloom, Mol Biol Evol, 31:1956-1978`_. Essentially, it uses the Metropolis sampling criteria. The relationship described above for *HalpernBruno* is instead replaced by: :math:`\min\left(1, \left[\pi_{r,\operatorname{A}\left(y\right)}\right]^{\beta} / \left[\pi_{r,\operatorname{A}\left(x\right)}\right]^{\beta}\right)`
+
+    The *gwF* method is based on Goldman-Whelan generalized weighted frequencies method. For a description of this method, see `Goldman and Whelan, Mol Biol Evol, 19:1821-1831`_ and also `Knudsen and Miyamoto, BMC Evol Biol, 5:21`_. In this approach, the relatinship described above for *HalpernBruno* is instead replaced by :math:`\frac{\left[\frac{\left(\pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta}}{\sum_a \left(\pi_{r,a}\right)^{\beta}}\right]^{\left(1 - f_{gwF}\right)}}{\left[\frac{\left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta}}{\sum_a \left(\pi_{r,a}\right)^{\beta}}\right]^{f_{gwF}}}` where :math:`f_{gwF}` can range from zero to one. Note that this method introduces one additional parameter, :math:`f_{gwF}`, relative to the *HalpernBruno* and *FracTolerated* methods.
+
    \-\-omegabysite_fixsyn
     This option is meaningful only if you are using ``--omegabysite``. If you use this option, then we compare a model in which we fit a nonsynonymous rate to each site to a model in which we fit nothing. The synonymous rate is not fit, and so is assumed to be equal to the overall value fit for the tree. According to `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_, in some cases this can yield greater power if there is relatively limited data. However, it comes with the risk of giving spurious results if there is substantial variation in the synonymous substitution rate among sites.  
 
@@ -77,6 +88,9 @@ Command-line usage
 
    \-\-diffprefsbysite
     The meaning of the :math:`\Delta\pi_{r,a}` values is described in :ref:`ExpCM`.
+
+   \-\-divpressure
+    Only for *ExpCM* models. This option specifies the name of the file with the predetermined diversifying pressure for each site, :math:`\delta_{r}`. ``phydms`` will fit :math:`\omega` and :math:`\omega_{2}` as described in :ref:`ExpCM`.
 
    \-\-randprefs
     Only for *ExpCM* models. This option randomly reassigns the preferences among sites. This can be used as a control -- randomizing the preferences should make them lose their efficacy for describing evolution.

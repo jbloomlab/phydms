@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>the phydms_prepalignment program &mdash; phydms 1.2.5 documentation</title>
+    <title>the phydms_prepalignment program &#8212; phydms 1.3.0 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.2.5',
+        VERSION:     '1.3.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.2.5 documentation" href="index.html" />
+    <link rel="top" title="phydms 1.3.0 documentation" href="index.html" />
     <link rel="up" title="auxiliary programs" href="auxiliary_progs.html" />
     <link rel="next" title="the phydms_plotselection program" href="phydms_plotselection_prog.html" />
     <link rel="prev" title="the phydms_comprehensive program" href="phydms_comprehensive_prog.html" /> 
@@ -45,8 +45,8 @@
         <li class="right" >
           <a href="phydms_comprehensive_prog.html" title="the phydms_comprehensive program"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.5 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" accesskey="U">auxiliary programs</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" accesskey="U">auxiliary programs</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -108,8 +108,8 @@ uniqueness.</li>
 </ul>
 </dd>
 </dl>
-<p>The &#8216;phydms&#8217; package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a> for all contributors); it performs likelihood calculations using the Bio++ libraries (thanks to Julien Dutheil and Laurent Gueguen).
-Version 1.2.dev5
+<p>The &#8216;phydms&#8217; package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a>).
+Version 2.0.dev0
 Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
 </p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">phydms_prepalignment</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">prealigned</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">mafft</span> <span class="n">MAFFT</span><span class="p">]</span>
@@ -163,7 +163,7 @@ Full documentation at <a class="reference external" href="http://jbloomlab.githu
 <td>Specify sequences to always purge. Any sequences with any of the substrings specified here are always removed. The substrings can either be passed as repeated arguments here, or as the name of an existing file which has one substring per line.</td></tr>
 <tr><td class="option-group">
 <kbd><span class="option">--keepseqs</span></kbd></td>
-<td>Do not remove for lack of uniqueness any of these sequences. Specified in the same fashion as for &#8216;&#8211;purgseqs&#8217;.</td></tr>
+<td>Do not purge any of these sequences for lack of identity or uniqueness. Specified in the same fashion as for &#8216;&#8211;purgeseqs&#8217;.</td></tr>
 <tr><td class="option-group">
 <kbd><span class="option">-v</span>, <span class="option">--version</span></kbd></td>
 <td>show program&#8217;s version number and exit</td></tr>
@@ -184,7 +184,7 @@ Full documentation at <a class="reference external" href="http://jbloomlab.githu
 <a class="reference internal image-reference" href="_images/SUMO1_alignment.jpg"><img alt="SUMO1_alignment.jpg" src="_images/SUMO1_alignment.jpg" style="width: 40%;" /></a>
 <p class="caption"><span class="caption-text">A <code class="docutils literal"><span class="pre">jpg</span></code> version of the plot <code class="docutils literal"><span class="pre">SUMO1_alignment.pdf</span></code>.</span></p>
 </div>
-<p>Sometimes there may be certain sequences you do <strong>not</strong> want to purge even if they have too high an identity to other sequences. For instance, maybe you want to keep the chimpanzee and gorilla homologs (which have <em>Panu</em> and <em>Ggor</em> in their headers) even though they are less than two amino-acid mutations from the human ortholog. In this case, use <code class="docutils literal"><span class="pre">--keepseqs</span></code>:</p>
+<p>Sometimes there may be certain sequences you do <strong>not</strong> want to purge even if they lack uniqueness or identity to the reference sequence. For instance, maybe you want to keep the chimpanzee and gorilla homologs (which have <em>Panu</em> and <em>Ggor</em> in their headers) even though they are less than two amino-acid mutations from the human ortholog. In this case, use <code class="docutils literal"><span class="pre">--keepseqs</span></code>:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">phydms_prepalignment</span> <span class="n">SUMO1_orthologs</span><span class="o">.</span><span class="n">fasta</span> <span class="n">SUMO1_alignment</span><span class="o">.</span><span class="n">fasta</span> <span class="n">Hsap</span> <span class="o">--</span><span class="n">minidentity</span> <span class="mf">0.7</span> <span class="o">--</span><span class="n">minuniqueness</span> <span class="mi">2</span> <span class="o">--</span><span class="n">keepseqs</span> <span class="n">Panu</span> <span class="n">Ggor</span>
 </pre></div>
 </div>
@@ -259,13 +259,13 @@ Full documentation at <a class="reference external" href="http://jbloomlab.githu
         <li class="right" >
           <a href="phydms_comprehensive_prog.html" title="the phydms_comprehensive program"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.5 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" >auxiliary programs</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" >auxiliary programs</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+        &#169; Copyright 2015, Jesse D. Bloom.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
     </div>
   </body>
 </html>

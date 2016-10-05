@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>the phydms program &mdash; phydms 1.2.5 documentation</title>
+    <title>the phydms program &#8212; phydms 1.3.0 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.2.5',
+        VERSION:     '1.3.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.2.5 documentation" href="index.html" />
+    <link rel="top" title="phydms 1.3.0 documentation" href="index.html" />
     <link rel="next" title="auxiliary programs" href="auxiliary_progs.html" />
     <link rel="prev" title="Quick example" href="quick_example.html" /> 
   </head>
@@ -44,7 +44,7 @@
         <li class="right" >
           <a href="quick_example.html" title="Quick example"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.5 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.3.0 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -85,14 +85,16 @@
 </div>
 <div class="section" id="command-line-usage">
 <h2><a class="toc-backref" href="#id3">Command-line usage</a><a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
-<p>Phylogenetic inference using deep mutational scanning data. The &#8216;phydms&#8217; package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a> for all contributors); it performs likelihood calculations using the Bio++ libraries (thanks to Julien Dutheil and Laurent Gueguen). Version 1.2.dev5. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
+<p>Phylogenetic inference using deep mutational scanning data. The &#8216;phydms&#8217; package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a>). Version 2.0.dev0. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">phydms</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">omegabysite</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">stringencybysite</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">diffprefsbysite</span><span class="p">]</span>
-              <span class="p">[</span><span class="o">--</span><span class="n">infertopology</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">gammarates</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ncats</span> <span class="n">NCATS</span><span class="p">]</span>
-              <span class="p">[</span><span class="o">--</span><span class="n">dateseqs</span> <span class="n">DATESEQS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ncpus</span> <span class="n">NCPUS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">omegabysite_fixsyn</span><span class="p">]</span>
-              <span class="p">[</span><span class="o">--</span><span class="n">randprefs</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">avgprefs</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fixbrlen</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">diffprefconc</span> <span class="n">C1</span> <span class="n">C2</span><span class="p">]</span>
-              <span class="p">[</span><span class="o">--</span><span class="n">addrateparameter</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fitF3X4</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">minbrlen</span> <span class="n">MINBRLEN</span><span class="p">]</span>
-              <span class="p">[</span><span class="o">--</span><span class="n">seed</span> <span class="n">SEED</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">no_optimize</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">useLog</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">debugsite</span> <span class="n">DEBUGSITE</span><span class="p">]</span>
-              <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">infertopology</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">fixationmodel</span> <span class="p">{</span><span class="n">HalpernBruno</span><span class="p">,</span><span class="n">FracTolerated</span><span class="p">,</span><span class="n">gwF</span><span class="p">}]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">gammarates</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ncats</span> <span class="n">NCATS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dateseqs</span> <span class="n">DATESEQS</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">ncpus</span> <span class="n">NCPUS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">omegabysite_fixsyn</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">randprefs</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">avgprefs</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fixbrlen</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">diffprefconc</span> <span class="n">C1</span> <span class="n">C2</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">divpressure</span> <span class="n">DIVPRESSURE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">addrateparameter</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fitF3X4</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">minbrlen</span> <span class="n">MINBRLEN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">seed</span> <span class="n">SEED</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">no_optimize</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">useLog</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">debugsite</span> <span class="n">DEBUGSITE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span>
               <span class="n">alignment</span> <span class="n">tree</span> <span class="n">model</span> <span class="n">outprefix</span>
 </pre></div>
 </div>
@@ -177,6 +179,17 @@ The preferences file should be in the <a class="reference external" href="http:/
 <p class="last">Note that sometimes the topology inference appears to fail (or at least hang up for a very long time). In that case, you may want to infer the topology with another program such as <a class="reference external" href="http://sourceforge.net/projects/codonphyml/">codonPhyML</a> and then pass that topology via the <code class="docutils literal"><span class="pre">tree</span></code> argument rather than using <code class="docutils literal"><span class="pre">--infertopology</span></code>.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
+<kbd><span class="option">--fixationmodel=HalpernBruno</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td><p class="first">How to calculate the &#8220;fixation probabilities&#8221; from the preferences.</p>
+<p>The ExpCM relate the &#8220;fixation&#8221; probabilities of nonsynonymous mutations to the preferences for the wildtype and mutant amino acids. These relationships are found in the definition of the <span class="math">\(F_{r,xy}\)</span> terms in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>.</p>
+<p>This option allows you to specify different relationships between the preferences and fixation probabilities.</p>
+<p>The <em>HalpernBruno</em> method is based on that described by <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/9656490">Halpern and Bruno, Mol Biol Evol, 15:910-917</a>. In this formulation, the probability is <span class="math">\(\frac{\ln\left[\left(\pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta}\right]}{1 - \left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta}}\)</span>. This is the method used in the definition of <span class="math">\(F_{r,xy}\)</span> in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>.</p>
+<p>The <em>FracTolerated</em> method is that described in <a class="reference external" href="http://mbe.oxfordjournals.org/content/31/8/1956">Bloom, Mol Biol Evol, 31:1956-1978</a>. Essentially, it uses the Metropolis sampling criteria. The relationship described above for <em>HalpernBruno</em> is instead replaced by: <span class="math">\(\min\left(1, \left[\pi_{r,\operatorname{A}\left(y\right)}\right]^{\beta} / \left[\pi_{r,\operatorname{A}\left(x\right)}\right]^{\beta}\right)\)</span></p>
+<p>The <em>gwF</em> method is based on Goldman-Whelan generalized weighted frequencies method. For a description of this method, see <a class="reference external" href="http://mbe.oxfordjournals.org/content/19/11/1821.long">Goldman and Whelan, Mol Biol Evol, 19:1821-1831</a> and also <a class="reference external" href="http://bmcevolbiol.biomedcentral.com/articles/10.1186/1471-2148-5-21">Knudsen and Miyamoto, BMC Evol Biol, 5:21</a>. In this approach, the relatinship described above for <em>HalpernBruno</em> is instead replaced by <span class="math">\(\frac{\left[\frac{\left(\pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta}}{\sum_a \left(\pi_{r,a}\right)^{\beta}}\right]^{\left(1 - f_{gwF}\right)}}{\left[\frac{\left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta}}{\sum_a \left(\pi_{r,a}\right)^{\beta}}\right]^{f_{gwF}}}\)</span> where <span class="math">\(f_{gwF}\)</span> can range from zero to one. Note that this method introduces one additional parameter, <span class="math">\(f_{gwF}\)</span>, relative to the <em>HalpernBruno</em> and <em>FracTolerated</em> methods.</p>
+<p class="last">Possible choices: HalpernBruno, FracTolerated, gwF</p>
+</td></tr>
+<tr><td class="option-group" colspan="2">
 <kbd><span class="option">--gammarates=False</span></kbd></td>
 </tr>
 <tr><td>&nbsp;</td><td><p class="first">Draw the substitution rate from 4-category discrete gamma distribution with optimized shape parameter.</p>
@@ -232,6 +245,11 @@ The preferences file should be in the <a class="reference external" href="http:/
 </tr>
 <tr><td>&nbsp;</td><td><p class="first">Parameters determining the concentration of the regularizing prior over the differential preferences for &#8216;&#8211;diffprefsbysite&#8217;. Larger values favor smaller diff prefs.</p>
 <p class="last">This option specifies the parameters <span class="math">\(C_1\)</span> and <span class="math">\(C_2\)</span> that determine the concentration of the prior that regularizes the differential preferences inferred by <code class="docutils literal"><span class="pre">--diffprefsbysite</span></code>. Both these parameters must be &gt; 0; larger values favor smaller differential preferences. See <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a> for more information on the exact meaning of these parameters.</p>
+</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--divpressure</span></kbd></td>
+<td><p class="first">Specify known diversifying pressure: provide file with column 1 = site, column 2 = divpressure; columns are space delimited; must be a value for every site, with 0 indicating no divpressure.</p>
+<p class="last">Only for <em>ExpCM</em> models. This option specifies the name of the file with the predetermined diversifying pressure for each site, <span class="math">\(\delta_{r}\)</span>. <code class="docutils literal"><span class="pre">phydms</span></code> will fit <span class="math">\(\omega\)</span> and <span class="math">\(\omega_{2}\)</span> as described in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">--addrateparameter=False</span></kbd></td>
@@ -499,12 +517,12 @@ The preferences file should be in the <a class="reference external" href="http:/
         <li class="right" >
           <a href="quick_example.html" title="Quick example"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.2.5 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.3.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+        &#169; Copyright 2015, Jesse D. Bloom.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
     </div>
   </body>
 </html>
