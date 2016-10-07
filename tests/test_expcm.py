@@ -25,9 +25,10 @@ class testExpCM(unittest.TestCase):
         scipy.random.seed(1)
         self.nsites = 2
         self.prefs = []
+        minpref = 2 * phydmslib.models.ExpCM.PARAMLIMITS['pi'][0]
         for r in range(self.nsites):
             rprefs = scipy.random.dirichlet([0.5] * N_AA)
-            rprefs[rprefs < ALMOST_ZERO] = ALMOST_ZERO
+            rprefs[rprefs < minpref] = minpref 
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
 
@@ -35,7 +36,7 @@ class testExpCM(unittest.TestCase):
         phi = scipy.random.dirichlet([2] * N_NT)
         omega = 0.7
         kappa = 2.5
-        beta = 2.1
+        beta = 1.9
         self.expcm = phydmslib.models.ExpCM(self.prefs, phi=phi, omega=omega,
                 kappa=kappa, beta=beta)
         self.assertTrue(scipy.allclose(phi, self.expcm.phi))
@@ -45,10 +46,10 @@ class testExpCM(unittest.TestCase):
 
         # now check ExpCM attributes / derivates, updating several times
         for update in range(2):
-            self.params = {'omega':random.uniform(ALMOST_ZERO, 5),
-                      'kappa':random.uniform(1.0, 10.0),
-                      'beta':random.uniform(ALMOST_ZERO, 3),
-                      'eta':scipy.random.dirichlet([2] * (N_NT - 1))
+            self.params = {'omega':random.uniform(*phydmslib.models.ExpCM.PARAMLIMITS['omega']),
+                      'kappa':random.uniform(*phydmslib.models.ExpCM.PARAMLIMITS['kappa']),
+                      'beta':0.5 * random.uniform(*phydmslib.models.ExpCM.PARAMLIMITS['beta']), # multiply by 0.5 since large beta causes numerical issues
+                      'eta':scipy.array([random.uniform(*phydmslib.models.ExpCM.PARAMLIMITS['eta']) for i in range(N_NT - 1)])
                      }
             self.expcm.updateParams(self.params)
             self.check_ExpCM_attributes()
@@ -126,7 +127,10 @@ class testExpCM(unittest.TestCase):
                         self.assertTrue(scipy.allclose(float(Qxy.subs(values)), 
                                 self.expcm.Qxy[x][y]))
                         if CODON_NONSYN[x][y]:
-                            Prxy = Qxy * omega * (-beta * scipy.log(pirAx / pirAy) / (1 - (pirAx / pirAy)**beta))
+                            if pirAx == pirAy:
+                                Prxy = Qxy * omega
+                            else:
+                                Prxy = Qxy * omega * (-beta * scipy.log(pirAx / pirAy) / (1 - (pirAx / pirAy)**beta))
                         else:
                             Prxy = Qxy
                     for (name, actual, expect) in [
@@ -142,7 +146,7 @@ class testExpCM(unittest.TestCase):
                             expectval = 0
                         else:
                             expectval = float(expect.subs(values))
-                        self.assertTrue(scipy.allclose(actual, expectval, atol=1e-5),
+                        self.assertTrue(scipy.allclose(actual, expectval, atol=1e-4),
                                 "{0}: {1} vs {2}".format(name, actual, expectval))
 
         # check prx
@@ -193,8 +197,55 @@ class testExpCM(unittest.TestCase):
 
             for t in [0.02, 0.2, 2.0]:
                 direct = scipy.linalg.expm(self.expcm.Prxy[r] * t)
-                self.assertTrue(scipy.allclose(self.expcm.Mrt(r, t), direct),
-                        "Max diff {0}".format((self.expcm.Mrt(r, t) - direct).max()))
+                self.assertTrue(scipy.allclose(self.expcm.M(t)[r], direct, atol=1e-6),
+                        "Max diff {0}".format((self.expcm.M(t)[r] - direct).max()))
+        # check derivatives of M calculated by dM
+        # implementation looks a bit complex because `check_grad` function
+        # can only be used for single values at a time, so have to loop 
+        # over r, x, y and so hash values to make faster
+        def funcM(paramvalue, paramname, t, expcm, r, x, y, storedvalues):
+            """Gets `M(t)[r][x][y]`."""
+            key = ('M', tuple(paramvalue), paramname, t)
+            if key not in storedvalues:
+                if len(paramvalue) == 1:
+                    expcm.updateParams({paramname:paramvalue[0]})
+                else:
+                    expcm.updateParams({paramname:paramvalue})
+                storedvalues[key] = expcm.M(t)
+            if len(storedvalues[key].shape) == 3:
+                return storedvalues[key][r][x][y]
+            else:
+                return storedvalues[key][:,r,x,y]
+        def funcdM(paramvalue, paramname, t, expcm, r, x, y, storedvalues):
+            """Gets `dM`."""
+            key = ('dM', tuple(paramvalue), paramname, t)
+            if key not in storedvalues:
+                if len(paramvalue) == 1:
+                    expcm.updateParams({paramname:paramvalue[0]})
+                else:
+                    expcm.updateParams({paramname:paramvalue})
+                storedvalues[key] = expcm.dM(t, paramname)
+            if len(storedvalues[key].shape) == 3:
+                return storedvalues[key][r][x][y]
+            else:
+                return storedvalues[key][:,r,x,y]
+        for (pname, pvalue) in sorted(self.params.items()):
+            storedvalues = {} # used to hash values
+            if isinstance(pvalue, float):
+                pvalue = [pvalue]
+            for t in [0.01, 0.2, 2.0]:
+                for r in range(self.expcm.nsites):
+                    for x in range(N_CODON):
+                        for y in range(N_CODON):
+                            diff = scipy.optimize.check_grad(funcM, funcdM, pvalue,
+                                    pname, t, self.expcm, r, x, y, storedvalues) 
+                            self.assertTrue(diff < 2e-4, ("diff {0} for {1}:" +
+                                " r = {2}, x = {3}, y = {4}, beta = {5} " +
+                                "pirAx = {6}, pirAy = {7}").format(
+                                diff, pname, r, x, y, self.params['beta'],
+                                self.expcm.pi_codon[r][x], 
+                                self.expcm.pi_codon[r][y]))
+                self.expcm.updateParams(self.params) # back to original value
 
 
 

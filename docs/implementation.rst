@@ -225,8 +225,8 @@ where :math:`\operatorname{bool}\left(i \le j\right)` is 1 if :math:`i \le j` an
    \left[\sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le x_j \right)}{\eta_i - \delta_{ix_j}} - \frac{\sum_z p_{r,z} \sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le z_j \right)}{\eta_i - \delta_{iz_j}}}{\sum_z p_{r,z}} \right]
    \\ 
 
-Exponents of the substitution matrix and derivatives
--------------------------------------------------------
+Exponentials of the substitution matrix and derivatives
+--------------------------------------------------------
 The definitions above can be used to define a set of matrices :math:`\mathbf{P_r} = \left[P_{r,xy}\right]` that give the rate of transition from codon :math:`x` to :math:`y` at site :math:`r`. A key computation is to compute the probability of a transition in some amount of elapsed time :math:`\mu t`. These probabilities are given by 
 
 .. math::
@@ -283,7 +283,7 @@ where the elements of :math:`\mathbf{V_{r,z}}` are
    B_{xx}^{r,z} \mu t \exp\left(\mu t D_{xx}^r\right)& \mbox{if $x = y$}, 
    \end{cases}
 
-where :math:`D^r_{xx}` and :math:`D^r_{yy}` are the diagonal elements of :math:`\mathbf{D_r}`, and :math:`B_{xy}^{r,z}` are the elements of the matrix :math:`\mathbf{B_r,z}` defined by
+where :math:`D^r_{xx}` and :math:`D^r_{yy}` are the diagonal elements of :math:`\mathbf{D_r}`, and :math:`B_{xy}^{r,z}` are the elements of the matrix :math:`\mathbf{B_{r,z}}` defined by
 
 .. math::
  

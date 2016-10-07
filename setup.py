@@ -48,7 +48,8 @@ setup(
     license = 'GPLv3',
     install_requires = [
         'biopython>=1.67',
-        'scipy>=0.16',
+        'numpy>=1.11',
+        'scipy>=0.18',
         'matplotlib>=1.5.1',
         'natsort>=5.0.1',
         'sympy>=1.0', 

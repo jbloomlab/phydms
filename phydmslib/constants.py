@@ -2,7 +2,7 @@
 
 Constants defined:
     `ALMOST_ZERO` (float)
-        lower limit for values that should remain > 0
+        a small number used to check for quantities close to zero
     `N_NT` (int)
         number of nucleotides
     `N_AA` (int)
