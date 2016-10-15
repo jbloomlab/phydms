@@ -339,7 +339,9 @@ class ExpCM(Model):
 
         # indexes diagonals in square matrices
         self._diag_indices = scipy.diag_indices(N_CODON)
-        
+
+        self._cached_M = {} # caches results of calls to M
+        self._cached_dM = {} # caches results of calls to dM
         self.updateParams({}, update_all=True)
 
     @property
@@ -397,6 +399,8 @@ class ExpCM(Model):
             self._update_dprx()
 
         if update_all or changed:
+            self._cached_M = {}
+            self._cached_dM = {}
             self._update_Prxy()
             self._update_Prxy_diag()
             self._update_dPrxy()
@@ -404,14 +408,20 @@ class ExpCM(Model):
 
     def M(self, t):
         """See docs for method in `Model` abstract base class."""
+        if t in self._cached_M:
+            return self._cached_M[t]
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         # swap axes commands allow broadcasting to multiply D like diagonal matrix
         M = scipy.matmul((self.A.swapaxes(0, 1) * scipy.exp(self.D * t)
                 ).swapaxes(1, 0), self.Ainv)
+        self._cached_M[t] = M
         return M
 
     def dM(self, t, param):
         """See docs for method in `Model` abstract base class."""
+        key = (t, param)
+        if key in self._cached_dM:
+            return self._cached_dM[key]
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         assert param in self.freeparams, "Invalid param: {0}".format(param)
         with scipy.errstate(divide='raise', under='ignore', over='raise',
@@ -420,6 +430,7 @@ class ExpCM(Model):
         scipy.copyto(V, t * scipy.exp(t * self.Dxx), where=
                 scipy.fabs(self.Dxx_Dyy) < ALMOST_ZERO)
         dM_param = scipy.matmul(self.A, scipy.matmul(self.B[param] * V, self.Ainv))
+        self._cached_dM[key] = dM_param
         return dM_param
 
     def _update_phi(self):
