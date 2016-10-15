@@ -49,7 +49,8 @@ class testExpCM(unittest.TestCase):
             self.params = {'omega':random.uniform(*self.expcm.PARAMLIMITS['omega']),
                       'kappa':random.uniform(*self.expcm.PARAMLIMITS['kappa']),
                       'beta':0.5 * random.uniform(*self.expcm.PARAMLIMITS['beta']), # multiply by 0.5 since large beta causes numerical issues
-                      'eta':scipy.array([random.uniform(*self.expcm.PARAMLIMITS['eta']) for i in range(N_NT - 1)])
+                      'eta':scipy.array([random.uniform(*self.expcm.PARAMLIMITS['eta']) for i in range(N_NT - 1)]),
+                      'mu':random.uniform(0.05, 5.0),
                      }
             self.expcm.updateParams(self.params)
             self.check_ExpCM_attributes()
@@ -195,8 +196,8 @@ class testExpCM(unittest.TestCase):
             self.assertTrue(scipy.allclose(self.expcm.Prxy[r], fromdiag,
                     atol=1e-5), "Max diff {0}".format((self.expcm.Prxy[r] - fromdiag).max()))
 
-            for t in [0.02, 0.2, 2.0]:
-                direct = scipy.linalg.expm(self.expcm.Prxy[r] * t)
+            for t in [0.02, 0.2, 0.5]:
+                direct = scipy.linalg.expm(self.expcm.Prxy[r] * self.expcm.mu * t)
                 self.assertTrue(scipy.allclose(self.expcm.M(t)[r], direct, atol=1e-6),
                         "Max diff {0}".format((self.expcm.M(t)[r] - direct).max()))
         # check derivatives of M calculated by dM
@@ -233,7 +234,7 @@ class testExpCM(unittest.TestCase):
             storedvalues = {} # used to hash values
             if isinstance(pvalue, float):
                 pvalue = [pvalue]
-            for t in [0.01, 0.2, 2.0]:
+            for t in [0.01, 0.2, 0.5]:
                 for r in range(self.expcm.nsites):
                     for x in range(N_CODON):
                         for y in range(N_CODON):
@@ -241,10 +242,10 @@ class testExpCM(unittest.TestCase):
                                     pname, t, self.expcm, r, x, y, storedvalues) 
                             self.assertTrue(diff < 1e-3, ("diff {0} for {1}:" +
                                 " r = {2}, x = {3}, y = {4}, beta = {5} " +
-                                "pirAx = {6}, pirAy = {7}").format(
-                                diff, pname, r, x, y, self.params['beta'],
-                                self.expcm.pi_codon[r][x], 
-                                self.expcm.pi_codon[r][y]))
+                                "pirAx = {6}, pirAy = {7}, t = {8}, mu = {9}"
+                                ).format(diff, pname, r, x, y, 
+                                self.params['beta'], self.expcm.pi_codon[r][x], 
+                                self.expcm.pi_codon[r][y], t, self.expcm.mu))
                 self.expcm.updateParams(self.params) # back to original value
 
 

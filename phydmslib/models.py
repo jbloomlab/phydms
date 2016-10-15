@@ -23,12 +23,12 @@ class Model(six.with_metaclass(abc.ABCMeta)):
     """
 
     @abc.abstractmethod
-    def M(self):
-        """Matrix exponential `M(t) = exp(t * P)`.
-        
+    def M(self, t):
+        """Matrix exponential `M(mu * t) = exp(mu * t * P)`.
+       
         Args:
             `t` (float > 0)
-            The branch length.
+                The branch length.
 
         Returns:
             `M` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
@@ -82,6 +82,11 @@ class Model(six.with_metaclass(abc.ABCMeta)):
     @abc.abstractproperty
     def freeparams(self):
         """Model parameters to be optimized (a list of strings)."""
+        pass
+
+    @abc.abstractproperty
+    def mu(self):
+        """Mutation rate, scales branch lengths in `M` and `dM`."""
         pass
 
     @abc.abstractproperty
@@ -186,13 +191,14 @@ class ExpCM(Model):
     """
 
     # class variables
-    _ALLOWEDPARAMS = ['kappa', 'omega', 'beta', 'eta']
+    _ALLOWEDPARAMS = ['kappa', 'omega', 'beta', 'eta', 'mu']
     _PARAMLIMITS = {'kappa':(0.01, 100.0),
                    'omega':(0.01, 100.0),
                    'beta':(0.01, 5.0),
                    'eta':(0.01, 0.99),
                    'phi':(0.001, 0.999),
                    'pi':(0.002, 0.998),
+                   'mu':(1.0e-3, 1.0e3),
                   }
 
     @property
@@ -213,7 +219,7 @@ class ExpCM(Model):
         """
         assert param in self.PARAMLIMITS, "Invalid param: {0}".format(param)
         (lowlim, highlim) = self.PARAMLIMITS[param]
-        if param in ['kappa', 'omega', 'beta', 'pi']:
+        if param in ['kappa', 'omega', 'beta', 'pi', 'mu']:
             if not isinstance(value, float):
                 raise ValueError("{0} must be a float, not a {1}".format(
                         param, type(value)))
@@ -234,8 +240,9 @@ class ExpCM(Model):
         else:
             raise ValueError("Can't handle {0}".format(param))
 
-    def __init__(self, prefs, kappa=1.0, omega=1.0, beta=1.0, phi=scipy.ones(N_NT) / N_NT,
-            freeparams=['kappa', 'omega', 'beta', 'eta']):
+    def __init__(self, prefs, kappa=1.0, omega=1.0, beta=1.0, mu=1.0,
+            phi=scipy.ones(N_NT) / N_NT,
+            freeparams=['kappa', 'omega', 'beta', 'mu', 'eta']):
         """Initialize an `ExpCM` object.
 
         Args: 
@@ -244,8 +251,10 @@ class ExpCM(Model):
                 each site. Each dict keyed by amino acid letter
                 codes, value is pref > 0 and < 1. Must sum to 1 
                 at each site. 
-            `kappa`, `omega`, `beta`, `phi`, `freeparams`.
-                Parameters with meanings described in main class doc string.
+            `kappa`, `omega`, `beta`, `mu`, `phi`
+                Model params described in main class doc string.
+            `freeparams` (list of strings)
+                Specifies free parameters.
         """
         self._nsites = len(prefs)
         assert self.nsites > 0, "No preferences specified"
@@ -253,7 +262,7 @@ class ExpCM(Model):
         assert all(map(lambda x: x in self.ALLOWEDPARAMS, freeparams)),\
                 "Invalid entry in freeparams\nGot: {0}\nAllowed: {1}".format(
                 ', '.join(freeparams), ', '.join(self.ALLOWEDPARAMS))
-        self._freeparams = list(freeparams)
+        self._freeparams = list(freeparams) # underscore as `freeparams` is property
 
         # put prefs in pi
         self.pi = scipy.ndarray((self.nsites, N_AA), dtype='float')
@@ -291,12 +300,13 @@ class ExpCM(Model):
             etaprod *= eta[w]
 
         # set attributes to calling params
+        self._mu = mu # underscore as `mu` is property
         self.kappa = kappa
         self.omega = omega
         self.beta = beta
         self.eta = eta
         for (name, value) in [('kappa', self.kappa), ('omega', self.omega),
-                              ('beta', self.beta), ('eta', self.eta)]:
+                ('beta', self.beta), ('eta', self.eta), ('mu', self.mu)]:
             self.checkParam(name, value)
 
         # define other params, initialized appropriately
@@ -334,6 +344,8 @@ class ExpCM(Model):
                         N_CODON), dtype='float')
                 self.dprx[param] = scipy.zeros((N_NT - 1, self.nsites, N_CODON),
                         dtype='float')
+            elif param == 'mu':
+                pass 
             else:
                 raise ValueError("Unrecognized param {0}".format(param))
 
@@ -354,6 +366,11 @@ class ExpCM(Model):
         """See docs for `Model` abstract base class."""
         return self._freeparams
 
+    @property
+    def mu(self):
+        """See docs for `Model` abstract base class."""
+        return self._mu
+
     def updateParams(self, newvalues, update_all=False):
         """See docs for `Model` abstract base class."""
         assert all(map(lambda x: x in self.freeparams, newvalues.keys())),\
@@ -363,6 +380,10 @@ class ExpCM(Model):
 
         for (name, value) in newvalues.items():
             self.checkParam(name, value)
+
+        if ('mu' in newvalues) and (newvalues['mu'] != self.mu):
+            self._mu = newvalues['mu']
+            changed.add('mu')
 
         if ('eta' in newvalues) and (newvalues['eta'] != self.eta).any():
             self.eta = newvalues['eta']
@@ -398,13 +419,16 @@ class ExpCM(Model):
             self._update_prx()
             self._update_dprx()
 
-        if update_all or changed:
+        if update_all or (changed and changed != set(['mu'])):
             self._cached_M = {}
             self._cached_dM = {}
             self._update_Prxy()
             self._update_Prxy_diag()
             self._update_dPrxy()
             self._update_B()
+        elif changed: # only changed mu
+            self._cached_M = {}
+            self._cached_dM = {}
 
     def M(self, t):
         """See docs for method in `Model` abstract base class."""
@@ -412,7 +436,7 @@ class ExpCM(Model):
             return self._cached_M[t]
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         # swap axes commands allow broadcasting to multiply D like diagonal matrix
-        M = scipy.matmul((self.A.swapaxes(0, 1) * scipy.exp(self.D * t)
+        M = scipy.matmul((self.A.swapaxes(0, 1) * scipy.exp(self.D * self.mu * t)
                 ).swapaxes(1, 0), self.Ainv)
         self._cached_M[t] = M
         return M
@@ -424,10 +448,15 @@ class ExpCM(Model):
             return self._cached_dM[key]
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         assert param in self.freeparams, "Invalid param: {0}".format(param)
+        if param == 'mu':
+            dM_param = t * scipy.matmul(self.Prxy, self.M(t))
+            self._cached_dM[key] = dM_param
+            return dM_param
+        mut = self.mu * t
         with scipy.errstate(divide='raise', under='ignore', over='raise',
                 invalid='ignore'):
-            V = (scipy.exp(t * self.Dxx) - scipy.exp(t * self.Dyy)) / self.Dxx_Dyy
-        scipy.copyto(V, t * scipy.exp(t * self.Dxx), where=
+            V = (scipy.exp(mut * self.Dxx) - scipy.exp(mut * self.Dyy)) / self.Dxx_Dyy
+        scipy.copyto(V, mut * scipy.exp(mut * self.Dxx), where=
                 scipy.fabs(self.Dxx_Dyy) < ALMOST_ZERO)
         dM_param = scipy.matmul(self.A, scipy.matmul(self.B[param] * V, self.Ainv))
         self._cached_dM[key] = dM_param
@@ -540,8 +569,9 @@ class ExpCM(Model):
     def _update_B(self):
         """Update `B`."""
         for param in self.freeparams:
-            scipy.copyto(self.B[param], scipy.matmul(self.Ainv, scipy.matmul(
-                    self.dPrxy[param], self.A)))
+            if param != 'mu':
+                scipy.copyto(self.B[param], scipy.matmul(self.Ainv, scipy.matmul(
+                        self.dPrxy[param], self.A)))
 
     def _update_dprx(self):
         """Update `dprx`."""
