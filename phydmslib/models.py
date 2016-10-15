@@ -1,5 +1,7 @@
 """Substitution models.
 
+All models defined here are subclasses of abstract base class `Model`.
+
 For all models, nucleotides, amino acids, and codons are indexed
 by integers 0, 1, ... using the indexing schemes defined
 in `phydmslib.constants`.
@@ -7,35 +9,108 @@ in `phydmslib.constants`.
 
 
 import math
+import six
+import abc
 import scipy
 import scipy.linalg
 from phydmslib.constants import *
 
 
-class ExpCM:
-    """A set of ExpCM for a gene.
+class Model(six.with_metaclass(abc.ABCMeta)):
+    """Substitution model abstract base class.
+    
+    Specifies required methods / attributes of substitution models.
+    """
 
-    See the `__init__` method for how to initialize an `ExpCM`.
+    @abc.abstractmethod
+    def M(self):
+        """Matrix exponential `M(t) = exp(t * P)`.
+        
+        Args:
+            `t` (float > 0)
+            The branch length.
+
+        Returns:
+            `M` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
+                `M(t)[r][x][y]` is probability `r` changes from `x` to `y`
+                in time `t`.
+        """
+        pass
+
+    @abc.abstractmethod
+    def dM(self, t, param):
+        """Derivative of `M(t)` with respect to `param`.
+
+        Args:
+            `t` (float > 0)
+                The branch length.
+            `param` (string in `freeparams`)
+                Differentiate with respect to this model parameter.
+
+        Returns:
+            `dM_param` (`numpy.ndarray` floats)
+                If `param` is a float, then `dM_param[r][x][y]` is 
+                derivative of `M(t)[r][x][y]` with respect to `param`.
+                If `param` is an array, then `dM_param[i][r][x][y]`
+                is derivative of `M(t)[r][x][y]` with respect to
+                `param[i]`.
+        """
+        pass
+
+    @abc.abstractmethod
+    def updateParams(self, newvalues, update_all=False):
+        """Update model params.
+
+        This method is the **only** acceptable way to update 
+        model parameters; other dependent model parameters are
+        automatically updated as needed if you use this method.
+
+        Args:
+            `newvalues` (dict)
+                Can be keyed by any parameter in `freeparams`.
+            `update_all` (bool)
+                If `True`, update all dependent attributes using
+                current values of model parameters.
+        """
+        pass
+
+    @abc.abstractproperty
+    def nsites(self):
+        """An `int` giving the number of codon sites."""
+        pass
+
+    @abc.abstractproperty
+    def freeparams(self):
+        """Model parameters to be optimized (a list of strings)."""
+        pass
+
+    @abc.abstractproperty
+    def ALLOWEDPARAMS(self):
+        """List of all strings that can be included in `freeparam`."""
+        pass
+
+    @abc.abstractproperty
+    def PARAMLIMITS(self):
+        """Dict of tuples giving lower and upper allowed param values.
+
+        For each `param` in `ALLOWEDPARAMS`, `PARAMLIMITS[param]`
+        is a 2-tuple of floats giving upper and lower allowed
+        values of `param` (or of each element in `param` if
+        `param` is an array).
+        """
+        pass
+
+
+
+class ExpCM(Model):
+    """Experimentally informed codon models (ExpCM) for a gene.
+
+    See `__init__` method for how to initialize an `ExpCM`.
 
     Attributes should **only** be updated via the `updateParams`
     method, do **not** set attributes directly.
 
-    The attributes are listed below. Note that only the first
-    few represent independent parameters of the model. The rest
-    are dependent attributes that are calculated from these
-    independent parameters.
-
-    Attributes of the `ExpCM` class:
-        `ALLOWEDPARAMS` (list of strings)
-            Lists all values that can be included in `freeparams`.
-        `PARAMLIMITS` (dict keyed by strings, values 2-tuples of floats)
-            `PARAMLIMITS[param]` gives the lower and upper allowed values
-            of parameter `param`. These are the limits used by
-            `ExpCM.checkParam`.
-
     Attributes of `ExpCM` instances: 
-        `nsites` (int)
-            Number of codon sites in gene.
         `pi` (`numpy.ndarray` of floats, shape `(nsites, N_AA)`)
             `pi[r][a]` is preference of site `r` for amino-acid `a`.
         `kappa` (float > 0)
@@ -46,16 +121,12 @@ class ExpCM:
             Stringency parameter re-scaling amino-acid preferences.
         `phi` (`numpy.ndarray` of floats, length `N_NT`)
             Nucleotide frequency params summing to one, is
-            computed from `eta`.
+            computed from `eta`. We use `eta` rather than `phi`
+            as the free parameter during optimization.
         `eta` (`numpy.ndarray` of floats, length `N_NT - 1`)
             Transformation of the nucleotide frequency params in `phi`;
-            all entries are > 0 and < 1.
-        `freeparams` (list of strings)
-            List of the model parameters that are free to be optimized. 
-            Allowable values are listed in `ExpCM.ALLOWEDPARAMS`. Note that 
-            `eta` but **not** `phi` is an allowable param: they represent
-            the same thing, but except at initialization and when getting
-            formatted values, we work with `eta` as the representation.
+            all entries are > 0 and < 1. We use `eta` rather than `phi`
+            as the free parameter during optimization.
         `Prxy` (`numpy.ndarray` of floats, shape `(nsites, N_CODON, N_CODON)`
             `Prxy[r][x][y]` is substitution rate from codon `x` to `y` at `r`.
             Diagonal elements make rows sum to zero for each `Prxy[r]`.
@@ -115,8 +186,8 @@ class ExpCM:
     """
 
     # class variables
-    ALLOWEDPARAMS = ['kappa', 'omega', 'beta', 'eta']
-    PARAMLIMITS = {'kappa':(0.01, 100.0),
+    _ALLOWEDPARAMS = ['kappa', 'omega', 'beta', 'eta']
+    _PARAMLIMITS = {'kappa':(0.01, 100.0),
                    'omega':(0.01, 100.0),
                    'beta':(0.01, 5.0),
                    'eta':(0.01, 0.99),
@@ -124,34 +195,44 @@ class ExpCM:
                    'pi':(0.002, 0.998),
                   }
 
-    @classmethod
-    def checkParam(cls, name, value):
+    @property
+    def ALLOWEDPARAMS(self):
+        """See docs for `Model` abstract base class."""
+        return self._ALLOWEDPARAMS
+
+    @property
+    def PARAMLIMITS(self):
+        """See docs for `Model` abstract base class."""
+        return self._PARAMLIMITS
+
+    def checkParam(self, param, value):
         """Checks if `value` is allowable value for `param`.
 
-        What is allowable is specified by `PARAMLIMITS`."""
-        assert name in cls.PARAMLIMITS, "Invalid param name: {0}".format(name)
-        (lowlim, highlim) = cls.PARAMLIMITS[name]
-        if name in ['kappa', 'omega', 'beta', 'pi']:
+        Raises except if `value` is not acceptable, otherwise
+        returns `None` if value is acceptable.
+        """
+        assert param in self.PARAMLIMITS, "Invalid param: {0}".format(param)
+        (lowlim, highlim) = self.PARAMLIMITS[param]
+        if param in ['kappa', 'omega', 'beta', 'pi']:
             if not isinstance(value, float):
                 raise ValueError("{0} must be a float, not a {1}".format(
-                        name, type(value)))
+                        param, type(value)))
             if not (lowlim <= value <= highlim):
                 raise ValueError("{0} must be >= {1} and <= {2}, not {3}".format(
-                        name, lowlim, highlim, value))
-        elif name in ['eta', 'phi']:
+                        param, lowlim, highlim, value))
+        elif param in ['eta', 'phi']:
             shape = {'eta':(N_NT - 1,),
                      'phi':(N_NT,),
                     }
-            if not (isinstance(value, scipy.ndarray) and value.shape == shape[name]
+            if not (isinstance(value, scipy.ndarray) and value.shape == shape[param]
                     and value.dtype == 'float'):
                 raise ValueError("{0} must be ndarray floats, shape {1}, " + 
-                        "not {2}".format(name, shape, value))
+                        "not {2}".format(param, shape, value))
             if not ((lowlim <= value).all() and (value <= highlim).all()):
                 raise ValueError("{0} must be >= {1} and <= {2}, not {3}".format(
-                        name, lowlim, highlim, value))
+                        param, lowlim, highlim, value))
         else:
-            raise ValueError("Can't handle {0}".format(name))
-
+            raise ValueError("Can't handle {0}".format(param))
 
     def __init__(self, prefs, kappa=1.0, omega=1.0, beta=1.0, phi=scipy.ones(N_NT) / N_NT,
             freeparams=['kappa', 'omega', 'beta', 'eta']):
@@ -166,13 +247,13 @@ class ExpCM:
             `kappa`, `omega`, `beta`, `phi`, `freeparams`.
                 Parameters with meanings described in main class doc string.
         """
-        self.nsites = len(prefs)
+        self._nsites = len(prefs)
         assert self.nsites > 0, "No preferences specified"
 
         assert all(map(lambda x: x in self.ALLOWEDPARAMS, freeparams)),\
                 "Invalid entry in freeparams\nGot: {0}\nAllowed: {1}".format(
                 ', '.join(freeparams), ', '.join(self.ALLOWEDPARAMS))
-        self.freeparams = list(freeparams)
+        self._freeparams = list(freeparams)
 
         # put prefs in pi
         self.pi = scipy.ndarray((self.nsites, N_AA), dtype='float')
@@ -261,21 +342,18 @@ class ExpCM:
         
         self.updateParams({}, update_all=True)
 
+    @property
+    def nsites(self):
+        """See docs for `Model` abstract base class."""
+        return self._nsites
+
+    @property
+    def freeparams(self):
+        """See docs for `Model` abstract base class."""
+        return self._freeparams
+
     def updateParams(self, newvalues, update_all=False):
-        """Update model params.
-
-        This method is the **only** acceptable way to update `ExpCM`
-        model parameters. This method automatically updates
-        any other dependent `ExpCM` attributes after updating
-        the parameters to the new value.
-
-        Args:
-            `newvalues` (dict)
-                Can be keyed by any parameter in `freeparams`.
-            `update_all` (bool)
-                If `True`, update all dependent attributes using
-                current values of model parameters.
-        """
+        """See docs for `Model` abstract base class."""
         assert all(map(lambda x: x in self.freeparams, newvalues.keys())),\
                 "Invalid entry in newvalues: {0}\nfreeparams: {1}".format(
                 ', '.join(newvalues.keys()), ', '.join(self.freeparams))
@@ -325,19 +403,7 @@ class ExpCM:
             self._update_B()
 
     def M(self, t):
-        """Matrix exponential `M(t) = exp(t * P)`.
-
-        Uses `D`, `A`, and `Ainv` to compute exponential of `Prxy`, 
-        which is substitution probability after time `t`.
-
-        Args:
-            `t` (float > 0)
-
-        Returns:
-            `M` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
-                `M(t)[r][x][y]` is probability `r` changes from `x` to `y`
-                in time `t`.
-        """
+        """See docs for method in `Model` abstract base class."""
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         # swap axes commands allow broadcasting to multiply D like diagonal matrix
         M = scipy.matmul((self.A.swapaxes(0, 1) * scipy.exp(self.D * t)
@@ -345,21 +411,7 @@ class ExpCM:
         return M
 
     def dM(self, t, param):
-        """Derivative of `M(t)` with respect to `param`.
-
-        Uses `B`, `A`, and `Ainv` to compute derivative of `M(t)`.
-
-        Args:
-            `t` (float > 0)
-            `param` (string in `freeparams`)
-
-        Returns:
-            `dM_param` (`numpy.ndarray` floats)
-                `dM_param[r][x][y]` is derivative of `M(t)[x][y]` with
-                respect to `param`. If `param` is *eta*, then
-                `dM_param[i][r][x][y]` is derivative with respect to
-                element `i` of `eta`.
-        """
+        """See docs for method in `Model` abstract base class."""
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         assert param in self.freeparams, "Invalid param: {0}".format(param)
         with scipy.errstate(divide='raise', under='ignore', over='raise',

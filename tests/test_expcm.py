@@ -25,7 +25,7 @@ class testExpCM(unittest.TestCase):
         scipy.random.seed(1)
         self.nsites = 2
         self.prefs = []
-        minpref = 2 * phydmslib.models.ExpCM.PARAMLIMITS['pi'][0]
+        minpref = 0.01
         for r in range(self.nsites):
             rprefs = scipy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref 
@@ -46,10 +46,10 @@ class testExpCM(unittest.TestCase):
 
         # now check ExpCM attributes / derivates, updating several times
         for update in range(2):
-            self.params = {'omega':random.uniform(*phydmslib.models.ExpCM.PARAMLIMITS['omega']),
-                      'kappa':random.uniform(*phydmslib.models.ExpCM.PARAMLIMITS['kappa']),
-                      'beta':0.5 * random.uniform(*phydmslib.models.ExpCM.PARAMLIMITS['beta']), # multiply by 0.5 since large beta causes numerical issues
-                      'eta':scipy.array([random.uniform(*phydmslib.models.ExpCM.PARAMLIMITS['eta']) for i in range(N_NT - 1)])
+            self.params = {'omega':random.uniform(*self.expcm.PARAMLIMITS['omega']),
+                      'kappa':random.uniform(*self.expcm.PARAMLIMITS['kappa']),
+                      'beta':0.5 * random.uniform(*self.expcm.PARAMLIMITS['beta']), # multiply by 0.5 since large beta causes numerical issues
+                      'eta':scipy.array([random.uniform(*self.expcm.PARAMLIMITS['eta']) for i in range(N_NT - 1)])
                      }
             self.expcm.updateParams(self.params)
             self.check_ExpCM_attributes()
