@@ -45,8 +45,8 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
     *fastafile* is the name of an existing FASTA file.
 
     *checknewickvalid* : if *True*, we require that names are unique and do
-    **not** contain spaces, commas, colons, semicolons, parentheses, square brackets,
-    or single or double quotation marks.
+    **not** contain spaces, commas, colons, semicolons, parentheses, square 
+    brackets, or single or double quotation marks.
     If any of these disallowed characters are present, raises an Exception.
     
     Reads the alignment from the *fastafile* and returns the aligned
@@ -112,58 +112,6 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
     return seqs
 
 
-def ReadStringencyBySite(infile):
-    """Reads ``*_stringencybsite.txt`` files created by ``phydms``.
-
-    *infile* can be either a readable file-like boject (assumed to be
-    at its start) or a string giving the name of an existing file.
-
-    The returned value is a dictionary *stringencybysite* keyed by string
-    site number with element *stringencybysite[site]* being a dictionary keyed
-    by the three string keys *stringency*, *P*, and *dLnL* each
-    specifying the value for that property.
-
-    >>> f = io.StringIO()
-    >>> n = f.write(u"# site stringency_ratio P dLnL\\n1 0.017 2.45e-05 8.9\\n2 0.079 0.0005 6.1\\n")
-    >>> n = f.seek(0)
-    >>> stringencybysite = ReadStringencyBySite(f)
-    >>> set(stringencybysite.keys()) == set(['1', '2'])
-    True
-    >>> '0.017' == '%.3f' % stringencybysite['1']['stringency']
-    True
-    >>> '0.0000245' == '%.7f' % stringencybysite['1']['P']
-    True
-    >>> '8.9' == '%.1f' % stringencybysite['1']['dLnL']
-    True
-    >>> '0.079' == '%.3f' % stringencybysite['2']['stringency']
-    True
-    >>> '0.0005' == '%.4f' % stringencybysite['2']['P']
-    True
-    >>> '6.1' == '%.1f' % stringencybysite['2']['dLnL']
-    True
-    """
-    if isinstance(infile, str):
-        with open(infile) as f:
-            lines = f.readlines()
-    else:
-        lines = infile.readlines()
-    stringencybysite = {}
-    for line in lines:
-        if line[0] == '#' or line.isspace() or not line:
-            continue
-        entries = line.split()
-        assert len(entries) == 4, "Unexpected number of entries in line:\n%s" % line
-        (site, stringency, P, dLnL) = entries
-        assert site not in stringencybysite, "Duplicate site %d" % site
-        stringency = float(stringency)
-        assert 0 <= stringency, "Invalid stringency: %g" % stringency
-        P = float(P)
-        assert 0 <= P <= 1, "Invalid P: %g" % P
-        dLnL = float(dLnL)
-        stringencybysite[site] = {'stringency':stringency, 'P':P, 'dLnL':dLnL}
-    return stringencybysite
-
-
 def ReadOmegaBySite(infile):
     """Reads ``*_omegabysite.txt`` files created by ``phydms``.
    
@@ -216,20 +164,77 @@ def ReadOmegaBySite(infile):
     return omegabysite
 
 
-def SetMinBrLen(intree, outtree, minbrlen):
-    """Sets all branch lengths to be >= a value.
+def ReadPreferences(f):
+    """Reads the amino-acid preferences written by `dms_tools`.
+    
+    This is an exact copy of the same code from 
+    `dms_tools.file_io.ReadPreferences`. It is copied because
+    `dms_tools` is currently only compatible with `python2`, and
+    we needed something that also works with `python3`.
 
-    Reads tree from *intree* newick file, adjusts all
-    branch lengths to be >= *minbrlen*, then writes to
-    *outtree*.
+    *f* is the name of an existing file or a readable file-like object.
+
+    The return value is the tuple: *(sites, wts, pi_means, pi_95credint, h)*
+    where *sites*, *wts*, *pi_means*, and *pi_95credint* will all
+    have the same values used to write the file with *WritePreferences*,
+    and *h* is a dictionary with *h[r]* giving the site entropy (log base
+    2) for each *r* in *sites*.
+
+    See docstring of *WritePreferences* for example usage.
     """
-    assert minbrlen >= 0, "minbrlen must be >= 0"
-    tree = Bio.Phylo.read(intree, 'newick')
-    for node in tree.get_terminals() + tree.get_nonterminals():
-        if node != tree.root:
-            node.branch_length = max(minbrlen, node.branch_length)
-    with open(outtree, 'w') as f:
-        f.write(tree.format('newick').strip())
+    charmatch = re.compile('^PI_([A-z\*\-]+)$')
+    if isinstance(f, str):
+        f = open(f)
+        lines = f.readlines()
+        f.close()
+    else:
+        lines = f.readlines()
+    characters = []
+    sites = []
+    wts = {}
+    pi_means = {}
+    pi_95credint = {}
+    h = {}
+    for line in lines:
+        if line.isspace():
+            continue
+        elif line[0] == '#' and not characters:
+            entries = line[1 : ].strip().split()
+            if len(entries) < 4:
+                raise ValueError("Insufficient entries in header:\n%s" % line)
+            if not (entries[0] in ['POSITION', 'SITE'] and entries[1][ : 2] == 'WT' and entries[2] == 'SITE_ENTROPY'):
+                raise ValueError("Not the correct first three header columns:\n%s" % line)
+            i = 3
+            while i < len(entries) and charmatch.search(entries[i]):
+                characters.append(charmatch.search(entries[i]).group(1))
+                i += 1
+            if i  == len(entries):
+                pi_95credint = None
+                linelength = len(characters) + 3
+            else:
+                if not len(entries) - i == len(characters):
+                    raise ValueError("Header line does not have valid credible interval format:\n%s" % line)
+                if not all([entries[i + j] == 'PI_%s_95' % characters[j] for j in range(len(characters))]):
+                    raise ValueError("mean and credible interval character mismatch in header:\n%s" % line)
+                linelength = 2 * len(characters) + 3
+        elif line[0] == '#':
+            continue
+        elif not characters:
+            raise ValueError("Found data lines before encountering a valid header")
+        else:
+            entries = line.strip().split()
+            if len(entries) != linelength:
+                raise ValueError("Line does not have expected %d entries:\n%s" % (linelength, line))
+            r = entries[0]
+            assert r not in sites, "Duplicate site of %s" % r
+            sites.append(r)
+            wts[r] = entries[1]
+            assert entries[1] in characters or entries[1] == '?', "Character %s is not one of the valid ones in header. Valid possibilities: %s" % (entries[1], ', '.join(characters))
+            h[r] = float(entries[2])
+            pi_means[r] = dict([(x, float(entries[3 + i])) for (i, x) in enumerate(characters)])
+            if pi_95credint != None:
+                pi_95credint[r] = dict([(x, (float(entries[3 + len(characters) + i].split(',')[0]), float(entries[3 + len(characters) + i].split(',')[1]))) for (i, x) in enumerate(characters)])
+    return (sites, wts, pi_means, pi_95credint, h)
 
 
 if __name__ == '__main__':
