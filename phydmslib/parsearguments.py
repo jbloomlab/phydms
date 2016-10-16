@@ -8,6 +8,7 @@ import os
 import re
 import argparse
 import phydmslib
+import phydmslib.constants
 
 
 # allowed variants of YNGKP models
@@ -137,23 +138,17 @@ def ExistingFile(fname):
     *fname* can also be the string 'None', in which case we return *None*."""
     if os.path.isfile(fname):
         return fname
+    else:
+        raise ValueError("%s must specify a valid file name" % fname)
+
+def ExistingFileOrNone(fname):
+    """Like `Existingfile`, but if `fname` is string "None" then return `None`."""
+    if os.path.isfile(fname):
+        return fname
     elif fname.lower() == 'none':
         return None
     else:
         raise ValueError("%s must specify a valid file name or 'None'" % fname)
-
-
-def TreeFile(fname):
-    """Returns *fname* if an existing file or *random* or *nj*, otherwise an error."""
-    if os.path.isfile(fname):
-        if fname.lower() in ['random', 'nj']:
-            raise ValueError("Ambiguous meaning of tree since there is an existing file named %s" % fname)
-        else:
-            return fname
-    elif fname.lower() in ['random', 'nj']:
-        return fname.lower()
-    else:
-        raise ValueError("Invalid value for tree: must be existing file, 'nj', or 'random'.")
 
 
 def YNGKPList(modellist):
@@ -198,7 +193,7 @@ def PhyDMSAnalyzeSelectionParser():
     parser.add_argument('outprefix', help="Prefix for output files.")
     parser.add_argument('selectionfiles', nargs='+', help="Per-site selection file(s) created by 'phydms' (i.e. '*_omegabysite.txt', '*_stringencybysite.txt', '*_diffprefsbysite.txt').", type=ExistingFile)
     parser.add_argument('--names', nargs='+', help="Name(s) describing type of selection to go with each 'selectionfile'.")
-    parser.add_argument('--selectedsites', nargs='+', type=ExistingFile, help="File(s) listing selected sites to display as points. If you give one file, it applies to all 'selectionfiles'. Otherwise list a different file (or 'None') for each file in 'selectionfiles'. Column 1 is site number, which can be followed by # giving notes. Lines beginning with '#' are ignored.")
+    parser.add_argument('--selectedsites', nargs='+', type=ExistingFileOrNone, help="File(s) listing selected sites to display as points. If you give one file, it applies to all 'selectionfiles'. Otherwise list a different file (or 'None') for each file in 'selectionfiles'. Column 1 is site number, which can be followed by # giving notes. Lines beginning with '#' are ignored.")
     parser.set_defaults(labelselectedsites=False)
     parser.add_argument('--labelselectedsites', action='store_true', dest='labelselectedsites', help="Do we use a unique labeled point on violin plots for each site in '--selectedsites'?")
     parser.add_argument('--fdr', type=float, default=0.05, help="False discovery rate for 'omega' and 'stringency'. Benjamini-Hochberg FDR computed separately for values > and < 1.")
@@ -278,8 +273,8 @@ def PhyDMSPlotSelectionParser():
     parser = ArgumentParserNoArgHelp(description="Visualization of site-specific selection inferred using 'phydms' with an 'ExpCM' model. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('diffprefsbysite', help="A '*_diffprefsbysite.txt' file created by 'phydms' specifying the differential preferences for each site.", type=ExistingFile)
     parser.add_argument('plotfile', help='Name of created PDF file.')
-    parser.add_argument('--omegabysite', help="To overlay site-specific omega values, specify a '*_omegabysite.txt' file created by 'phydms'. Sites must match those in 'diffprefs'.", type=ExistingFile)
-    parser.add_argument('--stringencybysite', help="To overlay site-specific stringency (beta) values, specify a '*_stringencybysite.txt' file created by 'phydms'. Sites must match those in 'diffprefs'.", type=ExistingFile)
+    parser.add_argument('--omegabysite', help="To overlay site-specific omega values, specify a '*_omegabysite.txt' file created by 'phydms'. Sites must match those in 'diffprefs'.", type=ExistingFileOrNone)
+    parser.add_argument('--stringencybysite', help="To overlay site-specific stringency (beta) values, specify a '*_stringencybysite.txt' file created by 'phydms'. Sites must match those in 'diffprefs'.", type=ExistingFileOrNone)
     parser.add_argument('--nperline', type=IntGreaterThanZero, default=70, help="Number of sites per line in plot.")
     parser.add_argument('--numberevery', type=IntGreaterThanZero, default=10, help="Number sites at this interval.")
     parser.add_argument('--diffprefheight', type=FloatGreaterThanZero, default=1.0, help="Height of differential preferences logo stacks in each direction. If using '--updiffprefheight' then the height may be higher than this.")
@@ -307,10 +302,10 @@ def PhyDMSComprehensiveParser():
     parser.add_argument('--no-diffprefsbysite', dest='nodiffprefsbysite', action='store_true', help="No fitting of differential preferences for ExpCM.")
     parser.set_defaults(noavgprefs=False)
     parser.add_argument('--no-avgprefs', dest='noavgprefs', action='store_true', help="No fitting of models with preferences averaged across sites for ExpCM.")
-    parser.add_argument('--dateseqs', default='None', type=ExistingFile, help="See 'phydms' option of the same name.")
+    parser.add_argument('--dateseqs', default='None', type=ExistingFileOrNone, help="See 'phydms' option of the same name.")
     parser.set_defaults(gammarates=False)
     parser.add_argument('--gammarates', dest='gammarates', action='store_true', help="See 'phydms' option of the same name.")
-    parser.add_argument('--avgrandcontrol', default='None', type=ExistingFile, help="Fit average and random controls only for ExpCM using this preference file. Overrides '--no-avgprefs' and '--randprefs'.")
+    parser.add_argument('--avgrandcontrol', default='None', type=ExistingFileOrNone, help="Fit average and random controls only for ExpCM using this preference file. Overrides '--no-avgprefs' and '--randprefs'.")
     parser.set_defaults(omegabysite_fixsyn=False)
     parser.add_argument('--omegabysite_fixsyn', action='store_true', dest='omegabysite_fixsyn', help="See 'phydms' option of the same name.")
     parser.set_defaults(useLog=False)
@@ -330,53 +325,51 @@ def PhyDMSComprehensiveParser():
 
 def PhyDMSParser():
     """Returns *argparse.ArgumentParser* for ``phydms`` script."""
-    parser = ArgumentParserNoArgHelp(description='Phylogenetic inference using deep mutational scanning data. %s Version %s. Full documentation at %s' % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('alignment', help='Existing FASTA file with aligned codon sequences.', type=ExistingFile)
-    parser.add_argument('tree', help="Existing Newick tree file or 'random' or 'nj'.", type=TreeFile)
-    parser.add_argument('model', help="Codon substitution model: YNGKP_<m> where <m> is {0}; or ExpCM_<prefsfile>".format(', '.join(yngkp_modelvariants)), type=ModelOption)
+    parser = ArgumentParserNoArgHelp(description=('Phylogenetic inference '
+            'using deep mutational scanning data. {0} Version {1}. Full '
+            'documentation at {2}').format(phydmslib.__acknowledgments__, 
+            phydmslib.__version__, phydmslib.__url__), 
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('alignment', type=ExistingFile, 
+            help='Existing FASTA file with aligned codon sequences.')
+    parser.add_argument('tree', type=ExistingFile,
+            help="Existing Newick file giving tree topology.")
+    parser.add_argument('model', type=ModelOption, 
+            help=("Substitution model: ExpCM_<prefsfile> or YNGKP_<m> ("
+            "where <m> is {0}).").format(', '.join(yngkp_modelvariants)))
     parser.add_argument('outprefix', help='Prefix for output files.', type=str)
-    parser.set_defaults(omegabysite=False)
-    parser.add_argument('--omegabysite', dest='omegabysite', action='store_true', help="Fit a different omega (dN/dS) for each site, similar to FEL.")
-    parser.set_defaults(stringencybysite=False)
-    parser.add_argument('--stringencybysite', dest='stringencybysite', action='store_true', help="Fit a different stringency parameter for each site, only for ExpCM.")
-    parser.set_defaults(diffprefsbysite=False)
-    parser.add_argument('--diffprefsbysite', dest='diffprefsbysite', action='store_true', help="Infer differential preferences for each site, only for ExpCM.")
-    parser.set_defaults(infertopology=False)
-    parser.add_argument('--infertopology', dest='infertopology', action='store_true', help="Infer topology starting from 'tree'; otherwise topology fixed to 'tree'. Requires YNGKP_M0 model.")
-    parser.add_argument('--fixationmodel', default='HalpernBruno', choices=['HalpernBruno', 'FracTolerated', 'gwF'], help='How to calculate the "fixation probabilities" from the preferences.')
-    parser.set_defaults(gammarates=False)
-    parser.add_argument('--gammarates', dest='gammarates', action='store_true', help="Draw the substitution rate from 4-category discrete gamma distribution with optimized shape parameter.")
-    parser.add_argument('--ncats', default=6, help="Number of beta-distributed categories for YNGKP M7 and M8.", type=IntGreaterThanZero)
-    parser.add_argument('--dateseqs', type=ExistingFile, help="Perform least-squares sequence dating. Specify file with column 1 = date, column 2 = sequence header; columns are space delimited.")
-    parser.add_argument('--ncpus', default=1, help='Use this many CPUs; -1 means all available.', type=int)
-    parser.set_defaults(omegabysite_fixsyn=False)
-    parser.add_argument('--omegabysite_fixsyn', dest='omegabysite_fixsyn', action='store_true', help="For '--omegabysite', assign all sites same synonymous rate rather than fitting a different one for each site.")
-    # comment out this option as the 'invquad' prior makes vastly more sense than 'dirichlet'
-    parser.set_defaults(diffprefsprior='invquad')
-    #parser.add_argument('--diffprefsprior', default='invquad', choices=['invquad', 'dirichlet'], help="Prior on diff preferences for '--diffprefsbysite'.")
+    parser.add_argument('--brlen', choices=['fix', 'scale', 'optimize'],
+            default='scale', help=("How to handle branch lengths: "
+            "fix to values in 'tree'; scale values in 'tree' by single "
+            "parameter 'mu'; or optimize each one.")) 
+#    parser.set_defaults(omegabysite=False)
+#    parser.add_argument('--omegabysite', dest='omegabysite', action='store_true', 
+#            help="Fit an omega (dN/dS) for each site, similar to FEL.")
+#    parser.set_defaults(omegabysite_fixsyn=False)
+#    parser.add_argument('--omegabysite_fixsyn', dest='omegabysite_fixsyn', 
+#            action='store_true', help=("For '--omegabysite', assign all "
+#            "sites same synonymous rate rather than fitting a different "
+#            "one for each site."))
     parser.set_defaults(randprefs=False)
-    parser.add_argument('--randprefs', dest='randprefs', action='store_true', help="Randomize preferences among sites for ExpCM.")
+    parser.add_argument('--randprefs', dest='randprefs', action='store_true', 
+            help="Randomize preferences among sites for ExpCM.")
     parser.set_defaults(avgprefs=False)
-    parser.add_argument('--avgprefs', dest='avgprefs', action='store_true', help="Average preferences across sites for ExpCM.")
-    parser.set_defaults(fixbrlen=False)
-    parser.add_argument('--fixbrlen', dest='fixbrlen', action='store_true', help="Fix branch lengths to those of initial 'tree'. Consider using '--addrateparameter' too.")
-    parser.add_argument('--diffprefconc', help="Parameters determining the concentration of the regularizing prior over the differential preferences for '--diffprefsbysite'. Larger values favor smaller diff prefs.", type=FloatGreaterThanEqualToZero, nargs=2, metavar=('C1', 'C2'), default=[150, 0.5])
-    parser.add_argument('--divpressure', type=ExistingFile, help="Specify known diversifying pressure at sites: provide file with column 1 = position, column 2 = diversification pressure; columns are space delimited.")
-    parser.set_defaults(addrateparameter=False)
-    parser.add_argument('--addrateparameter', dest='addrateparameter', action='store_true', help="Add parameter scaling substitution rate. Only allowed with '--fixbrlen'.")
-    parser.set_defaults(fitF3X4=False)
-    parser.add_argument('--fitF3X4', dest='fitF3X4', action='store_true', help='Fit F3X4 frequencies for YNGKP; otherwise use empirical')
-    parser.add_argument('--minbrlen', default=1e-6, help='Min branch length for starting tree.', type=FloatGreaterThanZero)
+    parser.add_argument('--avgprefs', dest='avgprefs', action='store_true', 
+            help="Average preferences across sites for ExpCM.")
+#    parser.add_argument('--divpressure', type=ExistingFileOrNone, 
+#            help=("Known diversifying pressure at sites: file with column 1 "
+#            "= position, column 2 = diversification pressure; columns space "
+#            "delimited."))
+    parser.add_argument('--ncpus', default=1, type=int,
+            help='Use this many CPUs; -1 means all available.')
+    parser.add_argument('-v', '--version', action='version', 
+            version='%(prog)s {version}'.format(version=phydmslib.__version__))
+    parser.add_argument('--minbrlen', default=phydmslib.constants.ALMOST_ZERO, 
+            type=FloatGreaterThanZero,
+            help="Adjust all branch length in starting 'tree' to >= this.")
+    parser.add_argument('--minpref', default=0.005, type=FloatGreaterThanZero,
+            help="Adjust all preferences in ExpCM 'prefsfile' to >= this.")
     parser.add_argument('--seed', type=int, default=1, help="Random number seed.")
-    parser.set_defaults(no_optimize=False)
-    parser.add_argument('--no_optimize', dest='no_optimize', action='store_true', help="Don't optimize tree or model; use values in existing files from previous run with same 'outprefix'.")
-    parser.set_defaults(useLog=False)
-    parser.add_argument('--useLog', dest='useLog', action='store_true', help="Use logarithms in likelihood calculations.")
-    parser.add_argument('--debugsite', type=int, help="For debugging: fit site-specific selection to only this site.")
-    parser.set_defaults(recursion='S')
-    # comment out this option for now as the double recursion seems not to work properly
-    #parser.add_argument('--recursion', choices=['S', 'D'], default='S', help='Likelihood recursion for Bio++.')
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
     
     

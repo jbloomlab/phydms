@@ -240,7 +240,7 @@ class ExpCM(Model):
         else:
             raise ValueError("Can't handle {0}".format(param))
 
-    def __init__(self, prefs, kappa=1.0, omega=1.0, beta=1.0, mu=1.0,
+    def __init__(self, prefs, kappa=2.0, omega=0.5, beta=1.0, mu=1.0,
             phi=scipy.ones(N_NT) / N_NT,
             freeparams=['kappa', 'omega', 'beta', 'mu', 'eta']):
         """Initialize an `ExpCM` object.
@@ -274,8 +274,6 @@ class ExpCM(Model):
                     "prefs not keyed by amino acids for site {0}".format(r)
             assert abs(1 - sum(prefs[r].values())) <= ALMOST_ZERO,\
                     "prefs don't sum to one for site {0}".format(r)
-            assert all([0 < pix < 1 for pix in prefs[r].values()]),\
-                    "prefs aren't all > 0 and < 1 for site {0}".format(r)
             for (a, aa) in INDEX_TO_AA.items():
                 self.checkParam('pi', prefs[r][aa])
                 self.pi[r][a] = prefs[r][aa]
