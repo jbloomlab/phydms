@@ -291,7 +291,7 @@ where :math:`D^r_{xx}` and :math:`D^r_{yy}` are the diagonal elements of :math:`
 
 Scaling the branch lengths with a mutation rate
 -------------------------------------------------
-The aforementioned section defines the substitution probabilities in terms of :math:`\mu t` (e.g., Eq. :ref:`eq:Mr`). 
+The aforementioned section defines the substitution probabilities in terms of :math:`\mu t` (e.g., Eq. :eq:`Mr`). 
 Here :math:`\mu` is a substitution rate, and :math:`t` is the branch length. 
 If we are freely optimizing all branch lengths, then we just set :math:`\mu = 1` so that :math:`\mu t = t`, and then :math:`\mu` effectively drops out. 
 However, if we have fixed the branch lengths are **not** optimizing them, then we might want to include a parameter :math:`\mu` that effectively re-scales all the fixed branch lengths by a constant. 
