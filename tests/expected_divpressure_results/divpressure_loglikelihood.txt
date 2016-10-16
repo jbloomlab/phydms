@@ -1,1 +1,0 @@
-log likelihood = -525.646

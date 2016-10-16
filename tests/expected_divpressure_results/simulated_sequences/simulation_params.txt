@@ -1,9 +1,0 @@
-stringencyparameter = 2.0
-kappa = 4.0
-phiA = 0.32
-phiT = 0.21
-phiG = 0.27
-phiC = 0.2
-diversifyingomegaA = 20.0
-diversifyingsitesA = 2,6,7,8,26,32
-scalerate = 2.25

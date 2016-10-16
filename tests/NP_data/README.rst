@@ -1,8 +1,10 @@
 ==============
-tests
+data for NP
 ==============
 
-This directory contains some tests for ``phydms``. 
+This directory contains alignments and preferences for influenza nucleoprotein to be used in some of the tests.
+
+The preferences come from `Doud et al (2015)`_.
 
 
 .. _`Doud et al (2015)`: https://dx.doi.org/10.1093/molbev/msv167
