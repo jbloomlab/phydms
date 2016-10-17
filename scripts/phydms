@@ -14,10 +14,7 @@ import tempfile
 import time
 import math
 import multiprocessing
-import Bio.SeqRecord
 import Bio.Phylo
-import Bio.Seq
-import Bio.Align
 import phydmslib
 import phydmslib.constants
 import phydmslib.file_io
@@ -60,7 +57,7 @@ def main():
                 os.remove(outdir)
             os.mkdir(outdir)
 
-    # name files, remove if they already exist
+    # output files, remove if they already exist
     modelparamsfile = '%s_modelparams.txt' % args['outprefix']
     loglikelihoodfile = '%s_loglikelihood.txt' % args['outprefix']
     treefile = "%s_tree.newick" % args['outprefix']
@@ -102,6 +99,7 @@ def main():
         logger.info(('Read {0} aligned sequences from {1}, each consisting '
                 'of {2} codons.\n').format(len(alignment), args['alignment'], 
                 len(alignment[0][1]) // 3))
+        seqnames = set([head for (head, seq) in alignment])
 
         # process the substitution model
         yngkp_match = re.compile('^YNGKP_M(?P<modelvariant>\d+)$')
@@ -117,11 +115,12 @@ def main():
         elif (isinstance(args['model'], tuple) and len(args['model']) == 2 and 
                 args['model'][0] == 'ExpCM'):
             prefsfile = args['model'][1]
-            logger.info(('The ExpCM will be informed by the site-specific '
+            logger.info(('The model will be an ExpCM informed by site-specific '
                     'amino-acid preferences in {0}').format(prefsfile))
             for (argname, desc) in [('avgprefs', 'averaged'), 
                     ('randprefs', 'randomized')]:
-                logger.info('Preferences will be {0} across sites.'.format(desc))
+                if args[argname]:
+                    logger.info('Preferences will be {0} across sites.'.format(desc))
             prefs = phydmslib.file_io.readPrefs(prefsfile, minpref=args['minpref'], 
                     avgprefs=args['avgprefs'], randprefs=args['randprefs'],
                     seed=args['seed'])
@@ -134,9 +133,10 @@ def main():
                     'for all {0} sites.\n').format(len(prefs)))
             freeparams = ['kappa', 'omega', 'beta', 'eta']
             if args['brlen'] == 'scale':
+                logger.info("Scaling branch lengths by adding 'mu' parameter "
+                        "to model.")
                 freeparams.append('mu')
             model = phydmslib.models.ExpCM(prefslist, freeparams=freeparams)
-
             # read diversifying pressure
             if False: # not yet implemented, so skip code
             #if args['divpressure']:
@@ -150,101 +150,33 @@ def main():
                         "not the same for diversifying pressure and preferences")
                 logger.info(('Successfully read diversifying pressure from {0} '
                         'for all sites.').format(args['divpressure']))
-
         else:
             raise ValueError("Invalid model of %s" % args['model'])
 
-        raise RuntimeError('current implementation stops here')
-        # read or create the tree
-        if args['tree'] == 'random':
-            assert not args['no_optimize'], "Cannot use --no_optimize with tree of 'random'"
-            logger.info("Creating a random initial tree.")
-            tree = Bio.Phylo.BaseTree.Tree.randomized(seqnames, branch_length=1.0)
-        elif args['tree'] == 'nj':
-            assert not args['no_optimize'], "Cannot use --no_optimize with tree of 'nj'"
-            logger.info('Creating an initial tree from nucleotide sequences by neighbor joining using a crude identity scoring matrix...')
-            msa = Bio.Align.MultipleSeqAlignment([Bio.SeqRecord.SeqRecord(Bio.Seq.Seq(seq, Bio.Alphabet.generic_dna), id=head) for (head, seq) in alignment])
-            calculator = Bio.Phylo.TreeConstruction.DistanceCalculator('identity')
-            tree = Bio.Phylo.TreeConstruction.DistanceTreeConstructor(calculator, 'nj').build_tree(msa)
-            logger.info("Finished creating a crude neighbor-joining initial tree.")
-        else:
-            logger.info("Reading tree from %s" % args['tree'])
-            tree = Bio.Phylo.read(args['tree'], 'newick')
+        # read tree
+        logger.info("Reading tree from %s" % args['tree'])
+        tree = Bio.Phylo.read(args['tree'], 'newick')
         tipnames = set([clade.name for clade in tree.get_terminals()])
-        if tipnames != seqnames:
-            raise ValueError("The sequence names in alignment do not match those in tree.\nSequences in alignment but NOT in tree:\n\t%s\nSequences in tree but NOT in alignment:\n\t%s" % ('\n\t'.join(seqnames - tipnames), '\n\t'.join(tipnames - seqnames)))
-        logger.info('This tree has %d tips nodes, matching the sequences in alignment.' % len([clade.name for clade in tree.get_terminals()]))
-        # next 4 lines necessary for biopython <= 1.66, which fails on trees with negative branch lengths
+        assert len(tipnames) == tree.count_terminals(), "non-unique tip names?"
+        assert tipnames == seqnames, ("Names in alignment do not match those in "
+                "tree.\nSequences in alignment but NOT in tree:\n\t{0}\n"
+                "Sequences in tree but NOT in alignment:\n\t{1}".format(
+                '\n\t'.join(seqnames - tipnames), '\n\t'.join(tipnames - seqnames)))
+        logger.info('Tree has {0} tips.'.format(len(tipnames)))
+        assert tree.is_bifurcating(), "Tree is not bifurcating: cannot handle"
+        nadjusted = 0
         for node in tree.get_terminals() + tree.get_nonterminals():
-            if node != tree.root:
-                node.branch_length = max(0, node.branch_length)
-        # end of code necessary for tree parsing by biopython <= 1.66
-        newicktree = tree.format('newick').strip()
-        # remove internal node names because they cause problem in parsing tree later
-        for node in tree.get_nonterminals():
-            if node.name: # root node won't have name
-                toremove = ')' + node.name + ':'
-                assert toremove in newicktree, "Cannot find internal node %s in form %s in tree:\n%s" % (node.name, toremove, newicktree)
-                newicktree = newicktree.replace(toremove, '):')
-        seqnames = [head for (head, seq) in alignment]
-        seqs = [seq for (head, seq) in alignment]
+            if node.branch_length < args['minbrlen']:
+                nadjusted += 1
+                node.branch_length = args['minbrlen']
+        if nadjusted:
+            logger.info('Adjusted {0} branch lengths up to minbrlen {1}'.format(
+                    nadjusted, args['minbrlen']))
 
-        # use old likelihood method for YNGPK models, new otherwise
-        if isinstance(model, str) and 'YNGKP' in model:
-            oldlikelihoodmethod = True
-        else:
-            oldlikelihoodmethod = False
+        # set up tree likelihood
+        raise RuntimeError('only implemented to this far')
+        treelik = phydmslib.treelikelihood.TreeLikelihood(alignment, tree, model)
 
-        # now optimize tree 
-        if args['no_optimize']:
-            require_files = [modelparamsfile, loglikelihoodfile, treefile]
-            logger.info("Because --no_optimize is being used, the tree and model parameters will not be optimized. Instead using the existing values from a previous optimization in the following files: %s\n" % ', '.join(require_files))
-            if not all([os.path.isfile(f) for f in require_files]):
-                raise ValueError("Cannot use --no_optimize' because cannot find all of the existing optimization files: %s" % ', '.join(require_files))
-            with open(loglikelihoodfile) as f:
-                old_ll = float(f.readlines()[0].split('=')[1])
-            with open(modelparamsfile) as f:
-                modelparams = dict([(line.split('=')[0].strip(), float(line.split('=')[1])) for line in f])
-            allmodelparams = modelparams
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, treefile, model, args['infertopology'], fixedmodelparams=modelparams, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=True, addrateparameter=False, prefsasparams=False, recursion=args['recursion'], useLog=args['useLog'], ngammarates=ngammarates, ncats=args['ncats'])
-            assert not tl.ModelParams(True), "There are unspecified model parameters to be optimized for --no_optimize: %s" % str(tl.ModelParams(True))
-            if set(tl.ModelParams(False).keys()) != set(modelparams.keys()):
-                raise ValueError("The existing model params file %s does not have all of the expected parameters for this substitution model, so cannot use --no_optimize. Either the existing model parameters were created with a different model, or you used a YNGKP model without --fitF3X4 (this is currently incompatible with --no_optimize).")
-            if abs(tl.LogLikelihood() - old_ll) > 1:
-                raise ValueError("Incompatibility between old log likelihood %g and new one of %g" % (old_ll, tl.LogLikelihood()))
-        else:
-            try:
-                (fd, temptreefile) = tempfile.mkstemp() # create temporary file to write tree for passing
-                with os.fdopen(fd, 'w') as f:
-                    f.write(newicktree)
-                logger.info('Adjusting all branch lengths to >= {0}.\n'.format(args['minbrlen']))
-                phydmslib.file_io.SetMinBrLen(temptreefile, temptreefile, args['minbrlen'])
-                logger.info('Creating Bio++ object to optimize likelihood...')
-                tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], prefsasparams=False, recursion=args['recursion'], useLog=args['useLog'], ngammarates=ngammarates, ncats=args['ncats'])
-            finally:
-                if os.path.isfile(temptreefile):
-                    os.remove(temptreefile)
-            logger.info('Created Bio++ object to optimize likelihood for the %d codon sites of the %d sequences.\n' % (tl.NSites(), tl.NSeqs()))
-            logger.info('The initial log likelihood is %g; now optimizing by maximum likelihood...' % tl.LogLikelihood())
-            tl.OptimizeLikelihood()
-            logger.info('Completed optimizing by maximum likelihood.')
-            logger.info("Here is the optimized log likelihood (also being written to %s): %g." % (loglikelihoodfile, tl.LogLikelihood()))
-            with open(loglikelihoodfile, 'w') as f:
-                f.write('log likelihood = %g' % tl.LogLikelihood())
-            modelparams = tl.ModelParams(True)
-            modelparamstextlist = ['%s = %.6f' % tup for tup in modelparams.items()]
-            modelparamstextlist.sort()
-            logger.info("Here are the optimized model parameters (also being written to %s):\n\t%s" % (modelparamsfile, '\n\t'.join(modelparamstextlist)))
-            with open(modelparamsfile, 'w') as f:
-                f.write('\n'.join(modelparamstextlist))
-            logger.info("Here is the optimized tree (also being written to %s):\n%s\n" % (treefile, tl.NewickTree()))
-            with open(treefile, 'w') as f:
-                f.write(tl.NewickTree())
-            allmodelparams = tl.ModelParams(False)
-        del tl
-
-        # list of all codons
-        codons = [icodon for icodon in range(1, len(seqs[0]) // 3 + 1)]
 
         # get number of cpus for multiprocessing
         if args['ncpus'] == -1:
