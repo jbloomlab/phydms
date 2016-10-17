@@ -10,7 +10,6 @@ import os
 import re
 import logging
 import random
-import tempfile
 import time
 import math
 import multiprocessing

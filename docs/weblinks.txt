@@ -59,3 +59,4 @@
 .. _`Knudsen and Miyamoto, BMC Evol Biol, 5:21`: http://bmcevolbiol.biomedcentral.com/articles/10.1186/1471-2148-5-21
 .. _`Bloom, bioRxiv, DOI 10.1101/037689`: http://dx.doi.org/10.1101/037689
 .. _`RAxML`: http://sco.h-its.org/exelixis/web/software/raxml/index.html
+.. _`Felsenstein, J Mol Evol, 1981`: http://rd.springer.com/article/10.1007/BF01734359

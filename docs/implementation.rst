@@ -302,5 +302,51 @@ In this case, :math:`\mu` also becomes a free parameter of the model, and we wan
    \frac{\partial \mathbf{M_r}\left(\mu t\right)}{\partial \mu} = t \mathbf{P_r} e^{\mu t \mathbf{P_r}}.
 
 
+Calculating the likelihood and derivatives on a tree
+------------------------------------------------------
+Above we describe computing the transition probabilities as a function of branch length.
+Here we consider how to use those computations to compute the actual likelihoods on a tree.
+
+.. figure:: implementation_tree_example.jpg
+   :align: center
+   :alt: implementation_tree_example.jpg
+   :width: 40%
+
+   The tree used in the example calculation below.
+
+We begin by computing the likelihood of the alignment at a specific site.
+Let :math:`\mathcal{S}_r` denote the set of aligned codons at site :math:`r`, let :math:`\mathcal{T}` by the phylogenetic tree with branch lengths specified, and let :math:`\mathbf{P_r}` be the transition matrix at site :math:`r` defined above.
+Then the likelihood at site :math:`r` is :math:`\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)`.
+For the example tree above, we can use the pruning algorithm (`Felsenstein, J Mol Evol, 1981`_) to write
+
+.. math::
+
+   \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right) 
+   =
+   \sum_y p_{r,y} M_{r,yGAA}\left(t_3\right) \left[\sum_x M_{r,yx}\left(t_4\right) M_{r,xCAA}\left(t_1\right) M_{r,xCAG}\left(t_2\right)\right].
+
+Let :math:`n` denote a node on a tree, let :math:`t_n` denote the length of the branch leading to node :math:`n`, and let :math:`\mathcal{d}_1\left(n\right)` and :math:`\mathcal{d}_1\left(n\right)` denote the right and left descendents of node :math:`n` for all non-terminal nodes. 
+Then define:
+
+.. math::
+
+   L_{r,n}\left(x\right) =
+   \begin{cases}
+   \delta_{x\mathcal{S}_{r,n}} & \mbox{if $n$ is a tip node,} \\
+   \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right) L_{r, \mathcal{d}_1\left(n\right)}\left(y\right)\right] \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) L_{r, \mathcal{d}_2\left(n\right)}\left(y\right)\right] & \mbox{otherwise.}
+   \end{cases}
+
+where :math:`\mathcal{S}_{r,n}` indicates the codon found for tip node :math:`n` at site :math:`r`, and :math:`\delta_{xy}` is the `Kronecker delta`_.
+So for instance in the example tree above, :math:`L_{r,n_4}\left(x\right) = M_{r,xCAA}\left(t_1\right) M_{r,xCAG}\left(t_2\right)`, and :math:`L_{r,n_5}\left(y\right) = M_{r,yGAA} \sum_x M_{r,yx}\left(t_4\right) L_{r,n_4}\left(x\right)`.
+
+Using this definition, we have
+
+.. math::
+
+   \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right) 
+   = \sum_x p_{r,x} L_{r,n_{\rm{root}}}\left(x\right)
+
+where :math:`n_{\rm{root}}` is the root node of tree :math:`\mathcal{T}`; :math:`n_{\rm{root}} = n_5` in the example tree above.
+
 
 .. include:: weblinks.txt

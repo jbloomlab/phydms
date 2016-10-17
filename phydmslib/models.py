@@ -2,9 +2,8 @@
 
 All models defined here are subclasses of abstract base class `Model`.
 
-For all models, nucleotides, amino acids, and codons are indexed
-by integers 0, 1, ... using the indexing schemes defined
-in `phydmslib.constants`.
+Nucleotides, amino acids, and codons are indexed by integers 0, 1, ...
+using the indexing schemes defined in `phydmslib.constants`.
 """
 
 
