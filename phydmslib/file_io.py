@@ -7,14 +7,16 @@ import sys
 import os
 import re
 import time
-import tempfile
 import platform
 import importlib
 import math
+import random
 import io
+import Bio.Seq
 import Bio.SeqIO
-import Bio.Phylo
+import pandas
 import phydmslib
+import phydmslib.constants
 
 
 def Versions():
@@ -57,114 +59,215 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
     this terminal codon is trimmed. Raises an exception if the sequences
     are not aligned codon sequences that are free of stop codons (with
     the exception of a shared terminal stop) and free of ambiguous nucleotides.
+
+    Read aligned sequences in this example:
+    >>> seqs = [('seq1', 'ATGGAA'), ('seq2', 'ATGAAA')]
+    >>> f = io.StringIO()
+    >>> n = f.write(u'\\n'.join(['>{0}\\n{1}'.format(*tup) for tup in seqs]))
+    >>> n = f.seek(0)
+    >>> a = ReadCodonAlignment(f, True)
+    >>> seqs == a
+    True
+
+    Trim stop codons from all sequences in this example:
+    >>> seqs = [('seq1', 'ATGTAA'), ('seq2', 'ATGTGA')]
+    >>> f = io.StringIO()
+    >>> n = f.write(u'\\n'.join(['>{0}\\n{1}'.format(*tup) for tup in seqs]))
+    >>> n = f.seek(0)
+    >>> a = ReadCodonAlignment(f, True)
+    >>> [(head, seq[ : -3]) for (head, seq) in seqs] == a
+    True
+
+    Read sequences with gap:
+    >>> seqs = [('seq1', 'ATG---'), ('seq2', 'ATGAGA')]
+    >>> f = io.StringIO()
+    >>> n = f.write(u'\\n'.join(['>{0}\\n{1}'.format(*tup) for tup in seqs]))
+    >>> n = f.seek(0)
+    >>> a = ReadCodonAlignment(f, True)
+    >>> [(head, seq) for (head, seq) in seqs] == a
+    True
+
+    Premature stop codon gives error:
+    >>> seqs = [('seq1', 'TGAATG'), ('seq2', 'ATGAGA')]
+    >>> f = io.StringIO()
+    >>> n = f.write(u'\\n'.join(['>{0}\\n{1}'.format(*tup) for tup in seqs]))
+    >>> n = f.seek(0)
+    >>> a = ReadCodonAlignment(f, True) # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    ValueError:
     """
-    dnamatch = re.compile('^[ATCG]{3}$')
+    codonmatch = re.compile('^[ATCG]{3}$')
     gapmatch = re.compile('^-+^')
-    seqs = [(seq.description.strip(), str(seq.seq).upper()) for seq in Bio.SeqIO.parse(fastafile, 'fasta')]
-    if not seqs:
-        raise ValueError("%s failed to specify any sequences" % fastafile)
-    assert isinstance(seqs[0][0], str) and isinstance(seqs[0][1], str)
-    if not all([len(seq) == len(seqs[0][1]) for (head, seq) in seqs]):
-        raise ValueError("All sequences in %s are not of the same length; they are not be properly aligned" % fastafile)
-    if (len(seqs[0][1]) < 3) or (len(seqs[0][1]) % 3 != 0):
-        raise ValueError("The length of the sequences in %s is %d which is not divisible by 3; they are not valid codon sequences" % (fastafile, len(seqs[0][1])))
+    seqs = [(seq.description.strip(), str(seq.seq).upper()) for seq 
+            in Bio.SeqIO.parse(fastafile, 'fasta')]
+    assert seqs, "{0} failed to specify any sequences".format(fastafile)
+
+    seqlen = len(seqs[0][1])
+    if not all([len(seq) == seqlen for (head, seq) in seqs]):
+        raise ValueError(("All sequences in {0} are not of the same length; "
+                "they must not be properly aligned").format(fastafile))
+    if (seqlen < 3) or (seqlen % 3 != 0):
+        raise ValueError(("The length of the sequences in {0} is {1} which "
+                "is not divisible by 3; they are not valid codon sequences"
+                ).format(fastafile, seqlen))
+
     terminalcodon = []
-    codons_by_position = dict([(icodon, []) for icodon in range(len(seq) // 3)])
+    codons_by_position = dict([(icodon, []) for icodon in range(seqlen // 3)])
     for (head, seq) in seqs:
         assert len(seq) % 3 == 0
-        for icodon in range(len(seq) // 3):
+        for icodon in range(seqlen // 3):
             codon = seq[3 * icodon : 3 * icodon + 3]
             codons_by_position[icodon].append(codon)
-            if dnamatch.search(codon):
+            if codonmatch.search(codon):
                 aa = str(Bio.Seq.Seq(codon).translate())
                 if aa == '*':
                     if icodon + 1 != len(seq) // 3:
-                        raise ValueError("In %s, sequence %s, the non-terminal codon %d is a stop codon: %s" % (fastafile, head, icodon + 1, codon))
+                        raise ValueError(("In {0}, sequence {1}, non-terminal "
+                                "codon {2} is stop codon: {3}").format(
+                                fastafile, head, icodon + 1, codon))
             elif codon == '---':
                 aa = '-'
             else:
-                raise ValueError("In %s, sequence %s, codon %d is invalid: %s" % (fastafile, head, icodon + 1, codon))
+                raise ValueError(("In {0}, sequence {1}, codon {2} is invalid: "
+                        "{3}").format(fastafile, head, icodon + 1, codon))
         terminalcodon.append(aa)
+
     for (icodon, codonlist) in codons_by_position.items():
         if all([codon == '---' for codon in codonlist]):
-            raise ValueError("In %s, all codons are gaps at position %d" % (fastafile, icodon + 1))
+            raise ValueError(("In {0}, all codons are gaps at position {1}"
+                    ).format(fastafile, icodon + 1))
+
     if all([aa in ['*', '-'] for aa in terminalcodon]):
         if len(seq) == 3:
-            raise ValueError("The only codon is a terminal stop codon for the sequences in %s" % fastafile)
+            raise ValueError(("The only codon is a terminal stop codon for "
+                    "the sequences in {0}").format(fastafile))
         seqs = [(head, seq[ : -3]) for (head, seq) in seqs]
     elif any([aa == '*' for aa in terminalcodon]):
-        raise ValueError("Only some sequences in %s have a terminal stop codon. Either all or none must have a terminal stop" % fastafile)
+        raise ValueError(("Only some sequences in {0} have a terminal stop "
+                "codon. All or none must have terminal stop.").format(fastafile))
+
     if any([gapmatch.search(seq) for (head, seq) in seqs]):
-        raise ValueError("In %s, at least one sequence is entirely composed of gaps" % fastafile)
+        raise ValueError(("In {0}, at least one sequence is entirely composed "
+                "of gaps.").format(fastafile))
+
     if checknewickvalid:
         if len(set([head for (head, seq) in seqs])) != len(seqs):
-            raise ValueError("The headers in %s are not all unique" % fastafile)
+            raise ValueError("Headers in {0} not all unique".format(fastafile))
         disallowedheader = re.compile('[\s\:\;\(\)\[\]\,\'\"]')
         for (head, seq) in seqs:
             if disallowedheader.search(head):
-                raise ValueError("There is an invalid character in the following header in %s:\n%s" % (fastafile, head))
-    for (i, (head1, seq1)) in enumerate(seqs):
-        for (head2, seq2) in seqs[i + 1 : ]:
-            assert len(seq1) == len(seq2)
-            ndiffs = sum([1 if (x_y[0] != x_y[1] and x_y[0] != '-' and x_y[1] != '-') else 0 for x_y in zip(seq1, seq2)])
-#            if ndiffs < 1:
-#                raise ValueError("The alignment in {0} has duplicate sequences:\n{1}\n{2}\nPlease remove one of these so that all sequences are unique at non-gap positions.".format(fastafile, head1, head2))
+                raise ValueError(("Invalid character in header in {0}:"
+                        "\n{2}").format(fastafile, head))
+
     return seqs
 
 
-def ReadOmegaBySite(infile):
-    """Reads ``*_omegabysite.txt`` files created by ``phydms``.
-   
-    *infile* can be either a readable file-like object (assumed to be
-    at its start) or a string giving the name of an existing file.
+def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False, seed=1):
+    """Read preferences from file with some error checking.
 
-    The returned value is a dictionary *omegabysite* keyed by string
-    site number with element *omegabysite[site]* being a dictionary keyed
-    by the three string keys *omega*, *P*, and *dLnL* each specifying
-    the value for that property.
-    
-    >>> f = io.StringIO()
-    >>> n = f.write(u"# site omega P dLnL\\n1 2.73 0.0012 4.6\\n2 0.03 0.09 1.2\\n")
-    >>> n = f.seek(0)
-    >>> omegabysite = ReadOmegaBySite(f)
-    >>> set(omegabysite.keys()) == set(['1', '2'])
-    True
-    >>> '2.73' == '%.2f' % omegabysite['1']['omega']
-    True
-    >>> '0.0012' == '%.4f' % omegabysite['1']['P']
-    True
-    >>> '4.6' == '%.1f' % omegabysite['1']['dLnL']
-    True
-    >>> '0.03' == '%.2f' % omegabysite['2']['omega']
-    True
-    >>> '0.09' == '%.2f' % omegabysite['2']['P']
-    True
-    >>> '1.2' == '%.1f' % omegabysite['2']['dLnL']
-    True
+    Args:
+        `prefsfile` (string or readable file-like object)
+            File holding amino-acid preferences. Can be
+            comma-, space-, or tab-separated file with column
+            headers of `site` and then all one-letter amino-acid
+            codes, or can be in the more complex format written
+            `dms_tools`. Must be prefs for consecutively numbered
+            sites starting at 1. Stop codon prefs can be present
+            (stop codons are indicated by ``*``); if so they are
+            removed and prefs re-normalized to sum to 1.
+        `minpref` (float >= 0)
+            Adjust all preferences to be >= this number.
+        `avgprefs`, `randprefs` (bool)
+            Mutually exclusive options specifying to average or
+            randomize prefs across sites.
+        `seed` (int)
+            Seed used to sort random number generator for `randprefs`.
+
+    Returns:
+        `prefs` (dict keyed by ints)
+            `prefs[r][a]` is the preference of site `r` for amino-acid `a`.
     """
-    if isinstance(infile, str):
-        with open(infile) as f:
-            lines = f.readlines()
+    assert minpref >= 0, 'minpref must be >= 0'
+
+    aas = set(phydmslib.constants.AA_TO_INDEX.keys())
+
+    df = pandas.read_csv(prefsfile, sep=None, engine='python')
+    if (set(df.columns) == aas.union(set(['site'])) or set(df.columns)
+            == aas.union(set(['site', '*']))):
+        # read valid preferences as data frame
+        sites = df['site'].tolist()
+        prefs = {}
+        for r in sites:
+            rdf = df[df['site'] == r]
+            prefs[r] = {}
+            for aa in df.columns:
+                if aa != 'site':
+                    prefs[r][aa] = float(rdf[aa])
     else:
-        lines = infile.readlines()
-    omegabysite = {}
-    for line in lines:
-        if line[0] == '#' or line.isspace() or not line:
-            continue
-        entries = line.split()
-        assert len(entries) == 4, "Unexpected number of entries in line:\n%s" % line
-        (site, omega, P, dLnL) = entries
-        assert site not in omegabysite, "Duplicate site %d" % site
-        omega = float(omega)
-        assert 0 <= omega, "Invalid omega: %g" % omega
-        P = float(P)
-        assert 0 <= P <= 1, "Invalid P: %g" % P
-        dLnL = float(dLnL)
-        omegabysite[site] = {'omega':omega, 'P':P, 'dLnL':dLnL}
-    return omegabysite
+        # try reading as dms_tools format
+        prefs = phydmslib.file_io.readPrefs_dms_tools_format(prefsfile)[2]
+        sites = list(prefs.keys())
+
+    # error check prefs
+    try:
+        sites = [int(r) for r in sites]
+    except ValueError:
+        raise ValueError("sites not int in prefsfile {0}".format(prefsfile))
+    assert len(set(sites)) == len(sites), ("Non-unique sites in prefsfile {0}"
+            ).format(prefsfile)
+    assert (min(sites) == 1 and max(sites) - min(sites) == len(sites) - 1), (
+            "Sites in prefsfile {0} not consecutive starting at 1").format(prefsfile)
+    assert all([all([pi >= 0 for pi in rprefs.values()]) for rprefs in
+            prefs.values()]), "Some prefs < 0 in prefsfile {0}".format(prefsfile)
+    assert all([sum(rprefs.values()) - 1 <= phydmslib.constants.ALMOST_ZERO for
+            rprefs in prefs.values()]), ("Prefs in prefsfile {0} don't all sum "
+            "to one").format(prefsfile)
+    prefs = dict([(int(r), rprefs) for (r, rprefs) in prefs.items()])
+    assert set(sites) == set(prefs.keys())
+
+    # make sure there is a pref for every amino acid and remove any for stops
+    for r in list(prefs.keys()):
+        rprefs = prefs[r]
+        if '*' in rprefs:
+            del rprefs['*']
+        assert aas == set(rprefs.keys()), ("prefsfile {0} does not include "
+                "all amino acids at site {1}").format(prefsfile, r)
+        prefs[r] = rprefs
+
+    # Iteratively adjust until all prefs exceed minpref after re-scaling.
+    for r in list(prefs.keys()):
+        rprefs = prefs[r]
+        iterations = 0
+        while any([pi < minpref for pi in rprefs.values()]):
+            rprefs = dict([(aa, max(minpref + phydmslib.constants.ALMOST_ZERO, 
+                    pi)) for (aa, pi) in rprefs.items()])
+            newsum = float(sum(rprefs.values()))
+            rprefs = dict([(aa, pi / newsum) for (aa, pi) in rprefs.items()])
+            iterations += 1
+            assert iterations <= 3, "minpref adjustment not converging."
+        prefs[r] = rprefs
+
+    if randprefs:
+        assert not avgprefs, "randprefs and avgprefs are incompatible"
+        random.seed(seed)
+        sites = sorted([r for r in prefs.keys()])
+        prefs = [prefs[r] for r in sites]
+        random.shuffle(sites)
+        prefs = dict(zip(sites, prefs))
+    elif avgprefs:
+        avg_prefs = dict([(aa, 0.0) for aa in aas])
+        for rprefs in prefs.values():
+            for aa in aas:
+                avg_prefs[aa] += rprefs[aa]
+        for aa in aas:
+            avg_prefs[aa] /= float(len(prefs))
+        for r in list(prefs.keys()):
+            prefs[r] = avg_prefs
+
+    return prefs
 
 
-def ReadPreferences(f):
+def readPrefs_dms_tools_format(f):
     """Reads the amino-acid preferences written by `dms_tools`.
     
     This is an exact copy of the same code from 
@@ -173,14 +276,13 @@ def ReadPreferences(f):
     we needed something that also works with `python3`.
 
     *f* is the name of an existing file or a readable file-like object.
+    It should be in the format written by `dms_tools`.
 
     The return value is the tuple: *(sites, wts, pi_means, pi_95credint, h)*
     where *sites*, *wts*, *pi_means*, and *pi_95credint* will all
     have the same values used to write the file with *WritePreferences*,
     and *h* is a dictionary with *h[r]* giving the site entropy (log base
     2) for each *r* in *sites*.
-
-    See docstring of *WritePreferences* for example usage.
     """
     charmatch = re.compile('^PI_([A-z\*\-]+)$')
     if isinstance(f, str):

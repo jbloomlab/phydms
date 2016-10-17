@@ -54,6 +54,7 @@ setup(
         'natsort>=5.0.1',
         'sympy>=1.0', 
         'six>=1.10',
+        'pandas>=0.18',
         ],
     packages = ['phydmslib'],
     package_dir = {'phydmslib':'phydmslib'},

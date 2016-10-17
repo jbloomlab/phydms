@@ -21,7 +21,7 @@ Constants defined:
         mapping of non-stop codons to integer indices
     `INDEX_TO_CODON` (dict)
         inverse of `CODON_TO_INDEX`
-    `CODON_TO_AA` (`numpy.ndarray` of int, lenght `N_CODON`)
+    `CODON_TO_AA` (`numpy.ndarray` of int, length `N_CODON`)
         Element `x` gives index for amino acid encoded by `x`.
     `PURINES` (`frozenset`)
         Set of one-letter nucleotides for purines

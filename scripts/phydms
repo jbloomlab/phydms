@@ -25,82 +25,6 @@ import phydmslib.parsearguments
 import phydmslib.models
 
 
-def readPrefs(prefsfile, minpref, avgprefs, randprefs):
-    """Read preferences from file with some error checking.
-
-    Args:
-        `prefsfile` (string)
-            Name of file holding amino-acid preferences.
-        `minpref` (float)
-            Adjust all preferences to be >= this number.
-        `avgprefs`, `randprefs` (bool)
-            Mutually exclusive options specifying that average or
-            randomize prefs across sites.
-
-    Returns:
-        `prefs` (dict keyed by ints)
-            `prefs[r][a]` is the preference of site `r` for amino-acid `a`.
-    """
-    # read prefs and error check
-    (sites, wts, pi_means, ci, h) = phydmslib.file_io.ReadPreferences(prefsfile)
-    assert all([r.isdigit() for r in sites]), ("Sites in prefsfile {0} not "
-            "integers.").format(prefsfile)
-    sites = [int(r) for r in sites]
-    assert len(set(sites)) == len(sites), ("Non-unique sites in prefsfile {0}"
-            ).format(prefsfile)
-    assert (min(sites) == 1 and max(sites) - min(sites) == len(sites) - 1), (
-            "Sites in prefsfile {0} not consecutive starting at 1").format(prefsfile)
-    assert all([all([pi >= 0 for p in rprefs.values()]) for rprefs in 
-            prefs.values()]), "Some prefs < 0 in prefsfile {0}".format(prefsfile)
-    assert all([sum(rprefs.values() - 1) <= phydmslib.constants.ALMOST_ZERO for
-            rprefs in prefs.values()]), ("Prefs in prefsfile {0} don't all sum "
-            "to one").format(prefsfile)
-    prefs = dict([(int(r), rprefs) for (r, rprefs) in prefs.items()])
-    assert set(sites) == set(prefs.keys())
-
-    # make sure there is a pref for any amino acid and remove any for stops
-    aas = set(phydmslib.constants.AA_TO_INDEX.keys())
-    for r in list(prefs.keys()):
-        rprefs = prefs[r]
-        if '*' in rprefs:
-            del rprefs['*']
-        assert aas == set(rprefs.keys()), ("prefsfile {0} does not include "
-                "all amino acids at site {1}").format(prefsfile, r)
-        prefs[r] = rprefs
-
-    # Adjust all prefs to exceed minpref. Slightly complicated because
-    # simply making all minpref will make too small after re-normalization.
-    # They are adjusted in a slightly hacky way that could fail for prefs
-    # >= minpref but < the re-scaled minvalue, but should not be a problem
-    # in practice due to hacky addition of ALMOST_ZERO
-    for r in list(prefs.keys()):
-        currentsum = float(sum(prefs[r].values()))
-        addtosum = sum([max(0, minpref - pi) for pi in prefs[r].values()])
-        minvalue = (minpref * (currentsum + addtosum) / currentsum
-                + phydmslib.constants.ALMOST_ZERO)
-        rprefs = dict([(aa, max(minvalue, pi)) for (aa, pi) in prefs[r].items()])
-        newsum = float(sum(rprefs.values()))
-        rprefs = dict([(aa, pi / newsum) for (aa, pi) in rprefs.items()])
-        prefs[r] = rprefs
-
-    if args['randprefs']:
-        assert not args['avgprefs'], "--randprefs and --avgprefs are incompatible"
-        sites = [r for r in prefs.keys()]
-        prefs = [prefs[r] for r in sites]
-        random.shuffle(sites)
-        prefs = dict(zip(sites, prefs))
-    elif args['avgprefs']:
-        avg_prefs = dict([(aa, 0.0) for aa in aas])
-        for rprefs in prefs.values():
-            for aa in aas:
-                avg_prefs[aa] += rprefs[aa]
-        for aa in aas:
-            avg_prefs[aa] /= float(len(prefs))
-        for r in list(prefs.keys()):
-            prefs[r] = avg_prefs
-
-    return prefs
-
     
 def ReadDivPressure(fileName):
     """Read diversifying pressure, return dict of sites and diversifying pressure."""
@@ -175,7 +99,7 @@ def main():
         logger.info('Reading alignment from {0}'.format(args['alignment']))
         alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'], 
                 checknewickvalid=True)
-        logger.info(('Read {0} aligned codon sequences from {1}, each consisting '
+        logger.info(('Read {0} aligned sequences from {1}, each consisting '
                 'of {2} codons.\n').format(len(alignment), args['alignment'], 
                 len(alignment[0][1]) // 3))
 
@@ -199,8 +123,9 @@ def main():
             for (argname, desc) in [('avgprefs', 'averaged'), 
                     ('randprefs', 'randomized')]:
                 logger.info('Preferences will be {0} across sites.'.format(desc))
-            prefs = readPrefs(prefsfile, args['minpref'], args['avgprefs'], 
-                    args['randprefs'])
+            prefs = readPrefs(prefsfile, minpref=args['minpref'], 
+                    avgprefs=args['avgprefs'], randprefs=args['randprefs'],
+                    seed=args['seed'])
             assert len(prefs) == len(alignment[0][1]) // 3, ("The number of "
                     "preferences in {0} does not match the number of codon "
                     "sites in the alignment").format(prefsfile)

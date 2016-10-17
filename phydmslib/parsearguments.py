@@ -336,7 +336,9 @@ def PhyDMSParser():
             help="Existing Newick file giving tree topology.")
     parser.add_argument('model', type=ModelOption, 
             help=("Substitution model: ExpCM_<prefsfile> or YNGKP_<m> ("
-            "where <m> is {0}).").format(', '.join(yngkp_modelvariants)))
+            "where <m> is {0}). For ExpCM, <prefsfile> should have first "
+            "column labeled 'site' and other columns labeled by 1-letter "
+            "amino-acid code.").format(', '.join(yngkp_modelvariants)))
     parser.add_argument('outprefix', help='Prefix for output files.', type=str)
     parser.add_argument('--brlen', choices=['fix', 'scale', 'optimize'],
             default='scale', help=("How to handle branch lengths: "
