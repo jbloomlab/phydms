@@ -4,7 +4,11 @@ data for NP
 
 This directory contains alignments and preferences for influenza nucleoprotein to be used in some of the tests.
 
-The preferences come from `Doud et al (2015)`_.
+The preferences come from `Doud et al (2015)`_, and are written in several different formats to test the preferences parser.
+
+The alignment is a small set of NP codon sequences.
+
+The tree is built with ``RAxML`` on the alignment.
 
 
 .. _`Doud et al (2015)`: https://dx.doi.org/10.1093/molbev/msv167

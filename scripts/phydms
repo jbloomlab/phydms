@@ -108,9 +108,8 @@ def main():
         if isinstance(args['model'], str) and yngkp_match.search(args['model']):
             raise RuntimeError('YNGKP models not yet implemented')
             for argname in ['randprefs', 'avgprefs', 'divpressure']:
-                if args[argname]:
-                    raise ValueError("'--%s' incompatible with YNKGP model".format(
-                            argname))
+                assert not args[argname], "'--%s' incompatible with YNKGP".format(
+                            argname)
             modelvariant = yngkp_match.search(args['model']).group('modelvariant')
             logger.info(('The codon substitution model with be the M{0} version '
                     'of YNGKP (Yang, Nielsen, Goldman, and Pederson. Genetics. '
@@ -123,9 +122,11 @@ def main():
             for (argname, desc) in [('avgprefs', 'averaged'), 
                     ('randprefs', 'randomized')]:
                 logger.info('Preferences will be {0} across sites.'.format(desc))
-            prefs = readPrefs(prefsfile, minpref=args['minpref'], 
+            prefs = phydmslib.file_io.readPrefs(prefsfile, minpref=args['minpref'], 
                     avgprefs=args['avgprefs'], randprefs=args['randprefs'],
                     seed=args['seed'])
+            sites = sorted(prefs.keys())
+            prefslist = [prefs[r] for r in sites] # convert prefs from dict to list
             assert len(prefs) == len(alignment[0][1]) // 3, ("The number of "
                     "preferences in {0} does not match the number of codon "
                     "sites in the alignment").format(prefsfile)
@@ -134,17 +135,21 @@ def main():
             freeparams = ['kappa', 'omega', 'beta', 'eta']
             if args['brlen'] == 'scale':
                 freeparams.append('mu')
-            model = phydmslib.models.ExpCM(prefs, freeparams)
+            model = phydmslib.models.ExpCM(prefslist, freeparams=freeparams)
 
-            if args['divpressure']:
+            # read diversifying pressure
+            if False: # not yet implemented, so skip code
+            #if args['divpressure']:
                 raise RuntimeError('--divpressure not yet implemented')
                 for otherarg in ['omegabysite']:
                     if args[otherarg]:
-                        raise ValueError("Cannot use --divpressure and --{0}".format(
+                        raise ValueError("Can't use --divpressure and --{0}".format(
                                 otherarg))
                 divpressure = ReadDivPressure(args['divpressure'])
-                assert set(divpressure.keys()) == set(sites), "The site labels must be the same for diversifying pressure and preferences"
-                logger.info('Successfully read diversifying pressure from %s for all %s sites.',args['divpressure'], len(divpressure.keys()))
+                assert set(divpressure.keys()) == set(sites), ("The site labels "
+                        "not the same for diversifying pressure and preferences")
+                logger.info(('Successfully read diversifying pressure from {0} '
+                        'for all sites.').format(args['divpressure']))
 
         else:
             raise ValueError("Invalid model of %s" % args['model'])
