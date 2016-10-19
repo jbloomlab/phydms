@@ -17,8 +17,8 @@ class TreeLikelihood:
     See `__init__` for how to initialize a `TreeLikelihood`.
 
     A `TreeLikelihood` object is designed to only work for a fixed
-    tree topology, so the tree topology information is converted to the
-    node numbering scheme defined by `rdescend` and `ldescend` below.
+    tree topology. In the internal workings, this fixed topology is
+    transformed into the node indexing scheme defined by `name_to_nodeindex`.
 
     Attributes:
         `tree` (instance of `Bio.Phylo.BaseTree.Tree` derived class)
@@ -36,6 +36,10 @@ class TreeLikelihood:
             Total number of nodes in `tree`, counting tip and internal.
             Node are indexed 0, 1, ..., `nnodes - 1`. This indexing is done
             such that the descendants of node `n` always have indices < `n`.
+        `name_to_nodeindex` (`dict`)
+            For each sequence name (these are headers in `alignmnent`, 
+            tip names in `tree`), `name_to_nodeindex[name]` is the `int`
+            index of that `node` in the internal indexing scheme.
         `internalnodes` (`list` of `int`, length `nnodes`)
             List of the indices of internal nodes only. Given the node 
             indexing scheme, the root node will always be the last one
@@ -82,12 +86,12 @@ class TreeLikelihood:
         assert self.tree.count_terminals() == self.nseqs
 
         # index nodes
-        node_to_index = {}
+        self.name_to_nodeindex = {}
         self.nnodes = tree.count_terminals() + len(tree.get_nonterminals())
         self.rdescend = [-1] * self.nnodes
         self.ldescend = [-1] * self.nnodes
         self.t = [-1] * (self.nnodes - 1)
-        self.internal_nodes = [] 
+        self.internalnodes = [] 
         self.L = scipy.full((self.nnodes, self.nsites, N_CODON), -1, dtype='float')
         for (n, node) in enumerate(self.tree.find_clades(order='postorder')):
             if node != self.tree.root:
@@ -106,12 +110,22 @@ class TreeLikelihood:
                         raise ValueError("Bad codon {0} in {1}".format(codon, node.name))
             else:
                 assert len(node.clades) == 2, "not 2 children: {0}".format(node.name)
-                self.rdescend = node_to_index[node.clades[0]]
-                self.rdescend = node_to_index[node.clades[1]]
-                self.internal_nodes.append(n)
-            node_to_index[node] = n
-        assert len(self.internal_nodes) == len(tree.get_nonterminals())
+                self.rdescend[n] = self.name_to_nodeindex[node.clades[0]]
+                self.ldescend[n] = self.name_to_nodeindex[node.clades[1]]
+                self.internalnodes.append(n)
+            self.name_to_nodeindex[node] = n
+        assert len(self.internalnodes) == len(tree.get_nonterminals())
 
+        # now update internal attributes related to likelihood
+        self._updateInternals()
+
+    def _updateInternals(self):
+        """Update internal attributes related to likelihood.
+
+        Should be called any time branch lengths or model parameters
+        are changed.
+        """
+        self._computePartialLikelihoods()
 
     def _computePartialLikelihoods(self):
         """Update `L`."""
@@ -120,11 +134,11 @@ class TreeLikelihood:
             nleft = self.ldescend[n]
             tright = self.t[nright]
             tleft = self.t[nleft]
-            Mright = self.expcm.model.M(tright)
-            Mleft = self.expcm.model.M(tleft)
+            Mright = self.model.M(tright)
+            Mleft = self.model.M(tleft)
             # using this approach to broadcast matrix-vector mutiplication
             # http://stackoverflow.com/questions/26849910/numpy-matrix-multiplication-broadcast
-            self.copyto(self.L[n], 
+            scipy.copyto(self.L[n], 
                     scipy.sum(Mright * self.L[nright][:, None, :], axis=2) *
                     scipy.sum(Mleft * self.L[nleft][:, None, :], axis=2))
 
