@@ -22,12 +22,16 @@ class TreeLikelihood:
 
     Attributes:
         `tree` (instance of `Bio.Phylo.BaseTree.Tree` derived class)
-            The phylogenetic tree.
+            Phylogenetic tree. 
         `model` (instance of `phydmslib.models.Model` derived class)
             Specifies the substitution model for `nsites` codon sites.
         `alignment` (list of 2-tuples of strings, `(head, seq)`)
             Aligned protein-coding codon sequences. Headers match
             tip names in `tree`; sequences contain `nsites` codons.
+        `loglik` (`float`)
+            Current log likelihood.
+        `siteloglik` (`numpy.ndarray` of floats, length `nsites`)
+            `siteloglik[r]` is current log likelihood at site `r`.
         `nsites` (int)
             Number of codon sites.
         `nseqs` (int)
@@ -125,7 +129,12 @@ class TreeLikelihood:
         Should be called any time branch lengths or model parameters
         are changed.
         """
-        self._computePartialLikelihoods()
+        with scipy.errstate(over='raise', under='raise', divide='raise',
+                invalid='raise'):
+            self._computePartialLikelihoods()
+            self.siteloglik = scipy.log(scipy.sum(self.L[-1] * 
+                    self.model.stationarystate, axis=1))
+            self.loglik = scipy.sum(self.siteloglik)
 
     def _computePartialLikelihoods(self):
         """Update `L`."""

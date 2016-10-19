@@ -6,6 +6,7 @@ Written by Jesse Bloom.
 import os
 import sys
 import re
+import math
 import unittest
 import random
 import copy
@@ -99,6 +100,8 @@ class test_TreeLikelihood(unittest.TestCase):
         """Tests likelihood of `TreeLikelihood` object."""
         mus = [0.5, 1.5]
         partials_by_mu = {}
+        siteloglik_by_mu = {}
+        loglik_by_mu = {}
         for mu in mus:
             model = copy.deepcopy(self.model)
             model.updateParams({'mu':mu})
@@ -112,20 +115,30 @@ class test_TreeLikelihood(unittest.TestCase):
                 M[node] = model.M(t)
             # compute partials at root node
             partials = scipy.zeros(shape=(self.nsites, N_CODON))
+            siteloglik = scipy.zeros(shape=(self.nsites,))
+            loglik = 0.0
             for r in range(self.nsites):
                 for y in range(N_CODON):
                     for x in range(N_CODON):
                         partials[r][y] += (M[3][r][y][self.codons[3][r]] *
                                 M[4][r][y][x] * M[1][r][x][self.codons[1][r]]
                                 * M[2][r][x][self.codons[2][r]])
+                    siteloglik[r] += partials[r][y] * model.stationarystate[r, y]
+                siteloglik[r] = math.log(siteloglik[r])
+                loglik += siteloglik[r]
             partials_by_mu[mu] = {'actual':tl.L[-1], 'expected':partials}
+            siteloglik_by_mu[mu] = {'actual':tl.siteloglik, 'expected':siteloglik}
+            loglik_by_mu[mu] = {'actual':tl.loglik, 'expected':loglik}
 
         for (i, mu1) in enumerate(mus):
-            self.assertTrue(scipy.allclose(partials_by_mu[mu1]['actual'],
-                    partials_by_mu[mu1]['expected']))
-            for mu2 in mus[i + 1 : ]:
-                self.assertFalse(scipy.allclose(partials_by_mu[mu1]['actual'],
-                        partials_by_mu[mu2]['actual']))
+            for (name, d) in [('partials', partials_by_mu),
+                                      ('siteloglik', siteloglik_by_mu),
+                                      ('loglik', loglik_by_mu)]:
+                self.assertTrue(scipy.allclose(d[mu1]['actual'],
+                        d[mu1]['expected']), "Mismatch: {0}".format(name))
+                for mu2 in mus[i + 1 : ]:
+                    self.assertFalse(scipy.allclose(d[mu1]['actual'],
+                            d[mu2]['actual']), "Bad match: {0}".format(name))
 
 
 
