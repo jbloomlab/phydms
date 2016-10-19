@@ -61,6 +61,7 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
     the exception of a shared terminal stop) and free of ambiguous nucleotides.
 
     Read aligned sequences in this example:
+
     >>> seqs = [('seq1', 'ATGGAA'), ('seq2', 'ATGAAA')]
     >>> f = io.StringIO()
     >>> n = f.write(u'\\n'.join(['>{0}\\n{1}'.format(*tup) for tup in seqs]))
@@ -70,6 +71,7 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
     True
 
     Trim stop codons from all sequences in this example:
+
     >>> seqs = [('seq1', 'ATGTAA'), ('seq2', 'ATGTGA')]
     >>> f = io.StringIO()
     >>> n = f.write(u'\\n'.join(['>{0}\\n{1}'.format(*tup) for tup in seqs]))
@@ -79,6 +81,7 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
     True
 
     Read sequences with gap:
+
     >>> seqs = [('seq1', 'ATG---'), ('seq2', 'ATGAGA')]
     >>> f = io.StringIO()
     >>> n = f.write(u'\\n'.join(['>{0}\\n{1}'.format(*tup) for tup in seqs]))
@@ -88,6 +91,7 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
     True
 
     Premature stop codon gives error:
+
     >>> seqs = [('seq1', 'TGAATG'), ('seq2', 'ATGAGA')]
     >>> f = io.StringIO()
     >>> n = f.write(u'\\n'.join(['>{0}\\n{1}'.format(*tup) for tup in seqs]))
