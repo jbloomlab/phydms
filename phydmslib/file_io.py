@@ -191,9 +191,13 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False, seed=1):
 
     aas = set(phydmslib.constants.AA_TO_INDEX.keys())
 
-    df = pandas.read_csv(prefsfile, sep=None, engine='python')
-    if (set(df.columns) == aas.union(set(['site'])) or set(df.columns)
-            == aas.union(set(['site', '*']))):
+    try:
+        df = pandas.read_csv(prefsfile, sep=None, engine='python')
+        pandasformat = True
+    except ValueError:
+        pandasformat = False
+    if pandasformat and (set(df.columns) == aas.union(set(['site'])) or
+            set(df.columns) == aas.union(set(['site', '*']))):
         # read valid preferences as data frame
         sites = df['site'].tolist()
         prefs = {}
