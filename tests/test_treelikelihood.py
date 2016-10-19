@@ -7,10 +7,14 @@ import os
 import sys
 import re
 import unittest
+import random
+import scipy
 import matplotlib
 matplotlib.use('pdf')
 import matplotlib.pyplot as plt
 import Bio.Phylo
+import phydmslib.treelikelihood
+from phydmslib.constants import *
 
 
 class test_TreeLikelihood(unittest.TestCase):
@@ -18,10 +22,12 @@ class test_TreeLikelihood(unittest.TestCase):
 
     def setUp(self):
         """Set up parameters for test."""
+        random.seed(1)
+        scipy.random.seed(1)
 
         # define tree and write image to a file
-        self.newick = ('(($node_1=CAA$:0.1,$node_2=CAG$:0.15)$node_4=x$:0.15,'
-                       '$node_3=GAA$:0.25)$node_5=y$:0.02;')
+        self.newick = ('(($node_1=CAA---$:0.1,$node_2=CAGCAG$:0.15)'
+                       '$node_4=x$:0.15,$node_3=GAAAAG$:0.25)$node_5=y$:0.02;')
         tempfile = '_temp.tree'
         with open(tempfile, 'w') as f:
             f.write(self.newick)
@@ -42,8 +48,36 @@ class test_TreeLikelihood(unittest.TestCase):
         plt.axis('off')
         plt.savefig('test_treelikelihood_image.pdf')
 
-    def test_TreeLikelihood(self):
-        pass
+        # define alignment
+        self.nseqs = self.tree.count_terminals()
+        self.nsites = 2
+        self.alignment = []
+        for node in self.tree.get_terminals():
+            seq = node.name.split('=')[1][ : -1]
+            assert len(seq) == 3 * self.nsites
+            self.alignment.append((node.name, seq))
+        assert len(self.alignment) == self.nseqs
+
+        # define model
+        self.prefs = []
+        minpref = 0.02
+        for r in range(self.nsites):
+            rprefs = scipy.random.dirichlet([0.5] * N_AA)
+            rprefs[rprefs < minpref] = minpref
+            rprefs /= rprefs.sum()
+            self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
+        phi = scipy.random.dirichlet([2] * N_NT)
+        omega = 0.7
+        kappa = 2.5
+        beta = 1.6
+        self.model = phydmslib.models.ExpCM(self.prefs, phi=phi, omega=omega,
+                kappa=kappa, beta=beta)
+
+
+    def test_InitializeTreeLikelihood(self):
+        """Test that `TreeLikelihood` initializes properly."""
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, self.alignment,
+                self.model)
 
 
 if __name__ == '__main__':

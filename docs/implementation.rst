@@ -326,17 +326,18 @@ For the example tree above, we can use the pruning algorithm (`Felsenstein, J Mo
    \sum_y p_{r,y} M_{r,yGAA}\left(t_3\right) \left[\sum_x M_{r,yx}\left(t_4\right) M_{r,xCAA}\left(t_1\right) M_{r,xCAG}\left(t_2\right)\right].
 
 Let :math:`n` denote a node on a tree, let :math:`t_n` denote the length of the branch leading to node :math:`n`, and let :math:`\mathcal{d}_1\left(n\right)` and :math:`\mathcal{d}_1\left(n\right)` denote the right and left descendents of node :math:`n` for all non-terminal nodes. 
-Then define:
+Then define the *partial conditional likelihood* of the subtree rooted at :math:`n` as:
 
 .. math::
 
    L_{r,n}\left(x\right) =
    \begin{cases}
-   \delta_{x\mathcal{S}_{r,n}} & \mbox{if $n$ is a tip node,} \\
+   \delta_{x\mathcal{S}_{r,n}} & \mbox{if $n$ is a tip node with codon $\mathcal{S}_{r,n}$ at site $r$,} \\
+   1 & \mbox{if $n$ is a tip node with a gap at site $r$,} \\
    \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right) L_{r, \mathcal{d}_1\left(n\right)}\left(y\right)\right] \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) L_{r, \mathcal{d}_2\left(n\right)}\left(y\right)\right] & \mbox{otherwise.}
    \end{cases}
 
-where :math:`\mathcal{S}_{r,n}` indicates the codon found for tip node :math:`n` at site :math:`r`, and :math:`\delta_{xy}` is the `Kronecker delta`_.
+where :math:`\delta_{xy}` is the `Kronecker delta`_.
 So for instance in the example tree above, :math:`L_{r,n_4}\left(x\right) = M_{r,xCAA}\left(t_1\right) M_{r,xCAG}\left(t_2\right)`, and :math:`L_{r,n_5}\left(y\right) = M_{r,yGAA} \sum_x M_{r,yx}\left(t_4\right) L_{r,n_4}\left(x\right)`.
 
 Using this definition, we have
