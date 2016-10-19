@@ -21,6 +21,15 @@ class Model(six.with_metaclass(abc.ABCMeta)):
     Specifies required methods / attributes of substitution models.
     """
 
+    @abc.abstractproperty
+    def stationarystate(self):
+        """Stationary state of substitution model.
+
+        A `numpy.ndarray` of floats, shape `(nsites, N_CODON)`.
+        Element `stationarystate[r][x]` is the stationary
+        state probability of codon `x` at site `r`.
+        """
+
     @abc.abstractmethod
     def M(self, t):
         """Matrix exponential `M(mu * t) = exp(mu * t * P)`.
@@ -114,7 +123,8 @@ class ExpCM(Model):
     Attributes should **only** be updated via the `updateParams`
     method, do **not** set attributes directly.
 
-    Attributes of `ExpCM` instances: 
+    Attributes of `ExpCM` instances (also see attributes inherited
+    from `Model` abstract base class): 
         `pi` (`numpy.ndarray` of floats, shape `(nsites, N_AA)`)
             `pi[r][a]` is preference of site `r` for amino-acid `a`.
         `kappa` (float > 0)
@@ -136,6 +146,7 @@ class ExpCM(Model):
             Diagonal elements make rows sum to zero for each `Prxy[r]`.
         `prx` (`numpy.ndarray` of floats, shape `(nsites, N_CODON)`
             `prx[r][x]` is stationary state of `Prxy` for codon `x` at `r`.
+            This attribute is equivalent to `stationarystate`.
         `Qxy` (`numpy.ndarray` of floats, shape `(N_CODON, N_CODON)`
             `Qxy[x][y]` is mutation rate from `x` to `y`, diagonal undefined.
         `qx` (`numpy.ndarray` of floats, length `N_CODON`
@@ -352,6 +363,11 @@ class ExpCM(Model):
         self._cached_M = {} # caches results of calls to M
         self._cached_dM = {} # caches results of calls to dM
         self.updateParams({}, update_all=True)
+
+    @property
+    def stationarystate(self):
+        """See docs for `Model` abstract base class."""
+        return self.prx
 
     @property
     def nsites(self):
