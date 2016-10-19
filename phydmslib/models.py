@@ -29,6 +29,24 @@ class Model(six.with_metaclass(abc.ABCMeta)):
         Element `stationarystate[r][x]` is the stationary
         state probability of codon `x` at site `r`.
         """
+        pass
+
+    @abc.abstractmethod
+    def dstationarystate(self, param):
+        """Derivative of `stationarystate` with respect to `param`.
+
+            Args:
+                `param` (string in `freeparams`)
+
+            Returns:
+                `dstationarystate` (`numpy.ndarray` of floats)
+                    If `param` is a float, then `dstationarystate[r][x]`
+                    is derivative of `stationarystate[r][x]` with respect 
+                    to `param`. If `param` is an array, then
+                    `dstationarystate[i][r][x]` is derivative of 
+                    `stationarystate[r][x]` with respect to `param[i]`.
+        """
+        pass
 
     @abc.abstractmethod
     def M(self, t):
@@ -178,7 +196,7 @@ class ExpCM(Model):
             or 0 if if `prx` does not depend on parameter. The shape of each
             array is `(nsites, N_CODON)` except for *eta*, for which it is
             `(N_NT - 1, nsites, N_CODON)` with the first index ranging over
-            each element in `eta`.
+            each element in `eta`. Equivalent to `dstationarystate[param]`.
         `D` (`numpy.ndarray` floats, shape `(nsites, N_CODON)`)
             Element `r` is diagonal of :math:`\mathbf{D_r}` diagonal matrix where
             :math:`\mathbf{P_r} = \mathbf{A_r}^{-1} \mathbf{D_r} \mathbf{A_r}`
@@ -368,6 +386,10 @@ class ExpCM(Model):
     def stationarystate(self):
         """See docs for `Model` abstract base class."""
         return self.prx
+
+    def dstationarystate(self):
+        """See docs for `Model` abstract base class."""
+        return self.dprx
 
     @property
     def nsites(self):

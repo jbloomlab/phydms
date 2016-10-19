@@ -349,5 +349,8 @@ Using this definition, we have
 
 where :math:`n_{\rm{root}}` is the root node of tree :math:`\mathcal{T}`; :math:`n_{\rm{root}} = n_5` in the example tree above.
 
+In practice, we usually work with the log likelihoods (always using natural logarithms).
+The total likelihood is the sum of the log likelihoods for each site.
+
 
 .. include:: weblinks.txt
