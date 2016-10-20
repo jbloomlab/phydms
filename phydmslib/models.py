@@ -141,8 +141,7 @@ class ExpCM(Model):
     Attributes should **only** be updated via the `updateParams`
     method, do **not** set attributes directly.
 
-    Attributes of `ExpCM` instances (also see attributes inherited
-    from `Model` abstract base class): 
+    Attributes (see also those inherited from `Model`):
         `pi` (`numpy.ndarray` of floats, shape `(nsites, N_AA)`)
             `pi[r][a]` is preference of site `r` for amino-acid `a`.
         `kappa` (float > 0)
