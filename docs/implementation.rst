@@ -350,7 +350,11 @@ Using this definition, we have
 where :math:`n_{\rm{root}}` is the root node of tree :math:`\mathcal{T}`; :math:`n_{\rm{root}} = n_5` in the example tree above.
 
 In practice, we usually work with the log likelihoods (always using natural logarithms).
-The total likelihood is the sum of the log likelihoods for each site.
+The total likelihood is the sum of the log likelihoods for each site:
+
+.. math::
+
+   \ln \left[ \Pr\left(\mathcal{S} \mid \mathcal{T}, \left\{\mathbf{P_r}\right\}\right) \right] = \sum_r \ln \left[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right) \right].
 
 We next consider how to compute the derivatives with respect to some model parameter.
 Let :math:`\alpha` denote the model parameter in question, and assume that we have already determined :math:`\frac{M_{r,xy}\left(t\right)}{\partial \alpha}`.
@@ -358,16 +362,36 @@ By the chain rule, we have
 
 .. math::
 
-   \frac{L_{r,n}\left(x\right)}{\partial \alpha} =
+   \frac{\partial L_{r,n}\left(x\right)}{\partial \alpha} =
    \begin{cases}
    0 & \mbox{if $n$ is a tip node,}, \\ 
    \\
-   \left[\sum_y \frac{M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right)}{\partial \alpha} L_{r, \mathcal{d}_1\left(n\right)}\left(y\right) + M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right) \frac{\partial L_{r, \mathcal{d}_1\left(n\right)}\left(y\right)}{\partial \alpha}\right] 
+   \left[\sum_y \frac{\partial M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right)}{\partial \alpha} L_{r, \mathcal{d}_1\left(n\right)}\left(y\right) + M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right) \frac{\partial L_{r, \mathcal{d}_1\left(n\right)}\left(y\right)}{\partial \alpha}\right] 
    \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) L_{r, \mathcal{d}_2\left(n\right)}\left(y\right)\right] & \mbox{otherwise.} \\
    + \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right) L_{r, \mathcal{d}_1\left(n\right)}\left(y\right)\right] 
-   \left[\sum_y \frac{M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right)}{\partial \alpha} L_{r, \mathcal{d}_2\left(n\right)}\left(y\right) + M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) \frac{\partial L_{r, \mathcal{d}_2\left(n\right)}\left(y\right)}{\partial \alpha}\right] & \\
+   \left[\sum_y \frac{\partial M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right)}{\partial \alpha} L_{r, \mathcal{d}_2\left(n\right)}\left(y\right) + M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) \frac{\partial L_{r, \mathcal{d}_2\left(n\right)}\left(y\right)}{\partial \alpha}\right] & \\
    \end{cases}
 
+The derivative of the likelihood at the site is then
 
+.. math::
+
+   \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \alpha} 
+   = \sum_x \left(\frac{\partial p_{r,x}}{\partial \alpha} L_{r,n_{\rm{root}}} + p_{r,x} \frac{\partial L_{r,n_{\rm{root}}}}{\partial \alpha}\right)
+
+and the derivative of the log likelihood at the site is
+
+.. math::
+
+   \frac{\partial \ln\left[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)\right]}{\partial \alpha} 
+   = \frac{\sum_x \left(\frac{\partial p_{r,x}}{\partial \alpha} L_{r,n_{\rm{root}}} + p_{r,x} \frac{\partial L_{r,n_{\rm{root}}}}{\partial \alpha}\right)}
+   {\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}.
+
+The derivative of the overall log likelihood is
+
+.. math::
+
+   \frac{\partial \ln \left[ \Pr\left(\mathcal{S} \mid \mathcal{T}, \left\{\mathbf{P_r}\right\}\right) \right]}{\partial \alpha} 
+   = \sum_r \frac{\partial \ln \left[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right) \right]}{\partial \alpha}.
 
 .. include:: weblinks.txt

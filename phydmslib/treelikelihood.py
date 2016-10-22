@@ -32,6 +32,12 @@ class TreeLikelihood:
             Current log likelihood.
         `siteloglik` (`numpy.ndarray` of floats, length `nsites`)
             `siteloglik[r]` is current log likelihood at site `r`.
+        `dloglik` (`dict`)
+            For each `param` in `model.freeparams`, `dloglik[param]`
+            is the derivative of `loglik` with respect to `param`.
+        `dsiteloglik` (`dict`)
+            For each `param` in `model.freeparams`, `dsiteloglik[param][r]`
+            is the derivative of `siteloglik[r]` with respect to to `param`.
         `nsites` (int)
             Number of codon sites.
         `nseqs` (int)
@@ -62,6 +68,13 @@ class TreeLikelihood:
         `L` (`numpy.ndarray` of `float`, shape `(nnodes, nsites, N_CODON)`)
             `L[n][r][x]` is the partial conditional likelihood of codon 
             `x` at site `r` at node `n`.
+        `dL` (`dict` keyed by strings, values `numpy.ndarray` of `float`)
+            For each free model parameter `param` in `model.freeparam`, 
+            `dL[param]` is derivative of `L` with respect to `param`.
+            If `param` is a float, then `dL[param][n][r][x]` is derivative
+            of `L[n][r][x]` with respect to `param`. If `param` is an array,
+            then `dL[param][i][n][r][x]` is derivative of `L[n][r][x]` 
+            with respect to `param[i]`.
     """
 
     def __init__(self, tree, alignment, model):
@@ -97,6 +110,19 @@ class TreeLikelihood:
         self.t = [-1] * (self.nnodes - 1)
         self.internalnodes = [] 
         self.L = scipy.full((self.nnodes, self.nsites, N_CODON), -1, dtype='float')
+        self.dL = {}
+        for param in self.model.freeparams:
+            paramvalue = getattr(self.model, param)
+            if isinstance(paramvalue, float):
+                self.dL[param] = scipy.full((self.nnodes, self.nsites, N_CODON), 
+                        -1, dtype='float')
+            elif isinstance(paramvalue, scipy.ndarray) and (paramvalue.shape
+                    == (len(paramvalue),)):
+                self.dL[param] = scipy.full((len(paramvalue), self.nnodes,
+                        self.nsites, N_CODON), -1, dtype='float')
+            else:
+                raise ValueError("Cannot handle param: {0}, {1}".format(
+                        param, paramvalue))
         for (n, node) in enumerate(self.tree.find_clades(order='postorder')):
             if node != self.tree.root:
                 assert n < self.nnodes - 1
@@ -106,12 +132,22 @@ class TreeLikelihood:
                 for r in range(self.nsites):
                     codon = seq[3 * r : 3 * r + 3]
                     if codon == '---':
-                        scipy.copyto(self.L[n][r], scipy.ones(N_CODON, dtype='float'))
+                        scipy.copyto(self.L[n][r], scipy.ones(N_CODON, 
+                                dtype='float'))
                     elif codon in CODON_TO_INDEX:
-                        scipy.copyto(self.L[n][r], scipy.zeros(N_CODON, dtype='float'))
+                        scipy.copyto(self.L[n][r], scipy.zeros(N_CODON, 
+                                dtype='float'))
                         self.L[n][r][CODON_TO_INDEX[codon]] = 1.0
                     else:
-                        raise ValueError("Bad codon {0} in {1}".format(codon, node.name))
+                        raise ValueError("Bad codon {0} in {1}".format(codon, 
+                                node.name))
+                for param in self.model.freeparams:
+                    paramvalue = getattr(self.model, param)
+                    if isinstance(paramvalue, float):
+                        self.dL[param][n].fill(0.0)
+                    else:
+                        for i in range(len(paramvalue)):
+                            self.dL[param][i][n].fill(0.0)
             else:
                 assert len(node.clades) == 2, "not 2 children: {0}".format(node.name)
                 self.rdescend[n] = self.name_to_nodeindex[node.clades[0]]
@@ -135,6 +171,16 @@ class TreeLikelihood:
             self.siteloglik = scipy.log(scipy.sum(self.L[-1] * 
                     self.model.stationarystate, axis=1))
             self.loglik = scipy.sum(self.siteloglik)
+            self.dsiteloglik = {}
+            self.dloglik = {}
+            for param in self.model.freeparams:
+                self.dsiteloglik[param] = (self.model.dstationarystate[param] * 
+                        self.L[-1] + self.dL[param][-1] * self.model.stationarystate
+                        ) / self.siteloglik
+                if len(dloglik[param].shape) == 1:
+                    self.dloglik[param] = float(scipy.sum(self.dloglik))
+                else:
+                    self.dloglik[param] = scipy.sum(self.dsiteloglik, axis=1)
 
     def _computePartialLikelihoods(self):
         """Update `L`."""
@@ -147,10 +193,34 @@ class TreeLikelihood:
             Mleft = self.model.M(tleft)
             # using this approach to broadcast matrix-vector mutiplication
             # http://stackoverflow.com/questions/26849910/numpy-matrix-multiplication-broadcast
-            scipy.copyto(self.L[n], 
-                    scipy.sum(Mright * self.L[nright][:, None, :], axis=2) *
-                    scipy.sum(Mleft * self.L[nleft][:, None, :], axis=2))
-
+            MLright = scipy.sum(Mright * self.L[nright][:, None, :], axis=2)
+            MLleft = scipy.sum(Mleft * self.L[nleft][:, None, :], axis=2)
+            scipy.copyto(self.L[n], MLright * MLleft)
+            for param in self.model.freeparams:
+                paramvalue = getattr(self.model, param)
+                if isinstance(paramvalue, float):
+                    dMLright = scipy.sum(self.model.dM(tright, param) * 
+                            self.L[nright][:, None, :], axis=2)
+                    MdLright = scipy.sum(Mright * self.dL[param][nright][:,
+                            None, :], axis=2)
+                    dMLleft = scipy.sum(self.model.dM(tleft, param) * 
+                            self.L[nleft][:, None, :], axis=2)
+                    MdLleft = scipy.sum(Mleft * self.dL[param][nleft][:, None, :], 
+                            axis=2)
+                    scipy.copyto(self.dL[param][n], (dMLright + MdLright) * MLleft
+                            + MLright * (dMLleft + MdLleft))
+                else:
+                    for i in range(len(paramvalue)):
+                        dMLright = scipy.sum(self.model.dM(tright, param)[i] * 
+                                self.L[nright][:, None, :], axis=2)
+                        MdLright = scipy.sum(Mright * self.dL[param][i][nright][:, 
+                                None, :], axis=2)
+                        dMLleft = scipy.sum(self.model.dM(tleft, param)[i] * 
+                                self.L[nleft][:, None, :], axis=2)
+                        MdLleft = scipy.sum(Mleft * self.dL[param][i][nleft][:, 
+                                None, :], axis=2)
+                        scipy.copyto(self.dL[param][i][n], (dMLright + MdLright)
+                                * MLleft + MLright * (dMLleft + MdLleft))
 
 
 if __name__ == '__main__':
