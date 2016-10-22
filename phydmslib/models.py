@@ -260,7 +260,7 @@ class ExpCM(Model):
             if not (isinstance(value, scipy.ndarray) and value.shape == shape[param]
                     and value.dtype == 'float'):
                 raise ValueError(("{0} must be ndarray floats, shape {1}, "
-                        "not {2}").format(param, shape, value))
+                        "not {2}").format(param, shape[param], value))
             if not ((lowlim <= value).all() and (value <= highlim).all()):
                 raise ValueError("{0} must be >= {1} and <= {2}, not {3}".format(
                         param, lowlim, highlim, value))
