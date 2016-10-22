@@ -20,6 +20,13 @@ class TreeLikelihood:
     tree topology. In the internal workings, this fixed topology is
     transformed into the node indexing scheme defined by `name_to_nodeindex`.
 
+    After initialization, attributes should **not** be changed directly,
+    but should only be altered via the `updateParams` method. If you
+    update attributes of the `TreeLikelihood` object **or** any of
+    its component attributes (such as `model` or the tree) by any
+    means other than `TreeLikelihood.updateParams`, the likelihood
+    may not be correct.
+
     Attributes:
         `tree` (instance of `Bio.Phylo.BaseTree.Tree` derived class)
             Phylogenetic tree. 
@@ -158,6 +165,31 @@ class TreeLikelihood:
 
         # now update internal attributes related to likelihood
         self._updateInternals()
+
+    def updateParams(self, modelparams={}, branchparams=None, update_all=False):
+        """Update parameters and re-compute likelihoods.
+
+        This method is the **only** acceptable way to update model
+        or tree parameters. The likelihood is re-computed as needed
+        by this method.
+
+        Args:
+            `modelparams` (dict)
+                A dictionary that can be passed as the `newvalues`
+                argument to `model.updateParams`. It is keyed by
+                model free parameters, and has values equal to
+                the new values of those model parameters.
+            `branchparams` (not yet implemented, currently must be `None`)
+            `update_all` (bool)
+                If `True`, re-compute all internals related to model
+                parameters and likelihood regardless of whether
+                the parameters themselve are changed.
+        """
+        if branchparams:
+            raise RuntimeError('branchparams not yet implemented')
+        self.model.updateParams(newvalues=modelparams, update_all=update_all)
+        if modelparams or branchparams or update_all:
+            self._updateInternals()
 
     def _updateInternals(self):
         """Update internal attributes related to likelihood.
