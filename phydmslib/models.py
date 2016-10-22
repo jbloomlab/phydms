@@ -370,7 +370,7 @@ class ExpCM(Model):
                 self.dprx[param] = scipy.zeros((N_NT - 1, self.nsites, N_CODON),
                         dtype='float')
             elif param == 'mu':
-                pass 
+                self.dprx['mu'] = 0.0
             else:
                 raise ValueError("Unrecognized param {0}".format(param))
 
@@ -386,9 +386,9 @@ class ExpCM(Model):
         """See docs for `Model` abstract base class."""
         return self.prx
 
-    def dstationarystate(self):
+    def dstationarystate(self, param):
         """See docs for `Model` abstract base class."""
-        return self.dprx
+        return self.dprx[param]
 
     @property
     def nsites(self):

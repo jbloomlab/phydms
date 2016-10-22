@@ -73,7 +73,7 @@ class TreeLikelihood:
             `dL[param]` is derivative of `L` with respect to `param`.
             If `param` is a float, then `dL[param][n][r][x]` is derivative
             of `L[n][r][x]` with respect to `param`. If `param` is an array,
-            then `dL[param][i][n][r][x]` is derivative of `L[n][r][x]` 
+            then `dL[param][n][i][r][x]` is derivative of `L[n][r][x]` 
             with respect to `param[i]`.
     """
 
@@ -118,7 +118,7 @@ class TreeLikelihood:
                         -1, dtype='float')
             elif isinstance(paramvalue, scipy.ndarray) and (paramvalue.shape
                     == (len(paramvalue),)):
-                self.dL[param] = scipy.full((len(paramvalue), self.nnodes,
+                self.dL[param] = scipy.full((self.nnodes, len(paramvalue),
                         self.nsites, N_CODON), -1, dtype='float')
             else:
                 raise ValueError("Cannot handle param: {0}, {1}".format(
@@ -147,7 +147,7 @@ class TreeLikelihood:
                         self.dL[param][n].fill(0.0)
                     else:
                         for i in range(len(paramvalue)):
-                            self.dL[param][i][n].fill(0.0)
+                            self.dL[param][n][i].fill(0.0)
             else:
                 assert len(node.clades) == 2, "not 2 children: {0}".format(node.name)
                 self.rdescend[n] = self.name_to_nodeindex[node.clades[0]]
@@ -174,13 +174,10 @@ class TreeLikelihood:
             self.dsiteloglik = {}
             self.dloglik = {}
             for param in self.model.freeparams:
-                self.dsiteloglik[param] = (self.model.dstationarystate[param] * 
-                        self.L[-1] + self.dL[param][-1] * self.model.stationarystate
-                        ) / self.siteloglik
-                if len(dloglik[param].shape) == 1:
-                    self.dloglik[param] = float(scipy.sum(self.dloglik))
-                else:
-                    self.dloglik[param] = scipy.sum(self.dsiteloglik, axis=1)
+                self.dsiteloglik[param] = scipy.sum(self.model.dstationarystate(param)
+                        * self.L[-1] + self.dL[param][-1] 
+                        * self.model.stationarystate, axis=-1) / self.siteloglik
+                self.dloglik[param] = scipy.sum(self.dsiteloglik[param], axis=-1)
 
     def _computePartialLikelihoods(self):
         """Update `L`."""
@@ -213,13 +210,13 @@ class TreeLikelihood:
                     for i in range(len(paramvalue)):
                         dMLright = scipy.sum(self.model.dM(tright, param)[i] * 
                                 self.L[nright][:, None, :], axis=2)
-                        MdLright = scipy.sum(Mright * self.dL[param][i][nright][:, 
+                        MdLright = scipy.sum(Mright * self.dL[param][nright][i][:, 
                                 None, :], axis=2)
                         dMLleft = scipy.sum(self.model.dM(tleft, param)[i] * 
                                 self.L[nleft][:, None, :], axis=2)
-                        MdLleft = scipy.sum(Mleft * self.dL[param][i][nleft][:, 
+                        MdLleft = scipy.sum(Mleft * self.dL[param][nleft][i][:, 
                                 None, :], axis=2)
-                        scipy.copyto(self.dL[param][i][n], (dMLright + MdLright)
+                        scipy.copyto(self.dL[param][n][i], (dMLright + MdLright)
                                 * MLleft + MLright * (dMLleft + MdLleft))
 
 
