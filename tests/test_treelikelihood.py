@@ -76,13 +76,7 @@ class test_TreeLikelihood(unittest.TestCase):
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        phi = scipy.random.dirichlet([2] * N_NT)
-        omega = 0.7
-        kappa = 2.5
-        beta = 1.6
-        self.model = phydmslib.models.ExpCM(self.prefs, phi=phi, omega=omega,
-                kappa=kappa, beta=beta)
-
+        self.model = phydmslib.models.ExpCM(self.prefs)
 
     def test_InitializeTreeLikelihood(self):
         """Test that `TreeLikelihood` initializes properly."""
@@ -95,6 +89,38 @@ class test_TreeLikelihood(unittest.TestCase):
         for n in tl.internalnodes:
             for descend in [tl.rdescend, tl.ldescend]:
                 self.assertTrue(0 <= descend[n] < n, "{0}, {1}".format(n, descend[n]))
+
+    def test_TreeLikelihood_paramsarray(self):
+        """Tests `TreeLikelihood` params array setting and getting."""
+        random.seed(1)
+        scipy.random.seed(1)
+        model = copy.deepcopy(self.model)
+        modelparams = {
+                'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
+                'mu':random.uniform(0.2, 2.0),
+                'beta':random.uniform(0.8, 1.6),
+                'kappa':random.uniform(0.5, 5.0),
+                'omega':random.uniform(0.1, 2),
+                }
+        model.updateParams(modelparams)
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
+                self.alignment, model)
+        logl = tl.loglik
+        paramsarray = tl.paramsarray
+        nparams = len(paramsarray)
+        self.assertTrue(nparams == sum(map(lambda x: (1 if isinstance(x, float)
+                else len(x)), modelparams.values())))
+        # set to new value, make sure TreeLikelihood attributes have changed
+        tl.paramsarray = scipy.array([random.uniform(0.2, 0.8) for i in 
+                range(nparams)])
+        for (param, value) in modelparams.items():
+            self.assertFalse(scipy.allclose(value, getattr(tl.model, param)))
+        self.assertFalse(scipy.allclose(logl, tl.loglik))
+        # re-set to old value, make sure attributes return to original values
+        tl.paramsarray = copy.deepcopy(paramsarray)
+        self.assertTrue(scipy.allclose(logl, tl.loglik))
+        for (param, value) in modelparams.items():
+            self.assertTrue(scipy.allclose(value, getattr(tl.model, param)))
 
     def test_Likelihood(self):
         """Tests likelihood of `TreeLikelihood` object."""
@@ -139,6 +165,22 @@ class test_TreeLikelihood(unittest.TestCase):
                 for mu2 in mus[i + 1 : ]:
                     self.assertFalse(scipy.allclose(d[mu1]['actual'],
                             d[mu2]['actual']), "Bad match: {0}".format(name))
+
+    def test_LikelihoodDerivativesModelParams(self):
+        """Test derivatives of `TreeLikelihood` with respect to model params."""
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
+                    self.alignment, copy.deepcopy(self.model))
+        for itest in range(2):
+            random.seed(itest)
+            scipy.random.seed(itest)
+            modelparams = {
+                    'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
+                    'mu':random.uniform(0.2, 2.0),
+                    'beta':random.uniform(0.8, 1.6),
+                    'kappa':random.uniform(0.5, 5.0),
+                    'omega':random.uniform(0.1, 2),
+                    }
+            tl.updateParams(modelparams)
 
 
 

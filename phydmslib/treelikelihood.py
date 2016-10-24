@@ -20,12 +20,11 @@ class TreeLikelihood:
     tree topology. In the internal workings, this fixed topology is
     transformed into the node indexing scheme defined by `name_to_nodeindex`.
 
-    After initialization, attributes should **not** be changed directly,
-    but should only be altered via the `updateParams` method. If you
-    update attributes of the `TreeLikelihood` object **or** any of
-    its component attributes (such as `model` or the tree) by any
-    means other than `TreeLikelihood.updateParams`, the likelihood
-    may not be correct.
+    After initialization, most attributes should **not** be changed directly.
+    They should only be altered via the `updateParams` method or
+    by altering the `paramsarray` property. Both of these methods
+    of updating attributes correctly update all of the dependent
+    properties; setting other attributes directly does not.
 
     Attributes:
         `tree` (instance of `Bio.Phylo.BaseTree.Tree` derived class)
@@ -35,6 +34,11 @@ class TreeLikelihood:
         `alignment` (list of 2-tuples of strings, `(head, seq)`)
             Aligned protein-coding codon sequences. Headers match
             tip names in `tree`; sequences contain `nsites` codons.
+        `paramsarray` (`numpy.ndarray` of floats, 1-dimensional)
+            An array of all of the free parameters. You can directly
+            assign to `paramsarray`, and the correct parameters will
+            be internally updated vi `updateParams`. 
+            `paramsarray` is actually a property rather than an attribute.
         `loglik` (`float`)
             Current log likelihood.
         `siteloglik` (`numpy.ndarray` of floats, length `nsites`)
@@ -163,10 +167,69 @@ class TreeLikelihood:
             self.name_to_nodeindex[node] = n
         assert len(self.internalnodes) == len(tree.get_nonterminals())
 
+        # _index_to_param defines internal mapping of
+        # `paramsarray` indices and parameters
+        self._index_to_param = {} # value is parameter associated with index
+        i = 0
+        for param in self.model.freeparams:
+            paramvalue = getattr(self.model, param)
+            if isinstance(paramvalue, float):
+                self._index_to_param[i] = param
+                i += 1
+            else:
+                for (pindex, pvalue) in enumerate(paramvalue):
+                    self._index_to_param[i] = (param, pindex)
+                    i += 1
+        self._param_to_index = dict([(y, x) for (x, y) in 
+                self._index_to_param.items()])
+        assert i == len(self._index_to_param) 
+
         # now update internal attributes related to likelihood
         self._updateInternals()
 
-    def updateParams(self, modelparams={}, branchparams=None, update_all=False):
+    @property
+    def paramsarray(self):
+        """All free mode parameters as 1-dimensional `numpy.ndarray`.
+        
+        You are allowed to update model parameters by direct
+        assignment of this property."""
+        nparams = len(self._index_to_param)
+        paramsarray = scipy.ndarray(shape=(nparams,), dtype='float')
+        for (i, param) in self._index_to_param.items():
+            if isinstance(param, str):
+                paramsarray[i] = getattr(self.model, param)
+            elif isinstance(param, tuple):
+                paramsarray[i] = getattr(self.model, param[0])[param[1]]
+        return paramsarray
+
+    @paramsarray.setter
+    def paramsarray(self, value):
+        """Set new `paramsarray` and update via `updateParams`."""
+        nparams = len(self._index_to_param)
+        assert (isinstance(value, scipy.ndarray) and len(value.shape) == 1), (
+                "paramsarray must be 1-dim ndarray")
+        assert len(value) == nparams, ("Assigning paramsarray to ndarray "
+                "of the wrong length.")
+        # build `newvalues` to pass to `updateParams`
+        newvalues = {}
+        vectorized_params = {}
+        for (i, param) in self._index_to_param.items():
+            if isinstance(param, str):
+                newvalues[param] = float(value[i])
+            elif isinstance(param, tuple):
+                (iparam, iparamindex) = param
+                if iparam in vectorized_params:
+                    assert iparamindex not in vectorized_params[iparam]
+                    vectorized_params[iparam][iparamindex] = float(value[i])
+                else:
+                    vectorized_params[iparam] = {iparamindex:float(value[i])}
+        for (param, paramd) in vectorized_params.items():
+            assert set(paramd.keys()) == set(range(len(paramd)))
+            newvalues[param] = scipy.array([paramd[i] for i in range(len(paramd))],
+                    dtype='float')
+        self.updateParams(newvalues)
+
+    def updateParams(self, newvalues):
         """Update parameters and re-compute likelihoods.
 
         This method is the **only** acceptable way to update model
@@ -174,21 +237,24 @@ class TreeLikelihood:
         by this method.
 
         Args:
-            `modelparams` (dict)
-                A dictionary that can be passed as the `newvalues`
-                argument to `model.updateParams`. It is keyed by
-                model free parameters, and has values equal to
-                the new values of those model parameters.
-            `branchparams` (not yet implemented, currently must be `None`)
-            `update_all` (bool)
-                If `True`, re-compute all internals related to model
-                parameters and likelihood regardless of whether
-                the parameters themselve are changed.
+            `newvalues` (dict)
+                A dictionary keyed by param name and with value as new
+                value to set. Each parameter name must either be
+                a string in `model.freeparams` or a string that represents
+                a valid branch length.
         """
-        if branchparams:
-            raise RuntimeError('branchparams not yet implemented')
-        self.model.updateParams(newvalues=modelparams, update_all=update_all)
-        if modelparams or branchparams or update_all:
+        modelparams = {}
+        otherparams = {}
+        for (param, value) in newvalues.items():
+            if param in self.model.freeparams:
+                modelparams[param] = value
+            else:
+                otherparms[param] = value
+        if modelparams:
+            self.model.updateParams(modelparams)
+        if otherparams:
+            raise RuntimeError("cannot currently handle non-model params")
+        if newvalues:
             self._updateInternals()
 
     def _updateInternals(self):
