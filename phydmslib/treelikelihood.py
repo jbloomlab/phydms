@@ -46,6 +46,11 @@ class TreeLikelihood:
         `dloglik` (`dict`)
             For each `param` in `model.freeparams`, `dloglik[param]`
             is the derivative of `loglik` with respect to `param`.
+        `dloglikarray` (`numpy.ndarray` of floats, 1-dimensional)
+            `dloglikarray[i]` is the derivative of `loglik` with respect
+            to the parameter represented in `paramsarray[i]`. This is
+            the same information as in `dloglik`, but in a different
+            representation.
         `dsiteloglik` (`dict`)
             For each `param` in `model.freeparams`, `dsiteloglik[param][r]`
             is the derivative of `siteloglik[r]` with respect to to `param`.
@@ -189,7 +194,7 @@ class TreeLikelihood:
 
     @property
     def paramsarray(self):
-        """All free mode parameters as 1-dimensional `numpy.ndarray`.
+        """All free model parameters as 1-dimensional `numpy.ndarray`.
         
         You are allowed to update model parameters by direct
         assignment of this property."""
@@ -228,6 +233,18 @@ class TreeLikelihood:
             newvalues[param] = scipy.array([paramd[i] for i in range(len(paramd))],
                     dtype='float')
         self.updateParams(newvalues)
+
+    @property
+    def dloglikarray(self):
+        """Derivative of `loglik` with respect to `paramsarray`."""
+        nparams = len(self._index_to_param)
+        dloglikarray = scipy.ndarray(shape=(nparams,), dtype='float')
+        for (i, param) in self._index_to_param.items():
+            if isinstance(param, str):
+                dloglikarray[i] = self.dloglik[param]
+            elif isinstance(param, tuple):
+                dloglikarray[i] = self.dloglik[param[0]][param[1]]
+        return dloglikarray
 
     def updateParams(self, newvalues):
         """Update parameters and re-compute likelihoods.

@@ -11,6 +11,7 @@ import unittest
 import random
 import copy
 import scipy
+import scipy.optimize
 import matplotlib
 matplotlib.use('pdf')
 import matplotlib.pyplot as plt
@@ -181,6 +182,21 @@ class test_TreeLikelihood(unittest.TestCase):
                     'omega':random.uniform(0.1, 2),
                     }
             tl.updateParams(modelparams)
+            def func_LogL(x, i):
+                y = tl.paramsarray
+                y[i] = x[0]
+                tl.paramsarray = y
+                return tl.loglik
+            def func_dLogL(x, i):
+                y = tl.paramsarray
+                y[i] = x[0]
+                tl.paramsarray = y
+                return tl.dloglikarray[i]
+            for iparam in range(len(tl.paramsarray)):
+                diff = scipy.optimize.check_grad(func_LogL, func_dLogL, 
+                        scipy.array([tl.paramsarray[iparam]]), iparam)
+                self.assertTrue(diff < 1e-4, "{0} has diff {1}".format(
+                        tl._index_to_param[iparam], diff))
 
 
 
