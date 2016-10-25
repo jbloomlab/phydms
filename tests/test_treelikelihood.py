@@ -78,7 +78,7 @@ class test_TreeLikelihood(unittest.TestCase):
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        self.model = phydmslib.models.ExpCM(self.prefs, freeparams=['beta'])
+        self.model = phydmslib.models.ExpCM(self.prefs)
 
     def test_InitializeTreeLikelihood(self):
         """Test that `TreeLikelihood` initializes properly."""
@@ -99,11 +99,11 @@ class test_TreeLikelihood(unittest.TestCase):
         scipy.random.seed(1)
         model = copy.deepcopy(self.model)
         modelparams = {
-#                'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
-#                'mu':random.uniform(0.2, 2.0),
+                'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
+                'mu':random.uniform(0.2, 2.0),
                 'beta':random.uniform(0.8, 1.6),
-#                'kappa':random.uniform(0.5, 5.0),
-#                'omega':random.uniform(0.1, 2),
+                'kappa':random.uniform(0.5, 5.0),
+                'omega':random.uniform(0.1, 2),
                 }
         model.updateParams(modelparams)
         tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
@@ -127,8 +127,6 @@ class test_TreeLikelihood(unittest.TestCase):
 
     def test_Likelihood(self):
         """Tests likelihood of `TreeLikelihood` object."""
-        return
-#
         mus = [0.5, 1.5]
         partials_by_mu = {}
         siteloglik_by_mu = {}
@@ -179,11 +177,11 @@ class test_TreeLikelihood(unittest.TestCase):
             random.seed(itest)
             scipy.random.seed(itest)
             modelparams = {
-#                    'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
-#                    'mu':random.uniform(0.2, 2.0),
+                    'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
+                    'mu':random.uniform(0.2, 2.0),
                     'beta':random.uniform(0.8, 1.2),
-#                    'kappa':random.uniform(0.5, 5.0),
-#                    'omega':random.uniform(0.1, 2),
+                    'kappa':random.uniform(0.5, 5.0),
+                    'omega':random.uniform(0.1, 2),
                     }
             tl.updateParams(modelparams)
             # check L and dL
