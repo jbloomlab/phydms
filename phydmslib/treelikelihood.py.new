@@ -231,9 +231,8 @@ class TreeLikelihood:
         
         You are allowed to update model parameters by direct
         assignment of this property."""
-        # Always return copy of `_paramsarray` because setter checks if changed
         if self._paramsarray is not None:
-            return self._paramsarray.copy() 
+            return self._paramsarray
         nparams = len(self._index_to_param)
         self._paramsarray = scipy.ndarray(shape=(nparams,), dtype='float')
         for (i, param) in self._index_to_param.items():
@@ -241,7 +240,7 @@ class TreeLikelihood:
                 self._paramsarray[i] = getattr(self.model, param)
             elif isinstance(param, tuple):
                 self._paramsarray[i] = getattr(self.model, param[0])[param[1]]
-        return self._paramsarray.copy()
+        return self._paramsarray
 
     @paramsarray.setter
     def paramsarray(self, value):
