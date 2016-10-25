@@ -283,15 +283,15 @@ class TreeLikelihood:
         with scipy.errstate(over='raise', under='raise', divide='raise',
                 invalid='raise'):
             self._computePartialLikelihoods()
-            self.siteloglik = scipy.log(scipy.sum(self.L[-1] * 
-                    self.model.stationarystate, axis=1))
+            sitelik = scipy.sum(self.L[-1] * self.model.stationarystate, axis=1)
+            self.siteloglik = scipy.log(sitelik)
             self.loglik = scipy.sum(self.siteloglik)
             self.dsiteloglik = {}
             self.dloglik = {}
             for param in self.model.freeparams:
                 self.dsiteloglik[param] = scipy.sum(self.model.dstationarystate(param)
                         * self.L[-1] + self.dL[param][-1] 
-                        * self.model.stationarystate, axis=-1) / self.siteloglik
+                        * self.model.stationarystate, axis=-1) / sitelik
                 self.dloglik[param] = scipy.sum(self.dsiteloglik[param], axis=-1)
 
     def _computePartialLikelihoods(self):
