@@ -202,6 +202,40 @@ class test_TreeLikelihood(unittest.TestCase):
                 self.assertTrue(diff < 2e-4, "{0} has diff {1}".format(
                         tl._index_to_param[iparam], diff))
 
+    def test_MaximizeLikelihood(self):
+        """Tests maximization of `TreeLikelihood` likelihood.
+        
+        Make sure it gives the same value for several starting points."""
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
+                    self.alignment, copy.deepcopy(self.model))
+
+        logliks = []
+        paramsarrays = []
+        for itest in range(3):
+            random.seed(itest)
+            scipy.random.seed(itest)
+            modelparams = {
+                    'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
+                    'mu':random.uniform(0.2, 2.0),
+                    'beta':random.uniform(0.8, 1.2),
+                    'kappa':random.uniform(0.5, 5.0),
+                    'omega':random.uniform(0.1, 2),
+                    }
+            tl.updateParams(modelparams)
+            startloglik = tl.loglik
+            result = tl.maximizeLikelihood()
+            self.assertTrue(tl.loglik > startloglik, "no loglik increase: "
+                    "start = {0}, end = {1}".format(startloglik, tl.loglik))
+            for (otherloglik, otherparams) in zip(logliks, paramsarrays):
+                self.assertTrue(scipy.allclose(tl.loglik, otherloglik), 
+                        "Large difference in loglik: {0} vs {1}".format(
+                        otherloglik, tl.loglik))
+                self.assertTrue(scipy.allclose(tl.paramsarray, otherparams,
+                        atol=1e-5, rtol=1e-3),
+                        "Large difference in paramsarray: {0} vs {1}".format(
+                        otherparams, tl.paramsarray))
+            logliks.append(tl.loglik)
+            paramsarrays.append(tl.paramsarray)
 
 
 if __name__ == '__main__':

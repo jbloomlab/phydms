@@ -43,6 +43,10 @@ class TreeLikelihood:
             assign to `paramsarray`, and the correct parameters will
             be internally updated vi `updateParams`. 
             `paramsarray` is actually a property rather than an attribute.
+        `paramsarraybounds` (`tuple` of 2-tuples)
+            `paramsarraybounds[i]` is the 2-tuple `(minbound, maxbound)`
+            for parameter `paramsarray[i]`. Set `minbound` or `maxbound`
+            are `None` if there is no lower or upper bound.
         `loglik` (`float`)
             Current log likelihood.
         `siteloglik` (`numpy.ndarray` of floats, length `nsites`)
@@ -209,6 +213,9 @@ class TreeLikelihood:
             `approx_grad` (bool)
                 If `True`, then we numerically approximate the gradient
                 rather than using the analytical values.
+
+        Returns:
+            A `scipy.optimize.OptimizeResult` with result of maximization.
         """
         # Some useful notes on optimization:
         # http://www.scipy-lectures.org/advanced/mathematical_optimization/
@@ -223,7 +230,27 @@ class TreeLikelihood:
             self.paramsarray = x
             return -self.dloglikarray
 
-        raise RuntimeError('not yet implemented')
+        if approx_grad:
+            dfunc = False
+
+        result = scipy.optimize.minimize(func, self.paramsarray,
+                method='L-BFGS-B', jac=dfunc, bounds=self.paramsarraybounds)
+
+        return result
+
+    @property
+    def paramsarraybounds(self):
+        """Bounds for parameters in `paramsarray`."""
+        bounds = []
+        for (i, param) in self._index_to_param.items():
+            if isinstance(param, str):
+                bounds.append(self.model.PARAMLIMITS[param])
+            elif isinstance(param, tuple):
+                bounds.append(self.model.PARAMLIMITS[param[0]])
+            else:
+                raise ValueError("Invalid param type")
+        assert len(bounds) == len(self._index_to_param)
+        return tuple(bounds)
 
     @property
     def paramsarray(self):
@@ -241,6 +268,8 @@ class TreeLikelihood:
                 self._paramsarray[i] = getattr(self.model, param)
             elif isinstance(param, tuple):
                 self._paramsarray[i] = getattr(self.model, param[0])[param[1]]
+            else:
+                raise ValueError("Invalid param type")
         return self._paramsarray.copy()
 
     @paramsarray.setter
@@ -266,6 +295,8 @@ class TreeLikelihood:
                     vectorized_params[iparam][iparamindex] = float(value[i])
                 else:
                     vectorized_params[iparam] = {iparamindex:float(value[i])}
+            else:
+                raise ValueError("Invalid param type")
         for (param, paramd) in vectorized_params.items():
             assert set(paramd.keys()) == set(range(len(paramd)))
             newvalues[param] = scipy.array([paramd[i] for i in range(len(paramd))],
