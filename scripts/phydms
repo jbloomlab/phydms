@@ -19,7 +19,7 @@ import phydmslib.constants
 import phydmslib.file_io
 import phydmslib.parsearguments
 import phydmslib.models
-
+import phydmslib.treelikelihood
 
     
 def ReadDivPressure(fileName):
@@ -103,7 +103,6 @@ def main():
         # process the substitution model
         yngkp_match = re.compile('^YNGKP_M(?P<modelvariant>\d+)$')
         if isinstance(args['model'], str) and yngkp_match.search(args['model']):
-            raise RuntimeError('YNGKP models not yet implemented')
             for argname in ['randprefs', 'avgprefs', 'divpressure']:
                 assert not args[argname], "'--%s' incompatible with YNKGP".format(
                             argname)
@@ -111,6 +110,7 @@ def main():
             logger.info(('The codon substitution model with be the M{0} version '
                     'of YNGKP (Yang, Nielsen, Goldman, and Pederson. Genetics. '
                     '155:431-449).').format(modelvariant))
+            raise RuntimeError('YNGKP models not yet implemented')
         elif (isinstance(args['model'], tuple) and len(args['model']) == 2 and 
                 args['model'][0] == 'ExpCM'):
             prefsfile = args['model'][1]
@@ -133,12 +133,11 @@ def main():
             freeparams = ['kappa', 'omega', 'beta', 'eta']
             if args['brlen'] == 'scale':
                 logger.info("Scaling branch lengths by adding 'mu' parameter "
-                        "to model.")
+                        "to model.\n")
                 freeparams.append('mu')
             model = phydmslib.models.ExpCM(prefslist, freeparams=freeparams)
             # read diversifying pressure
-            if False: # not yet implemented, so skip code
-            #if args['divpressure']:
+            if ('divpressure' in args) and args['divpressure']:
                 raise RuntimeError('--divpressure not yet implemented')
                 for otherarg in ['omegabysite']:
                     if args[otherarg]:
@@ -162,20 +161,30 @@ def main():
                 "Sequences in tree but NOT in alignment:\n\t{1}".format(
                 '\n\t'.join(seqnames - tipnames), '\n\t'.join(tipnames - seqnames)))
         logger.info('Tree has {0} tips.'.format(len(tipnames)))
+        tree.root_at_midpoint()
         assert tree.is_bifurcating(), "Tree is not bifurcating: cannot handle"
         nadjusted = 0
         for node in tree.get_terminals() + tree.get_nonterminals():
             if node.branch_length < args['minbrlen']:
                 nadjusted += 1
                 node.branch_length = args['minbrlen']
-        if nadjusted:
-            logger.info('Adjusted {0} branch lengths up to minbrlen {1}'.format(
-                    nadjusted, args['minbrlen']))
+        logger.info('Adjusted {0} branch lengths up to minbrlen {1}\n'.format(
+                nadjusted, args['minbrlen']))
 
         # set up tree likelihood
-        raise RuntimeError('only implemented to this far')
-        treelik = phydmslib.treelikelihood.TreeLikelihood(alignment, tree, model)
+        logger.info('Initializing up TreeLikelihood..')
+        tl = phydmslib.treelikelihood.TreeLikelihood(tree, alignment, model)
+        logger.info('TreeLikelihood initialized.')
 
+        # maximize likelihood
+        logger.info('Maximizing log likelihood (initial value {0})...'.format(
+                tl.loglik))
+        maxresult = tl.maximizeLikelihood()
+        logger.info('Maximization complete. New log likelihood is {0}.'.format(
+                tl.loglik))
+        logger.info('Here are optimization results:\n{0}'.format(maxresult))
+
+        raise RuntimeError('only implemented to this far')
 
         # get number of cpus for multiprocessing
         if args['ncpus'] == -1:

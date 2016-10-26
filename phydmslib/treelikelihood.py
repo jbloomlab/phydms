@@ -173,7 +173,9 @@ class TreeLikelihood:
                         for i in range(len(paramvalue)):
                             self.dL[param][n][i].fill(0.0)
             else:
-                assert len(node.clades) == 2, "not 2 children: {0}".format(node.name)
+                assert len(node.clades) == 2, ("not 2 children: {0} has {1}\n"
+                        "Is this the root node? -- {2}").format(
+                        node.name, len(node.clades), node == self.tree.root)
                 self.rdescend[n] = self.name_to_nodeindex[node.clades[0]]
                 self.ldescend[n] = self.name_to_nodeindex[node.clades[1]]
                 self.internalnodes.append(n)
