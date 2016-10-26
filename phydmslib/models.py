@@ -470,8 +470,9 @@ class ExpCM(Model):
             return self._cached_M[t]
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         # swap axes commands allow broadcasting to multiply D like diagonal matrix
-        M = scipy.matmul((self.A.swapaxes(0, 1) * scipy.exp(self.D * self.mu * t)
-                ).swapaxes(1, 0), self.Ainv)
+        with scipy.errstate(under='ignore'): # don't worry if some values are 0
+            M = scipy.matmul((self.A.swapaxes(0, 1) * scipy.exp(self.D 
+                * self.mu * t)).swapaxes(1, 0), self.Ainv)
         self._cached_M[t] = M
         return M
 
@@ -489,10 +490,13 @@ class ExpCM(Model):
         mut = self.mu * t
         with scipy.errstate(divide='raise', under='ignore', over='raise',
                 invalid='ignore'):
-            V = (scipy.exp(mut * self.Dxx) - scipy.exp(mut * self.Dyy)) / self.Dxx_Dyy
-        scipy.copyto(V, mut * scipy.exp(mut * self.Dxx), where=
-                scipy.fabs(self.Dxx_Dyy) < ALMOST_ZERO)
-        dM_param = scipy.matmul(self.A, scipy.matmul(self.B[param] * V, self.Ainv))
+            V = ((scipy.exp(mut * self.Dxx) - scipy.exp(mut * self.Dyy)) 
+                    / self.Dxx_Dyy)
+        with scipy.errstate(under='ignore'): # don't worry if some values are 0
+            scipy.copyto(V, mut * scipy.exp(mut * self.Dxx), where=
+                    scipy.fabs(self.Dxx_Dyy) < ALMOST_ZERO)
+            dM_param = scipy.matmul(self.A, scipy.matmul(self.B[param] * V, 
+                    self.Ainv))
         self._cached_dM[key] = dM_param
         return dM_param
 

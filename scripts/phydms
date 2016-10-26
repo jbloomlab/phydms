@@ -172,7 +172,7 @@ def main():
                 nadjusted, args['minbrlen']))
 
         # set up tree likelihood
-        logger.info('Initializing up TreeLikelihood..')
+        logger.info('Initializing TreeLikelihood..')
         tl = phydmslib.treelikelihood.TreeLikelihood(tree, alignment, model)
         logger.info('TreeLikelihood initialized.')
 
