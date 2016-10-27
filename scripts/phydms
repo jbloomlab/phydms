@@ -177,14 +177,38 @@ def main():
         logger.info('TreeLikelihood initialized.')
 
         # maximize likelihood
-        logger.info('Maximizing log likelihood (initial value {0})...'.format(
+        logger.info('Maximizing log likelihood (initial value {0:.2f})...'.format(
                 tl.loglik))
-        maxresult = tl.maximizeLikelihood()
-        logger.info('Maximization complete. New log likelihood is {0}.'.format(
+        if args['profile']:
+            import cProfile 
+            import pstats 
+            pstatsfile = '{0}_pstats'.format(args['outprefix'])
+            logger.info('Performing maximization with cProfile (probably slower).')
+            logger.info('Profile stats will be written to {0}'.format(pstatsfile))
+            maxresult = []
+            def wrapper(maxresult): # wrapper to get return value from cProfile
+                maxresult.append(tl.maximizeLikelihood())
+            cProfile.runctx('wrapper(maxresult)', globals(), locals(), pstatsfile)
+            maxresult = maxresult[0]
+            for psort in ['cumulative', 'tottime']:
+                fname = '{0}_{1}.txt'.format(pstatsfile, psort)
+                logger.info('Writing profile stats sorted by {0} to {1}'.format(
+                        psort, fname))
+                f = open(fname, 'w')
+                s = pstats.Stats(pstatsfile, stream=f)
+                s.strip_dirs()
+                s.sort_stats(psort)
+                s.print_stats()
+                f.close()
+        else:
+            maxresult = tl.maximizeLikelihood()
+        logger.info('Maximization complete. New log likelihood is {0:.2f}.'.format(
                 tl.loglik))
         logger.info('Here are optimization results:\n{0}'.format(maxresult))
 
-        raise RuntimeError('only implemented to this far')
+        logging.shutdown() # debugging
+        sys.exit(0) # debugging
+        raise RuntimeError('only implemented to this far') # debugging
 
         # get number of cpus for multiprocessing
         if args['ncpus'] == -1:
