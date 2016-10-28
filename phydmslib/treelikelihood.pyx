@@ -5,6 +5,8 @@ using the indexing schemes defined in `phydmslib.constants`.
 """
 
 
+import numpy
+cimport numpy
 import scipy
 import scipy.optimize
 import Bio.Phylo
