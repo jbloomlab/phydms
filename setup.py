@@ -13,7 +13,6 @@ try:
     from setuptools import Extension
 except ImportError:
     raise ImportError("You must install setuptools")
-import numpy
 
 if not ((sys.version_info[0] == 2 and sys.version_info[1] == 7) or
         (sys.version_info[0] == 3 and sys.version_info[1] >= 4)):
@@ -61,10 +60,7 @@ class lazy_cythonize(list):
 def extensions():
     """List of `cython` extensions for `lazy_cythonize`."""
     from Cython.Build import cythonize
-    ext = [Extension('*', ['phydmslib/*.pyx'], 
-            include_dirs=[numpy.get_include()],
-            extra_compile_args=['-Wno-unused-function'])]
-    return cythonize(ext)
+    return cythonize('phydmslib/*.pyx')
 
 # main setup command
 setup(

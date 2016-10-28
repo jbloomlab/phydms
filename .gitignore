@@ -15,4 +15,5 @@ dist/
 phydms.egg-info/
 *(busy)
 examples
-phydmslib/treelikelihood.c
+phydmslib/pybpp.cpp
+phydmslib/pylsd.cpp
