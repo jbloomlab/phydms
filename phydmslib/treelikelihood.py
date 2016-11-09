@@ -80,12 +80,10 @@ class TreeLikelihood:
             For each sequence name (these are headers in `alignmnent`, 
             tip names in `tree`), `name_to_nodeindex[name]` is the `int`
             index of that `node` in the internal indexing scheme.
-        `rdescend` and `ldescend` (each a `list` of `int` of length `nnode`)
-            For each node `n`, if `n` is an internal node then `rdescend[n]`
-            is its right descendant and `ldescend[n]` is its left descendant.
-            If `n` is a tip node, then `rdescend[n] == ldescend[n] == -1`.
-            Note that the indexing scheme ensures that `rdescend[n] < n`
-            and `ldescend[n] < n` for all internal nodes (`n` >= `ntips`).
+        `rdescend` and `ldescend` (lists of `int` of length `ninternal`)
+            For each internal node `n`, `rdescend[n - ntips]`
+            is its right descendant and `ldescend[n - ntips]` is its left 
+            descendant.
         `t` (`list` of `float`, length `nnodes - 1`)
             `t[n]` is the branch length leading node `n`. The branch leading
             to the root node (which has index `nnodes - 1`) is undefined
@@ -133,8 +131,8 @@ class TreeLikelihood:
         self.ninternal = len(tree.get_nonterminals())
         self.ntips = tree.count_terminals()
         self.nnodes = self.ntips + self.ninternal
-        self.rdescend = [-1] * self.nnodes
-        self.ldescend = [-1] * self.nnodes
+        self.rdescend = [-1] * self.ninternal
+        self.ldescend = [-1] * self.ninternal
         self.t = [-1] * (self.nnodes - 1)
         self.L = scipy.full((self.nnodes, self.nsites, N_CODON), -1, dtype='float')
         self.dL = {}
@@ -189,8 +187,9 @@ class TreeLikelihood:
                 assert len(node.clades) == 2, ("not 2 children: {0} has {1}\n"
                         "Is this the root node? -- {2}").format(
                         node.name, len(node.clades), node == self.tree.root)
-                self.rdescend[n] = self.name_to_nodeindex[node.clades[0]]
-                self.ldescend[n] = self.name_to_nodeindex[node.clades[1]]
+                i = n - self.ntips
+                self.rdescend[i] = self.name_to_nodeindex[node.clades[0]]
+                self.ldescend[i] = self.name_to_nodeindex[node.clades[1]]
             self.name_to_nodeindex[node] = n
 
         # _index_to_param defines internal mapping of
@@ -381,8 +380,9 @@ class TreeLikelihood:
     def _computePartialLikelihoods(self):
         """Update `L`."""
         for n in range(self.ntips, self.nnodes):
-            nright = self.rdescend[n]
-            nleft = self.ldescend[n]
+            internalindex = n - self.ntips 
+            nright = self.rdescend[internalindex]
+            nleft = self.ldescend[internalindex]
             tright = self.t[nright]
             tleft = self.t[nleft]
             Mright = self.model.M(tright)

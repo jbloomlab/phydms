@@ -91,7 +91,9 @@ class test_TreeLikelihood(unittest.TestCase):
         self.assertTrue(all([t > 0 for t in tl.t]))
         for n in range(tl.ntips, tl.nnodes):
             for descend in [tl.rdescend, tl.ldescend]:
-                self.assertTrue(0 <= descend[n] < n, "{0}, {1}".format(n, descend[n]))
+                i = n - tl.ntips
+                self.assertTrue(0 <= descend[i] < n,
+                        "{0}, {1}".format(n, descend[i]))
         self.assertTrue(tl.nsites == len(tl.siteloglik))
 
     def test_TreeLikelihood_paramsarray(self):
