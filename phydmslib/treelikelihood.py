@@ -396,40 +396,28 @@ class TreeLikelihood:
             for param in self.model.freeparams:
                 paramvalue = getattr(self.model, param)
                 if isinstance(paramvalue, float):
+                    indices = [()] # no sub-indexing needed
+                else:
+                    # need to sub-index calculations for each param element
+                    indices = [(j,) for j in range(len(paramvalue))]
+                for j in indices:
                     dMLright = broadcastMatrixVectorMultiply(
-                            self.model.dM(tright, param), self.L[nright])
+                            self.model.dM(tright, param)[j], self.L[nright])
                     if istipr:
                         MdLright = 0
                     else:
                         MdLright = broadcastMatrixVectorMultiply(Mright,
-                                self.dL[param][nrighti])
+                                self.dL[param][nrighti][j])
                     dMLleft = broadcastMatrixVectorMultiply(
-                            self.model.dM(tleft, param), self.L[nleft])
+                            self.model.dM(tleft, param)[j], self.L[nleft])
                     if istipl:
                         MdLleft = 0
                     else:
                         MdLleft = broadcastMatrixVectorMultiply(Mleft,
-                                self.dL[param][nlefti])
-                    scipy.copyto(self.dL[param][ni], (dMLright + MdLright) * MLleft
-                            + MLright * (dMLleft + MdLleft))
-                else:
-                    for i in range(len(paramvalue)):
-                        dMLright = broadcastMatrixVectorMultiply(
-                                self.model.dM(tright, param)[i], self.L[nright])
-                        if istipr:
-                            MdLright = 0
-                        else:
-                            MdLright = broadcastMatrixVectorMultiply(Mright,
-                                    self.dL[param][nrighti][i])
-                        dMLleft = broadcastMatrixVectorMultiply(
-                                self.model.dM(tleft, param)[i], self.L[nleft])
-                        if istipl:
-                            MdLleft = 0
-                        else:
-                            MdLleft = broadcastMatrixVectorMultiply(Mleft,
-                                    self.dL[param][nlefti][i])
-                        scipy.copyto(self.dL[param][ni][i], (dMLright + MdLright)
-                                * MLleft + MLright * (dMLleft + MdLleft))
+                                self.dL[param][nlefti][j])
+                    scipy.copyto(self.dL[param][ni][j], (dMLright + MdLright)
+                            * MLleft + MLright * (dMLleft + MdLleft))
+
 
 
 def broadcastMatrixVectorMultiply(m, v):
