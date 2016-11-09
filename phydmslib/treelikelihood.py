@@ -180,9 +180,9 @@ class TreeLikelihood:
                 assert len(node.clades) == 2, ("not 2 children: {0} has {1}\n"
                         "Is this the root node? -- {2}").format(
                         node.name, len(node.clades), node == self.tree.root)
-                i = n - self.ntips
-                self.rdescend[i] = self.name_to_nodeindex[node.clades[0]]
-                self.ldescend[i] = self.name_to_nodeindex[node.clades[1]]
+                ni = n - self.ntips
+                self.rdescend[ni] = self.name_to_nodeindex[node.clades[0]]
+                self.ldescend[ni] = self.name_to_nodeindex[node.clades[1]]
             self.name_to_nodeindex[node] = n
 
         # _index_to_param defines internal mapping of
@@ -390,50 +390,86 @@ class TreeLikelihood:
             tleft = self.t[nleft]
             Mright = self.model.M(tright)
             Mleft = self.model.M(tleft)
-            # using this approach to broadcast matrix-vector mutiplication
-            # http://stackoverflow.com/questions/26849910/numpy-matrix-multiplication-broadcast
-            MLright = scipy.sum(Mright * self.L[nright][:, None, :], axis=2)
-            MLleft = scipy.sum(Mleft * self.L[nleft][:, None, :], axis=2)
+            MLright = broadcastMatrixVectorMultiply(Mright, self.L[nright])
+            MLleft = broadcastMatrixVectorMultiply(Mleft, self.L[nleft])
             scipy.copyto(self.L[n], MLright * MLleft)
             for param in self.model.freeparams:
                 paramvalue = getattr(self.model, param)
                 if isinstance(paramvalue, float):
-                    dMLright = scipy.sum(self.model.dM(tright, param) * 
-                            self.L[nright][:, None, :], axis=2)
+                    dMLright = broadcastMatrixVectorMultiply(
+                            self.model.dM(tright, param), self.L[nright])
                     if istipr:
                         MdLright = 0
                     else:
-                        MdLright = scipy.sum(Mright * 
-                                self.dL[param][nrighti][:, None, :], axis=2)
-                    dMLleft = scipy.sum(self.model.dM(tleft, param) * 
-                            self.L[nleft][:, None, :], axis=2)
+                        MdLright = broadcastMatrixVectorMultiply(Mright,
+                                self.dL[param][nrighti])
+                    dMLleft = broadcastMatrixVectorMultiply(
+                            self.model.dM(tleft, param), self.L[nleft])
                     if istipl:
                         MdLleft = 0
                     else:
-                        MdLleft = scipy.sum(Mleft * 
-                                self.dL[param][nlefti][:, None, :], axis=2)
+                        MdLleft = broadcastMatrixVectorMultiply(Mleft,
+                                self.dL[param][nlefti])
                     scipy.copyto(self.dL[param][ni], (dMLright + MdLright) * MLleft
                             + MLright * (dMLleft + MdLleft))
                 else:
                     for i in range(len(paramvalue)):
-                        dMLright = scipy.sum(self.model.dM(tright, param)[i] * 
-                                self.L[nright][:, None, :], axis=2)
+                        dMLright = broadcastMatrixVectorMultiply(
+                                self.model.dM(tright, param)[i], self.L[nright])
                         if istipr:
                             MdLright = 0
                         else:
-                            MdLright = scipy.sum(Mright * 
-                                    self.dL[param][nrighti][i][:, None, :],
-                                    axis=2)
-                        dMLleft = scipy.sum(self.model.dM(tleft, param)[i] * 
-                                self.L[nleft][:, None, :], axis=2)
+                            MdLright = broadcastMatrixVectorMultiply(Mright,
+                                    self.dL[param][nrighti][i])
+                        dMLleft = broadcastMatrixVectorMultiply(
+                                self.model.dM(tleft, param)[i], self.L[nleft])
                         if istipl:
                             MdLleft = 0
                         else:
-                            MdLleft = scipy.sum(Mleft * 
-                                    self.dL[param][nlefti][i][:, None, :],
-                                    axis=2)
+                            MdLleft = broadcastMatrixVectorMultiply(Mleft,
+                                    self.dL[param][nlefti][i])
                         scipy.copyto(self.dL[param][ni][i], (dMLright + MdLright)
                                 * MLleft + MLright * (dMLleft + MdLleft))
+
+
+def broadcastMatrixVectorMultiply(m, v):
+    """Broadcast matrix vector multiplication.
+
+    This function broadcasts matrix vector multiplication using `scipy`,
+    following the approach described here:
+    http://stackoverflow.com/questions/26849910/numpy-matrix-multiplication-broadcast
+
+    Args:
+        `m` (`numpy.ndarray`, shape `(d1, d2, d2)`)
+            Array of square matrices to multiply.
+        `v` (`numpy.ndarray`, shape `(d1, d2)`)
+            Array of vectors to multiply.
+
+    Returns:
+        `mv` (`numpy.ndarray`, shape `(d1, d2)`)
+            `mv[r]` is the matrix-vector product of `m[r]` with
+            `v[r]` for 0 <= `r` <= `d1`.
+
+    >>> m = scipy.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 8], [7, 6]]])
+    >>> v = scipy.array([[1, 2], [3, 4], [1, 3]])
+    >>> mv = scipy.ndarray(v.shape, dtype='int')
+    >>> for r in range(v.shape[0]):
+    ...   for x in range(v.shape[1]):
+    ...      mvrx = 0
+    ...      for y in range(v.shape[1]):
+    ...        mvrx += m[r][x][y] * v[r][y]
+    ...      mv[r][x] = mvrx
+    >>> mv2 = broadcastMatrixVectorMultiply(m, v)
+    >>> mv.shape == mv2.shape
+    True
+    >>> scipy.allclose(mv, mv2)
+    True
+    """
+    assert len(m.shape) == 3 and (m.shape[1] == m.shape[2])
+    assert len(v.shape) == 2 and (v.shape[0] == m.shape[0]) and (v.shape[1]
+            == m.shape[1])
+    return scipy.sum(m * v[:, None, :], axis=2)
+
 
 
 if __name__ == '__main__':
