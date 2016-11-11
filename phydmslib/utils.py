@@ -2,10 +2,11 @@
 
 
 import math
+import scipy
 
 
 def BenjaminiHochbergCorrection(pvals, fdr):
-    """Implements Benjamini-Hochberg procedure to control false discovery rate.
+    """Benjamini-Hochberg procedure to control false discovery rate.
 
     Calling arguments:
  
@@ -49,6 +50,51 @@ def BenjaminiHochbergCorrection(pvals, fdr):
             significantlabels.append(label)
 
     return (pcutoff, significantlabels)
+
+
+
+def broadcastMatrixVectorMultiply(m, v):
+    """Broadcast matrix vector multiplication.
+
+    This function broadcasts matrix vector multiplication using `scipy`,
+    following the approach described here:
+    http://stackoverflow.com/questions/26849910/numpy-matrix-multiplication-broadcast
+
+    Args:
+        `m` (`numpy.ndarray`, shape `(d1, d2, d2)`)
+            Array of square matrices to multiply.
+        `v` (`numpy.ndarray`, shape `(d1, d2)`)
+            Array of vectors to multiply.
+
+    Returns:
+        `mv` (`numpy.ndarray`, shape `(d1, d2)`)
+            `mv[r]` is the matrix-vector product of `m[r]` with
+            `v[r]` for 0 <= `r` <= `d1`.
+
+    >>> m = scipy.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 8], [7, 6]]])
+    >>> v = scipy.array([[1, 2], [3, 4], [1, 3]])
+    >>> mv = scipy.ndarray(v.shape, dtype='int')
+    >>> for r in range(v.shape[0]):
+    ...   for x in range(v.shape[1]):
+    ...      mvrx = 0
+    ...      for y in range(v.shape[1]):
+    ...        mvrx += m[r][x][y] * v[r][y]
+    ...      mv[r][x] = mvrx
+    >>> mv2 = broadcastMatrixVectorMultiply(m, v)
+    >>> mv.shape == mv2.shape
+    True
+    >>> scipy.allclose(mv, mv2)
+    True
+    """
+    assert len(m.shape) == 3 and (m.shape[1] == m.shape[2])
+    assert len(v.shape) == 2 and (v.shape[0] == m.shape[0]) and (v.shape[1]
+            == m.shape[1])
+    return scipy.sum(m * v[:, None, :], axis=2)
+
+
+def broadcastGetCols(m):
+    raise RuntimeError('not yet implemented')
+
 
 if __name__ == '__main__':
     import doctest

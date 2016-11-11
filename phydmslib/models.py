@@ -12,6 +12,7 @@ import six
 import abc
 import scipy
 import scipy.linalg
+from phydmslib.utils import broadcastMatrixVectorMultiply, broadcastGetCols
 from phydmslib.constants import *
 
 
@@ -49,22 +50,41 @@ class Model(six.with_metaclass(abc.ABCMeta)):
         pass
 
     @abc.abstractmethod
-    def M(self, t):
+    def M(self, t, tips=None, gaps=None):
         """Matrix exponential `M(mu * t) = exp(mu * t * P)`.
+
+        If we are considering branch to tip node, you can use
+        `tips` and `gaps` to get only the column needed for
+        likelihood calculation. This is computationally cheaper.
        
         Args:
             `t` (float > 0)
                 The branch length.
+            `tips` (`None` or `numpy.ndarray` of `int`, length `nsites`)
+                If `None`, return the full matrix exponential.
+                Otherwise, should be an array with element `r`
+                giving the codon at tip node `r` (just put 0
+                if codon is a gap and see `gaps` below).
+            `gaps` (`None` or `numpy.ndarray` of `int`)
+                Only meaningful if using `tips`. In this case,
+                array should list `r` for all sites where tip
+                node codon is a gap. `None` is equivalent to 
+                no gaps (also can be empty array).
 
         Returns:
-            `M` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
-                `M(t)[r][x][y]` is probability `r` changes from `x` to `y`
-                in time `t`.
+            `M` (`numpy.ndarray` of floats)
+                If not using `tips`, shape is `(nsites, N_CODON, N_CODON)`
+                    with `M(t)[r][x][y]` probability `r` changes from `x`
+                    to `y` in time `t`.
+                If using `tips`, shape is `(nsites, N_CODON)` with
+                    `M(t)[r][x] probability r changes from `x` to `tips[r]`
+                    in time `t`. If `r` is in `gap`, then `M(t)[r][x]` is
+                    one.
         """
         pass
 
     @abc.abstractmethod
-    def dM(self, t, param):
+    def dM(self, t, param, Mt):
         """Derivative of `M(t)` with respect to `param`.
 
         Args:
@@ -72,6 +92,10 @@ class Model(six.with_metaclass(abc.ABCMeta)):
                 The branch length.
             `param` (string in `freeparams`)
                 Differentiate with respect to this model parameter.
+            `M` (`numpy.ndarray`)
+                The current value of `M(t)`. Typically this has
+                already been pre-computed which is why it is passed
+                here to avoid computing again.
 
         Returns:
             `dM_param` (`numpy.ndarray` floats)
@@ -377,8 +401,6 @@ class ExpCM(Model):
         # indexes diagonals in square matrices
         self._diag_indices = scipy.diag_indices(N_CODON)
 
-        self._cached_M = {} # caches results of calls to M
-        self._cached_dM = {} # caches results of calls to dM
         self.updateParams({}, update_all=True)
 
     @property
@@ -454,38 +476,32 @@ class ExpCM(Model):
             self._update_dprx()
 
         if update_all or (changed and changed != set(['mu'])):
-            self._cached_M = {}
-            self._cached_dM = {}
             self._update_Prxy()
             self._update_Prxy_diag()
             self._update_dPrxy()
             self._update_B()
-        elif changed: # only changed mu
-            self._cached_M = {}
-            self._cached_dM = {}
 
-    def M(self, t):
+    def M(self, t, tips=None, gaps=None):
         """See docs for method in `Model` abstract base class."""
-        if t in self._cached_M:
-            return self._cached_M[t]
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
-        # swap axes commands allow broadcasting to multiply D like diagonal matrix
         with scipy.errstate(under='ignore'): # don't worry if some values are 0
-            M = scipy.matmul((self.A.swapaxes(0, 1) * scipy.exp(self.D 
-                * self.mu * t)).swapaxes(1, 0), self.Ainv)
-        self._cached_M[t] = M
+            if tips == None:
+                # swap axes to broadcast multiply D as diagonal matrix
+                M = scipy.matmul((self.A.swapaxes(0, 1) * scipy.exp(self.D 
+                    * self.mu * t)).swapaxes(1, 0), self.Ainv)
+            else:
+                assert (tips.shape == (self.nsites,)) and tips.dtype == 'int'
+                M = broadcastMatrixVectorMultiply((self.A.swapaxes(0, 1)
+                        * scipy.exp(self.D * self.mu * t)).swapaxes(1, 0),
+                        broadcastGetCols(self.Ainv, r))
         return M
 
-    def dM(self, t, param):
+    def dM(self, t, param, Mt):
         """See docs for method in `Model` abstract base class."""
-        key = (t, param)
-        if key in self._cached_dM:
-            return self._cached_dM[key]
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         assert param in self.freeparams, "Invalid param: {0}".format(param)
         if param == 'mu':
-            dM_param = t * scipy.matmul(self.Prxy, self.M(t))
-            self._cached_dM[key] = dM_param
+            dM_param = t * scipy.matmul(self.Prxy, Mt)
             return dM_param
         mut = self.mu * t
         with scipy.errstate(divide='raise', under='ignore', over='raise',
@@ -497,7 +513,6 @@ class ExpCM(Model):
                     scipy.fabs(self.Dxx_Dyy) < ALMOST_ZERO)
             dM_param = scipy.matmul(self.A, scipy.matmul(self.B[param] * V, 
                     self.Ainv))
-        self._cached_dM[key] = dM_param
         return dM_param
 
     def _update_phi(self):
