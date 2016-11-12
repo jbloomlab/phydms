@@ -84,7 +84,7 @@ class Model(six.with_metaclass(abc.ABCMeta)):
         pass
 
     @abc.abstractmethod
-    def dM(self, t, param, Mt):
+    def dM(self, t, param, Mt, tips=None, gaps=None):
         """Derivative of `M(t)` with respect to `param`.
 
         Args:
@@ -92,18 +92,24 @@ class Model(six.with_metaclass(abc.ABCMeta)):
                 The branch length.
             `param` (string in `freeparams`)
                 Differentiate with respect to this model parameter.
-            `M` (`numpy.ndarray` or `None`.)
-                The current value of `M(t)`. Typically this has
-                already been pre-computed which is why it is passed
+            `Mt` (`numpy.ndarray`.)
+                The current value of `M(t, tips, gaps)`. Typically this
+                has already been pre-computed which is why it is passed
                 here to avoid computing again. Otherwise pass
                 `None` and it will be re-computed.
+            `tips` and `gaps`
+                Same meaning as for `M`.
 
         Returns:
             `dM_param` (`numpy.ndarray` floats)
-                If `param` is a float, then `dM_param[r][x][y]` is 
-                derivative of `M(t)[r][x][y]` with respect to `param`.
-                If `param` is an array, then `dM_param[i][r][x][y]`
-                is derivative of `M(t)[r][x][y]` with respect to
+                If `param` is a float, then `dM_param[r][x][y]` 
+                is derivative of `M(t)[r][x][y]` with respect to 
+                `param`. If `param` is an array, then 
+                `dM_param[i][r][x][y]` is derivative of `M(t)[r][x][y]`
+                with respect to `param[i]`. If using `tips`, then
+                `dM_param[r]` or `dM_params[i][r]` is only a 
+                single array providing the derivative of
+                `M(t, tips, gaps)[r]` with respect to `param` or
                 `param[i]`.
         """
         pass
@@ -498,15 +504,17 @@ class ExpCM(Model):
                     M[gaps] = scipy.ones(N_CODON, dtype='float')
         return M
 
-    def dM(self, t, param, Mt):
+    def dM(self, t, param, Mt, tips=None, gaps=None):
         """See docs for method in `Model` abstract base class."""
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         assert param in self.freeparams, "Invalid param: {0}".format(param)
         if param == 'mu':
-            if Mt is None:
-                dM_param = t * scipy.matmul(self.Prxy, self.M(t))
-            else:
+            if tips is None:
                 dM_param = t * scipy.matmul(self.Prxy, Mt)
+            else:
+                dM_param = t * broadcastMatrixVectorMultiply(self.Prxy, Mt)
+                if gaps is not None:
+                    dM_param[gaps] = scipy.zeros(N_CODON, dtype='float')
             return dM_param
         mut = self.mu * t
         with scipy.errstate(divide='raise', under='ignore', over='raise',
@@ -516,8 +524,18 @@ class ExpCM(Model):
         with scipy.errstate(under='ignore'): # don't worry if some values are 0
             scipy.copyto(V, mut * scipy.exp(mut * self.Dxx), where=
                     scipy.fabs(self.Dxx_Dyy) < ALMOST_ZERO)
-            dM_param = scipy.matmul(self.A, scipy.matmul(self.B[param] * V, 
-                    self.Ainv))
+            if tips is None:
+                dM_param = scipy.matmul(self.A, scipy.matmul(self.B[param]
+                        * V, self.Ainv))
+            else:
+                dM_param = broadcastMatrixVectorMultiply(self.A,
+                        broadcastGetCols(scipy.matmul(self.B[param] * V, 
+                        self.Ainv), tips))
+                if gaps is not None:
+                    if len(dM_param.shape) == 2:
+                        dM_param[gaps] = scipy.zeros(N_CODON, dtype='float')
+                    else:
+                        dM_param[:, gaps] = scipy.zeros(N_CODON, dtype='float')
         return dM_param
 
     def _update_phi(self):

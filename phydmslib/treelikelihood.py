@@ -403,16 +403,14 @@ class TreeLikelihood:
             tright = self.t[nright]
             tleft = self.t[nleft]
             if istipr:
-                Mright = None
-                MLright = self.model.M(tright, self.tips[nright], 
+                Mright = MLright = self.model.M(tright, self.tips[nright], 
                         self.gaps[nright])
             else:
                 Mright = self.model.M(tright)
                 MLright = broadcastMatrixVectorMultiply(Mright, 
                         self.L[nrighti])
             if istipl:
-                Mleft = None
-                MLleft = self.model.M(tleft, self.tips[nleft], 
+                Mleft = MLleft = self.model.M(tleft, self.tips[nleft], 
                         self.gaps[nleft])
             else:
                 Mleft = self.model.M(tleft)
@@ -425,15 +423,19 @@ class TreeLikelihood:
                 else:
                     # need to sub-index calculations for each param element
                     indices = [(j,) for j in range(len(paramvalue))]
-                dMright = self.model.dM(tright, param, Mright)
-                dMleft = self.model.dM(tleft, param, Mleft)
+                if istipr:
+                    dMright = self.model.dM(tright, param, Mright, 
+                            self.tips[nright], self.gaps[nright])
+                else:
+                    dMright = self.model.dM(tright, param, Mright)
+                if istipl:
+                    dMleft = self.model.dM(tleft, param, Mleft, 
+                            self.tips[nleft], self.gaps[nleft])
+                else:
+                    dMleft = self.model.dM(tleft, param, Mleft)
                 for j in indices:
                     if istipr:
-                        x = scipy.zeros((self.nsites, N_CODON), dtype='float')
-                        for (r, codon) in enumerate(self.tips[nright]):
-                            x[r][codon] = 1.0
-                        dMLright = broadcastMatrixVectorMultiply(
-                                dMright[j], x)
+                        dMLright = dMright[j]
                         MdLright = 0
                     else:
                         dMLright = broadcastMatrixVectorMultiply(
@@ -441,11 +443,7 @@ class TreeLikelihood:
                         MdLright = broadcastMatrixVectorMultiply(Mright,
                                 self.dL[param][nrighti][j])
                     if istipl:
-                        x = scipy.zeros((self.nsites, N_CODON), dtype='float')
-                        for (r, codon) in enumerate(self.tips[nleft]):
-                            x[r][codon] = 1.0
-                        dMLleft = broadcastMatrixVectorMultiply(
-                                dMleft[j], x)
+                        dMLleft = dMleft[j]
                         MdLleft = 0
                     else:
                         dMLleft = broadcastMatrixVectorMultiply(

@@ -71,6 +71,9 @@ def broadcastMatrixVectorMultiply(m, v):
             `mv[r]` is the matrix-vector product of `m[r]` with
             `v[r]` for 0 <= `r` <= `d1`.
 
+    Also can broadcast the case where `v` has an extra dimension preceding
+    `(d1, d2)`.
+
     >>> m = scipy.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 8], [7, 6]]])
     >>> v = scipy.array([[1, 2], [3, 4], [1, 3]])
     >>> mv = scipy.ndarray(v.shape, dtype='int')
@@ -87,9 +90,15 @@ def broadcastMatrixVectorMultiply(m, v):
     True
     """
     assert len(m.shape) == 3 and (m.shape[1] == m.shape[2])
-    assert len(v.shape) == 2 and (v.shape[0] == m.shape[0]) and (v.shape[1]
-            == m.shape[1])
-    return scipy.sum(m * v[:, None, :], axis=2)
+    if len(v.shape) == 2:
+        assert (v.shape[0] == m.shape[0]) and (v.shape[1] == m.shape[1])
+        return scipy.sum(m * v[:, None, :], axis=2)
+    elif len(v.shape) == 3:
+        assert (v.shape[1] == m.shape[0]) and (v.shape[2] == m.shape[1])
+        mv = []
+        for i in range(v.shape[0]):
+            mv.append(scipy.sum(m * v[i][:, None, :], axis=2))
+        return scipy.array(mv)
 
 
 def broadcastGetCols(m, cols):
@@ -107,6 +116,9 @@ def broadcastGetCols(m, cols):
         `mcols` (`numpy.ndarray`, shape `(r, n)`)
             `mcols[r]` is equal to `mcols[r][cols[r]]`
 
+    Also can broadcast the case where `m` has an extra
+    dimension preceding the `(r, n, n)`.
+
     >>> n = 2
     >>> r = 3
     >>> m = scipy.arange(r * n * n).reshape(r, n, n)
@@ -114,12 +126,38 @@ def broadcastGetCols(m, cols):
     >>> expected = scipy.array([m[i][:, cols[i]] for i in range(r)])
     >>> scipy.allclose(expected, broadcastGetCols(m, cols))
     True
+
+    >>> d = 2
+    >>> n = 2
+    >>> r = 3
+    >>> m = scipy.arange(d * r * n * n).reshape(d, r, n, n)
+    >>> cols = scipy.random.random_integers(0, n - 1, r)
+    >>> expected = []
+    >>> for i in range(d):
+    ...   expected.append([m[i][j][:, cols[j]] for j in range(r)])
+    >>> expected = scipy.array(expected)
+    >>> expected.shape == (d, r, n)
+    True
+    >>> actual = broadcastGetCols(m, cols)
+    >>> actual.shape == (d, r, n)
+    True
+    >>> scipy.allclose(expected, actual)
+    True
     """
     assert cols.dtype == 'int'
-    (r, nx, ny) = m.shape
-    assert nx == ny
-    assert cols.shape == (r,)
-    return m[scipy.arange(r), :, cols]
+    if len(m.shape) == 3:
+        (r, nx, ny) = m.shape
+        assert nx == ny
+        assert cols.shape == (r,)
+        return m[scipy.arange(r), :, cols]
+    else:
+        (d, r, nx, ny) = m.shape
+        assert nx == ny
+        assert cols.shape == (r,)
+        mcols = []
+        for i in range(d):
+            mcols.append(m[i][scipy.arange(r), :, cols])
+        return scipy.array(mcols)
 
 
 if __name__ == '__main__':
