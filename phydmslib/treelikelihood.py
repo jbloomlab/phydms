@@ -78,6 +78,13 @@ class TreeLikelihood:
             Total number of internal nodes in `tree`.
         `ntips` (int)
             Total number of tip nodes in `tree`.
+        `tips` (`numpy.ndarray` of `int`, shape `(ntips, nsites)`)
+            `tips[n][r]` is the index of the codon at site `r`
+            for tip node `n` (0 <= `n` < `ntips`). If `tips[n][r]` is 
+            a gap, then `tips[n][r]` is 0 and `r` is in `gaps[n]`.
+        `gaps` (`numpy.array`, length `ntips`, entries `numpy.array` of `int`)
+            `gaps[n]` is an array containing all sites where the codon is
+            a gap for tip node `n` (0 <= `n` < `ntips`).
         `name_to_nodeindex` (`dict`)
             For each sequence name (these are headers in `alignmnent`, 
             tip names in `tree`), `name_to_nodeindex[name]` is the `int`
@@ -91,15 +98,16 @@ class TreeLikelihood:
             to the root node (which has index `nnodes - 1`) is undefined
             and not used, which is why `t` is of length `nnodes - 1` rather
             than `nnodes`.
-        `L` (`numpy.ndarray` of `float`, shape `(nnodes, nsites, N_CODON)`)
-            `L[n][r][x]` is the partial conditional likelihood of codon 
-            `x` at site `r` at node `n`.
+        `L` (`numpy.ndarray` of `float`, shape `(ninternal, nsites, N_CODON)`)
+            `L[n - ntips][r][x]` is the partial conditional likelihood of
+            codon `x` at site `r` at internal node `n`.
         `dL` (`dict` keyed by strings, values `numpy.ndarray` of `float`)
             For each free model parameter `param` in `model.freeparam`, 
             `dL[param]` is derivative of `L` with respect to `param`.
             If `param` is float, `dL[param][n - ntips][r][x]` is derivative
-            of `L[n][r][x]` with respect to `param`. If `param` is an array,
-            `dL[param][n - ntips][i][r][x]` is derivative of `L[n][r][x]` 
+            of `L[n - ntips][r][x]` with respect to `param`. If `param` is 
+            array, `dL[param][n - ntips][i][r][x]` is derivative of 
+            `L[n][r][x]` with respect to `param[i]`.
             with respect to `param[i]`.
     """
 
@@ -136,7 +144,8 @@ class TreeLikelihood:
         self.rdescend = [-1] * self.ninternal
         self.ldescend = [-1] * self.ninternal
         self.t = [-1] * (self.nnodes - 1)
-        self.L = scipy.full((self.nnodes, self.nsites, N_CODON), -1, dtype='float')
+        self.L = scipy.full((self.ninternal, self.nsites, N_CODON), -1, 
+                dtype='float')
         self.dL = {}
         for param in self.model.freeparams:
             paramvalue = getattr(self.model, param)
@@ -150,32 +159,33 @@ class TreeLikelihood:
             else:
                 raise ValueError("Cannot handle param: {0}, {1}".format(
                         param, paramvalue))
-        tips = []
-        internals = []
+        tipnodes = []
+        internalnodes = []
+        self.tips = scipy.zeros((self.ntips, self.nsites), dtype='int')
+        self.gaps = []
         for node in self.tree.find_clades(order='postorder'):
             if node.is_terminal():
-                tips.append(node)
+                tipnodes.append(node)
             else:
-                internals.append(node)
-        for (n, node) in enumerate(tips + internals):
+                internalnodes.append(node)
+        for (n, node) in enumerate(tipnodes + internalnodes):
             if node != self.tree.root:
                 assert n < self.nnodes - 1
                 self.t[n] = node.branch_length
             if node.is_terminal():
                 assert n < self.ntips
                 seq = alignment_d[node.name]
+                nodegaps = []
                 for r in range(self.nsites):
                     codon = seq[3 * r : 3 * r + 3]
                     if codon == '---':
-                        scipy.copyto(self.L[n][r], scipy.ones(N_CODON, 
-                                dtype='float'))
+                        nodegaps.append(r)
                     elif codon in CODON_TO_INDEX:
-                        scipy.copyto(self.L[n][r], scipy.zeros(N_CODON, 
-                                dtype='float'))
-                        self.L[n][r][CODON_TO_INDEX[codon]] = 1.0
+                        self.tips[n][r] = CODON_TO_INDEX[codon]
                     else:
                         raise ValueError("Bad codon {0} in {1}".format(codon, 
                                 node.name))
+                self.gaps.append(scipy.array(nodegaps, dtype='int'))
             else:
                 assert n >= self.ntips, "n = {0}, ntips = {1}".format(
                         n, self.ntips)
@@ -186,6 +196,8 @@ class TreeLikelihood:
                 self.rdescend[ni] = self.name_to_nodeindex[node.clades[0]]
                 self.ldescend[ni] = self.name_to_nodeindex[node.clades[1]]
             self.name_to_nodeindex[node] = n
+        self.gaps = scipy.array(self.gaps)
+        assert len(self.gaps) == self.ntips
 
         # _index_to_param defines internal mapping of
         # `paramsarray` indices and parameters
@@ -378,23 +390,34 @@ class TreeLikelihood:
             ni = n - self.ntips # internal node number
             nright = self.rdescend[ni]
             nleft = self.ldescend[ni]
+            nrighti = nright - self.ntips # internal node number
+            nlefti = nleft - self.ntips # internal node number
             if nright < self.ntips:
                 istipr = True
             else:
                 istipr = False
-                nrighti = nright - self.ntips # internal node number
             if nleft < self.ntips:
                 istipl = True
             else:
                 istipl = False
-                nlefti = nleft - self.ntips # internal node number
             tright = self.t[nright]
             tleft = self.t[nleft]
-            Mright = self.model.M(tright)
-            Mleft = self.model.M(tleft)
-            MLright = broadcastMatrixVectorMultiply(Mright, self.L[nright])
-            MLleft = broadcastMatrixVectorMultiply(Mleft, self.L[nleft])
-            scipy.copyto(self.L[n], MLright * MLleft)
+            if istipr:
+                Mright = None
+                MLright = self.model.M(tright, self.tips[nright], 
+                        self.gaps[nright])
+            else:
+                Mright = self.model.M(tright)
+                MLright = broadcastMatrixVectorMultiply(Mright, 
+                        self.L[nrighti])
+            if istipl:
+                Mleft = None
+                MLleft = self.model.M(tleft, self.tips[nleft], 
+                        self.gaps[nleft])
+            else:
+                Mleft = self.model.M(tleft)
+                MLleft = broadcastMatrixVectorMultiply(Mleft, self.L[nlefti])
+            scipy.copyto(self.L[ni], MLright * MLleft)
             for param in self.model.freeparams:
                 paramvalue = getattr(self.model, param)
                 if isinstance(paramvalue, float):
@@ -405,18 +428,28 @@ class TreeLikelihood:
                 dMright = self.model.dM(tright, param, Mright)
                 dMleft = self.model.dM(tleft, param, Mleft)
                 for j in indices:
-                    dMLright = broadcastMatrixVectorMultiply(
-                            dMright[j], self.L[nright])
                     if istipr:
+                        x = scipy.zeros((self.nsites, N_CODON), dtype='float')
+                        for (r, codon) in enumerate(self.tips[nright]):
+                            x[r][codon] = 1.0
+                        dMLright = broadcastMatrixVectorMultiply(
+                                dMright[j], x)
                         MdLright = 0
                     else:
+                        dMLright = broadcastMatrixVectorMultiply(
+                                dMright[j], self.L[nrighti])
                         MdLright = broadcastMatrixVectorMultiply(Mright,
                                 self.dL[param][nrighti][j])
-                    dMLleft = broadcastMatrixVectorMultiply(
-                            dMleft[j], self.L[nleft])
                     if istipl:
+                        x = scipy.zeros((self.nsites, N_CODON), dtype='float')
+                        for (r, codon) in enumerate(self.tips[nleft]):
+                            x[r][codon] = 1.0
+                        dMLleft = broadcastMatrixVectorMultiply(
+                                dMleft[j], x)
                         MdLleft = 0
                     else:
+                        dMLleft = broadcastMatrixVectorMultiply(
+                                dMleft[j], self.L[nlefti])
                         MdLleft = broadcastMatrixVectorMultiply(Mleft,
                                 self.dL[param][nlefti][j])
                     scipy.copyto(self.dL[param][ni][j], (dMLright + MdLright)

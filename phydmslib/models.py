@@ -92,10 +92,11 @@ class Model(six.with_metaclass(abc.ABCMeta)):
                 The branch length.
             `param` (string in `freeparams`)
                 Differentiate with respect to this model parameter.
-            `M` (`numpy.ndarray`)
+            `M` (`numpy.ndarray` or `None`.)
                 The current value of `M(t)`. Typically this has
                 already been pre-computed which is why it is passed
-                here to avoid computing again.
+                here to avoid computing again. Otherwise pass
+                `None` and it will be re-computed.
 
         Returns:
             `dM_param` (`numpy.ndarray` floats)
@@ -485,15 +486,16 @@ class ExpCM(Model):
         """See docs for method in `Model` abstract base class."""
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         with scipy.errstate(under='ignore'): # don't worry if some values are 0
-            if tips == None:
+            if tips is None:
                 # swap axes to broadcast multiply D as diagonal matrix
                 M = scipy.matmul((self.A.swapaxes(0, 1) * scipy.exp(self.D 
                     * self.mu * t)).swapaxes(1, 0), self.Ainv)
             else:
-                assert (tips.shape == (self.nsites,)) and tips.dtype == 'int'
                 M = broadcastMatrixVectorMultiply((self.A.swapaxes(0, 1)
                         * scipy.exp(self.D * self.mu * t)).swapaxes(1, 0),
-                        broadcastGetCols(self.Ainv, r))
+                        broadcastGetCols(self.Ainv, tips))
+                if gaps is not None:
+                    M[gaps] = scipy.ones(N_CODON, dtype='float')
         return M
 
     def dM(self, t, param, Mt):
@@ -501,7 +503,10 @@ class ExpCM(Model):
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         assert param in self.freeparams, "Invalid param: {0}".format(param)
         if param == 'mu':
-            dM_param = t * scipy.matmul(self.Prxy, Mt)
+            if Mt is None:
+                dM_param = t * scipy.matmul(self.Prxy, self.M(t))
+            else:
+                dM_param = t * scipy.matmul(self.Prxy, Mt)
             return dM_param
         mut = self.mu * t
         with scipy.errstate(divide='raise', under='ignore', over='raise',

@@ -92,8 +92,34 @@ def broadcastMatrixVectorMultiply(m, v):
     return scipy.sum(m * v[:, None, :], axis=2)
 
 
-def broadcastGetCols(m):
-    raise RuntimeError('not yet implemented')
+def broadcastGetCols(m, cols):
+    """Get specified columns from `ndarray` of square `ndarrays`.
+
+    This functions uses fast `numpy` broadcasting to get the
+    columns from a long array of arrays.
+
+    Args:
+        `m` (`numpy.ndarray`, shape `(r, n, n)`
+        `cols` (`numpy.ndarray`, type `int`, length `r`)
+            All entries should be >= 0 and < `n`.
+
+    Returns:
+        `mcols` (`numpy.ndarray`, shape `(r, n)`)
+            `mcols[r]` is equal to `mcols[r][cols[r]]`
+
+    >>> n = 2
+    >>> r = 3
+    >>> m = scipy.arange(r * n * n).reshape(r, n, n)
+    >>> cols = scipy.random.random_integers(0, n - 1, r)
+    >>> expected = scipy.array([m[i][:, cols[i]] for i in range(r)])
+    >>> scipy.allclose(expected, broadcastGetCols(m, cols))
+    True
+    """
+    assert cols.dtype == 'int'
+    (r, nx, ny) = m.shape
+    assert nx == ny
+    assert cols.shape == (r,)
+    return m[scipy.arange(r), :, cols]
 
 
 if __name__ == '__main__':
