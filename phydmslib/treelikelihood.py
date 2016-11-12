@@ -6,6 +6,7 @@ using the indexing schemes defined in `phydmslib.constants`.
 
 
 import sys
+import multiprocessing
 import scipy
 import scipy.optimize
 import Bio.Phylo
@@ -40,6 +41,8 @@ class TreeLikelihood:
         `alignment` (list of 2-tuples of strings, `(head, seq)`)
             Aligned protein-coding codon sequences. Headers match
             tip names in `tree`; sequences contain `nsites` codons.
+        `ncpus` (int >= 1)
+            The number of CPUs to use.
         `paramsarray` (`numpy.ndarray` of floats, 1-dimensional)
             An array of all of the free parameters. You can directly
             assign to `paramsarray`, and the correct parameters will
@@ -111,7 +114,7 @@ class TreeLikelihood:
             with respect to `param[i]`.
     """
 
-    def __init__(self, tree, alignment, model):
+    def __init__(self, tree, alignment, model, ncpus=1):
         """Initialize a `TreeLikelihood` object.
 
         Args:
@@ -135,6 +138,9 @@ class TreeLikelihood:
         assert isinstance(tree, Bio.Phylo.BaseTree.Tree), "invalid tree"
         self.tree = tree
         assert self.tree.count_terminals() == self.nseqs
+
+        assert isinstance(ncpus, int) and ncpus >= 1, "invalid ncpus"
+        self.ncpus = ncpus
 
         # index nodes
         self.name_to_nodeindex = {}
@@ -385,7 +391,20 @@ class TreeLikelihood:
                 self.dloglik[param] = scipy.sum(self.dsiteloglik[param], axis=-1)
 
     def _computePartialLikelihoods(self):
-        """Update `L`."""
+        """Update `L` and `dL`."""
+        # first compute L
+        istipr_list = []
+        istipl_list = []
+        tright_list = []
+        tleft_list = []
+        Mright_list = [] 
+        Mleft_list = []
+        nright_list = []
+        nleft_list = []
+        nrighti_list = []
+        nlefti_list = []
+        MLright_list = []
+        MLleft_list = []
         for n in range(self.ntips, self.nnodes):
             ni = n - self.ntips # internal node number
             nright = self.rdescend[ni]
@@ -416,42 +435,81 @@ class TreeLikelihood:
                 Mleft = self.model.M(tleft)
                 MLleft = broadcastMatrixVectorMultiply(Mleft, self.L[nlefti])
             scipy.copyto(self.L[ni], MLright * MLleft)
-            for param in self.model.freeparams:
-                paramvalue = getattr(self.model, param)
-                if isinstance(paramvalue, float):
-                    indices = [()] # no sub-indexing needed
-                else:
-                    # need to sub-index calculations for each param element
-                    indices = [(j,) for j in range(len(paramvalue))]
-                if istipr:
-                    dMright = self.model.dM(tright, param, Mright, 
-                            self.tips[nright], self.gaps[nright])
-                else:
-                    dMright = self.model.dM(tright, param, Mright)
-                if istipl:
-                    dMleft = self.model.dM(tleft, param, Mleft, 
-                            self.tips[nleft], self.gaps[nleft])
-                else:
-                    dMleft = self.model.dM(tleft, param, Mleft)
-                for j in indices:
-                    if istipr:
-                        dMLright = dMright[j]
-                        MdLright = 0
-                    else:
-                        dMLright = broadcastMatrixVectorMultiply(
-                                dMright[j], self.L[nrighti])
-                        MdLright = broadcastMatrixVectorMultiply(Mright,
-                                self.dL[param][nrighti][j])
-                    if istipl:
-                        dMLleft = dMleft[j]
-                        MdLleft = 0
-                    else:
-                        dMLleft = broadcastMatrixVectorMultiply(
-                                dMleft[j], self.L[nlefti])
-                        MdLleft = broadcastMatrixVectorMultiply(Mleft,
-                                self.dL[param][nlefti][j])
-                    scipy.copyto(self.dL[param][ni][j], (dMLright + MdLright)
-                            * MLleft + MLright * (dMLleft + MdLleft))
+            # now copy to lists used for dL computation
+            istipr_list.append(istipr)
+            istipl_list.append(istipl)
+            tright_list.append(tright)
+            tleft_list.append(tleft)
+            Mright_list.append(Mright)
+            Mleft_list.append(Mleft)
+            nright_list.append(nright)
+            nleft_list.append(nleft)
+            nrighti_list.append(nrighti)
+            nlefti_list.append(nlefti)
+            MLright_list.append(MLright)
+            MLleft_list.append(MLleft)
+
+        # now compute dL for each param
+        for param in self.model.freeparams:
+            paramvalue = getattr(self.model, param)
+            if isinstance(paramvalue, float):
+                indices = [()] # no sub-indexing needed
+            else:
+                # need to sub-index calculations for each param element
+                indices = [(j,) for j in range(len(paramvalue))]
+            self.dL[param] = _compute_dL(self.ninternal, self.nsites,
+                    self.model, param, indices, self.L, self.tips, self.gaps,
+                    istipr_list, istipl_list, tright_list, tleft_list,
+                    Mright_list, Mleft_list, nright_list, nleft_list,
+                    nrighti_list, nlefti_list, MLright_list, MLleft_list)
+
+
+def _compute_dL(ninternal, nsites, model, param, indices, L, tips, gaps,
+        istipr_list, istipl_list, tright_list, tleft_list, Mright_list,
+        Mleft_list, nright_list, nleft_list, nrighti_list, nlefti_list,
+        MLright_list, MLleft_list):
+    """Computes `dL`.
+
+    Defined as separate function rather than within
+    the `_computePartialLikelihoods` method of `TreeLikelihood`
+    to enable use with `multiprocessing`.
+    """
+    if len(indices) == 1:
+        dLparam = scipy.ndarray((ninternal, nsites, N_CODON), dtype='float')
+    else:
+        dLparam = scipy.ndarray((ninternal, len(indices), nsites, N_CODON),
+                dtype='float')
+    for ni in range(ninternal):
+        if istipr_list[ni]:
+            dMright = model.dM(tright_list[ni], param, Mright_list[ni], 
+                    tips[nright_list[ni]], gaps[nright_list[ni]])
+        else:
+            dMright = model.dM(tright_list[ni], param, Mright_list[ni])
+        if istipl_list[ni]:
+            dMleft = model.dM(tleft_list[ni], param, Mleft_list[ni], 
+                    tips[nleft_list[ni]], gaps[nleft_list[ni]])
+        else:
+            dMleft = model.dM(tleft_list[ni], param, Mleft_lift[ni])
+        for j in indices:
+            if istipr_list[ni]:
+                dMLright = dMright[j]
+                MdLright = 0
+            else:
+                dMLright = broadcastMatrixVectorMultiply(
+                        dMright[j], L[nrighti_list[ni]])
+                MdLright = broadcastMatrixVectorMultiply(Mright_list[ni],
+                        dLparam[nrighti_list[ni]][j])
+            if istipl_list[ni]:
+                dMLleft = dMleft[j]
+                MdLleft = 0
+            else:
+                dMLleft = broadcastMatrixVectorMultiply(
+                        dMleft[j], L[nlefti_list[ni]])
+                MdLleft = broadcastMatrixVectorMultiply(Mleft_list[ni],
+                        dL[nlefti_list[ni]][j])
+            dLparam[ni][j] = ((dMLright + MdLright) * MLleft_list[ni]
+                    + MLright_list[ni] * (dMLleft + MdLleft))
+    return dLparam
 
 
 

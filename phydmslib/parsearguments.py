@@ -362,7 +362,7 @@ def PhyDMSParser():
 #            help=("Known diversifying pressure at sites: file with column 1 "
 #            "= position, column 2 = diversification pressure; columns space "
 #            "delimited."))
-    parser.add_argument('--ncpus', default=1, type=int,
+    parser.add_argument('--ncpus', default=-1, type=int,
             help='Use this many CPUs; -1 means all available.')
     parser.add_argument('-v', '--version', action='version', 
             version='%(prog)s {version}'.format(version=phydmslib.__version__))
