@@ -489,7 +489,7 @@ def _compute_dL(ninternal, nsites, model, param, indices, L, tips, gaps,
             dMleft = model.dM(tleft_list[ni], param, Mleft_list[ni], 
                     tips[nleft_list[ni]], gaps[nleft_list[ni]])
         else:
-            dMleft = model.dM(tleft_list[ni], param, Mleft_lift[ni])
+            dMleft = model.dM(tleft_list[ni], param, Mleft_list[ni])
         for j in indices:
             if istipr_list[ni]:
                 dMLright = dMright[j]
@@ -506,7 +506,7 @@ def _compute_dL(ninternal, nsites, model, param, indices, L, tips, gaps,
                 dMLleft = broadcastMatrixVectorMultiply(
                         dMleft[j], L[nlefti_list[ni]])
                 MdLleft = broadcastMatrixVectorMultiply(Mleft_list[ni],
-                        dL[nlefti_list[ni]][j])
+                        dLparam[nlefti_list[ni]][j])
             dLparam[ni][j] = ((dMLright + MdLright) * MLleft_list[ni]
                     + MLright_list[ni] * (dMLleft + MdLleft))
     return dLparam
