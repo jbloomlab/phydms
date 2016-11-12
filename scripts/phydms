@@ -100,16 +100,6 @@ def main():
                 len(alignment[0][1]) // 3))
         seqnames = set([head for (head, seq) in alignment])
 
-        # get number of cpus for multiprocessing
-        if args['ncpus'] == -1:
-            try:
-                args['ncpus'] = multiprocessing.cpu_count()
-            except:
-                raise RuntimeError("Cannot determine number of available CPUs. "
-                        "Manually specify a number >= 1 with '--ncpus'.")
-        assert args['ncpus'] >= 1, "ncpus must be >= 1: {0}".format(args['ncpus'])
-        logger.info("Using %d CPUs for computations.\n" % args['ncpus'])
-
         # process the substitution model
         yngkp_match = re.compile('^YNGKP_M(?P<modelvariant>\d+)$')
         if isinstance(args['model'], str) and yngkp_match.search(args['model']):
@@ -183,8 +173,7 @@ def main():
 
         # set up tree likelihood
         logger.info('Initializing TreeLikelihood..')
-        tl = phydmslib.treelikelihood.TreeLikelihood(tree, alignment, model, 
-                args['ncpus'])
+        tl = phydmslib.treelikelihood.TreeLikelihood(tree, alignment, model)
         logger.info('TreeLikelihood initialized.')
 
         # maximize likelihood
@@ -220,6 +209,15 @@ def main():
         logging.shutdown() # debugging
         sys.exit(0) # debugging
         raise RuntimeError('only implemented to this far') # debugging
+
+        # get number of cpus for multiprocessing
+        if args['ncpus'] == -1:
+            try:
+                args['ncpus'] = multiprocessing.cpu_count()
+            except:
+                raise RuntimeError("Problem trying to determine number of available CPUs. Please manually specify the number of desired CPUs with '--ncpus' and try again.")
+        logger.info("Using %d CPUs for the remaining computations.\n" % args['ncpus'])
+        assert args['ncpus'] >= 1, "Failed to specify a number of CPUs that exceeds one: %d." % args['ncpus']
 
         # optimize a different omega for each site
         if args['omegabysite']:
