@@ -6,7 +6,6 @@ using the indexing schemes defined in `phydmslib.constants`.
 
 
 import sys
-import functools
 import multiprocessing
 import scipy
 import scipy.optimize
@@ -451,16 +450,6 @@ class TreeLikelihood:
             MLleft_list.append(MLleft)
 
         # now compute dL for each param
-        partial_compute_dL = functools.partial(_compute_dL,
-                ninternal=self.ninternal, nsites=self.nsites,
-                model=self.model, L=self.L, tips=self.tips, gaps=self.gaps,
-                istipr_list=istipr_list, istipl_list=istipl_list, 
-                tright_list=tright_list, tleft_list=tleft_list,
-                Mright_list=Mright_list, Mleft_list=Mleft_list, 
-                nright_list=nright_list, nleft_list=nleft_list,
-                nrighti_list=nrighti_list, nlefti_list=nlefti_list, 
-                MLright_list=MLright_list, MLleft_list=MLleft_list)
-        args = [] # holds args passed to `partial_compute_dL`
         for param in self.model.freeparams:
             paramvalue = getattr(self.model, param)
             if isinstance(paramvalue, float):
@@ -468,31 +457,23 @@ class TreeLikelihood:
             else:
                 # need to sub-index calculations for each param element
                 indices = [(j,) for j in range(len(paramvalue))]
-            args.append((param, indices))
-        if self.ncpus > 1:
-            pool = multiprocessing.Pool(processes=self.ncpus)
-            dLparams = pool.map(partial_compute_dL, args)
-            pool.close()
-            pool.join()
-        else:
-            dLparams = map(partial_compute_dL, args)
-        for (param, dLparam) in zip(self.model.freeparams, dLparams):
-            self.dL[param] = dLparam
+            self.dL[param] = _compute_dL(self.ninternal, self.nsites,
+                    self.model, param, indices, self.L, self.tips, self.gaps,
+                    istipr_list, istipl_list, tright_list, tleft_list,
+                    Mright_list, Mleft_list, nright_list, nleft_list,
+                    nrighti_list, nlefti_list, MLright_list, MLleft_list)
 
 
-def _compute_dL(param_indices, ninternal, nsites, model, L, tips, gaps,
+def _compute_dL(ninternal, nsites, model, param, indices, L, tips, gaps,
         istipr_list, istipl_list, tright_list, tleft_list, Mright_list,
         Mleft_list, nright_list, nleft_list, nrighti_list, nlefti_list,
         MLright_list, MLleft_list):
     """Computes `dL`.
 
-    `param_indices` is a 2-tuple of `(param, indices)`.
-
     Defined as separate function rather than within
     the `_computePartialLikelihoods` method of `TreeLikelihood`
     to enable use with `multiprocessing`.
     """
-    (param, indices) = param_indices
     if len(indices) == 1:
         dLparam = scipy.ndarray((ninternal, nsites, N_CODON), dtype='float')
     else:
