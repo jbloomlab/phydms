@@ -530,11 +530,12 @@ class ExpCM(Model):
         mut = self.mu * t
         with scipy.errstate(divide='raise', under='ignore', over='raise',
                 invalid='ignore'):
-            V = ((scipy.exp(mut * self.Dxx) - scipy.exp(mut * self.Dyy)) 
+            exp_mut_Dxx = scipy.exp(mut * self.Dxx)
+            V = ((exp_mut_Dxx - scipy.exp(mut * self.Dyy)) 
                     / self.Dxx_Dyy)
         with scipy.errstate(under='ignore'): # don't worry if some values are 0
-            scipy.copyto(V, mut * scipy.exp(mut * self.Dxx), where=
-                    scipy.fabs(self.Dxx_Dyy) < ALMOST_ZERO)
+            scipy.copyto(V, mut * exp_mut_Dxx, where=
+                    self._Dxx_Dyy_lt_ALMOST_ZERO)
             if tips is None:
                 if not paramisvec:
                     dM_param = broadcastMatrixMultiply(self.A, 
@@ -594,16 +595,16 @@ class ExpCM(Model):
             for r in range(self.nsites):
                 for a in range(N_AA):
                     scipy.copyto(self.pi_codon[r], self.pi[r][a], 
-                    where=(CODON_TO_AA == a))
+                            where=(CODON_TO_AA == a))
                 pim = scipy.tile(self.pi_codon[r], (N_CODON, 1)) # [x][y] is piAy
-                scipy.copyto(self.piAx_piAy[r], pim.transpose() / pim)
+                self.piAx_piAy[r] = pim.transpose() / pim
             self.ln_pi_codon = scipy.log(self.pi_codon)
 
     def _update_piAx_piAy_beta(self):
         """Update `piAx_piAy_beta` from `piAx_piAy` and `beta`."""
         with scipy.errstate(divide='raise', under='raise', over='raise', 
                 invalid='raise'):
-            scipy.copyto(self.piAx_piAy_beta, self.piAx_piAy**self.beta)
+            self.piAx_piAy_beta = self.piAx_piAy**self.beta
 
     def _update_Frxy(self):
         """Update `Frxy` from `piAx_piAy_beta`, `omega`, and `beta`."""
@@ -616,15 +617,15 @@ class ExpCM(Model):
 
     def _update_frx(self):
         """Update `frx` using current `pi_codon` and `beta`."""
-        scipy.copyto(self.frx, self.pi_codon**self.beta)
+        self.frx = self.pi_codon**self.beta
 
     def _update_Prxy(self):
         """Update `Prxy` using current `Frxy` and `Qxy`."""
-        scipy.copyto(self.Prxy, self.Frxy * self.Qxy)
+        self.Prxy = self.Frxy * self.Qxy
         self._fill_diagonals(self.Prxy)
 
     def _update_Prxy_diag(self):
-        """Updates `D`, `A`, `Ainv`, `Dxx`, `Dyy`, `Dxx_Dyy` from `Prxy`, `prx`."""
+        """Update `D`, `A`, `Ainv`, `Dxx`, `Dyy`, `Dxx_Dyy` from `Prxy`, `prx`."""
         for r in range(self.nsites):
             pr_half = self.prx[r]**0.5
             pr_neghalf = self.prx[r]**-0.5
@@ -634,12 +635,13 @@ class ExpCM(Model):
             (evals, evecs) = scipy.linalg.eigh(symm_pr)
             #assert scipy.allclose(scipy.linalg.inv(evecs), evecs.transpose())
             #assert scipy.allclose(symm_pr, scipy.dot(evecs, scipy.dot(scipy.diag(evals), evecs.transpose())))
-            scipy.copyto(self.D[r], evals)
-            scipy.copyto(self.Ainv[r], evecs.transpose() * pr_half)
-            scipy.copyto(self.A[r], (pr_neghalf * evecs.transpose()).transpose())
-            scipy.copyto(self.Dxx[r], scipy.tile(self.D[r], (N_CODON, 1)).transpose())
-            scipy.copyto(self.Dyy[r], scipy.tile(self.D[r], (N_CODON, 1)))
-        scipy.copyto(self.Dxx_Dyy, self.Dxx - self.Dyy)
+            self.D[r] = evals
+            self.Ainv[r] = evecs.transpose() * pr_half
+            self.A[r] = (pr_neghalf * evecs.transpose()).transpose()
+            self.Dxx[r] = scipy.tile(self.D[r], (N_CODON, 1)).transpose()
+            self.Dyy[r] = scipy.tile(self.D[r], (N_CODON, 1))
+        self.Dxx_Dyy = self.Dxx - self.Dyy
+        self._Dxx_Dyy_lt_ALMOST_ZERO = scipy.fabs(self.Dxx_Dyy) < ALMOST_ZERO
 
     def _update_prx(self):
         """Update `prx` using current `frx` and `qx`."""
@@ -673,16 +675,25 @@ class ExpCM(Model):
     def _update_B(self):
         """Update `B`."""
         for param in self.freeparams:
-            if param != 'mu':
-                scipy.copyto(self.B[param], scipy.matmul(self.Ainv, scipy.matmul(
-                        self.dPrxy[param], self.A)))
+            if param == 'mu':
+                continue
+            paramval = getattr(self, param)
+            if isinstance(paramval, float):
+                self.B[param] = broadcastMatrixMultiply(self.Ainv, 
+                        broadcastMatrixMultiply(self.dPrxy[param], self.A))
+            else:
+                assert isinstance(paramval, numpy.ndarray) and paramval.ndim == 1
+                for j in range(paramval.shape[0]):
+                    self.B[param][j] = broadcastMatrixMultiply(self.Ainv,
+                            broadcastMatrixMultiply(self.dPrxy[param][j],
+                            self.A))
 
     def _update_dprx(self):
         """Update `dprx`."""
         if 'beta' in self.freeparams:
             for r in range(self.nsites):
-                scipy.copyto(self.dprx['beta'][r], self.prx[r] * (self.ln_pi_codon[r]
-                        - scipy.dot(self.ln_pi_codon[r], self.prx[r])))
+                self.dprx['beta'][r] = self.prx[r] * (self.ln_pi_codon[r]
+                        - scipy.dot(self.ln_pi_codon[r], self.prx[r]))
         if 'eta' in self.freeparams:
             boolterm = scipy.ndarray(N_CODON, dtype='float')
             with scipy.errstate(divide='raise', under='raise', over='raise',
@@ -694,8 +705,8 @@ class ExpCM(Model):
                                 (self.eta[i] - (i == CODON_NT_INDEX[j]).astype(
                                 'float')))
                     for r in range(self.nsites):
-                        scipy.copyto(self.dprx['eta'][i][r], self.prx[r] * (boolterm
-                                - scipy.dot(boolterm, self.prx[r]) / self.prx[r].sum()))
+                        self.dprx['eta'][i][r] = self.prx[r] * (boolterm -
+                                scipy.dot(boolterm, self.prx[r]) / self.prx[r].sum())
 
     def _fill_diagonals(self, m):
         """Fills diagonals of `nsites` matrices in `m` so rows sum to 0."""
