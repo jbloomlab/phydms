@@ -12,7 +12,7 @@ import six
 import abc
 import scipy
 import scipy.linalg
-from phydmslib.utils import broadcastMatrixVectorMultiply, broadcastGetCols
+from phydmslib.numutils import broadcastMatrixVectorMultiply, broadcastGetCols
 from phydmslib.constants import *
 
 

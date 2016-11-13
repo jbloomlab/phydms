@@ -10,7 +10,7 @@ import scipy
 import scipy.optimize
 import Bio.Phylo
 import phydmslib.models
-from phydmslib.utils import broadcastMatrixVectorMultiply
+from phydmslib.numutils import broadcastMatrixVectorMultiply
 from phydmslib.constants import *
 
 
