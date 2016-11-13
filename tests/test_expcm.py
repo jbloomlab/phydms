@@ -225,7 +225,7 @@ class testExpCM(unittest.TestCase):
                     expcm.updateParams({paramname:paramvalue[0]})
                 else:
                     expcm.updateParams({paramname:paramvalue})
-                storedvalues[key] = expcm.dM(t, paramname)
+                storedvalues[key] = expcm.dM(t, paramname, expcm.M(t))
             if len(storedvalues[key].shape) == 3:
                 return storedvalues[key][r][x][y]
             else:
