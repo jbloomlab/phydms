@@ -10,7 +10,7 @@ import scipy
 import scipy.optimize
 import Bio.Phylo
 import phydmslib.models
-from phydmslib.numutils import broadcastMatrixVectorMultiply
+from phydmslib.numutils import *
 from phydmslib.constants import *
 
 
@@ -295,7 +295,7 @@ class TreeLikelihood:
     def paramsarray(self, value):
         """Set new `paramsarray` and update via `updateParams`."""
         nparams = len(self._index_to_param)
-        assert (isinstance(value, scipy.ndarray) and len(value.shape) == 1), (
+        assert (isinstance(value, scipy.ndarray) and value.ndim == 1), (
                 "paramsarray must be 1-dim ndarray")
         assert len(value) == nparams, ("Assigning paramsarray to ndarray "
                 "of the wrong length.")
@@ -420,9 +420,12 @@ class TreeLikelihood:
                 paramvalue = getattr(self.model, param)
                 if isinstance(paramvalue, float):
                     indices = [()] # no sub-indexing needed
-                else:
+                elif (isinstance(paramvalue, scipy.ndarray) and 
+                        paramvalue.ndim == 1 and paramvalue.shape[0] > 1):
                     # need to sub-index calculations for each param element
                     indices = [(j,) for j in range(len(paramvalue))]
+                else:
+                    raise RuntimeError("invalid param: {0}".format(param))
                 if istipr:
                     dMright = self.model.dM(tright, param, Mright, 
                             self.tips[nright], self.gaps[nright])

@@ -12,7 +12,7 @@ import six
 import abc
 import scipy
 import scipy.linalg
-from phydmslib.numutils import broadcastMatrixVectorMultiply, broadcastGetCols
+from phydmslib.numutils import *
 from phydmslib.constants import *
 
 
@@ -512,7 +512,7 @@ class ExpCM(Model):
             if tips is None:
                 dM_param = t * scipy.matmul(self.Prxy, Mt)
             else:
-                dM_param = t * broadcastMatrixVectorMultiply(self.Prxy, Mt)
+                dM_param = broadcastMatrixVectorMultiply(self.Prxy, Mt, alpha=t)
                 if gaps is not None:
                     dM_param[gaps] = scipy.zeros(N_CODON, dtype='float')
             return dM_param
@@ -528,14 +528,24 @@ class ExpCM(Model):
                 dM_param = scipy.matmul(self.A, scipy.matmul(self.B[param]
                         * V, self.Ainv))
             else:
-                dM_param = broadcastMatrixVectorMultiply(self.A,
-                        broadcastGetCols(scipy.matmul(self.B[param] * V, 
-                        self.Ainv), tips))
+                if self.B[param].ndim == 3: # float parameter
+                    dM_param = broadcastMatrixVectorMultiply(self.A,
+                            broadcastGetCols(scipy.matmul(self.B[param] * V, 
+                            self.Ainv), tips))
+                elif self.B[param].ndim == 4: # array parameter
+                    dM_param = scipy.array([
+                            broadcastMatrixVectorMultiply(self.A,
+                            broadcastGetCols(scipy.matmul(self.B[param][j] * V, 
+                            self.Ainv), tips)) for j in range(self.B[param].shape[0])])
+                else:
+                    raise RuntimeError('invalid dimension')
                 if gaps is not None:
-                    if len(dM_param.shape) == 2:
+                    if dM_param.ndim == 2:
                         dM_param[gaps] = scipy.zeros(N_CODON, dtype='float')
-                    else:
+                    elif dM_param.ndim == 3:
                         dM_param[:, gaps] = scipy.zeros(N_CODON, dtype='float')
+                    else:
+                        raise RuntimeError('invalid dimension')
         return dM_param
 
     def _update_phi(self):
