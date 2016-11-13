@@ -152,8 +152,8 @@ class TreeLikelihood:
             if isinstance(paramvalue, float):
                 self.dL[param] = scipy.full((self.ninternal, self.nsites,
                         N_CODON), -1, dtype='float')
-            elif isinstance(paramvalue, scipy.ndarray) and (paramvalue.shape
-                    == (len(paramvalue),)):
+            elif isinstance(paramvalue, scipy.ndarray) and (paramvalue.ndim
+                    == 1):
                 self.dL[param] = scipy.full((self.ninternal, len(paramvalue),
                         self.nsites, N_CODON), -1, dtype='float')
             else:

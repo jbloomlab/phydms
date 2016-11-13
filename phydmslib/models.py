@@ -494,8 +494,9 @@ class ExpCM(Model):
         with scipy.errstate(under='ignore'): # don't worry if some values are 0
             if tips is None:
                 # swap axes to broadcast multiply D as diagonal matrix
-                M = scipy.matmul((self.A.swapaxes(0, 1) * scipy.exp(self.D 
-                    * self.mu * t)).swapaxes(1, 0), self.Ainv)
+                M = broadcastMatrixMultiply((self.A.swapaxes(0, 1) *
+                        scipy.exp(self.D * self.mu * t)).swapaxes(1, 0),
+                        self.Ainv)
             else:
                 M = broadcastMatrixVectorMultiply((self.A.swapaxes(0, 1)
                         * scipy.exp(self.D * self.mu * t)).swapaxes(1, 0),
@@ -508,14 +509,24 @@ class ExpCM(Model):
         """See docs for method in `Model` abstract base class."""
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         assert param in self.freeparams, "Invalid param: {0}".format(param)
+
         if param == 'mu':
             if tips is None:
-                dM_param = t * scipy.matmul(self.Prxy, Mt)
+                dM_param = broadcastMatrixMultiply(self.Prxy, Mt, alpha=t)
             else:
                 dM_param = broadcastMatrixVectorMultiply(self.Prxy, Mt, alpha=t)
                 if gaps is not None:
                     dM_param[gaps] = scipy.zeros(N_CODON, dtype='float')
             return dM_param
+
+        paramval = getattr(self, param)
+        if isinstance(paramval, float):
+            paramisvec = False
+        else:
+            assert isinstance(paramval, numpy.ndarray) and paramval.ndim == 1
+            paramisvec = True
+            paramlength = paramval.shape[0]
+
         mut = self.mu * t
         with scipy.errstate(divide='raise', under='ignore', over='raise',
                 invalid='ignore'):
@@ -525,27 +536,34 @@ class ExpCM(Model):
             scipy.copyto(V, mut * scipy.exp(mut * self.Dxx), where=
                     scipy.fabs(self.Dxx_Dyy) < ALMOST_ZERO)
             if tips is None:
-                dM_param = scipy.matmul(self.A, scipy.matmul(self.B[param]
-                        * V, self.Ainv))
-            else:
-                if self.B[param].ndim == 3: # float parameter
-                    dM_param = broadcastMatrixVectorMultiply(self.A,
-                            broadcastGetCols(scipy.matmul(self.B[param] * V, 
-                            self.Ainv), tips))
-                elif self.B[param].ndim == 4: # array parameter
-                    dM_param = scipy.array([
-                            broadcastMatrixVectorMultiply(self.A,
-                            broadcastGetCols(scipy.matmul(self.B[param][j] * V, 
-                            self.Ainv), tips)) for j in range(self.B[param].shape[0])])
+                if not paramisvec:
+                    dM_param = broadcastMatrixMultiply(self.A, 
+                            broadcastMatrixMultiply(self.B[param]
+                            * V, self.Ainv))
                 else:
-                    raise RuntimeError('invalid dimension')
+                    dM_param = scipy.ndarray((paramlength, self.nsites,
+                            N_CODON, N_CODON), dtype='float')
+                    for j in range(paramlength):
+                        dM_param[j] = broadcastMatrixMultiply(self.A, 
+                                broadcastMatrixMultiply(self.B[param][j]
+                                * V, self.Ainv))
+            else:
+                if not paramisvec: 
+                    dM_param = broadcastMatrixVectorMultiply(self.A,
+                            broadcastGetCols(broadcastMatrixMultiply(
+                            self.B[param] * V, self.Ainv), tips))
+                else: 
+                    dM_param = scipy.ndarray((paramlength, self.nsites,
+                            N_CODON), dtype='float')
+                    for j in range(paramlength):
+                        dM_param[j] = broadcastMatrixVectorMultiply(self.A,
+                            broadcastGetCols(broadcastMatrixMultiply(
+                            self.B[param][j] * V, self.Ainv), tips))
                 if gaps is not None:
-                    if dM_param.ndim == 2:
+                    if not paramisvec:
                         dM_param[gaps] = scipy.zeros(N_CODON, dtype='float')
-                    elif dM_param.ndim == 3:
-                        dM_param[:, gaps] = scipy.zeros(N_CODON, dtype='float')
                     else:
-                        raise RuntimeError('invalid dimension')
+                        dM_param[:, gaps] = scipy.zeros(N_CODON, dtype='float')
         return dM_param
 
     def _update_phi(self):
