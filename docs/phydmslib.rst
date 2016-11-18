@@ -28,6 +28,14 @@ phydmslib.models module
     :undoc-members:
     :show-inheritance:
 
+phydmslib.numutils module
+-------------------------
+
+.. automodule:: phydmslib.numutils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 phydmslib.parsearguments module
 -------------------------------
 

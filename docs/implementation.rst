@@ -225,6 +225,26 @@ where :math:`\operatorname{bool}\left(i \le j\right)` is 1 if :math:`i \le j` an
    \left[\sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le x_j \right)}{\eta_i - \delta_{ix_j}} - \frac{\sum_z p_{r,z} \sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le z_j \right)}{\eta_i - \delta_{iz_j}}}{\sum_z p_{r,z}} \right]
    \\ 
 
+
+ExpCM with empirical nucleotide frequencies
+----------------------------------------------
+In the description above, the nucleotide frequencies :math:`\phi_w` are fit as three free parameters. 
+Now let's consider the case where we instead calculate them empirically to give a stationary state that implies nucleotide frequencies that match those empirically observed in the alignment.
+This should be beneficial in terms of optimization because it reduces the number of model parameters that need to be optimized.
+
+Let :math:`g_w` be the empirical frequency of nucleotide :math:`w` taken over all sites and sequences in the alignment. 
+Obviously, :math:`1 = \sum_w g_w`.
+We want to empirically set :math:`\phi_w` to some value :math:`\hat{\phi}_w` such that when :math:`q_x = \hat{\phi}_{x_0} \hat{\phi}_{x_1} \hat{\phi}_{x_2}` then
+
+.. math::
+
+   g_w & = & 
+   \frac{1}{L} \sum_{r=1}^L \sum_x p_{r,x} \frac{1}{3} N_w\left(x\right) \\ 
+   & = & 
+   \frac{1}{3L} \sum_x N_w\left(x\right) \prod_{k=0}^2 \hat{\phi}_{x_k} \sum_{r=1}^L f_{r,x}.
+
+where :math:`N_w\left(x\right) = \sum_{k=0}^2 \delta_{x_k, w}` is the number of occurrence of nucleotide :math:`w` in codon `x`.
+
 Exponentials of the substitution matrix and derivatives
 --------------------------------------------------------
 The definitions above can be used to define a set of matrices :math:`\mathbf{P_r} = \left[P_{r,xy}\right]` that give the rate of transition from codon :math:`x` to :math:`y` at site :math:`r`. A key computation is to compute the probability of a transition in some amount of elapsed time :math:`\mu t`. These probabilities are given by 
