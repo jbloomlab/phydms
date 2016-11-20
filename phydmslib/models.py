@@ -258,6 +258,14 @@ class ExpCM(Model):
                    'pi':(0.002, 0.998),
                    'mu':(1.0e-3, 1.0e3),
                   }
+    _PARAMTYPES = {'kappa':float,
+                   'omega':float,
+                   'beta':float,
+                   'pi':float,
+                   'mu':float,
+                   'eta':(scipy.ndarray, (N_NT - 1,)),
+                   'phi':(scipy.ndarray, (N_NT,)),
+                  }
 
     @property
     def ALLOWEDPARAMS(self):
@@ -277,26 +285,28 @@ class ExpCM(Model):
         """
         assert param in self.PARAMLIMITS, "Invalid param: {0}".format(param)
         (lowlim, highlim) = self.PARAMLIMITS[param]
-        if param in ['kappa', 'omega', 'beta', 'pi', 'mu']:
-            if not isinstance(value, float):
-                raise ValueError("{0} must be a float, not a {1}".format(
-                        param, type(value)))
-            if not (lowlim <= value <= highlim):
-                raise ValueError("{0} must be >= {1} and <= {2}, not {3}".format(
-                        param, lowlim, highlim, value))
-        elif param in ['eta', 'phi']:
-            shape = {'eta':(N_NT - 1,),
-                     'phi':(N_NT,),
-                    }
-            if not (isinstance(value, scipy.ndarray) and value.shape == shape[param]
-                    and value.dtype == 'float'):
-                raise ValueError(("{0} must be ndarray floats, shape {1}, "
-                        "not {2}").format(param, shape[param], value))
+        paramtype = self._PARAMTYPES[param]
+        if isinstance(paramtype, tuple):
+            (paramtype, paramshape) = paramtype
+            if not (isinstance(value, paramtype)):
+                raise ValueError("{0} must be {1}, not {2}".format(
+                        param, paramtype, type(param)))
+            if value.shape != paramshape:
+                raise ValueError("{0} must have shape {1}, not {2}".format(
+                        param, paramshape, value.shape))
+            if value.dtype != 'float':
+                raise ValueError("{0} must have dtype float, not {1}".format(
+                        param, value.dtype))
             if not ((lowlim <= value).all() and (value <= highlim).all()):
                 raise ValueError("{0} must be >= {1} and <= {2}, not {3}".format(
                         param, lowlim, highlim, value))
         else:
-            raise ValueError("Can't handle {0}".format(param))
+            if not isinstance(value, paramtype):
+                raise ValueError("{0} must be a {1}, not a {2}".format(
+                        param, paramtype, type(value)))
+            if not (lowlim <= value <= highlim):
+                raise ValueError("{0} must be >= {1} and <= {2}, not {3}".format(
+                        param, lowlim, highlim, value))
 
     def __init__(self, prefs, kappa=2.0, omega=0.5, beta=1.0, mu=1.0,
             phi=scipy.ones(N_NT) / N_NT,
@@ -714,6 +724,82 @@ class ExpCM(Model):
         for r in range(self.nsites):
             scipy.fill_diagonal(m[r], 0)
             m[r][self._diag_indices] = -scipy.sum(m[r], axis=1)
+
+
+class ExpCM_empirical_phi(ExpCM):
+    """An `ExpCM` with `phi` calculated empirically from nucleotide frequencies.
+
+    See `__init__` method for how to initialize an `ExpCM_empirical_phi`.
+
+    The difference between and `ExpCM` and an `ExpCM_empirical_phi` is that
+    the nucleotide frequency parameters `phi` are now calculated empirically
+    from their observed frequences (denoted `g`) in the codon alignment such
+    that the stationary state gives the empirically observed nucleotide
+    frequencies.
+
+    So compared to an `ExpCM`, `eta` (the transformation of `phi`) is no
+    longer a free parameter, but is computed as a function of other
+    model attributes.
+
+    An `ExpCM_empirical_phi` has **all** the attributes of an `ExpCM`,
+    **plus** the following additional attributes:
+        `g` (`numpy.ndarray` of float, length `N_NT`)
+            Empirical nucleotide frequencies in alignment, with 
+            `g[m]` being frequency of nucleotide `m`. Must sum
+            to one.
+    """
+
+    # class variables
+    _ALLOWEDPARAMS = [param for param in ExpCM._ALLOWEDPARAMS if
+            param != 'eta']
+    _PARAMLIMITS = ExpCM._PARAMLIMITS
+    _PARAMLIMITS['g'] = (0.05, 0.85)
+    _PARAMTYPES = ExpCM._PARAMTYPES
+    _PARAMTYPES['g'] = (scipy.ndarray, N_NT)
+
+    def __init__(self, prefs, g, kappa=2.0, omega=0.5, beta=1.0, mu=1.0,
+            freeparams=['kappa', 'omega', 'beta', 'mu']):
+        """Initialize an `ExpCM_empirical_phi` object.
+
+        Args:
+            `prefs`, `kappa`, `omega`, `beta`, `mu`, `freeparams`
+                Same meaning as for an `ExpCM`
+            `g`
+                Has the meaning described in the main class doc string.
+        """
+        assert isinstance(g, scipy.ndarray) and g.dtype == float
+        self.checkParam(g)
+        #should also require `g_r` which are the alignment nucleotide frequencies
+
+    def updateParams(self):
+        """
+        """
+        pass
+        #should now update `qx` and `Qxy` if `beta` changed
+
+    def _update_phi(self):
+        """
+        """
+        pass
+        #Should compute new value of `phi` from `beta` and other things
+
+    def _update_eta(self):
+        """
+        """
+        pass
+        #Somehow need to compute `eta`
+
+    def _update_dPrxy(self):
+        """
+        """
+        pass
+        #We have to take into account that changing `beta` is going to change `phi`, which will change various other things
+
+    def _update_prxy(self):
+        """
+        """
+        pass
+        #We have to take into account that changing `beta` is going to change `phi`, whjich will change over thing
 
 
 if __name__ == '__main__':
