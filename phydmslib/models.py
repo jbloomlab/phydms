@@ -8,6 +8,7 @@ using the indexing schemes defined in `phydmslib.constants`.
 
 
 import math
+import functools
 import six
 import abc
 import scipy
@@ -767,39 +768,63 @@ class ExpCM_empirical_phi(ExpCM):
             `g`
                 Has the meaning described in the main class doc string.
         """
-        assert isinstance(g, scipy.ndarray) and g.dtype == float
+
+        super(ExpCM_empirical_phi, self).__init__(prefs, kappa=kappa, 
+                omega=omega, beta=beta, mu=mu, freeparams=freeparams)
+
         self.checkParam(g)
-        #should also require `g_r` which are the alignment nucleotide frequencies
+        assert abs(1 - g.sum()) <= ALMOST_ZERO, "g doesn't sum to 1"
+        self.g = g.copy()
+        self.g /= self.g.sum()
+
+        self._update_phi()
+        raise RuntimeError("fix the values of phi and eta")
 
     def updateParams(self):
         """
         """
-        pass
+        raise RuntimeError('not yet implemented')
         #should now update `qx` and `Qxy` if `beta` changed
 
     def _update_phi(self):
-        """
-        """
-        pass
-        #Should compute new value of `phi` from `beta` and other things
-
-    def _update_eta(self):
-        """
-        """
-        pass
-        #Somehow need to compute `eta`
+        """Compute `phi` and `eta` from `g` and `frxy`."""
+        F = functools.partial(_F_empirical_phi_from_g, g=self.g[ : -1],
+                frx=self.frx, nsites=self.nsites)
+        phishort = scipy.optimize.broyden1(F, self.phi[ : -1])
+        self.phi = scipy.append(phishort, 1 - phishort.sum())
+        raise RuntimeError('still need to check this works and compute `eta` from `phi`')
 
     def _update_dPrxy(self):
         """
         """
-        pass
+        raise RuntimeError('not yet implemented')
         #We have to take into account that changing `beta` is going to change `phi`, which will change various other things
 
     def _update_prxy(self):
         """
         """
-        pass
+        raise RuntimeError('not yet implemented')
         #We have to take into account that changing `beta` is going to change `phi`, whjich will change over thing
+
+def _F_empirical_phi_from_g(phi, g, frx, nsites):
+    """Returns array of zero when `phi` is set empirically.
+    
+    Find the root of this function when you want to determine
+    the `phi` that gives empirical nucleotide frequencies of `g`.
+    Only pass the first `N_NT - 1` elements of `phi` and `g`."""
+    assert isinstance(g, scipy.ndarray) and g.dtype == 'float' 
+    assert g.shape == (N_NT - 1,)
+    assert isinstance(phi, scipy.ndarray) and phi.dtype == 'float' 
+    assert phi.shape == (N_NT - 1,)
+    phi = scipy.append(phi, 1 - phi.sum())
+    assert (phi > 0).all()
+    phiprod = scipy.ones(N_CODON, dtype='float')
+    for w in range(N_NT):
+        phiprod *= phi[w]**CODON_NT_COUNT[w]
+    frxsum = frx.sum(axis=0) # length N_CODON
+    return (scipy.array([(CODON_NT_COUNT[w] * phiprod * frxsum).sum() 
+            for w in range(N_NT - 1)]) - (g * 3 * nsites))
+            
 
 
 if __name__ == '__main__':
