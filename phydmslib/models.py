@@ -742,8 +742,7 @@ class ExpCM_empirical_phi(ExpCM):
     longer a free parameter, but is computed as a function of other
     model attributes.
 
-    An `ExpCM_empirical_phi` has **all** the attributes of an `ExpCM`,
-    **plus** the following additional attributes:
+    Has all the attributes of an `ExpCM` plus the following:
         `g` (`numpy.ndarray` of float, length `N_NT`)
             Empirical nucleotide frequencies in alignment, with 
             `g[m]` being frequency of nucleotide `m`. Must sum

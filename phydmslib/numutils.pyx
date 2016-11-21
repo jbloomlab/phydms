@@ -109,6 +109,7 @@ def broadcastGetCols(numpy.ndarray m, numpy.ndarray cols):
 
     Args:
         `m` (`numpy.ndarray`, shape `(r, n, n)`
+            Array of matrices from which we get the columns
         `cols` (`numpy.ndarray`, type `int`, length `r`)
             All entries should be >= 0 and < `n`.
 
