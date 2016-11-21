@@ -8,6 +8,7 @@ using the indexing schemes defined in `phydmslib.constants`.
 
 
 import math
+import copy
 import functools
 import six
 import abc
@@ -750,11 +751,11 @@ class ExpCM_empirical_phi(ExpCM):
     """
 
     # class variables
-    _ALLOWEDPARAMS = [param for param in ExpCM._ALLOWEDPARAMS if
-            param != 'eta']
-    _PARAMLIMITS = ExpCM._PARAMLIMITS
+    _ALLOWEDPARAMS = copy.deepcopy(ExpCM._ALLOWEDPARAMS)
+    _ALLOWEDPARAMS.remove('eta')
+    _PARAMLIMITS = copy.deepcopy(ExpCM._PARAMLIMITS)
     _PARAMLIMITS['g'] = (0.05, 0.85)
-    _PARAMTYPES = ExpCM._PARAMTYPES
+    _PARAMTYPES = copy.deepcopy(ExpCM._PARAMTYPES)
     _PARAMTYPES['g'] = (scipy.ndarray, N_NT)
 
     def __init__(self, prefs, g, kappa=2.0, omega=0.5, beta=1.0, mu=1.0,
