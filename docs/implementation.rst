@@ -237,6 +237,7 @@ Obviously, :math:`1 = \sum_w g_w`.
 We want to empirically set :math:`\phi_w` to some value :math:`\hat{\phi}_w` such that when :math:`q_x = \hat{\phi}_{x_0} \hat{\phi}_{x_1} \hat{\phi}_{x_2}` then
 
 .. math::
+   :label: phihat
 
    g_w & = & 
    \frac{1}{L} \sum_r \sum_x \frac{1}{3} N_w\left(x\right) p_{r,x} \\ 
@@ -247,6 +248,15 @@ where :math:`N_w\left(x\right) = \sum_{k=0}^2 \delta_{x_k, w}` is the number of 
 
 There are three independent :math:`g_w` values and three independent :math:`\hat{\phi}_w` values (since :math:`1 = \sum_w g_w \sum_w = \hat{\phi}_w`), so we have three equations and three unknowns.
 We could not solve the set of three equations analytically for the :math:`\hat{\phi}_w` values, so instead we use a non-linear equation solver to determine their values.
+
+When using empirical nucleotide frequencies, we no longer need to calculate any derivatives with respect to :math:`\eta_i` as we no longer have the :math:`\eta_i` free parameters.
+
+However, now the value of :math:`\phi_w = \hat{\phi}_w` depends on :math:`\beta` via the :math:`f_{r,x}` parameters in Equation :eq:`phihat`.
+So we need new formulas for :math:`\frac{\partial p_{r,x}}{\partial \beta}` and :math:`\frac{\partial P_{r,xy}}{\partial \beta}` that accounts for this dependency.
+
+Since we do not have an analytic expression for :math:`\hat{\phi}_w`, we cannot compute :math:`\frac{\partial \phi_w}{\partial \beta}` analytically.
+But we can compute these derivatives numerically.
+This is done using a finite-difference method.
 
 Exponentials of the substitution matrix and derivatives
 --------------------------------------------------------

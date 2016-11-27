@@ -13,6 +13,7 @@ import functools
 import six
 import abc
 import scipy
+import scipy.misc
 import scipy.optimize
 import scipy.linalg
 from phydmslib.numutils import *
@@ -742,6 +743,8 @@ class ExpCM_empirical_phi(ExpCM):
             Empirical nucleotide frequencies in alignment, with 
             `g[m]` being frequency of nucleotide `m`. Must sum
             to one.
+        `dphi_dbeta` (`numpy.ndarray` of float, length `N_NT`)
+            Derivative of `phi` with respect to `beta`.
     """
 
     # class variables
@@ -772,16 +775,29 @@ class ExpCM_empirical_phi(ExpCM):
                 omega=omega, beta=beta, mu=mu, freeparams=freeparams)
 
     def _update_phi(self):
-        """Compute `phi` and `eta` from `g` and `frxy`."""
-        self.phi = self._compute_empirical_phi()
+        """Compute `phi`, `dphi_dbeta`, and `eta` from `g` and `frxy`."""
+        self.phi = self._compute_empirical_phi(self.beta)
         self.checkParam('phi', self.phi)
         self._eta_from_phi()
+        dbeta = 1.0e-3
+        self.dphi_dbeta = scipy.misc.derivative(self._compute_empirical_phi,
+                self.beta, dx=dbeta, n=1, order=5)
+        dphi_dbeta_halfdx = scipy.misc.derivative(self._compute_empirical_phi,
+                self.beta, dx=dbeta / 2, n=1, order=5)
+        assert scipy.allclose(self.dphi_dbeta, dphi_dbeta_halfdx, atol=1e-4,
+                rtol=1e-3), ("The numerical derivative dphi_dbeta differs "
+                "considerably in value for step dbeta = {0} and a step "
+                "half that size, giving values of {1} and {2}.").format(
+                dbeta, dphi_dbeta, dphi_dbeta_halfdx)
 
-    def _compute_empirical_phi(self):
-        """Returns empirical `phi` from current `g` and `frxy`.
+    def _compute_empirical_phi(self, beta):
+        """Returns empirical `phi` at the given value of `beta`.
         
         Does **not** set `phi` attribute, simply returns what
-        should be value of `phi` given `g` and `frxy`.
+        should be value of `phi` given the current `g` and
+        `pi_codon` attributes, plus the passed value of `beta`.
+        Note that it uses the passed value of `beta`, **not**
+        the current `beta` attribute.
         
         Initial guess is current value of `phi` attribute."""
 
@@ -791,7 +807,7 @@ class ExpCM_empirical_phi(ExpCM):
             phiprod = scipy.ones(N_CODON, dtype='float')
             for w in range(N_NT):
                 phiprod *= phifull[w]**CODON_NT_COUNT[w]
-            frx_phiprod = self.frx * phiprod
+            frx_phiprod = frx * phiprod
             frx_phiprod_codonsum = frx_phiprod.sum(axis=1)
             gexpect = []
             for w in range(N_NT - 1):
@@ -801,7 +817,10 @@ class ExpCM_empirical_phi(ExpCM):
             gexpect = scipy.array(gexpect, dtype='float')
             return self.g[ : -1] - gexpect
 
-        phishort = scipy.optimize.broyden1(F, self.phi[ : -1].copy())
+        frx = self.pi_codon**beta
+        with scipy.errstate(invalid='ignore'):
+            phishort = scipy.optimize.broyden1(F, self.phi[ : -1].copy(), 
+                    f_tol=1e-7)
         return scipy.append(phishort, 1 - phishort.sum())
 
     def _update_dPrxy(self):
