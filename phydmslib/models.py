@@ -150,7 +150,7 @@ class Model(six.with_metaclass(abc.ABCMeta)):
 
     @abc.abstractproperty
     def ALLOWEDPARAMS(self):
-        """List of all strings that can be included in `freeparam`."""
+        """List of all strings that can be included in `freeparams`."""
         pass
 
     @abc.abstractproperty
@@ -441,55 +441,44 @@ class ExpCM(Model):
         """See docs for `Model` abstract base class."""
         return self._mu
 
+    @mu.setter
+    def mu(self, value):
+        """Set new `mu` value."""
+        self._mu = value
+
     def updateParams(self, newvalues, update_all=False):
         """See docs for `Model` abstract base class."""
         assert all(map(lambda x: x in self.freeparams, newvalues.keys())),\
                 "Invalid entry in newvalues: {0}\nfreeparams: {1}".format(
                 ', '.join(newvalues.keys()), ', '.join(self.freeparams))
-        changed = set([]) # contains string names of changed params
 
+        changed = set([]) # contains string names of changed params
         for (name, value) in newvalues.items():
             self.checkParam(name, value)
+            if isinstance(value, scipy.ndarray):
+                if (value != getattr(self, name)).any():
+                    changed.add(name)
+                    setattr(self, name, value)
+            else:
+                if value != getattr(self, name):
+                    changed.add(name)
+                    setattr(self, name, value)
 
-        if ('mu' in newvalues) and (newvalues['mu'] != self.mu):
-            self._mu = newvalues['mu']
-            changed.add('mu')
-
-        if ('eta' in newvalues) and (newvalues['eta'] != self.eta).any():
-            self.eta = newvalues['eta']
-            changed.add('eta')
-
-        if ('kappa' in newvalues) and newvalues['kappa'] != self.kappa:
-            self.kappa = newvalues['kappa']
-            changed.add('kappa')
-
-        if ('omega' in newvalues) and newvalues['omega'] != self.omega:
-            self.omega = newvalues['omega']
-            changed.add('omega')
-
-        if ('beta' in newvalues) and newvalues['beta'] != self.beta:
-            self.beta = newvalues['beta']
-            changed.add('beta')
-
-        if update_all or ('eta' in changed):
-            self._update_phi()
-            self._update_Qxy()
-            self._update_qx()
-        elif 'kappa' in changed:
-            self._update_Qxy()
-
-        if update_all or ('beta' in changed):
+        # The order of the updating below is important.
+        # If you change it, you may break either this class
+        # **or** classes that inherit from it.
+        # Note also that not all attributes need to be updated
+        # for all possible parameter changes, but just doing it
+        # this way is much simpler and adds negligible cost.
+        if update_all or (changed and changed != set(['mu'])):
             self._update_piAx_piAy_beta()
-            self._update_Frxy()
             self._update_frx()
-        elif 'omega' in changed:
-            self._update_Frxy()
-
-        if update_all or ('beta' in changed) or ('eta' in changed):
+            self._update_phi()
+            self._update_qx()
             self._update_prx()
             self._update_dprx()
-
-        if update_all or (changed and changed != set(['mu'])):
+            self._update_Qxy()
+            self._update_Frxy()
             self._update_Prxy()
             self._update_Prxy_diag()
             self._update_dPrxy()
@@ -760,7 +749,7 @@ class ExpCM_empirical_phi(ExpCM):
     _PARAMLIMITS = copy.deepcopy(ExpCM._PARAMLIMITS)
     _PARAMLIMITS['g'] = (0.05, 0.85)
     _PARAMTYPES = copy.deepcopy(ExpCM._PARAMTYPES)
-    _PARAMTYPES['g'] = (scipy.ndarray, N_NT)
+    _PARAMTYPES['g'] = (scipy.ndarray, (N_NT,))
 
     def __init__(self, prefs, g, kappa=2.0, omega=0.5, beta=1.0, mu=1.0,
             freeparams=['kappa', 'omega', 'beta', 'mu']):
@@ -773,22 +762,13 @@ class ExpCM_empirical_phi(ExpCM):
                 Has the meaning described in the main class doc string.
         """
 
-        self.checkParam(g)
+        self.checkParam('g', g)
         assert abs(1 - g.sum()) <= ALMOST_ZERO, "g doesn't sum to 1"
         self.g = g.copy()
         self.g /= self.g.sum()
 
         super(ExpCM_empirical_phi, self).__init__(prefs, kappa=kappa, 
                 omega=omega, beta=beta, mu=mu, freeparams=freeparams)
-
-        self._update_phi()
-        self.updateParams({}, update_all=True)
-
-    def updateParams(self):
-        """
-        """
-        raise RuntimeError('not yet implemented')
-        #should now update `qx` and `Qxy` if `beta` changed
 
     def _update_phi(self):
         """Compute `phi` and `eta` from `g` and `frxy`."""
@@ -809,7 +789,7 @@ class ExpCM_empirical_phi(ExpCM):
         """
         """
         raise RuntimeError('not yet implemented')
-        #We have to take into account that changing `beta` is going to change `phi`, whjich will change over thing
+        #We have to take into account that changing `beta` is going to change `phi`, which will change other things
 
 
 def _F_empirical_phi_from_g(phi, g, frx, nsites):
