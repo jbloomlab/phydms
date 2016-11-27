@@ -773,12 +773,36 @@ class ExpCM_empirical_phi(ExpCM):
 
     def _update_phi(self):
         """Compute `phi` and `eta` from `g` and `frxy`."""
-        F = functools.partial(_F_empirical_phi_from_g, g=self.g[ : -1],
-                frx=self.frx, nsites=self.nsites)
-        phishort = scipy.optimize.broyden1(F, self.phi[ : -1])
-        self.phi = scipy.append(phishort, 1 - phishort.sum())
+        self.phi = self._compute_empirical_phi()
         self.checkParam('phi', self.phi)
         self._eta_from_phi()
+
+    def _compute_empirical_phi(self):
+        """Returns empirical `phi` from current `g` and `frxy`.
+        
+        Does **not** set `phi` attribute, simply returns what
+        should be value of `phi` given `g` and `frxy`.
+        
+        Initial guess is current value of `phi` attribute."""
+
+        def F(phishort):
+            """Difference between `g` and expected `g` given `phishort`."""
+            phifull = scipy.append(phishort, 1 - phishort.sum())
+            phiprod = scipy.ones(N_CODON, dtype='float')
+            for w in range(N_NT):
+                phiprod *= phifull[w]**CODON_NT_COUNT[w]
+            frx_phiprod = self.frx * phiprod
+            frx_phiprod_codonsum = frx_phiprod.sum(axis=1)
+            gexpect = []
+            for w in range(N_NT - 1):
+                gexpect.append(
+                        ((CODON_NT_COUNT[w] * frx_phiprod).sum(axis=1) / 
+                        frx_phiprod_codonsum).sum() / (3 * self.nsites))
+            gexpect = scipy.array(gexpect, dtype='float')
+            return self.g[ : -1] - gexpect
+
+        phishort = scipy.optimize.broyden1(F, self.phi[ : -1].copy())
+        return scipy.append(phishort, 1 - phishort.sum())
 
     def _update_dPrxy(self):
         """
@@ -793,35 +817,6 @@ class ExpCM_empirical_phi(ExpCM):
         pass
 #        raise RuntimeError('not yet implemented')
         #We have to take into account that changing `beta` is going to change `phi`, which will change other things
-
-
-def _F_empirical_phi_from_g(phi, g, frx, nsites):
-    """Returns array of zero when `phi` is set empirically.
-    
-    Find the root of this function when you want to determine
-    the `phi` that gives empirical nucleotide frequencies of `g`.
-    Only pass the first `N_NT - 1` elements of `phi` and `g`."""
-    assert isinstance(g, scipy.ndarray) and g.dtype == 'float' 
-    assert g.shape == (N_NT - 1,)
-    assert isinstance(phi, scipy.ndarray) and phi.dtype == 'float' 
-    assert phi.shape == (N_NT - 1,)
-    assert isinstance(frx, scipy.ndarray) and frx.dtype == 'float'
-    assert frx.shape == (nsites, N_CODON)
-    phifull = scipy.append(phi, 1 - phi.sum())
-    phiprod = scipy.ones(N_CODON, dtype='float')
-    for w in range(N_NT):
-        phiprod *= phifull[w]**CODON_NT_COUNT[w]
-    frx_phiprod = frx * phiprod
-    assert frx_phiprod.shape == (nsites, N_CODON)
-    frx_phiprod_codonsum = frx_phiprod.sum(axis=1)
-    assert frx_phiprod_codonsum.shape == (nsites,)
-    gexpect = []
-    for w in range(N_NT - 1):
-        gexpect.append(
-                ((CODON_NT_COUNT[w] * frx_phiprod).sum(axis=1) / 
-                frx_phiprod_codonsum).sum() / (3 * nsites))
-    return g - gexpect
-            
 
 
 if __name__ == '__main__':

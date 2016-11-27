@@ -95,6 +95,32 @@ Finally, `Bloom, Mol Biol Evol, 31:2753-2769`_ shows that given these stationary
 
 Therefore, assuming that the preferences :math:`\pi_{r,a}` are known *a priori* for all amino acids :math:`a` at all sites :math:`r` (e.g. the preferences have been measured in a deep mutational scanning experiment), the substitution model is completely defined by giving values to the following six parameters: :math:`\omega`, :math:`\beta`, :math:`\kappa`, :math:`\phi_A`, :math:`\phi_C`, and :math:`\phi_G`. When fitting and *ExpCM* for a gene phylogeny, ``phydms`` assumes that these six parameters are constant across all sites, and optimizes their values by maximum likelihood.
 
+Empirical nucleotide frequencies
+----------------------------------
+The foregoing model has three free parameters (:math:`\phi_A`, :math:`\phi_C`, and :math:`\phi_G`) that are related to the nucleotide frequencies and are independent of the site-specific constraints.
+Classically, many substitution models determine the values of these nucleotide frequency parameters by setting them equal to the empirically observed nucleotide frequencies in the alignment rather than fitting them by maximum likelihood. 
+This procedure is computationally faster.
+
+However, the the *ExpCM* described above, this cannot be done in such a simple fashion. 
+The reason is that the :math:`\phi_w` parameters give the expected frequence of nucleotide :math:`w` for purely mutation-driven evolution -- but in reality, the observed nucleotide frequencies are also affected by selection on the amino acid usage.
+That this is really the case in evolution is easily observed by noting that for many genes, the nucleotide frequencies differ greatly among the first, second, and especially third codon position.
+These differences are unlikely to be driven by mutation (which is probably indifferent to the reading frame in which a nucleotide falls), and is instead driven by the fact that selection on the amino-acid usage favors certain nucleotides at some codon positions since that is the only way to encode some amino acids.
+
+However, we can still empirically estimate the :math:`\phi_w` parameters from the alignment frequencies by taking the amino-acid level constraint into account.
+Specifically, let :math:`g_w` denote the empirically observed frequency of nucleotide :math:`w` in the alignment, noting that :math:`1 = \sum_w g_w`.
+Let :math:`\hat{\phi}_w` be the value of :math:`\phi_w` that yields a stationary state of the substitution model where nucleotide :math:`w` is at frequency :math:`g_w`. 
+The value of :math:`\hat{\phi}_w` must then satisfy:
+
+.. math::
+
+   g_w & = & 
+      \frac{1}{L} \sum_r \sum_x \frac{1}{3} N_w\left(x\right) p_{r,x} \\ 
+         & = & 
+            \frac{1}{3L} \sum_r \frac{\sum_x N_w\left(x\right) f_{r,x} \prod_{k=0}^2 \hat{\phi}_{x_k}}{\sum_y f_{r,y} \prod_{k=0}^2 \hat{\phi}_{y_k}}.
+
+There are three independent :math:`g_w` values and three independent :math:`\phi_w` values (since :math:`1 = \sum_w g_w = \sum_w \hat{\phi}_w`, so we have three equations and three unknowns. 
+These equations can be solved numerically for :math:`\hat{\phi}_w`, and these empirical estimates can be used in the place of estimating :math:`\phi_w` by maximum likelihood.
+Such a procedure speeds the numerical optimization by reducing the number of free parameters.
 
 Identifying diversifying selection via site-specific :math:`\omega_r` values
 ------------------------------------------------------------------------------
