@@ -241,9 +241,7 @@ We want to empirically set :math:`\phi_w` to some value :math:`\hat{\phi}_w` suc
    g_w & = & 
    \frac{1}{L} \sum_{r=1}^L \sum_x \frac{1}{3} N_w\left(x\right) p_{r,x} \\ 
    & = & 
-   \frac{1}{3L} \sum_x N_w\left(x\right) \frac{\prod_{k=0}^2 \hat{\phi}_{x_k} \sum_{r=1}^L f_{r,x}}{\sum_y \prod_{k=0}^2 \hat{\phi}_{y_k} \sum_{r=1}^L f_{r,y}} \\
-   & = & 
-   \frac{1}{3L \sum_y \prod_{k=0}^2 \hat{\phi}_{y_k} \sum_{r=1}^L f_{r,y}} \sum_x N_w\left(x\right) \prod_{k=0}^2 \hat{\phi}_{x_k} \sum_{r=1}^L f_{r,x}
+   \frac{1}{3L} \sum_{r=1}^L \frac{\sum_x N_w\left(x\right) f_{r,x} \prod_{k=0}^2 \hat{\phi}_{x_k}}{\sum_y f_{r,y} \prod_{k=0}^2 \hat{\phi}_{y_k}} \\
 
 where :math:`N_w\left(x\right) = \sum_{k=0}^2 \delta_{x_k, w}` is the number of occurrence of nucleotide :math:`w` in codon `x`.
 
