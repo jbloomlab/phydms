@@ -361,18 +361,13 @@ class ExpCM(Model):
         assert abs(1 - phi.sum()) <= ALMOST_ZERO, "phi doesn't sum to 1"
         self.phi = phi.copy()
         self.phi /= self.phi.sum()
-        eta = scipy.ndarray(N_NT - 1, dtype='float')
-        etaprod = 1.0
-        for w in range(N_NT - 1):
-            eta[w] = 1.0 - self.phi[w] / etaprod
-            etaprod *= eta[w]
+        self._eta_from_phi()
 
         # set attributes to calling params
         self._mu = mu # underscore as `mu` is property
         self.kappa = kappa
         self.omega = omega
         self.beta = beta
-        self.eta = eta
         for (name, value) in [('kappa', self.kappa), ('omega', self.omega),
                 ('beta', self.beta), ('eta', self.eta), ('mu', self.mu)]:
             self.checkParam(name, value)
@@ -579,6 +574,15 @@ class ExpCM(Model):
                         dM_param[:, gaps] = scipy.zeros(N_CODON, dtype='float')
         return dM_param
 
+    def _eta_from_phi(self):
+        """Update `eta` using current `phi`."""
+        self.eta = scipy.ndarray(N_NT - 1, dtype='float')
+        etaprod = 1.0
+        for w in range(N_NT - 1):
+            self.eta[w] = 1.0 - self.phi[w] / etaprod
+            etaprod *= self.eta[w]
+        self.checkParam('eta', self.eta)
+
     def _update_phi(self):
         """Update `phi` using current `eta`."""
         etaprod = 1.0
@@ -769,16 +773,16 @@ class ExpCM_empirical_phi(ExpCM):
                 Has the meaning described in the main class doc string.
         """
 
-        super(ExpCM_empirical_phi, self).__init__(prefs, kappa=kappa, 
-                omega=omega, beta=beta, mu=mu, freeparams=freeparams)
-
         self.checkParam(g)
         assert abs(1 - g.sum()) <= ALMOST_ZERO, "g doesn't sum to 1"
         self.g = g.copy()
         self.g /= self.g.sum()
 
+        super(ExpCM_empirical_phi, self).__init__(prefs, kappa=kappa, 
+                omega=omega, beta=beta, mu=mu, freeparams=freeparams)
+
         self._update_phi()
-        raise RuntimeError("fix the values of phi and eta")
+        self.updateParams({}, update_all=True)
 
     def updateParams(self):
         """
@@ -792,7 +796,8 @@ class ExpCM_empirical_phi(ExpCM):
                 frx=self.frx, nsites=self.nsites)
         phishort = scipy.optimize.broyden1(F, self.phi[ : -1])
         self.phi = scipy.append(phishort, 1 - phishort.sum())
-        raise RuntimeError('still need to check this works and compute `eta` from `phi`')
+        self.checkParam('phi', self.phi)
+        self._eta_from_phi()
 
     def _update_dPrxy(self):
         """
@@ -805,6 +810,7 @@ class ExpCM_empirical_phi(ExpCM):
         """
         raise RuntimeError('not yet implemented')
         #We have to take into account that changing `beta` is going to change `phi`, whjich will change over thing
+
 
 def _F_empirical_phi_from_g(phi, g, frx, nsites):
     """Returns array of zero when `phi` is set empirically.
