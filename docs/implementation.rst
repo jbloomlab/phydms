@@ -239,9 +239,11 @@ We want to empirically set :math:`\phi_w` to some value :math:`\hat{\phi}_w` suc
 .. math::
 
    g_w & = & 
-   \frac{1}{L} \sum_{r=1}^L \sum_x p_{r,x} \frac{1}{3} N_w\left(x\right) \\ 
+   \frac{1}{L} \sum_{r=1}^L \sum_x \frac{1}{3} N_w\left(x\right) p_{r,x} \\ 
    & = & 
-   \frac{1}{3L} \sum_x N_w\left(x\right) \prod_{k=0}^2 \hat{\phi}_{x_k} \sum_{r=1}^L f_{r,x}.
+   \frac{1}{3L} \sum_x N_w\left(x\right) \frac{\prod_{k=0}^2 \hat{\phi}_{x_k} \sum_{r=1}^L f_{r,x}}{\sum_y \prod_{k=0}^2 \hat{\phi}_{y_k} \sum_{r=1}^L f_{r,y}} \\
+   & = & 
+   \frac{1}{3L \sum_y \prod_{k=0}^2 \hat{\phi}_{y_k} \sum_{r=1}^L f_{r,y}} \sum_x N_w\left(x\right) \prod_{k=0}^2 \hat{\phi}_{x_k} \sum_{r=1}^L f_{r,x}
 
 where :math:`N_w\left(x\right) = \sum_{k=0}^2 \delta_{x_k, w}` is the number of occurrence of nucleotide :math:`w` in codon `x`.
 
@@ -413,5 +415,18 @@ The derivative of the overall log likelihood is
 
    \frac{\partial \ln \left[ \Pr\left(\mathcal{S} \mid \mathcal{T}, \left\{\mathbf{P_r}\right\}\right) \right]}{\partial \alpha} 
    = \sum_r \frac{\partial \ln \left[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right) \right]}{\partial \alpha}.
+
+Derivatives with respect to branch lengths
+--------------------------------------------
+The section above describes how to compute the derivatives with respect to paramters (e.g., model parameters) that affect all parts of the tree. 
+In many cases, we may want to optimize individual branch lengths rather than the overall mutation rate :math:`\mu`.
+In this case, we need to compute the derivatives with respect to the branch lengths.
+This is somewhat simpler for each individual branch length, since each individual branch length only affects part of the tree.
+
+Specifically, for each internal node :math:`n`,
+
+.. math::
+
+   \frac{\partial L_{r,n}\left(x\right)}{\partial t_{\mathcal{d}_1\left(n\right)}} =
 
 .. include:: weblinks.txt
