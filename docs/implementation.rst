@@ -239,11 +239,14 @@ We want to empirically set :math:`\phi_w` to some value :math:`\hat{\phi}_w` suc
 .. math::
 
    g_w & = & 
-   \frac{1}{L} \sum_{r=1}^L \sum_x \frac{1}{3} N_w\left(x\right) p_{r,x} \\ 
+   \frac{1}{L} \sum_r \sum_x \frac{1}{3} N_w\left(x\right) p_{r,x} \\ 
    & = & 
-   \frac{1}{3L} \sum_{r=1}^L \frac{\sum_x N_w\left(x\right) f_{r,x} \prod_{k=0}^2 \hat{\phi}_{x_k}}{\sum_y f_{r,y} \prod_{k=0}^2 \hat{\phi}_{y_k}} \\
+   \frac{1}{3L} \sum_r \frac{\sum_x N_w\left(x\right) f_{r,x} \prod_{k=0}^2 \hat{\phi}_{x_k}}{\sum_y f_{r,y} \prod_{k=0}^2 \hat{\phi}_{y_k}} \\
 
-where :math:`N_w\left(x\right) = \sum_{k=0}^2 \delta_{x_k, w}` is the number of occurrence of nucleotide :math:`w` in codon `x`.
+where :math:`N_w\left(x\right) = \sum_{k=0}^2 \delta_{x_k, w}` is the number of occurrence of nucleotide :math:`w` in codon :math:`x`, :math:`r` ranges over all codon sites in the gene, :math:`x` ranges over all codons, and :math:`k` ranges over the first three nucleotides.
+
+There are three independent :math:`g_w` values and three independent :math:`\hat{\phi}_w` values (since :math:`1 = \sum_w g_w \sum_w = \hat{\phi}_w`), so we have three equations and three unknowns.
+We could not solve the set of three equations analytically for the :math:`\hat{\phi}_w` values, so instead we use a non-linear equation solver to determine their values.
 
 Exponentials of the substitution matrix and derivatives
 --------------------------------------------------------
