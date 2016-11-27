@@ -13,6 +13,7 @@ import functools
 import six
 import abc
 import scipy
+import scipy.optimize
 import scipy.linalg
 from phydmslib.numutils import *
 from phydmslib.constants import *
@@ -774,8 +775,10 @@ class ExpCM_empirical_phi(ExpCM):
         """Compute `phi` and `eta` from `g` and `frxy`."""
         F = functools.partial(_F_empirical_phi_from_g, g=self.g[ : -1],
                 frx=self.frx, nsites=self.nsites)
+        print("Optimizing phi: {0}".format(self.phi))
         phishort = scipy.optimize.broyden1(F, self.phi[ : -1])
         self.phi = scipy.append(phishort, 1 - phishort.sum())
+        print("Optimized phi: {0}".format(self.phi))
         self.checkParam('phi', self.phi)
         self._eta_from_phi()
 
@@ -802,14 +805,22 @@ def _F_empirical_phi_from_g(phi, g, frx, nsites):
     assert g.shape == (N_NT - 1,)
     assert isinstance(phi, scipy.ndarray) and phi.dtype == 'float' 
     assert phi.shape == (N_NT - 1,)
-    phi = scipy.append(phi, 1 - phi.sum())
-    assert (phi > 0).all()
+    assert isinstance(frx, scipy.ndarray) and frx.dtype == 'float'
+    assert frx.shape == (nsites, N_CODON)
+    phifull = scipy.append(phi, 1 - phi.sum())
     phiprod = scipy.ones(N_CODON, dtype='float')
     for w in range(N_NT):
-        phiprod *= phi[w]**CODON_NT_COUNT[w]
-    frxsum = frx.sum(axis=0) # length N_CODON
-    return (scipy.array([(CODON_NT_COUNT[w] * phiprod * frxsum).sum() 
-            for w in range(N_NT - 1)]) - (g * 3 * nsites))
+        phiprod *= phifull[w]**CODON_NT_COUNT[w]
+    frx_phiprod = frx * phiprod
+    assert frx_phiprod.shape == (nsites, N_CODON)
+    frx_phiprod_codonsum = frx_phiprod.sum(axis=1)
+    assert frx_phiprod_codonsum.shape == (nsites,)
+    gexpect = []
+    for w in range(N_NT - 1):
+        gexpect.append(
+                ((CODON_NT_COUNT[w] * frx_phiprod).sum(axis=1) / 
+                frx_phiprod_codonsum).sum() / (3 * nsites))
+    return g - gexpect
             
 
 
