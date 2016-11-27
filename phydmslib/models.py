@@ -775,23 +775,23 @@ class ExpCM_empirical_phi(ExpCM):
         """Compute `phi` and `eta` from `g` and `frxy`."""
         F = functools.partial(_F_empirical_phi_from_g, g=self.g[ : -1],
                 frx=self.frx, nsites=self.nsites)
-        print("Optimizing phi: {0}".format(self.phi))
         phishort = scipy.optimize.broyden1(F, self.phi[ : -1])
         self.phi = scipy.append(phishort, 1 - phishort.sum())
-        print("Optimized phi: {0}".format(self.phi))
         self.checkParam('phi', self.phi)
         self._eta_from_phi()
 
     def _update_dPrxy(self):
         """
         """
-        raise RuntimeError('not yet implemented')
+        pass
+#        raise RuntimeError('not yet implemented')
         #We have to take into account that changing `beta` is going to change `phi`, which will change various other things
 
-    def _update_prxy(self):
+    def _update_dprx(self):
         """
         """
-        raise RuntimeError('not yet implemented')
+        pass
+#        raise RuntimeError('not yet implemented')
         #We have to take into account that changing `beta` is going to change `phi`, which will change other things
 
 

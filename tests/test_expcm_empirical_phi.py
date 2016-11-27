@@ -26,36 +26,45 @@ class testExpCM_empirical_phi(unittest.TestCase):
         minpref = 0.01
         for r in range(self.nsites):
             rprefs = scipy.random.dirichlet([0.5] * N_AA)
-#            rprefs = scipy.ones(N_AA, dtype='float') / N_AA
             rprefs[rprefs < minpref] = minpref 
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
 
         # create initial ExpCM
-        g = scipy.random.dirichlet([5] * N_NT)
-#        g = scipy.ones(N_NT, dtype='float') / N_NT
+        g = scipy.random.dirichlet([3] * N_NT)
         omega = 0.7
         kappa = 2.5
         beta = 1.2
         self.expcm = phydmslib.models.ExpCM_empirical_phi(self.prefs, 
                 g=g, omega=omega, kappa=kappa, beta=beta)
-        self.assertTrue(scipy.allclose(phi, self.expcm.phi))
-        self.assertTrue(scipy.allclose(omega, self.expcm.omega))
-        self.assertTrue(scipy.allclose(kappa, self.expcm.kappa))
-        self.assertTrue(scipy.allclose(beta, self.expcm.beta))
+        self.assertTrue(scipy.allclose(g, self.expcm.g))
 
         # now check ExpCM attributes / derivates, updating several times
         for update in range(2):
             self.params = {'omega':random.uniform(*self.expcm.PARAMLIMITS['omega']),
                       'kappa':random.uniform(*self.expcm.PARAMLIMITS['kappa']),
                       'beta':0.5 * random.uniform(*self.expcm.PARAMLIMITS['beta']), # multiply by 0.5 since large beta causes numerical issues
-                      'eta':scipy.array([random.uniform(*self.expcm.PARAMLIMITS['eta']) for i in range(N_NT - 1)]),
                       'mu':random.uniform(0.05, 5.0),
                      }
             self.expcm.updateParams(self.params)
+            self.assertTrue(scipy.allclose(g, self.expcm.g))
+            self.check_empirical_phi()
             self.check_ExpCM_attributes()
-            self.check_ExpCM_derivatives()
-            self.check_ExpCM_matrix_exponentials()
+#            self.check_ExpCM_matrix_exponentials()
+
+    def check_empirical_phi(self):
+        """Make sure stationary state nucleotide frequencies match `g`."""
+        nt_freqs = [0] * N_NT
+        for r in range(self.nsites):
+            for x in range(N_CODON):
+                for w in range(N_NT):
+                    nt_freqs[w] += self.expcm.prx[r][x] * CODON_NT_COUNT[w][x]
+        self.assertTrue(scipy.allclose(sum(nt_freqs), 3 * self.nsites))
+        nt_freqs = scipy.array(nt_freqs)
+        nt_freqs /= nt_freqs.sum()
+        self.assertTrue(scipy.allclose(nt_freqs, self.expcm.g, atol=1e-5), 
+                "Actual nt_freqs: {0}\nExpected (g): {1}".format(
+                nt_freqs, self.expcm.g))
 
     def check_ExpCM_attributes(self):
         """Make sure `ExpCM` has the expected attribute values."""
@@ -85,107 +94,8 @@ class testExpCM_empirical_phi(unittest.TestCase):
                 self.assertFalse(scipy.allclose(0, scipy.dot(self.expcm.prx[r],
                         self.expcm.Prxy[r - 1])))
 
-    def check_ExpCM_derivatives(self):
-        """Use `sympy` to check values and derivatives of `ExpCM` attributes."""
-        (Prxy, Qxy, phiw, beta, omega, eta0, eta1, eta2, kappa) = sympy.symbols(
-                'Prxy, Qxy, phiw, beta, omega, eta0, eta1, eta2, kappa')
-
-        values = {'beta':self.params['beta'],
-                  'omega':self.params['omega'],
-                  'kappa':self.params['kappa'],
-                  'eta0':self.params['eta'][0],
-                  'eta1':self.params['eta'][1],
-                  'eta2':self.params['eta'][2],
-                  }
-
-        # check Prxy
-        for r in range(self.nsites):
-            for x in range(N_CODON):
-                pirAx = self.prefs[r][INDEX_TO_AA[CODON_TO_AA[x]]]
-                for y in [yy for yy in range(N_CODON) if yy != x]:
-                    pirAy = self.prefs[r][INDEX_TO_AA[CODON_TO_AA[y]]]
-                    if not CODON_SINGLEMUT[x][y]:
-                        Prxy = 0
-                    else:
-                        w = NT_TO_INDEX[[ynt for (xnt, ynt) in zip(INDEX_TO_CODON[x], 
-                                INDEX_TO_CODON[y]) if xnt != ynt][0]]
-                        if w == 0:
-                            phiw = 1 - eta0                            
-                        elif w == 1:
-                            phiw = eta0 * (1 - eta1)
-                        elif w == 2:
-                            phiw = eta0 * eta1 * (1 - eta2)
-                        elif w == 3:
-                            phiw = eta0 * eta1 * eta2
-                        else:
-                            raise ValueError("Invalid w")
-                        self.assertTrue(scipy.allclose(float(phiw.subs(values)), 
-                                self.expcm.phi[w]))
-                        if CODON_TRANSITION[x][y]:
-                            Qxy = kappa * phiw
-                        else:
-                            Qxy = phiw
-                        self.assertTrue(scipy.allclose(float(Qxy.subs(values)), 
-                                self.expcm.Qxy[x][y]))
-                        if CODON_NONSYN[x][y]:
-                            if pirAx == pirAy:
-                                Prxy = Qxy * omega
-                            else:
-                                Prxy = Qxy * omega * (-beta * scipy.log(pirAx / pirAy) / (1 - (pirAx / pirAy)**beta))
-                        else:
-                            Prxy = Qxy
-                    for (name, actual, expect) in [
-                            ('Prxy', self.expcm.Prxy[r][x][y], Prxy),
-                            ('dPrxy_dkappa', self.expcm.dPrxy['kappa'][r][x][y], sympy.diff(Prxy, kappa)),
-                            ('dPrxy_domega', self.expcm.dPrxy['omega'][r][x][y], sympy.diff(Prxy, omega)),
-                            ('dPrxy_dbeta', self.expcm.dPrxy['beta'][r][x][y], sympy.diff(Prxy, beta)),
-                            ('dPrxy_deta0', self.expcm.dPrxy['eta'][0][r][x][y], sympy.diff(Prxy, eta0)),
-                            ('dPrxy_deta1', self.expcm.dPrxy['eta'][1][r][x][y], sympy.diff(Prxy, eta1)),
-                            ('dPrxy_deta2', self.expcm.dPrxy['eta'][2][r][x][y], sympy.diff(Prxy, eta2)),
-                            ]:
-                        if Prxy == 0:
-                            expectval = 0
-                        else:
-                            expectval = float(expect.subs(values))
-                        self.assertTrue(scipy.allclose(actual, expectval, atol=1e-4),
-                                "{0}: {1} vs {2}".format(name, actual, expectval))
-
-        # check prx
-        qxs = [sympy.Symbol('qx{0}'.format(x)) for x in range(N_CODON)]
-        frxs = [sympy.Symbol('frx{0}'.format(x)) for x in range(N_CODON)]
-        prx = sympy.Symbol('prx')
-        phixs = [sympy.Symbol('phix{0}'.format(w)) for w in range(3)]
-        for r in range(self.nsites):
-            for x in range(N_CODON):
-                pirAx = self.prefs[r][INDEX_TO_AA[CODON_TO_AA[x]]]
-                frxs[x] = pirAx**beta
-                xcodon = INDEX_TO_CODON[x]
-                assert len(phixs) == len(xcodon)
-                for (w, xwnt) in enumerate(xcodon):
-                    xw = NT_TO_INDEX[xwnt]
-                    if xw == 0:
-                        phixs[w] = 1 - eta0
-                    elif xw == 1:
-                        phixs[w] = eta0 * (1 - eta1)
-                    elif xw == 2:
-                        phixs[w] = eta0 * eta1 * (1 - eta2)
-                    elif xw == 3:
-                        phixs[w] = eta0 * eta1 * eta2
-                    else:
-                        raise ValueError("invalid xw")
-                qxs[x] = phixs[0] * phixs[1] * phixs[2]
-            for x in range(N_CODON):
-                prx = frxs[x] * qxs[x] / sum(frx * qx for (frx, qx) in zip(frxs, qxs))
-                for (name, actual, expect) in [
-                        ('prx', self.expcm.prx[r][x], prx),
-                        ('dprx_dbeta', self.expcm.dprx['beta'][r][x], sympy.diff(prx, beta)),
-                        ('dprx_deta0', self.expcm.dprx['eta'][0][r][x], sympy.diff(prx, eta0)),
-                        ('dprx_deta1', self.expcm.dprx['eta'][1][r][x], sympy.diff(prx, eta1)),
-                        ('dprx_deta2', self.expcm.dprx['eta'][2][r][x], sympy.diff(prx, eta2)),
-                        ]:
-                    expectval = float(expect.subs(values))
-                    self.assertTrue(scipy.allclose(actual, expectval, atol=1e-5),
-                            "{0}: {1} vs {2}".format(name, actual, expectval))
+        # phi sums to one
+        self.assertTrue(scipy.allclose(1, self.expcm.phi.sum()))
 
     def check_ExpCM_matrix_exponentials(self):
         """Makes sure matrix exponentials of ExpCM are as expected."""
@@ -194,7 +104,8 @@ class testExpCM_empirical_phi(unittest.TestCase):
             fromdiag = scipy.dot(self.expcm.A[r], scipy.dot(scipy.diag(
                     self.expcm.D[r]), self.expcm.Ainv[r]))
             self.assertTrue(scipy.allclose(self.expcm.Prxy[r], fromdiag,
-                    atol=1e-5), "Max diff {0}".format((self.expcm.Prxy[r] - fromdiag).max()))
+                    atol=1e-5), "Max diff {0}".format(
+                    (self.expcm.Prxy[r] - fromdiag).max()))
 
             for t in [0.02, 0.2, 0.5]:
                 direct = scipy.linalg.expm(self.expcm.Prxy[r] * self.expcm.mu * t)
