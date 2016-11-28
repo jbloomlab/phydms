@@ -18,7 +18,7 @@ We begin by considering the basic *ExpCM* substitution model defined in :ref:`Ex
    P_{r,xy} = 
    \begin{cases}
    Q_{xy} \times F_{r,xy} & \mbox{if $x \ne y$,} \\
-   -\sum_z F_{r,xz} Q_{xz} & \mbox{if $x = y$.}
+   -\sum\limits_{z \ne x} F_{r,xz} Q_{xz} & \mbox{if $x = y$.}
    \end{cases}
 
 where :math:`Q_{xy}` is the rate of mutation from codon :math:`x` to :math:`y` and is defined by
@@ -105,7 +105,7 @@ Here are the derivatives of :math:`P_{r,xy}` with respect to each of these param
    \begin{cases}
    \frac{P_{r,xy}}{\kappa} & \mbox{if $x$ is converted to $y$ by a transition of a nucleotide to $w$,} \\
    0 & \mbox{if $x$ and $y$ differ by something other than a single transition,} \\
-   -\sum_z \frac{\partial P_{r,xz}}{\partial \kappa} & \mbox{if $x = y$.}
+   -\sum\limits_{z \ne x} \frac{\partial P_{r,xz}}{\partial \kappa} & \mbox{if $x = y$.}
    \end{cases}
 
 .. math::
@@ -116,7 +116,7 @@ Here are the derivatives of :math:`P_{r,xy}` with respect to each of these param
    \begin{cases}
    \frac{P_{r,xy}}{\phi_w} \frac{\partial \phi_w}{\partial \eta_i} = \frac{P_{r,xy}}{\eta_i - \delta_{iw}} & \mbox{if $x$ is converted to $y$ by a single-nucleotide mutation to $w \ge i$,} \\
    0 & \mbox{if $i > w$ or $x$ and $y$ differ by more than one nucleotide,} \\
-   -\sum_z \frac{\partial P_{r,xz}}{\partial \eta_i} & \mbox{if $x = y$.}
+   -\sum\limits_{z \ne x} \frac{\partial P_{r,xz}}{\partial \eta_i} & \mbox{if $x = y$.}
    \end{cases}
 
 .. math::
@@ -126,7 +126,7 @@ Here are the derivatives of :math:`P_{r,xy}` with respect to each of these param
    \begin{cases}
    0 & \mbox{if $\operatorname{A}\left(x\right) = \operatorname{A}\left(y\right)$ and $x \ne y$} \\
    \frac{P_{r,xy}}{\omega} & \mbox{if $\operatorname{A}\left(x\right) \ne \operatorname{A}\left(y\right)$,} \\
-   -\sum_z \frac{\partial P_{r,xy}}{\partial \omega} & \mbox{if $x = y$.}
+   -\sum\limits_{z \ne x} \frac{\partial P_{r,xy}}{\partial \omega} & \mbox{if $x = y$.}
    \end{cases}
 
 .. math::
@@ -140,7 +140,7 @@ Here are the derivatives of :math:`P_{r,xy}` with respect to each of these param
    \frac{\left(\pi_{r,\operatorname{A}\left(x\right)} / \pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta} \times \ln\left(\pi_{r,\operatorname{A}\left(x\right)} / \pi_{r,\operatorname{A}\left(y\right)}\right)}{1 - \left(\pi_{r,\operatorname{A}\left(x\right)} / \pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta}} 
    = \frac{P_{r,xy} \left(1 - \frac{F_{r,xy}}{\omega} \left(\pi_{r,\operatorname{A}\left(x\right)} / \pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta}\right)}{\beta}
    & \mbox{if $\operatorname{A}\left(x\right) \ne \operatorname{A}\left(y\right)$,} \\
-   -\sum_z \frac{\partial P_{r,xy}}{\partial \beta} & \mbox{if $x = y$.}
+   -\sum\limits_{z \ne x} \frac{\partial P_{r,xy}}{\partial \beta} & \mbox{if $x = y$.}
    \end{cases}
 
 *ExpCM* stationary state and derivatives
@@ -257,6 +257,48 @@ So we need new formulas for :math:`\frac{\partial p_{r,x}}{\partial \beta}` and 
 Since we do not have an analytic expression for :math:`\hat{\phi}_w`, we cannot compute :math:`\frac{\partial \phi_w}{\partial \beta}` analytically.
 But we can compute these derivatives numerically.
 This is done using a finite-difference method.
+
+We now use this to update the formula in Equation :eq:`dPrxy_dbeta` for the case when `phi_w` depends on `beta`. In that case, we have:
+
+.. math::
+   :label: dQxy_dbeta_empirical_phi
+
+   \frac{\partial Q_{xy}}{\partial \beta} = 
+   \begin{cases}
+   \frac{\partial \phi_w}{\partial \beta} & \mbox{if $x$ is converted to $y$ by a single-nucleotide transversion to $w$,} \\
+   \kappa \frac{\partial \phi_w}{\partial \beta} & \mbox{if $x$ is converted to $y$ by a single-nucleotide transition to $w$,} \\
+   0 & \mbox{if $x$ and $y$ differ by more than one nucleotide,} \\
+   \end{cases}
+
+and 
+
+.. math::
+   :label: dFrxy_dbeta_empirical_phi
+
+   \frac{\partial F_{r,xy}}{\partial \beta}
+   &=&
+   \begin{cases}
+   0 & \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
+   0 & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
+   \frac{F_{r,xy} \left(1 - \frac{F_{r,xy}}{\omega} \left(\pi_{r,\operatorname{A}\left(x\right)} / \pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta}\right)}{\beta}
+   & \mbox{otherwise,}
+   \end{cases}
+
+so for all :math:`x \ne y`, we have
+
+.. math::
+   :label: dPrxy_dbeta_empirical_phi
+
+   \frac{\partial P_{r,xy}}{\partial \beta}
+   & = &
+   \frac{\partial \left(Q_{xy} \times F_{r,xy}\right)}{\partial \beta} \\
+   & = &
+   Q_{xy} \frac{\partial F_{r,xy}}{\partial \beta} + F_{r,xy} \frac{\partial Q_{xy}}{\partial \beta} \\
+   & = &
+   \left[\frac{\partial P_{r,xy}}{\partial \beta}\right]_{\mbox{free } \phi_w} + F_{r,xy} \frac{\partial Q_{xy}}{\partial \beta}.
+
+where :math:`\left[\frac{\partial P_{r,xy}}{\partial \beta}\right]_{\mbox{free } \phi_w}` is the expression given by Equation :eq:`dPrxy_dbeta`.
+When :math:`x = y`, we have :math:`\frac{\partial P_{r,xx}}{\partial \beta} = \sum\limits_{z \ne x} -\frac{\partial P_{r,xz}}{\partial \beta}`. 
 
 Exponentials of the substitution matrix and derivatives
 --------------------------------------------------------

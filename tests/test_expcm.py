@@ -48,7 +48,7 @@ class testExpCM(unittest.TestCase):
         for update in range(2):
             self.params = {'omega':random.uniform(*self.expcm.PARAMLIMITS['omega']),
                       'kappa':random.uniform(*self.expcm.PARAMLIMITS['kappa']),
-                      'beta':0.5 * random.uniform(*self.expcm.PARAMLIMITS['beta']), # multiply by 0.5 since large beta causes numerical issues
+                      'beta':random.uniform(0.5, 3),
                       'eta':scipy.array([random.uniform(*self.expcm.PARAMLIMITS['eta']) for i in range(N_NT - 1)]),
                       'mu':random.uniform(0.05, 5.0),
                      }

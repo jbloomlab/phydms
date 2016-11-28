@@ -256,7 +256,7 @@ class ExpCM(Model):
     _ALLOWEDPARAMS = ['kappa', 'omega', 'beta', 'eta', 'mu']
     _PARAMLIMITS = {'kappa':(0.01, 100.0),
                    'omega':(0.01, 100.0),
-                   'beta':(0.01, 5.0),
+                   'beta':(0.01, 10.0),
                    'eta':(0.01, 0.99),
                    'phi':(0.001, 0.999),
                    'pi':(0.002, 0.998),
@@ -669,6 +669,7 @@ class ExpCM(Model):
                     where=CODON_NONSYN)
             self._fill_diagonals(self.dPrxy['omega'])
         if 'beta' in self.freeparams:
+            self.dPrxy['beta'].fill(0)
             scipy.copyto(self.dPrxy['beta'], (self.Prxy * (1 - self.Frxy / self.omega
                     * self.piAx_piAy_beta)) / self.beta, where=CODON_NONSYN)
             self._fill_diagonals(self.dPrxy['beta'])
@@ -720,7 +721,7 @@ class ExpCM(Model):
         assert m.shape == (self.nsites, N_CODON, N_CODON)
         for r in range(self.nsites):
             scipy.fill_diagonal(m[r], 0)
-            m[r][self._diag_indices] = -scipy.sum(m[r], axis=1)
+            m[r][self._diag_indices] -= scipy.sum(m[r], axis=1)
 
 
 class ExpCM_empirical_phi(ExpCM):
@@ -784,11 +785,11 @@ class ExpCM_empirical_phi(ExpCM):
                 self.beta, dx=dbeta, n=1, order=5)
         dphi_dbeta_halfdx = scipy.misc.derivative(self._compute_empirical_phi,
                 self.beta, dx=dbeta / 2, n=1, order=5)
-        assert scipy.allclose(self.dphi_dbeta, dphi_dbeta_halfdx, atol=1e-4,
-                rtol=1e-3), ("The numerical derivative dphi_dbeta differs "
+        assert scipy.allclose(self.dphi_dbeta, dphi_dbeta_halfdx, atol=1e-5,
+                rtol=1e-4), ("The numerical derivative dphi_dbeta differs "
                 "considerably in value for step dbeta = {0} and a step "
                 "half that size, giving values of {1} and {2}.").format(
-                dbeta, dphi_dbeta, dphi_dbeta_halfdx)
+                dbeta, self.dphi_dbeta, dphi_dbeta_halfdx)
 
     def _compute_empirical_phi(self, beta):
         """Returns empirical `phi` at the given value of `beta`.
@@ -819,23 +820,29 @@ class ExpCM_empirical_phi(ExpCM):
 
         frx = self.pi_codon**beta
         with scipy.errstate(invalid='ignore'):
-            phishort = scipy.optimize.broyden1(F, self.phi[ : -1].copy(), 
-                    f_tol=1e-7)
+            result = scipy.optimize.root(F, self.phi[ : -1].copy(), 
+                    tol=1e-8)
+            assert result.success, "Failed: {0}".format(result)
+            phishort = result.x
         return scipy.append(phishort, 1 - phishort.sum())
 
     def _update_dPrxy(self):
-        """
-        """
-        pass
-#        raise RuntimeError('not yet implemented')
-        #We have to take into account that changing `beta` is going to change `phi`, which will change various other things
+        """Update `dPrxy`."""
+        super(ExpCM_empirical_phi, self)._update_dPrxy() 
+        if 'beta' in self.freeparams:
+            self.dQxy_dbeta = scipy.zeros((N_CODON, N_CODON), dtype='float')
+            for w in range(N_NT):
+                scipy.copyto(self.dQxy_dbeta, self.dphi_dbeta[w], 
+                        where=CODON_NT_MUT[w])
+            self.dQxy_dbeta[CODON_TRANSITION] *= self.kappa
+            self.dPrxy['beta'] += self.Frxy * self.dQxy_dbeta
+            self._fill_diagonals(self.dPrxy['beta'])
 
     def _update_dprx(self):
         """
         """
-        pass
-#        raise RuntimeError('not yet implemented')
-        #We have to take into account that changing `beta` is going to change `phi`, which will change other things
+        raise RuntimeError('not yet implemented')
+        #We have to take into account that changing `beta` is going to change `phi`
 
 
 if __name__ == '__main__':
