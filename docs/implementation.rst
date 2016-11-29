@@ -332,16 +332,16 @@ So:
    & = &
    \frac{\partial}{\partial \beta} \left(\frac{q_x f_{r,x}}{\sum_z q_z f_{r,z}}\right) \\
    & = &
-   \frac{\left(q_x \frac{\partial f_{r,x}}{\partial \beta} + f_{r,x} \frac{\partial q_x}{\partial \beta}\right) \sum_z q_z f_{r,z} + q_x f_{r,x} \sum_z \left(q_z \frac{\partial f_{r,z}}{\partial \beta} + f_{r,z} \frac{\partial q_z}{\partial \beta}\right)}{\left(\sum_z q_z f_{r,z}\right)^2} \\
+   \frac{\left(q_x \frac{\partial f_{r,x}}{\partial \beta} + f_{r,x} \frac{\partial q_x}{\partial \beta}\right) \sum_z q_z f_{r,z} - q_x f_{r,x} \sum_z \left(q_z \frac{\partial f_{r,z}}{\partial \beta} + f_{r,z} \frac{\partial q_z}{\partial \beta}\right)}{\left(\sum_z q_z f_{r,z}\right)^2} \\
    & = &
-   \frac{\left(q_x f_{r,x} \left[\ln\left(\pi_{r,\operatorname{A}\left(x\right)}\right)\right] + f_{r,x} q_x \sum\limits_{j=0}^2 \frac{1}{\phi_{x_j}} \frac{\partial \phi_{x_j}}{\partial \beta}\right) \sum_z q_z f_{r,z} + q_x f_{r,x} \sum_z \left(q_z f_{r,z} \left[\ln\left(\pi_{r,\operatorname{A}\left(z\right)}\right)\right] + f_{r,z} q_z \sum\limits_{j=0}^2 \frac{1}{\phi_{z_j}} \frac{\partial \phi_{z_j}}{\partial \beta}\right)}{\left(\sum_z q_z f_{r,z}\right)^2} \\
+   \frac{\left(q_x f_{r,x} \left[\ln\left(\pi_{r,\operatorname{A}\left(x\right)}\right)\right] + f_{r,x} q_x \sum\limits_{j=0}^2 \frac{1}{\phi_{x_j}} \frac{\partial \phi_{x_j}}{\partial \beta}\right) \sum_z q_z f_{r,z} - q_x f_{r,x} \sum_z \left(q_z f_{r,z} \left[\ln\left(\pi_{r,\operatorname{A}\left(z\right)}\right)\right] + f_{r,z} q_z \sum\limits_{j=0}^2 \frac{1}{\phi_{z_j}} \frac{\partial \phi_{z_j}}{\partial \beta}\right)}{\left(\sum_z q_z f_{r,z}\right)^2} \\
    & = &
-   p_{r,x} \frac{\left(\left[\ln\left(\pi_{r,\operatorname{A}\left(x\right)}\right)\right] + \sum\limits_{j=0}^2 \frac{1}{\phi_{x_j}} \frac{\partial \phi_{x_j}}{\partial \beta}\right) \sum_z q_z f_{r,z} + \sum_z \left(q_z f_{r,z} \left[\ln\left(\pi_{r,\operatorname{A}\left(z\right)}\right)\right] + f_{r,z} q_z \sum\limits_{j=0}^2 \frac{1}{\phi_{z_j}} \frac{\partial \phi_{z_j}}{\partial \beta}\right)}{\sum_z q_z f_{r,z}} \\
+   p_{r,x} \frac{\left(\left[\ln\left(\pi_{r,\operatorname{A}\left(x\right)}\right)\right] + \sum\limits_{j=0}^2 \frac{1}{\phi_{x_j}} \frac{\partial \phi_{x_j}}{\partial \beta}\right) \sum_z q_z f_{r,z} - \sum_z \left(q_z f_{r,z} \left[\ln\left(\pi_{r,\operatorname{A}\left(z\right)}\right)\right] + f_{r,z} q_z \sum\limits_{j=0}^2 \frac{1}{\phi_{z_j}} \frac{\partial \phi_{z_j}}{\partial \beta}\right)}{\sum_z q_z f_{r,z}} \\
    & = &
-   p_{r,x} \left[\left[\ln\left(\pi_{r,\operatorname{A}\left(x\right)}\right)\right] + \sum\limits_{j=0}^2 \frac{1}{\phi_{x_j}} \frac{\partial \phi_{x_j}}{\partial \beta} + \sum_z p_{r,z}\left(\left[\ln\left(\pi_{r,\operatorname{A}\left(z\right)}\right)\right] + \sum\limits_{j=0}^2 \frac{1}{\phi_{z_j}} \frac{\partial \phi_{z_j}}{\partial \beta}\right)\right] \\
+   p_{r,x} \left[\left[\ln\left(\pi_{r,\operatorname{A}\left(x\right)}\right)\right] + \sum\limits_{j=0}^2 \frac{1}{\phi_{x_j}} \frac{\partial \phi_{x_j}}{\partial \beta} - \sum_z p_{r,z}\left(\left[\ln\left(\pi_{r,\operatorname{A}\left(z\right)}\right)\right] + \sum\limits_{j=0}^2 \frac{1}{\phi_{z_j}} \frac{\partial \phi_{z_j}}{\partial \beta}\right)\right] \\
    & = &
    \left[\frac{\partial p_{r,x}}{\partial \beta}\right]_{\mbox{free } \phi_w} +
-   p_{r,x} \left[\sum\limits_{j=0}^2 \frac{1}{\phi_{x_j}} \frac{\partial \phi_{x_j}}{\partial \beta} + \sum_z p_{r,z}\sum\limits_{j=0}^2 \frac{1}{\phi_{z_j}} \frac{\partial \phi_{z_j}}{\partial \beta}\right]
+   p_{r,x} \left[\sum\limits_{j=0}^2 \frac{1}{\phi_{x_j}} \frac{\partial \phi_{x_j}}{\partial \beta} - \sum_z p_{r,z}\sum\limits_{j=0}^2 \frac{1}{\phi_{z_j}} \frac{\partial \phi_{z_j}}{\partial \beta}\right]
 
 where :math:`\left[\frac{\partial p_{r,x}}{\partial \beta}\right]_{\mbox{free } \phi_w}` is the expresssion given by Equation :eq:`dprx_dbeta`.
 
