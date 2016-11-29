@@ -827,7 +827,7 @@ class ExpCM_empirical_phi(ExpCM):
         return scipy.append(phishort, 1 - phishort.sum())
 
     def _update_dPrxy(self):
-        """Update `dPrxy`."""
+        """Update `dPrxy`, accounting for dependence of `phi` on `beta`."""
         super(ExpCM_empirical_phi, self)._update_dPrxy() 
         if 'beta' in self.freeparams:
             self.dQxy_dbeta = scipy.zeros((N_CODON, N_CODON), dtype='float')
@@ -839,10 +839,15 @@ class ExpCM_empirical_phi(ExpCM):
             self._fill_diagonals(self.dPrxy['beta'])
 
     def _update_dprx(self):
-        """
-        """
-        raise RuntimeError('not yet implemented')
-        #We have to take into account that changing `beta` is going to change `phi`
+        """Update `dprx`, accounting for dependence of `phi` on `beta`."""
+        super(ExpCM_empirical_phi, self)._update_dprx()
+        if 'beta' in self.freeparams:
+            dphi_over_phi = scipy.zeros(N_CODON, dtype='float')
+            for j in range(3):
+                dphi_over_phi += (self.dphi_dbeta / self.phi)[CODON_NT_INDEX[j]]
+            for r in range(self.nsites):
+                self.dprx['beta'][r] += self.prx[r] * (dphi_over_phi
+                        - scipy.dot(dphi_over_phi, self.prx[r]))
 
 
 if __name__ == '__main__':

@@ -50,6 +50,7 @@ class testExpCM_empirical_phi(unittest.TestCase):
             self.assertTrue(scipy.allclose(g, self.expcm.g))
             self.check_empirical_phi()
             self.check_dQxy_dbeta()
+            self.check_dprx_dbeta()
             self.check_ExpCM_attributes()
             self.check_ExpCM_derivatives()
             self.check_ExpCM_matrix_exponentials()
@@ -81,6 +82,26 @@ class testExpCM_empirical_phi(unittest.TestCase):
                     [self.expcm.beta], self.expcm, w, epsilon=1e-4)
             self.assertTrue(diff < 1e-4, 
                     "dphi_dbeta diff {0} for w = {1}".format(diff, w))
+        self.expcm.updateParams(self.params) # back to original value
+
+    def check_dprx_dbeta(self):
+        """Checks derivatives of `prx` with respect to `beta`."""
+
+        def func_prx(beta, expcm, r, x):
+            expcm.updateParams({'beta':beta[0]})
+            return expcm.prx[r][x]
+
+        def func_dprx(beta, expcm, r, x):
+            expcm.updateParams({'beta':beta[0]})
+            return expcm.dprx['beta'][r][x]
+
+        for r in range(self.nsites):
+            for x in range(N_CODON):
+                diff = scipy.optimize.check_grad(func_prx, func_dprx, 
+                        [self.expcm.beta], self.expcm, r, x, epsilon=1e-4)
+                self.assertTrue(diff < 1e-4, 
+                        "dprx_dbeta diff {0} for r = {1}, x = {2}".format(
+                        diff, r, x))
         self.expcm.updateParams(self.params) # back to original value
 
     def check_dQxy_dbeta(self):
