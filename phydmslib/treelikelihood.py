@@ -268,6 +268,7 @@ class TreeLikelihood:
                 bounds.append(self.model.PARAMLIMITS[param[0]])
             else:
                 raise ValueError("Invalid param type")
+        bounds = [(tup[0] + ALMOST_ZERO, tup[1] - ALMOST_ZERO) for tup in bounds]
         assert len(bounds) == len(self._index_to_param)
         return tuple(bounds)
 
@@ -359,7 +360,8 @@ class TreeLikelihood:
         if modelparams:
             self.model.updateParams(modelparams)
         if otherparams:
-            raise RuntimeError("cannot currently handle non-model params")
+            raise RuntimeError("Cannot handle non-model params: {0}".format(
+                    otherparams))
         if newvalues:
             self._updateInternals()
             self._paramsarray = None
