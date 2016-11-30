@@ -21,8 +21,12 @@ import phydmslib.treelikelihood
 from phydmslib.constants import *
 
 
-class test_TreeLikelihood(unittest.TestCase):
+class test_TreeLikelihood_ExpCM(unittest.TestCase):
     """Tests `phydmslib.treelikelihood.TreeLikelihood` class."""
+
+    # use approach here to run multiple tests:
+    # http://stackoverflow.com/questions/17260469/instantiate-python-unittest-testcase-with-arguments
+    MODEL = phydmslib.models.ExpCM
 
     def setUp(self):
         """Set up parameters for test."""
@@ -30,8 +34,8 @@ class test_TreeLikelihood(unittest.TestCase):
         scipy.random.seed(1)
 
         # define tree and write image to a file
-        self.newick = ('(($node_1=CAACAT$:0.1,$node_2=CAGCAG$:0.15)'
-                       '$node_4=x$:0.15,$node_3=GAAAAG$:0.25)$node_5=y$:0.02;')
+        self.newick = ('(($node_1=CAACATGCA$:0.1,$node_2=CAGCAGACA$:0.15)'
+                       '$node_4=x$:0.15,$node_3=GAAAAGGCG$:0.25)$node_5=y$:0.02;')
         tempfile = '_temp.tree'
         with open(tempfile, 'w') as f:
             f.write(self.newick)
@@ -56,7 +60,7 @@ class test_TreeLikelihood(unittest.TestCase):
 
         # define alignment
         self.nseqs = self.tree.count_terminals()
-        self.nsites = 2
+        self.nsites = 3
         self.alignment = []
         self.codons = {} # indexed by node, site, gives codon index
         for node in self.tree.get_terminals():
@@ -78,7 +82,13 @@ class test_TreeLikelihood(unittest.TestCase):
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        self.model = phydmslib.models.ExpCM(self.prefs)
+        if self.MODEL == phydmslib.models.ExpCM:
+            self.model = phydmslib.models.ExpCM(self.prefs)
+        elif self.MODEL == phydmslib.models.ExpCM_empirical_phi:
+            g = scipy.random.dirichlet([5] * N_NT)
+            self.model = phydmslib.models.ExpCM_empirical_phi(self.prefs, g)
+        else:
+            raise ValueError("Unrecognized MODEL: {0}".format(self.MODEL))
 
     def test_InitializeTreeLikelihood(self):
         """Test that `TreeLikelihood` initializes properly."""
@@ -108,6 +118,9 @@ class test_TreeLikelihood(unittest.TestCase):
                 'kappa':random.uniform(0.5, 5.0),
                 'omega':random.uniform(0.1, 2),
                 }
+        for param in list(modelparams.keys()):
+            if param not in self.model.freeparams:
+                del modelparams[param]
         model.updateParams(modelparams)
         tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, model)
@@ -187,6 +200,9 @@ class test_TreeLikelihood(unittest.TestCase):
                     'kappa':random.uniform(0.5, 5.0),
                     'omega':random.uniform(0.1, 2),
                     }
+            for param in list(modelparams.keys()):
+                if param not in self.model.freeparams:
+                    del modelparams[param]
             tl.updateParams(modelparams)
 
             def func(x, i):
@@ -224,6 +240,10 @@ class test_TreeLikelihood(unittest.TestCase):
                     'kappa':random.uniform(0.5, 5.0),
                     'omega':random.uniform(0.1, 2),
                     }
+            for param in list(modelparams.keys()):
+                if param not in self.model.freeparams:
+                    del modelparams[param]
+            tl.updateParams(modelparams)
             tl.updateParams(modelparams)
             startloglik = tl.loglik
             result = tl.maximizeLikelihood()
@@ -239,6 +259,10 @@ class test_TreeLikelihood(unittest.TestCase):
                         otherparams, tl.paramsarray))
             logliks.append(tl.loglik)
             paramsarrays.append(tl.paramsarray)
+
+
+class test_TreeLikelihood_ExpCM_empirical_phi(test_TreeLikelihood_ExpCM):
+    MODEL = phydmslib.models.ExpCM_empirical_phi
 
 
 if __name__ == '__main__':
