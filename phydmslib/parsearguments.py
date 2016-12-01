@@ -344,6 +344,10 @@ def PhyDMSParser():
             default='scale', help=("How to handle branch lengths: "
             "fix to values in 'tree'; scale values in 'tree' by single "
             "parameter 'mu'; or optimize each one.")) 
+    parser.set_defaults(fitphi=False)
+    parser.add_argument('--fitphi', action='store_true', dest='fitphi',
+            help='Fit ExpCM phi rather than setting so stationary '
+            'state matches alignment frequencies.')
 #    parser.set_defaults(omegabysite=False)
 #    parser.add_argument('--omegabysite', dest='omegabysite', action='store_true', 
 #            help="Fit an omega (dN/dS) for each site, similar to FEL.")

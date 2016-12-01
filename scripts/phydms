@@ -13,6 +13,7 @@ import random
 import time
 import math
 import multiprocessing
+import scipy
 import Bio.Phylo
 import phydmslib
 import phydmslib.constants
@@ -130,12 +131,31 @@ def main():
                     "sites in the alignment").format(prefsfile)
             logger.info(('Successfully read site-specific amino-acid preferences '
                     'for all {0} sites.\n').format(len(prefs)))
-            freeparams = ['kappa', 'omega', 'beta', 'eta']
+            freeparams = ['kappa', 'omega', 'beta']
             if args['brlen'] == 'scale':
                 logger.info("Scaling branch lengths by adding 'mu' parameter "
                         "to model.\n")
                 freeparams.append('mu')
-            model = phydmslib.models.ExpCM(prefslist, freeparams=freeparams)
+            if args['fitphi']:
+                freeparams.append('eta')
+                logger.info('Nucleotide frequency parameters phi will '
+                        'be optimized by maximum likelihood.')
+                model = phydmslib.models.ExpCM(prefslist, freeparams=freeparams)
+            else:
+                g = scipy.ndarray(phydmslib.constants.N_NT, dtype='float')
+                for (w, nt) in phydmslib.constants.INDEX_TO_NT.items():
+                    g[w] = sum([seq.count(nt) for (head, seq) in alignment])
+                assert len(alignment) * len(prefs) * 3 == (g.sum() + 
+                        sum([seq.count('-') for (head, seq) in alignment])), (
+                        "Alignment contains invalid nucleotide characters")
+                g /= g.sum()
+                logger.info('Nucleotide frequency parameters phi will be '
+                        'set so stationary state matches alignment '
+                        'nucleotide frequencies of {0}'.format(
+                        ', '.join(['{0} = {1:.3f}'.format(nt, g[w]) for
+                        (w, nt) in phydmslib.constants.INDEX_TO_NT.items()])))
+                model = phydmslib.models.ExpCM_empirical_phi(prefslist, g,
+                        freeparams=freeparams)
             # read diversifying pressure
             if ('divpressure' in args) and args['divpressure']:
                 raise RuntimeError('--divpressure not yet implemented')
