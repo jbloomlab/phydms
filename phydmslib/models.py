@@ -232,14 +232,8 @@ class ExpCM(Model):
             `(N_NT - 1, nsites, N_CODON)` with the first index ranging over
             each element in `eta`. Equivalent to `dstationarystate[param]`.
         `D` (`numpy.ndarray` floats, shape `(nsites, N_CODON)`)
-            Element `r` is diagonal of :math:`\mathbf{D_r}` diagonal matrix where
+            Element `r` is diagonal of :math:`\mathbf{D_r}` diagonal matrix,
             :math:`\mathbf{P_r} = \mathbf{A_r}^{-1} \mathbf{D_r} \mathbf{A_r}`
-        `Dxx` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
-            Element `[r][x][y]` is `D[r][x]`.
-        `Dyy` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
-            Element `[r][x][y]` is `D[r][y]`.
-        `Dxx_Dyy` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
-            Equals `Dxx - Dyy`.
         `A` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
             Element r is :math:`\mathbf{A_r}` matrix.
         `Ainv` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
@@ -384,9 +378,6 @@ class ExpCM(Model):
         self.Frxy = scipy.ones((self.nsites, N_CODON, N_CODON), dtype='float')
         self.frx = scipy.zeros((self.nsites, N_CODON), dtype='float')
         self.D = scipy.zeros((self.nsites, N_CODON), dtype='float')
-        self.Dxx = scipy.zeros((self.nsites, N_CODON, N_CODON), dtype='float')
-        self.Dyy = scipy.zeros((self.nsites, N_CODON, N_CODON), dtype='float')
-        self.Dxx_Dyy = scipy.zeros((self.nsites, N_CODON, N_CODON), dtype='float')
         self.A = scipy.zeros((self.nsites, N_CODON, N_CODON), dtype='float')
         self.Ainv = scipy.zeros((self.nsites, N_CODON, N_CODON), dtype='float')
         self.dPrxy = {}
@@ -466,6 +457,9 @@ class ExpCM(Model):
                     changed.add(name)
                     setattr(self, name, value)
 
+        if update_all or changed:
+            self._cached = {}
+
         # The order of the updating below is important.
         # If you change it, you may break either this class
         # **or** classes that inherit from it.
@@ -489,16 +483,19 @@ class ExpCM(Model):
     def M(self, t, tips=None, gaps=None):
         """See docs for method in `Model` abstract base class."""
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
-        with scipy.errstate(under='ignore'): # don't worry if some values are 0
+
+        with scipy.errstate(under='ignore'): # don't worry if some values 0
+            if ('expD', t) not in self._cached:
+                self._cached[('expD', t)] = scipy.exp(self.D * self.mu * t)
+            expD = self._cached[('expD', t)]
             if tips is None:
                 # swap axes to broadcast multiply D as diagonal matrix
                 M = broadcastMatrixMultiply((self.A.swapaxes(0, 1) *
-                        scipy.exp(self.D * self.mu * t)).swapaxes(1, 0),
-                        self.Ainv)
+                        expD).swapaxes(1, 0), self.Ainv)
             else:
                 M = broadcastMatrixVectorMultiply((self.A.swapaxes(0, 1)
-                        * scipy.exp(self.D * self.mu * t)).swapaxes(1, 0),
-                        broadcastGetCols(self.Ainv, tips))
+                        * expD).swapaxes(1, 0), broadcastGetCols(
+                        self.Ainv, tips))
                 if gaps is not None:
                     M[gaps] = scipy.ones(N_CODON, dtype='float')
         return M
@@ -525,15 +522,36 @@ class ExpCM(Model):
             paramisvec = True
             paramlength = paramval.shape[0]
 
-        mut = self.mu * t
-        with scipy.errstate(divide='raise', under='ignore', over='raise',
-                invalid='ignore'):
-            exp_mut_Dxx = scipy.exp(mut * self.Dxx)
-            V = ((exp_mut_Dxx - scipy.exp(mut * self.Dyy)) 
-                    / self.Dxx_Dyy)
-        with scipy.errstate(under='ignore'): # don't worry if some values are 0
-            scipy.copyto(V, mut * exp_mut_Dxx, where=
-                    self._Dxx_Dyy_lt_ALMOST_ZERO)
+        if ('expD', t) not in self._cached:
+            self._cached[('expD', t)] = scipy.exp(self.D * self.mu * t)
+        expD = self._cached[('expD', t)]
+
+        if ('V', t) not in self._cached:
+            if 'Dxx_Dyy' not in self._cached:
+                Dyy = scipy.tile(self.D, (1, N_CODON)).reshape(
+                        self.nsites, N_CODON, N_CODON)
+                Dxx = scipy.array([Dyy[r].transpose() for r in 
+                        range(self.nsites)])
+                self._cached['Dxx_Dyy'] = Dxx - Dyy
+            Dxx_Dyy = self._cached['Dxx_Dyy']
+            if 'Dxx_Dyy_lt_ALMOST_ZERO' not in self._cached:
+                self._cached['Dxx_Dyy_lt_ALMOST_ZERO'] = scipy.fabs(
+                        Dxx_Dyy) < ALMOST_ZERO
+            Dxx_Dyy_lt_ALMOST_ZERO = self._cached['Dxx_Dyy_lt_ALMOST_ZERO']
+            with scipy.errstate(divide='raise', under='ignore',
+                    over='raise', invalid='ignore'):
+                expDyy = scipy.tile(expD,(1, N_CODON)).reshape(
+                        self.nsites, N_CODON, N_CODON)
+                expDxx = scipy.array([expDyy[r].transpose() for r in
+                        range(self.nsites)])
+                V = (expDxx - expDyy) / Dxx_Dyy
+            with scipy.errstate(under='ignore'): # OK if some values 0
+                scipy.copyto(V, self.mu * t * expDxx, where=
+                        Dxx_Dyy_lt_ALMOST_ZERO)
+            self._cached[('V', t)] = V
+        V = self._cached[('V', t)]
+
+        with scipy.errstate(under='ignore'): # don't worry if some values 0
             if tips is None:
                 if not paramisvec:
                     dM_param = broadcastMatrixMultiply(self.A, 
@@ -632,7 +650,7 @@ class ExpCM(Model):
         self._fill_diagonals(self.Prxy)
 
     def _update_Prxy_diag(self):
-        """Update `D`, `A`, `Ainv`, `Dxx`, `Dyy`, `Dxx_Dyy` from `Prxy`, `prx`."""
+        """Update `D`, `A`, `Ainv` from `Prxy`, `prx`."""
         for r in range(self.nsites):
             pr_half = self.prx[r]**0.5
             pr_neghalf = self.prx[r]**-0.5
@@ -645,10 +663,6 @@ class ExpCM(Model):
             self.D[r] = evals
             self.Ainv[r] = evecs.transpose() * pr_half
             self.A[r] = (pr_neghalf * evecs.transpose()).transpose()
-            self.Dxx[r] = scipy.tile(self.D[r], (N_CODON, 1)).transpose()
-            self.Dyy[r] = scipy.tile(self.D[r], (N_CODON, 1))
-        self.Dxx_Dyy = self.Dxx - self.Dyy
-        self._Dxx_Dyy_lt_ALMOST_ZERO = scipy.fabs(self.Dxx_Dyy) < ALMOST_ZERO
 
     def _update_prx(self):
         """Update `prx` using current `frx` and `qx`."""
