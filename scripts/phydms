@@ -137,6 +137,7 @@ def main():
                         "to model.\n")
                 freeparams.append('mu')
             if args['fitphi']:
+                assert not args['divpressure'], "Can't use --divpressure and --fitphi"
                 freeparams.append('eta')
                 logger.info('Nucleotide frequency parameters phi will '
                         'be optimized by maximum likelihood.')
@@ -154,8 +155,14 @@ def main():
                         'nucleotide frequencies of {0}'.format(
                         ', '.join(['{0} = {1:.3f}'.format(nt, g[w]) for
                         (w, nt) in phydmslib.constants.INDEX_TO_NT.items()])))
-                model = phydmslib.models.ExpCM_empirical_phi(prefslist, g,
+                if not args['divpressure']:
+                    model = phydmslib.models.ExpCM_empirical_phi(prefslist, g,
                         freeparams=freeparams)
+                else:
+                    freeparams.append('omega2')
+                    divpressure = ReadDivPressure()
+                    model = phydmslib.models.ExpCM_empirical_phi_divpressure(
+                            prefslist, g, divpressure, freeparams=freeparams)
             # read diversifying pressure
             if ('divpressure' in args) and args['divpressure']:
                 raise RuntimeError('--divpressure not yet implemented')

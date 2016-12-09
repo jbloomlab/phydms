@@ -362,10 +362,10 @@ def PhyDMSParser():
     parser.set_defaults(avgprefs=False)
     parser.add_argument('--avgprefs', dest='avgprefs', action='store_true', 
             help="Average preferences across sites for ExpCM.")
-#    parser.add_argument('--divpressure', type=ExistingFileOrNone, 
-#            help=("Known diversifying pressure at sites: file with column 1 "
-#            "= position, column 2 = diversification pressure; columns space "
-#            "delimited."))
+    parser.add_argument('--divpressure', type=ExistingFileOrNone, 
+            help=("Known diversifying pressure at sites: file with column 1 "
+            "= position, column 2 = diversification pressure; columns space "
+            "delimited."))
     parser.add_argument('--ncpus', default=1, type=int,
             help='Use this many CPUs; -1 means all available.')
     parser.add_argument('-v', '--version', action='version', 

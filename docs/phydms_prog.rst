@@ -89,6 +89,8 @@ Command-line usage
    \-\-divpressure
     Only for *ExpCM* models. This option specifies the name of the file with the predetermined diversifying pressure for each site, :math:`\delta_{r}`. ``phydms`` will fit :math:`\omega` and :math:`\omega_{2}` as described in :ref:`ExpCM`.
 
+    You can **not** use ``--divpressure`` and ``--fitphi`` simultaneously.
+
    \-\-randprefs
     Only for *ExpCM* models. 
     This option randomly reassigns the preferences among sites. 
