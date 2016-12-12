@@ -144,6 +144,9 @@ def main():
                     freeparams.append('omega2')
                     divpressure = phydmslib.file_io.readDivPressure(args['divpressure'])
                     print(divpressure)
+                    print(set(divpressure.keys()))
+                    print(set(prefs.keys()))
+                    assert set(prefs.keys()) == set(divpressure.keys()), "Preferences and divPressure dictionaries have different sites"
                     #model = phydmslib.models.ExpCM_empirical_phi_divpressure(
                     #        prefslist, g, divpressure, freeparams=freeparams)
             # read diversifying pressure

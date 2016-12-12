@@ -354,7 +354,11 @@ def readDivPressure(fileName):
     except ValueError:
         pandasformat = False
     df.columns = ['site', 'divPressureValue']
-    divPressure = df.set_index('site').to_dict()
+    assert len(df['site'].tolist()) == len(set(df['site'].tolist())),"At least one site is listed more than once in {0}".format(fileName)
+    sites = df['site'].tolist()
+    divPressure = {}
+    for r in sites:
+        divPressure[r] = df[df['site'] == r]["divPressureValue"].tolist()[0]
     return divPressure
 
 
