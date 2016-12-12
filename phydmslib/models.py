@@ -863,6 +863,79 @@ class ExpCM_empirical_phi(ExpCM):
                 self.dprx['beta'][r] += self.prx[r] * (dphi_over_phi
                         - scipy.dot(dphi_over_phi, self.prx[r]))
 
+class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
+    """An `ExpCM` with `phi` calculated empirically from nucleotide frequencies
+       and an *a priori*  expectation of diversifying pressure at each site.
+
+    See `__init__` method for how to initialize an `ExpCM_empirical_phi_divpressure`.
+
+    The difference between an `ExpCM_empirical_phi` and an `ExpCM_empirical_phi_divpressure` 
+    is that the `omega` term is replaced by the expression `omega*(1+omega2*deltar)` where
+    `deltar` is the expectation of diversifying pressure at site `r`.
+
+    Now, the rate of non-synonymous to synonymous change is proportional to the expectation
+    of diversifying pressure.
+
+    Has all the attributes of an `ExpCM_empirical_phi` plus the following:
+        `omega2` (float)
+            Part of the expression which replaces `omega`.
+    """
+
+    # class variables
+    _ALLOWEDPARAMS = copy.deepcopy(ExpCM_empirical_phi._ALLOWEDPARAMS)
+    _ALLOWEDPARAMS.append('omega2')
+    _PARAMLIMITS = copy.deepcopy(ExpCM_empirical_phi._PARAMLIMITS)
+    _PARAMLIMITS['omega2'] = (-99,99)
+    _PARAMTYPES = copy.deepcopy(ExpCM_empirical_phi._PARAMTYPES)
+    _PARAMTYPES['omega2'] = float
+
+    def __init__(self, prefs, g, divPressureValues, kappa=2.0, omega=0.5, beta=1.0, mu=1.0,omega2 = 0.0,
+            freeparams=['kappa', 'omega', 'beta', 'mu']):
+        """Initialize an `ExpCM_empirical_phi_divpressure` object.
+
+        Args:
+            `prefs`, `kappa`, `omega`, `beta`, `mu`, `g`, `freeparams`
+                Same meaning as for an `ExpCM_empirical_phi`
+            `divPressureValues`
+                Dictionary of deltar values keyed by site
+            `omega2`
+                Has the meaning described in the main class doc string 
+        """
+        print("printing divPressureValues inside the class")
+        print(divPressureValues)
+
+        super(ExpCM_empirical_phi_divpressure, self).__init__(prefs, g, kappa=kappa, 
+                omega=omega, beta=beta, mu=mu, freeparams=freeparams)
+        print(freeparams)
+        freeparams.append('omega2')
+        self.checkParam('omega2', omega2)
+        print(freeparams)
+        print(omega2)
+
+#     def _update_dPrxy(self):
+#         """Update `dPrxy`, accounting for dependence of `phi` on `beta`."""
+#         super(ExpCM_empirical_phi, self)._update_dPrxy() 
+#         if 'beta' in self.freeparams:
+#             self.dQxy_dbeta = scipy.zeros((N_CODON, N_CODON), dtype='float')
+#             for w in range(N_NT):
+#                 scipy.copyto(self.dQxy_dbeta, self.dphi_dbeta[w], 
+#                         where=CODON_NT_MUT[w])
+#             self.dQxy_dbeta[CODON_TRANSITION] *= self.kappa
+#             self.dPrxy['beta'] += self.Frxy * self.dQxy_dbeta
+#             self._fill_diagonals(self.dPrxy['beta'])
+# 
+#     def _update_dprx(self):
+#         """Update `dprx`, accounting for dependence of `phi` on `beta`."""
+#         super(ExpCM_empirical_phi, self)._update_dprx()
+#         if 'beta' in self.freeparams:
+#             dphi_over_phi = scipy.zeros(N_CODON, dtype='float')
+#             for j in range(3):
+#                 dphi_over_phi += (self.dphi_dbeta / self.phi)[CODON_NT_INDEX[j]]
+#             for r in range(self.nsites):
+#                 self.dprx['beta'][r] += self.prx[r] * (dphi_over_phi
+#                         - scipy.dot(dphi_over_phi, self.prx[r]))
+
+
 
 if __name__ == '__main__':
     import doctest

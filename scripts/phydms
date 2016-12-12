@@ -141,14 +141,10 @@ def main():
                     model = phydmslib.models.ExpCM_empirical_phi(prefslist, g,
                         freeparams=freeparams)
                 else:
-                    freeparams.append('omega2')
                     divpressure = phydmslib.file_io.readDivPressure(args['divpressure'])
-                    print(divpressure)
-                    print(set(divpressure.keys()))
-                    print(set(prefs.keys()))
                     assert set(prefs.keys()) == set(divpressure.keys()), "The sites in {0} are different from {1}.".format(args['divpressure'],prefsfile)
-                    #model = phydmslib.models.ExpCM_empirical_phi_divpressure(
-                    #        prefslist, g, divpressure, freeparams=freeparams)
+                    model = phydmslib.models.ExpCM_empirical_phi_divpressure(
+                            prefslist, g, divpressure,freeparams=freeparams)
             # read diversifying pressure
             if ('divpressure' in args) and args['divpressure']:
                 raise RuntimeError('--divpressure not yet implemented')
