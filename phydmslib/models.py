@@ -890,7 +890,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
     _PARAMTYPES['omega2'] = float
 
     def __init__(self, prefs, g, divPressureValues, kappa=2.0, omega=0.5, beta=1.0, mu=1.0,omega2 = 0.0,
-            freeparams=['kappa', 'omega', 'beta', 'mu']):
+            freeparams=['kappa', 'omega', 'beta', 'mu', 'omega2']):
         """Initialize an `ExpCM_empirical_phi_divpressure` object.
 
         Args:
