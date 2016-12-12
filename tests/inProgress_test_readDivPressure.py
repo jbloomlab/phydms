@@ -25,11 +25,9 @@ class test_readPrefs(unittest.TestCase):
         for divPressureFile in self.divPressurefiles:
             divPressure = phydmslib.file_io.readDivPressure(divPressureFile)
             sites = sorted(divPressure.keys())
-            divPressureValues = sorted(divPressure[sites[0]].keys())
             divPressureList = []
             for r in sites:
-                for value in divPressureValues:
-                    divPressureList.append(divPressure[r][value])
+            	divPressureList.append(divPressure[r])
             divPressure_as_array[divPressureFile] = numpy.array(divPressureList)
         for (i, f1) in enumerate(self.divPressurefiles):
             divPressure1 = divPressure_as_array[f1]

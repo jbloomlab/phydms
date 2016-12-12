@@ -354,7 +354,7 @@ def readDivPressure(fileName):
     except ValueError:
         pandasformat = False
     df.columns = ['site', 'divPressureValue']
-    assert len(df['site'].tolist()) == len(set(df['site'].tolist())),"At least one site is listed more than once in {0}".format(fileName)
+    assert len(df['site'].tolist()) == len(set(df['site'].tolist())),"There is at least one non-unique site in {0}".format(fileName)
     sites = df['site'].tolist()
     divPressure = {}
     for r in sites:
