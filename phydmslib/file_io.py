@@ -345,6 +345,23 @@ def readPrefs_dms_tools_format(f):
             if pi_95credint != None:
                 pi_95credint[r] = dict([(x, (float(entries[3 + len(characters) + i].split(',')[0]), float(entries[3 + len(characters) + i].split(',')[1]))) for (i, x) in enumerate(characters)])
     return (sites, wts, pi_means, pi_95credint, h)
+    
+def readDivPressure_dms_tools_format(fileName):
+    """Read diversifying pressure, return dict of sites and diversifying pressure."""
+    with open(fileName) as f:
+        lines = [line for line in f.readlines() if (not line.isspace()) and line[0] != '#']
+        divPressure = {}
+        for line in lines:
+            entries = line.split()
+            try:
+                assert len(entries) ==2
+                site = int(entries[0])
+                divValue = float(entries[1])
+            except:
+                raise ValueError("Not an integer followed by a float in line of {0}: \n{1}".format(fileName,line))
+            assert site not in divPressure, "Duplicate diversifying pressure specified for site {0}".format(site)
+            divPressure[site] = divValue
+    return divPressure
 
 
 if __name__ == '__main__':
