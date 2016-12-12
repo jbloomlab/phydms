@@ -390,7 +390,7 @@ Derivative of :math:`P_{r,xy}` with respect to :math:`\omega2`:
    \frac{\partial P_{r,xy}}{\partial \omega_2} =
    \begin{cases}
    0 & \mbox{if $\operatorname{A}\left(x\right) = \operatorname{A}\left(y\right)$ and $x \ne y$} \\
-   \frac{\delta_r\times P_{r,xy}}{\omega\times\left(1+\omega_{2}\times\delta_{r}\right)} & \mbox{if $\operatorname{A}\left(x\right) \ne \operatorname{A}\left(y\right)$,} \\
+   \frac{\delta_r\times P_{r,xy}}{1+\omega_{2}\times\delta_{r}} & \mbox{if $\operatorname{A}\left(x\right) \ne \operatorname{A}\left(y\right)$,} \\
    -\sum\limits_{z \ne x} \frac{\partial P_{r,xy}}{\partial \omega_2} & \mbox{if $x = y$.}
    \end{cases}.
    
