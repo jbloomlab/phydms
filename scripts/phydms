@@ -160,9 +160,10 @@ def main():
                         freeparams=freeparams)
                 else:
                     freeparams.append('omega2')
-                    divpressure = ReadDivPressure()
-                    model = phydmslib.models.ExpCM_empirical_phi_divpressure(
-                            prefslist, g, divpressure, freeparams=freeparams)
+                    divpressure = ReadDivPressure(args['divpressure'])
+                    print(divpressure)
+                    #model = phydmslib.models.ExpCM_empirical_phi_divpressure(
+                    #        prefslist, g, divpressure, freeparams=freeparams)
             # read diversifying pressure
             if ('divpressure' in args) and args['divpressure']:
                 raise RuntimeError('--divpressure not yet implemented')

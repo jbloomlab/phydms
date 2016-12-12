@@ -18,10 +18,11 @@ class test_phydms_divpressure(unittest.TestCase):
 
     def test_NP_divpressure(self):
         """Tests command-line ``phydms`` with `ExpCM`  and `--divpressure` on simulated NP data."""
-        npdir = './divpressure_tests/'
-        prefs = '{0}/NP_prefs.txt'.format(npdir)
-        alignment = '{0}/simulated_NP.fasta'.format(npdir)
-        tree = '{0}/NP_tree.newick'.format(npdir)
+        dpdir = './divpressure_tests/'
+        prefs = '{0}/NP_prefs.txt'.format(dpdir)
+        alignment = '{0}/simulated_NP.fasta'.format(dpdir)
+        tree = '{0}/NP_tree.newick'.format(dpdir)
+        divpressure = '{0}/divpressure.txt'.format(dpdir)
         for f in [prefs, alignment]:
             self.assertTrue(os.path.isfile(f), "Can't find file {0}".format(f))
         outprefix = './NP_test_results/'
@@ -29,7 +30,7 @@ class test_phydms_divpressure(unittest.TestCase):
             shutil.rmtree(outprefix)
 
         subprocess.check_call(['phydms', alignment, tree, 
-                'ExpCM_{0}'.format(prefs), outprefix])
+                'ExpCM_{0}'.format(prefs), outprefix, '--divpressure', divpressure])
 
 
 if __name__ == '__main__':
