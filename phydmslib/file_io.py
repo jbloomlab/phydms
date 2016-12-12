@@ -347,7 +347,19 @@ def readPrefs_dms_tools_format(f):
     return (sites, wts, pi_means, pi_95credint, h)
     
 def readDivPressure(fileName):
-    """Read diversifying pressure, return dict of sites and diversifying pressure."""
+    """
+    Reads in diversifying pressures from some file.
+        Args:
+        `fileName` (string or readable file-like object)
+            File holding diversifying pressure values. Can be
+            comma-, space-, or tab-separated file. The first column
+            is the site consecutively numbered with the sites starting
+            with one. The second column is the diversifying pressure values.
+
+        Returns:
+        `divPressure` (dict keyed by ints)
+            `divPressure[r][v]` is the diversifying pressure value of site `r`.
+            """
     try:
         df = pandas.read_csv(fileName, sep=None, engine='python')
         pandasformat = True
