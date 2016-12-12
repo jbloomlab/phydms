@@ -913,28 +913,16 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         print(omega2)
 
 #     def _update_dPrxy(self):
-#         """Update `dPrxy`, accounting for dependence of `phi` on `beta`."""
+#         """Update `dPrxy`, accounting for dependence of `Prxy` on `omega2`."""
 #         super(ExpCM_empirical_phi, self)._update_dPrxy() 
+#         if 'omega2' in self.freeparams:
+#             scipy.copyto(self.dPrxy['omega2'], deltar * self.Prxy / (1 + self.omega2*deltar), 
+#                     where=CODON_NONSYN)
+#             self._fill_diagonals(self.dPrxy['omega2'])
 #         if 'beta' in self.freeparams:
-#             self.dQxy_dbeta = scipy.zeros((N_CODON, N_CODON), dtype='float')
-#             for w in range(N_NT):
-#                 scipy.copyto(self.dQxy_dbeta, self.dphi_dbeta[w], 
-#                         where=CODON_NT_MUT[w])
-#             self.dQxy_dbeta[CODON_TRANSITION] *= self.kappa
-#             self.dPrxy['beta'] += self.Frxy * self.dQxy_dbeta
-#             self._fill_diagonals(self.dPrxy['beta'])
-# 
-#     def _update_dprx(self):
-#         """Update `dprx`, accounting for dependence of `phi` on `beta`."""
-#         super(ExpCM_empirical_phi, self)._update_dprx()
-#         if 'beta' in self.freeparams:
-#             dphi_over_phi = scipy.zeros(N_CODON, dtype='float')
-#             for j in range(3):
-#                 dphi_over_phi += (self.dphi_dbeta / self.phi)[CODON_NT_INDEX[j]]
-#             for r in range(self.nsites):
-#                 self.dprx['beta'][r] += self.prx[r] * (dphi_over_phi
-#                         - scipy.dot(dphi_over_phi, self.prx[r]))
-
+#             self.dPrxy['beta'].fill(0)
+#             scipy.copyto(self.dPrxy['beta'], (self.Prxy * (1 - self.Frxy / (self.omega*(1+self.omega2*deltar))
+#                     * self.piAx_piAy_beta)) / self.beta, where=CODON_NONSYN)
 
 
 if __name__ == '__main__':
