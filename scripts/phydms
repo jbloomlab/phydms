@@ -22,24 +22,6 @@ import phydmslib.parsearguments
 import phydmslib.models
 import phydmslib.treelikelihood
 
-    
-def ReadDivPressure(fileName):
-    """Read diversifying pressure, return dict of sites and diversifying pressure."""
-    with open(fileName) as f:
-        lines = [line for line in f.readlines() if (not line.isspace()) and line[0] != '#']
-        divPressure = {}
-        for line in lines:
-            entries = line.split()
-            try:
-                assert len(entries) ==2
-                site = int(entries[0])
-                divValue = float(entries[1])
-            except:
-                raise ValueError("Not an integer followed by a float in line of {0}: \n{1}".format(fileName,line))
-            assert site not in divPressure, "Duplicate diversifying pressure specified for site {0}".format(site)
-            divPressure[site] = divValue
-    return divPressure
-
 
 def main():
     """Main body of script."""
@@ -160,7 +142,7 @@ def main():
                         freeparams=freeparams)
                 else:
                     freeparams.append('omega2')
-                    divpressure = ReadDivPressure(args['divpressure'])
+                    divpressure = phydmslib.file_io.readDivPressure_dms_tools_format(args['divpressure'])
                     print(divpressure)
                     #model = phydmslib.models.ExpCM_empirical_phi_divpressure(
                     #        prefslist, g, divpressure, freeparams=freeparams)
