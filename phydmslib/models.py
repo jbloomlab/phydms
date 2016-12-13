@@ -785,6 +785,7 @@ class ExpCM_empirical_phi(ExpCM):
         assert abs(1 - g.sum()) <= ALMOST_ZERO, "g doesn't sum to 1"
         self.g = g.copy()
         self.g /= self.g.sum()
+        
 
         super(ExpCM_empirical_phi, self).__init__(prefs, kappa=kappa, 
                 omega=omega, beta=beta, mu=mu, freeparams=freeparams)
@@ -901,18 +902,16 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
             `omega2`
                 Has the meaning described in the main class doc string 
         """
-        print("printing divPressureValues inside the class")
-        print(divPressureValues)
+        self.checkParam('omega2',omega2)
         otherfreeparams = [param for param in freeparams if param != 'omega2']
+        
         super(ExpCM_empirical_phi_divpressure, self).__init__(prefs, g, kappa=kappa, 
                 omega=omega, beta=beta, mu=mu, freeparams=otherfreeparams)
-        print(freeparams)
-#         self.omega2 = omega2
-#         if 'omega2' in freeparams:
-#         	self._freeparams.append('omega2')
-        self.checkParam('omega2', omega2)
-        print(freeparams)
-        print(omega2)
+
+        if 'omega2' in freeparams:
+           self.omega2 = omega2
+           self._freeparams.append('omega2')
+        
 
 #     def _update_dPrxy(self):
 #         """Update `dPrxy`, accounting for dependence of `Prxy` on `omega2`."""
