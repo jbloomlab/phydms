@@ -366,7 +366,10 @@ def readDivPressure(fileName):
     except ValueError:
         pandasformat = False
     df.columns = ['site', 'divPressureValue']
+    scaleFactor = (max(df["divPressureValue"].abs()))
+    df["divPressureValue"] = [x/scaleFactor for x in df["divPressureValue"]]
     assert len(df['site'].tolist()) == len(set(df['site'].tolist())),"There is at least one non-unique site in {0}".format(fileName)
+    assert max(df["divPressureValue"].abs()) <=1, "Something went wrong with the scaling."
     sites = df['site'].tolist()
     divPressure = {}
     for r in sites:

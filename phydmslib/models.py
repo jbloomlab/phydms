@@ -886,7 +886,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
     _ALLOWEDPARAMS = copy.deepcopy(ExpCM_empirical_phi._ALLOWEDPARAMS)
     _ALLOWEDPARAMS.append('omega2')
     _PARAMLIMITS = copy.deepcopy(ExpCM_empirical_phi._PARAMLIMITS)
-    _PARAMLIMITS['omega2'] = (-99,99)
+    _PARAMLIMITS['omega2'] = (-1,999)
     _PARAMTYPES = copy.deepcopy(ExpCM_empirical_phi._PARAMTYPES)
     _PARAMTYPES['omega2'] = float
 
