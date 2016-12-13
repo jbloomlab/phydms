@@ -126,7 +126,7 @@ Here are the derivatives of :math:`P_{r,xy}` with respect to each of these param
    \begin{cases}
    0 & \mbox{if $\operatorname{A}\left(x\right) = \operatorname{A}\left(y\right)$ and $x \ne y$} \\
    \frac{P_{r,xy}}{\omega} & \mbox{if $\operatorname{A}\left(x\right) \ne \operatorname{A}\left(y\right)$,} \\
-   -\sum\limits_{z \ne x} \frac{\partial P_{r,xy}}{\partial \omega} & \mbox{if $x = y$.}
+   -\sum\limits_{z \ne x} \frac{\partial P_{r,xz}}{\partial \omega} & \mbox{if $x = y$.}
    \end{cases}
 
 .. math::
@@ -140,7 +140,7 @@ Here are the derivatives of :math:`P_{r,xy}` with respect to each of these param
    \frac{\left(\pi_{r,\operatorname{A}\left(x\right)} / \pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta} \times \ln\left(\pi_{r,\operatorname{A}\left(x\right)} / \pi_{r,\operatorname{A}\left(y\right)}\right)}{1 - \left(\pi_{r,\operatorname{A}\left(x\right)} / \pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta}} 
    = \frac{P_{r,xy} \left(1 - \frac{F_{r,xy}}{\omega} \left(\pi_{r,\operatorname{A}\left(x\right)} / \pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta}\right)}{\beta}
    & \mbox{if $\operatorname{A}\left(x\right) \ne \operatorname{A}\left(y\right)$,} \\
-   -\sum\limits_{z \ne x} \frac{\partial P_{r,xy}}{\partial \beta} & \mbox{if $x = y$.}
+   -\sum\limits_{z \ne x} \frac{\partial P_{r,xz}}{\partial \beta} & \mbox{if $x = y$.}
    \end{cases}
 
 *ExpCM* stationary state and derivatives
@@ -390,7 +390,7 @@ Derivative of :math:`P_{r,xy}` with respect to :math:`\omega2`:
    \frac{\partial P_{r,xy}}{\partial \omega_2} =
    \begin{cases}
    0 & \mbox{if $\operatorname{A}\left(x\right) = \operatorname{A}\left(y\right)$ and $x \ne y$} \\
-   \frac{\delta_r\times P_{r,xy}}{1+\omega_{2}\times\delta_{r}} & \mbox{if $\operatorname{A}\left(x\right) \ne \operatorname{A}\left(y\right)$,} \\
+   \omega \times \delta_r \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} \times Q_{xy} & \mbox{if $\operatorname{A}\left(x\right) \ne \operatorname{A}\left(y\right)$,} \\
    -\sum\limits_{z \ne x} \frac{\partial P_{r,xy}}{\partial \omega_2} & \mbox{if $x = y$.}
    \end{cases}.
    

@@ -889,7 +889,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
     _PARAMTYPES = copy.deepcopy(ExpCM_empirical_phi._PARAMTYPES)
     _PARAMTYPES['omega2'] = float
 
-    def __init__(self, prefs, g, divPressureValues, kappa=2.0, omega=0.5, beta=1.0, mu=1.0,omega2 = 0.0,
+    def __init__(self, prefs, g, divPressureValues, kappa=2.0, omega=0.5, beta=1.0, mu=1.0,omega2=0.0,
             freeparams=['kappa', 'omega', 'beta', 'mu', 'omega2']):
         """Initialize an `ExpCM_empirical_phi_divpressure` object.
 
@@ -903,11 +903,13 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         """
         print("printing divPressureValues inside the class")
         print(divPressureValues)
-
+        otherfreeparams = [param for param in freeparams if param != 'omega2']
         super(ExpCM_empirical_phi_divpressure, self).__init__(prefs, g, kappa=kappa, 
-                omega=omega, beta=beta, mu=mu, freeparams=freeparams)
+                omega=omega, beta=beta, mu=mu, freeparams=otherfreeparams)
         print(freeparams)
-        freeparams.append('omega2')
+#         self.omega2 = omega2
+#         if 'omega2' in freeparams:
+#         	self._freeparams.append('omega2')
         self.checkParam('omega2', omega2)
         print(freeparams)
         print(omega2)
@@ -916,8 +918,9 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
 #         """Update `dPrxy`, accounting for dependence of `Prxy` on `omega2`."""
 #         super(ExpCM_empirical_phi, self)._update_dPrxy() 
 #         if 'omega2' in self.freeparams:
-#             scipy.copyto(self.dPrxy['omega2'], deltar * self.Prxy / (1 + self.omega2*deltar), 
-#                     where=CODON_NONSYN)
+#             for r in range(self.nsites):
+#                     scipy.copyto(self.dPrxy['omega2'][r], deltar[r] * self.Prxy[r] / (1 + self.omega2*deltar[r]), 
+#                           where=CODON_NONSYN)
 #             self._fill_diagonals(self.dPrxy['omega2'])
 #         if 'beta' in self.freeparams:
 #             self.dPrxy['beta'].fill(0)
