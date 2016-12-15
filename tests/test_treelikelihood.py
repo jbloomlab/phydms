@@ -92,10 +92,8 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
 
     def test_InitializeTreeLikelihood(self):
         """Test that `TreeLikelihood` initializes properly."""
-#         tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, self.alignment,
-#                 self.model)
-        tl = phydmslib.treelikelihood.TreeLikelihood(copy.deepcopy(self.tree), self.alignment,
-                copy.deepcopy(self.model))
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, self.alignment,
+                self.model)
         self.assertTrue(tl.nsites == self.nsites)
         self.assertTrue(tl.nseqs == self.nseqs)
         self.assertTrue(tl.nnodes == tl.ninternal + tl.ntips)
@@ -190,10 +188,8 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
 
     def test_LikelihoodDerivativesModelParams(self):
         """Test derivatives of `TreeLikelihood` with respect to model params."""
-#         tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
-#                     self.alignment, copy.deepcopy(self.model))
-        tl = phydmslib.treelikelihood.TreeLikelihood(copy.deepcopy(self.tree),
-                    self.alignment, copy.deepcopy(self.model))
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
+                    self.alignment, self.model)
 
         for itest in range(2):
             random.seed(itest)
@@ -231,7 +227,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         
         Make sure it gives the same value for several starting points."""
         tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
-                    self.alignment, copy.deepcopy(self.model))
+                    self.alignment, self.model)
 
         logliks = []
         paramsarrays = []
@@ -248,7 +244,6 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             for param in list(modelparams.keys()):
                 if param not in self.model.freeparams:
                     del modelparams[param]
-            tl.updateParams(modelparams)
             tl.updateParams(modelparams)
             startloglik = tl.loglik
             result = tl.maximizeLikelihood()
