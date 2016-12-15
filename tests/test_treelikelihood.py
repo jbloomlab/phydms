@@ -92,8 +92,10 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
 
     def test_InitializeTreeLikelihood(self):
         """Test that `TreeLikelihood` initializes properly."""
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, self.alignment,
-                self.model)
+#         tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, self.alignment,
+#                 self.model)
+        tl = phydmslib.treelikelihood.TreeLikelihood(copy.deepcopy(self.tree), self.alignment,
+                copy.deepcopy(self.model))
         self.assertTrue(tl.nsites == self.nsites)
         self.assertTrue(tl.nseqs == self.nseqs)
         self.assertTrue(tl.nnodes == tl.ninternal + tl.ntips)
@@ -114,12 +116,13 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         modelparams = {
                 'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
                 'mu':random.uniform(0.2, 2.0),
-                'beta':random.uniform(0.8, 1.6),
+                'beta':random.uniform(0.8, 1.3),
                 'kappa':random.uniform(0.5, 5.0),
                 'omega':random.uniform(0.1, 2),
                 }
         for param in list(modelparams.keys()):
-            if param not in self.model.freeparams:
+#             if param not in self.model.freeparams:
+            if param not in model.freeparams:
                 del modelparams[param]
         model.updateParams(modelparams)
         tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
@@ -187,7 +190,9 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
 
     def test_LikelihoodDerivativesModelParams(self):
         """Test derivatives of `TreeLikelihood` with respect to model params."""
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
+#         tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
+#                     self.alignment, copy.deepcopy(self.model))
+        tl = phydmslib.treelikelihood.TreeLikelihood(copy.deepcopy(self.tree),
                     self.alignment, copy.deepcopy(self.model))
 
         for itest in range(2):
@@ -236,7 +241,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             modelparams = {
                     'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
                     'mu':random.uniform(0.2, 2.0),
-                    'beta':random.uniform(0.8, 1.2),
+                    'beta':random.uniform(0.8, 1.3),
                     'kappa':random.uniform(0.5, 5.0),
                     'omega':random.uniform(0.1, 2),
                     }
