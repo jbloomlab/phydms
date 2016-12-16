@@ -444,7 +444,6 @@ class ExpCM(Model):
         assert all(map(lambda x: x in self.freeparams, newvalues.keys())),\
                 "Invalid entry in newvalues: {0}\nfreeparams: {1}".format(
                 ', '.join(newvalues.keys()), ', '.join(self.freeparams))
-
         changed = set([]) # contains string names of changed params
         for (name, value) in newvalues.items():
             self.checkParam(name, value)
@@ -911,20 +910,23 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         if 'omega2' in freeparams:
            self.omega2 = omega2
            self._freeparams.append('omega2')
+           print("in __init__",self._freeparams)
         
 
-#     def _update_dPrxy(self):
-#         """Update `dPrxy`, accounting for dependence of `Prxy` on `omega2`."""
-#         super(ExpCM_empirical_phi, self)._update_dPrxy() 
-#         if 'omega2' in self.freeparams:
+    def _update_dPrxy(self):
+        """Update `dPrxy`, accounting for dependence of `Prxy` on `omega2`."""
+        super(ExpCM_empirical_phi_divpressure, self)._update_dPrxy()
+        if 'omega2' in self.freeparams:
+            print("Omega2 is in the freeparams list in _update_dPrxy", self.dPrxy['omega2'])
 #             for r in range(self.nsites):
 #                     scipy.copyto(self.dPrxy['omega2'][r], deltar[r] * self.Prxy[r] / (1 + self.omega2*deltar[r]), 
 #                           where=CODON_NONSYN)
-#             self._fill_diagonals(self.dPrxy['omega2'])
-#         if 'beta' in self.freeparams:
-#             self.dPrxy['beta'].fill(0)
-#             scipy.copyto(self.dPrxy['beta'], (self.Prxy * (1 - self.Frxy / (self.omega*(1+self.omega2*deltar))
-#                     * self.piAx_piAy_beta)) / self.beta, where=CODON_NONSYN)
+# #             self._fill_diagonals(self.dPrxy['omega2'])
+# #         if 'beta' in self.freeparams:
+# #             self.dPrxy['beta'].fill(0)
+# #             scipy.copyto(self.dPrxy['beta'], (self.Prxy * (1 - self.Frxy / (self.omega*(1+self.omega2*deltar))
+# #                     * self.piAx_piAy_beta)) / self.beta, where=CODON_NONSYN)
+
 
 
 if __name__ == '__main__':
