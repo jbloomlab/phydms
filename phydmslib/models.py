@@ -910,6 +910,11 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         if 'omega2' in freeparams:
            self.omega2 = omega2
            self._freeparams.append('omega2')
+           self.dPrxy['omega2'] = scipy.zeros((self.nsites, N_CODON, N_CODON), 
+                        dtype='float')
+           self.B['omega2'] = scipy.zeros((self.nsites, N_CODON, N_CODON), 
+                        dtype='float')
+           self.dprx['omega2'] = 0.0
            print("in __init__",self._freeparams)
         
 
