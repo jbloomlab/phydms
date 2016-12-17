@@ -903,6 +903,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         """
         self.checkParam('omega2',omega2)
         otherfreeparams = [param for param in freeparams if param != 'omega2']
+        self.divpressure = scipy.array(divPressureValues.copy())
         
         super(ExpCM_empirical_phi_divpressure, self).__init__(prefs, g, kappa=kappa, 
                 omega=omega, beta=beta, mu=mu, freeparams=otherfreeparams)
@@ -922,8 +923,25 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         """Update `dPrxy`, accounting for dependence of `Prxy` on `omega2`."""
         super(ExpCM_empirical_phi_divpressure, self)._update_dPrxy()
         if 'omega2' in self.freeparams:
-            print("Omega2 is in the freeparams list in _update_dPrxy", self.dPrxy['omega2'])
-#             for r in range(self.nsites):
+            print("Omega2 is in the freeparams list in _update_dPrxy")
+            for r in range(self.nsites):
+                for x in range(N_CODON):
+                    for y in range(N_CODON):
+                        if [CODON_TO_AA[x]] != [CODON_TO_AA[y]]:
+                            if self.pi[r][CODON_TO_AA[x]] != self.pi[r][CODON_TO_AA[y]]:
+                                prefx = self.pi[r][CODON_TO_AA[x]]
+                                prefy = self.pi[r][CODON_TO_AA[y]]
+                                #print(prefx,prefy, self.beta)
+                                self.dPrxy['omega2'][r][x][y] = (scipy.log((prefy **self.beta)/prefx**self.beta))/(1-((prefx**self.beta)/prefy**self.beta)) * self.Qxy[x][y] * self.omega * self.divpressure[r]
+                                #print((scipy.log((prefy **self.beta)/prefx**self.beta))/(1-((prefx**self.beta)/prefy**self.beta)) * self.Qxy[x][y] * self.omega * self.divpressure[r])
+                            else:
+                                self.dPrxy['omega2'][r][x][y] = self.Qxy[x][y] * self.omega * self.divpressure[r]
+            for r in range(self.nsites):
+                for x in range(N_CODON):
+                    self.dPrxy['omega2'][r][x][x] = -1 * sum(self.dPrxy['omega2'][r][x]) - self.dPrxy['omega2'][r][x][x]
+#                 for x in range(N_CODON):
+#                     print self.dprxy
+                        #print(self.dPrxy['omega2'][r][x][y], self.divpressure[r])
 #                     scipy.copyto(self.dPrxy['omega2'][r], deltar[r] * self.Prxy[r] / (1 + self.omega2*deltar[r]), 
 #                           where=CODON_NONSYN)
 # #             self._fill_diagonals(self.dPrxy['omega2'])
