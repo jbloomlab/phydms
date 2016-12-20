@@ -54,12 +54,12 @@ class testExpCM_empirical_phi(unittest.TestCase):
                      }
             print("first test update", self.params)
             self.expcm_divpressure.updateParams(self.params)
-#             self.expcm_divpressure.updateParams(self.params)
 #             self.assertTrue(scipy.allclose(g, self.expcm.g))
 #             self.check_empirical_phi()
 #             self.check_dQxy_dbeta()
 #             self.check_dprx_dbeta()
-#             self.check_ExpCM_attributes()
+            #self.check_dPrxy_domega2()
+            self.check_ExpCM_attributes()
 #             self.check_ExpCM_derivatives()
 #             self.check_ExpCM_matrix_exponentials()
 
@@ -92,6 +92,27 @@ class testExpCM_empirical_phi(unittest.TestCase):
                     "dphi_dbeta diff {0} for w = {1}".format(diff, w))
         self.expcm.updateParams(self.params) # back to original value
 
+    def check_dPrxy_domega2(self):
+        """Checks derivatives of `prx` with respect to `beta`."""
+
+        def func_Prxy(omega2, expcm, r, x):
+            expcm.updateParams({'omega2':omega2[0]})
+            return expcm.prx[r][x]
+
+        def func_dPrxy(omega2, expcm, r, x):
+            expcm.updateParams({'omega2':omega2[0]})
+            return expcm.dPrxy['omega2'][r][x]
+
+        for r in range(self.nsites):
+            for x in range(N_CODON):
+                diff = scipy.optimize.check_grad(func_Prxy, func_dPrxy, 
+                        [self.expcm_divpressure.omega2], self.expcm_divpressure, r, x, epsilon=1e-4)
+                self.assertTrue(diff < 1e-4, 
+                        "dprx_dbeta diff {0} for r = {1}, x = {2}".format(
+                        diff, r, x))
+        self.expcm_divpressure.updateParams(self.params) # back to original value
+        
+        
     def check_dprx_dbeta(self):
         """Checks derivatives of `prx` with respect to `beta`."""
 
@@ -134,34 +155,35 @@ class testExpCM_empirical_phi(unittest.TestCase):
 
     def check_ExpCM_attributes(self):
         """Make sure has the expected attribute values."""
-        self.assertEqual(self.nsites, self.expcm.nsites)
+        self.assertEqual(self.nsites, self.expcm_divpressure.nsites)
 
         # make sure Prxy has rows summing to zero
-        self.assertFalse(scipy.isnan(self.expcm.Prxy).any())
-        self.assertFalse(scipy.isinf(self.expcm.Prxy).any())
+        self.assertFalse(scipy.isnan(self.expcm_divpressure.Prxy).any())
+        self.assertFalse(scipy.isinf(self.expcm_divpressure.Prxy).any())
         diag = scipy.eye(N_CODON, dtype='bool')
         for r in range(self.nsites):
-            self.assertTrue(scipy.allclose(0, scipy.sum(self.expcm.Prxy[r], 
+            self.assertTrue(scipy.allclose(0, scipy.sum(self.expcm_divpressure.Prxy[r], 
                     axis=1)))
-            self.assertTrue(scipy.allclose(0, self.expcm.Prxy[r].sum()))
-            self.assertTrue((self.expcm.Prxy[r][diag] <= 0).all())
-            self.assertTrue((self.expcm.Prxy[r][~diag] >= 0).all())
+            self.assertTrue(scipy.allclose(0, self.expcm_divpressure.Prxy[r].sum()))
+            self.assertTrue((self.expcm_divpressure.Prxy[r][diag] <= 0).all())
+            self.assertTrue((self.expcm_divpressure.Prxy[r][~diag] >= 0).all())
 
         # make sure prx sums to 1 for each r
-        self.assertTrue((self.expcm.prx >= 0).all())
+        self.assertTrue((self.expcm_divpressure.prx >= 0).all())
         for r in range(self.nsites):
-            self.assertTrue(scipy.allclose(1, self.expcm.prx[r].sum()))
+            self.assertTrue(scipy.allclose(1, self.expcm_divpressure.prx[r].sum()))
 
         # prx is eigenvector or Prxy for the same r, but not different r
         for r in range(self.nsites):
-            self.assertTrue(scipy.allclose(0, scipy.dot(self.expcm.prx[r],
-                    self.expcm.Prxy[r])))
+            self.assertTrue(scipy.allclose(0, scipy.dot(self.expcm_divpressure.prx[r],
+                    self.expcm_divpressure.Prxy[r])))
             if r > 0:
-                self.assertFalse(scipy.allclose(0, scipy.dot(self.expcm.prx[r],
-                        self.expcm.Prxy[r - 1])))
+                self.assertFalse(scipy.allclose(0, scipy.dot(self.expcm_divpressure.prx[r],
+                        self.expcm_divpressure.Prxy[r - 1])))
 
         # phi sums to one
-        self.assertTrue(scipy.allclose(1, self.expcm.phi.sum()))
+        self.assertTrue(scipy.allclose(1, self.expcm_divpressure.phi.sum()))
+        print("passed!!")
 
     def check_ExpCM_derivatives(self):
         """Makes sure derivatives are as expected."""
