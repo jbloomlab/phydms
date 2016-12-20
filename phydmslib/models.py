@@ -923,16 +923,12 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         """Update `dPrxy`, accounting for dependence of `Prxy` on `omega2`."""
         super(ExpCM_empirical_phi_divpressure, self)._update_dPrxy()
         if 'omega2' in self.freeparams: 
-#             print("Omega2 is in the freeparams list in _update_dPrxy")
             for r in range(self.nsites):
                 for x in range(N_CODON):
                     for y in range(N_CODON):
                         if [CODON_TO_AA[x]] != [CODON_TO_AA[y]]:
                             if self.pi[r][CODON_TO_AA[x]] != self.pi[r][CODON_TO_AA[y]]:
-                                #print(prefx,prefy, self.beta)
                                 self.dPrxy['omega2'][r][x][y] = (scipy.log(self.piAx_piAy_beta[r][y][x])/(1-(self.piAx_piAy_beta[r][x][y]))) * self.Qxy[x][y] * self.omega * self.divpressure[r]
-#                                 if self.dPrxy['omega2'][r][x][y] != 0:
-#                                     print(self.dPrxy['omega2'][r][x][y])
                             else:
                                 self.dPrxy['omega2'][r][x][y] = self.Qxy[x][y] * self.omega * self.divpressure[r]
             for r in range(self.nsites):
@@ -940,17 +936,17 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
                     self.dPrxy['omega2'][r][x][x] = -1 * sum(self.dPrxy['omega2'][r][x]) - self.dPrxy['omega2'][r][x][x]
         
         if 'beta' in self.freeparams:
-            print("beta is in the freeparams list in _update_dPrxy")
             for r in range(self.nsites):
                 for x in range(N_CODON):
                     for y in range(N_CODON):
                         if x != y:
                             if self.pi[r][CODON_TO_AA[x]] != self.pi[r][CODON_TO_AA[y]]:
                                 self.dPrxy['beta'][r][x][y] = (self.Prxy[r][x][y]/self.beta) + (self.Prxy[r][x][y] * ((self.piAx_piAy_beta[r][x][y] * scipy.log(self.piAx_piAy[r][x][y]))/(1 - self.piAx_piAy_beta[r][x][y]))) + self.Frxy[r][x][y]*(self.dQxy_dbeta[x][y])
-                                #self.dPrxy['beta'][r][x][y] = ((self.Prxy[r][x][y]/self.beta)+(self.Prxy[r][x][y]*self.piAx_piAy_beta[r][y][x]*scipy.log(self.piAx_piAy[r][y][x])/(1-self.piAx_piAy_beta[r][y][x])))
-                                #assert self.dPrxy['beta'][r][x][y], "x,y,r: {0}, {1}, {2}. Prefs {3} {4}".format(x,y,r,self.pi[r][CODON_TO_AA[x]],self.pi[r][CODON_TO_AA[y]])
+            for r in range(self.nsites):
+                for x in range(N_CODON):
+                    self.dPrxy['beta'][r][x][y] = -1 * sum(self.dPrxy['beta'][r][x]) - self.dPrxy['beta'][r][x][x]
+
     def _update_Frxy(self):
-        print("updating Frxy")
         super(ExpCM_empirical_phi_divpressure, self)._update_Frxy()
         if 'omega2' in self.freeparams:
             print("yes")
