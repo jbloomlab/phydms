@@ -946,28 +946,19 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
                     for y in range(N_CODON):
                         if x != y:
                             if self.pi[r][CODON_TO_AA[x]] != self.pi[r][CODON_TO_AA[y]]:
-                                part1 = self.Prxy[r][x][y]/self.beta
-                                part2 = self.piAx_piAy_beta[r][x][y] * scipy.log(self.piAx_piAy[r][x][y])
-                                part3 = 1 - self.piAx_piAy_beta[r][x][y]
-                                self.dPrxy['beta'][r][x][y] = part1 + (self.Prxy[r][x][y] * (part2/part3)) + self.Frxy[r][x][y]*(self.dQxy_dbeta[x][y])
+                                self.dPrxy['beta'][r][x][y] = (self.Prxy[r][x][y]/self.beta) + (self.Prxy[r][x][y] * ((self.piAx_piAy_beta[r][x][y] * scipy.log(self.piAx_piAy[r][x][y]))/(1 - self.piAx_piAy_beta[r][x][y]))) + self.Frxy[r][x][y]*(self.dQxy_dbeta[x][y])
                                 #self.dPrxy['beta'][r][x][y] = ((self.Prxy[r][x][y]/self.beta)+(self.Prxy[r][x][y]*self.piAx_piAy_beta[r][y][x]*scipy.log(self.piAx_piAy[r][y][x])/(1-self.piAx_piAy_beta[r][y][x])))
                                 #assert self.dPrxy['beta'][r][x][y], "x,y,r: {0}, {1}, {2}. Prefs {3} {4}".format(x,y,r,self.pi[r][CODON_TO_AA[x]],self.pi[r][CODON_TO_AA[y]])
-#     def _update_Frxy(self):
-#         print("updating Frxy")
-#         if 'omega2' in self.freeparams:
-#             print("yes")
-#         omega2deltar = self.omega2*self.divpressure
-#         print(omega2deltar)
-#     def _update_dPrxy(self):
-#         """Update `Frxy`, accounting for the dependence of `Frxy` on 'omega2`"""
-#         super(ExpCM_empirical_phi_divpressure, self)._update_dFrxy()
-#         if 'omega2' in self.freeparams:
-#             print ('omega2 is in the freeparams list in _update_dFrxy')
-#             for r in range(self.nsites):
-#                 for x in range(N_CODON):
-#                     for y in range(N_CODON):
-#                         #self.dFrxy['beta'][r][x][y] =self.Frxy[r][x][y] * (1-(-.self.beta)) 
-#                         print(self.beta)
+    def _update_Frxy(self):
+        print("updating Frxy")
+        super(ExpCM_empirical_phi_divpressure, self)._update_Frxy()
+        if 'omega2' in self.freeparams:
+            print("yes")
+            omega2deltar = self.omega2*self.divpressure
+            for r in range(self.nsites):
+                for x in range(N_CODON):
+                    for y in range(N_CODON):
+                        self.Frxy[r][x][y] = self.Frxy[r][x][y] + self.Frxy[r][x][y]*self.omega*self.divpressure[r]
 
 
 if __name__ == '__main__':
