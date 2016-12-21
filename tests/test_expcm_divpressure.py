@@ -31,7 +31,7 @@ class testExpCM_empirical_phi(unittest.TestCase):
             rprefs[rprefs < minpref] = minpref 
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        self.divpressure = np.random.randint(2, size = self.nsites)
+        self.divpressure = np.random.randint(1, size = self.nsites)
         print(self.divpressure)
 
         # create initial ExpCM
@@ -54,14 +54,14 @@ class testExpCM_empirical_phi(unittest.TestCase):
                      }
             print("first test update", self.params)
             self.expcm_divpressure.updateParams(self.params)
-#             self.assertTrue(scipy.allclose(g, self.expcm.g))
-#             self.check_empirical_phi()
-#             self.check_dQxy_dbeta()
-#             self.check_dprx_dbeta()
+            self.assertTrue(scipy.allclose(g, self.expcm_divpressure.g))
+            self.check_empirical_phi()
+            self.check_dQxy_dbeta()
+            self.check_dprx_dbeta()
             #self.check_dPrxy_domega2()
             self.check_ExpCM_attributes()
-#             self.check_ExpCM_derivatives()
-#             self.check_ExpCM_matrix_exponentials()
+            self.check_ExpCM_derivatives()
+            self.check_ExpCM_matrix_exponentials()
 
     def check_empirical_phi(self):
         """Check that `phi` gives right `g`, and has right derivative."""
@@ -69,13 +69,13 @@ class testExpCM_empirical_phi(unittest.TestCase):
         for r in range(self.nsites):
             for x in range(N_CODON):
                 for w in range(N_NT):
-                    nt_freqs[w] += self.expcm.prx[r][x] * CODON_NT_COUNT[w][x]
+                    nt_freqs[w] += self.expcm_divpressure.prx[r][x] * CODON_NT_COUNT[w][x]
         self.assertTrue(scipy.allclose(sum(nt_freqs), 3 * self.nsites))
         nt_freqs = scipy.array(nt_freqs)
         nt_freqs /= nt_freqs.sum()
-        self.assertTrue(scipy.allclose(nt_freqs, self.expcm.g, atol=1e-5), 
+        self.assertTrue(scipy.allclose(nt_freqs, self.expcm_divpressure.g, atol=1e-5), 
                 "Actual nt_freqs: {0}\nExpected (g): {1}".format(
-                nt_freqs, self.expcm.g))
+                nt_freqs, self.expcm_divpressure.g))
 
         def func_phi(beta, expcm, w):
             expcm.updateParams({'beta':beta[0]})
@@ -87,10 +87,10 @@ class testExpCM_empirical_phi(unittest.TestCase):
 
         for w in range(N_NT):
             diff = scipy.optimize.check_grad(func_phi, func_dphi, 
-                    [self.expcm.beta], self.expcm, w, epsilon=1e-4)
+                    [self.expcm_divpressure.beta], self.expcm_divpressure, w, epsilon=1e-4)
             self.assertTrue(diff < 1e-4, 
                     "dphi_dbeta diff {0} for w = {1}".format(diff, w))
-        self.expcm.updateParams(self.params) # back to original value
+        self.expcm_divpressure.updateParams(self.params) # back to original value
 
     def check_dPrxy_domega2(self):
         """Checks derivatives of `prx` with respect to `beta`."""
@@ -127,11 +127,11 @@ class testExpCM_empirical_phi(unittest.TestCase):
         for r in range(self.nsites):
             for x in range(N_CODON):
                 diff = scipy.optimize.check_grad(func_prx, func_dprx, 
-                        [self.expcm.beta], self.expcm, r, x, epsilon=1e-4)
+                        [self.expcm_divpressure.beta], self.expcm_divpressure, r, x, epsilon=1e-4)
                 self.assertTrue(diff < 1e-4, 
                         "dprx_dbeta diff {0} for r = {1}, x = {2}".format(
                         diff, r, x))
-        self.expcm.updateParams(self.params) # back to original value
+        self.expcm_divpressure.updateParams(self.params) # back to original value
 
     def check_dQxy_dbeta(self):
         """Checks derivatives of `Qxy` with respect to `beta`."""
@@ -147,11 +147,11 @@ class testExpCM_empirical_phi(unittest.TestCase):
         for x in random.sample(range(N_CODON), 3):
             for y in range(N_CODON):
                 diff = scipy.optimize.check_grad(func_Qxy, func_dQxy, 
-                        [self.expcm.beta], self.expcm, x, y, epsilon=1e-4)
+                        [self.expcm_divpressure.beta], self.expcm_divpressure, x, y, epsilon=1e-4)
                 self.assertTrue(diff < 1e-4, 
                         "dQxy_dbeta diff {0} for x = {1}, y = {2}".format(
                         diff, x, y))
-        self.expcm.updateParams(self.params) # back to original value
+        self.expcm_divpressure.updateParams(self.params) # back to original value
 
     def check_ExpCM_attributes(self):
         """Make sure has the expected attribute values."""
@@ -215,7 +215,7 @@ class testExpCM_empirical_phi(unittest.TestCase):
                 for x in random.sample(range(N_CODON), 3): # check a few codons
                     for y in range(N_CODON):
                         diff = scipy.optimize.check_grad(funcPrxy, funcdPrxy, 
-                                pvalue, pname, self.expcm, r, x, y, epsilon=1e-4)
+                                pvalue, pname, self.expcm_divpressure, r, x, y, epsilon=1e-4)
                         self.assertTrue(diff < 1e-3, ("diff {0} for {1}:" +
                                 " r = {2}, x = {3}, y = {4}, beta = {5} " +
                                 "pirAx = {6}, pirAy = {7}, mu = {8}, " +
@@ -223,29 +223,29 @@ class testExpCM_empirical_phi(unittest.TestCase):
                                 "phi = {12}, kappa = {13}, dQxy_dbeta = {14}, " +
                                 "dphi_dbeta = {15}, dPrxy_dbeta = {16}"
                                 ).format(diff, pname, r, x, y, 
-                                self.params['beta'], self.expcm.pi_codon[r][x], 
-                                self.expcm.pi_codon[r][y], self.expcm.mu,
-                                self.expcm.omega, self.expcm.Frxy[r][x][y],
-                                self.expcm.Prxy[r][x][y], self.expcm.phi, 
-                                self.expcm.kappa, self.expcm.dQxy_dbeta[x][y],
-                                self.expcm.dphi_dbeta, 
-                                self.expcm.dPrxy['beta'][r][x][y]))
-            self.expcm.updateParams(self.params) # back to original value
+                                self.params['beta'], self.expcm_divpressure.pi_codon[r][x], 
+                                self.expcm_divpressure.pi_codon[r][y], self.expcm_divpressure.mu,
+                                self.expcm_divpressure.omega, self.expcm_divpressure.Frxy[r][x][y],
+                                self.expcm_divpressure.Prxy[r][x][y], self.expcm_divpressure.phi, 
+                                self.expcm_divpressure.kappa, self.expcm_divpressure.dQxy_dbeta[x][y],
+                                self.expcm_divpressure.dphi_dbeta, 
+                                self.expcm_divpressure.dPrxy['beta'][r][x][y]))
+            self.expcm_divpressure.updateParams(self.params) # back to original value
 
     def check_ExpCM_matrix_exponentials(self):
         """Makes sure matrix exponentials are as expected."""
         for r in range(self.nsites):
             # fromdiag is recomputed Prxy after diagonalization
-            fromdiag = scipy.dot(self.expcm.A[r], scipy.dot(scipy.diag(
-                    self.expcm.D[r]), self.expcm.Ainv[r]))
-            self.assertTrue(scipy.allclose(self.expcm.Prxy[r], fromdiag,
+            fromdiag = scipy.dot(self.expcm_divpressure.A[r], scipy.dot(scipy.diag(
+                    self.expcm_divpressure.D[r]), self.expcm_divpressure.Ainv[r]))
+            self.assertTrue(scipy.allclose(self.expcm_divpressure.Prxy[r], fromdiag,
                     atol=1e-5), "Max diff {0}".format(
-                    (self.expcm.Prxy[r] - fromdiag).max()))
+                    (self.expcm_divpressure.Prxy[r] - fromdiag).max()))
 
             for t in [0.02, 0.2, 0.5]:
-                direct = scipy.linalg.expm(self.expcm.Prxy[r] * self.expcm.mu * t)
-                self.assertTrue(scipy.allclose(self.expcm.M(t)[r], direct, atol=1e-6),
-                        "Max diff {0}".format((self.expcm.M(t)[r] - direct).max()))
+                direct = scipy.linalg.expm(self.expcm_divpressure.Prxy[r] * self.expcm_divpressure.mu * t)
+                self.assertTrue(scipy.allclose(self.expcm_divpressure.M(t)[r], direct, atol=1e-6),
+                        "Max diff {0}".format((self.expcm_divpressure.M(t)[r] - direct).max()))
         # check derivatives of M calculated by dM
         # implementation looks a bit complex because `check_grad` function
         # can only be used for single values at a time, so have to loop 
@@ -281,24 +281,24 @@ class testExpCM_empirical_phi(unittest.TestCase):
             if isinstance(pvalue, float):
                 pvalue = [pvalue]
             for t in [0.01, 0.2]:
-                for r in random.sample(range(self.expcm.nsites), 2):
+                for r in random.sample(range(self.expcm_divpressure.nsites), 2):
                     for x in random.sample(range(N_CODON), 3):
                         for y in range(N_CODON):
                             if x == y:
                                 continue
                             diff = scipy.optimize.check_grad(funcM, funcdM, pvalue,
-                                    pname, t, self.expcm, r, x, y, storedvalues,
+                                    pname, t, self.expcm_divpressure, r, x, y, storedvalues,
                                     epsilon=1e-4) 
                             self.assertTrue(diff < 1e-3, ("diff {0} for {1}:" +
                                 " computed derivative = {10}, " +
                                 " r = {2}, x = {3}, y = {4}, beta = {5}, " +
                                 "pirAx = {6}, pirAy = {7}, t = {8}, mu = {9}"
                                 ).format(diff, pname, r, x, y, 
-                                self.params['beta'], self.expcm.pi_codon[r][x], 
-                                self.expcm.pi_codon[r][y], t, self.expcm.mu,
-                                funcdM(pvalue, pname, t, self.expcm, 
+                                self.params['beta'], self.expcm_divpressure.pi_codon[r][x], 
+                                self.expcm_divpressure.pi_codon[r][y], t, self.expcm_divpressure.mu,
+                                funcdM(pvalue, pname, t, self.expcm_divpressure, 
                                 r, x, y, {})))
-                self.expcm.updateParams(self.params) # back to original value
+                self.expcm_divpressure.updateParams(self.params) # back to original value
 
 
 
