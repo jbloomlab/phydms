@@ -31,7 +31,7 @@ class testExpCM_empirical_phi(unittest.TestCase):
             rprefs[rprefs < minpref] = minpref 
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        self.divpressure = np.random.randint(1, size = self.nsites)
+        self.divpressure = np.random.randint(2, size = self.nsites)
         print(self.divpressure)
 
         # create initial ExpCM
@@ -52,7 +52,7 @@ class testExpCM_empirical_phi(unittest.TestCase):
                       'mu':random.uniform(0.05, 5.0),
                       'omega2': random.uniform(0.1,0.3)
                      }
-            print("first test update", self.params)
+            print("first test update.", self.params)
             self.expcm_divpressure.updateParams(self.params)
             self.assertTrue(scipy.allclose(g, self.expcm_divpressure.g))
             self.check_empirical_phi()
@@ -108,7 +108,7 @@ class testExpCM_empirical_phi(unittest.TestCase):
                 diff = scipy.optimize.check_grad(func_Prxy, func_dPrxy, 
                         [self.expcm_divpressure.omega2], self.expcm_divpressure, r, x, epsilon=1e-4)
                 self.assertTrue(diff < 1e-4, 
-                        "dprx_dbeta diff {0} for r = {1}, x = {2}".format(
+                        "dprx_omega2 diff {0} for r = {1}, x = {2}".format(
                         diff, r, x))
         self.expcm_divpressure.updateParams(self.params) # back to original value
         
@@ -214,6 +214,7 @@ class testExpCM_empirical_phi(unittest.TestCase):
             for r in random.sample(range(self.nsites), 2): # check a few sites
                 for x in random.sample(range(N_CODON), 3): # check a few codons
                     for y in range(N_CODON):
+                        print(r,CODON_TO_AA[x], CODON_TO_AA[y])
                         diff = scipy.optimize.check_grad(funcPrxy, funcdPrxy, 
                                 pvalue, pname, self.expcm_divpressure, r, x, y, epsilon=1e-4)
                         self.assertTrue(diff < 1e-3, ("diff {0} for {1}:" +
