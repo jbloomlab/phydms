@@ -31,7 +31,7 @@ class testExpCM_empirical_phi(unittest.TestCase):
             rprefs[rprefs < minpref] = minpref 
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        self.divpressure = np.random.randint(2, size = self.nsites)
+        self.divpressure = np.random.randint(1, size = self.nsites)
         print(self.divpressure)
 
         # create initial ExpCM
