@@ -949,11 +949,15 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
     def _update_Frxy(self):
         super(ExpCM_empirical_phi_divpressure, self)._update_Frxy()
         if 'omega2' in self.freeparams:
-            omega2deltar = self.omega2*self.divpressure
             for r in range(self.nsites):
                 for x in range(N_CODON):
                     for y in range(N_CODON):
-                        self.Frxy[r][x][y] = self.Frxy[r][x][y] + self.Frxy[r][x][y]*self.omega*self.divpressure[r]
+                        if CODON_TO_AA[x] != CODON_TO_AA[y]:
+                            if self.pi[r][CODON_TO_AA[x]] != self.pi[r][CODON_TO_AA[y]]:
+                                self.Frxy[r][x][y] = self.omega*(1 + (self.omega2*self.divpressure[r])) * ((-1*scipy.log(self.piAx_piAy_beta[r][x][y]))/(1 - self.piAx_piAy_beta[r][x][y]))
+                            else:
+                                self.Frxy[r][x][y] = self.omega*(1 + (self.omega2*self.divpressure[r]))
+                        
 
 
 if __name__ == '__main__':
