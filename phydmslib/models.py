@@ -933,7 +933,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
                                 self.dPrxy['omega2'][r][x][y] = self.Qxy[x][y] * self.omega * self.divpressure[r]
             for r in range(self.nsites):
                 for x in range(N_CODON):
-                    self.dPrxy['omega2'][r][x][x] = -1 * sum(self.dPrxy['omega2'][r][x]) - self.dPrxy['omega2'][r][x][x]
+                    self.dPrxy['omega2'][r][x][x] = -1 * (sum(self.dPrxy['omega2'][r][x]) - self.dPrxy['omega2'][r][x][x])
         
 #         if 'beta' in self.freeparams:
 #             for r in range(self.nsites):
