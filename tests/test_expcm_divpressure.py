@@ -48,20 +48,20 @@ class testExpCM_empirical_phi(unittest.TestCase):
         for update in range(1):
             self.params = {'omega':random.uniform(0.1, 2),
                       'kappa':random.uniform(0.5, 10),
-                      'beta':random.uniform(0.5, 5),
+                      'beta':random.uniform(0.5, 3),
                       'mu':random.uniform(0.05, 5.0),
                       'omega2': random.uniform(0.1,0.3)
                      }
             print("first test update.", self.params)
             self.expcm_divpressure.updateParams(self.params)
             self.assertTrue(scipy.allclose(g, self.expcm_divpressure.g))
-#             self.check_empirical_phi()
-#             self.check_dQxy_dbeta()
-#             self.check_dprx_dbeta()
+            self.check_empirical_phi()
+            self.check_dQxy_dbeta()
+            self.check_dprx_dbeta()
 #             self.check_dPrxy_domega2()
-            self.check_ExpCM_attributes()
-            self.check_ExpCM_derivatives()
-            self.check_ExpCM_matrix_exponentials()
+#             self.check_ExpCM_attributes()
+#             self.check_ExpCM_derivatives()
+#             self.check_ExpCM_matrix_exponentials()
 
     def check_empirical_phi(self):
         """Check that `phi` gives right `g`, and has right derivative."""

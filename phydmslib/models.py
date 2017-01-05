@@ -956,8 +956,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
                             if self.pi[r][CODON_TO_AA[x]] != self.pi[r][CODON_TO_AA[y]]:
                                 self.Frxy[r][x][y] = self.omega*(1 + (self.omega2*self.divpressure[r])) * ((-1*scipy.log(self.piAx_piAy_beta[r][x][y]))/(1 - self.piAx_piAy_beta[r][x][y]))
                             else:
-                                self.Frxy[r][x][y] = self.omega*(1 + (self.omega2*self.divpressure[r]))
-                        
+                                self.Frxy[r][x][y] = self.omega*(1 + (self.omega2*self.divpressure[r]))                        
 
 
 if __name__ == '__main__':
