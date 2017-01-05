@@ -879,6 +879,8 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
     Has all the attributes of an `ExpCM_empirical_phi` plus the following:
         `omega2` (float)
             Part of the expression which replaces `omega`.
+        `divPressureValues`
+            List of `deltar` values in site order
     """
 
     # class variables
@@ -896,15 +898,12 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         Args:
             `prefs`, `kappa`, `omega`, `beta`, `mu`, `g`, `freeparams`
                 Same meaning as for an `ExpCM_empirical_phi`
-            `divPressureValues`
-                Dictionary of deltar values keyed by site
-            `omega2`
-                Has the meaning described in the main class doc string 
+            `divPressureValues`, `omega2`
+                Has the same meaning as described in the main class doc string. 
         """
         self.checkParam('omega2',omega2)
         otherfreeparams = [param for param in freeparams if param != 'omega2']
-        self.divpressure = scipy.array(divPressureValues.copy())
-        
+        self.divpressure = scipy.array(divPressureValues.copy())        
         super(ExpCM_empirical_phi_divpressure, self).__init__(prefs, g, kappa=kappa, 
                 omega=omega, beta=beta, mu=mu, freeparams=otherfreeparams)
 

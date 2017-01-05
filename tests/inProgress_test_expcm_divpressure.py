@@ -23,7 +23,7 @@ class testExpCM_empirical_phi(unittest.TestCase):
         # create preferences
         random.seed(1)
         scipy.random.seed(1)
-        self.nsites = 10
+        self.nsites = 4
         self.prefs = []
         minpref = 0.01
         for r in range(self.nsites):
@@ -31,7 +31,8 @@ class testExpCM_empirical_phi(unittest.TestCase):
             rprefs[rprefs < minpref] = minpref 
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        self.divpressure = np.random.randint(2, size = self.nsites)
+        #self.divpressure = np.random.randint(2, size = self.nsites)
+        self.divpressure = np.array([0,0,0,0])
         print(self.divpressure)
 
         # create initial ExpCM
@@ -58,10 +59,10 @@ class testExpCM_empirical_phi(unittest.TestCase):
             self.check_empirical_phi()
             self.check_dQxy_dbeta()
             self.check_dprx_dbeta()
-#             self.check_dPrxy_domega2()
-#             self.check_ExpCM_attributes()
-#             self.check_ExpCM_derivatives()
-#             self.check_ExpCM_matrix_exponentials()
+            self.check_dPrxy_domega2()
+            self.check_ExpCM_attributes()
+            self.check_ExpCM_derivatives()
+            self.check_ExpCM_matrix_exponentials()
 
     def check_empirical_phi(self):
         """Check that `phi` gives right `g`, and has right derivative."""
