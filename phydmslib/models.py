@@ -384,16 +384,7 @@ class ExpCM(Model):
         self.B = {}
         self.dprx = {}
         for param in self.freeparams:
-            if param in ['kappa', 'omega', 'beta']:
-                self.dPrxy[param] = scipy.zeros((self.nsites, N_CODON, N_CODON), 
-                        dtype='float')
-                self.B[param] = scipy.zeros((self.nsites, N_CODON, N_CODON), 
-                        dtype='float')
-                if param == 'beta':
-                    self.dprx[param] = scipy.zeros((self.nsites, N_CODON), dtype='float')
-                else:
-                    self.dprx[param] = 0.0
-            elif param == 'eta':
+            if param == 'eta':
                 self.dPrxy[param] = scipy.zeros((N_NT - 1, self.nsites, N_CODON,
                         N_CODON), dtype='float')
                 self.B[param] = scipy.zeros((N_NT - 1, self.nsites, N_CODON,
@@ -402,6 +393,15 @@ class ExpCM(Model):
                         dtype='float')
             elif param == 'mu':
                 self.dprx['mu'] = 0.0
+            if param in self._ALLOWEDPARAMS:
+                self.dPrxy[param] = scipy.zeros((self.nsites, N_CODON, N_CODON), 
+                        dtype='float')
+                self.B[param] = scipy.zeros((self.nsites, N_CODON, N_CODON), 
+                        dtype='float')
+                if param == 'beta':
+                    self.dprx[param] = scipy.zeros((self.nsites, N_CODON), dtype='float')
+                else:
+                    self.dprx[param] = 0.0
             else:
                 raise ValueError("Unrecognized param {0}".format(param))
 
@@ -902,20 +902,11 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
                 Has the same meaning as described in the main class doc string. 
         """
         self.checkParam('omega2',omega2)
-        otherfreeparams = [param for param in freeparams if param != 'omega2']
+        self.omega2 = omega2
+        print("before freeparams", self.omega2)
         self.divpressure = scipy.array(divPressureValues.copy())        
         super(ExpCM_empirical_phi_divpressure, self).__init__(prefs, g, kappa=kappa, 
-                omega=omega, beta=beta, mu=mu, freeparams=otherfreeparams)
-
-        if 'omega2' in freeparams:
-           self.omega2 = omega2
-           self._freeparams.append('omega2')
-           self.dPrxy['omega2'] = scipy.zeros((self.nsites, N_CODON, N_CODON), 
-                        dtype='float')
-           self.B['omega2'] = scipy.zeros((self.nsites, N_CODON, N_CODON), 
-                        dtype='float')
-           self.dprx['omega2'] = 0.0
-           print("in __init__",self._freeparams)
+                omega=omega, beta=beta, mu=mu, freeparams=freeparams)
         
 
     def _update_dPrxy(self):
@@ -931,20 +922,25 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
                             else:
                                 self.dPrxy['omega2'][r][x][y] = self.Qxy[x][y] * self.omega * self.divpressure[r]
             self._fill_diagonals(self.dPrxy['omega2'])
-#             for r in range(self.nsites):
-#                 for x in range(N_CODON):
-#                     self.dPrxy['omega2'][r][x][x] = -1 * (sum(self.dPrxy['omega2'][r][x]) - self.dPrxy['omega2'][r][x][x])
-        
-#         if 'beta' in self.freeparams:
-#             for r in range(self.nsites):
-#                 for x in range(N_CODON):
-#                     for y in range(N_CODON):
-#                         if x != y:
-#                             if self.pi[r][CODON_TO_AA[x]] != self.pi[r][CODON_TO_AA[y]]:
-#                                 self.dPrxy['beta'][r][x][y] = (self.Prxy[r][x][y]/self.beta) + (self.Prxy[r][x][y] * ((self.piAx_piAy_beta[r][x][y] * scipy.log(self.piAx_piAy[r][x][y]))/(1 - self.piAx_piAy_beta[r][x][y]))) + self.Frxy[r][x][y]*(self.dQxy_dbeta[x][y])
-#             for r in range(self.nsites):
-#                 for x in range(N_CODON):
-#                     self.dPrxy['beta'][r][x][y] = -1 * sum(self.dPrxy['beta'][r][x]) - self.dPrxy['beta'][r][x][x]
+        #the switch below recalculates dPrxy/dBeta 
+        #this is because the _update_Prxy function in `ExpCM` calls omega 
+        #and the _update_Prxy function in `ExpCM_empirical_phi` uses the values calculated in `ExpCM`
+        if 'beta' in self.freeparams: 
+            self.dPrxy['beta'].fill(0)
+            for r in range(self.nsites):
+                for x in range(N_CODON):
+                    for y in range(N_CODON):
+                        if CODON_TO_AA[x] != CODON_TO_AA[y]:
+                            omegaPart = self.omega*(1 + self.omega2 *self.divpressure[r])
+                            self.dPrxy['beta'][r][x][y] = (self.Prxy[r][x][y] / self.beta) * (1 - (self.Frxy[r][x][y] * self.piAx_piAy_beta[r][x][y] / omegaPart))
+            self._fill_diagonals(self.dPrxy['beta'])
+            self.dQxy_dbeta = scipy.zeros((N_CODON, N_CODON), dtype='float')
+            for w in range(N_NT):
+                scipy.copyto(self.dQxy_dbeta, self.dphi_dbeta[w], 
+                        where=CODON_NT_MUT[w])
+            self.dQxy_dbeta[CODON_TRANSITION] *= self.kappa
+            self.dPrxy['beta'] += self.Frxy * self.dQxy_dbeta
+            self._fill_diagonals(self.dPrxy['beta'])
 
     def _update_Frxy(self):
         super(ExpCM_empirical_phi_divpressure, self)._update_Frxy()
@@ -954,9 +950,9 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
                     for y in range(N_CODON):
                         if CODON_TO_AA[x] != CODON_TO_AA[y]:
                             if self.pi[r][CODON_TO_AA[x]] != self.pi[r][CODON_TO_AA[y]]:
-                                self.Frxy[r][x][y] = self.omega*(1 + (self.omega2*self.divpressure[r])) * ((-1*scipy.log(self.piAx_piAy_beta[r][x][y]))/(1 - self.piAx_piAy_beta[r][x][y]))
+                                self.Frxy[r][x][y] = self.omega*(1 + (self.omega2*self.divpressure[r])) * ((scipy.log(self.piAx_piAy_beta[r][y][x]))/(1 - self.piAx_piAy_beta[r][x][y]))
                             else:
-                                self.Frxy[r][x][y] = self.omega*(1 + (self.omega2*self.divpressure[r]))                        
+                                self.Frxy[r][x][y] = self.omega*(1 + (self.omega2*self.divpressure[r]))
 
 
 if __name__ == '__main__':
