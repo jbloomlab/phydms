@@ -31,9 +31,7 @@ class testExpCM_empirical_phi(unittest.TestCase):
             rprefs[rprefs < minpref] = minpref 
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        #self.divpressure = np.random.randint(2, size = self.nsites)
-        self.divpressure = np.array([1,1,1,1])
-        print(self.divpressure)
+        self.divpressure = np.array([0,1,0,0])
 
         # create initial ExpCM
         g = scipy.random.dirichlet([3] * N_NT)
@@ -42,47 +40,34 @@ class testExpCM_empirical_phi(unittest.TestCase):
         kappa = 2.5
         beta = 1.2
         self.expcm_divpressure = phydmslib.models.ExpCM_empirical_phi_divpressure(self.prefs,g=g, divPressureValues = self.divpressure, omega=omega, kappa=kappa, beta=beta, omega2=omega2)
-        #self.assertTrue(scipy.allclose(g, self.expcm_divpressure.g))
-        #print("in the test file after init the divpressure object", self.expcm_divpressure.freeparams)
-        print("\n")
         # now check ExpCM attributes / derivates, updating several times
-        for update in range(1):
+        for update in range(2):
             self.params = {'omega':random.uniform(0.1, 2),
                       'kappa':random.uniform(0.5, 10),
                       'beta':random.uniform(0.5, 3),
                       'mu':random.uniform(0.05, 5.0),
                       'omega2': random.uniform(0.1,0.3)
                      }
-            print("first test update.", self.params)
             self.expcm_divpressure.updateParams(self.params)
             self.assertTrue(scipy.allclose(g, self.expcm_divpressure.g))
-#             
-#             print("check_empirical_phi")
-#             self.check_empirical_phi()
-#             
-#             print("check_dQxy_dbeta")
-#             self.check_dQxy_dbeta()
-#             
-#             print("check_dprx_dbeta()")
-#             self.check_dprx_dbeta()
+                
+            print("check_empirical_phi")
+            self.check_empirical_phi()
             
-#             print("check_dPrxy_domega2()")
-#             self.check_dPrxy_domega2()
-
-#             print("check_dPrxy_domega()")
-#             self.check_dPrxy_domega()
-# 
-#             print("check_dPrxy_dbeta()")
-#             self.check_dPrxy_dbeta()
+            print("check_dQxy_dbeta")
+            self.check_dQxy_dbeta()
             
-#             print("check_ExpCM_attributes")
-#             self.check_ExpCM_attributes()
+            print("check_dprx_dbeta()")
+            self.check_dprx_dbeta()
+            
+            print("check_ExpCM_attributes")
+            self.check_ExpCM_attributes()
 
             print("check_ExpCM_derivatives")
             self.check_ExpCM_derivatives()
 
-#             print("check_ExpCM_matrix_exponentials()")
-#             self.check_ExpCM_matrix_exponentials()
+            print("check_ExpCM_matrix_exponentials()")
+            self.check_ExpCM_matrix_exponentials()
 
     def check_empirical_phi(self):
         """Check that `phi` gives right `g`, and has right derivative."""
@@ -111,71 +96,6 @@ class testExpCM_empirical_phi(unittest.TestCase):
                     [self.expcm_divpressure.beta], self.expcm_divpressure, w, epsilon=1e-4)
             self.assertTrue(diff < 1e-4, 
                     "dphi_dbeta diff {0} for w = {1}".format(diff, w))
-        self.expcm_divpressure.updateParams(self.params) # back to original value
-
-    def check_dPrxy_domega2(self):
-        """Checks derivatives of `prx` with respect to `beta`."""
-
-        def func_Prxy(omega2, expcm, r, x,y):
-            expcm.updateParams({'omega2':omega2[0]})
-            return expcm.Prxy[r][x][y]
-
-        def func_dPrxy(omega2, expcm, r, x,y):
-            expcm.updateParams({'omega2':omega2[0]})
-            return expcm.dPrxy['omega2'][r][x][y]
-
-        for r in range(self.nsites):
-            print(r)
-            for x in range(N_CODON):
-                for y in range(N_CODON):
-                    diff = scipy.optimize.check_grad(func_Prxy, func_dPrxy, 
-                            [self.expcm_divpressure.omega2], self.expcm_divpressure, r, x, y, epsilon=1e-4)
-                    self.assertTrue(diff < 1e-4, 
-                            "dprx_omega2 diff {0} for r = {1}, x = {2}".format(
-                            diff, r, x))
-        self.expcm_divpressure.updateParams(self.params) # back to original value
-
-    def check_dPrxy_dbeta(self):
-        """Checks derivatives of `prx` with respect to `beta`."""
-
-        def func_Prxy(beta, expcm, r, x,y):
-            expcm.updateParams({'beta':beta[0]})
-            return expcm.Prxy[r][x][y]
-
-        def func_dPrxy(beta, expcm, r, x,y):
-            expcm.updateParams({'beta':beta[0]})
-            return expcm.dPrxy['beta'][r][x][y]
-
-        for r in range(self.nsites):
-            print(r)
-            for x in range(N_CODON):
-                for y in range(N_CODON):
-                    diff = scipy.optimize.check_grad(func_Prxy, func_dPrxy, 
-                            [self.expcm_divpressure.beta], self.expcm_divpressure, r, x, y, epsilon=1e-4)
-                    self.assertTrue(diff < 1e-4, 
-                            "dPrx_beta diff {0} for r = {1}, x = {2}".format(
-                            diff, r, x))
-        self.expcm_divpressure.updateParams(self.params) # back to original value
-
-    def check_dPrxy_domega(self):
-        """Checks derivatives of `prx` with respect to `beta`."""
-
-        def func_Prxy(omega, expcm, r, x,y):
-            expcm.updateParams({'omega':omega[0]})
-            return expcm.Prxy[r][x][y]
-
-        def func_dPrxy(omega, expcm, r, x,y):
-            expcm.updateParams({'omega':omega[0]})
-            return expcm.dPrxy['omega'][r][x][y]
-
-        for r in range(self.nsites):
-            for x in range(N_CODON):
-                for y in range(N_CODON):
-                    diff = scipy.optimize.check_grad(func_Prxy, func_dPrxy, 
-                            [self.expcm_divpressure.omega], self.expcm_divpressure, r, x, y,epsilon=1e-4)
-                    self.assertTrue(diff < 1e-4, 
-                            "dprx_omega diff {0} for r = {1}, x = {2}".format(
-                            diff, r, x))
         self.expcm_divpressure.updateParams(self.params) # back to original value
         
         
@@ -249,7 +169,6 @@ class testExpCM_empirical_phi(unittest.TestCase):
 
         # phi sums to one
         self.assertTrue(scipy.allclose(1, self.expcm_divpressure.phi.sum()))
-        print("passed!!")
 
     def check_ExpCM_derivatives(self):
         """Makes sure derivatives are as expected."""
@@ -261,19 +180,15 @@ class testExpCM_empirical_phi(unittest.TestCase):
         def funcPrxy(paramvalue, paramname, expcm, r, x, y):
             if len(paramvalue) == 1:
                 expcm.updateParams({paramname:paramvalue[0]})
-#                 print({paramname:paramvalue[0]})
             else:
                 expcm.updateParams({paramname:paramvalue})
-#             print("P",expcm.Prxy[r][x][y])
             return expcm.Prxy[r][x][y]
 
         def funcdPrxy(paramvalue, paramname, expcm, r, x, y):
             if len(paramvalue) == 1:
                 expcm.updateParams({paramname:paramvalue[0]})
-#                 print({paramname:paramvalue[0]})
             else:
                 expcm.updateParams({paramname:paramvalue})
-#             print("dP",expcm.dPrxy[paramname][r][x][y])
             return expcm.dPrxy[paramname][r][x][y]
 
         for (pname, pvalue) in sorted(self.params.items()):
@@ -302,7 +217,6 @@ class testExpCM_empirical_phi(unittest.TestCase):
                                 self.expcm_divpressure.dphi_dbeta, 
                                 self.expcm_divpressure.dPrxy['beta'][r][x][y],
                                 self.expcm_divpressure.piAx_piAy_beta[r][x][y]))
-#                         print()
             self.expcm_divpressure.updateParams(self.params) # back to original value
 
     def check_ExpCM_matrix_exponentials(self):
