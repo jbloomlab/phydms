@@ -903,7 +903,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         """
         self.checkParam('omega2',omega2)
         self.omega2 = omega2
-        self.divpressure = scipy.array(divPressureValues.copy())        
+        self.deltar = scipy.array(divPressureValues.copy())        
         super(ExpCM_empirical_phi_divpressure, self).__init__(prefs, g, kappa=kappa, 
                 omega=omega, beta=beta, mu=mu, freeparams=freeparams)
         
@@ -919,7 +919,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
             scipy.copyto(self.dPrxy['omega2'], self.Qxy*self.omega, where=(scipy.logical_and(CODON_NONSYN,
                     scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
             for r in range(self.nsites):
-                self.dPrxy['omega2'][r] = self.dPrxy['omega2'][r] * self.divpressure[r]
+                self.dPrxy['omega2'][r] = self.dPrxy['omega2'][r] * self.deltar[r]
             self._fill_diagonals(self.dPrxy['omega2'])
             
         #the switch below recalculates dPrxy/dBeta 
@@ -927,11 +927,18 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         #and the _update_Prxy function in `ExpCM_empirical_phi` uses the values calculated in `ExpCM`
         if 'beta' in self.freeparams: 
             self.dPrxy['beta'].fill(0)
+#             with scipy.errstate(divide='raise', under='raise', over='raise', 
+#                             invalid='ignore'):
+#                 scipy.copyto(self.dPrxy['beta'], self.Prxy * self.piAx_piAy_beta * scipy.log(self.piAx_piAy)
+#                         / (1 - self.piAx_piAy), where=CODON_NONSYN)
+#             scipy.copyto(self.dPrxy['beta'], self.Prxy * self.piAx_piAy_beta * (-1/self.beta), where=(scipy.logical_and(CODON_NONSYN,
+#                     scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
+#             self.dPrxy['beta'] += self.Prxy/self.beta
             for r in range(self.nsites):
                 for x in range(N_CODON):
                     for y in range(N_CODON):
                         if CODON_TO_AA[x] != CODON_TO_AA[y]:
-                            omegaPart = self.omega*(1 + self.omega2 *self.divpressure[r])
+                            omegaPart = self.omega*(1 + self.omega2 *self.deltar[r])
                             self.dPrxy['beta'][r][x][y] = (self.Prxy[r][x][y] / self.beta) * (1 - (self.Frxy[r][x][y] * self.piAx_piAy_beta[r][x][y] / omegaPart))
             self._fill_diagonals(self.dPrxy['beta'])
             self.dQxy_dbeta = scipy.zeros((N_CODON, N_CODON), dtype='float')
@@ -949,12 +956,12 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         if 'omega2' in self.freeparams:
             with scipy.errstate(divide='raise', under='raise', over='raise', 
                             invalid='ignore'):
-                scipy.copyto(self.Frxy, -self.omega * scipy.log(self.piAx_piAy_beta)
+                scipy.copyto(self.Frxy, -1 * scipy.log(self.piAx_piAy_beta)
                         / (1 - self.piAx_piAy_beta), where=CODON_NONSYN)
-            scipy.copyto(self.Frxy, self.omega, where=(scipy.logical_and(CODON_NONSYN,
+            scipy.copyto(self.Frxy, 1, where=(scipy.logical_and(CODON_NONSYN,
                     scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
             for r in range(self.nsites):
-                self.Frxy[r] = self.Frxy[r] * (1 + self.omega2 * self.divpressure[r])
+                self.Frxy[r] = self.Frxy[r] * self.omega *(1 + self.omega2 * self.deltar[r])
 
 if __name__ == '__main__':
     import doctest

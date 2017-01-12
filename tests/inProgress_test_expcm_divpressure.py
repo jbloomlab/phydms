@@ -23,7 +23,7 @@ class testExpCM_empirical_phi(unittest.TestCase):
         # create preferences
         random.seed(1)
         scipy.random.seed(1)
-        self.nsites = 4
+        self.nsites = 10
         self.prefs = []
         minpref = 0.01
         for r in range(self.nsites):
@@ -31,7 +31,9 @@ class testExpCM_empirical_phi(unittest.TestCase):
             rprefs[rprefs < minpref] = minpref 
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        self.divpressure = np.array([0,1,0,0])
+        self.divpressure = np.random.randint(2, size = self.nsites)
+        print(self.divpressure)
+        #self.divpressure = np.array([0,1,0,0])
 
         # create initial ExpCM
         g = scipy.random.dirichlet([3] * N_NT)
