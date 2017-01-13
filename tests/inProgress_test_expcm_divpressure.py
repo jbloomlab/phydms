@@ -53,17 +53,17 @@ class testExpCM_empirical_phi(unittest.TestCase):
             self.expcm_divpressure.updateParams(self.params)
             self.assertTrue(scipy.allclose(g, self.expcm_divpressure.g))
                 
-            print("check_empirical_phi")
-            self.check_empirical_phi()
-            
-            print("check_dQxy_dbeta")
-            self.check_dQxy_dbeta()
-            
-            print("check_dprx_dbeta()")
-            self.check_dprx_dbeta()
-            
-            print("check_ExpCM_attributes")
-            self.check_ExpCM_attributes()
+#             print("check_empirical_phi")
+#             self.check_empirical_phi()
+#             
+#             print("check_dQxy_dbeta")
+#             self.check_dQxy_dbeta()
+#             
+#             print("check_dprx_dbeta()")
+#             self.check_dprx_dbeta()
+#             
+#             print("check_ExpCM_attributes")
+#             self.check_ExpCM_attributes()
 
             print("check_ExpCM_derivatives")
             self.check_ExpCM_derivatives()

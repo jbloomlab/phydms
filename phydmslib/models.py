@@ -914,10 +914,10 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         if 'omega2' in self.freeparams: 
             with scipy.errstate(divide='raise', under='raise', over='raise', 
                             invalid='ignore'):
-                scipy.copyto(self.dPrxy['omega2'], -1 * scipy.log(self.piAx_piAy_beta) * self.Qxy *self.omega
+                scipy.copyto(self.dPrxy['omega2'], -1 * scipy.log(self.piAx_piAy_beta) * self.Qxy * self.omega
                         / (1 - self.piAx_piAy_beta), where=CODON_NONSYN)
-            scipy.copyto(self.dPrxy['omega2'], self.Qxy*self.omega, where=(scipy.logical_and(CODON_NONSYN,
-                    scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
+            scipy.copyto(self.dPrxy['omega2'], self.Qxy * self.omega, 
+                       where=(scipy.logical_and(CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
             for r in range(self.nsites):
                 self.dPrxy['omega2'][r] = self.dPrxy['omega2'][r] * self.deltar[r]
             self._fill_diagonals(self.dPrxy['omega2'])
@@ -926,33 +926,13 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         #this is because the _update_Prxy function in `ExpCM` calls omega 
         #and the _update_Prxy function in `ExpCM_empirical_phi` uses the values calculated in `ExpCM`
         if 'beta' in self.freeparams: 
-            self.dPrxy['beta'].fill(0)
-#             with scipy.errstate(divide='raise', under='raise', over='raise', 
-#                             invalid='ignore'):
-#                 scipy.copyto(self.dPrxy['beta'], self.Prxy * self.piAx_piAy_beta * scipy.log(self.piAx_piAy)
-#                         / (1 - self.piAx_piAy), where=CODON_NONSYN)
-#             scipy.copyto(self.dPrxy['beta'], self.Prxy * self.piAx_piAy_beta * (-1/self.beta), where=(scipy.logical_and(CODON_NONSYN,
-#                     scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
-#             self.dPrxy['beta'] += self.Prxy/self.beta
-
-#             for r in range(self.nsites):
-#                 for x in range(N_CODON):
-#                     for y in range(N_CODON):
-#                         if CODON_TO_AA[x] != CODON_TO_AA[y]:
-#                             omegaPart = self.omega*(1 + self.omega2 *self.deltar[r])
-#                             self.dPrxy['beta'][r][x][y] = (self.Prxy[r][x][y] / self.beta) * (1 - (self.Frxy[r][x][y] * self.piAx_piAy_beta[r][x][y] / omegaPart))
-#             self._fill_diagonals(self.dPrxy['beta'])
-            
-            for r in range(self.nsites):
-                scipy.copyto(self.dPrxy['beta'][r], (self.Prxy[r] * (1 - self.Frxy[r] / (self.omega*(1+self.omega2*self.deltar[r]))
-                        * self.piAx_piAy_beta[r])) / self.beta, where=CODON_NONSYN)
+            self.dPrxy['beta'].fill(0)            
+            with scipy.errstate(divide='raise', under='raise', over='raise', 
+                            invalid='ignore'):
+                scipy.copyto(self.dPrxy['beta'], self.Prxy * (1/self.beta + (self.piAx_piAy_beta * scipy.log(self.piAx_piAy)/ (1-self.piAx_piAy_beta))) , where=CODON_NONSYN)
+            scipy.copyto(self.dPrxy['beta'], (self.Prxy/self.beta) * (1 - self.piAx_piAy_beta), where=(scipy.logical_and(CODON_NONSYN,
+                    scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
             self._fill_diagonals(self.dPrxy['beta'])
-            
-            
-            self._fill_diagonals(self.dPrxy['beta'])
-            
-            
-            ##KEEP THIS PART OF THE CODE
             self.dQxy_dbeta = scipy.zeros((N_CODON, N_CODON), dtype='float')
             for w in range(N_NT):
                 scipy.copyto(self.dQxy_dbeta, self.dphi_dbeta[w], 
