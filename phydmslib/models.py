@@ -393,7 +393,7 @@ class ExpCM(Model):
                         dtype='float')
             elif param == 'mu':
                 self.dprx['mu'] = 0.0
-            if param in self._ALLOWEDPARAMS:
+            elif param in self._ALLOWEDPARAMS:
                 self.dPrxy[param] = scipy.zeros((self.nsites, N_CODON, N_CODON), 
                         dtype='float')
                 self.B[param] = scipy.zeros((self.nsites, N_CODON, N_CODON), 
