@@ -349,12 +349,13 @@ def readPrefs_dms_tools_format(f):
 def readDivPressure(fileName):
     """
     Reads in diversifying pressures from some file.
+    Scales the diversifying pressure values to the absolute value of the max value is 1.
         Args:
         `fileName` (string or readable file-like object)
             File holding diversifying pressure values. Can be
             comma-, space-, or tab-separated file. The first column
-            is the site consecutively numbered with the sites starting
-            with one. The second column is the diversifying pressure values.
+            is the site (consecutively numbered, sites starting
+            with one) and the second column is the diversifying pressure values.
 
         Returns:
         `divPressure` (dict keyed by ints)
@@ -369,11 +370,13 @@ def readDivPressure(fileName):
     scaleFactor = (max(df["divPressureValue"].abs()))
     df["divPressureValue"] = [x/scaleFactor for x in df["divPressureValue"]]
     assert len(df['site'].tolist()) == len(set(df['site'].tolist())),"There is at least one non-unique site in {0}".format(fileName)
-    assert max(df["divPressureValue"].abs()) <=1, "Something went wrong with the scaling."
+    assert max(df["divPressureValue"].abs()) <=1, "The scaling produced a diversifying pressure value with an absolute value greater than one."
     sites = df['site'].tolist()
     divPressure = {}
     for r in sites:
         divPressure[r] = df[df['site'] == r]["divPressureValue"].tolist()[0]
+    print(divPressure)
+    print()
     return divPressure
 
 

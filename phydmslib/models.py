@@ -919,7 +919,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
             scipy.copyto(self.dPrxy['omega2'], self.Qxy * self.omega, 
                        where=(scipy.logical_and(CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
             for r in range(self.nsites):
-                self.dPrxy['omega2'][r] = self.dPrxy['omega2'][r] * self.deltar[r]
+                self.dPrxy['omega2'][r] *= self.deltar[r]
             self._fill_diagonals(self.dPrxy['omega2'])
             
         #the switch below recalculates dPrxy/dBeta 
@@ -929,9 +929,10 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
             self.dPrxy['beta'].fill(0)            
             with scipy.errstate(divide='raise', under='raise', over='raise', 
                             invalid='ignore'):
-                scipy.copyto(self.dPrxy['beta'], self.Prxy * (1/self.beta + (self.piAx_piAy_beta * scipy.log(self.piAx_piAy)/ (1-self.piAx_piAy_beta))) , where=CODON_NONSYN)
-            scipy.copyto(self.dPrxy['beta'], (self.Prxy/self.beta) * (1 - self.piAx_piAy_beta), where=(scipy.logical_and(CODON_NONSYN,
-                    scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
+                scipy.copyto(self.dPrxy['beta'], self.Prxy 
+                    * (1/self.beta + (self.piAx_piAy_beta * scipy.log(self.piAx_piAy) / (1-self.piAx_piAy_beta))) , where=CODON_NONSYN)
+            scipy.copyto(self.dPrxy['beta'], self.Prxy/self.beta 
+                    * (1 - self.piAx_piAy_beta), where=(scipy.logical_and(CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
             self._fill_diagonals(self.dPrxy['beta'])
             self.dQxy_dbeta = scipy.zeros((N_CODON, N_CODON), dtype='float')
             for w in range(N_NT):
@@ -943,7 +944,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
 
     def _update_Frxy(self):
         super(ExpCM_empirical_phi_divpressure, self)._update_Frxy()
-        """Update `Frxy` from `piAx_piAy_beta`, `omega`, and `beta`."""
+        """Update `Frxy` from `piAx_piAy_beta`, `omega`, `omega2`, and `beta`."""
         ##
         if 'omega2' in self.freeparams:
             with scipy.errstate(divide='raise', under='raise', over='raise', 
