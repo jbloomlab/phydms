@@ -138,7 +138,6 @@ Here are the derivatives of :math:`P_{r,xy}` with respect to each of these param
    0 & \mbox{if $\pi_{r,\operatorname{A}\left(x\right)} = \pi_{r,\operatorname{A}\left(y\right)}$ and $x \ne y$}, \\
    \frac{P_{r,xy}}{\beta} + P_{r,xy} 
    \frac{\left(\pi_{r,\operatorname{A}\left(x\right)} / \pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta} \times \ln\left(\pi_{r,\operatorname{A}\left(x\right)} / \pi_{r,\operatorname{A}\left(y\right)}\right)}{1 - \left(\pi_{r,\operatorname{A}\left(x\right)} / \pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta}} 
-   = \frac{P_{r,xy} \left(1 - \frac{F_{r,xy}}{\omega} \left(\pi_{r,\operatorname{A}\left(x\right)} / \pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta}\right)}{\beta}
    & \mbox{if $\operatorname{A}\left(x\right) \ne \operatorname{A}\left(y\right)$,} \\
    -\sum\limits_{z \ne x} \frac{\partial P_{r,xz}}{\partial \beta} & \mbox{if $x = y$.}
    \end{cases}
@@ -345,6 +344,41 @@ So:
 
 where :math:`\left[\frac{\partial p_{r,x}}{\partial \beta}\right]_{\mbox{free } \phi_w}` is the expresssion given by Equation :eq:`dprx_dbeta`.
 
+ExpCM with empirical nucleotide frequencies and diversifying pressure
+---------------------------------------------------------------------
+The :math:`\omega` value in the previous models is the gene-wide relative rate of nonsynonymous to synonymous mutations after accounting for the differing preferences among sites.  
+In some cases, it might be possible to specify *a priori* expections for the diversifying pressure at each site. 
+For instance, viruses benefit from amino-acid change in sites targeted by the immune system and, consequently, these sites have a higher rate of amino-acid substitution than expected given their level of inherent functional constraint. 
+We can incorporate our expectations for diversifying pressure at specific sites into the selection terms :math:`F_{r,xy}`.  
+
+Let :math:`\delta_{r}` be the pre-determined diversifying pressure for amino-acid change at site :math:`r` in the protein. A large positive value of :math:`\delta_r` corresponds to high pressure for amino-acid diversification, and negative value corresponds to expected pressure against amino-acid diversification beyond that captured in the amino-acid preferences.  We then replace :math:`\omega` in Equation :eq:`Frxy` with the expression :math:`\omega\times\left(1+\omega_{2}\times\delta_{r}\right)`, resulting in selection terms: 
+
+.. math::
+   :label: Frxy_divpressure
+
+   F_{r,xy} = 
+   \begin{cases}
+   1 & \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
+   \omega\times\left(1+\omega_{2}\times\delta_{r}\right) & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
+   \omega\times\left(1+\omega_{2}\times\delta_{r}\right) \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} & \mbox{otherwise.}
+   \end{cases}  
+   
+Whereas before :math:`\omega` reflected the elevation of non-synonymous substitution rate (averaged across the entire gene) beyond that expected given the amino-acid preferences, now :math:`\omega` reflects a gene-wide rate of elevated non-synonymous substitution after taking into account the expected sites of diversifying pressure (as represented by :math:`\delta_r`) weighted by :math:`\omega_{2}\times\delta_{r}`. These new selection terms in equation Equation :eq:`Frxy_divpressure` are identical the selection terms in Equation :eq:`Frxy` when :math:`\omega_{2} = 0`.
+
+To ensure a positive value of :math:`\omega\times\left(1+\omega_{2}\times\delta_{r}\right)`, we constrain :math:`\omega>0`, :math:`-1<\omega_2<\infty`, and :math:`\lvert\max_r\delta_r\rvert\le1`.  
+
+We have added one more parameter to Equation :eq:`Prxy`, :math:`\omega_2`, so we need to add a new derivative, :math:`\frac{\partial P_{r,xy}}{\partial \omega_2}` :eq:`dPrxy_domega2_divpressure`.  
+
+.. math::
+   :label: dPrxy_domega2_divpressure
+
+   \frac{\partial P_{r,xy}}{\partial \omega_2} =
+   \begin{cases}
+   0 & \mbox{if $\operatorname{A}\left(x\right) = \operatorname{A}\left(y\right)$ and $x \ne y$} \\
+   \omega \times \delta_r \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} \times Q_{xy} & \mbox{if $\operatorname{A}\left(x\right) \ne \operatorname{A}\left(y\right)$,} \\
+   -\sum\limits_{z \ne x} \frac{\partial P_{r,xy}}{\partial \omega_2} & \mbox{if $x = y$.}
+   \end{cases}. 
+
 Exponentials of the substitution matrix and derivatives
 --------------------------------------------------------
 The definitions above can be used to define a set of matrices :math:`\mathbf{P_r} = \left[P_{r,xy}\right]` that give the rate of transition from codon :math:`x` to :math:`y` at site :math:`r`. A key computation is to compute the probability of a transition in some amount of elapsed time :math:`\mu t`. These probabilities are given by 
@@ -528,80 +562,7 @@ Specifically, for each internal node :math:`n`,
    \frac{\partial L_{r,n}\left(x\right)}{\partial t_{\mathcal{d}_1\left(n\right)}} =
 
 .. include:: weblinks.txt
-
-ExpCM with empirical nucleotide frequencies and diversifying pressure
----------------------------------------------------------------------
-The :math:`\omega` value in the previous models is the gene-wide relative rate of nonsynonymous to synonymous mutations after accounting for the differing preferences among sites.  
-In some cases, it might be possible to specify *a priori* expections for the diversifying pressure at each site. 
-For instance, viruses benefit from amino-acid change in sites targeted by the immune system and, consequently, these sites have a higher rate of amino-acid substitution than expected given their level of inherent functional constraint. 
-We can incorporate our expectations for diversifying pressure at specific sites into the selection terms :math:`F_{r,xy}`.  
-
-Let :math:`\delta_{r}` be the pre-determined diversifying pressure for amino-acid change at site :math:`r` in the protein. A large positive value of :math:`\delta_r` corresponds to high pressure for amino-acid diversification, and negative value corresponds to expected pressure against amino-acid diversification beyond that captured in the amino-acid preferences.  We then replace :math:`\omega` in Equation :eq:`Frxy` with the expression :math:`\omega\times\left(1+\omega_{2}\times\delta_{r}\right)`, resulting in selection terms: 
-
-.. math::
-   :label: Frxy_divpressure
-
-   F_{r,xy} = 
-   \begin{cases}
-   1 & \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
-   \omega\times\left(1+\omega_{2}\times\delta_{r}\right) & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
-   \omega\times\left(1+\omega_{2}\times\delta_{r}\right) \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} & \mbox{otherwise.}
-   \end{cases}  
-   
-Whereas before :math:`\omega` reflected the elevation of non-synonymous substitution rate (averaged across the entire gene) beyond that expected given the amino-acid preferences, now :math:`\omega` reflects a gene-wide rate of elevated non-synonymous substitution after taking into account the expected sites of diversifying pressure (as represented by :math:`\delta_r`) weighted by :math:`\omega_{2}\times\delta_{r}`. These new selection terms in equation Equation :eq:`Frxy_divpressure` are identical the selection terms in Equation :eq:`Frxy` when :math:`\omega_{2} = 0`.
-
-**TEMP NOTES**  
-
-*Parameter constraints*  
-
-To ensure a positive value of :math:`\omega\times\left(1+\omega_{2}\times\delta_{r}\right)`, we impose the following constraints:  
-
-We ensure all :math:`\delta_{r}` values fall between :math:`-1` and :math:`1` but dividing each :math:`\delta_{r}` by the scaling factor | :math:`\max_r\delta_r` |.  
-
-:math:`\omega>0`  
-
-:math:`-1<\omega_2<\infty`  
-
-*Derivative changes*  
-
-We have added one more parameter to Equation :eq:`Prxy`, :math:`\omega_2`, so we need to update the calculation of :math:`F_{r,xy}` to :eq:`Frxy_divpressure` and add a new derivative, :math:`\frac{\partial P_{r,xy}}{\partial \omega_2}` :eq:`dPrxy_domega2_divpressure`.  
-
-Derivative of :math:`P_{r,xy}` with respect to :math:`\omega_2`:  
-
-.. math::
-   :label: dPrxy_domega2_divpressure
-
-   \frac{\partial P_{r,xy}}{\partial \omega_2} =
-   \begin{cases}
-   0 & \mbox{if $\operatorname{A}\left(x\right) = \operatorname{A}\left(y\right)$ and $x \ne y$} \\
-   \omega \times \delta_r \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} \times Q_{xy} & \mbox{if $\operatorname{A}\left(x\right) \ne \operatorname{A}\left(y\right)$,} \\
-   -\sum\limits_{z \ne x} \frac{\partial P_{r,xy}}{\partial \omega_2} & \mbox{if $x = y$.}
-   \end{cases}.  
-   
-*Derivative changes which seem like they should change but they don't actually change*  
-
-The *all* of the update functions from :math:`\texttt{ExpCM}` are listed below.
-
-- self._update_piAx_piAy_beta()  
-- self._update_frx()  
-- self._update_phi()  
-- self._update_qx()  
-- self._update_prx()  
-- self._update_dprx()  
-- self._update_Qxy()  
-- self._update_Frxy()  
-- self._update_Prxy()        
-- self._update_Prxy_diag()  
-- **self._update_dPrxy()**    
-- self._update_B()  
-
-:math:`\texttt{_update_dPrxy}` for :math:`\beta` calls :math:`\omega` in :math:`\texttt{ExpCM}` but not in :math:`\texttt{ExpCM_empirical_phi}`.   
-
-:math:`\texttt{_update_dPrxy}` for :math:`\omega` calls :math:`P_{r,xy}`, which includes :math:`\left(1 + \omega_2\times\delta_r\right)`, so I don't have to update with respect to :math:`\omega`.    
-
-*Questions:*  
-
-- Do I need to add :math:`\omega_2` keys to :math:`\texttt{B}` and :math:`\texttt{dprx}`?  
+ 
 
 
    
