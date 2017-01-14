@@ -32,7 +32,6 @@ class testExpCM_empirical_phi(unittest.TestCase):
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
         self.divpressure = np.random.randint(2, size = self.nsites)
-        print(self.divpressure)
         #self.divpressure = np.array([0,1,0,0])
 
         # create initial ExpCM
@@ -53,22 +52,16 @@ class testExpCM_empirical_phi(unittest.TestCase):
             self.expcm_divpressure.updateParams(self.params)
             self.assertTrue(scipy.allclose(g, self.expcm_divpressure.g))
                 
-            print("check_empirical_phi")
             self.check_empirical_phi()
             
-            print("check_dQxy_dbeta")
             self.check_dQxy_dbeta()
             
-            print("check_dprx_dbeta()")
             self.check_dprx_dbeta()
             
-            print("check_ExpCM_attributes")
             self.check_ExpCM_attributes()
 
-            print("check_ExpCM_derivatives")
             self.check_ExpCM_derivatives()
 
-            print("check_ExpCM_matrix_exponentials()")
             self.check_ExpCM_matrix_exponentials()
 
     def check_empirical_phi(self):
@@ -194,7 +187,6 @@ class testExpCM_empirical_phi(unittest.TestCase):
             return expcm.dPrxy[paramname][r][x][y]
 
         for (pname, pvalue) in sorted(self.params.items())[::-1]:
-            print(pname)
             if pname == 'mu':
                 continue
             if isinstance(pvalue, float):
