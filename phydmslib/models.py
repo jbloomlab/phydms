@@ -868,24 +868,24 @@ class ExpCM_empirical_phi(ExpCM):
                 self.dprx['beta'][r] += self.prx[r] * (dphi_over_phi
                         - scipy.dot(dphi_over_phi, self.prx[r]))
 
+
 class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
-    """An `ExpCM` with `phi` calculated empirically from nucleotide frequencies
-       and an *a priori*  expectation of diversifying pressure at each site.
+    """`ExpCM` with empirical `phi` and *a priori* diversifying pressure at sites.
 
-    See `__init__` method for how to initialize an `ExpCM_empirical_phi_divpressure`.
+    See `__init__` method for how to initialize.
 
-    The difference between an `ExpCM_empirical_phi` and an `ExpCM_empirical_phi_divpressure` 
-    is that the `omega` term is replaced by the expression `omega*(1+omega2*deltar)` where
+    Difference between `ExpCM_empirical_phi` and `ExpCM_empirical_phi_divpressure` 
+    is that `omega` is replaced by `omega * (1 + omega2 * deltar)` where
     `deltar` is the expectation of diversifying pressure at site `r`.
 
-    Now, the rate of non-synonymous to synonymous change is proportional to the expectation
-    of diversifying pressure.
+    The rate of non-synonymous to synonymous change is proportional to the
+    expectation of diversifying pressure.
 
     Has all the attributes of an `ExpCM_empirical_phi` plus the following:
         `omega2` (float)
             Part of the expression which replaces `omega`.
-        `divPressureValues`
-            List of `deltar` values in site order
+        `divPressureValues` (`scipy.array` of length `nsites`)
+            Array of `deltar` values in site order
     """
 
     # class variables
@@ -896,7 +896,8 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
     _PARAMTYPES = copy.deepcopy(ExpCM_empirical_phi._PARAMTYPES)
     _PARAMTYPES['omega2'] = float
 
-    def __init__(self, prefs, g, divPressureValues, kappa=2.0, omega=0.5, beta=1.0, mu=1.0,omega2=0.0,
+    def __init__(self, prefs, g, divPressureValues, kappa=2.0, omega=0.5, 
+            beta=1.0, mu=1.0,omega2=0.0,
             freeparams=['kappa', 'omega', 'beta', 'mu', 'omega2']):
         """Initialize an `ExpCM_empirical_phi_divpressure` object.
 
@@ -904,13 +905,14 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
             `prefs`, `kappa`, `omega`, `beta`, `mu`, `g`, `freeparams`
                 Same meaning as for an `ExpCM_empirical_phi`
             `divPressureValues`, `omega2`
-                Has the same meaning as described in the main class doc string. 
+                Meaning described in the main class doc string. 
         """
         self.checkParam('omega2',omega2)
         self.omega2 = omega2
         self.deltar = scipy.array(divPressureValues.copy())        
-        super(ExpCM_empirical_phi_divpressure, self).__init__(prefs, g, kappa=kappa, 
-                omega=omega, beta=beta, mu=mu, freeparams=freeparams)
+        super(ExpCM_empirical_phi_divpressure, self).__init__(prefs, g,
+                kappa=kappa, omega=omega, beta=beta, mu=mu, 
+                freeparams=freeparams)
         
 
     def _update_dPrxy(self):
@@ -919,32 +921,28 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         if 'omega2' in self.freeparams: 
             with scipy.errstate(divide='raise', under='raise', over='raise', 
                             invalid='ignore'):
-                scipy.copyto(self.dPrxy['omega2'], -1 * scipy.log(self.piAx_piAy_beta) * self.Qxy * self.omega
-                        / (1 - self.piAx_piAy_beta), where=CODON_NONSYN)
+                scipy.copyto(self.dPrxy['omega2'], -scipy.log(self.piAx_piAy_beta) 
+                        * self.Qxy * self.omega /
+                        (1 - self.piAx_piAy_beta), where=CODON_NONSYN)
             scipy.copyto(self.dPrxy['omega2'], self.Qxy * self.omega, 
-                       where=(scipy.logical_and(CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
+                       where=(scipy.logical_and(CODON_NONSYN, scipy.fabs(1 - 
+                       self.piAx_piAy_beta) < ALMOST_ZERO)))
             for r in range(self.nsites):
                 self.dPrxy['omega2'][r] *= self.deltar[r]
             self._fill_diagonals(self.dPrxy['omega2'])
             
-        #the switch below recalculates dPrxy/dBeta 
-        #this is because the _update_Prxy function in `ExpCM` calls omega 
-        #and the _update_Prxy function in `ExpCM_empirical_phi` uses the values calculated in `ExpCM`
-
 
     def _update_Frxy(self):
-        super(ExpCM_empirical_phi_divpressure, self)._update_Frxy()
         """Update `Frxy` from `piAx_piAy_beta`, `omega`, `omega2`, and `beta`."""
-        ##
-        if 'omega2' in self.freeparams:
-            with scipy.errstate(divide='raise', under='raise', over='raise', 
-                            invalid='ignore'):
-                scipy.copyto(self.Frxy, -1 * scipy.log(self.piAx_piAy_beta)
-                        / (1 - self.piAx_piAy_beta), where=CODON_NONSYN)
-            scipy.copyto(self.Frxy, 1, where=(scipy.logical_and(CODON_NONSYN,
-                    scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
-            for r in range(self.nsites):
-                self.Frxy[r] = self.Frxy[r] * self.omega *(1 + self.omega2 * self.deltar[r])
+        with scipy.errstate(divide='raise', under='raise', over='raise', 
+                invalid='ignore'):
+            scipy.copyto(self.Frxy, -1 * scipy.log(self.piAx_piAy_beta)
+                    / (1 - self.piAx_piAy_beta), where=CODON_NONSYN)
+        scipy.copyto(self.Frxy, 1, where=(scipy.logical_and(CODON_NONSYN,
+                scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
+        for r in range(self.nsites):
+            self.Frxy[r] = self.Frxy[r] * self.omega * (1 + self.omega2 * 
+                    self.deltar[r])
 
 if __name__ == '__main__':
     import doctest
