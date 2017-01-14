@@ -398,10 +398,7 @@ class ExpCM(Model):
                         dtype='float')
                 self.B[param] = scipy.zeros((self.nsites, N_CODON, N_CODON), 
                         dtype='float')
-                if param == 'beta':
-                    self.dprx[param] = scipy.zeros((self.nsites, N_CODON), dtype='float')
-                else:
-                    self.dprx[param] = 0.0
+                self.dprx[param] = scipy.zeros((self.nsites, N_CODON), dtype='float')
             else:
                 raise ValueError("Unrecognized param {0}".format(param))
 
@@ -684,11 +681,15 @@ class ExpCM(Model):
         if 'beta' in self.freeparams:
             self.dPrxy['beta'].fill(0)            
             with scipy.errstate(divide='raise', under='raise', over='raise', 
-                            invalid='ignore'):
-                scipy.copyto(self.dPrxy['beta'], self.Prxy 
-                    * (1/self.beta + (self.piAx_piAy_beta * scipy.log(self.piAx_piAy) / (1-self.piAx_piAy_beta))) , where=CODON_NONSYN)
-            scipy.copyto(self.dPrxy['beta'], self.Prxy/self.beta 
-                    * (1 - self.piAx_piAy_beta), where=(scipy.logical_and(CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
+                    invalid='ignore'):
+                scipy.copyto(self.dPrxy['beta'], self.Prxy *
+                        (1 / self.beta + (self.piAx_piAy_beta * 
+                        scipy.log(self.piAx_piAy) / (1 - self.piAx_piAy_beta))), 
+                        where=CODON_NONSYN)
+            scipy.copyto(self.dPrxy['beta'], self.Prxy/self.beta *
+                    (1 - self.piAx_piAy_beta), where=(scipy.logical_and(
+                    CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta) 
+                    < ALMOST_ZERO)))
             self._fill_diagonals(self.dPrxy['beta'])
         if 'eta' in self.freeparams:
             for i in range(N_NT - 1):
