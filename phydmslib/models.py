@@ -885,7 +885,8 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         `omega2` (float)
             Part of the expression which replaces `omega`.
         `divPressureValues` (`scipy.array` of length `nsites`)
-            Array of `deltar` values in site order
+            Array of `deltar` values in site order.
+            The maximum absolute value of the array should be between 0 and 1. 
     """
 
     # class variables
@@ -909,7 +910,8 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         """
         self.checkParam('omega2',omega2)
         self.omega2 = omega2
-        self.deltar = scipy.array(divPressureValues.copy())        
+        self.deltar = scipy.array(divPressureValues.copy())
+        assert (max(scipy.absolute(self.deltar))) <= 1, "There is a scaled deltar value greater than 1 or less than -1."        
         super(ExpCM_empirical_phi_divpressure, self).__init__(prefs, g,
                 kappa=kappa, omega=omega, beta=beta, mu=mu, 
                 freeparams=freeparams)
