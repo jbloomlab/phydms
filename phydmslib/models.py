@@ -911,7 +911,8 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         self.checkParam('omega2',omega2)
         self.omega2 = omega2
         self.deltar = scipy.array(divPressureValues.copy())
-        assert (max(scipy.absolute(self.deltar))) <= 1, "There is a scaled deltar value greater than 1 or less than -1."        
+        assert (max(scipy.absolute(self.deltar))) <= 1, (
+                "A scaled deltar value is > 1 or < -1.")
         super(ExpCM_empirical_phi_divpressure, self).__init__(prefs, g,
                 kappa=kappa, omega=omega, beta=beta, mu=mu, 
                 freeparams=freeparams)
@@ -943,8 +944,10 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         scipy.copyto(self.Frxy, 1, where=(scipy.logical_and(CODON_NONSYN,
                 scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
         for r in range(self.nsites):
-            self.Frxy[r] = self.Frxy[r] * self.omega * (1 + self.omega2 * 
-                    self.deltar[r])
+            scipy.copyto(self.Frxy[r], self.Frxy[r] * self.omega * 
+                    (1 + self.omega2 * self.deltar[r]), where=CODON_NONSYN)
+
+
 
 if __name__ == '__main__':
     import doctest

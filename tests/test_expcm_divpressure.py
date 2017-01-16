@@ -15,10 +15,68 @@ from phydmslib.constants import *
 import phydmslib.models
 
 
-class testExpCM_empirical_phi(unittest.TestCase):
+class test_compare_ExpCM_empirical_phi_with_and_without_divpressure(unittest.TestCase):
 
-    def test_ExpCM_empirical_phi(self):
-        """Initialize `ExpCM_empirical_phi`, test values, update, test again."""
+    def test_compare(self):
+        """Make sure all attributes are the same when `divpressure` is 0."""
+
+        random.seed(1)
+        scipy.random.seed(1)
+
+        nsites = 10
+        prefs = []
+        minpref = 0.01
+        for r in range(nsites):
+            rprefs = scipy.random.dirichlet([0.5] * N_AA)
+            rprefs[rprefs < minpref] = minpref 
+            rprefs /= rprefs.sum()
+            prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
+        g = scipy.random.dirichlet([3] * N_NT)
+        omega = 0.7
+        omega2 = 0.2
+        kappa = 2.5
+        beta = 1.2
+        divpressure = scipy.zeros(nsites)
+
+        expcm = phydmslib.models.ExpCM_empirical_phi(
+                prefs, g, omega=omega, kappa=kappa, beta=beta)
+
+        expcm_divpressure = phydmslib.models.ExpCM_empirical_phi_divpressure(
+                prefs, g, divPressureValues=divpressure, omega=omega, 
+                kappa=kappa, beta=beta, omega2=omega2)
+
+        self.assertTrue(scipy.allclose(expcm.stationarystate, 
+                expcm_divpressure.stationarystate),
+                "stationarystate differs.")
+        self.assertTrue(scipy.allclose(expcm.Qxy,
+                expcm_divpressure.Qxy),
+                "Qxy differs")
+        self.assertTrue(scipy.allclose(expcm.Frxy,
+                expcm_divpressure.Frxy),
+                "Frxy differs")
+        self.assertTrue(scipy.allclose(expcm.Prxy,
+                expcm_divpressure.Prxy),
+                "Prxy differs")
+        t = 0.02
+        self.assertTrue(scipy.allclose(expcm.M(t),
+                expcm_divpressure.M(t)),
+                "M({0}) differs".format(t))
+        for param in ['kappa', 'omega', 'beta']:
+            self.assertTrue(scipy.allclose(getattr(expcm, param),
+                    getattr(expcm_divpressure, param)), 
+                    "param values differ for {0}".format(param))
+            self.assertTrue(scipy.allclose(expcm.dstationarystate(param),
+                    expcm_divpressure.dstationarystate(param)),
+                    "dstationarystate differs for {0}".format(param))
+            self.assertTrue(scipy.allclose(expcm.dM(t, param, expcm.M(t)),
+                    expcm_divpressure.dM(t, param, expcm_divpressure.M(t))),
+                    "dM({0}) differs for {1}".format(t, param))
+
+
+class testExpCM_empirical_phi_divpressure(unittest.TestCase):
+
+    def test_ExpCM_empirical_phi_divpressure(self):
+        """Initialize `ExpCM_empirical_phi_divpressure`, test values, update, test again."""
 
         # create preferences
         random.seed(1)
@@ -31,8 +89,7 @@ class testExpCM_empirical_phi(unittest.TestCase):
             rprefs[rprefs < minpref] = minpref 
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        self.divpressure = np.random.randint(2, size = self.nsites)
-        #self.divpressure = np.array([0,1,0,0])
+        self.divpressure = np.random.randint(2, size=self.nsites)
 
         # create initial ExpCM
         g = scipy.random.dirichlet([3] * N_NT)
@@ -40,7 +97,9 @@ class testExpCM_empirical_phi(unittest.TestCase):
         omega2 = 0.2
         kappa = 2.5
         beta = 1.2
-        self.expcm_divpressure = phydmslib.models.ExpCM_empirical_phi_divpressure(self.prefs,g=g, divPressureValues = self.divpressure, omega=omega, kappa=kappa, beta=beta, omega2=omega2)
+        self.expcm_divpressure = phydmslib.models.ExpCM_empirical_phi_divpressure(
+                self.prefs, g=g, divPressureValues=self.divpressure, omega=omega, 
+                kappa=kappa, beta=beta, omega2=omega2)
         # now check ExpCM attributes / derivates, updating several times
         for update in range(2):
             self.params = {'omega':random.uniform(0.1, 2),

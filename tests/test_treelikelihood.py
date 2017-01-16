@@ -22,7 +22,7 @@ from phydmslib.constants import *
 
 
 class test_TreeLikelihood_ExpCM(unittest.TestCase):
-    """Tests `phydmslib.treelikelihood.TreeLikelihood` class."""
+    """Tests `phydmslib.treelikelihood.TreeLikelihood` class for `ExpCM` model."""
 
     # use approach here to run multiple tests:
     # http://stackoverflow.com/questions/17260469/instantiate-python-unittest-testcase-with-arguments
@@ -77,6 +77,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         # define model
         self.prefs = []
         minpref = 0.02
+        g = scipy.random.dirichlet([5] * N_NT)
         for r in range(self.nsites):
             rprefs = scipy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
@@ -85,8 +86,12 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         if self.MODEL == phydmslib.models.ExpCM:
             self.model = phydmslib.models.ExpCM(self.prefs)
         elif self.MODEL == phydmslib.models.ExpCM_empirical_phi:
-            g = scipy.random.dirichlet([5] * N_NT)
             self.model = phydmslib.models.ExpCM_empirical_phi(self.prefs, g)
+        elif self.MODEL == phydmslib.models.ExpCM_empirical_phi_divpressure:
+            divpressure = scipy.random.uniform(-1, 5, self.nsites) 
+            divpressure /= max(abs(divpressure))
+            self.model = phydmslib.models.ExpCM_empirical_phi_divpressure(
+                    self.prefs, g, divpressure)
         else:
             raise ValueError("Unrecognized MODEL: {0}".format(self.MODEL))
 
@@ -118,8 +123,9 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
                 'kappa':random.uniform(0.5, 5.0),
                 'omega':random.uniform(0.1, 2),
                 }
+        if self.MODEL == phydmslib.models.ExpCM_empirical_phi_divpressure:
+            modelparams['omega2'] = random.uniform(0.1, 1)
         for param in list(modelparams.keys()):
-#             if param not in self.model.freeparams:
             if param not in model.freeparams:
                 del modelparams[param]
         model.updateParams(modelparams)
@@ -219,7 +225,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             for iparam in range(len(tl.paramsarray)):
                 diff = scipy.optimize.check_grad(func, dfunc, 
                         scipy.array([tl.paramsarray[iparam]]), iparam)
-                self.assertTrue(diff < 2e-4, "{0} has diff {1}".format(
+                self.assertTrue(diff < 5e-4, "{0} has diff {1}".format(
                         tl._index_to_param[iparam], diff))
 
     def test_MaximizeLikelihood(self):
@@ -262,7 +268,14 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
 
 
 class test_TreeLikelihood_ExpCM_empirical_phi(test_TreeLikelihood_ExpCM):
+    """Tests `test_TreeLikelihood_ExpCM` for `ExpCM_empirical_phi` model."""
     MODEL = phydmslib.models.ExpCM_empirical_phi
+
+
+class test_TreeLikelihood_ExpCM_empirical_phi_divpressure(test_TreeLikelihood_ExpCM):
+    """Tests `test_TreeLikelihood_ExpCM` for `ExpCM_empirical_phi_divpressure` model."""
+    MODEL = phydmslib.models.ExpCM_empirical_phi_divpressure
+
 
 
 if __name__ == '__main__':
