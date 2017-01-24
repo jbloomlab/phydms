@@ -53,8 +53,8 @@ def main():
     # Set up to log everything to logfile.
     logging.shutdown()
     logging.captureWarnings(True)
-    versionstring = phydmslib.file_io.Versions() 
-    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', 
+    versionstring = phydmslib.file_io.Versions()
+    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
             level=logging.INFO)
     logger = logging.getLogger(prog)
     logfile_handler = logging.FileHandler(logfile)
@@ -76,10 +76,10 @@ def main():
 
         # read alignment
         logger.info('Reading alignment from {0}'.format(args['alignment']))
-        alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'], 
+        alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'],
                 checknewickvalid=True)
         logger.info(('Read {0} aligned sequences from {1}, each consisting '
-                'of {2} codons.\n').format(len(alignment), args['alignment'], 
+                'of {2} codons.\n').format(len(alignment), args['alignment'],
                 len(alignment[0][1]) // 3))
         seqnames = set([head for (head, seq) in alignment])
 
@@ -94,16 +94,16 @@ def main():
                     'of YNGKP (Yang, Nielsen, Goldman, and Pederson. Genetics. '
                     '155:431-449).').format(modelvariant))
             raise RuntimeError('YNGKP models not yet implemented')
-        elif (isinstance(args['model'], tuple) and len(args['model']) == 2 and 
+        elif (isinstance(args['model'], tuple) and len(args['model']) == 2 and
                 args['model'][0] == 'ExpCM'):
             prefsfile = args['model'][1]
             logger.info(('The model will be an ExpCM informed by site-specific '
                     'amino-acid preferences in {0}').format(prefsfile))
-            for (argname, desc) in [('avgprefs', 'averaged'), 
+            for (argname, desc) in [('avgprefs', 'averaged'),
                     ('randprefs', 'randomized')]:
                 if args[argname]:
                     logger.info('Preferences will be {0} across sites.'.format(desc))
-            prefs = phydmslib.file_io.readPrefs(prefsfile, minpref=args['minpref'], 
+            prefs = phydmslib.file_io.readPrefs(prefsfile, minpref=args['minpref'],
                     avgprefs=args['avgprefs'], randprefs=args['randprefs'],
                     seed=args['seed'])
             sites = sorted(prefs.keys())
@@ -129,7 +129,7 @@ def main():
                 g = scipy.ndarray(phydmslib.constants.N_NT, dtype='float')
                 for (w, nt) in phydmslib.constants.INDEX_TO_NT.items():
                     g[w] = sum([seq.count(nt) for (head, seq) in alignment])
-                assert len(alignment) * len(prefs) * 3 == (g.sum() + 
+                assert len(alignment) * len(prefs) * 3 == (g.sum() +
                         sum([seq.count('-') for (head, seq) in alignment])), (
                         "Alignment contains invalid nucleotide characters")
                 g /= g.sum()
@@ -155,7 +155,7 @@ def main():
                     logger.info(('Read diversifying pressure from {0} '
                             'for all sites.').format(args['divpressure']))
                     divPressureSites = list(divpressure.keys())
-                    divpressure = scipy.array([divpressure[x] for x in 
+                    divpressure = scipy.array([divpressure[x] for x in
                             sorted(divPressureSites)])
                     model = phydmslib.models.ExpCM_empirical_phi_divpressure(
                             prefslist, g, divpressure, freeparams=freeparams)
@@ -191,8 +191,8 @@ def main():
         logger.info('Maximizing log likelihood (initial value {0:.2f})...'.format(
                 tl.loglik))
         if args['profile']:
-            import cProfile 
-            import pstats 
+            import cProfile
+            import pstats
             pstatsfile = '{0}_pstats'.format(args['outprefix'])
             logger.info('Performing maximization with cProfile (probably slower).')
             logger.info('Profile stats will be written to {0}'.format(pstatsfile))
