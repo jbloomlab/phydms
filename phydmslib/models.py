@@ -972,18 +972,13 @@ class YNGKP_M0(Model):
             Keyed by each string in `freeparams`, each value is `numpy.ndarray`
             of floats giving derivative of `Pxy` with respect to that parameter.
             The shape of each array `(N_CODON, N_CODON)`.
-        `dpx` (dict)
-            Keyed by strings in `freeparams`, each value is `numpy.ndarray`
-            of floats giving derivative of `px` with respect to that param,
-            or 0 if if `prx` does not depend on parameter. The shape of each
-            array is `(N_CODON)`.
         `e_pw` (scipy.ndarray, size (3, N_NT))
             The empirical nucleotide frequencies for each position in a codon
             measured from the alignment. `e_pw[p][w]` give the frequency of nucleotide
             `w` at codon position `p`.
-        `pi_x` (scipy.ndarray, size(NT_NT,))
+        `Phi_x` (scipy.ndarray, size(NT_NT,))
             The codon frequencies calculated from the `e_pw` frequencies.
-            `pi_x[x]` = e_pw[0][x0] * e_pw[1][x1] * e_pw[2][x2]
+            `Phi_x[x]` = e_pw[0][x0] * e_pw[1][x1] * e_pw[2][x2]
     """
 
     # class variables
@@ -992,7 +987,7 @@ class YNGKP_M0(Model):
                    'omega':(0.01, 100.0),
                    'mu':(1.0e-3, 1.0e3),
                    'e_pw':(0.05,0.85),
-                   'pi_x':(0.01,1.0)
+                   'Phi_x':(0.01,1.0)
                   }
     _PARAMTYPES = {'kappa':float,
                    'omega':float,
@@ -1056,8 +1051,8 @@ class YNGKP_M0(Model):
         """
         self.checkParam('e_pw', e_pw)
         self.e_pw = e_pw.copy()
-        self.pi_x = scipy.ones(N_CODON, dtype='float')
-        self._calculate_pi_x(e_pw)
+        self.Phi_x = scipy.ones(N_CODON, dtype='float')
+        self._calculate_Phi_x(e_pw)
         self._nsites = nsites
         assert self._nsites > 0, "There must be more than 1 site in the gene"
 
@@ -1075,23 +1070,19 @@ class YNGKP_M0(Model):
             self.checkParam(name, value)
 
         # define other params, initialized appropriately
+        self.dPhi_x = 0
         self.Pxy = scipy.zeros((N_CODON, N_CODON), dtype='float')
-        self.px = self.pi_x
         self.D = scipy.zeros(N_CODON, dtype='float')
         self.A = scipy.zeros((N_CODON, N_CODON), dtype='float')
         self.Ainv = scipy.zeros((N_CODON, N_CODON), dtype='float')
         self.dPxy = {}
-        self.dpx = {}
         self.B = {}
         for param in self.freeparams:
-            if param == 'mu':
-                self.dpx['mu'] = 0.0
-            elif param in self._ALLOWEDPARAMS:
+            if param in self._ALLOWEDPARAMS:
                 self.dPxy[param] = scipy.zeros((N_CODON, N_CODON),
                         dtype='float')
                 self.B[param] = scipy.zeros((N_CODON, N_CODON),
                         dtype='float')
-                self.dpx[param] = 0
             else:
                 raise ValueError("Unrecognized param {0}".format(param))
 
@@ -1129,11 +1120,11 @@ class YNGKP_M0(Model):
         """Set new `mu` value."""
         self._mu = value
 
-    def _calculate_pi_x(self, e_pw):
+    def _calculate_Phi_x(self, e_pw):
         for codon in range(N_CODON):
             for pos in range(3):
-                self.pi_x[codon] *= e_pw[pos][CODON_NT_INDEX[pos][codon]]
-        return self.pi_x
+                self.Phi_x[codon] *= e_pw[pos][CODON_NT_INDEX[pos][codon]]
+        return self.Phi_x
 
     def updateParams(self, newvalues, update_all=False):
         """See docs for `Model` abstract base class."""
@@ -1162,8 +1153,6 @@ class YNGKP_M0(Model):
         # for all possible parameter changes, but just doing it
         # this way is much simpler and adds negligible cost.
         if update_all or (changed and changed != set(['mu'])):
-            self._update_px()
-            self._update_dpx()
             self._update_Pxy()
             self._update_Pxy_diag()
             self._update_dPxy()
@@ -1272,15 +1261,9 @@ class YNGKP_M0(Model):
                         dM_param[:, gaps] = scipy.zeros(N_CODON, dtype='float')
         return dM_param
 
-    def _update_dpx(self):
-            return self.dpx
-
-    def _update_px(self):
-            return self.px
-
     def _update_Pxy(self):
         """Update `Pxy` using current `omega`, `kappa`, and `pi_x`."""
-        scipy.copyto(self.Pxy, self.omega * self.pi_x.transpose(), where=CODON_SINGLEMUT)
+        scipy.copyto(self.Pxy, self.omega * self.Phi_x.transpose(), where=CODON_SINGLEMUT)
         # for x in range(N_CODON):
         #     for y in range(N_CODON):
         #         if CODON_SINGLEMUT[x][y]:
@@ -1310,8 +1293,8 @@ class YNGKP_M0(Model):
 
     def _update_Pxy_diag(self):
         """Update `D`, `A`, `Ainv` from `Prxy`, `prx`."""
-        p_half = self.px**0.5
-        p_neghalf = self.px**-0.5
+        p_half = self.Phi_x**0.5
+        p_neghalf = self.Phi_x**-0.5
         #symm_pr = scipy.dot(scipy.diag(pr_half), scipy.dot(self.Prxy[r], scipy.diag(pr_neghalf)))
         symm_p = (p_half * (self.Pxy * p_neghalf).transpose()).transpose()
         #assert scipy.allclose(symm_pr, symm_pr.transpose())
