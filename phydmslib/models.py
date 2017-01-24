@@ -941,11 +941,11 @@ class YNGKP_M0(Model):
             Keyed by each string in `freeparams`, each value is `numpy.ndarray`
             of floats giving derivative of `Pxy` with respect to that parameter.
             The shape of each array `(N_CODON, N_CODON)`.
-        `e_pw` (scipy.ndarray, size (3, N_NT))
+        `e_pw` (scipy.ndarray, shape `(3, N_NT)`)
             The empirical nucleotide frequencies for each position in a codon
             measured from the alignment. `e_pw[p][w]` give the frequency of nucleotide
             `w` at codon position `p`.
-        `Phi_x` (scipy.ndarray, size(NT_NT,))
+        `Phi_x` (scipy.ndarray, shape `(NT_NT,)`)
             The codon frequencies calculated from the `e_pw` frequencies.
             `Phi_x[x]` = e_pw[0][x0] * e_pw[1][x1] * e_pw[2][x2]
     """
@@ -955,14 +955,12 @@ class YNGKP_M0(Model):
     _PARAMLIMITS = {'kappa':(0.01, 100.0),
                    'omega':(0.01, 100.0),
                    'mu':(1.0e-3, 1.0e3),
-                   'e_pw':(0.05,0.85),
-                   'Phi_x':(0.01,1.0)
+                   'e_pw':(0.02, 0.94),
                   }
     _PARAMTYPES = {'kappa':float,
                    'omega':float,
                    'mu':float,
                    'e_pw':(scipy.ndarray, (3, N_NT)),
-                   'Phi_x':(scipy.ndarray, (N_CODON,))
                   }
 
     @property
@@ -990,7 +988,7 @@ class YNGKP_M0(Model):
         _checkParam('e_pw', e_pw, self.PARAMLIMITS, self._PARAMTYPES)
         self.e_pw = e_pw.copy()
         self.Phi_x = scipy.ones(N_CODON, dtype='float')
-        self._calculate_Phi_x(e_pw)
+        self._calculate_Phi_x()
         self._nsites = nsites
         assert self._nsites > 0, "There must be more than 1 site in the gene"
 
@@ -1004,11 +1002,11 @@ class YNGKP_M0(Model):
         self._mu = mu # underscore as `mu` is property
         self.kappa = kappa
         self.omega = omega
-        for (name, value) in [('kappa', self.kappa), ('omega', self.omega), ('mu', self.mu)]:
+        for (name, value) in [('kappa', self.kappa), ('omega', self.omega), 
+                    ('mu', self.mu)]:
             _checkParam(name, value, self.PARAMLIMITS, self._PARAMTYPES)
 
         # define other params, initialized appropriately
-        self.dPhi_x = 0
         self.Pxy = scipy.zeros((N_CODON, N_CODON), dtype='float')
         self.D = scipy.zeros(N_CODON, dtype='float')
         self.A = scipy.zeros((N_CODON, N_CODON), dtype='float')
@@ -1032,11 +1030,11 @@ class YNGKP_M0(Model):
     @property
     def stationarystate(self):
         """See docs for `Model` abstract base class."""
-        return self.px
+        return scipy.tile(self.Phi_x, (self.nsites, 1))
 
     def dstationarystate(self, param):
         """See docs for `Model` abstract base class."""
-        return 0
+        return scipy.zeros((self.nsites, N_CODON), dtype='float')
 
     @property
     def nsites(self):
@@ -1058,11 +1056,12 @@ class YNGKP_M0(Model):
         """Set new `mu` value."""
         self._mu = value
 
-    def _calculate_Phi_x(self, e_pw):
+    def _calculate_Phi_x(self):
+        """Calculate `Phi_x` (stationary state) from `e_pw`."""
+        self.Phi_x = scipy.ones(N_CODON, dtype='float')
         for codon in range(N_CODON):
             for pos in range(3):
                 self.Phi_x[codon] *= e_pw[pos][CODON_NT_INDEX[pos][codon]]
-        return self.Phi_x
 
     def updateParams(self, newvalues, update_all=False):
         """See docs for `Model` abstract base class."""
@@ -1114,18 +1113,20 @@ class YNGKP_M0(Model):
                         self.Ainv, tips))
                 if gaps is not None:
                     M[gaps] = scipy.ones(N_CODON, dtype='float')
-        return M
+        return scipy.tile(self.M, (self.nsites, 1, 1))
 
     def dM(self, t, param, Mt, tips=None, gaps=None):
         """See docs for method in `Model` abstract base class."""
+        raise ValueError("make sure returned array is the right shape")
+
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         assert param in self.freeparams, "Invalid param: {0}".format(param)
 
         if param == 'mu':
             if tips is None:
-                dM_param = broadcastMatrixMultiply(self.Prxy, Mt, alpha=t)
+                dM_param = broadcastMatrixMultiply(self.Pxy, Mt, alpha=t)
             else:
-                dM_param = broadcastMatrixVectorMultiply(self.Prxy, Mt, alpha=t)
+                dM_param = broadcastMatrixVectorMultiply(self.Pxy, Mt, alpha=t)
                 if gaps is not None:
                     dM_param[gaps] = scipy.zeros(N_CODON, dtype='float')
             return dM_param
@@ -1201,7 +1202,7 @@ class YNGKP_M0(Model):
 
     def _update_Pxy(self):
         """Update `Pxy` using current `omega`, `kappa`, and `pi_x`."""
-        scipy.copyto(self.Pxy, self.omega * self.Phi_x.transpose(), where=CODON_SINGLEMUT)
+        scipy.copyto(self.Pxy, self.Phi_x.transpose(), where=CODON_SINGLEMUT) # QUESTION: is this getting Phi_x[y] into column y, or is it messing up the rows and columns?
         # for x in range(N_CODON):
         #     for y in range(N_CODON):
         #         if CODON_SINGLEMUT[x][y]:
@@ -1209,6 +1210,7 @@ class YNGKP_M0(Model):
         #                 self.Pxy[x][y] = self.omega*self.pi_x[y]*self.kappa
         #             else:
         #                 self.Pxy[x][y] = self.omega*self.pi_x[y]
+        self.Pxy[CODON_NONSYN] *= self.omega
         self.Pxy[CODON_TRANSITION] *= self.kappa
         self._fill_diagonals(self.Pxy)
 
@@ -1224,7 +1226,7 @@ class YNGKP_M0(Model):
             self._fill_diagonals(self.dPxy['omega'])
 
     def _fill_diagonals(self, m):
-        """Fills diagonals of `nsites` matrices in `m` so rows sum to 0."""
+        """Fills diagonals of matrix `m` so rows sum to 0."""
         assert m.shape == (N_CODON, N_CODON)
         scipy.fill_diagonal(m, 0)
         m[self._diag_indices] -= scipy.sum(m, axis=1)
@@ -1248,7 +1250,7 @@ class YNGKP_M0(Model):
         #Change from ExpCM here
         #I don't think I need to use broadcastMatrixMultiply because I am no longer taking into account sites
         #got rid of the if/else because all param values should be floats
-
+        assert False, "I think this is wrong because the * operator is element-wise multiplication rather than matrix multiplication"
         for param in self.freeparams:
             if param == 'mu':
                 continue
