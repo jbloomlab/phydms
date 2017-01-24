@@ -244,10 +244,6 @@ class ExpCM(Model):
             is `(nsites, N_CODON, N_CODON)` except for *eta*, for which
             it is `(N_NT - 1, nsites, N_CODON, N_CODON)` with the first
             index ranging over each element in `eta`.
-        `e_pw` (`numpy.ndarray` floats, shape (3, `N_NT`))
-            Empirical nucleotide frequencies in alignment, with
-            `e_pw[p][a]` being frequency of nucleotide `a` at position `p`
-            in the codon. Each column must sum to one.
     """
 
     # class variables
