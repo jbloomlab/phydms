@@ -275,37 +275,6 @@ class ExpCM(Model):
         """See docs for `Model` abstract base class."""
         return self._PARAMLIMITS
 
-    def checkParam(self, param, value):
-        """Checks if `value` is allowable value for `param`.
-
-        Raises except if `value` is not acceptable, otherwise
-        returns `None` if value is acceptable.
-        """
-        assert param in self.PARAMLIMITS, "Invalid param: {0}".format(param)
-        (lowlim, highlim) = self.PARAMLIMITS[param]
-        paramtype = self._PARAMTYPES[param]
-        if isinstance(paramtype, tuple):
-            (paramtype, paramshape) = paramtype
-            if not (isinstance(value, paramtype)):
-                raise ValueError("{0} must be {1}, not {2}".format(
-                        param, paramtype, type(param)))
-            if value.shape != paramshape:
-                raise ValueError("{0} must have shape {1}, not {2}".format(
-                        param, paramshape, value.shape))
-            if value.dtype != 'float':
-                raise ValueError("{0} must have dtype float, not {1}".format(
-                        param, value.dtype))
-            if not ((lowlim <= value).all() and (value <= highlim).all()):
-                raise ValueError("{0} must be >= {1} and <= {2}, not {3}".format(
-                        param, lowlim, highlim, value))
-        else:
-            if not isinstance(value, paramtype):
-                raise ValueError("{0} must be a {1}, not a {2}".format(
-                        param, paramtype, type(value)))
-            if not (lowlim <= value <= highlim):
-                raise ValueError("{0} must be >= {1} and <= {2}, not {3}".format(
-                        param, lowlim, highlim, value))
-
     def __init__(self, prefs, kappa=2.0, omega=0.5, beta=1.0, mu=1.0,
             phi=scipy.ones(N_NT) / N_NT,
             freeparams=['kappa', 'omega', 'beta', 'mu', 'eta']):
@@ -341,7 +310,7 @@ class ExpCM(Model):
             assert abs(1 - sum(prefs[r].values())) <= ALMOST_ZERO,\
                     "prefs don't sum to one for site {0}".format(r)
             for (a, aa) in INDEX_TO_AA.items():
-                self.checkParam('pi', prefs[r][aa])
+                _checkParam('pi', prefs[r][aa], self.PARAMLIMITS, self._PARAMTYPES)
                 self.pi[r][a] = prefs[r][aa]
             self.pi[r] /= self.pi[r].sum() # renormalize to sum to one
 
@@ -353,7 +322,7 @@ class ExpCM(Model):
         self._update_pi_vars()
 
         # construct eta from phi
-        self.checkParam('phi', phi)
+        _checkParam('phi', phi, self.PARAMLIMITS, self._PARAMTYPES)
         assert abs(1 - phi.sum()) <= ALMOST_ZERO, "phi doesn't sum to 1"
         self.phi = phi.copy()
         self.phi /= self.phi.sum()
@@ -366,7 +335,7 @@ class ExpCM(Model):
         self.beta = beta
         for (name, value) in [('kappa', self.kappa), ('omega', self.omega),
                 ('beta', self.beta), ('eta', self.eta), ('mu', self.mu)]:
-            self.checkParam(name, value)
+            _checkParam(name, value, self.PARAMLIMITS, self._PARAMTYPES)
 
         # define other params, initialized appropriately
         self.piAx_piAy_beta = scipy.zeros((self.nsites, N_CODON, N_CODON),
@@ -443,7 +412,7 @@ class ExpCM(Model):
                 ', '.join(newvalues.keys()), ', '.join(self.freeparams))
         changed = set([]) # contains string names of changed params
         for (name, value) in newvalues.items():
-            self.checkParam(name, value)
+            _checkParam(name, value, self.PARAMLIMITS, self._PARAMTYPES)
             if isinstance(value, scipy.ndarray):
                 if (value != getattr(self, name)).any():
                     changed.add(name)
@@ -586,7 +555,7 @@ class ExpCM(Model):
         for w in range(N_NT - 1):
             self.eta[w] = 1.0 - self.phi[w] / etaprod
             etaprod *= self.eta[w]
-        self.checkParam('eta', self.eta)
+        _checkParam('eta', self.eta, self.PARAMLIMITS, self._PARAMTYPES)
 
     def _update_phi(self):
         """Update `phi` using current `eta`."""
@@ -785,7 +754,7 @@ class ExpCM_empirical_phi(ExpCM):
                 Has the meaning described in the main class doc string.
         """
 
-        self.checkParam('g', g)
+        _checkParam('g', g, self.PARAMLIMITS, self._PARAMTYPES)
         assert abs(1 - g.sum()) <= ALMOST_ZERO, "g doesn't sum to 1"
         self.g = g.copy()
         self.g /= self.g.sum()
@@ -797,7 +766,7 @@ class ExpCM_empirical_phi(ExpCM):
     def _update_phi(self):
         """Compute `phi`, `dphi_dbeta`, and `eta` from `g` and `frxy`."""
         self.phi = self._compute_empirical_phi(self.beta)
-        self.checkParam('phi', self.phi)
+        _checkParam('phi', self.phi, self.PARAMLIMITS, self._PARAMTYPES)
         self._eta_from_phi()
         dbeta = 1.0e-3
         self.dphi_dbeta = scipy.misc.derivative(self._compute_empirical_phi,
@@ -908,7 +877,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
             `divPressureValues`, `omega2`
                 Meaning described in the main class doc string.
         """
-        self.checkParam('omega2',omega2)
+        _checkParam('omega2',omega2, self.PARAMLIMITS, self._PARAMTYPES)
         self.omega2 = omega2
         self.deltar = scipy.array(divPressureValues.copy())
         assert (max(scipy.absolute(self.deltar))) <= 1, (
@@ -962,8 +931,8 @@ class YNGKP_M0(Model):
             Transition-transversion ratio.
         `omega` (float > 0)
             Nonsynonymous to synonymous substitution ratio.
-        `Pxy` (`numpy.ndarray` of floats, shape `(nsites, N_CODON, N_CODON)`
-            `Prxy[r][x][y]` is substitution rate from codon `x` to `y`.
+        `Pxy` (`numpy.ndarray` of floats, shape `(CODON, N_CODON)`
+            `Prxy[x][y]` is substitution rate from codon `x` to `y`.
             Diagonal elements make rows sum to zero.
         `px` (`numpy.ndarray` of floats, shape `(nsites, N_CODON)`
             `px[x]` is stationary state of `Pxy` for codon `x`.
@@ -993,7 +962,7 @@ class YNGKP_M0(Model):
                    'omega':float,
                    'mu':float,
                    'e_pw':(scipy.ndarray, (3, N_NT)),
-                   'pi_x':(scipy.ndarray, (N_CODON,))
+                   'Phi_x':(scipy.ndarray, (N_CODON,))
                   }
 
     @property
@@ -1005,37 +974,6 @@ class YNGKP_M0(Model):
     def PARAMLIMITS(self):
         """See docs for `Model` abstract base class."""
         return self._PARAMLIMITS
-
-    def checkParam(self, param, value):
-        """Checks if `value` is allowable value for `param`.
-
-        Raises except if `value` is not acceptable, otherwise
-        returns `None` if value is acceptable.
-        """
-        assert param in self.PARAMLIMITS, "Invalid param: {0}".format(param)
-        (lowlim, highlim) = self.PARAMLIMITS[param]
-        paramtype = self._PARAMTYPES[param]
-        if isinstance(paramtype, tuple):
-            (paramtype, paramshape) = paramtype
-            if not (isinstance(value, paramtype)):
-                raise ValueError("{0} must be {1}, not {2}".format(
-                        param, paramtype, type(param)))
-            if value.shape != paramshape:
-                raise ValueError("{0} must have shape {1}, not {2}".format(
-                        param, paramshape, value.shape))
-            if value.dtype != 'float':
-                raise ValueError("{0} must have dtype float, not {1}".format(
-                        param, value.dtype))
-            if not ((lowlim <= value).all() and (value <= highlim).all()):
-                raise ValueError("{0} must be >= {1} and <= {2}, not {3}".format(
-                        param, lowlim, highlim, value))
-        else:
-            if not isinstance(value, paramtype):
-                raise ValueError("{0} must be a {1}, not a {2}".format(
-                        param, paramtype, type(value)))
-            if not (lowlim <= value <= highlim):
-                raise ValueError("{0} must be >= {1} and <= {2}, not {3}".format(
-                        param, lowlim, highlim, value))
 
     def __init__(self, e_pw, nsites, kappa=2.0, omega=0.5, mu=1.0,
             freeparams=['kappa', 'omega', 'mu']):
@@ -1049,7 +987,7 @@ class YNGKP_M0(Model):
             `e_pw`, `nsites`
                 Meaning described in the main class doc string.
         """
-        self.checkParam('e_pw', e_pw)
+        _checkParam('e_pw', e_pw, self.PARAMLIMITS, self._PARAMTYPES)
         self.e_pw = e_pw.copy()
         self.Phi_x = scipy.ones(N_CODON, dtype='float')
         self._calculate_Phi_x(e_pw)
@@ -1067,7 +1005,7 @@ class YNGKP_M0(Model):
         self.kappa = kappa
         self.omega = omega
         for (name, value) in [('kappa', self.kappa), ('omega', self.omega), ('mu', self.mu)]:
-            self.checkParam(name, value)
+            _checkParam(name, value, self.PARAMLIMITS, self._PARAMTYPES)
 
         # define other params, initialized appropriately
         self.dPhi_x = 0
@@ -1133,7 +1071,7 @@ class YNGKP_M0(Model):
                 ', '.join(newvalues.keys()), ', '.join(self.freeparams))
         changed = set([]) # contains string names of changed params
         for (name, value) in newvalues.items():
-            self.checkParam(name, value)
+            _checkParam(name, value, self.PARAMLIMITS, self._PARAMTYPES)
             if isinstance(value, scipy.ndarray):
                 if (value != getattr(self, name)).any():
                     changed.add(name)
@@ -1319,6 +1257,39 @@ class YNGKP_M0(Model):
             self.B[param] = self.Ainv * self.dPxy[param] * self.A
 
 
+def _checkParam(param, value, paramlimits, paramtypes):
+    """Checks if `value` is allowable value for `param`.
+
+    Raises except if `value` is not acceptable, otherwise
+    returns `None` if value is acceptable.
+
+    `paramlimits` and `paramtypes` are the `PARAMLIMITS`
+    and `_PARAMTYPES` attributes of a `Model`.
+    """
+    assert param in paramlimits, "Invalid param: {0}".format(param)
+    (lowlim, highlim) = paramlimits[param]
+    paramtype = paramtypes[param]
+    if isinstance(paramtype, tuple):
+        (paramtype, paramshape) = paramtype
+        if not (isinstance(value, paramtype)):
+            raise ValueError("{0} must be {1}, not {2}".format(
+                    param, paramtype, type(param)))
+        if value.shape != paramshape:
+            raise ValueError("{0} must have shape {1}, not {2}".format(
+                    param, paramshape, value.shape))
+        if value.dtype != 'float':
+            raise ValueError("{0} must have dtype float, not {1}".format(
+                    param, value.dtype))
+        if not ((lowlim <= value).all() and (value <= highlim).all()):
+            raise ValueError("{0} must be >= {1} and <= {2}, not {3}".format(
+                    param, lowlim, highlim, value))
+    else:
+        if not isinstance(value, paramtype):
+            raise ValueError("{0} must be a {1}, not a {2}".format(
+                    param, paramtype, type(value)))
+        if not (lowlim <= value <= highlim):
+            raise ValueError("{0} must be >= {1} and <= {2}, not {3}".format(
+                    param, lowlim, highlim, value))
 
 
 
