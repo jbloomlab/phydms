@@ -1002,7 +1002,7 @@ class YNGKP_M0(Model):
         self._mu = mu # underscore as `mu` is property
         self.kappa = kappa
         self.omega = omega
-        for (name, value) in [('kappa', self.kappa), ('omega', self.omega), 
+        for (name, value) in [('kappa', self.kappa), ('omega', self.omega),
                     ('mu', self.mu)]:
             _checkParam(name, value, self.PARAMLIMITS, self._PARAMTYPES)
 
@@ -1061,7 +1061,7 @@ class YNGKP_M0(Model):
         self.Phi_x = scipy.ones(N_CODON, dtype='float')
         for codon in range(N_CODON):
             for pos in range(3):
-                self.Phi_x[codon] *= e_pw[pos][CODON_NT_INDEX[pos][codon]]
+                self.Phi_x[codon] *= self.e_pw[pos][CODON_NT_INDEX[pos][codon]]
 
     def updateParams(self, newvalues, update_all=False):
         """See docs for `Model` abstract base class."""
@@ -1093,7 +1093,7 @@ class YNGKP_M0(Model):
             self._update_Pxy()
             self._update_Pxy_diag()
             self._update_dPxy()
-            self._update_B()
+            #self._update_B()
 
     def M(self, t, tips=None, gaps=None):
         """See docs for method in `Model` abstract base class."""
@@ -1203,13 +1203,6 @@ class YNGKP_M0(Model):
     def _update_Pxy(self):
         """Update `Pxy` using current `omega`, `kappa`, and `pi_x`."""
         scipy.copyto(self.Pxy, self.Phi_x.transpose(), where=CODON_SINGLEMUT) # QUESTION: is this getting Phi_x[y] into column y, or is it messing up the rows and columns?
-        # for x in range(N_CODON):
-        #     for y in range(N_CODON):
-        #         if CODON_SINGLEMUT[x][y]:
-        #             if CODON_TRANSITION[x][y]:
-        #                 self.Pxy[x][y] = self.omega*self.pi_x[y]*self.kappa
-        #             else:
-        #                 self.Pxy[x][y] = self.omega*self.pi_x[y]
         self.Pxy[CODON_NONSYN] *= self.omega
         self.Pxy[CODON_TRANSITION] *= self.kappa
         self._fill_diagonals(self.Pxy)
