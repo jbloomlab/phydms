@@ -931,16 +931,13 @@ class YNGKP_M0(Model):
             Transition-transversion ratio.
         `omega` (float > 0)
             Nonsynonymous to synonymous substitution ratio.
-        `Pxy` (`numpy.ndarray` of floats, shape `(CODON, N_CODON)`
-            `Prxy[x][y]` is substitution rate from codon `x` to `y`.
+        `Pxy` (`numpy.ndarray` of floats, shape `(1, CODON, N_CODON)`
+            `Prxy[0][x][y]` is substitution rate from codon `x` to `y`.
             Diagonal elements make rows sum to zero.
-        `px` (`numpy.ndarray` of floats, shape `(nsites, N_CODON)`
-            `px[x]` is stationary state of `Pxy` for codon `x`.
-            This attribute is equivalent to `stationarystate`.
         `dPxy` (dict)
             Keyed by each string in `freeparams`, each value is `numpy.ndarray`
             of floats giving derivative of `Pxy` with respect to that parameter.
-            The shape of each array `(N_CODON, N_CODON)`.
+            The shape of each array `(1, N_CODON, N_CODON)`.
         `e_pw` (scipy.ndarray, shape `(3, N_NT)`)
             The empirical nucleotide frequencies for each position in a codon
             measured from the alignment. `e_pw[p][w]` give the frequency of nucleotide
@@ -948,6 +945,12 @@ class YNGKP_M0(Model):
         `Phi_x` (scipy.ndarray, shape `(NT_NT,)`)
             The codon frequencies calculated from the `e_pw` frequencies.
             `Phi_x[x]` = e_pw[0][x0] * e_pw[1][x1] * e_pw[2][x2]
+
+    Unlike the `ExpCM`, the YNGKP_M0 does not have site-specific calculations.
+    In order to maintain consistency, most attributes, such as Pxy and dPxy
+    do have a single "site" dimension which is carried through the calculations.
+    When `M` and `dM` are returned, the single site matrix is repeated so the
+    final dimensions of `M` and `dM` are (nsites, N_CODON, N_CODON).
     """
 
     # class variables
@@ -1007,7 +1010,7 @@ class YNGKP_M0(Model):
             _checkParam(name, value, self.PARAMLIMITS, self._PARAMTYPES)
 
         # define other params, initialized appropriately
-        self.Pxy = scipy.zeros((N_CODON, N_CODON), dtype='float')
+        self.Pxy = scipy.zeros((1, N_CODON, N_CODON), dtype='float')
         self.D = scipy.zeros(N_CODON, dtype='float')
         self.A = scipy.zeros((N_CODON, N_CODON), dtype='float')
         self.Ainv = scipy.zeros((N_CODON, N_CODON), dtype='float')
@@ -1015,7 +1018,7 @@ class YNGKP_M0(Model):
         self.B = {}
         for param in self.freeparams:
             if param in self._ALLOWEDPARAMS:
-                self.dPxy[param] = scipy.zeros((N_CODON, N_CODON),
+                self.dPxy[param] = scipy.zeros((1, N_CODON, N_CODON),
                         dtype='float')
                 self.B[param] = scipy.zeros((N_CODON, N_CODON),
                         dtype='float')
@@ -1030,7 +1033,7 @@ class YNGKP_M0(Model):
     @property
     def stationarystate(self):
         """See docs for `Model` abstract base class."""
-        return scipy.tile(self.Phi_x, (self.nsites, 1))
+        return scipy.tile(self.Phi_x, (self.nsites, 1)) #repeat the single state by the number sites
 
     def dstationarystate(self, param):
         """See docs for `Model` abstract base class."""
@@ -1091,7 +1094,7 @@ class YNGKP_M0(Model):
         # this way is much simpler and adds negligible cost.
         if update_all or (changed and changed != set(['mu'])):
             self._update_Pxy()
-            self._update_Pxy_diag()
+            #self._update_Pxy_diag()
             self._update_dPxy()
             #self._update_B()
 
@@ -1201,10 +1204,10 @@ class YNGKP_M0(Model):
         return dM_param
 
     def _update_Pxy(self):
-        """Update `Pxy` using current `omega`, `kappa`, and `pi_x`."""
+        """Update `Pxy` using current `omega`, `kappa`, and `Phi_x`."""
         scipy.copyto(self.Pxy, self.Phi_x.transpose(), where=CODON_SINGLEMUT) # QUESTION: is this getting Phi_x[y] into column y, or is it messing up the rows and columns?
-        self.Pxy[CODON_NONSYN] *= self.omega
-        self.Pxy[CODON_TRANSITION] *= self.kappa
+        self.Pxy[0][CODON_NONSYN] *= self.omega
+        self.Pxy[0][CODON_TRANSITION] *= self.kappa
         self._fill_diagonals(self.Pxy)
 
     def _update_dPxy(self):
@@ -1219,10 +1222,10 @@ class YNGKP_M0(Model):
             self._fill_diagonals(self.dPxy['omega'])
 
     def _fill_diagonals(self, m):
-        """Fills diagonals of matrix `m` so rows sum to 0."""
-        assert m.shape == (N_CODON, N_CODON)
-        scipy.fill_diagonal(m, 0)
-        m[self._diag_indices] -= scipy.sum(m, axis=1)
+        """Fills diagonals of the only matrix in `m` so rows sum to 0."""
+        assert m.shape == (1, N_CODON, N_CODON)
+        scipy.fill_diagonal(m[0], 0)
+        m[0][self._diag_indices] -= scipy.sum(m[0], axis=1)
 
     def _update_Pxy_diag(self):
         """Update `D`, `A`, `Ainv` from `Prxy`, `prx`."""

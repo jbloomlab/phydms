@@ -57,11 +57,11 @@ class testYNGKP_M0(unittest.TestCase):
         self.assertFalse(scipy.isnan(self.YNGKP_M0.Pxy).any())
         self.assertFalse(scipy.isinf(self.YNGKP_M0.Pxy).any())
         diag = scipy.eye(N_CODON, dtype='bool')
-        self.assertTrue(scipy.allclose(0, scipy.sum(self.YNGKP_M0.Pxy,
+        self.assertTrue(scipy.allclose(0, scipy.sum(self.YNGKP_M0.Pxy[0],
                 axis=1)))
-        self.assertTrue(scipy.allclose(0, self.YNGKP_M0.Pxy.sum()))
-        self.assertTrue((self.YNGKP_M0.Pxy[diag] <= 0).all())
-        self.assertTrue((self.YNGKP_M0.Pxy[~diag] >= 0).all())
+        self.assertTrue(scipy.allclose(0, self.YNGKP_M0.Pxy[0].sum()))
+        self.assertTrue((self.YNGKP_M0.Pxy[0][diag] <= 0).all())
+        self.assertTrue((self.YNGKP_M0.Pxy[0][~diag] >= 0).all())
 
         # # make sure prx sums to 1 for each r
         # self.assertTrue((self.YNGKP_M0.px >= 0).all())
@@ -87,14 +87,14 @@ class testYNGKP_M0(unittest.TestCase):
                 YNGKP_M0.updateParams({paramname:paramvalue[0]})
             else:
                 YNGKP_M0.updateParams({paramname:paramvalue})
-            return YNGKP_M0.Pxy[x][y]
+            return YNGKP_M0.Pxy[0][x][y]
 
         def funcdPxy(paramvalue, paramname, YNGKP_M0, x, y):
             if len(paramvalue) == 1:
                 YNGKP_M0.updateParams({paramname:paramvalue[0]})
             else:
                 YNGKP_M0.updateParams({paramname:paramvalue})
-            return YNGKP_M0.dPxy[paramname][x][y]
+            return YNGKP_M0.dPxy[paramname][0][x][y]
 
         for (pname, pvalue) in sorted(self.params.items())[::-1]:
             if pname == 'mu':
@@ -112,7 +112,7 @@ class testYNGKP_M0(unittest.TestCase):
                             "kappa = {7}"
                             ).format(diff, pname, x, y,
                             self.YNGKP_M0.mu, self.YNGKP_M0.omega,
-                            self.YNGKP_M0.Pxy[x][y],
+                            self.YNGKP_M0.Pxy[0][x][y],
                             self.YNGKP_M0.kappa))
             self.YNGKP_M0.updateParams(self.params) # back to original value
     #
