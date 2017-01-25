@@ -612,7 +612,7 @@ class ExpCM(Model):
     def _update_Prxy(self):
         """Update `Prxy` using current `Frxy` and `Qxy`."""
         self.Prxy = self.Frxy * self.Qxy
-        self._fill_diagonals(self.Prxy)
+        _fill_diagonals(self.Prxy, self._diag_indices)
 
     def _update_Prxy_diag(self):
         """Update `D`, `A`, `Ainv` from `Prxy`, `prx`."""
@@ -642,11 +642,11 @@ class ExpCM(Model):
         if 'kappa' in self.freeparams:
             scipy.copyto(self.dPrxy['kappa'], self.Prxy / self.kappa,
                     where=CODON_TRANSITION)
-            self._fill_diagonals(self.dPrxy['kappa'])
+            _fill_diagonals(self.dPrxy['kappa'], self._diag_indices)
         if 'omega' in self.freeparams:
             scipy.copyto(self.dPrxy['omega'], self.Prxy / self.omega,
                     where=CODON_NONSYN)
-            self._fill_diagonals(self.dPrxy['omega'])
+            _fill_diagonals(self.dPrxy['omega'], self._diag_indices)
         if 'beta' in self.freeparams:
             self.dPrxy['beta'].fill(0)
             with scipy.errstate(divide='raise', under='raise', over='raise',
@@ -659,13 +659,13 @@ class ExpCM(Model):
                     (1 - self.piAx_piAy_beta), where=(scipy.logical_and(
                     CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta)
                     < ALMOST_ZERO)))
-            self._fill_diagonals(self.dPrxy['beta'])
+            _fill_diagonals(self.dPrxy['beta'], self._diag_indices)
         if 'eta' in self.freeparams:
             for i in range(N_NT - 1):
                 for w in range(i, N_NT):
                     scipy.copyto(self.dPrxy['eta'][i], self.Prxy / (self.eta[i]
                             - int(i == w)), where=CODON_NT_MUT[w])
-                self._fill_diagonals(self.dPrxy['eta'][i])
+                _fill_diagonals(self.dPrxy['eta'][i], self._diag_indices)
 
     def _update_B(self):
         """Update `B`."""
@@ -824,7 +824,7 @@ class ExpCM_empirical_phi(ExpCM):
                         where=CODON_NT_MUT[w])
             self.dQxy_dbeta[CODON_TRANSITION] *= self.kappa
             self.dPrxy['beta'] += self.Frxy * self.dQxy_dbeta
-            self._fill_diagonals(self.dPrxy['beta'])
+            _fill_diagonals(self.dPrxy['beta'], self._diag_indices)
 
     def _update_dprx(self):
         """Update `dprx`, accounting for dependence of `phi` on `beta`."""
@@ -901,7 +901,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
                        self.piAx_piAy_beta) < ALMOST_ZERO)))
             for r in range(self.nsites):
                 self.dPrxy['omega2'][r] *= self.deltar[r]
-            self._fill_diagonals(self.dPrxy['omega2'])
+            _fill_diagonals(self.dPrxy['omega2'], self._diag_indices)
 
 
     def _update_Frxy(self):
@@ -1208,18 +1208,18 @@ class YNGKP_M0(Model):
         scipy.copyto(self.Pxy, self.Phi_x.transpose(), where=CODON_SINGLEMUT) # QUESTION: is this getting Phi_x[y] into column y, or is it messing up the rows and columns?
         self.Pxy[0][CODON_NONSYN] *= self.omega
         self.Pxy[0][CODON_TRANSITION] *= self.kappa
-        self._fill_diagonals(self.Pxy)
+        _fill_diagonals(self.Pxy, self._diag_indices)
 
     def _update_dPxy(self):
         """Update `dPxy`."""
         if 'kappa' in self.freeparams:
             scipy.copyto(self.dPxy['kappa'], self.Pxy / self.kappa,
                     where=CODON_TRANSITION)
-            self._fill_diagonals(self.dPxy['kappa'])
+            _fill_diagonals(self.dPxy['kappa'], self._diag_indices)
         if 'omega' in self.freeparams:
             scipy.copyto(self.dPxy['omega'], self.Pxy / self.omega,
                     where=CODON_NONSYN)
-            self._fill_diagonals(self.dPxy['omega'])
+            _fill_diagonals(self.dPxy['omega'], self._diag_indices)
 
     def _fill_diagonals(self, m):
         """Fills diagonals of the only matrix in `m` so rows sum to 0."""
@@ -1288,6 +1288,14 @@ def _checkParam(param, value, paramlimits, paramtypes):
         if not (lowlim <= value <= highlim):
             raise ValueError("{0} must be >= {1} and <= {2}, not {3}".format(
                     param, lowlim, highlim, value))
+
+def _fill_diagonals(m, diag_indices):
+    """Fills diagonals of `nsites` matrices in `m` so rows sum to 0."""
+    assert m.ndim ==3, "M must have 3 dimensions"
+    assert m.shape[1] == m.shape[2], "M must contain square matrices"
+    for r in range(m.shape[0]):
+        scipy.fill_diagonal(m[r], 0)
+        m[r][diag_indices] -= scipy.sum(m[r], axis=1)
 
 
 
