@@ -448,7 +448,6 @@ class ExpCM(Model):
     def M(self, t, tips=None, gaps=None):
         """See docs for method in `Model` abstract base class."""
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
-
         with scipy.errstate(under='ignore'): # don't worry if some values 0
             if ('expD', t) not in self._cached:
                 self._cached[('expD', t)] = scipy.exp(self.D * self.mu * t)
@@ -1011,16 +1010,16 @@ class YNGKP_M0(Model):
 
         # define other params, initialized appropriately
         self.Pxy = scipy.zeros((1, N_CODON, N_CODON), dtype='float')
-        self.D = scipy.zeros(N_CODON, dtype='float')
-        self.A = scipy.zeros((N_CODON, N_CODON), dtype='float')
-        self.Ainv = scipy.zeros((N_CODON, N_CODON), dtype='float')
+        self.D = scipy.zeros((1, N_CODON), dtype='float')
+        self.A = scipy.zeros((1, N_CODON, N_CODON), dtype='float')
+        self.Ainv = scipy.zeros((1, N_CODON, N_CODON), dtype='float')
         self.dPxy = {}
         self.B = {}
         for param in self.freeparams:
             if param in self._ALLOWEDPARAMS:
                 self.dPxy[param] = scipy.zeros((1, N_CODON, N_CODON),
                         dtype='float')
-                self.B[param] = scipy.zeros((N_CODON, N_CODON),
+                self.B[param] = scipy.zeros((1, N_CODON, N_CODON),
                         dtype='float')
             else:
                 raise ValueError("Unrecognized param {0}".format(param))
@@ -1094,34 +1093,33 @@ class YNGKP_M0(Model):
         # this way is much simpler and adds negligible cost.
         if update_all or (changed and changed != set(['mu'])):
             self._update_Pxy()
-            #self._update_Pxy_diag()
+            self._update_Pxy_diag()
             self._update_dPxy()
-            #self._update_B()
+            self._update_B()
 
     def M(self, t, tips=None, gaps=None):
         """See docs for method in `Model` abstract base class."""
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
-
         with scipy.errstate(under='ignore'): # don't worry if some values 0
             if ('expD', t) not in self._cached:
                 self._cached[('expD', t)] = scipy.exp(self.D * self.mu * t)
             expD = self._cached[('expD', t)]
             if tips is None:
                 # swap axes to broadcast multiply D as diagonal matrix
-                M = broadcastMatrixMultiply((self.A.swapaxes(0, 1) *
-                        expD).swapaxes(1, 0), self.Ainv)
+                temp = scipy.ascontiguousarray((self.A.swapaxes(0, 1) * expD).swapaxes(1, 0), dtype = float)
+                M = broadcastMatrixMultiply(temp, self.Ainv)
+                # M = broadcastMatrixMultiply((self.A.swapaxes(0, 1) *
+                #         expD).swapaxes(1, 0), self.Ainv)
             else:
                 M = broadcastMatrixVectorMultiply((self.A.swapaxes(0, 1)
                         * expD).swapaxes(1, 0), broadcastGetCols(
                         self.Ainv, tips))
                 if gaps is not None:
                     M[gaps] = scipy.ones(N_CODON, dtype='float')
-        return scipy.tile(self.M, (self.nsites, 1, 1))
+        return M
 
     def dM(self, t, param, Mt, tips=None, gaps=None):
         """See docs for method in `Model` abstract base class."""
-        raise ValueError("make sure returned array is the right shape")
-
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         assert param in self.freeparams, "Invalid param: {0}".format(param)
 
@@ -1149,9 +1147,9 @@ class YNGKP_M0(Model):
         if ('V', t) not in self._cached:
             if 'Dxx_Dyy' not in self._cached:
                 Dyy = scipy.tile(self.D, (1, N_CODON)).reshape(
-                        self.nsites, N_CODON, N_CODON)
+                        1, N_CODON, N_CODON)
                 Dxx = scipy.array([Dyy[r].transpose() for r in
-                        range(self.nsites)])
+                        range(1)])
                 self._cached['Dxx_Dyy'] = Dxx - Dyy
             Dxx_Dyy = self._cached['Dxx_Dyy']
             if 'Dxx_Dyy_lt_ALMOST_ZERO' not in self._cached:
@@ -1161,9 +1159,9 @@ class YNGKP_M0(Model):
             with scipy.errstate(divide='raise', under='ignore',
                     over='raise', invalid='ignore'):
                 expDyy = scipy.tile(expD,(1, N_CODON)).reshape(
-                        self.nsites, N_CODON, N_CODON)
+                        1, N_CODON, N_CODON)
                 expDxx = scipy.array([expDyy[r].transpose() for r in
-                        range(self.nsites)])
+                        range(1)])
                 V = (expDxx - expDyy) / Dxx_Dyy
             with scipy.errstate(under='ignore'): # OK if some values 0
                 scipy.copyto(V, self.mu * t * expDxx, where=
@@ -1228,31 +1226,29 @@ class YNGKP_M0(Model):
         m[0][self._diag_indices] -= scipy.sum(m[0], axis=1)
 
     def _update_Pxy_diag(self):
-        """Update `D`, `A`, `Ainv` from `Prxy`, `prx`."""
-        p_half = self.Phi_x**0.5
-        p_neghalf = self.Phi_x**-0.5
-        #symm_pr = scipy.dot(scipy.diag(pr_half), scipy.dot(self.Prxy[r], scipy.diag(pr_neghalf)))
-        symm_p = (p_half * (self.Pxy * p_neghalf).transpose()).transpose()
-        #assert scipy.allclose(symm_pr, symm_pr.transpose())
-        (evals, evecs) = scipy.linalg.eigh(symm_p)
-        #assert scipy.allclose(scipy.linalg.inv(evecs), evecs.transpose())
-        #assert scipy.allclose(symm_pr, scipy.dot(evecs, scipy.dot(scipy.diag(evals), evecs.transpose())))
-        self.D = evals
-        self.Ainv = evecs.transpose() * p_half
-        self.A = (p_neghalf * evecs.transpose()).transpose()
+        """Update `D`, `A`, `Ainv` from `Pxy`, `Phi_x`."""
+        for r in range(1):
+            Phi_x_half = self.Phi_x**0.5
+            Phi_x_neghalf = self.Phi_x**-0.5
+            #symm_p = scipy.dot(scipy.diag(Phi_x_half), scipy.dot(self.Pxy[r], scipy.diag(Phi_x_neghalf)))
+            symm_p = (Phi_x_half * (self.Pxy[r] * Phi_x_neghalf).transpose()).transpose()
+            #assert scipy.allclose(symm_p, symm_p.transpose())
+            (evals, evecs) = scipy.linalg.eigh(symm_p)
+            #assert scipy.allclose(scipy.linalg.inv(evecs), evecs.transpose())
+            #assert scipy.allclose(symm_pr, scipy.dot(evecs, scipy.dot(scipy.diag(evals), evecs.transpose())))
+            self.D[r] = evals
+            self.Ainv[r] = evecs.transpose() * Phi_x_half
+            self.A[r] = (Phi_x_neghalf * evecs.transpose()).transpose()
 
     def _update_B(self):
         """Update `B`."""
-        #Change from ExpCM here
-        #I don't think I need to use broadcastMatrixMultiply because I am no longer taking into account sites
-        #got rid of the if/else because all param values should be floats
-        assert False, "I think this is wrong because the * operator is element-wise multiplication rather than matrix multiplication"
         for param in self.freeparams:
             if param == 'mu':
                 continue
             paramval = getattr(self, param)
-            assert isinstance(paramval, float), "Paramvalues should only be floats"
-            self.B[param] = self.Ainv * self.dPxy[param] * self.A
+            assert isinstance(paramval, float), "Paramvalues must be floats"
+            self.B[param] = broadcastMatrixMultiply(self.Ainv,
+                    broadcastMatrixMultiply(self.dPxy[param], self.A))
 
 
 def _checkParam(param, value, paramlimits, paramtypes):
