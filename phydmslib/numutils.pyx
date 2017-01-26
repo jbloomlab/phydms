@@ -96,7 +96,7 @@ def broadcastMatrixVectorMultiply(numpy.ndarray m, numpy.ndarray v,
     cdef numpy.ndarray mv = numpy.ndarray((r, n), dtype=numpy.double)
     cdef int i
     for i in range(r):
-        scipy.linalg.blas.dgemv(alpha, m[i], v[i], y=mv[i], overwrite_y=1)
+        mv[i] = scipy.linalg.blas.dgemv(alpha, m[i], v[i])
     return mv
     #return scipy.sum(m * v[:, None, :], axis=2)
 

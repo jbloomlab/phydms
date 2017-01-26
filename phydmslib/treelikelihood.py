@@ -14,7 +14,7 @@ from phydmslib.numutils import *
 from phydmslib.constants import *
 
 
-class TreeLikelihood:
+class TreeLikelihood(object):
     """Uses alignment, model, and tree to calculate likelihoods.
 
     See `__init__` for how to initialize a `TreeLikelihood`.
