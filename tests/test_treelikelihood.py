@@ -43,10 +43,10 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         os.remove(tempfile)
         branch_labels = {} # branch annotations
         self.brlen = {}
-        cladebyname = dict([(clade.name, clade) for clade in 
+        cladebyname = dict([(clade.name, clade) for clade in
                 self.tree.find_clades()])
         for (name, brlen) in re.findall(
-                '(?P<name>\$node_\d\=[A-z]+\$)\:(?P<brlen>\d+\.\d+)', 
+                '(?P<name>\$node_\d\=[A-z]+\$)\:(?P<brlen>\d+\.\d+)',
                 self.newick):
             if name != self.tree.root.name:
                 i = name.split('=')[0][-1] # node number
@@ -88,7 +88,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         elif self.MODEL == phydmslib.models.ExpCM_empirical_phi:
             self.model = phydmslib.models.ExpCM_empirical_phi(self.prefs, g)
         elif self.MODEL == phydmslib.models.ExpCM_empirical_phi_divpressure:
-            divpressure = scipy.random.uniform(-1, 5, self.nsites) 
+            divpressure = scipy.random.uniform(-1, 5, self.nsites)
             divpressure /= max(abs(divpressure))
             self.model = phydmslib.models.ExpCM_empirical_phi_divpressure(
                     self.prefs, g, divpressure)
@@ -137,7 +137,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         self.assertTrue(nparams == sum(map(lambda x: (1 if isinstance(x, float)
                 else len(x)), modelparams.values())))
         # set to new value, make sure TreeLikelihood attributes have changed
-        tl.paramsarray = scipy.array([random.uniform(0.2, 0.8) for i in 
+        tl.paramsarray = scipy.array([random.uniform(0.2, 0.8) for i in
                 range(nparams)])
         for (param, value) in modelparams.items():
             self.assertFalse(scipy.allclose(value, getattr(tl.model, param)))
@@ -223,14 +223,14 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
                 tl.paramsarray = y
                 return tl.dloglikarray[i]
             for iparam in range(len(tl.paramsarray)):
-                diff = scipy.optimize.check_grad(func, dfunc, 
+                diff = scipy.optimize.check_grad(func, dfunc,
                         scipy.array([tl.paramsarray[iparam]]), iparam)
                 self.assertTrue(diff < 5e-4, "{0} has diff {1}".format(
                         tl._index_to_param[iparam], diff))
 
     def test_MaximizeLikelihood(self):
         """Tests maximization of `TreeLikelihood` likelihood.
-        
+
         Make sure it gives the same value for several starting points."""
         tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                     self.alignment, self.model)
@@ -256,7 +256,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             self.assertTrue(tl.loglik > startloglik, "no loglik increase: "
                     "start = {0}, end = {1}".format(startloglik, tl.loglik))
             for (otherloglik, otherparams) in zip(logliks, paramsarrays):
-                self.assertTrue(scipy.allclose(tl.loglik, otherloglik), 
+                self.assertTrue(scipy.allclose(tl.loglik, otherloglik),
                         "Large difference in loglik: {0} vs {1}".format(
                         otherloglik, tl.loglik))
                 self.assertTrue(scipy.allclose(tl.paramsarray, otherparams,
@@ -275,6 +275,10 @@ class test_TreeLikelihood_ExpCM_empirical_phi(test_TreeLikelihood_ExpCM):
 class test_TreeLikelihood_ExpCM_empirical_phi_divpressure(test_TreeLikelihood_ExpCM):
     """Tests `test_TreeLikelihood_ExpCM` for `ExpCM_empirical_phi_divpressure` model."""
     MODEL = phydmslib.models.ExpCM_empirical_phi_divpressure
+
+class test_TreeLikelihood_YNGKP_M0(unittest.TestCase):
+    """Tests `phydmslib.treelikelihood.TreeLikelihood` class for `YNGKP_M0` model."""
+    MODEL = phydmslib.models.YNGKP_M0
 
 
 
