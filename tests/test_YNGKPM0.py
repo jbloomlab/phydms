@@ -62,6 +62,15 @@ class testYNGKP_M0(unittest.TestCase):
         self.assertTrue(scipy.allclose(0, self.YNGKP_M0.Pxy[0].sum()))
         self.assertTrue((self.YNGKP_M0.Pxy[0][diag] <= 0).all())
         self.assertTrue((self.YNGKP_M0.Pxy[0][~diag] >= 0).all())
+        assert self.YNGKP_M0.Pxy.shape == (1, N_CODON, N_CODON)
+        for param in self.YNGKP_M0.dPxy:
+            assert self.YNGKP_M0.dPxy[param].shape == (1, N_CODON, N_CODON)
+            assert self.YNGKP_M0.B[param].shape == (1, N_CODON, N_CODON)
+        assert self.YNGKP_M0.Ainv.shape == (1, N_CODON, N_CODON)
+        assert self.YNGKP_M0.A.shape == (1, N_CODON, N_CODON)
+        assert self.YNGKP_M0.M(0.2).shape == (self.nsites, N_CODON, N_CODON)
+        for (pname, value) in self.params.items():
+            assert self.YNGKP_M0.dM(0.2, pname, self.YNGKP_M0.M(0.2)).shape == (self.nsites, N_CODON, N_CODON)
 
 
     def check_YNGKP_M0_derivatives(self):

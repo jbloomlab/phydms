@@ -1116,7 +1116,7 @@ class YNGKP_M0(Model):
                         self.Ainv, tips))
                 if gaps is not None:
                     M[gaps] = scipy.ones(N_CODON, dtype='float')
-        return M
+        return scipy.tile(M, (self.nsites, 1, 1))
 
     def dM(self, t, param, Mt, tips=None, gaps=None):
         """See docs for method in `Model` abstract base class."""
@@ -1125,12 +1125,12 @@ class YNGKP_M0(Model):
 
         if param == 'mu':
             if tips is None:
-                dM_param = broadcastMatrixMultiply(self.Pxy, Mt, alpha=t)
+                dM_param = broadcastMatrixMultiply(self.Pxy, scipy.tile(Mt[0], (1,1,1)), alpha=t)
             else:
-                dM_param = broadcastMatrixVectorMultiply(self.Pxy, Mt, alpha=t)
+                dM_param = broadcastMatrixVectorMultiply(self.Pxy, scipy.tile(Mt[0], (1,1,1)), alpha=t)
                 if gaps is not None:
                     dM_param[gaps] = scipy.zeros(N_CODON, dtype='float')
-            return dM_param
+            return scipy.tile(dM_param, (self.nsites, 1, 1))
 
         paramval = getattr(self, param)
         if isinstance(paramval, float):
@@ -1199,7 +1199,7 @@ class YNGKP_M0(Model):
                         dM_param[gaps] = scipy.zeros(N_CODON, dtype='float')
                     else:
                         dM_param[:, gaps] = scipy.zeros(N_CODON, dtype='float')
-        return dM_param
+        return scipy.tile(dM_param, (self.nsites, 1, 1))
 
     def _update_Pxy(self):
         """Update `Pxy` using current `omega`, `kappa`, and `Phi_x`."""
