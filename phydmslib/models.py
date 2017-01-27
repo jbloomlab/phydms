@@ -54,6 +54,17 @@ class Model(six.with_metaclass(abc.ABCMeta)):
         pass
 
     @abc.abstractmethod
+    def branchScale(self):
+        """Factor to scale branch lengths to substitutions per site.
+
+        When we use a branch length of `t = 1`, how many substitutions
+        per site do we expect averaged over all sites? This method
+        returns that number. So to scale branch lengths to units of
+        substitution per site, divide by this number.
+        """
+        pass
+
+    @abc.abstractmethod
     def M(self, t, tips=None, gaps=None):
         """Matrix exponential `M(mu * t) = exp(mu * t * P)`.
 
