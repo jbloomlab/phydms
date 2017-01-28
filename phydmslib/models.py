@@ -53,14 +53,14 @@ class Model(six.with_metaclass(abc.ABCMeta)):
         """
         pass
 
-    @abc.abstractmethod
+    @abc.abstractproperty
     def branchScale(self):
         """Factor to scale branch lengths to substitutions per site.
 
         When we use a branch length of `t = 1`, how many substitutions
         per site do we expect averaged over all sites? This method
         returns that number. So to scale branch lengths to units of
-        substitution per site, divide by this number.
+        substitution per site, multiply by this number.
         """
         pass
 
@@ -426,6 +426,14 @@ class ExpCM(Model):
     def dstationarystate(self, param):
         """See docs for `Model` abstract base class."""
         return self.dprx[param]
+
+    @property
+    def branchScale(self):
+        """See docs for `Model` abstract base class."""
+        bs = -(self.prx * scipy.diagonal(self.Prxy, axis1=1, axis2=2)
+                ).sum() * self.mu / float(self.nsites)
+        assert bs > 0
+        return bs
 
     @property
     def nsites(self):

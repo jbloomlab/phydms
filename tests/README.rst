@@ -12,6 +12,11 @@ You can run all of the ``test_*.py`` files with::
 
     python run_tests.py
 
+Some of these tests have requirements for additional packages that are not required for ``phydms`` itself. These packages include:
+
+    * `sympy <http://www.sympy.org/en/index.html>`_
+
+    * `pyvolve <https://github.com/sjspielman/pyvolve>`_
 
 .. _`Doud et al (2015)`: https://dx.doi.org/10.1093/molbev/msv167
 .. _`Kitzman et al (2014)`: http://www.nature.com/nmeth/journal/v12/n3/full/nmeth.3223.html
