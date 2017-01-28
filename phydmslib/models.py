@@ -468,7 +468,6 @@ class ExpCM(Model):
         """See docs for method in `Model` abstract base class."""
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         assert param in self.freeparams, "Invalid param: {0}".format(param)
-
         if param == 'mu':
             if tips is None:
                 dM_param = broadcastMatrixMultiply(self.Prxy, Mt, alpha=t)
@@ -1104,41 +1103,39 @@ class YNGKP_M0(Model):
             if ('expD', t) not in self._cached:
                 self._cached[('expD', t)] = scipy.exp(self.D * self.mu * t)
             expD = self._cached[('expD', t)]
+
+            #in YNGKP_M0, matrix multipliation first
+            #then slice matrix if tips == True
+            # swap axes to broadcast multiply D as diagonal matrix
+            temp = scipy.ascontiguousarray((self.A.swapaxes(0, 1) * expD).swapaxes(1, 0), dtype = float)
+            M = broadcastMatrixMultiply(temp, self.Ainv)
+
             if tips is None:
-                # swap axes to broadcast multiply D as diagonal matrix
-                temp = scipy.ascontiguousarray((self.A.swapaxes(0, 1) * expD).swapaxes(1, 0), dtype = float)
-                M = broadcastMatrixMultiply(temp, self.Ainv)
-                # M = broadcastMatrixMultiply((self.A.swapaxes(0, 1) *
-                #         expD).swapaxes(1, 0), self.Ainv)
+                return scipy.tile(M, (self.nsites,1,1))
             else:
-                M = broadcastMatrixVectorMultiply((self.A.swapaxes(0, 1)
-                        * expD).swapaxes(1, 0), broadcastGetCols(
-                        self.Ainv, tips))
+                #need to do some splicing of the matrix
+                newM = scipy.zeros((len(tips), N_CODON))
+                for i in range(len(tips)):
+                    newM[i] =(M[0][:,tips[i]])
                 if gaps is not None:
-                    M[gaps] = scipy.ones(N_CODON, dtype='float')
-        return scipy.tile(M, (self.nsites, 1, 1))
+                    newM[gaps] = scipy.ones(N_CODON, dtype='float')
+                return newM
 
     def dM(self, t, param, Mt, tips=None, gaps=None):
         """See docs for method in `Model` abstract base class."""
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         assert param in self.freeparams, "Invalid param: {0}".format(param)
-
         if param == 'mu':
             if tips is None:
-                dM_param = broadcastMatrixMultiply(self.Pxy, scipy.tile(Mt[0], (1,1,1)), alpha=t)
+                dM_param = scipy.tile(broadcastMatrixMultiply(self.Pxy, scipy.tile(Mt[0], (1,1,1)), alpha=t), (self.nsites, 1, 1))
             else:
-                dM_param = broadcastMatrixVectorMultiply(self.Pxy, scipy.tile(Mt[0], (1,1,1)), alpha=t)
+                dM_param = broadcastMatrixVectorMultiply(scipy.tile(self.Pxy[0], (self.nsites,1,1)), Mt, alpha=t)
                 if gaps is not None:
                     dM_param[gaps] = scipy.zeros(N_CODON, dtype='float')
-            return scipy.tile(dM_param, (self.nsites, 1, 1))
+            return dM_param
 
         paramval = getattr(self, param)
-        if isinstance(paramval, float):
-            paramisvec = False
-        else:
-            assert isinstance(paramval, numpy.ndarray) and paramval.ndim == 1
-            paramisvec = True
-            paramlength = paramval.shape[0]
+        assert isinstance(paramval, float), "All params should be floats"
 
         if ('expD', t) not in self._cached:
             self._cached[('expD', t)] = scipy.exp(self.D * self.mu * t)
@@ -1170,36 +1167,18 @@ class YNGKP_M0(Model):
         V = self._cached[('V', t)]
 
         with scipy.errstate(under='ignore'): # don't worry if some values 0
+            dM_param = broadcastMatrixMultiply(self.A,
+                        broadcastMatrixMultiply(self.B[param]
+                        * V, self.Ainv))
             if tips is None:
-                if not paramisvec:
-                    dM_param = broadcastMatrixMultiply(self.A,
-                            broadcastMatrixMultiply(self.B[param]
-                            * V, self.Ainv))
-                else:
-                    dM_param = scipy.ndarray((paramlength, self.nsites,
-                            N_CODON, N_CODON), dtype='float')
-                    for j in range(paramlength):
-                        dM_param[j] = broadcastMatrixMultiply(self.A,
-                                broadcastMatrixMultiply(self.B[param][j]
-                                * V, self.Ainv))
+                return scipy.tile(dM_param, (self.nsites, 1, 1))
             else:
-                if not paramisvec:
-                    dM_param = broadcastMatrixVectorMultiply(self.A,
-                            broadcastGetCols(broadcastMatrixMultiply(
-                            self.B[param] * V, self.Ainv), tips))
-                else:
-                    dM_param = scipy.ndarray((paramlength, self.nsites,
-                            N_CODON), dtype='float')
-                    for j in range(paramlength):
-                        dM_param[j] = broadcastMatrixVectorMultiply(self.A,
-                            broadcastGetCols(broadcastMatrixMultiply(
-                            self.B[param][j] * V, self.Ainv), tips))
+                newdM_param = scipy.zeros((len(tips), N_CODON))
+                for i in range(len(tips)):
+                    newdM_param[i] =(dM_param[0][:,tips[i]])
                 if gaps is not None:
-                    if not paramisvec:
-                        dM_param[gaps] = scipy.zeros(N_CODON, dtype='float')
-                    else:
-                        dM_param[:, gaps] = scipy.zeros(N_CODON, dtype='float')
-        return scipy.tile(dM_param, (self.nsites, 1, 1))
+                    newdM_param[gaps] = scipy.zeros(N_CODON, dtype='float')
+                return newdM_param
 
     def _update_Pxy(self):
         """Update `Pxy` using current `omega`, `kappa`, and `Phi_x`."""
