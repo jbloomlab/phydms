@@ -223,9 +223,7 @@ class test_TreeLikelihood_YNGKP_M0(unittest.TestCase):
             random.seed(itest)
             scipy.random.seed(itest)
             modelparams = {
-                    'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
                     'mu':random.uniform(0.2, 2.0),
-                    'beta':random.uniform(0.8, 1.3),
                     'kappa':random.uniform(0.5, 5.0),
                     'omega':random.uniform(0.1, 2),
                     }
