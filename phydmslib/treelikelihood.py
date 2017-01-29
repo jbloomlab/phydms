@@ -6,6 +6,7 @@ using the indexing schemes defined in `phydmslib.constants`.
 
 
 import sys
+import copy
 import scipy
 import scipy.optimize
 import Bio.Phylo
@@ -34,7 +35,8 @@ class TreeLikelihood(object):
 
     Attributes:
         `tree` (instance of `Bio.Phylo.BaseTree.Tree` derived class)
-            Phylogenetic tree. 
+            Phylogenetic tree. Branch lengths are in units of codon
+            substitutions per site for the current `model`.
         `model` (instance of `phydmslib.models.Model` derived class)
             Specifies the substitution model for `nsites` codon sites.
         `alignment` (list of 2-tuples of strings, `(head, seq)`)
@@ -86,7 +88,7 @@ class TreeLikelihood(object):
             `gaps[n]` is an array containing all sites where the codon is
             a gap for tip node `n` (0 <= `n` < `ntips`).
         `name_to_nodeindex` (`dict`)
-            For each sequence name (these are headers in `alignmnent`, 
+            For each sequence name (these are headers in `alignment`, 
             tip names in `tree`), `name_to_nodeindex[name]` is the `int`
             index of that `node` in the internal indexing scheme.
         `rdescend` and `ldescend` (lists of `int` of length `ninternal`)
@@ -132,14 +134,21 @@ class TreeLikelihood(object):
         self.nseqs = len(alignment)
         alignment_d = dict(self.alignment)
 
+        # For internal storage, branch lengths are in model units rather
+        # than codon substitutions per site. So here adjust them from
+        # codon substitutions per site to model units.
         assert isinstance(tree, Bio.Phylo.BaseTree.Tree), "invalid tree"
-        self.tree = tree
-        assert self.tree.count_terminals() == self.nseqs
+        self._tree = copy.deepcopy(tree)
+        assert self._tree.count_terminals() == self.nseqs
+        branchScale = self.model.branchScale
+        for node in self._tree.find_clades():
+            if node != self._tree.root:
+                node.branch_length /= branchScale
 
         # index nodes
         self.name_to_nodeindex = {}
-        self.ninternal = len(tree.get_nonterminals())
-        self.ntips = tree.count_terminals()
+        self.ninternal = len(self._tree.get_nonterminals())
+        self.ntips = self._tree.count_terminals()
         self.nnodes = self.ntips + self.ninternal
         self.rdescend = [-1] * self.ninternal
         self.ldescend = [-1] * self.ninternal
@@ -163,13 +172,13 @@ class TreeLikelihood(object):
         internalnodes = []
         self.tips = scipy.zeros((self.ntips, self.nsites), dtype='int')
         self.gaps = []
-        for node in self.tree.find_clades(order='postorder'):
+        for node in self._tree.find_clades(order='postorder'):
             if node.is_terminal():
                 tipnodes.append(node)
             else:
                 internalnodes.append(node)
         for (n, node) in enumerate(tipnodes + internalnodes):
-            if node != self.tree.root:
+            if node != self._tree.root:
                 assert n < self.nnodes - 1
                 self.t[n] = node.branch_length
             if node.is_terminal():
@@ -191,7 +200,7 @@ class TreeLikelihood(object):
                         n, self.ntips)
                 assert len(node.clades) == 2, ("not 2 children: {0} has {1}\n"
                         "Is this the root node? -- {2}").format(
-                        node.name, len(node.clades), node == self.tree.root)
+                        node.name, len(node.clades), node == self._tree.root)
                 ni = n - self.ntips
                 self.rdescend[ni] = self.name_to_nodeindex[node.clades[0]]
                 self.ldescend[ni] = self.name_to_nodeindex[node.clades[1]]
@@ -252,10 +261,24 @@ class TreeLikelihood(object):
         if approx_grad:
             dfunc = False
 
+        assert self.paramsarray, "There are no parameters to optimize"
         result = scipy.optimize.minimize(func, self.paramsarray,
                 method='L-BFGS-B', jac=dfunc, bounds=self.paramsarraybounds)
 
         return result
+
+    @property
+    def tree(self):
+        """Tree with branch lengths in codon substitutions per site.
+
+        This is the current tree after whatever optimizations have
+        been performed so far.
+        """
+        bs = self.model.branchScale
+        for node in self._tree.find_clades():
+            if node != self._tree.root:
+                node.branch_length = self.t[self.name_to_nodeindex[node]] * bs
+        return self._tree
 
     @property
     def paramsarraybounds(self):

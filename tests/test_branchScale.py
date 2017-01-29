@@ -1,4 +1,4 @@
-"""Tests `branchScale` property of models.
+"""Tests branch scaling.
 
 Makes sure we can correctly re-scale branch lengths into
 units of substitutions per site.
@@ -12,10 +12,13 @@ import scipy
 import math
 import unittest
 import random
+import io
+import copy
 import phydmslib.models
 import phydmslib.treelikelihood
 from phydmslib.constants import *
 import Bio.SeqIO
+import Bio.Phylo
 import pyvolve
 
 
@@ -87,7 +90,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
         scipy.random.seed(1)
         random.seed(1)
 
-        # define model
+        # define model, only free parameter is mu for testing simulations
         nsites = 200
         prefs = []
         minpref = 0.01
@@ -98,24 +101,31 @@ class test_branchScale_ExpCM(unittest.TestCase):
             prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
         kappa = 4.2
         omega = 0.4
-        beta = 1.3
+        beta = 1.5
         mu = 0.3
         if self.MODEL == phydmslib.models.ExpCM:
             phi = scipy.random.dirichlet([5] * N_NT)
             model = phydmslib.models.ExpCM(prefs, kappa=kappa, omega=omega,
-                    beta=beta, mu=mu, phi=phi)
+                    beta=beta, mu=mu, phi=phi, freeparams=['mu'])
             partitions = pyvolvePartitionsExpCM(model)
         elif self.MODEL == phydmslib.models.ExpCM_empirical_phi:
             g = scipy.random.dirichlet([5] * N_NT)
             model = phydmslib.models.ExpCM_empirical_phi(prefs, g,
-                    kappa=kappa, omega=omega, beta=beta, mu=mu)
+                    kappa=kappa, omega=omega, beta=beta, mu=mu,
+                    freeparams=['mu'])
             partitions = pyvolvePartitionsExpCM(model)
         else:
             raise ValueError("Invalid MODEL: {0}".format(type(self.MODEL)))
 
         # tree is two sequences separated by a single branch
         t = 0.03
-        tree = pyvolve.read_tree(tree='(tip1:{0},tip2:{0});'.format(t / 2.0))
+        newicktree = '(tip1:{0},tip2:{0});'.format(t / 2.0)
+        pyvolvetree = pyvolve.read_tree(tree=newicktree)
+        temptree = '_temp.tree'
+        with open(temptree, 'w') as f:
+            f.write(newicktree)
+        biotree = Bio.Phylo.read(temptree, 'newick')
+        os.remove(temptree)
 
         # Simulate evolution of two sequences separated by a long branch.
         # Then estimate subs per site in a heuristic way that will be 
@@ -124,27 +134,37 @@ class test_branchScale_ExpCM(unittest.TestCase):
         alignment = '_temp_simulatedalignment.fasta'
         info = '_temp_info.txt'
         rates = '_temp_ratefile.txt'
-        evolver = pyvolve.Evolver(partitions=partitions, tree=tree)
-        nsubs = 0
+        evolver = pyvolve.Evolver(partitions=partitions, tree=pyvolvetree)
+        nsubs = 0 # subs in simulated seqs (estimate from Hamming distance)
+        treedist = 0.0 # distance inferred by `TreeLikelihood`
         nreplicates = 100
         for i in range(nreplicates):
             evolver(seqfile=alignment, infofile=info, ratefile=rates)
-            [s1, s2] = [str(s.seq) for s in Bio.SeqIO.parse(alignment, 'fasta')]
-            assert len(s1) == len(s2) == nsites * 3
+            a = [(s.description, str(s.seq)) for s in Bio.SeqIO.parse(
+                    alignment, 'fasta')]
+            assert len(a[0][1]) == len(a[1][1]) == nsites * 3
             for f in [alignment, info, rates]:
                 os.remove(f)
             for r in range(nsites):
-                codon1 = s1[3 * r : 3 * r + 3]
-                codon2 = s2[3 * r : 3 * r + 3]
+                codon1 = a[0][1][3 * r : 3 * r + 3]
+                codon2 = a[1][1][3 * r : 3 * r + 3]
                 nsubs += len([j for j in range(3) if codon1[j] != codon2[j]])
+            tl = phydmslib.treelikelihood.TreeLikelihood(biotree, a, 
+                    copy.deepcopy(model)) 
+            tl.maximizeLikelihood()
+            treedist += sum([n.branch_length for n in tl.tree.get_terminals()])
         nsubs /= float(nsites * nreplicates)
+        treedist /= float(nreplicates)
 
         # We expect nsubs = branchScale * t, but build in some tolerance
-        # since we simulated finite number of sites.
+        # of rtol = 0.05 since we simulated finite number of sites.
         self.assertTrue(scipy.allclose(nsubs, model.branchScale * t, 
                 rtol=0.05), ("Simulated subs per site of {0} is not close "
-                "to expected value of {1} (branchScale = {2}, t = {3})".format(
-                nsubs, t * model.branchScale, model.branchScale, t)))
+                "to expected value of {1} (branchScale = {2}, t = {3})").format(
+                nsubs, t * model.branchScale, model.branchScale, t))
+        self.assertTrue(scipy.allclose(treedist, nsubs, rtol=0.05), (
+                "Simulated subs per site of {0} is not close to inferred "
+                "branch length of {1}").format(nsubs, treedist))
 
     def tearDown(self):
         """Remove some files made by `pyvolve`."""

@@ -28,8 +28,11 @@ Command-line usage
     The headers must be unique strings that do **not** contain any of the following: spaces, commas, colons, semicolons, parentheses, square brackets, and single or double quotes.
 
    tree
-    This argument specifies the fixed tree topology used by 'phydms'. 
-    Typically you would have inferred this tree using some other program such as `RAxML`_ or `codonPhyML`_.
+    Typically you infer this tree using a program such as `RAxML`_ or `codonPhyML`_.
+    The topology is fixed to that in ``tree``. How the branch lengths are handled
+    during optimization depends on ``--brlen``.
+    The branch lengths in ``tree`` are assumed to be in codon substitutions
+    per site.
 
    model
     *YNGKP_<m>* is a codon model from `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_. 
@@ -70,15 +73,14 @@ Command-line usage
     See `Output files`_ for a description of the files created with this prefix. Any existing files with these names are deleted at the start of the program's execution.
 
    \-\-brlen
-    The tree topology is fixed to the that in ``tree``. 
-    But the branch lengths are not necessarily fixed. 
-    The options are:
+    The tree topology is fixed to that in ``tree``. 
+    But there are several options for how the branch lengths are handled:
 
       * *scale*: fix the relative length of the branches to the values in ``tree``, but scale them all by a single parameter :math:`\mu` that is optimized.
 
       * *optimize*: optimize all branch lengths as free parameters.
 
-      * *fix*: fix the branch lengths exactly to their values in ``tree``. Unless you have a good reason to be sure that the lengths are already scaled correctly, use *scale* instead of *fix* if you don't want to optimize all branches.
+      * *fix*: fix the branch lengths to their values in ``tree``. Unless you have a good reason to be sure that the lengths are already scaled correctly, use *scale* instead of *fix* if you don't want to optimize all branches. 
 
    \-\-omegabysite
     If using a YNGKP model, then the :math:`\omega_r` value is nearly analogous that obtained using the *FEL* model described by `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_. If using and *ExpCM*, then :math:`\omega_r` has the meaning described in :ref:`ExpCM`. Essentially, we fix all other model / tree parameters and then compare a model that fits a synonymous and nonsynonymous rate to each site to a null model that only fits a synonymous rate; there is evidence for :math:`\omega_r \ne 1` if fitting both nonsynonymous and synonymous rate gives sufficiently better likelihood than fitting synonymous rate alone. See also the ``--omegabysite_fixsyn`` option.
@@ -168,7 +170,8 @@ These parameters correspond to those described for the *M8* model by `Yang, Niel
                         
 Tree file
 ++++++++++++
-This file has the suffix ``_tree.newick``, and gives the optimized tree in Newick format.
+This file has the suffix ``_tree.newick``, and gives the optimized tree in Newick format. 
+The branch lengths are in units of codon substitutions per site.
 
 Site-specific omega file
 +++++++++++++++++++++++++++

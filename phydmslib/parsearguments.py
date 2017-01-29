@@ -333,7 +333,7 @@ def PhyDMSParser():
     parser.add_argument('alignment', type=ExistingFile, 
             help='Existing FASTA file with aligned codon sequences.')
     parser.add_argument('tree', type=ExistingFile,
-            help="Existing Newick file giving tree topology.")
+            help="Existing Newick file giving input tree.")
     parser.add_argument('model', type=ModelOption, 
             help=("Substitution model: ExpCM_<prefsfile> or YNGKP_<m> ("
             "where <m> is {0}). For ExpCM, <prefsfile> should have first "
@@ -341,9 +341,9 @@ def PhyDMSParser():
             "amino-acid code.").format(', '.join(yngkp_modelvariants)))
     parser.add_argument('outprefix', help='Prefix for output files.', type=str)
     parser.add_argument('--brlen', choices=['fix', 'scale', 'optimize'],
-            default='scale', help=("How to handle branch lengths: "
-            "fix to values in 'tree'; scale values in 'tree' by single "
-            "parameter 'mu'; or optimize each one.")) 
+            default='scale', help=("How to handle branch lengths: fix to "
+            "values in 'tree'; scale by single parameter 'mu'; or "
+            "optimize each one.")) 
     parser.set_defaults(fitphi=False)
     parser.add_argument('--fitphi', action='store_true', dest='fitphi',
             help='Fit ExpCM phi rather than setting so stationary '
