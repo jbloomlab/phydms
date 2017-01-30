@@ -340,22 +340,21 @@ def PhyDMSParser():
             "column labeled 'site' and other columns labeled by 1-letter "
             "amino-acid code.").format(', '.join(yngkp_modelvariants)))
     parser.add_argument('outprefix', help='Prefix for output files.', type=str)
-    parser.add_argument('--brlen', choices=['fix', 'scale', 'optimize'],
-            default='scale', help=("How to handle branch lengths: fix to "
-            "values in 'tree'; scale by single parameter 'mu'; or "
-            "optimize each one.")) 
+    parser.add_argument('--brlen', choices=['scale', 'optimize', 'fix'],
+            default='scale', help=("How to handle branch lengths: scale "
+            "by single parameter; optimize each one; fix to values "
+            "in 'tree'.")) 
     parser.set_defaults(fitphi=False)
     parser.add_argument('--fitphi', action='store_true', dest='fitphi',
             help='Fit ExpCM phi rather than setting so stationary '
             'state matches alignment frequencies.')
-#    parser.set_defaults(omegabysite=False)
-#    parser.add_argument('--omegabysite', dest='omegabysite', action='store_true', 
-#            help="Fit an omega (dN/dS) for each site, similar to FEL.")
-#    parser.set_defaults(omegabysite_fixsyn=False)
-#    parser.add_argument('--omegabysite_fixsyn', dest='omegabysite_fixsyn', 
-#            action='store_true', help=("For '--omegabysite', assign all "
-#            "sites same synonymous rate rather than fitting a different "
-#            "one for each site."))
+    parser.set_defaults(omegabysite=False)
+    parser.add_argument('--omegabysite', dest='omegabysite', 
+            action='store_true', help="Fit omega (dN/dS) for each site.")
+    parser.set_defaults(omegabysite_fixsyn=False)
+    parser.add_argument('--omegabysite_fixsyn', dest='omegabysite_fixsyn', 
+            action='store_true', help="For '--omegabysite', assign all "
+            "sites same dS rather than for each site.")
     parser.set_defaults(randprefs=False)
     parser.add_argument('--randprefs', dest='randprefs', action='store_true', 
             help="Randomize preferences among sites for ExpCM.")

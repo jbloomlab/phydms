@@ -123,7 +123,7 @@ def main():
                         "Can't use --divpressure and --fitphi")
                 freeparams.append('eta')
                 logger.info('Nucleotide frequency parameters phi will '
-                        'be optimized by maximum likelihood.')
+                        'be optimized by maximum likelihood.\n')
                 model = phydmslib.models.ExpCM(prefslist, freeparams=freeparams)
             else:
                 g = scipy.ndarray(phydmslib.constants.N_NT, dtype='float')
@@ -135,7 +135,7 @@ def main():
                 g /= g.sum()
                 logger.info('Nucleotide frequency parameters phi will be '
                         'set so stationary state matches alignment '
-                        'nucleotide frequencies of {0}'.format(
+                        'nucleotide frequencies of {0}\n'.format(
                         ', '.join(['{0} = {1:.3f}'.format(nt, g[w]) for
                         (w, nt) in phydmslib.constants.INDEX_TO_NT.items()])))
                 if not args['divpressure']:
@@ -226,49 +226,19 @@ def main():
         logger.info('Writing model parameters to {0}'.format(modelparamsfile))
         with open(modelparamsfile, 'w') as f:
             f.write(params.replace('\t', ''))
-        logger.info('Writing the optimized tree to {0}'.format(treefile))
+        logger.info('Writing the optimized tree to {0}\n'.format(treefile))
         Bio.Phylo.write(tl.tree, treefile, 'newick')
-
-        logging.shutdown() # debugging
-        sys.exit(0) # debugging
-        raise RuntimeError('only implemented to this far') # debugging
 
         # get number of cpus for multiprocessing
         if args['ncpus'] == -1:
-            try:
-                args['ncpus'] = multiprocessing.cpu_count()
-            except:
-                raise RuntimeError("Problem trying to determine number of available CPUs. Please manually specify the number of desired CPUs with '--ncpus' and try again.")
-        logger.info("Using %d CPUs for the remaining computations.\n" % args['ncpus'])
-        assert args['ncpus'] >= 1, "Failed to specify a number of CPUs that exceeds one: %d." % args['ncpus']
+            args['ncpus'] = multiprocessing.cpu_count()
+        assert args['ncpus'] >= 1, "{0} CPUs specified".format(args['ncpus'])
+        logger.info("Using {0} CPUs for remaining computation.\n".format(
+                args['ncpus']))
 
         # optimize a different omega for each site
         if args['omegabysite']:
-            fixedomegavalue = 1.0 # null model fixes omega to this value
-            excludeparams = ['omega', 'p', 'q', 'omegas', 'p0', 'delta1', 'delta2', 'omega0', 'omega2', 'theta1', 'theta2'] # parameters related to omega, do not fix
-            fixedmodelparams = {}
-            for (param, value) in allmodelparams.items():
-                for excludeparam in excludeparams:
-                    if excludeparam == param:
-                        break
-                else:
-                    fixedmodelparams[param] = value
-            logger.info('Now optimizing a different omega for each site while keeping branch lengths and other model parameters fixed.')
-            if args['omegabysite_fixsyn']:
-                fixsyn_string = "Using '--omegabysite_fixsyn', so the synonymous rate is assumed equal across all sites. This means we compare fitting omega for a site to not fitting anything."
-            else:
-                fixsyn_string = "Not using '--omegabysite_fixsyn', so we fit a synonymous rate for each site. This means we compare fitting omega and a synonymous rate to fitting just a synonymous rate."
-            logger.info(fixsyn_string)
-            logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
-            logger.info('The remaining model parameters will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
-            if isinstance(model, str) and 'YNGKP' in model:
-                aaprefs = {}
-            fitomegaresults = FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams, fixedomegavalue, treefile, args['recursion'], args['ncpus'], logger, args['omegabysite_fixsyn'], args['useLog'], ngammarates, args['ncats'], args['fixationmodel'])
-            fitomegaresults = [(d['P'], site, d['omega'], d['dLnL']) for (site, d) in fitomegaresults.items()]
-            fitomegaresults.sort()
-            logger.info('Now writing the full results of the omega-by-site analysis to %s\n' % omegafile)
-            with open(omegafile, 'w') as f:
-                f.write("# Omega fit to each site after fixing tree and and all other parameters.\n# %s\n# Fits compared to null model of omega = %.3f; P-values NOT corrected for multiple testing.\n#\n# site\tomega\tP\tdLnL\n%s" % (fixsyn_string, fixedomegavalue, '\n'.join(['%d\t%.3f\t%.3g\t%.3f' % (site, omega, p, lnl) for (p, site, omega, lnl) in fitomegaresults])))
+            raise RuntimeError("omegabysite not yet implemented")
 
     except:
         logger.exception('Terminating %s at %s with ERROR' % (prog, time.asctime()))
