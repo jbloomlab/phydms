@@ -13,17 +13,16 @@ Overview
 
 Specifically, for each gene, we assume that we know the preference :math:`\pi_{r,a}` of site :math:`r` for each amino-acid :math:`a` (we constrain :math:`1 = \sum_a \pi_{r,a}`). Typically, these preferences might be measured in deep mutational scanning experiments. For a description of how the preferences can be inferred from experimental data, see `Bloom, BMC Bioinformatics, 16:168`_. 
 
-Key references on *ExpCM* are as follows:
+The *ExpCM* used here are the ones defined in:
 
-    * `Bloom, bioRxiv, DOI 10.1101/037689`_
+    * `Bloom, Biology Direct, 12:1`_
 
-    * `Bloom, Mol Biol Evol, 31:1956-1978`_
-
-    * `Bloom, Mol Biol Evol, 31:2753-2769`_
+See also `Bloom, Mol Biol Evol, 31:1956-1978`_ and 
+`Bloom, Mol Biol Evol, 31:2753-2769`_ for more discussion of models of this type.
 
 These experimentally informed site-specific substitution models closely parallel those used in studies that infer the site-specific information from natural sequences; see `Rodrigue and Lartillot, PNAS, 107:4629-4634`_. For a more general discussion of models of this form, see `Halpern and Bruno, Mol Biol Evol, 15:910-917`_ and `McCandlish and Stoltzfus, Quarterly Review of Biology, 89:225-252`_.
 
-The *ExpCM* implemented by ``phydms`` are similar but not completely identical to those in aforementioned publications. The *ExpCM* in ``phydms`` has the following components:
+Specifically, the *ExpCM* implemented by ``phydms`` have the following components:
 
     * A reversible model of nucleotide substitution that is assumed to be constant across sites.
 
@@ -93,7 +92,7 @@ Finally, `Bloom, Mol Biol Evol, 31:2753-2769`_ shows that given these stationary
 .. math::
    p_{r,x} = \frac{f_{r,x} \times q_x}{\sum_y f_y \times q_y} = \frac{\left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta} \times q_x}{\sum_y \left(\pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta} \times q_y}.
 
-Therefore, assuming that the preferences :math:`\pi_{r,a}` are known *a priori* for all amino acids :math:`a` at all sites :math:`r` (e.g. the preferences have been measured in a deep mutational scanning experiment), the substitution model is completely defined by giving values to the following six parameters: :math:`\omega`, :math:`\beta`, :math:`\kappa`, :math:`\phi_A`, :math:`\phi_C`, and :math:`\phi_G`. When fitting and *ExpCM* for a gene phylogeny, ``phydms`` assumes that these six parameters are constant across all sites, and optimizes their values by maximum likelihood.
+Therefore, assuming that the preferences :math:`\pi_{r,a}` are known *a priori* for all amino acids :math:`a` at all sites :math:`r` (e.g. the preferences have been measured in a deep mutational scanning experiment), the substitution model is completely defined by giving values to the following six parameters: :math:`\omega`, :math:`\beta`, :math:`\kappa`, :math:`\phi_A`, :math:`\phi_C`, and :math:`\phi_G`. When fitting an *ExpCM* for a gene phylogeny, ``phydms`` assumes that these six parameters are constant across all sites, and optimizes their values by maximum likelihood.
 
 Empirical nucleotide frequencies
 ----------------------------------
@@ -120,7 +119,7 @@ The value of :math:`\hat{\phi}_w` must then satisfy:
 
 There are three independent :math:`g_w` values and three independent :math:`\phi_w` values (since :math:`1 = \sum_w g_w = \sum_w \hat{\phi}_w`, so we have three equations and three unknowns. 
 These equations can be solved numerically for :math:`\hat{\phi}_w`, and these empirical estimates can be used in the place of estimating :math:`\phi_w` by maximum likelihood.
-Such a procedure speeds the numerical optimization by reducing the number of free parameters.
+Such a procedure speeds the numerical optimization by reducing the number of free parameters that must be optimized.
 
 Identifying diversifying selection via site-specific :math:`\omega_r` values
 ------------------------------------------------------------------------------

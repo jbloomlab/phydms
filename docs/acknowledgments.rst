@@ -6,37 +6,27 @@ Acknowledgments and citations
 
 Acknowledgments
 -----------------
-`phydms`_ is written by the `Bloom lab`_ (see https://github.com/jbloomlab/phydms/graphs/contributors for all contributors).
-
-`phydms`_ is completely reliant on the `Bio++`_ libraries; thanks to `Julien Dutheil`_ and `Laurent Gueguen`_ for developing these libraries and assisting in their use.
-
-The plotting performed by ``phydms_plotselection`` utilizes `weblogo`_.
-
-The optional dating of nodes in the phylogenies uses the `LSD`_ source code, which was developed by the group of `Olivier Gascuel`_.
+`phydms`_ is written by the `Bloom lab`_ (see the `full list of contributors`_).
 
 Citations
 ------------
 The current citation for `phydms`_ is:
 
-   * `Bloom, bioRxiv, DOI 10.1101/037689`_
+   * `Bloom, Biology Direct, 12:1`_
 
-The following references are also relevant:
+The following references are also relevant to the *ExpCM* implemented by `phydms`_:
 
     * `Bloom, Mol Biol Evol, 31:1956-1978`_
 
     * `Bloom, Mol Biol Evol, 31:2753-2769`_
 
-Because `phydms`_ is **completely reliant** on `Bio++`_, you should also cite these libraries. There is not yet a citation for the version of `Bio++`_ incorporated into `phydms`_, but you can cite the most recent `Bio++`_ reference:
+Please also cite `pyvolve`_, which is used by `phydms`_ for simulations. The citation for `pyvolve`_ is:
 
-    * `Gueguen et al, Mol Biol Evol, 30:1745-1750`_ 
+    * `Spielman and Wilke, PLoS One, 10:e0139047`_
 
 If you use ``phydms_plotselection`` to create a figure for your paper, please also cite `weblogo`_ (which is used to create the logo plots):
 
     * `Crooks et al, Genome Research, 14:1188-1190`_
-
-If you use the optional dating of nodes in the phylogeny, you should also cite the `LSD`_ program, which is wrapped within `phydms`_ to perform the dating. The reference for `LSD`_ is:
-
-    * `To et al, Systematic Biology, 65:82-97`_
 
 Finally, if you use `dms_tools`_ to process your deep mutational scanning data before feeding it into `phydms`_, please cite:
 

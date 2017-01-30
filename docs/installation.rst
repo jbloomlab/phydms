@@ -8,7 +8,11 @@ Installation
 
 Minimal requirements
 ----------------------
-Installing `phydms`_ requires `Python`_ version 2.7, the `Python`_ package management system `pip`_, and a ``g++``/``c++`` compiler. These instructions assume you are using a reasonably modern Linux operating system, although it may also be possible to install `phydms`_ on Mac OS X (this has not been carefully checked). If you have all of this, any other dependencies should be automatically installed if you follow the `Quick installation`_ instructions.
+`phydms`_ is written in `Python`_. You can run it either under ``python2`` (if you have version 2.7 or higher) or ``python3`` (if you have version 3.4 or higher).
+
+Straightforward installation requires the `Python`_ package management system `pip`_ and a ``C`` compiler such a ``gcc`` (there are some ``cython`` extensions). 
+
+`phydms`_ has been tested on relatively recent versions of Linux and Mac OS X.
 
 Quick installation
 ---------------------
@@ -21,8 +25,6 @@ or::
     sudo pip install phydms
 
 depending on whether you are `Installing locally versus globally`_.
-
-Note that installation will take a little while (maybe 5-15 minutes) as all of the `Bio++`_ source code included with `phydms`_ must be compiled.
 
 Installing locally versus globally
 ---------------------------------------
@@ -93,7 +95,7 @@ or globally::
 
 Install ``phydms`` from source code
 -----------------------------------------------------------------------------------
-You can also install from the `phydms source code`_ on GitHub. Again, if you are simply using `phydms`_ (and not developing it), you are strongly suggested to **not** do a source installation and instead use `pip`_.
+You can also install from the `phydms source code`_ on GitHub. Again, if you are simply using `phydms`_ (and not developing it), you are suggested to instead simply use `pip`_.
 
 To install from source, first make sure that you have the `Other required software`_.
 
@@ -120,34 +122,7 @@ or globally with::
 
 Other required software
 ------------------------------------------
-`phydms`_ requires `Python`_ 2.7 and a ``g++``/``c++`` compiler. 
+`phydms`_ requires some external `Python`_ packages. The up-to-date exact requirements are listed under ``install_requires`` in the ``setup.py`` file in the main directory of the `phydms source code`_. If you are installing with `pip`_, these external packages will automatically be installed. If you are installing from source, you will need to install these packages yourself. 
 
-In addition it requires some external `Python`_ packages. The up-to-date exact requirements are listed in the ``setup.py`` file in the main directory of the `phydms source code`_. If you are installing with `pip`_, these external packages will automatically be installed. If you are installing from source, you will need to install these packages yourself. As of the writing of this documentation, these packages are:
-
-    * `Biopython`_ is used for sequence and tree manipulations; you need at least version 1.65
-
-    * `cython`_ is used to build the ``c++`` extensions. You need at least version 0.21.
-
-    * `dms_tools`_ is used for some file input / output operations, as well as to create the plots created by ``phydms_plotselection``. `dms_tools`_ itself has dependencies that include `weblogo`_ and `matplotlib`_, but these should automatically be installed if you are using `pip`_ to `phydms`_ (or `dms_tools`_). You need `dms_tools`_ version at least 1.1.5.
-
-    * `scipy`_ is used for optimization and some statistical / mathematical operations. You need at least version 0.16.
-
-    * `matplotlib`_ is used for plotting. You need at least version 1.3.
-
-What about ``Bio++``?
-------------------------
-Most of the actual calculations performed by `phydms`_ use the `Bio++`_ libraries, which are themselves written in ``c++``. Manual installation of `Bio++`_ and subsequent linking to the installation of `phydms`_ is somewhat complicated, so the relevant portions of the `Bio++`_ source code are simply included in the `phydms source code`_ (in ``phydms/phydmslib/Bpp/`` you will find ``bpp-core``, ``bpp-seq``, and ``bpp-phyl``). When you install `phydms`_ using `pip`_ (or using ``python setup.py install``), `cython`_ compiles this `Bio++`_ source code in a form that is usable by `phydms`_. The requirement for compiling `Bio++`_ is why it takes a little while to install `phydms`_.
-
-If you are developing `phydms`_, you might get tired of constantly re-compiling all of `Bio++`_. Or if you are testing new developments in `Bio++`_, you might want to link `phydms`_ to a separate installation of `Bio++`_.
-
-If you are installing from source code, the ``setup.py`` script includes an option that should allow you to instead dynamically link to pre-compiled `Bio++`_ libraries. To do this, you need to first install the correct versions of ``bpp-core``, ``bpp-seq``, and ``bpp-phyl`` to the expected (standard) location for global or local installation. Then run::
-
-    python setup.py install --user --dynamically-link-bpp
-
-or::
-
-    python setup.py install --dynamically-link-bpp
-
-depending on whether you are `Installing locally versus globally`_. The ``--dynamically-link-bpp`` option tells ``setup.py`` to instead link to these pre-installed `Bio++`_ libraries. If this isn't working (e.g. you don't have the `Bio++`_ libraries in the location expected by ``setup.py``), you will have to delve into the ``setup.py`` file yourself to figure out what is going wrong.
 
 .. include:: weblinks.txt

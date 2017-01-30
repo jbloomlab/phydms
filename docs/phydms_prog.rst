@@ -10,7 +10,7 @@ Overview
 ------------
 ``phydms`` can perform phylogenetic analyses with :ref:`ExpCM` as well as with some standard non-site-specific substitution models (variants of the *YNGKP* models described in `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_). In addition, ``phydms`` can be used to detect site-specific diversifying or differential selection using the :ref:`ExpCM`.
 
-``phydms`` is written in `Python`_, and uses the `Bio++`_ libraries to perform the core likelihood functions. See below for information on the `Command-line usage`_ and `Output files`_.
+See below for information on the `Command-line usage`_ and `Output files`_.
 
 Command-line usage
 --------------------

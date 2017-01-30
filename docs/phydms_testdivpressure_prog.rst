@@ -49,6 +49,7 @@ Log file
 ++++++++++++
 A file with the suffix ``.log`` will be created that summarizes the overall progress of ``phydms_testdivpressure``. If ``outprefix`` is just a directory name, this file will be called ``log.log``.
 
+Output for individual models
 ++++++++++++++++++++++++++++++++++
 For each individual model, there will also be all of the expected ``phydms`` output files as described in :ref:`phydms_prog`. These files will begin with the prefix specified by ``outprefix``, which will be followed by a description of the model. For instance, if the command is::
 
