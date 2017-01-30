@@ -25,7 +25,7 @@ class test_phydms_divpressure(unittest.TestCase):
         divpressure = '{0}/divpressure.txt'.format(dpdir)
         for f in [prefs, alignment]:
             self.assertTrue(os.path.isfile(f), "Can't find file {0}".format(f))
-        outprefix = './NP_test_results/'
+        outprefix = './divpressure_test_results/divpressure'
         if os.path.isdir(outprefix):
             shutil.rmtree(outprefix)
 

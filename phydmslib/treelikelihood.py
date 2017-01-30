@@ -119,9 +119,12 @@ class TreeLikelihood(object):
         Args:
             `tree`, `model`, `alignment`
                 Attributes of same name described in class doc string.
+                Note that we make copies of both `tree` and `model`
+                so the calling objects are not modified during 
+                optimization.
         """
         assert isinstance(model, phydmslib.models.Model), "invalid model"
-        self.model = model
+        self.model = copy.deepcopy(model)
         self.nsites = self.model.nsites
 
         assert isinstance(alignment, list) and all([isinstance(tup, tuple)
@@ -261,15 +264,18 @@ class TreeLikelihood(object):
         if approx_grad:
             dfunc = False
 
-        assert self.paramsarray, "There are no parameters to optimize"
+        assert len(self.paramsarray) > 0, "There are no parameters to optimize"
         result = scipy.optimize.minimize(func, self.paramsarray,
                 method='L-BFGS-B', jac=dfunc, bounds=self.paramsarraybounds)
+        assert result.success, "Optimization failed:\n{0}".format(result.message) 
 
         return result
 
     @property
     def tree(self):
         """Tree with branch lengths in codon substitutions per site.
+
+        The tree is a `Bio.Phylo.BaseTree.Tree` object.
 
         This is the current tree after whatever optimizations have
         been performed so far.

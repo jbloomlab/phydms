@@ -126,47 +126,23 @@ This is a text file with the suffix ``.log`` that records information about the 
 Log likelihood file
 ++++++++++++++++++++++
 This file has the suffix ``_loglikelihood.txt``. It simply gives the optimized log likelihood. Here is an example of a file's contents::
-
-    log likelihood = -4415.24
                 
+    log likelihood = -4415.24
+
 Model parameters
 ++++++++++++++++++++
-This file has the suffix ``_modelparams.txt``. It gives the value of all **optimized** model parameters (it does not give the value of non-optimized model parameters such as the codon frequencies under *F3X4*). Here is an example of the contents for an *ExpCM* model::
+This file has the suffix ``_modelparams.txt``. 
 
-    123_Full.theta = 0.411593
-    123_Full.theta1 = 0.626366
-    123_Full.theta2 = 0.524156
-    123_K80.kappa = 6.19349
-    omega = 0.768227
-    stringencyparameter = 2.92
+Here is an example of the contents for an *ExpCM* model::
 
-These parameters correspond to those described in :ref:`ExpCM` as follows:
+    beta = 2.99307
+    kappa = 6.31364
+    omega = 0.780782
+    phiA = 0.372278
+    phiC = 0.196416
+    phiG = 0.224367
 
-    * *stringencyparameter* is :math:`\beta`
-
-    * *omega* is :math:`\omega`
-
-    * *123_K80.kappa* is :math:`\kappa`
-
-    * *123_Full.theta*, *123_Full.theta1*, and *123_Full.theta2* define the values of the nucleotide frequences :math:`\phi_A`, :math:`\phi_C`, :math:`\phi_G`, and :math:`\phi_T`. The definitions are :math:`\phi_C + \phi_G = \rm{\textit{123_Full.theta}}`, :math:`\phi_A / \left(\phi_A + \phi_T\right) = \rm{\textit{123_Full.theta1}}`, and :math:`\phi_G / \left(\phi_G + \phi_C\right) = \rm{\textit{123_Full.theta2}}`.
-
-Here is an example of the contents for a *YNGKP_M8* model::
-
-    kappa = 3.355859
-    omegas = 3.172927
-    p = 0.000100
-    p0 = 0.886637
-    q = 0.258658
-
-These parameters correspond to those described for the *M8* model by `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_ (three discrete categories of :math:`\omega`), with:
-
-    * *kappa* being :math:`\kappa`
-
-    * *p0* being the weight assigned to the :math:`\omega < 1` beta distributed values.
-   
-    * *p* and *q* being the shape parameters of the beta distribution.
-
-    * *omegas* being the :math:`\omega` value of the category (weight *1 - p0*) with :math:`\omega > 1`.
+These parameters correspond to those described in :ref:`ExpCM`; note that :math:`\mu` is **not** included as it is confounded with the branch lengths.
                         
 Tree file
 ++++++++++++

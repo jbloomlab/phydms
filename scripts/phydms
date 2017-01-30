@@ -213,9 +213,21 @@ def main():
                 f.close()
         else:
             maxresult = tl.maximizeLikelihood()
-        logger.info('Maximization complete. New log likelihood is {0:.2f}.'.format(
-                tl.loglik))
-        logger.info('Here are optimization results:\n{0}'.format(maxresult))
+        logger.info(('Maximization complete after {0} iterations and {1} '
+                'function evaluations.').format(maxresult.nit, maxresult.nfev))
+        logger.info('Optimized log likelihood is {0:.2f}.'.format(tl.loglik))
+        assert scipy.allclose(tl.loglik, -maxresult.fun)
+        logger.info('Writing log likelihood to {0}'.format(loglikelihoodfile))
+        with open(loglikelihoodfile, 'w') as f:
+            f.write('log likelihood = {0:.2f}'.format(tl.loglik))
+        params = '\n\t'.join(['{0} = {1:6g}'.format(p, pvalue) for (p, pvalue)
+                in sorted(tl.model.paramsReport.items())])
+        logger.info('Model parameters after optimization:\n\t{0}'.format(params))
+        logger.info('Writing model parameters to {0}'.format(modelparamsfile))
+        with open(modelparamsfile, 'w') as f:
+            f.write(params.replace('\t', ''))
+        logger.info('Writing the optimized tree to {0}'.format(treefile))
+        Bio.Phylo.write(tl.tree, treefile, 'newick')
 
         logging.shutdown() # debugging
         sys.exit(0) # debugging

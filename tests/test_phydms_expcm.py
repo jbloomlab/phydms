@@ -23,7 +23,7 @@ class test_phydms_ExpCM(unittest.TestCase):
         tree = '{0}/NP_tree.newick'.format(npdir)
         for f in [prefs, alignment]:
             self.assertTrue(os.path.isfile(f), "Can't find file {0}".format(f))
-        outprefix = './NP_test_results/'
+        outprefix = './NP_test_results/ExpCM'
         if os.path.isdir(outprefix):
             shutil.rmtree(outprefix)
 

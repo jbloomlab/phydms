@@ -54,6 +54,16 @@ class Model(six.with_metaclass(abc.ABCMeta)):
         pass
 
     @abc.abstractproperty
+    def paramsReport(self):
+        """Reports current values of independent model parameters.
+
+        Returns a dictionary keyed by parameter name with value being the 
+        parameter value. Does **not** include `mu` as this is confounded
+        with branch lengths.
+        """
+        pass
+
+    @abc.abstractproperty
     def branchScale(self):
         """Factor to scale branch lengths to substitutions per site.
 
@@ -259,6 +269,7 @@ class ExpCM(Model):
 
     # class variables
     _ALLOWEDPARAMS = ['kappa', 'omega', 'beta', 'eta', 'mu']
+    _REPORTPARAMS = ['kappa', 'omega', 'beta', 'phi']
     _PARAMLIMITS = {'kappa':(0.01, 100.0),
                    'omega':(0.01, 100.0),
                    'beta':(0.01, 10.0),
@@ -426,6 +437,21 @@ class ExpCM(Model):
     def dstationarystate(self, param):
         """See docs for `Model` abstract base class."""
         return self.dprx[param]
+
+    @property
+    def paramsReport(self):
+        """See docs for `Model` abstract base class."""
+        report = {}
+        for param in self._REPORTPARAMS:
+            pvalue = getattr(self, param)
+            if isinstance(pvalue, float):
+                report[param] = pvalue
+            elif isinstance(pvalue, scipy.ndarray) and pvalue.shape == (N_NT,):
+                for w in range(N_NT - 1):
+                    report['{0}{1}'.format(param, INDEX_TO_NT[w])] = pvalue[w]
+            else:
+                raise RuntimeError("Unexpected param: {0}".format(param))
+        return report
 
     @property
     def branchScale(self):
@@ -911,8 +937,10 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
     # class variables
     _ALLOWEDPARAMS = copy.deepcopy(ExpCM_empirical_phi._ALLOWEDPARAMS)
     _ALLOWEDPARAMS.append('omega2')
+    _REPORTPARAMS = copy.deepcopy(ExpCM_empirical_phi._REPORTPARAMS)
+    _REPORTPARAMS.append('omega2')
     _PARAMLIMITS = copy.deepcopy(ExpCM_empirical_phi._PARAMLIMITS)
-    _PARAMLIMITS['omega2'] = (-1,999)
+    _PARAMLIMITS['omega2'] = (-1, 999)
     _PARAMTYPES = copy.deepcopy(ExpCM_empirical_phi._PARAMTYPES)
     _PARAMTYPES['omega2'] = float
 
