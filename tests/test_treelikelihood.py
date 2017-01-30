@@ -276,10 +276,6 @@ class test_TreeLikelihood_ExpCM_empirical_phi_divpressure(test_TreeLikelihood_Ex
     """Tests `test_TreeLikelihood_ExpCM` for `ExpCM_empirical_phi_divpressure` model."""
     MODEL = phydmslib.models.ExpCM_empirical_phi_divpressure
 
-class test_TreeLikelihood_YNGKP_M0(unittest.TestCase):
-    """Tests `phydmslib.treelikelihood.TreeLikelihood` class for `YNGKP_M0` model."""
-    MODEL = phydmslib.models.YNGKP_M0
-
 
 
 if __name__ == '__main__':

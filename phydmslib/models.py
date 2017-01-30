@@ -948,7 +948,8 @@ class YNGKP_M0(Model):
     In order to maintain consistency, most attributes, such as Pxy and dPxy
     do have a single "site" dimension which is carried through the calculations.
     When `M` and `dM` are returned, the single site matrix is repeated so the
-    final dimensions of `M` and `dM` are (nsites, N_CODON, N_CODON).
+    final dimensions of `M` and `dM` are match those in the docs for the `Modes`
+    abstract base class.
     """
 
     # class variables
@@ -1008,6 +1009,7 @@ class YNGKP_M0(Model):
             _checkParam(name, value, self.PARAMLIMITS, self._PARAMTYPES)
 
         # define other params, initialized appropriately
+        #single site dimension to be carried through the calcs added here
         self.Pxy = scipy.zeros((1, N_CODON, N_CODON), dtype='float')
         self.D = scipy.zeros((1, N_CODON), dtype='float')
         self.A = scipy.zeros((1, N_CODON, N_CODON), dtype='float')
@@ -1103,17 +1105,12 @@ class YNGKP_M0(Model):
             if ('expD', t) not in self._cached:
                 self._cached[('expD', t)] = scipy.exp(self.D * self.mu * t)
             expD = self._cached[('expD', t)]
-
-            #in YNGKP_M0, matrix multipliation first
-            #then slice matrix if tips == True
             # swap axes to broadcast multiply D as diagonal matrix
             temp = scipy.ascontiguousarray((self.A.swapaxes(0, 1) * expD).swapaxes(1, 0), dtype = float)
             M = broadcastMatrixMultiply(temp, self.Ainv)
-
             if tips is None:
                 return scipy.tile(M, (self.nsites,1,1))
             else:
-                #need to do some splicing of the matrix
                 newM = scipy.zeros((len(tips), N_CODON))
                 for i in range(len(tips)):
                     newM[i] =(M[0][:,tips[i]])
@@ -1129,6 +1126,7 @@ class YNGKP_M0(Model):
             if tips is None:
                 dM_param = scipy.tile(broadcastMatrixMultiply(self.Pxy, scipy.tile(Mt[0], (1,1,1)), alpha=t), (self.nsites, 1, 1))
             else:
+                #Pxy is tiled over the number of sites
                 dM_param = broadcastMatrixVectorMultiply(scipy.tile(self.Pxy[0], (self.nsites,1,1)), Mt, alpha=t)
                 if gaps is not None:
                     dM_param[gaps] = scipy.zeros(N_CODON, dtype='float')
@@ -1197,12 +1195,6 @@ class YNGKP_M0(Model):
             scipy.copyto(self.dPxy['omega'], self.Pxy / self.omega,
                     where=CODON_NONSYN)
             _fill_diagonals(self.dPxy['omega'], self._diag_indices)
-
-    def _fill_diagonals(self, m):
-        """Fills diagonals of the only matrix in `m` so rows sum to 0."""
-        assert m.shape == (1, N_CODON, N_CODON)
-        scipy.fill_diagonal(m[0], 0)
-        m[0][self._diag_indices] -= scipy.sum(m[0], axis=1)
 
     def _update_Pxy_diag(self):
         """Update `D`, `A`, `Ainv` from `Pxy`, `Phi_x`."""

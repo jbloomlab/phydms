@@ -17,13 +17,12 @@ class test_phydms_divpressure(unittest.TestCase):
     """Tests command-line ``phydms`` with `YNGKP_M0`."""
 
     def test_NP_YNGKP_M0(self):
-        """Tests command-line ``phydms`` with `ExpCM`  and `--divpressure` on simulated NP data."""
+        """Tests command-line ``phydms`` with `YNGKP_M0` on NP data."""
         dpdir = './NP_data/'
         alignment = '{0}/NP_alignment.fasta'.format(dpdir)
-        #alignment = '{0}/short_fasta_test.fa'.format(dpdir)
         tree = '{0}/NP_tree.newick'.format(dpdir)
         self.assertTrue(os.path.isfile(alignment), "Can't find file {0}".format(alignment))
-        outprefix = './NP_test_results/'
+        outprefix = './NP_test_results/YNGKP_M0'
         if os.path.isdir(outprefix):
             shutil.rmtree(outprefix)
 
