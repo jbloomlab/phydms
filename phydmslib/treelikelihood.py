@@ -113,7 +113,7 @@ class TreeLikelihood(object):
             with respect to `param[i]`.
     """
 
-    def __init__(self, tree, alignment, model):
+    def __init__(self, tree, alignment, model, underflowfreq=100):
         """Initialize a `TreeLikelihood` object.
 
         Args:
@@ -123,6 +123,9 @@ class TreeLikelihood(object):
                 so the calling objects are not modified during 
                 optimization.
         """
+        assert isinstance(underflowfreq, int) and underflowfreq >= 1
+        self.underflowfreq = underflowfreq
+
         assert isinstance(model, phydmslib.models.Model), "invalid model"
         self.model = copy.deepcopy(model)
         self.nsites = self.model.nsites
@@ -158,6 +161,7 @@ class TreeLikelihood(object):
         self.t = [-1] * (self.nnodes - 1)
         self.L = scipy.full((self.ninternal, self.nsites, N_CODON), -1, 
                 dtype='float')
+        self.underflowlogscale = scipy.zeros(self.nsites, dtype='float')
         self.dL = {}
         for param in self.model.freeparams:
             paramvalue = getattr(self.model, param)
@@ -403,9 +407,10 @@ class TreeLikelihood(object):
         """
         with scipy.errstate(over='raise', under='raise', divide='raise',
                 invalid='raise'):
+            self.underflowlogscale.fill(0.0)
             self._computePartialLikelihoods()
             sitelik = scipy.sum(self.L[-1] * self.model.stationarystate, axis=1)
-            self.siteloglik = scipy.log(sitelik)
+            self.siteloglik = scipy.log(sitelik) - self.underflowlogscale
             self.loglik = scipy.sum(self.siteloglik)
             self.dsiteloglik = {}
             self.dloglik = {}
@@ -447,6 +452,12 @@ class TreeLikelihood(object):
                 Mleft = self.model.M(tleft)
                 MLleft = broadcastMatrixVectorMultiply(Mleft, self.L[nlefti])
             scipy.copyto(self.L[ni], MLright * MLleft)
+            if ni > 0 and ni % self.underflowfreq == 0:
+                assert False, "Should not be here"
+                scale = scipy.amax(self.L[ni], axis=1)
+                self.L[ni] /= scale[:, scipy.newaxis]
+                assert self.underflowlogscale.shape == scale.shape
+                self.underflowlogscale += scipy.log(scale)
             for param in self.model.freeparams:
                 paramvalue = getattr(self.model, param)
                 if isinstance(paramvalue, float):

@@ -531,14 +531,14 @@ The derivative of the likelihood at the site is then
 .. math::
 
    \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \alpha} 
-   = \sum_x \left(\frac{\partial p_{r,x}}{\partial \alpha} L_{r,n_{\rm{root}}} + p_{r,x} \frac{\partial L_{r,n_{\rm{root}}}}{\partial \alpha}\right)
+   = \sum_x \left(\frac{\partial p_{r,x}}{\partial \alpha} L_{r,n_{\rm{root}}}\left(x\right) + p_{r,x} \frac{\partial L_{r,n_{\rm{root}}}\left(x\right)}{\partial \alpha}\right)
 
 and the derivative of the log likelihood at the site is
 
 .. math::
 
    \frac{\partial \ln\left[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)\right]}{\partial \alpha} 
-   = \frac{\sum_x \left(\frac{\partial p_{r,x}}{\partial \alpha} L_{r,n_{\rm{root}}} + p_{r,x} \frac{\partial L_{r,n_{\rm{root}}}}{\partial \alpha}\right)}
+   = \frac{\sum_x \left(\frac{\partial p_{r,x}}{\partial \alpha} L_{r,n_{\rm{root}}}\left(x\right) + p_{r,x} \frac{\partial L_{r,n_{\rm{root}}}\left(x\right)}{\partial \alpha}\right)}
    {\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}.
 
 The derivative of the overall log likelihood is
@@ -547,6 +547,65 @@ The derivative of the overall log likelihood is
 
    \frac{\partial \ln \left[ \Pr\left(\mathcal{S} \mid \mathcal{T}, \left\{\mathbf{P_r}\right\}\right) \right]}{\partial \alpha} 
    = \sum_r \frac{\partial \ln \left[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right) \right]}{\partial \alpha}.
+
+Scaling to avoid numerical underflow
+--------------------------------------
+For larger trees, there can be numerical underflow due to multiplication of lots of small numbers when computing the likelihoods. This issue, and how it can be solved by re-scaling the likelihoods during the calculation, is discussed on page 426 of `Yang, J Mol Evol, 51:423-432`_.
+
+Let :math:`L_{r,n}\left(x\right)` be the partial conditional likelihood at node :math:`n` of codon :math:`x` at site :math:`r` as defined above. These partial conditional likelihoods can get very small as we move up the tree towards the root, as they are recursively defined as the products of very small numbers. For the scaling to avoid underflow, we define the scaled partial condition likelilhood as
+
+.. math::
+
+   \tilde{L}_{r,n}\left(x\right) = C_{r,n} \times L_{r,n}\left(x\right) \times \prod\limits_{k < n} C_{r,k}
+
+where we use :math:`k < n` to indicate all nodes :math:`k` that are descendants of :math:`n`, and where
+
+.. math::
+
+   C_{r,n} = 
+   \begin{cases}
+   1 & \mbox{if $n$ is divisible by $K$,} \\
+   \frac{1}{\max_x\left[L_{r,n}\left(x\right) \times \prod\limits_{k < n} C_{r,k}\right]} & \mbox{otherwise}
+   \end{cases}
+
+where :math:`K` is the frequency with which we re-scale the likelihoods. A reasonable value of :math:`K` might be 5 or 10. Effectively, this means that every :math:`K` nodes we are re-scaling so that the largest partial conditional likelihood is one.
+
+With this re-scaling, the total likelihood at site :math:`r` is then
+
+.. math::
+
+   \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)
+   = \left(\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)\right) \times
+   \left(\prod\limits_n C_{r,n}\right)^{-1}
+
+and the total log likelihood is
+
+.. math::
+
+   \ln\left[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)\right]
+   = \ln\left(\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)\right) -
+   \sum\limits_n \ln\left(C_{r,n}\right).
+
+The derivatives become
+
+.. math:: 
+
+   \frac{\partial \tilde{L}_{r,n}\left(x\right)}{\partial \alpha} = 
+   \left(\prod\limits_{k \le n} C_{r,k}\right) \frac{\partial L_{r,n}\left(x\right)}{\partial \alpha} +
+   \frac{\partial \left(\prod\limits_{k \le n} C_{r,n}\right)}{\partial \alpha} L_{r,n}\left(x\right)
+
+and
+
+.. math::
+
+   \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \alpha} 
+   &=& \left[\sum\limits_x\left(\frac{\partial p_{r,x}}{\partial \alpha} \tilde{L}_{r,n_{\rm{root}}}\left(x\right) + p_{r,x} \frac{\partial \tilde{L}_{r,n_{\rm{root}}}\left(x\right)}{\partial \alpha} \right)\right] \times \left(\prod\limits_n C_{r,n}\right)^{-1} - \left(\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)\right) \times
+   \frac{\frac{\partial \left(\prod\limits_n C_{r,n}\right)}{\partial \alpha}}{\left(\prod\limits_n C_{r,n}\right)^{2}}\\
+   &=& \sum\limits_x\left(\frac{\partial p_{r,x}}{\partial \alpha} L_{r,n_{\rm{root}}}\left(x\right) + p_{r,x} \frac{\partial L_{r,n_{\rm{root}}}\left(x\right)}{\partial \alpha} + p_{r,x} L_{r,n_{\rm{root}}}\left(x\right) \frac{\frac{\partial \left(\prod\limits_n C_{r,n}\right)}{\partial \alpha}}{\prod\limits_n C_{r,n}}\right) - \left(\sum\limits_x p_{r,x} L_{r,n_{\rm{root}}}\left(x\right)\right) \times
+   \frac{\frac{\partial \left(\prod\limits_n C_{r,n}\right)}{\partial \alpha}}{\left(\prod\limits_n C_{r,n}\right)}\\
+   &=& \sum\limits_x\left(\frac{\partial p_{r,x}}{\partial \alpha} L_{r,n_{\rm{root}}}\left(x\right) + p_{r,x} \frac{\partial L_{r,n_{\rm{root}}}\left(x\right)}{\partial \alpha}\right).
+
+I've sort of lost track of what all this algebra shows, except that I can re-derive the expression for :math:`\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \alpha}` in terms of :math:`L` or :math:`\tilde{L}`.
 
 Derivatives with respect to branch lengths
 --------------------------------------------
