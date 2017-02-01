@@ -64,3 +64,23 @@ The derivatives of the stationary state with respect to :math:`\kappa` and :math
    :label: dprx_dkappadomega_M0
 
    \frac{\partial p_{x}}{\partial \kappa} = \frac{\partial p_{x}}{\partial \omega} = 0
+
+Calculation of induced equilibrium nucleotide frequencies
+------------------------------------------------------
+
+Following Pond *et al* 2010 (corrected), we calculate the codon frequencies :math:`\Phi_x` from the observed nucleotide frequencies, :math:`e^p_w`.
+
+Let :math:`e^p_w` be the frequency of nucleotide :math:`w` at codon position :math:`p` in the alignment.
+
+:math:`\Phi_x = \phi^1_{x_1} \times \phi^2_{x_2} \times \phi^3_{x_3}` where codon :math:`x` has nucleotide :math:`x_1` at codon position :math:`1`, nucleotide :math:`x_2` at codon position :math:`2`,
+and nucleotide :math:`x_3` at codon position :math:`3`.
+We can calculate :math:`\phi^p_w` by solving the following three equations:
+
+.. math::
+      :label: phi_pw
+
+      e^1_w = \frac{\phi^1_w \times \left(1- \sum\limits_{wyz\epsilon X} \phi^2_y\times\phi^3_z\right)}{1-\pi_X}\\
+      e^2_w = \frac{\phi^2_w \times \left(1- \sum\limits_{ywz\epsilon X} \phi^1_y\times\phi^3_z\right)}{1-\pi_X}\\
+      e^3_w = \frac{\phi^3_w \times \left(1- \sum\limits_{yzw\epsilon X} \phi^1_y\times\phi^2_z\right)}{1-\pi_X}\\
+
+where :math:`X = \{TAA, TAG, TGA\}` and :math:`\pi_X = \sum\limits_{xyz\epsilon X} \phi^1_x\times\phi^2_y\times\phi^3_z`.
