@@ -6,7 +6,7 @@ from phydmslib.constants import *
 class testYNGKP_M0_correctedF3X4(unittest.TestCase):
 
     def testYNGKP_M0_correctedF3X4(self):
-        """Initialize `YNGKP_M0`, test values, update, test again."""
+        """Test `scipy.optimize.root` function fo the corrected F3X4 frequencies."""
 
         scipy.random.seed(1)
         self.e_pw = scipy.random.uniform(0.12, 1.0, size = (3, N_NT))
@@ -19,11 +19,10 @@ class testYNGKP_M0_correctedF3X4(unittest.TestCase):
             for p in range(3): #for each position
                 for w in range(4): #for each nucleotide, #this matches the flatten/reshape order
                     s = 0
-                    for stop in range(N_STOP): #for each stop codon
-                        if(NT_CODON_POS_TO_STOP[p][w][stop]): #if `pw` part of stop codon
-                            ntList = [NT_TO_INDEX[STOP[stop][y]] for y in range(3)] #make a list (in codon position order) of the nt indexes of that stop codon
-                            freqList = scipy.asarray([phi_pw[y * 4 + ntList[y]] for y in range(3)]) #get the phi values
-                            s += (scipy.prod(freqList)) #multiply the phi values and add to s
+                    for x in range(N_STOP): #for each stop codon
+                        if(NT_CODON_POS_TO_STOP[p][w][x]): #if `pw` part of stop codon
+                            #STOP_CODON_INDEX_TO_NT_INDICES[x][y] gives the nucleotide at position y in codon stop
+                            s += scipy.prod(scipy.asarray([phi_pw[y * 4 + STOP_CODON_INDEX_TO_NT_INDICES[x][y]] for y in range(3)])) #multiply the phi values for given stop codon and add to s
                     functionList.append(((phi_pw[p * 4 + w] - s / (1 - pi_x)) - self.e_pw[p][w])) #do the final calculations
             return(scipy.asarray(functionList))
 
