@@ -20,7 +20,7 @@ class testYNGKP_M0_correctedF3X4(unittest.TestCase):
                 for w in range(4): #for each nucleotide, #this matches the flatten/reshape order
                     s = 0
                     for x in range(N_STOP): #for each stop codon
-                        if(NT_CODON_POS_TO_STOP[p][w][x]): #if `pw` part of stop codon
+                        if(NT_CODON_POS_TO_STOP[p][w][x]): #if `pw` part of stop codon x
                             #STOP_CODON_INDEX_TO_NT_INDICES[x][y] gives the nucleotide at position y in codon stop
                             s += scipy.prod(scipy.asarray([phi_pw[y * 4 + STOP_CODON_INDEX_TO_NT_INDICES[x][y]] for y in range(3)])) #multiply the phi values for given stop codon and add to s
                     functionList.append(((phi_pw[p * 4 + w] - s / (1 - pi_x)) - self.e_pw[p][w])) #do the final calculations
