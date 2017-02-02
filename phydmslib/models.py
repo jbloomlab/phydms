@@ -941,8 +941,12 @@ class YNGKP_M0(Model):
             measured from the alignment. `e_pw[p][w]` give the frequency of nucleotide
             `w` at codon position `p`.
         `Phi_x` (scipy.ndarray, shape `(NT_NT,)`)
-            The codon frequencies calculated from the `e_pw` frequencies.
-            `Phi_x[x]` = e_pw[0][x0] * e_pw[1][x1] * e_pw[2][x2]
+            The codon frequencies calculated from the `phi_pw` frequencies.
+            `Phi_x[x]` = phi_pw[0][x0] * phi_pw[1][x1] * phi_pw[2][x2]
+        `phi_pw` (scipy.ndarray, shape `(3, N_NT)`)
+            The model nucleotide frequencies for each position in a codon
+            computed using the `CF3X4` estimator. `phi_pw[p][w]` is the model
+            frequency of nucleotide `w` at codon position `p`.
 
     Unlike the `ExpCM`, the YNGKP_M0 does not have site-specific calculations.
     In order to maintain consistency, most attributes, such as Pxy and dPxy
@@ -950,6 +954,12 @@ class YNGKP_M0(Model):
     When `M` and `dM` are returned, the single site matrix is repeated so the
     final dimensions of `M` and `dM` are match those in the docs for the `Modes`
     abstract base class.
+
+    The model nucleotide frequences, `phi_pw` are computed using the
+    empirical nucleotide frequencies `e_pw` and the `Corrected F3X4`
+    estimator (Pond et al, 2010). Unlike the traditional `MG3X4` or `GY3X4`,
+    this estimator takes into account stop codon nucleotide frequencies.
+    The codon frequencies, `Phi_x` are computed from the `phi_pw` values. 
     """
 
     # class variables
@@ -984,15 +994,17 @@ class YNGKP_M0(Model):
                 Model params described in main class doc string.
             `freeparams` (list of strings)
                 Specifies free parameters.
-            `e_pw`, `nsites`
+            `e_pw`, `nsites`, `phi_pw`
                 Meaning described in the main class doc string.
         """
         _checkParam('e_pw', e_pw, self.PARAMLIMITS, self._PARAMTYPES)
         self.e_pw = e_pw.copy()
+        self.phi_pw = self._calculate_correctedF3X4()
         self.Phi_x = scipy.ones(N_CODON, dtype='float')
         self._calculate_Phi_x()
         self._nsites = nsites
         assert self._nsites > 0, "There must be more than 1 site in the gene"
+
 
         #check allowed params
         assert all(map(lambda x: x in self.ALLOWEDPARAMS, freeparams)),\
@@ -1059,12 +1071,42 @@ class YNGKP_M0(Model):
         """Set new `mu` value."""
         self._mu = value
 
+    def _calculate_correctedF3X4(self):
+        '''Calculate `phi_pw` based on the empirical `e_pw` values'''
+        def F(phi_pw):
+            phi_pw_reshape = phi_pw.reshape((3,4))
+            functionList = []
+            stop_frequency = []
+
+            for x in range(N_STOP):
+                codonFrequency = STOP_CODON_TO_NT_INDICES[x] * phi_pw_reshape
+                codonFrequency = scipy.prod(codonFrequency.sum(axis=1))
+                stop_frequency.append(codonFrequency)
+            C = scipy.sum(stop_frequency)
+
+            for p in range(3):
+                for w in range(N_NT):
+                    s = 0
+                    for x in range(N_STOP):
+                        if STOP_CODON_TO_NT_INDICES[x][p][w] == 1:
+                            s += stop_frequency[x]
+                    functionList.append((phi_pw_reshape[p][w] - s)/(1 - C)
+                        - self.e_pw[p][w])
+            return functionList
+
+        phi_pw = self.e_pw.copy().flatten()
+        with scipy.errstate(invalid='ignore'):
+            result = scipy.optimize.root(F, phi_pw,
+                    tol=1e-8)
+            assert result.success, "Failed: {0}".format(result)
+            return result.x.reshape((3,N_NT))
+
     def _calculate_Phi_x(self):
-        """Calculate `Phi_x` (stationary state) from `e_pw`."""
+        """Calculate `Phi_x` (stationary state) from `phi_pw`."""
         self.Phi_x = scipy.ones(N_CODON, dtype='float')
         for codon in range(N_CODON):
             for pos in range(3):
-                self.Phi_x[codon] *= self.e_pw[pos][CODON_NT_INDEX[pos][codon]]
+                self.Phi_x[codon] *= self.phi_pw[pos][CODON_NT_INDEX[pos][codon]]
 
     def updateParams(self, newvalues, update_all=False):
         """See docs for `Model` abstract base class."""
