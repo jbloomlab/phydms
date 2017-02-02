@@ -7,8 +7,10 @@ Constants defined:
         number of nucleotides
     `N_AA` (int)
         number of amino acids
-    `N_CODON` (int) 
+    `N_CODON` (int)
         number of codons
+    `N_STOP` (int)
+        number of stop codons
     `NT_TO_INDEX` (dict)
         mapping of one-letter nucleotides to integer indices
     `INDEX_TO_NT` (dict)
@@ -32,7 +34,7 @@ Constants defined:
     `CODON_SINGLEMUT` (`numpy.ndarray` of bools, shape (`N_CODON, N_CODON)`)
         Element `[x][y]` is `True` iff `x` and `y` differ by 1 nt mutation.
     `CODON_NT_MUT` (`numpy.ndarray` of bools, shape `(N_NT, N_CODON, N_CODON)`)
-        Element `[w][x][y]` is `True` iff `x` converts to `y` by single 
+        Element `[w][x][y]` is `True` iff `x` converts to `y` by single
         nucleotide mutation `w`.
     `CODON_NT` (`numpy.ndarray` of bools, shape `(3, N_NT, N_CODON)`)
         Element `[j][w][x]` is `True` iff nt `j` of codon `x` is `w`.
@@ -43,6 +45,12 @@ Constants defined:
     `CODON_NT_COUNT` (`numpy.ndarray` of int, shape `(N_NT, N_CODON)`)
         Element `[w][x]` gives the number of occurrences of nucleotide
         `w` in codon `x`.
+    `STOP_CODON_INDEX_TO_NT_INDICES` (`numpy.ndarray` of int, shape `(N_CODON, 3)`)
+        Element `[x][p]` gives the index of the nucleotide at position `p` in
+        stop codon `x`.
+    `NT_CODON_POS_TO_STOP` (`numpy.ndarraay` of bool, shape `(3, N_NT, N_CODON)`)
+        Element `[p][w][x]` is true if codon `x` has nucleotide `w` at
+        codon position `p`.
 """
 
 
@@ -108,7 +116,7 @@ for (x, codonx) in INDEX_TO_CODON.items():
             (ntx, nty) = diffs[0]
             CODON_SINGLEMUT[x][y] = True
             CODON_NT_MUT[NT_TO_INDEX[nty]][x][y] = True
-            if ((ntx in PURINES and nty in PURINES) or 
+            if ((ntx in PURINES and nty in PURINES) or
                     ((ntx in PYRIMIDINES and nty in PYRIMIDINES))):
                 CODON_TRANSITION[x][y] = True
 
@@ -116,6 +124,15 @@ assert CODON_SINGLEMUT.sum() == CODON_NT_MUT.sum() > CODON_TRANSITION.sum()
 assert CODON_NT.sum() == N_CODON * 3
 assert (CODON_NT_INDEX != -1).all()
 CODON_NT_COUNT.sum(axis=0) == 3
+
+N_STOP = 3
+#STOP = ["TAA", "TAG", "TGA"]
+STOP_CODON_INDEX_TO_NT_INDICES = {0:[3,0,0], 1:[3,0,2], 2:[3,2,0]}
+NT_CODON_POS_TO_STOP = scipy.full((3, N_NT, N_STOP), False, dtype='bool')
+for x in range(N_STOP): 
+    for y in range(3):
+        print(x,y)
+        NT_CODON_POS_TO_STOP[y][STOP_CODON_INDEX_TO_NT_INDICES[x][y]][x] = True
 
 # delete variables so they aren't in namespace if import * used on this module
 del i, nt1, nt2, nt3, codon, codonx, codony, x, y, ntx, nty, w, diffs
