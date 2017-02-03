@@ -987,12 +987,12 @@ class YNGKP_M0(Model):
             The empirical nucleotide frequencies for each position in a codon
             measured from the alignment. `e_pw[p][w]` give the frequency of
             nucleotide `w` at codon position `p`.
-        `Phi_x` (scipy.ndarray, shape `(NT_NT,)`)
-            The codon frequencies calculated from the `phi_pw` frequencies.
-            `Phi_x[x]` = phi_pw[0][x0] * phi_pw[1][x1] * phi_pw[2][x2]
-        `phi_pw` (scipy.ndarray, shape `(3, N_NT)`)
+        `Phi_x` (scipy.ndarray, shape `(N_CODON,)`)
+            The codon frequencies calculated from the `phi` frequencies.
+            `Phi_x[x]` = phi[0][x0] * phi[1][x1] * phi[2][x2]
+        `phi` (scipy.ndarray, shape `(3, N_NT)`)
             The model nucleotide frequencies for each position in a codon
-            computed using the `CF3X4` estimator. `phi_pw[p][w]` is the model
+            computed using the `CF3X4` estimator. `phi[p][w]` is the model
             frequency of nucleotide `w` at codon position `p`.
 
     Unlike the `ExpCM`, `YNGKP_M0` does not have site-specific calculations.
@@ -1002,14 +1002,15 @@ class YNGKP_M0(Model):
     final dimensions of `M` and `dM` are match those in the docs for the `Models`
     abstract base class.
 
-    The model nucleotide frequences, `phi_pw` are computed using the
+    The model nucleotide frequences, `phi` are computed using the
     empirical nucleotide frequencies `e_pw` and the `Corrected F3X4`
     estimator (Pond et al, 2010). Unlike the traditional `MG3X4` or `GY3X4`,
     this estimator takes into account stop codon nucleotide frequencies.
-    The codon frequencies, `Phi_x` are computed from the `phi_pw` values.
+    The codon frequencies, `Phi_x` are computed from the `phi` values.
     """
 
     # class variables
+    _REPORTPARAMS = ['kappa', 'omega', 'phi']
     _ALLOWEDPARAMS = ['kappa', 'omega', 'mu']
     _PARAMLIMITS = {'kappa':(0.01, 100.0),
                    'omega':(0.01, 100.0),
@@ -1046,12 +1047,12 @@ class YNGKP_M0(Model):
         """
         _checkParam('e_pw', e_pw, self.PARAMLIMITS, self._PARAMTYPES)
         self.e_pw = e_pw.copy()
-        self.phi_pw = self._calculate_correctedF3X4()
-        assert scipy.allclose(self.phi_pw.sum(axis = 1),\
+        self.phi = self._calculate_correctedF3X4()
+        assert scipy.allclose(self.phi.sum(axis = 1),\
                 scipy.ones(3, dtype='float'),atol=1e-4, rtol=5e-3),\
-                "The `phi_pw` values do not sum to 1 for all `p`"
-        assert (((self.e_pw - self.phi_pw) * STOP_POSITIONS) >= 0.0).all(),\
-                "Illogical `phi_pw` values"
+                "The `phi` values do not sum to 1 for all `p`"
+        assert (((self.e_pw - self.phi) * STOP_POSITIONS) >= 0.0).all(),\
+                "Illogical `phi` values"
 
         self.Phi_x = scipy.ones(N_CODON, dtype='float')
         self._calculate_Phi_x()
@@ -1104,6 +1105,30 @@ class YNGKP_M0(Model):
         return scipy.zeros((self.nsites, N_CODON), dtype='float')
 
     @property
+    def paramsReport(self):
+        """See docs for `Model` abstract base class."""
+        report = {}
+        for param in self._REPORTPARAMS:
+            pvalue = getattr(self, param)
+            if isinstance(pvalue, float):
+                report[param] = pvalue
+            elif isinstance(pvalue, scipy.ndarray) and pvalue.shape == (3, N_NT):
+                for p in range(3):
+                    for w in range(N_NT - 1):
+                        report['{0}{1}{2}'.format(param, p, INDEX_TO_NT[w])] =\
+                                pvalue[p][w]
+            else:
+                raise RuntimeError("Unexpected param: {0}".format(param))
+        return report
+
+    @property
+    def branchScale(self):
+        """See docs for `Model` abstract base class."""
+        bs = -(self.Phi_x * scipy.diagonal(self.Pxy[0])).sum() * self.mu
+        assert bs > 0
+        return bs
+
+    @property
     def nsites(self):
         """See docs for `Model` abstract base class."""
         return self._nsites
@@ -1124,14 +1149,14 @@ class YNGKP_M0(Model):
         self._mu = value
 
     def _calculate_correctedF3X4(self):
-        '''Calculate `phi_pw` based on the empirical `e_pw` values'''
-        def F(phi_pw):
-            phi_pw_reshape = phi_pw.reshape((3, N_NT))
+        '''Calculate `phi` based on the empirical `e_pw` values'''
+        def F(phi):
+            phi_reshape = phi.reshape((3, N_NT))
             functionList = []
             stop_frequency = []
 
             for x in range(N_STOP):
-                codonFrequency = STOP_CODON_TO_NT_INDICES[x] * phi_pw_reshape
+                codonFrequency = STOP_CODON_TO_NT_INDICES[x] * phi_reshape
                 codonFrequency = scipy.prod(codonFrequency.sum(axis=1))
                 stop_frequency.append(codonFrequency)
             C = scipy.sum(stop_frequency)
@@ -1142,23 +1167,23 @@ class YNGKP_M0(Model):
                     for x in range(N_STOP):
                         if STOP_CODON_TO_NT_INDICES[x][p][w] == 1:
                             s += stop_frequency[x]
-                    functionList.append((phi_pw_reshape[p][w] - s)/(1 - C)
+                    functionList.append((phi_reshape[p][w] - s)/(1 - C)
                             - self.e_pw[p][w])
             return functionList
 
-        phi_pw = self.e_pw.copy().flatten()
+        phi = self.e_pw.copy().flatten()
         with scipy.errstate(invalid='ignore'):
-            result = scipy.optimize.root(F, phi_pw,
+            result = scipy.optimize.root(F, phi,
                     tol=1e-8)
             assert result.success, "Failed: {0}".format(result)
             return result.x.reshape((3, N_NT))
 
     def _calculate_Phi_x(self):
-        """Calculate `Phi_x` (stationary state) from `phi_pw`."""
+        """Calculate `Phi_x` (stationary state) from `phi`."""
         self.Phi_x = scipy.ones(N_CODON, dtype='float')
         for codon in range(N_CODON):
             for pos in range(3):
-                self.Phi_x[codon] *= self.phi_pw[pos][CODON_NT_INDEX[pos][codon]]
+                self.Phi_x[codon] *= self.phi[pos][CODON_NT_INDEX[pos][codon]]
 
 
     def updateParams(self, newvalues, update_all=False):

@@ -36,8 +36,6 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         # define tree and write image to a file
         self.newick = ('(($node_1=CAACATGCA$:0.2,$node_2=CAGCAGACA$:0.3)'
                        '$node_4=x$:0.3,$node_3=GAAAAGGCG$:0.5)$node_5=y$:0.04;')
-        #self.newick = ('(($node_1=CAACATGCA$:0.1,$node_2=CAGCAGACA$:0.15)'
-        #               '$node_4=x$:0.15,$node_3=GAAAAGGCG$:0.25)$node_5=y$:0.02;')
         tempfile = '_temp.tree'
         with open(tempfile, 'w') as f:
             f.write(self.newick)

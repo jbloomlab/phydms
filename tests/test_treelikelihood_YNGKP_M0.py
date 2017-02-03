@@ -35,8 +35,8 @@ class test_TreeLikelihood_YNGKP_M0(unittest.TestCase):
         scipy.random.seed(1)
 
         # define tree and write image to a file
-        self.newick = ('(($node_1=CAACATGCA$:0.1,$node_2=CAGCAGACA$:0.15)'
-                       '$node_4=x$:0.15,$node_3=GAAAAGGCG$:0.25)$node_5=y$:0.02;')
+        self.newick = ('(($node_1=CAACATGCA$:0.2,$node_2=CAGCAGACA$:0.3)'
+                       '$node_4=x$:0.3,$node_3=GAAAAGGCG$:0.5)$node_5=y$:0.04;')
         tempfile = '_temp.tree'
         with open(tempfile, 'w') as f:
             f.write(self.newick)
@@ -147,7 +147,7 @@ class test_TreeLikelihood_YNGKP_M0(unittest.TestCase):
             # if the tree in `setUp` were to be changed.
             M = {}
             for (node, t) in self.brlen.items():
-                M[node] = model.M(t)
+                M[node] = model.M(t / model.branchScale)
             # compute partials at root node
             partials = scipy.zeros(shape=(self.nsites, N_CODON))
             siteloglik = scipy.zeros(shape=(self.nsites,))
@@ -171,9 +171,6 @@ class test_TreeLikelihood_YNGKP_M0(unittest.TestCase):
                                       ('loglik', loglik_by_mu)]:
                 self.assertTrue(scipy.allclose(d[mu1]['actual'],
                         d[mu1]['expected']), "Mismatch: {0}".format(name))
-                for mu2 in mus[i + 1 : ]:
-                    self.assertFalse(scipy.allclose(d[mu1]['actual'],
-                            d[mu2]['actual']), "Bad match: {0}".format(name))
 
     def test_LikelihoodDerivativesModelParams(self):
         """Test derivatives of `TreeLikelihood` with respect to model params."""
