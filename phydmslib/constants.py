@@ -7,8 +7,10 @@ Constants defined:
         number of nucleotides
     `N_AA` (int)
         number of amino acids
-    `N_CODON` (int) 
+    `N_CODON` (int)
         number of codons
+    `N_STOP` (int)
+        number of stop codons
     `NT_TO_INDEX` (dict)
         mapping of one-letter nucleotides to integer indices
     `INDEX_TO_NT` (dict)
@@ -32,7 +34,7 @@ Constants defined:
     `CODON_SINGLEMUT` (`numpy.ndarray` of bools, shape (`N_CODON, N_CODON)`)
         Element `[x][y]` is `True` iff `x` and `y` differ by 1 nt mutation.
     `CODON_NT_MUT` (`numpy.ndarray` of bools, shape `(N_NT, N_CODON, N_CODON)`)
-        Element `[w][x][y]` is `True` iff `x` converts to `y` by single 
+        Element `[w][x][y]` is `True` iff `x` converts to `y` by single
         nucleotide mutation `w`.
     `CODON_NT` (`numpy.ndarray` of bools, shape `(3, N_NT, N_CODON)`)
         Element `[j][w][x]` is `True` iff nt `j` of codon `x` is `w`.
@@ -43,6 +45,12 @@ Constants defined:
     `CODON_NT_COUNT` (`numpy.ndarray` of int, shape `(N_NT, N_CODON)`)
         Element `[w][x]` gives the number of occurrences of nucleotide
         `w` in codon `x`.
+    `STOP_CODON_TO_NT_INDICES` (`numpy.ndarray` of float, shape `(N_STOP, 3, N_NT)`)
+        Element `[x][p][w]` is 1.0 if codon position `p` is nucleotide `w`
+        in stop codon `x` and 0.0 otherwise.
+    `STOP_POSITIONS` (`numpy.ndarray` of float, shape `(3, N_NT)`)
+        Element `[p][w]` is -1.0 if any stop codon has nucleotide `w` in
+        codon position `p` and 1.0 otherwise
 """
 
 
@@ -64,6 +72,9 @@ AA_TO_INDEX = dict([(aa, i) for (i, aa) in INDEX_TO_AA.items()])
 N_AA = len(INDEX_TO_AA)
 assert len(INDEX_TO_AA) == len(AA_TO_INDEX) == N_AA
 
+N_STOP = 0
+STOP_CODON_TO_NT_INDICES = []
+STOP_POSITIONS = scipy.ones((3, N_NT), dtype = 'float')
 CODON_TO_INDEX = {}
 INDEX_TO_CODON = {}
 CODON_TO_AA = []
@@ -78,6 +89,19 @@ for nt1 in sorted(NT_TO_INDEX.keys()):
                 INDEX_TO_CODON[i] = codon
                 CODON_TO_AA.append(AA_TO_INDEX[aa])
                 i += 1
+            else:
+                STOP_CODON_TO_NT_INDICES.append(scipy.zeros((3, N_NT), 
+                        dtype='float'))
+                STOP_CODON_TO_NT_INDICES[-1][0][NT_TO_INDEX[nt1]] = 1.0
+                STOP_CODON_TO_NT_INDICES[-1][1][NT_TO_INDEX[nt2]] = 1.0
+                STOP_CODON_TO_NT_INDICES[-1][2][NT_TO_INDEX[nt3]] = 1.0
+                STOP_POSITIONS[0][NT_TO_INDEX[nt1]] = -1.0
+                STOP_POSITIONS[1][NT_TO_INDEX[nt2]] = -1.0
+                STOP_POSITIONS[2][NT_TO_INDEX[nt3]] = -1.0
+                N_STOP += 1
+
+STOP_CODON_TO_NT_INDICES = scipy.asarray(STOP_CODON_TO_NT_INDICES)
+
 N_CODON = len(CODON_TO_INDEX)
 CODON_TO_AA = scipy.array(CODON_TO_AA, dtype='int')
 assert len(CODON_TO_INDEX) == len(INDEX_TO_CODON) == len(CODON_TO_AA) == N_CODON
@@ -108,7 +132,7 @@ for (x, codonx) in INDEX_TO_CODON.items():
             (ntx, nty) = diffs[0]
             CODON_SINGLEMUT[x][y] = True
             CODON_NT_MUT[NT_TO_INDEX[nty]][x][y] = True
-            if ((ntx in PURINES and nty in PURINES) or 
+            if ((ntx in PURINES and nty in PURINES) or
                     ((ntx in PYRIMIDINES and nty in PYRIMIDINES))):
                 CODON_TRANSITION[x][y] = True
 

@@ -8,7 +8,7 @@ Documentation for ``phydms``
 
 `phydms`_ is a software package for **phy**\logenetic analyses using **d**\eep **m**\utational **s**\canning data to inform the substitution models.
 
-`phydms`_ can use :ref:`ExpCM` to describe the evolution of protein-coding genes for phylogenetic inference and the detection of biologically interesting selection. 
+`phydms`_ can use :ref:`ExpCM` to describe the evolution of protein-coding genes for phylogenetic inference and the detection of biologically interesting selection.
 
 `phydms`_ is written in `Python`_ by `Bloom lab`_ (see the `full list of contributors`_).
 
@@ -32,6 +32,7 @@ Contents
    auxiliary_progs
    ExpCM
    implementation
+   YNGKP_M0
    api
    acknowledgments
    indices_and_tables

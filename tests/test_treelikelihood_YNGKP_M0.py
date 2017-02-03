@@ -1,6 +1,7 @@
 """Tests `phydmslib.treelikelihood.TreeLikelihood`.
 
 Written by Jesse Bloom.
+Edited by Sarah Hilton
 """
 
 import os
@@ -21,12 +22,12 @@ import phydmslib.treelikelihood
 from phydmslib.constants import *
 
 
-class test_TreeLikelihood_ExpCM(unittest.TestCase):
-    """Tests `phydmslib.treelikelihood.TreeLikelihood` class for `ExpCM` model."""
+class test_TreeLikelihood_YNGKP_M0(unittest.TestCase):
+    """Tests `phydmslib.treelikelihood.TreeLikelihood` class for `YNGKP_M0` model."""
 
     # use approach here to run multiple tests:
     # http://stackoverflow.com/questions/17260469/instantiate-python-unittest-testcase-with-arguments
-    MODEL = phydmslib.models.ExpCM
+    MODEL = phydmslib.models.YNGKP_M0
 
     def setUp(self):
         """Set up parameters for test."""
@@ -34,10 +35,8 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         scipy.random.seed(1)
 
         # define tree and write image to a file
-        self.newick = ('(($node_1=CAACATGCA$:0.2,$node_2=CAGCAGACA$:0.3)'
-                       '$node_4=x$:0.3,$node_3=GAAAAGGCG$:0.5)$node_5=y$:0.04;')
-        #self.newick = ('(($node_1=CAACATGCA$:0.1,$node_2=CAGCAGACA$:0.15)'
-        #               '$node_4=x$:0.15,$node_3=GAAAAGGCG$:0.25)$node_5=y$:0.02;')
+        self.newick = ('(($node_1=CAACATGCA$:0.1,$node_2=CAGCAGACA$:0.15)'
+                       '$node_4=x$:0.15,$node_3=GAAAAGGCG$:0.25)$node_5=y$:0.02;')
         tempfile = '_temp.tree'
         with open(tempfile, 'w') as f:
             f.write(self.newick)
@@ -77,23 +76,10 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         assert len(self.alignment) == self.nseqs
 
         # define model
-        self.prefs = []
-        minpref = 0.02
-        g = scipy.random.dirichlet([5] * N_NT)
-        for r in range(self.nsites):
-            rprefs = scipy.random.dirichlet([0.5] * N_AA)
-            rprefs[rprefs < minpref] = minpref
-            rprefs /= rprefs.sum()
-            self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        if self.MODEL == phydmslib.models.ExpCM:
-            self.model = phydmslib.models.ExpCM(self.prefs)
-        elif self.MODEL == phydmslib.models.ExpCM_empirical_phi:
-            self.model = phydmslib.models.ExpCM_empirical_phi(self.prefs, g)
-        elif self.MODEL == phydmslib.models.ExpCM_empirical_phi_divpressure:
-            divpressure = scipy.random.uniform(-1, 5, self.nsites)
-            divpressure /= max(abs(divpressure))
-            self.model = phydmslib.models.ExpCM_empirical_phi_divpressure(
-                    self.prefs, g, divpressure)
+        self.e_pw = scipy.random.uniform(0.12, 1.0, size = (3, N_NT))
+        self.e_pw = self.e_pw/self.e_pw.sum(axis=1, keepdims=True)
+        if self.MODEL == phydmslib.models.YNGKP_M0:
+            self.model = phydmslib.models.YNGKP_M0(self.e_pw, self.nsites)
         else:
             raise ValueError("Unrecognized MODEL: {0}".format(self.MODEL))
 
@@ -118,15 +104,10 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         random.seed(1)
         scipy.random.seed(1)
         model = copy.deepcopy(self.model)
-        modelparams = {
-                'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
-                'mu':random.uniform(0.2, 2.0),
-                'beta':random.uniform(0.8, 1.3),
+        modelparams = {'mu':random.uniform(0.2, 2.0),
                 'kappa':random.uniform(0.5, 5.0),
                 'omega':random.uniform(0.1, 2),
                 }
-        if self.MODEL == phydmslib.models.ExpCM_empirical_phi_divpressure:
-            modelparams['omega2'] = random.uniform(0.1, 1)
         for param in list(modelparams.keys()):
             if param not in model.freeparams:
                 del modelparams[param]
@@ -166,7 +147,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             # if the tree in `setUp` were to be changed.
             M = {}
             for (node, t) in self.brlen.items():
-                M[node] = model.M(t / model.branchScale)
+                M[node] = model.M(t)
             # compute partials at root node
             partials = scipy.zeros(shape=(self.nsites, N_CODON))
             siteloglik = scipy.zeros(shape=(self.nsites,))
@@ -190,6 +171,9 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
                                       ('loglik', loglik_by_mu)]:
                 self.assertTrue(scipy.allclose(d[mu1]['actual'],
                         d[mu1]['expected']), "Mismatch: {0}".format(name))
+                for mu2 in mus[i + 1 : ]:
+                    self.assertFalse(scipy.allclose(d[mu1]['actual'],
+                            d[mu2]['actual']), "Bad match: {0}".format(name))
 
     def test_LikelihoodDerivativesModelParams(self):
         """Test derivatives of `TreeLikelihood` with respect to model params."""
@@ -200,9 +184,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             random.seed(itest)
             scipy.random.seed(itest)
             modelparams = {
-                    'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
                     'mu':random.uniform(0.2, 2.0),
-                    'beta':random.uniform(0.8, 1.2),
                     'kappa':random.uniform(0.5, 5.0),
                     'omega':random.uniform(0.1, 2),
                     }
@@ -240,9 +222,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             random.seed(itest)
             scipy.random.seed(itest)
             modelparams = {
-                    'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
                     'mu':random.uniform(0.2, 2.0),
-                    'beta':random.uniform(0.8, 1.3),
                     'kappa':random.uniform(0.5, 5.0),
                     'omega':random.uniform(0.1, 2),
                     }
@@ -266,14 +246,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             paramsarrays.append(tl.paramsarray)
 
 
-class test_TreeLikelihood_ExpCM_empirical_phi(test_TreeLikelihood_ExpCM):
-    """Tests `test_TreeLikelihood_ExpCM` for `ExpCM_empirical_phi` model."""
-    MODEL = phydmslib.models.ExpCM_empirical_phi
 
-
-class test_TreeLikelihood_ExpCM_empirical_phi_divpressure(test_TreeLikelihood_ExpCM):
-    """Tests `test_TreeLikelihood_ExpCM` for `ExpCM_empirical_phi_divpressure` model."""
-    MODEL = phydmslib.models.ExpCM_empirical_phi_divpressure
 
 
 
