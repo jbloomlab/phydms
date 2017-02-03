@@ -46,11 +46,11 @@ Constants defined:
         Element `[w][x]` gives the number of occurrences of nucleotide
         `w` in codon `x`.
     `STOP_CODON_TO_NT_INDICES` (`numpy.ndarray` of float, shape `(N_STOP, 3, N_NT)`)
-        Element `[x][p][w]` is 1 if codon position `p` is nucleotide `w`
-        in stop codon `x`
+        Element `[x][p][w]` is 1.0 if codon position `p` is nucleotide `w`
+        in stop codon `x` and 0.0 otherwise.
     `STOP_POSITIONS` (`numpy.ndarray` of float, shape `(3, N_NT)`)
-        Element `[p][w]` is -1 if any stop codon has nucleotide `w` in
-        codon position `p` and 1 otherwise
+        Element `[p][w]` is -1.0 if any stop codon has nucleotide `w` in
+        codon position `p` and 1.0 otherwise
 """
 
 
@@ -72,15 +72,13 @@ AA_TO_INDEX = dict([(aa, i) for (i, aa) in INDEX_TO_AA.items()])
 N_AA = len(INDEX_TO_AA)
 assert len(INDEX_TO_AA) == len(AA_TO_INDEX) == N_AA
 
-N_STOP = 3
-STOP_CODON_TO_NT_INDICES = scipy.zeros((N_STOP, 3, N_NT), dtype='float')
+N_STOP = 0
+STOP_CODON_TO_NT_INDICES = []
 STOP_POSITIONS = scipy.ones((3, N_NT), dtype = 'float')
-
 CODON_TO_INDEX = {}
 INDEX_TO_CODON = {}
 CODON_TO_AA = []
 i = 0
-j = 0
 for nt1 in sorted(NT_TO_INDEX.keys()):
     for nt2 in sorted(NT_TO_INDEX.keys()):
         for nt3 in sorted(NT_TO_INDEX.keys()):
@@ -92,13 +90,17 @@ for nt1 in sorted(NT_TO_INDEX.keys()):
                 CODON_TO_AA.append(AA_TO_INDEX[aa])
                 i += 1
             else:
-                STOP_CODON_TO_NT_INDICES[j][0][NT_TO_INDEX[nt1]] = 1.0
-                STOP_CODON_TO_NT_INDICES[j][1][NT_TO_INDEX[nt2]] = 1.0
-                STOP_CODON_TO_NT_INDICES[j][2][NT_TO_INDEX[nt3]] = 1.0
+                STOP_CODON_TO_NT_INDICES.append(scipy.zeros((3, N_NT), 
+                        dtype='float'))
+                STOP_CODON_TO_NT_INDICES[-1][0][NT_TO_INDEX[nt1]] = 1.0
+                STOP_CODON_TO_NT_INDICES[-1][1][NT_TO_INDEX[nt2]] = 1.0
+                STOP_CODON_TO_NT_INDICES[-1][2][NT_TO_INDEX[nt3]] = 1.0
                 STOP_POSITIONS[0][NT_TO_INDEX[nt1]] = -1.0
                 STOP_POSITIONS[1][NT_TO_INDEX[nt2]] = -1.0
                 STOP_POSITIONS[2][NT_TO_INDEX[nt3]] = -1.0
-                j += 1
+                N_STOP += 1
+
+STOP_CODON_TO_NT_INDICES = scipy.asarray(STOP_CODON_TO_NT_INDICES)
 
 N_CODON = len(CODON_TO_INDEX)
 CODON_TO_AA = scipy.array(CODON_TO_AA, dtype='int')
@@ -140,7 +142,7 @@ assert (CODON_NT_INDEX != -1).all()
 CODON_NT_COUNT.sum(axis=0) == 3
 
 # delete variables so they aren't in namespace if import * used on this module
-del i, j, nt1, nt2, nt3, codon, codonx, codony, x, y, ntx, nty, w, diffs
+del i, nt1, nt2, nt3, codon, codonx, codony, x, y, ntx, nty, w, diffs
 # following lines needed because list comprehension indices remain
 # in Python2 but not Python3, and we want to be compatible with both
 if 'nt' in locals():
