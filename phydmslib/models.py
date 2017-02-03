@@ -959,7 +959,7 @@ class YNGKP_M0(Model):
     empirical nucleotide frequencies `e_pw` and the `Corrected F3X4`
     estimator (Pond et al, 2010). Unlike the traditional `MG3X4` or `GY3X4`,
     this estimator takes into account stop codon nucleotide frequencies.
-    The codon frequencies, `Phi_x` are computed from the `phi_pw` values. 
+    The codon frequencies, `Phi_x` are computed from the `phi_pw` values.
     """
 
     # class variables
@@ -1000,6 +1000,11 @@ class YNGKP_M0(Model):
         _checkParam('e_pw', e_pw, self.PARAMLIMITS, self._PARAMTYPES)
         self.e_pw = e_pw.copy()
         self.phi_pw = self._calculate_correctedF3X4()
+        assert scipy.allclose(self.phi_pw.sum(axis = 1),\
+                scipy.ones(3, dtype='float'),atol=1e-4, rtol=5e-3),\
+                "The `phi_pw` values do not sum to 1 for all `p`"
+        assert (((self.e_pw - self.phi_pw) *STOP_POSITIONS) >= 0.0).all(), "Illogical `phi_pw` values"
+
         self.Phi_x = scipy.ones(N_CODON, dtype='float')
         self._calculate_Phi_x()
         self._nsites = nsites

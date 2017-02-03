@@ -8,8 +8,8 @@ YNGKP_M0
 
 Substitution model parameters and derivatives
 ---------------------------------------------------------
-We begin by considering the basic *YNGKP_M0* substitution model defined in Goldman and Yang, 1994.
-:math:`P_{xy}` is the substitution rate from codon `x` to codon `y` and is defined by
+We begin by considering the basic *YNGKP_M0* substitution model defined in Yang *et al*, 2000.  
+:math:`P_{xy}` is the substitution rate from codon `x` to codon `y` and is defined by  
 
 .. math::
   :label: Pxy_M0
@@ -65,22 +65,23 @@ The derivatives of the stationary state with respect to :math:`\kappa` and :math
 
    \frac{\partial p_{x}}{\partial \kappa} = \frac{\partial p_{x}}{\partial \omega} = 0
 
-Calculation of induced equilibrium nucleotide frequencies
+Calculation of codon equilibrium frequencies
 ------------------------------------------------------
+We calculate the codon frequencies :math:`\Phi_x` from the observed nucleotide frequencies, :math:`e^p_w`, 
+via intermediate model nucleotide frequency parameter, :math:`\phi^p_w`.
 
-Following Pond *et al* 2010 (corrected), we calculate the codon frequencies :math:`\Phi_x` from the observed nucleotide frequencies, :math:`e^p_w`.
+In the *YG F3X4* and the *MG F3X4* the :math:`\phi^p_w` and :math:`e^p_w` frequencies are assumed to be equivalent.  
+Therefore, :math:`\Phi_x = \phi^1_{x_1} \times \phi^2_{x_2} \times \phi^3_{x_3} = e^1_{x_1} \times e^2_{x_2} \times e^3_{x_3}`.    
+These methods do produce biased codon frequencies because the stop codon nucleotide composition is not taken into account.  
 
-Let :math:`e^p_w` be the frequency of nucleotide :math:`w` at codon position :math:`p` in the alignment.
-
-:math:`\Phi_x = \phi^1_{x_1} \times \phi^2_{x_2} \times \phi^3_{x_3}` where codon :math:`x` has nucleotide :math:`x_1` at codon position :math:`1`, nucleotide :math:`x_2` at codon position :math:`2`,
-and nucleotide :math:`x_3` at codon position :math:`3`.
-We can calculate :math:`\phi^p_w` by solving the following three equations:
+To address this issue, we follow the *Corrected F3X4* method from Pond *et al*, 2010.  
+The 12 nucleotide frequency parameters are estimated from the observed nucleotide frequencies and a set of 12 nonlinear equations:  
 
 .. math::
       :label: phi_pw
 
-      e^1_w = \frac{\phi^1_w \times \left(1- \sum\limits_{wyz\epsilon X} \phi^2_y\times\phi^3_z\right)}{1-\pi_X}\\
-      e^2_w = \frac{\phi^2_w \times \left(1- \sum\limits_{ywz\epsilon X} \phi^1_y\times\phi^3_z\right)}{1-\pi_X}\\
-      e^3_w = \frac{\phi^3_w \times \left(1- \sum\limits_{yzw\epsilon X} \phi^1_y\times\phi^2_z\right)}{1-\pi_X}\\
+      e^1_w = \frac{\phi^1_w \times \left(1- \sum\limits_{wyz\epsilon X} \phi^2_y\times\phi^3_z\right)}{1-\sum\limits_{xyz\epsilon X} \phi^1_x\times\phi^2_y\times\phi^3_z}\\
+      e^2_w = \frac{\phi^2_w \times \left(1- \sum\limits_{ywz\epsilon X} \phi^1_y\times\phi^3_z\right)}{1-\sum\limits_{xyz\epsilon X} \phi^1_x\times\phi^2_y\times\phi^3_z}\\
+      e^3_w = \frac{\phi^3_w \times \left(1- \sum\limits_{yzw\epsilon X} \phi^1_y\times\phi^2_z\right)}{1-\sum\limits_{xyz\epsilon X} \phi^1_x\times\phi^2_y\times\phi^3_z}\\
 
-where :math:`X = \{TAA, TAG, TGA\}` and :math:`\pi_X = \sum\limits_{xyz\epsilon X} \phi^1_x\times\phi^2_y\times\phi^3_z`.
+where :math:`X = \{TAA, TAG, TGA\}`. 

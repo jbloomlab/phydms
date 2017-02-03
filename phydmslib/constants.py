@@ -45,8 +45,12 @@ Constants defined:
     `CODON_NT_COUNT` (`numpy.ndarray` of int, shape `(N_NT, N_CODON)`)
         Element `[w][x]` gives the number of occurrences of nucleotide
         `w` in codon `x`.
-    `STOP_CODON_TO_NT_INDICES` (`numpy.ndarray` of int, shape `(N_STOP, 3, N_NT)`)
-        Element `[x][p][w]` is 1 if codon position `p` is nucleotide `w` in stop codon `x`
+    `STOP_CODON_TO_NT_INDICES` (`numpy.ndarray` of float, shape `(N_STOP, 3, N_NT)`)
+        Element `[x][p][w]` is 1 if codon position `p` is nucleotide `w`
+        in stop codon `x`
+    `STOP_POSITIONS` (`numpy.ndarray` of float, shape `(3, N_NT)`)
+        Element `[p][w]` is -1 if any stop codon has nucleotide `w` in
+        codon position `p` and 1 otherwise
 """
 
 
@@ -70,6 +74,7 @@ assert len(INDEX_TO_AA) == len(AA_TO_INDEX) == N_AA
 
 N_STOP = 3
 STOP_CODON_TO_NT_INDICES = scipy.zeros((N_STOP, 3, N_NT), dtype='float')
+STOP_POSITIONS = scipy.ones((3, N_NT), dtype = 'float')
 
 CODON_TO_INDEX = {}
 INDEX_TO_CODON = {}
@@ -90,6 +95,9 @@ for nt1 in sorted(NT_TO_INDEX.keys()):
                 STOP_CODON_TO_NT_INDICES[j][0][NT_TO_INDEX[nt1]] = 1.0
                 STOP_CODON_TO_NT_INDICES[j][1][NT_TO_INDEX[nt2]] = 1.0
                 STOP_CODON_TO_NT_INDICES[j][2][NT_TO_INDEX[nt3]] = 1.0
+                STOP_POSITIONS[0][NT_TO_INDEX[nt1]] = -1.0
+                STOP_POSITIONS[1][NT_TO_INDEX[nt2]] = -1.0
+                STOP_POSITIONS[2][NT_TO_INDEX[nt3]] = -1.0
                 j += 1
 
 N_CODON = len(CODON_TO_INDEX)
