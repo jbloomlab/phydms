@@ -102,7 +102,8 @@ class TreeLikelihood(object):
             than `nnodes`.
         `L` (`numpy.ndarray` of `float`, shape `(ninternal, nsites, N_CODON)`)
             `L[n - ntips][r][x]` is the partial conditional likelihood of
-            codon `x` at site `r` at internal node `n`.
+            codon `x` at site `r` at internal node `n`. Note that these
+            must be corrected by adding `underflowlogscale`.
         `dL` (`dict` keyed by strings, values `numpy.ndarray` of `float`)
             For each free model parameter `param` in `model.freeparam`, 
             `dL[param]` is derivative of `L` with respect to `param`.
@@ -111,13 +112,20 @@ class TreeLikelihood(object):
             array, `dL[param][n - ntips][i][r][x]` is derivative of 
             `L[n][r][x]` with respect to `param[i]`.
             with respect to `param[i]`.
+        `underflowfreq` (`int` >= 1)
+            The frequency with which we rescale likelihoods to avoid
+            numerical underflow
+        `underflowlogscale` (`numpy.ndarray` of `float`, shape `(nsites,)`)
+            Corrections that must be added to `L` at the root node to
+            get actual likelihoods when underflow correction is being
+            performed.
     """
 
-    def __init__(self, tree, alignment, model, underflowfreq=100):
+    def __init__(self, tree, alignment, model, underflowfreq=5):
         """Initialize a `TreeLikelihood` object.
 
         Args:
-            `tree`, `model`, `alignment`
+            `tree`, `model`, `alignment`, `underflowfreq`
                 Attributes of same name described in class doc string.
                 Note that we make copies of both `tree` and `model`
                 so the calling objects are not modified during 
@@ -206,7 +214,9 @@ class TreeLikelihood(object):
                 assert n >= self.ntips, "n = {0}, ntips = {1}".format(
                         n, self.ntips)
                 assert len(node.clades) == 2, ("not 2 children: {0} has {1}\n"
-                        "Is this the root node? -- {2}").format(
+                        "Is this the root node? -- {2}\n"
+                        "Try `tree.root_at_midpoint()` before passing "
+                        "to `TreeLikelihood`.").format(
                         node.name, len(node.clades), node == self._tree.root)
                 ni = n - self.ntips
                 self.rdescend[ni] = self.name_to_nodeindex[node.clades[0]]
@@ -410,7 +420,7 @@ class TreeLikelihood(object):
             self.underflowlogscale.fill(0.0)
             self._computePartialLikelihoods()
             sitelik = scipy.sum(self.L[-1] * self.model.stationarystate, axis=1)
-            self.siteloglik = scipy.log(sitelik) - self.underflowlogscale
+            self.siteloglik = scipy.log(sitelik) + self.underflowlogscale
             self.loglik = scipy.sum(self.siteloglik)
             self.dsiteloglik = {}
             self.dloglik = {}
@@ -453,10 +463,8 @@ class TreeLikelihood(object):
                 MLleft = broadcastMatrixVectorMultiply(Mleft, self.L[nlefti])
             scipy.copyto(self.L[ni], MLright * MLleft)
             if ni > 0 and ni % self.underflowfreq == 0:
-                assert False, "Should not be here"
                 scale = scipy.amax(self.L[ni], axis=1)
                 self.L[ni] /= scale[:, scipy.newaxis]
-                assert self.underflowlogscale.shape == scale.shape
                 self.underflowlogscale += scipy.log(scale)
             for param in self.model.freeparams:
                 paramvalue = getattr(self.model, param)
@@ -497,6 +505,8 @@ class TreeLikelihood(object):
                                 self.dL[param][nlefti][j])
                     scipy.copyto(self.dL[param][ni][j], (dMLright + MdLright)
                             * MLleft + MLright * (dMLleft + MdLleft))
+                    if ni > 0 and ni % self.underflowfreq == 0:
+                        self.dL[param][ni][j] /= scale[:, scipy.newaxis] 
 
 
 

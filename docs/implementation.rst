@@ -556,16 +556,16 @@ Let :math:`L_{r,n}\left(x\right)` be the partial conditional likelihood at node 
 
 .. math::
 
-   \tilde{L}_{r,n}\left(x\right) = C_{r,n} \times L_{r,n}\left(x\right) \times \prod\limits_{k < n} C_{r,k}
+   \tilde{L}_{r,n}\left(x\right) = \frac{L_{r,n}\left(x\right)}{U_{r,n} \times \prod\limits_{k < n} U_{r,k}}
 
 where we use :math:`k < n` to indicate all nodes :math:`k` that are descendants of :math:`n`, and where
 
 .. math::
 
-   C_{r,n} = 
+   U_{r,n} = 
    \begin{cases}
    1 & \mbox{if $n$ is divisible by $K$,} \\
-   \frac{1}{\max_x\left[L_{r,n}\left(x\right) \times \prod\limits_{k < n} C_{r,k}\right]} & \mbox{otherwise}
+   \max_x\left[L_{r,n}\left(x\right) \times \prod\limits_{k < n} U_{r,k}\right] & \mbox{otherwise}
    \end{cases}
 
 where :math:`K` is the frequency with which we re-scale the likelihoods. A reasonable value of :math:`K` might be 5 or 10. Effectively, this means that every :math:`K` nodes we are re-scaling so that the largest partial conditional likelihood is one.
@@ -576,36 +576,38 @@ With this re-scaling, the total likelihood at site :math:`r` is then
 
    \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)
    = \left(\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)\right) \times
-   \left(\prod\limits_n C_{r,n}\right)^{-1}
+   \left(\prod\limits_n U_{r,n}\right)
 
-and the total log likelihood is
+and the total log likelihood at site :math:`r` is
 
 .. math::
 
    \ln\left[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)\right]
-   = \ln\left(\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)\right) -
-   \sum\limits_n \ln\left(C_{r,n}\right).
+   = \ln\left(\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)\right) +
+   \sum\limits_n \ln\left(U_{r,n}\right).
 
-The derivatives become
-
-.. math:: 
-
-   \frac{\partial \tilde{L}_{r,n}\left(x\right)}{\partial \alpha} = 
-   \left(\prod\limits_{k \le n} C_{r,k}\right) \frac{\partial L_{r,n}\left(x\right)}{\partial \alpha} +
-   \frac{\partial \left(\prod\limits_{k \le n} C_{r,n}\right)}{\partial \alpha} L_{r,n}\left(x\right)
-
-and
+The derivative is then
 
 .. math::
 
-   \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \alpha} 
-   &=& \left[\sum\limits_x\left(\frac{\partial p_{r,x}}{\partial \alpha} \tilde{L}_{r,n_{\rm{root}}}\left(x\right) + p_{r,x} \frac{\partial \tilde{L}_{r,n_{\rm{root}}}\left(x\right)}{\partial \alpha} \right)\right] \times \left(\prod\limits_n C_{r,n}\right)^{-1} - \left(\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)\right) \times
-   \frac{\frac{\partial \left(\prod\limits_n C_{r,n}\right)}{\partial \alpha}}{\left(\prod\limits_n C_{r,n}\right)^{2}}\\
-   &=& \sum\limits_x\left(\frac{\partial p_{r,x}}{\partial \alpha} L_{r,n_{\rm{root}}}\left(x\right) + p_{r,x} \frac{\partial L_{r,n_{\rm{root}}}\left(x\right)}{\partial \alpha} + p_{r,x} L_{r,n_{\rm{root}}}\left(x\right) \frac{\frac{\partial \left(\prod\limits_n C_{r,n}\right)}{\partial \alpha}}{\prod\limits_n C_{r,n}}\right) - \left(\sum\limits_x p_{r,x} L_{r,n_{\rm{root}}}\left(x\right)\right) \times
-   \frac{\frac{\partial \left(\prod\limits_n C_{r,n}\right)}{\partial \alpha}}{\left(\prod\limits_n C_{r,n}\right)}\\
-   &=& \sum\limits_x\left(\frac{\partial p_{r,x}}{\partial \alpha} L_{r,n_{\rm{root}}}\left(x\right) + p_{r,x} \frac{\partial L_{r,n_{\rm{root}}}\left(x\right)}{\partial \alpha}\right).
+   \frac{\partial \ln\left[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)\right]}{\partial \alpha} &=&
+   \frac{\frac{\partial}{\partial \alpha}\left[ \left(\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)\right) \times \left(\prod\limits_n U_{r,n}\right) \right]}{\left(\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)\right) \times \left(\prod\limits_n U_{r,n}\right)} \\
+   &=&
+   \frac{\left(\sum\limits_x \left[\frac{\partial p_{r,x}}{\partial \alpha} 
+   \tilde{L}_{r,n_{\rm{root}}}\left(x\right) + p_{r,x}\frac{\partial \tilde{L}_{r,n_{\rm{root}}}\left(x\right)}{\partial \alpha}\right]\right) \times \left(\prod\limits_n U_{r,n}\right) + \left(\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)\right) \times \frac{\partial \left(\prod\limits_n U_{r,n}\right)}{\partial \alpha}}
+   {\left(\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)\right) \times \left(\prod\limits_n U_{r,n}\right)} \\
+   &=& 
+   \frac{\sum_x \left(\frac{\partial p_{r,x}}{\partial \alpha} \tilde{L}_{r,n_{\rm{root}}}\left(x\right) + p_{r,x} \frac{\partial \tilde{L}_{r,n_{\rm{root}}}\left(x\right)}{\partial \alpha}\right)}{\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)} + \frac{\frac{\partial \left(\prod\limits_n U_{r,n}\right)}{\partial \alpha}}{\prod\limits_n U_{r,n}}.
 
-I've sort of lost track of what all this algebra shows, except that I can re-derive the expression for :math:`\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \alpha}` in terms of :math:`L` or :math:`\tilde{L}`.
+For reasons that are not immediately obvious to me but are clearly verified by numerical testing, this last term of :math:`\frac{\frac{\partial \left(\prod\limits_n U_{r,n}\right)}{\partial \alpha}}{\prod\limits_n U_{r,n}}` is zero, and so
+
+.. math::
+
+   \frac{\partial \ln\left[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)\right]}{\partial \alpha} =
+   \frac{\sum_x \left(\frac{\partial p_{r,x}}{\partial \alpha} \tilde{L}_{r,n_{\rm{root}}}\left(x\right) + p_{r,x} \frac{\partial \tilde{L}_{r,n_{\rm{root}}}\left(x\right)}{\partial \alpha}\right)}{\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)}.
+
+In practice, we work with the :math:`\tilde{L}_{r,n}\left(x\right)` values, and then apply the correction of adding :math:`\sum_n \ln\left(U_r,n\right)` at the end.
+
 
 Derivatives with respect to branch lengths
 --------------------------------------------
