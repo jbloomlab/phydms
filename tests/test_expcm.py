@@ -240,7 +240,7 @@ class testExpCM(unittest.TestCase):
                         for y in range(N_CODON):
                             diff = scipy.optimize.check_grad(funcM, funcdM, pvalue,
                                     pname, t, self.expcm, r, x, y, storedvalues) 
-                            self.assertTrue(diff < 1e-3, ("diff {0} for {1}:" +
+                            self.assertTrue(diff < 2e-3, ("diff {0} for {1}:" +
                                 " r = {2}, x = {3}, y = {4}, beta = {5} " +
                                 "pirAx = {6}, pirAy = {7}, t = {8}, mu = {9}"
                                 ).format(diff, pname, r, x, y, 
