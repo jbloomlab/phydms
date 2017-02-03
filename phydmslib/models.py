@@ -1051,8 +1051,12 @@ class YNGKP_M0(Model):
         assert scipy.allclose(self.phi.sum(axis = 1),\
                 scipy.ones(3, dtype='float'),atol=1e-4, rtol=5e-3),\
                 "The `phi` values do not sum to 1 for all `p`"
-        assert (((self.e_pw - self.phi) * STOP_POSITIONS) >= 0.0).all(),\
-                "Illogical `phi` values"
+        # Not certain that this test should always be true,
+        # so commenting it out.
+        #assert (((self.e_pw - self.phi) * STOP_POSITIONS) >= 0.0).all(), (
+        #        "Illogical `phi` values:\nphi = {0}\ne_pw = {1}\n"
+        #        "(e_pw - phi) * STOP_POSITIONS = {2}".format(self.phi,
+        #        self.e_pw, (self.e_pw - self.phi) * STOP_POSITIONS))
 
         self.Phi_x = scipy.ones(N_CODON, dtype='float')
         self._calculate_Phi_x()
@@ -1185,7 +1189,6 @@ class YNGKP_M0(Model):
             for pos in range(3):
                 self.Phi_x[codon] *= self.phi[pos][CODON_NT_INDEX[pos][codon]]
 
-
     def updateParams(self, newvalues, update_all=False):
         """See docs for `Model` abstract base class."""
         assert all(map(lambda x: x in self.freeparams, newvalues.keys())),\
@@ -1300,7 +1303,7 @@ class YNGKP_M0(Model):
 
     def _update_Pxy(self):
         """Update `Pxy` using current `omega`, `kappa`, and `Phi_x`."""
-        scipy.copyto(self.Pxy, self.Phi_x.transpose(), where=CODON_SINGLEMUT) # QUESTION: is this getting Phi_x[y] into column y, or is it messing up the rows and columns?
+        scipy.copyto(self.Pxy, self.Phi_x.transpose(), where=CODON_SINGLEMUT)
         self.Pxy[0][CODON_NONSYN] *= self.omega
         self.Pxy[0][CODON_TRANSITION] *= self.kappa
         _fill_diagonals(self.Pxy, self._diag_indices)
