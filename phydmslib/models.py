@@ -915,7 +915,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
                     (1 + self.omega2 * self.deltar[r]), where=CODON_NONSYN)
 
 class YNGKP_M0(Model):
-    """YNGKP_M0 model from Yang et al, 2000
+    """YNGKP_M0 model from Yang et al, 2000.
 
     See `__init__` method for how to initialize an `YNGKP_M0`.
 
@@ -930,7 +930,7 @@ class YNGKP_M0(Model):
         `omega` (float > 0)
             Nonsynonymous to synonymous substitution ratio.
         `Pxy` (`numpy.ndarray` of floats, shape `(1, CODON, N_CODON)`
-            `Prxy[0][x][y]` is substitution rate from codon `x` to `y`.
+            `Pxy[0][x][y]` is substitution rate from codon `x` to `y`.
             Diagonal elements make rows sum to zero.
         `dPxy` (dict)
             Keyed by each string in `freeparams`, each value is `numpy.ndarray`
@@ -938,8 +938,8 @@ class YNGKP_M0(Model):
             The shape of each array `(1, N_CODON, N_CODON)`.
         `e_pw` (scipy.ndarray, shape `(3, N_NT)`)
             The empirical nucleotide frequencies for each position in a codon
-            measured from the alignment. `e_pw[p][w]` give the frequency of nucleotide
-            `w` at codon position `p`.
+            measured from the alignment. `e_pw[p][w]` give the frequency of
+            nucleotide `w` at codon position `p`.
         `Phi_x` (scipy.ndarray, shape `(NT_NT,)`)
             The codon frequencies calculated from the `phi_pw` frequencies.
             `Phi_x[x]` = phi_pw[0][x0] * phi_pw[1][x1] * phi_pw[2][x2]
@@ -948,11 +948,11 @@ class YNGKP_M0(Model):
             computed using the `CF3X4` estimator. `phi_pw[p][w]` is the model
             frequency of nucleotide `w` at codon position `p`.
 
-    Unlike the `ExpCM`, the YNGKP_M0 does not have site-specific calculations.
-    In order to maintain consistency, most attributes, such as Pxy and dPxy
+    Unlike the `ExpCM`, `YNGKP_M0` does not have site-specific calculations.
+    In order to maintain consistency, most attributes, such as `Pxy` and `dPxy`
     do have a single "site" dimension which is carried through the calculations.
     When `M` and `dM` are returned, the single site matrix is repeated so the
-    final dimensions of `M` and `dM` are match those in the docs for the `Modes`
+    final dimensions of `M` and `dM` are match those in the docs for the `Models`
     abstract base class.
 
     The model nucleotide frequences, `phi_pw` are computed using the
@@ -963,7 +963,7 @@ class YNGKP_M0(Model):
     """
 
     # class variables
-    _ALLOWEDPARAMS = ['kappa', 'omega', 'mu',]
+    _ALLOWEDPARAMS = ['kappa', 'omega', 'mu']
     _PARAMLIMITS = {'kappa':(0.01, 100.0),
                    'omega':(0.01, 100.0),
                    'mu':(1.0e-3, 1.0e3),
@@ -994,7 +994,7 @@ class YNGKP_M0(Model):
                 Model params described in main class doc string.
             `freeparams` (list of strings)
                 Specifies free parameters.
-            `e_pw`, `nsites`, `phi_pw`
+            `e_pw`, `nsites`
                 Meaning described in the main class doc string.
         """
         _checkParam('e_pw', e_pw, self.PARAMLIMITS, self._PARAMTYPES)
@@ -1003,13 +1003,13 @@ class YNGKP_M0(Model):
         assert scipy.allclose(self.phi_pw.sum(axis = 1),\
                 scipy.ones(3, dtype='float'),atol=1e-4, rtol=5e-3),\
                 "The `phi_pw` values do not sum to 1 for all `p`"
-        assert (((self.e_pw - self.phi_pw) *STOP_POSITIONS) >= 0.0).all(), "Illogical `phi_pw` values"
+        assert (((self.e_pw - self.phi_pw) * STOP_POSITIONS) >= 0.0).all(),\
+                "Illogical `phi_pw` values"
 
         self.Phi_x = scipy.ones(N_CODON, dtype='float')
         self._calculate_Phi_x()
         self._nsites = nsites
         assert self._nsites > 0, "There must be more than 1 site in the gene"
-
 
         #check allowed params
         assert all(map(lambda x: x in self.ALLOWEDPARAMS, freeparams)),\
@@ -1046,11 +1046,11 @@ class YNGKP_M0(Model):
         self._diag_indices = scipy.diag_indices(N_CODON)
         self.updateParams({}, update_all=True)
 
-
     @property
     def stationarystate(self):
         """See docs for `Model` abstract base class."""
-        return scipy.tile(self.Phi_x, (self.nsites, 1)) #repeat the single state by the number sites
+        #repeat the single state by the number sites
+        return scipy.tile(self.Phi_x, (self.nsites, 1)) 
 
     def dstationarystate(self, param):
         """See docs for `Model` abstract base class."""
@@ -1079,7 +1079,7 @@ class YNGKP_M0(Model):
     def _calculate_correctedF3X4(self):
         '''Calculate `phi_pw` based on the empirical `e_pw` values'''
         def F(phi_pw):
-            phi_pw_reshape = phi_pw.reshape((3,4))
+            phi_pw_reshape = phi_pw.reshape((3, N_NT))
             functionList = []
             stop_frequency = []
 
@@ -1096,7 +1096,7 @@ class YNGKP_M0(Model):
                         if STOP_CODON_TO_NT_INDICES[x][p][w] == 1:
                             s += stop_frequency[x]
                     functionList.append((phi_pw_reshape[p][w] - s)/(1 - C)
-                        - self.e_pw[p][w])
+                            - self.e_pw[p][w])
             return functionList
 
         phi_pw = self.e_pw.copy().flatten()
@@ -1104,7 +1104,7 @@ class YNGKP_M0(Model):
             result = scipy.optimize.root(F, phi_pw,
                     tol=1e-8)
             assert result.success, "Failed: {0}".format(result)
-            return result.x.reshape((3,N_NT))
+            return result.x.reshape((3, N_NT))
 
     def _calculate_Phi_x(self):
         """Calculate `Phi_x` (stationary state) from `phi_pw`."""
@@ -1112,6 +1112,7 @@ class YNGKP_M0(Model):
         for codon in range(N_CODON):
             for pos in range(3):
                 self.Phi_x[codon] *= self.phi_pw[pos][CODON_NT_INDEX[pos][codon]]
+
 
     def updateParams(self, newvalues, update_all=False):
         """See docs for `Model` abstract base class."""
@@ -1302,6 +1303,7 @@ def _checkParam(param, value, paramlimits, paramtypes):
         if not (lowlim <= value <= highlim):
             raise ValueError("{0} must be >= {1} and <= {2}, not {3}".format(
                     param, lowlim, highlim, value))
+
 
 def _fill_diagonals(m, diag_indices):
     """Fills diagonals of `nsites` matrices in `m` so rows sum to 0."""
