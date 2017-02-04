@@ -64,3 +64,4 @@
 .. _`full list of contributors`: https://github.com/jbloomlab/phydms/contributors
 .. _`pyvolve`: http://sjspielman.org/pyvolve/
 .. _`Spielman and Wilke, PLoS One, 10:e0139047`: http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0139047
+.. _`Pond et al, PLoS One, 5:e11230`: http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0011230

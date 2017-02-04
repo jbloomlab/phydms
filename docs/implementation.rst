@@ -1,8 +1,11 @@
 .. _implementation:
 
 =======================================================
-Numerical implementation of likelihood and gradients
+Numerical implementation 
 =======================================================
+
+This page contains some information on the numerical implementation of `phydms`_, particularly in regards to how the likelihoods and its derivatives are computed.
+It may be of help in trying to understand the code.
 
 .. contents::
    :depth: 2
@@ -225,7 +228,7 @@ where :math:`\operatorname{bool}\left(i \le j\right)` is 1 if :math:`i \le j` an
    \\ 
 
 
-ExpCM with empirical nucleotide frequencies
+*ExpCM* with empirical nucleotide frequencies
 ----------------------------------------------
 In the description above, the nucleotide frequencies :math:`\phi_w` are fit as three free parameters. 
 Now let's consider the case where we instead calculate them empirically to give a stationary state that implies nucleotide frequencies that match those empirically observed in the alignment.
@@ -344,8 +347,8 @@ So:
 
 where :math:`\left[\frac{\partial p_{r,x}}{\partial \beta}\right]_{\mbox{free } \phi_w}` is the expresssion given by Equation :eq:`dprx_dbeta`.
 
-ExpCM with empirical nucleotide frequencies and diversifying pressure
----------------------------------------------------------------------
+*ExpCM* with empirical nucleotide frequencies and diversifying pressure
+-------------------------------------------------------------------------
 The :math:`\omega` value in the previous models is the gene-wide relative rate of nonsynonymous to synonymous mutations after accounting for the differing preferences among sites.  
 In some cases, it might be possible to specify *a priori* expections for the diversifying pressure at each site. 
 For instance, viruses benefit from amino-acid change in sites targeted by the immune system and, consequently, these sites have a higher rate of amino-acid substitution than expected given their level of inherent functional constraint. 
@@ -378,6 +381,83 @@ We have added one more parameter to Equation :eq:`Prxy`, :math:`\omega_2`, so we
    \omega \times \delta_r \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} \times Q_{xy} & \mbox{if $\operatorname{A}\left(x\right) \ne \operatorname{A}\left(y\right)$,} \\
    -\sum\limits_{z \ne x} \frac{\partial P_{r,xy}}{\partial \omega_2} & \mbox{if $x = y$.}
    \end{cases}. 
+
+*YNGKP_M0* model
+------------------
+We consider the basic Goldman-Yang style *YNGKP_M0* substitution model defined in `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_.
+This model is **not** site-specific.
+:math:`P_{xy}` is the substitution rate from codon `x` to codon `y` and is defined by
+
+.. math::
+  :label: Pxy_M0
+
+  P_{xy} =
+  \begin{cases}
+  0 & \mbox{if $x$ and $y$ differ by more than one nucleotide,}\\
+  \mu \omega \Phi_{y} & \mbox{if $x$ is converted to $y$ by a single-nucleotide transversion,} \\
+  \kappa \mu \omega \Phi_{y} & \mbox{if $x$ is converted to $y$ by a single-nucleotide transition,} \\
+  -\sum\limits_{z \ne x} P_{xz} & \mbox{if $x = y$.}
+  \end{cases}
+
+where :math:`\kappa` is the transition-transversion ratio, :math:`\Phi_y` is the equilibrium frequency of
+codon :math:`y`, :math:`\omega` is the gene-wide rate of non-synonymous change, and :math:`\mu` is the substitution rate.
+Typically :math:`\Phi_y` is determined empirically as described below, 
+and :math:`\kappa` and :math:`\omega` are optimized by maximum likelihood.
+
+The derivatives are:
+
+.. math::
+   :label: dPxy_dkappa_M0
+
+   \frac{\partial P_{xy}}{\partial \kappa}
+   &=&
+   \begin{cases}
+   \frac{P_{xy}}{\kappa} & \mbox{if $x$ is converted to $y$ by a transition of a nucleotide to $w$,} \\
+   0 & \mbox{if $x$ and $y$ differ by something other than a single transition,} \\
+   -\sum\limits_{z \ne x} \frac{\partial P_{xz}}{\partial \kappa} & \mbox{if $x = y$.}
+   \end{cases}
+
+.. math::
+      :label: dPxy_domega_M0
+
+      \frac{\partial P_{xy}}{\partial \omega} =
+      \begin{cases}
+      0 & \mbox{if $\operatorname{A}\left(x\right) = \operatorname{A}\left(y\right)$ and $x \ne y$} \\
+      \frac{P_{xy}}{\omega} & \mbox{if $\operatorname{A}\left(x\right) \ne \operatorname{A}\left(y\right)$,} \\
+      -\sum\limits_{z \ne x} \frac{\partial P_{xz}}{\partial \omega} & \mbox{if $x = y$.}
+      \end{cases}
+
+The stationary state of the substitution model defined by :math:`P_{xy}` is
+
+.. math::
+  :label: px_M0
+
+  p_{x} = \Phi_x
+
+The derivatives of the stationary state with respect to :math:`\kappa` and :math:`\omega` are zero as these do not affect that state, so:
+
+.. math::
+   :label: dprx_dkappadomega_M0
+
+   \frac{\partial p_{x}}{\partial \kappa} = \frac{\partial p_{x}}{\partial \omega} = 0
+
+We calculate the codon frequencies :math:`\Phi_x` from the observed nucleotide frequencies.
+
+The original *F3X4* method calculated :math:`\Phi_x` directly from the empirical alignment frequencies. Specifically, let :math:`e^p_w` be the empirical frequency of nucleotide :math:`w` at codon position :math:`p`. In the original *F3X4* method, 
+:math:`\Phi_x = e^1_{x_1} \times e^2_{x_2} \times e^3_{x_3}`.
+This method produces biased codon frequencies because the stop codon nucleotide composition is not taken into account.
+
+To address this issue, we follow the *Corrected F3X4* (or *CF3X4*) method from `Pond et al, PLoS One, 5:e11230`_.
+The 12 nucleotide corrected nucleotide frequency parameters :math:`\phi_w^p` are estimated from the observed nucleotide frequencies by solving a set of 12 nonlinear equations:
+
+.. math::
+      :label: phi_pw
+
+      e^1_w = \frac{\phi^1_w \times \left(1- \sum\limits_{wyz\epsilon X} \phi^2_y\times\phi^3_z\right)}{1-\sum\limits_{xyz\epsilon X} \phi^1_x\times\phi^2_y\times\phi^3_z}\\
+      e^2_w = \frac{\phi^2_w \times \left(1- \sum\limits_{ywz\epsilon X} \phi^1_y\times\phi^3_z\right)}{1-\sum\limits_{xyz\epsilon X} \phi^1_x\times\phi^2_y\times\phi^3_z}\\
+      e^3_w = \frac{\phi^3_w \times \left(1- \sum\limits_{yzw\epsilon X} \phi^1_y\times\phi^2_z\right)}{1-\sum\limits_{xyz\epsilon X} \phi^1_x\times\phi^2_y\times\phi^3_z}\\
+
+where :math:`X = \{TAA, TAG, TGA\}`. We use the :math:`\phi^p_w` values determined in this way to compute :math:`\Phi_x = \phi^1_{x_1} \times \phi^2_{x_2} \times \phi^3_{x_3}`.
 
 Exponentials of the substitution matrix and derivatives
 --------------------------------------------------------

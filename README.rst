@@ -9,9 +9,12 @@ See the `phydms documentation`_ for information about using ``phydms`` and detai
 
 The `phydms source code`_ is freely available under a `GPLv3`_ license.
 
+If you use ``phydms``, please `cite it appropriately`_.
+
 
 .. _`Jesse Bloom`: http://research.fhcrc.org/bloom/en.html
 .. _`phydms documentation`: http://jbloomlab.github.io/phydms/
 .. _`phydms source code`: https://github.com/jbloomlab/phydms
 .. _`GPLv3`: http://www.gnu.org/copyleft/gpl.html
 .. _`Bloom lab`: http://labs.fhcrc.org/bloom
+.. _`cite it appropriately`: http://jbloomlab.github.io/phydms/acknowledgments.html

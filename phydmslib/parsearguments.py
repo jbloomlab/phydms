@@ -12,7 +12,7 @@ import phydmslib.constants
 
 
 # allowed variants of YNGKP models
-yngkp_modelvariants = ['M0', 'M1', 'M2', 'M3', 'M7', 'M8']
+yngkp_modelvariants = ['M0']
 
 class ArgumentParserNoArgHelp(argparse.ArgumentParser):
     """Like *argparse.ArgumentParser*, but prints help when no arguments."""

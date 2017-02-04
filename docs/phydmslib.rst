@@ -52,6 +52,14 @@ phydmslib.plot module
     :undoc-members:
     :show-inheritance:
 
+phydmslib.simulate module
+-------------------------
+
+.. automodule:: phydmslib.simulate
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 phydmslib.treelikelihood module
 -------------------------------
 
