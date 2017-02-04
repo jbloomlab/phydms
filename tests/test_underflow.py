@@ -9,16 +9,11 @@ import scipy
 import math
 import unittest
 import random
-import io
-import copy
 import phydmslib.models
 import phydmslib.file_io
 import phydmslib.treelikelihood
 from phydmslib.constants import *
-import Bio.SeqIO
 import Bio.Phylo
-import pyvolve
-
 
 
 class test_underflow(unittest.TestCase):

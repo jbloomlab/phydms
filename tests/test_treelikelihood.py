@@ -1,6 +1,6 @@
 """Tests `phydmslib.treelikelihood.TreeLikelihood`.
 
-Written by Jesse Bloom.
+Written by Jesse Bloom and Sarah Hilton.
 """
 
 import os
@@ -12,13 +12,12 @@ import random
 import copy
 import scipy
 import scipy.optimize
-import matplotlib
-matplotlib.use('pdf')
-import matplotlib.pyplot as plt
 import Bio.Phylo
 import phydmslib.models
 import phydmslib.treelikelihood
+import phydmslib.simulate
 from phydmslib.constants import *
+import pyvolve
 
 
 class test_TreeLikelihood_ExpCM(unittest.TestCase):
@@ -34,45 +33,47 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         scipy.random.seed(1)
 
         # define tree and write image to a file
-        self.newick = ('(($node_1=CAACATGCA$:0.2,$node_2=CAGCAGACA$:0.3)'
-                       '$node_4=x$:0.3,$node_3=GAAAAGGCG$:0.5)$node_5=y$:0.04;')
+        self.newick = ('((node1:0.2,node2:0.3)node4:0.3,node3:0.5)node5:0.04;')
         tempfile = '_temp.tree'
         with open(tempfile, 'w') as f:
             f.write(self.newick)
         self.tree = Bio.Phylo.read(tempfile, 'newick')
         os.remove(tempfile)
-        branch_labels = {} # branch annotations
         self.brlen = {}
-        cladebyname = dict([(clade.name, clade) for clade in
-                self.tree.find_clades()])
         for (name, brlen) in re.findall(
-                '(?P<name>\$node_\d\=[A-z]+\$)\:(?P<brlen>\d+\.\d+)',
-                self.newick):
+                '(?P<name>node\d):(?P<brlen>\d+\.\d+)', self.newick):
             if name != self.tree.root.name:
-                i = name.split('=')[0][-1] # node number
-                branch_labels[cladebyname[name]] = "$t_{0}={1}$".format(
-                        i, brlen)
+                i = name[-1] # node number
                 self.brlen[int(i)] = float(brlen)
-        matplotlib.rc('text', usetex=True)
-        Bio.Phylo.draw(self.tree, do_show=False, branch_labels=branch_labels)
-        plt.axis('off')
-        plt.savefig('test_treelikelihood_image.pdf')
 
-        # define alignment
+        # simulate alignment with pyvolve
+        pyvolvetree = pyvolve.read_tree(tree=self.newick)
+        self.nsites = 60
         self.nseqs = self.tree.count_terminals()
-        self.nsites = 3
-        self.alignment = []
+        e_pw = scipy.ndarray((3, N_NT), dtype='float')
+        e_pw.fill(0.25)
+        yngkp_m0 = phydmslib.models.YNGKP_M0(e_pw, self.nsites)
+        partitions = phydmslib.simulate.pyvolvePartitionsYNGKP_M0(yngkp_m0)
+        alignment = '_temp_simulatedalignment.fasta'
+        info = '_temp_info.txt'
+        rates = '_temp_ratefile.txt'
+        evolver = pyvolve.Evolver(partitions=partitions, tree=pyvolvetree)
+        evolver(seqfile=alignment, infofile=info, ratefile=rates)
+        self.alignment = [(s.description, str(s.seq)) for s in Bio.SeqIO.parse(
+                alignment, 'fasta')]
+        for f in [alignment, info, rates]:
+            os.remove(f)
+        assert len(self.alignment[0][1]) == self.nsites * 3
+        assert len(self.alignment) == self.nseqs
         self.codons = {} # indexed by node, site, gives codon index
         for node in self.tree.get_terminals():
-            seq = node.name.split('=')[1][ : -1]
-            i = int(node.name.split('=')[0][-1]) # node number
+            node = node.name
+            i = int(node[-1])
             self.codons[i] = {}
-            assert len(seq) == 3 * self.nsites
-            self.alignment.append((node.name, seq))
+            seq = [seq for (head, seq) in self.alignment if node == head][0]
             for r in range(self.nsites):
                 codon = seq[3 * r : 3 * r + 3]
                 self.codons[i][r] = CODON_TO_INDEX[codon]
-        assert len(self.alignment) == self.nseqs
 
         # define model
         self.prefs = []
@@ -92,6 +93,10 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             divpressure /= max(abs(divpressure))
             self.model = phydmslib.models.ExpCM_empirical_phi_divpressure(
                     self.prefs, g, divpressure)
+        elif self.MODEL == phydmslib.models.YNGKP_M0:
+            e_pw = scipy.random.uniform(0.2, 0.8, size=(3, N_NT))
+            e_pw = e_pw / e_pw.sum(axis=1, keepdims=True)
+            self.model = phydmslib.models.YNGKP_M0(e_pw, self.nsites)
         else:
             raise ValueError("Unrecognized MODEL: {0}".format(self.MODEL))
 
@@ -113,21 +118,8 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
 
     def test_TreeLikelihood_paramsarray(self):
         """Tests `TreeLikelihood` params array setting and getting."""
-        random.seed(1)
-        scipy.random.seed(1)
+        modelparams = self.getModelParams(seed=1)
         model = copy.deepcopy(self.model)
-        modelparams = {
-                'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
-                'mu':random.uniform(0.2, 2.0),
-                'beta':random.uniform(0.8, 1.3),
-                'kappa':random.uniform(0.5, 5.0),
-                'omega':random.uniform(0.1, 2),
-                }
-        if self.MODEL == phydmslib.models.ExpCM_empirical_phi_divpressure:
-            modelparams['omega2'] = random.uniform(0.1, 1)
-        for param in list(modelparams.keys()):
-            if param not in model.freeparams:
-                del modelparams[param]
         model.updateParams(modelparams)
         tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, model)
@@ -195,18 +187,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
                     self.alignment, self.model)
 
         for itest in range(2):
-            random.seed(itest)
-            scipy.random.seed(itest)
-            modelparams = {
-                    'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
-                    'mu':random.uniform(0.2, 2.0),
-                    'beta':random.uniform(0.8, 1.2),
-                    'kappa':random.uniform(0.5, 5.0),
-                    'omega':random.uniform(0.1, 2),
-                    }
-            for param in list(modelparams.keys()):
-                if param not in self.model.freeparams:
-                    del modelparams[param]
+            modelparams = self.getModelParams(seed=itest)
             tl.updateParams(modelparams)
 
             def func(x, i):
@@ -222,7 +203,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             for iparam in range(len(tl.paramsarray)):
                 diff = scipy.optimize.check_grad(func, dfunc,
                         scipy.array([tl.paramsarray[iparam]]), iparam)
-                self.assertTrue(diff < 5e-4, "{0} has diff {1}".format(
+                self.assertTrue(diff < 2e-3, "{0} has diff {1}".format(
                         tl._index_to_param[iparam], diff))
 
     def test_MaximizeLikelihood(self):
@@ -235,18 +216,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         logliks = []
         paramsarrays = []
         for itest in range(3):
-            random.seed(itest)
-            scipy.random.seed(itest)
-            modelparams = {
-                    'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
-                    'mu':random.uniform(0.2, 2.0),
-                    'beta':random.uniform(0.8, 1.3),
-                    'kappa':random.uniform(0.5, 5.0),
-                    'omega':random.uniform(0.1, 2),
-                    }
-            for param in list(modelparams.keys()):
-                if param not in self.model.freeparams:
-                    del modelparams[param]
+            modelparams = self.getModelParams(itest)
             tl.updateParams(modelparams)
             startloglik = tl.loglik
             result = tl.maximizeLikelihood()
@@ -263,16 +233,35 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             logliks.append(tl.loglik)
             paramsarrays.append(tl.paramsarray)
 
+    def getModelParams(self, seed):
+        """Dictionary of random model params using random number seed `seed`."""
+        random.seed(seed)
+        scipy.random.seed(seed)
+        modelparams = {}
+        for param in self.model.freeparams:
+            pvalue = getattr(self.model, param)
+            if isinstance(pvalue, float):
+                modelparams[param] = random.uniform(0.5, 1.5)
+            elif isinstance(pvalue, scipy.ndarray) and pvalue.ndim == 1:
+                modelparams[param] = scipy.random.dirichlet([6] * len(pvalue))
+            else:
+                raise ValueError("Can't handle {0}".format(param))
+        return modelparams
+
 
 class test_TreeLikelihood_ExpCM_empirical_phi(test_TreeLikelihood_ExpCM):
-    """Tests `test_TreeLikelihood_ExpCM` for `ExpCM_empirical_phi` model."""
+    """Tests `TreeLikelihood` for `ExpCM_empirical_phi` model."""
     MODEL = phydmslib.models.ExpCM_empirical_phi
 
 
 class test_TreeLikelihood_ExpCM_empirical_phi_divpressure(test_TreeLikelihood_ExpCM):
-    """Tests `test_TreeLikelihood_ExpCM` for `ExpCM_empirical_phi_divpressure` model."""
+    """Tests `TreeLikelihood` for `ExpCM_empirical_phi_divpressure` model."""
     MODEL = phydmslib.models.ExpCM_empirical_phi_divpressure
 
+
+class test_TreeLikelihood_YNGKP_M0(test_TreeLikelihood_ExpCM):
+    """Tests `TreeLikelihood` for `YNGKP_M0` model."""
+    MODEL = phydmslib.models.YNGKP_M0
 
 
 if __name__ == '__main__':
