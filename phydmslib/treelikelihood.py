@@ -281,7 +281,10 @@ class TreeLikelihood(object):
         assert len(self.paramsarray) > 0, "There are no parameters to optimize"
         result = scipy.optimize.minimize(func, self.paramsarray,
                 method='L-BFGS-B', jac=dfunc, bounds=self.paramsarraybounds)
-        assert result.success, "Optimization failed:\n{0}".format(result.message) 
+        assert result.success, ("Optimization failed with this message:\n{0}\n"
+                "Current mu = {1}\nCurrent model params: {2}").format(
+                result.message, self.model.mu, ', '.join(['{0} = {1}'.format(
+                p, pvalue) for (p, pvalue) in self.model.paramsReport.items()])) 
 
         return result
 

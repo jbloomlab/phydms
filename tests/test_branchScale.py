@@ -109,7 +109,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
         treedist /= float(nreplicates)
 
         # We expect nsubs = branchScale * t, but build in some tolerance
-        # of rtol = 0.1 since we simulated finite number of sites.
+        # with rtol since we simulated finite number of sites.
         self.assertTrue(scipy.allclose(nsubs, model.branchScale * t, rtol=0.1),
                 ("Simulated subs per site of {0} is not close "
                 "to expected value of {1} (branchScale = {2}, t = {3})").format(

@@ -84,6 +84,17 @@ def main():
         seqnames = set([head for (head, seq) in alignment])
 
         # process the substitution model
+        freeparams = []
+        if args['brlen'] == 'scale':
+            logger.info("Scaling branch lengths by adding 'mu' parameter "
+                    "to model.\n")
+            freeparams.append('mu')
+        elif args['brlen'] == 'optimize':
+            raise RuntimeError('--brlen of optimize not yet implemented')
+        elif args['brlen'] == 'fix':
+            pass 
+        else:
+            raise ValueError("Invalid --brlen of {0}".format(args['brlen']))
         yngkp_match = re.compile('^YNGKP_M(?P<modelvariant>\d+)$')
         if isinstance(args['model'], str) and yngkp_match.search(args['model']):
             for argname in ['randprefs', 'avgprefs', 'divpressure']:
@@ -96,11 +107,10 @@ def main():
             e_pw = scipy.ones((3,phydmslib.constants.N_NT), dtype='float')
             for p in range(3):
                 for (w, nt) in phydmslib.constants.INDEX_TO_NT.items():
-                    e_pw[p][w] = sum([list(seq)[p::3].count(nt) for (head, seq) in alignment])
-            assert len(set(e_pw.sum(axis = 1))) == 1, "At least one codon position has a different number of nucleotides"
-            assert scipy.any(e_pw.sum(axis= 0) != 0), "At least one nucleotide does not have any counts"
-            e_pw = e_pw / e_pw.sum(axis = 1)[0]
-            freeparams = ["omega", "kappa"]
+                    e_pw[p][w] = sum([list(seq)[p::3].count(nt) for (head, seq) 
+                            in alignment])
+            e_pw = e_pw / e_pw.sum(axis=1)[0]
+            freeparams += ["omega", "kappa"]
             nsites = int(len(alignment[0][1])/3)
             model = phydmslib.models.YNGKP_M0(e_pw, nsites, freeparams=freeparams)
         elif (isinstance(args['model'], tuple) and len(args['model']) == 2 and
@@ -122,11 +132,7 @@ def main():
                     "sites in the alignment").format(prefsfile)
             logger.info(('Successfully read site-specific amino-acid preferences '
                     'for all {0} sites.\n').format(len(prefs)))
-            freeparams = ['kappa', 'omega', 'beta']
-            if args['brlen'] == 'scale':
-                logger.info("Scaling branch lengths by adding 'mu' parameter "
-                        "to model.\n")
-                freeparams.append('mu')
+            freeparams += ['kappa', 'omega', 'beta']
             if args['fitphi']:
                 assert not args['divpressure'], (
                         "Can't use --divpressure and --fitphi")
