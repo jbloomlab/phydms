@@ -12,7 +12,7 @@ import phydmslib.constants
 
 
 # allowed variants of YNGKP models
-yngkp_modelvariants = ['M0']
+yngkp_modelvariants = ['M0', 'M5']
 
 class ArgumentParserNoArgHelp(argparse.ArgumentParser):
     """Like *argparse.ArgumentParser*, but prints help when no arguments."""
@@ -156,8 +156,8 @@ def YNGKPList(modellist):
 
     Removes *M0* if present.
         
-    >>> YNGKPList("M0,M3,M7")
-    ['M3', 'M7']
+    >>> YNGKPList("M0,M5")
+    ['M5']
     """
     models = [m for m in modellist.split(',') if m and m != 'M0'] # don't count M0 as always included
     if not all([m in yngkp_modelvariants for m in models]):
