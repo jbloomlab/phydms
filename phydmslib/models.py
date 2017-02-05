@@ -1347,6 +1347,62 @@ class YNGKP_M0(Model):
                     broadcastMatrixMultiply(self.dPxy[param], self.A))
 
 
+class DistributionModel(six.with_metaclass(abc.ABCMeta, Model)):
+    """Substitution model with a parameter drawn from distribution.
+
+    This abstract base class defines required methods / attributes
+    of substitution models with parameters drawn from a distribution.
+    An example might be where `omega` is drawn from a gamma distribution.
+
+    It requires that the parameter drawn from the distribution does
+    **not** affect the stationary state and only alters the matrix
+    exponentials `M` and `dM` relative to a `Model` where the
+    distributed parameter has a single value. In other words, it
+    allows mixtures over the transition probabilities but **not**
+    over the stationary state.
+    """
+
+    @abc.abstractproperty
+    def ncats(self):
+        """Number of categories for distributed parameter.
+
+        Is an `int` > 1.
+        """
+        pass
+
+    @abc.abstractproperty
+    def catweights(self):
+        """Weight assigned to each category.
+
+        Is a `numpy.ndarray` of `float` of shape `(ncats,)` where each
+        entry is > 0 and the entries sum to one. `catweights[k]` is
+        the weight assigned to category `k` where `0 <= k < ncats`.
+        """
+        pass
+
+    @abc.abstractmethod
+    def M(self, k, t, tips=None, gaps=None):
+        """Matrix exponential `M(mu * t) = exp(mu * t * P)` for category `k`.
+
+        Defined identically as the same method for `Model` except
+        also specifies for which category `k` we are returning the 
+        matrix exponential. `k` is an `int` with `0 <= k < ncats`.
+        """
+        pass
+
+    @abc.abstractmethod
+    def dM(self, k, t, param, Mkt, tips=None, gaps=None):
+        """Derivative of `M(k, t)` with respect to `param`.
+
+        Defined identically as the same method for `Model`
+        except also specifies for which category `k` we are
+        returning the derivative. `k` is an `int` with
+        `0 <= k < ncats`.
+        """
+        pass
+
+
+
 def _checkParam(param, value, paramlimits, paramtypes):
     """Checks if `value` is allowable value for `param`.
 
@@ -1402,7 +1458,7 @@ def DiscreteGamma(alpha, beta, ncats):
             Shape parameter of gamma distribution.
         `beta` (`float` > 0)
             Inverse scale parameter of gamma distribution.
-        `ncats` (`int` > 0)
+        `ncats` (`int` > 1)
             Number of categories in discretized gamma distribution.
 
     Returns:
@@ -1425,7 +1481,7 @@ def DiscreteGamma(alpha, beta, ncats):
     """
     assert alpha > 0
     assert beta > 0
-    assert ncats > 0
+    assert ncats > 1
     scale = 1.0 / beta
     catmeans = scipy.ndarray(ncats, dtype='float')
     for k in range(ncats):

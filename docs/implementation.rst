@@ -723,12 +723,12 @@ Specifically, let the :math:`\omega` values be drawn from :math:`K` discrete cat
    \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right) =
    \frac{1}{K} \sum_{k=0}^{K-1} \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_k}\right)
 
-and the derivative is simply
+and the derivative with respect to model parameter :math:`\lambda` is simply
 
 .. math::
 
-   \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \alpha} =
-   \frac{1}{K} \sum_{k=1}^K \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_k}\right)}{\partial \alpha}.
+   \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \lambda} =
+   \frac{1}{K} \sum_{k=0}^{K-1} \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_k}\right)}{\partial \lambda}.
 
 The different :math:`\omega_k` values are drawn from the means of a gamma-distribution discretized into :math:`K` categories as described by `Yang, J Mol Evol, 39:306-314`_. Specifically, this gamma distribution is described by a shape parameter :math:`\alpha_{\omega}` and an inverse scale parameter :math:`\beta_{\omega}` such that the probability density function of a continuous :math:`\omega` is given by
 
@@ -754,6 +754,18 @@ The mean for each category :math:`k` is
    \omega_k = \frac{\alpha_{\omega}K}{\beta_{\omega}} \left[\gamma\left(\omega_{k,\rm{upper}} \beta_{\omega}, \alpha_{\omega} + 1\right) - \gamma\left( \omega_{k,\rm{lower}} \beta_{\omega}, \alpha_{\omega} + 1 \right)\right]
 
 where :math:`\gamma` is the lower-incomplete gamma function and can be evaluated by ``scipy.special.gammainc(alpha_omega + 1, omega_k_upper * beta_omega)``.
+
+Note that :math:`\omega_k` is not actually a free parameter, as it is determined by :math:`\alpha_{\omega}` and :math:`\beta_{\omega}`. 
+The derivative of the log likelihood at site :math:`r` with respect to these parameters is simply
+
+.. math::
+
+   \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \alpha_{\omega}} &=&
+   \frac{1}{K} \sum\limits_{k=0}^{K-1} \frac{\partial \omega_k}{\partial \omega_{\alpha}}\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_k}\right)}{\partial \omega_k} \\
+   \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \beta_{\omega}} &=&
+   \frac{1}{K} \sum\limits_{k=0}^{K-1} \frac{\partial \omega_k}{\partial \omega_{\beta}}\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_k}\right)}{\partial \omega_k}.
+
+The derivatives :math:`\frac{\partial \omega_k}{\partial \omega_{\alpha}}` and :math:`\frac{\partial \omega_k}{\partial \omega_{\beta}}` are computed numerically using the finite-difference method.
 
 .. include:: weblinks.txt
  
