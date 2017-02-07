@@ -39,7 +39,7 @@ with open('README.rst') as f:
 
 class lazy_cythonize(list):
     """Lazy evaluation of cythonize so it isn't needed until installed.
-    
+
     Following this:
     http://stackoverflow.com/questions/11010151/distributing-a-shared-library-and-some-c-code-with-a-cython-extension-module
     """
@@ -47,14 +47,14 @@ class lazy_cythonize(list):
         self._list = None
         self.callback = callback
     def c_list(self):
-        if self._list is None: 
+        if self._list is None:
             self._list = self.callback()
         return self._list
     def __iter__(self):
         for e in self.c_list(): yield e
-    def __getitem__(self, ii): 
+    def __getitem__(self, ii):
         return self.c_list()[ii]
-    def __len__(self): 
+    def __len__(self):
         return len(self.c_list())
 
 def extensions():
@@ -70,7 +70,7 @@ def extensions():
 
 # main setup command
 setup(
-    name = 'phydms', 
+    name = 'phydms',
     version = metadata['version'],
     author = metadata['author'],
     author_email = metadata['author_email'],
@@ -87,7 +87,7 @@ setup(
         'scipy>=0.18',
         'matplotlib>=1.5.1',
         'natsort>=5.0.1',
-        'sympy>=1.0', 
+        'sympy>=1.0',
         'six>=1.10',
         'pandas>=0.18',
         'pyvolve>=0.8.4',
@@ -97,7 +97,7 @@ setup(
     ext_modules = lazy_cythonize(extensions),
     scripts = [
             'scripts/phydms',
-#            'scripts/phydms_comprehensive',
+           'scripts/phydms_comprehensive',
             'scripts/phydms_prepalignment',
 #            'scripts/phydms_renumber',
 #            'scripts/phydms_plotselection',
