@@ -10,9 +10,12 @@ Overview
 ------------
 ``phydms_comprehensive`` is a program that simplifies usage of ``phydms`` for standard analyses. Essentially, ``phydms_comprehensive`` runs ``phydms`` for several different models to enable model comparisons and identify selection.
 
-In its simplest usage, you simply provide ``phydms_comprehensive`` with an alignment and one or more files giving site-specific amino-acid preferences. The program then first uses ``phydms`` to infer a tree under the *YNGKP_M0* model (starting from a crude neighbor-joining tree), and then for each set of site-specific amino-acid preferences optimizes this tree (with fixed topology) for an *ExpCM* and a control *ExpCM* with the preferences averaged across sites (the ``phydms`` option ``--avgprefs``). The program also optimizes the tree using the *YNGKP_M8* model. For all models, it detects site-specific selection. It also creates a simple summary that enables comparison among the models.
-
-If this program hangs up on the initial inference of the tree with *YNGKP_M0*, then infer a tree using another tree-building program such as `codonPhyML`_ and then pass that via the ``--treetopology`` option.
+In its simplest usage, you simply provide ``phydms_comprehensive`` with an alignment and one or more files giving site-specific amino-acid preferences.
+The program then first uses ``RAxML`` to infer a tree under the *Jukes Cantor* model.
+Alternatively, you can specify the tree using ``--tree`` flag.
+Then for each set of site-specific amino-acid preferences optimizes this tree (with fixed topology) for an *ExpCM*.
+(and a control *ExpCM* with the preferences averaged across sites (the ``phydms`` option ``--avgprefs``). )
+It also creates a simple summary that enables comparison among the models.
 
 You could get all of this output by simply running ``phydms`` repeatedly, but using ``phydms_comprehensive`` automates this process for you.
 
@@ -35,37 +38,11 @@ Command-line usage
    prefsfiles
     Provide the name of one or more files giving site-specific amino-acid preferences. These files should meet the same specifications described in the ``phydms`` documentation for the *prefsfile* that should accompany an *ExpCM* (see :ref:`phydms_prog`).
 
-   \-\-treetopology
-    By default, ``phydms_comprehensive`` uses ``phydms`` to infer a tree topology under the *YNGKP_M0* model starting from a crude neighbor-joining tree. If you want to instead fix the tree to some existing topology, use this argument and provide the name of a file giving a valid tree in Newick format.
+   \-\-raxml
+     By default, ``phydms_comprehensive`` uses ``RAxML`` to infer a tree topology under the *Jukes Cantor* model and the command ``raxml``. Use this argument to specify a path to ``RAxML`` other than ``raxml``.  The tree inferred by ``RAxML`` can be found in the same directory as the other output files.
 
-   \-\-no-omegabysite 
-    By default, ``phydms_comprehensive`` infers a site-specific :math:`\omega_r` for the tree obtained using each *YNGKP* model and each *ExpCM*. Use this option if you do **not** want to do this.
-
-   \-\-no-stringencybysite 
-    By default, ``phydms_comprehensive`` infers a site-specific :math:`\beta_r` for each *ExpCM*. Use this option if you do **not** want to do this.
-
-   \-\-no-diffprefsbysite 
-    By default, ``phydms_comprehensive`` infers site-specific :math:`\Delta\pi_{r,a}` for each *ExpCM*. Use this option if you do **not** want to do this.
-
-   \-\-diffprefconc
-    See the documentation for ``phydms`` for more details.
-
-   \-\-no-avgprefs
-    As described in the documentation for ``phydms`` (see :ref:`phydms_prog`), there are two sensible controls when using an *ExpCM* model: averaging the preferences across sites or randomizing them across sites. By default, ``phydms_comprehensive`` performs the averaging control (this is the ``--avgprefs`` option to ``phydms``). Use this option if you do **not** want to include this averaging control.
-
-   \-\-yngkp
-    In addition to the *YNGKP_M0* model (which is always used to optimize the initial tree), the program will also optimize any additional *YNGKP* model variants listed here. See the documentation for :ref:`phydms_prog` for more information about these model variants.
-
-    If you don't want to include any additional *YNGKP* models beyond *M0*, use ``--yngkp ""``.
-
-   \-\-randprefs
-    As described in the documentation for ``phydms`` (see :ref:`phydms_prog`), there are two sensible controls when using an *ExpCM* model: averaging the preferences across sites or randomizing them across sites. By default, ``phydms_comprehensive`` performs the averaging control (this is the ``--avgprefs`` option to ``phydms``) but not the randomization control (this is the ``--randprefs`` option to ``phydms``). Use this option if you also want to include the ``--randprefs`` control.
-
-   \-\-avgrandcontrol
-    As described in the documentation for ``phydms`` (see :ref:`phydms_prog`), there are two sensible controls for an *ExpCM* model: randomizing preferences among sites and averaging them across sites. The ``--no-avgprefs`` and ``--randprefs`` options specify whether to perform these controls for the *ExpCM* informed by each of the potentially numerous preferences specified in files listed in ``prefsfiles``. If you have a lot of preference files, you might only want to perform these controls for one of them. In that case, list that one file (which should also be listed in ``prefsfiles``) here. The only control will then be average and random preferences for this one file.
-
-   \-\-use_existing
-    Perhaps some of the output that ``phydms_comprehensive`` will create already exists, such as from a previous run. By default, ``phydsm_comprehensive`` deletes any existing output and re-creates everything from scratch. If you don't want to do that, then use this option. But be careful: ``phydms_comprehensive`` only looks for existing output by file name; if those files were actually generated using a different set of input data or program options, ``phydms_comprehensive`` has no way of determining this.
+   \-\-tree
+     If you want to instead fix the tree to some existing topology, use this argument and provide the name of a file giving a valid tree in Newick format. You cannot specify both ``--tree`` and ``--raxml``.
 
 Output files
 --------------
@@ -75,44 +52,41 @@ Log file
 ++++++++++++
 A file with the suffix ``.log`` will be created that summarizes the overall progress of ``phydms_comprehensive``. If ``outprefix`` is just a directory name, this file will be called ``log.log``.
 
-Model comparison file
+Model comparison files
 +++++++++++++++++++++++++
-A file with the suffix ``_modelcomparison.txt`` (or just the name ``modelcomparison.txt`` if ``outprefix`` is just a directory name) will be created that summarizes the model fitting. Here is an example of the file that would be created if ``phydms_comprehensive`` is passed a single ``prefsfiles`` with the name ``prefs.txt``::
+Two model comparison files will be created, one with the suffix ``modelcomparison.csv`` and one with the suffix ``modelcomparison.md`` to summarize the model fitting.
+Here are examples of the files that would be created if ``phydms_comprehensive`` is passed a single ``prefsfiles`` with the name ``prefs.txt``.
 
-    ======================== ====== ============== ===========================================================================================
-    model                    AIC    log likelihood number parameters (optimized + empirical): optimized values                                
-    ======================== ====== ============== ===========================================================================================
-    ExpCM_prefs              0.0    -4415.2        6 (6 + 0): beta = 2.92, omega = 0.77, kappa = 6.19, phiA = 0.37, phiC = 0.20, phiG = 0.22  
-    YNGKP_M8                 2482.1 -5648.3        14 (5 + 9): pomegas = 0.08, omegas = 1.02, betap = 0.00, betaq = 4.34, kappa = 6.40
-    averaged_ExpCM_prefs     2600.9 -5715.7        6 (6 + 0): beta = 0.32, omega = 0.12, kappa = 6.51, phiA = 0.35, phiC = 0.18, phiG = 0.25  
-    YNGKP_M0                 2619.1 -5719.8        11 (2 + 9): omega = 0.11, kappa = 6.24                                                     
-    ======================== ====== ============== ===========================================================================================
+``modelcomparison.csv``::
 
-In this table, ``ExpCM_prefs`` is the *ExpCM* created using the preferences in ``prefs.txt``, and ``averaged_ExpCM_prefs`` is the *ExpCM* created after averaging the preferences in ``prefs.txt`` across sites (the ``--avgprefs`` option to ``phydms``. 
+  Model,parameter,value
+  YNGKP_M0,kappa,5.78484
+  YNGKP_M0,omega,0.11308
+  YNGKP_M0,phi0A,0.340656
+  YNGKP_M0,phi0C,0.153395
+  YNGKP_M0,phi0G,0.308294
+  YNGKP_M0,phi1A,0.32050300000000004
+  YNGKP_M0,phi1C,0.206698
+  YNGKP_M0,phi1G,0.236844
+  YNGKP_M0,phi2A,0.331485
+  YNGKP_M0,phi2C,0.202991
+  YNGKP_M0,phi2G,0.243997
+  YNGKP_M0,LogLikelihood,-4724.13
+  ExpCM_prefs,beta,2.99308
+  ExpCM_prefs,kappa,6.31356
+  ExpCM_prefs,omega,0.7807689999999999
+  ExpCM_prefs,phiA,0.372278
+  ExpCM_prefs,phiC,0.196416
+  ExpCM_prefs,phiG,0.224367
+  ExpCM_prefs,LogLikelihood,-3389.38
 
-For the *YNGKP_M8* model, ``pomegas`` is the weight assigned to the positively selected (:math:`\omega \gt 1`) category, and ``omegas`` is the value of :math:`\omega` for this category. The ``betaq`` and ``betap`` parameters are the shape of the beta distribution for :math:`\omega < 1`.
-
-The models are ranked by `AIC`_ in terms of difference from the best fitting model. The third column shows the number of parameters. The *YNGKP* models have 9 empirical parameters corresponding to the codon frequencies estimated using the *F3X4* option.
-
-Note that the table is in `reStructuredText`_ format, and so can be converted to attractive HTML using ``rst2html``.
-
-If ``--dateseqs`` is being used, then a file giving the estimated dates to most recent common ancestor (MRCA) is also generated with the suffix ``_mrca_dates.txt`` (or just the name ``mrca_dates.txt`` if ``outprefix`` is just a directory name). Here is an example of such a file::
-
-    ======================= =========
-    model                   MRCA date
-    ======================= =========
-    ExpCM NP prefs          1911.14
-    YNGKP M0                1911.87
-    averaged ExpCM NP prefs 1911.95
-    YNGKP M8                1912.05
-    ======================= =========
 
 ``phydms`` output for each model
 ++++++++++++++++++++++++++++++++++
 For each individual model, there will also be all of the expected ``phydms`` output files as described in :ref:`phydms_prog`. These files will begin with the prefix specified by ``outprefix``, which will be followed by a description of the model. For instance, if the command is::
 
     phydms_comprehensive my_directory/ alignment.fasta prefs1.txt prefs2.txt
-    
+
 then we expect output files with the following prefixes:
 
     * ``my_directory/ExpCM_prefs1_*`` : the *ExpCM* using the preferences in ``prefs1.txt``.
@@ -129,4 +103,3 @@ then we expect output files with the following prefixes:
 
 
 .. include:: weblinks.txt
-   
