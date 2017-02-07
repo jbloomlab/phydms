@@ -66,24 +66,6 @@ def main():
             os.mkdir(outdir)
 
     #setup files
-    logfile = "%{0}.log".format(args['outprefix'])
-
-    #setup models
-    filesuffixlist = ['.log', '_tree.newick', '_loglikelihood.txt', '_modelparams.txt']
-    filesuffixes = {} # keyed by model, values are list of suffixes
-    models = {}
-
-    models = {'YNGKP_M0':('YNGKP_M0', 9)}
-    filesuffixes['YNGKP_M0'] = filesuffixlist
-    for prefsfile in args['prefsfiles']:
-        if re.search('\s', prefsfile):
-            raise ValueError("There is a space in the preferences file name: %s" % prefsfile)
-        prefsfilebase = os.path.splitext(os.path.basename(prefsfile))[0]
-        modelname = 'ExpCM_{0}'.format(prefsfilebase)
-        assert modelname not in filesuffixes, "Duplicate preferences file base name %s for %s; make names unique even after removing directory and extension" % (modelname, prefsfile)
-        filesuffixes[modelname] = filesuffixlist
-        models[modelname] = ('ExpCM_{0}'.format(prefsfile),0)
-
     # file names slightly different depending on whether outprefix is directory or file
     if args['outprefix'][-1] == '/':
         logfile = "{0}log.log".format(args['outprefix'])
@@ -106,6 +88,33 @@ def main():
     logger.addHandler(logfile_handler)
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     logfile_handler.setFormatter(formatter)
+
+    #print some basic information
+    logger.info('Beginning execution of {0} in directory {1}\n'.format(prog, os.getcwd()))
+    logger.info('Progress is being logged to {0}\n'.format(logfile))
+    logger.info('{0}\n'.format(versionstring))
+    #need to format the following:
+    logger.info('Parsed the following command-line arguments:\n {0}'.format(args))
+
+    #setup models
+    filesuffixlist = ['.log', '_tree.newick', '_loglikelihood.txt', '_modelparams.txt']
+    filesuffixes = {} # keyed by model, values are list of suffixes
+    models = {}
+
+    models = {'YNGKP_M0':('YNGKP_M0', 9)}
+    filesuffixes['YNGKP_M0'] = filesuffixlist
+    for prefsfile in args['prefsfiles']:
+        if re.search('\s', prefsfile):
+            raise ValueError("There is a space in the preferences file name: %s" % prefsfile)
+        prefsfilebase = os.path.splitext(os.path.basename(prefsfile))[0]
+        modelname = 'ExpCM_{0}'.format(prefsfilebase)
+        assert modelname not in filesuffixes, "Duplicate preferences file base name %s for %s; make names unique even after removing directory and extension" % (modelname, prefsfile)
+        filesuffixes[modelname] = filesuffixlist
+        models[modelname] = ('ExpCM_{0}'.format(prefsfile),0)
+
+
+
+
 
     #read or build a tree
     if args["tree"]:
@@ -144,12 +153,7 @@ def main():
       except OSError:
           raise ValueError("The raxml command of {0} is not valid. Is raxml installed at this path?".format(args['raxml']))
 
-    #print some basic information
-    logger.info('Beginning execution of {0} in directory {1}\n'.format(prog, os.getcwd()))
-    logger.info('Progress is being logged to {0}\n'.format(logfile))
-    logger.info('{0}\n'.format(versionstring))
-    #need to format the following:
-    logger.info('Parsed the following command-line arguments:\n {0}'.format(args))
+
 
     #check alignment
     logger.info('Checking that the alignment {0} is valid...'.format(args['alignment']))
