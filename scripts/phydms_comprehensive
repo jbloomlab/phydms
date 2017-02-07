@@ -12,6 +12,7 @@ import time
 import logging
 import multiprocessing
 import subprocess
+import glob
 #import signal
 #import Bio.Alphabet.IUPAC
 #import Bio.Phylo
@@ -65,13 +66,13 @@ def main():
             os.mkdir(outdir)
 
     #setup files
-    logfile = "%s.log" % args['outprefix']
+    logfile = "%{0}.log".format(args['outprefix'])
 
     #setup models
     filesuffixlist = ['.log', '_tree.newick', '_loglikelihood.txt', '_modelparams.txt']
     filesuffixes = {} # keyed by model, values are list of suffixes
     models = {}
-    
+
     models = {'YNGKP_M0':('YNGKP_M0', 9)}
     filesuffixes['YNGKP_M0'] = filesuffixlist
     for prefsfile in args['prefsfiles']:
@@ -85,7 +86,7 @@ def main():
 
     # file names slightly different depending on whether outprefix is directory or file
     if args['outprefix'][-1] == '/':
-        logfile = "{0}log.log".format(['outprefix'])
+        logfile = "{0}log.log".format(args['outprefix'])
     else:
         logfile = "{0}.log".format(args['outprefix'])
         args['outprefix'] = '{0}_'.format(args['outprefix'])
@@ -94,7 +95,7 @@ def main():
     #Set up to log everything to logfile.
         # Set up to log everything to logfile.
     if os.path.isfile(logfile):
-        os.remove(logfile)    
+        os.remove(logfile)
     logging.shutdown()
     logging.captureWarnings(True)
     versionstring = phydmslib.file_io.Versions()
@@ -114,7 +115,32 @@ def main():
       try:
           raxmlversion = subprocess.check_output([args['raxml'], '-v'], stderr=subprocess.STDOUT).strip()
           print("Inferring tree with RAxML using {0} {1}".format(args['raxml'], raxmlversion))
-          raise ValueError()#debugging
+
+          #remove pre-existing RAxML files
+          raxmlOutputName = os.path.splitext(os.path.basename(args["alignment"]))[0]
+          raxmlOutputFiles = [n for n in glob.glob("RAxML_*{0}".format(raxmlOutputName)) if os.path.isfile(n)]
+          raxmlOutputFiles = []
+          for raxmlFile in glob.glob("RAxML_*{0}".format(raxmlOutputName)):
+              if os.path.isfile(raxmlFile):
+                  raxmlOutputFiles.append(raxmlFile)
+                  os.remove(raxmlFile)
+          if len(raxmlOutputFiles) > 0:
+              logger.info("Removed the following `RAxML` files: ")
+              logger.info(raxmlOutputFiles) #still need to format
+
+        # run RAxmL
+          raxmlCMD = [args['raxml'], '-s', args['alignment'], '-n', raxmlOutputName,
+                '-m', 'GTRCAT', '-p1', '-T', '2']
+          subprocess.check_call(raxmlCMD)
+
+        # move RAxML tree to output directory and remove all other files
+          for  raxmlFile in glob.glob("RAxML_*{0}".format(raxmlOutputName)):
+              if "bestTree" in raxmlFile:
+                  os.rename(raxmlFile, args["outprefix"] + raxmlFile)
+                  args["tree"] = args["outprefix"] + raxmlFile
+                  logger.info("RAxML inferred tree, {0}, is in {1}.".format(raxmlFile, args["outprefix"]))
+              else:
+                  os.remove(raxmlFile)
       except OSError:
           raise ValueError("The raxml command of {0} is not valid. Is raxml installed at this path?".format(args['raxml']))
 
@@ -151,7 +177,7 @@ def main():
         mtup = models[modelname]
         assert len(mtup) == 2 # should be 3-tuple
         models[modelname] = (mtup[0], ['--ncpus', str(ncpus_per_model[modelname])], mtup[1]) # add to additionalcmds, second tuple element
-        
+
 
     pool = {} # holds process for model name
     started = {} # holds whether process started for model name
@@ -180,11 +206,11 @@ def main():
         (model, additionalcmds, nempirical) = models[modelname]
         outprefix = "%s%s" % (args['outprefix'], modelname)
         treefile = '%s_tree.newick' % outprefix
-        
+
         # set up the commands
         cmds = ['phydms', args['alignment'], args['tree'], model, outprefix] + additionalcmds
         logger.info('Optimizing tree in {0} using the {1} model. The command is: {2}'.format(args['tree'], model, ' '.join(cmds)))
-        
+
         p = multiprocessing.Process(target=RunCmds, args=(cmds,))
         pool[modelname] = p
         completed[modelname] = False

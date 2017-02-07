@@ -293,9 +293,10 @@ def PhyDMSComprehensiveParser():
     parser.add_argument('alignment', help='Existing FASTA file with aligned codon sequences.', type=ExistingFile)
     parser.add_argument('prefsfiles', help='Existing files with site-specific amino-acid preferences.', type=ExistingFile, nargs='+')
     #
-    parser.add_argument('--tree', default=False, type=ExistingFile,
-            help="Existing Newick file giving input tree.")
-    parser.add_argument('--raxml', help="Path to RAxML.", default='raxml')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--tree', default=False, type=ExistingFile,
+             help="Existing Newick file giving input tree.")
+    group.add_argument('--raxml', help="Path to RAxML (http://sco.h-its.org/exelixis/software.html).", default='raxml')
     parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; -1 means all available.', type=int)
     # parser.set_defaults(noomegabysite=False)
     # parser.add_argument('--no-omegabysite', dest='noomegabysite', action='store_true', help="No fitting of site-specific omegas.")

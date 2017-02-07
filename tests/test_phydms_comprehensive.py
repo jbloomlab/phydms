@@ -29,7 +29,7 @@ class test_phydms_comprehensive(unittest.TestCase):
 
 
         subprocess.check_call(['phydms_comprehensive', outprefix, alignment,
-                prefs, "--tree", tree])
+                prefs])
 
 
 if __name__ == '__main__':
