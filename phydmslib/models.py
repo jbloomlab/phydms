@@ -46,7 +46,7 @@ class Model(six.with_metaclass(abc.ABCMeta)):
                 `param` (string in `freeparams`)
 
             Returns:
-                `dstationarystate` (`numpy.ndarray` of floats)
+                `dstationarystate` (`numpy.ndarray` of floats or zero)
                     If `param` is a float, then `dstationarystate[r][x]`
                     is derivative of `stationarystate[r][x]` with respect
                     to `param`. If `param` is an array, then
@@ -1393,7 +1393,7 @@ class DistributionModel(six.with_metaclass(abc.ABCMeta, Model)):
     def M(self, k, t, tips=None, gaps=None):
         """Matrix exponential `M(mu * t) = exp(mu * t * P)` for category `k`.
 
-        Defined identically as the same method for `Model` except
+        Similar to definition for `Model` abstract base class except
         also specifies for which category `k` we are returning the 
         matrix exponential. `k` is an `int` with `0 <= k < ncats`.
         """
@@ -1403,15 +1403,18 @@ class DistributionModel(six.with_metaclass(abc.ABCMeta, Model)):
     def dM(self, k, t, param, Mkt, tips=None, gaps=None):
         """Derivative of `M(k, t)` with respect to `param`.
 
-        Defined identically as the same method for `Model`
+        Similar to definiton for `Model` abstract base class
         except also specifies for which category `k` we are
         returning the derivative. `k` is an `int` with
         `0 <= k < ncats`.
+
+        Also, `param` can be any string in `freeparams` **except**
+        those in `distributionparams`, and can also be `distributedparam`.
         """
         pass
 
 
-def GammaDistributedOmegaModel(DistributionModel):
+class GammaDistributedOmegaModel(DistributionModel):
     """Implements gamma distribution over `omega` for a model.
     
     This model can be used to take a simple substitution model that
@@ -1482,6 +1485,12 @@ def GammaDistributedOmegaModel(DistributionModel):
         self._ncats = ncats
         self._catweights = scipy.ones(self._ncats, dtype='float') / self._ncats
 
+        self.alpha_omega = alpha_omega
+        self.beta_omega = beta_omega
+        self._models = [] # holds array of models for each category
+        for k in range(self.ncats):
+            self._models.append(copy.deepcopy(model))
+
         # get free parameters: omega distribution params, plus model freeparams
         self._freeparams = ['alpha_omega', 'beta_omega']
         for param in model.freeparams:
@@ -1496,12 +1505,24 @@ def GammaDistributedOmegaModel(DistributionModel):
         self._REPORTPARAMS += [param for param in model._REPORTPARAMS if
                 param != self.distributedparam]
 
-        self.alpha_omega = alpha_omega
-        self.beta_omega = beta_omega
-        self._models = [] # holds array of models for each category
-        for k in range(self.ncats):
-            self._models.append(copy.deepcopy(model))
         self.updateParams({}, update_all=True)
+
+    def M(self, k, t, tips=None, gaps=None):
+        """See docs for `DistributionModel` abstract base class."""
+        assert 0 <= k < self.ncats
+        return self._models[k].M(t, tips=tips, gaps=gaps)
+
+    def dM(self, k, t, param, Mkt, tips=None, gaps=None):
+        """See docs for `DistributionModel` abstract base class."""
+        assert 0 <= k < self.ncats
+        assert param in self.freeparams or param == self.distributedparam
+        assert param not in self.distributionparams
+        return self._models[k].dM(t, param, Mkt, tips=tips, gaps=gaps)
+
+    @property
+    def d_distributionparams(self):
+        """See docs for `DistributionModel` abstract base class."""
+        raise RuntimeError('not yet implemented')
 
     def updateParams(self, newvalues, update_all=False):
         """See docs for `Model` abstract base class."""
@@ -1516,14 +1537,15 @@ def GammaDistributedOmegaModel(DistributionModel):
                 if param in newvalues:
                     _checkParam(param, newvalues[param], self.PARAMLIMITS, 
                             self.PARAMTYPES)
-                    setattr(param, newvalues[param])
+                    setattr(self, param, newvalues[param])
             self._omegas = DiscreteGamma(self.alpha_omega, self.beta_omega, 
                     self.ncats)
-            for (k, omega) in zip(self._omegas):
+            for (k, omega) in enumerate(self._omegas):
                 newvalues_list[k][self.distributedparam] = omega
-        for name, value in self.freeparams:
+        for name in self.freeparams:
             if name not in self.distributionparams:
                 if name in newvalues:
+                    value = newvalues[name]
                     _checkParam(name, value, self.PARAMLIMITS, self.PARAMTYPES)
                     setattr(self, name, value)
                     for k in range(self.ncats):
@@ -1539,10 +1561,26 @@ def GammaDistributedOmegaModel(DistributionModel):
         # check to make sure all models have same parameter values
         for param in self.freeparams:
             if param not in self.distributionparams:
-                assert all([getattr(self, param) == getattr(model, param)
+                pvalue = getattr(self, param)
+                assert all([scipy.allclose(pvalue, getattr(model, param))
                         for model in self._models]), ("{0}\n{1}".format(
-                        getattr(self, param), '\n'.join([str(getattr(model, param))
+                        pvalue, '\n'.join([str(getattr(model, param))
                         for model in self._models])))
+
+    @property
+    def paramsReport(self):
+        """See docs for `Model` abstract base class."""
+        report = {}
+        for param in self._REPORTPARAMS:
+            pvalue = getattr(self, param)
+            if isinstance(pvalue, float):
+                report[param] = pvalue
+            elif isinstance(pvalue, scipy.ndarray) and pvalue.shape == (N_NT,):
+                for w in range(N_NT - 1):
+                    report['{0}{1}'.format(param, INDEX_TO_NT[w])] = pvalue[w]
+            else:
+                raise RuntimeError("Unexpected param: {0}".format(param))
+        return report
 
     @property
     def freeparams(self):
@@ -1552,6 +1590,7 @@ def GammaDistributedOmegaModel(DistributionModel):
     @property
     def PARAMLIMITS(self):
         """See docs for `Model` abstract base class."""
+        return self._PARAMLIMITS
 
     @property
     def ncats(self):
@@ -1567,6 +1606,49 @@ def GammaDistributedOmegaModel(DistributionModel):
     def nsites(self):
         """See docs for `Model` abstract base class."""
         return self._nsites
+
+    @property 
+    def mu(self):
+        """See docs for `Model` abstract base class."""    
+        mu = self._models[0].mu
+        assert all([mu == model.mu for model in self._models])
+        return mu
+
+    @mu.setter
+    def mu(self, value):
+        """Set new `mu` value."""
+        for k in range(self.ncats):
+            self._models[k].mu = value
+
+    @property
+    def stationarystate(self):
+        """See docs for `Model` abstract base class."""
+        ss = self._models[0].stationarystate
+        assert all([scipy.allclose(ss, model.stationarystate) for model 
+                in self._models])
+        return ss
+
+    def dstationarystate(self, param):
+        """See docs for `Model` abstract base class."""
+        if param == self.distributedparam or param in self.distributionparams:
+            for m in self._models:
+                ds = m.dstationarystate(self.distributionparam)
+                if isinstance(ds, float):
+                    assert ds == 0
+                else:
+                    assert (0 == ds).all()
+            return 0.0
+        else:
+            assert param in self.freeparams
+            ds = self._models[0].dstationarystate(param)
+            assert all([scipy.allclose(ds == m.dstationarystate(param)) for
+                    m in self._models])
+            return ds
+
+    @property
+    def branchScale(self):
+        """See docs for `Model` abstract base class."""
+        raise RuntimeError('not yet implemented')
 
 
 def _checkParam(param, value, paramlimits, paramtypes):
