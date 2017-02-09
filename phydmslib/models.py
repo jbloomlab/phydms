@@ -505,6 +505,8 @@ class ExpCM(Model):
         """See docs for method in `Model` abstract base class."""
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         assert param in self.freeparams, "Invalid param: {0}".format(param)
+        if Mt is None:
+            Mt = self.M(t, tips=tips, gaps=gaps)
         if param == 'mu':
             if tips is None:
                 dM_param = broadcastMatrixMultiply(self.Prxy, Mt, alpha=t)
@@ -1230,12 +1232,16 @@ class YNGKP_M0(Model):
         """See docs for method in `Model` abstract base class."""
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         assert param in self.freeparams, "Invalid param: {0}".format(param)
+        if Mt is None:
+            Mt = self.M(t, tips=tips, gaps=gaps)
         if param == 'mu':
             if tips is None:
-                dM_param = scipy.tile(broadcastMatrixMultiply(self.Pxy, scipy.tile(Mt[0], (1,1,1)), alpha=t), (self.nsites, 1, 1))
+                dM_param = scipy.tile(broadcastMatrixMultiply(self.Pxy, 
+                        scipy.tile(Mt[0], (1,1,1)), alpha=t), (self.nsites, 1, 1))
             else:
                 #Pxy is tiled over the number of sites
-                dM_param = broadcastMatrixVectorMultiply(scipy.tile(self.Pxy[0], (self.nsites,1,1)), Mt, alpha=t)
+                dM_param = broadcastMatrixVectorMultiply(scipy.tile(self.Pxy[0], 
+                        (self.nsites,1,1)), Mt, alpha=t)
                 if gaps is not None:
                     dM_param[gaps] = scipy.zeros(N_CODON, dtype='float')
             return dM_param
@@ -1443,8 +1449,8 @@ class GammaDistributedOmegaModel(DistributionModel):
             Gamma distribution inverse-scale parameter
     """
 
-    _PARAMLIMITS = {'alpha_omega':(0.05, 5),
-                    'beta_omega':(0.05, 5),
+    _PARAMLIMITS = {'alpha_omega':(0.3, 10),
+                    'beta_omega':(0.3, 10),
                    }
     _REPORTPARAMS = ['alpha_omega', 'beta_omega']
     PARAMTYPES = {'alpha_omega':float,
@@ -1522,7 +1528,27 @@ class GammaDistributedOmegaModel(DistributionModel):
     @property
     def d_distributionparams(self):
         """See docs for `DistributionModel` abstract base class."""
-        raise RuntimeError('not yet implemented')
+        if not self._d_distributionparams:
+            dx = 1.0e-3
+            def f_alpha(alpha):
+                return DiscreteGamma(alpha, self.beta_omega, self.ncats)
+            def f_beta(beta):
+                return DiscreteGamma(self.alpha_omega, beta, self.ncats)
+            assert set(self.distributionparams) == {'alpha_omega', 'beta_omega'}
+            for (param, f) in [('alpha_omega', f_alpha), ('beta_omega', f_beta)]:
+                pvalue = getattr(self, param)
+                dparam = scipy.misc.derivative(f, pvalue, dx, n=1, order=5)
+                assert dparam.shape == (self.ncats,)
+                for stepchange in [0.5, 2]: # make sure robust to step size
+                    dparam2 = scipy.misc.derivative(f, pvalue, stepchange * dx, 
+                            n=1, order=5)
+                    assert scipy.allclose(dparam, dparam2, atol=1e-5, rtol=1e-4), (
+                            "The numerical derivative of {0} evaluated at {1} "
+                            "differs considerably for step {2} and {3}, giving "
+                            "{4} and {5}, respectively.").format(param, pvalue,
+                            dx, dx * stepchange, dparam, dparam2)
+                self._d_distributionparams[param] = dparam
+        return self._d_distributionparams
 
     def updateParams(self, newvalues, update_all=False):
         """See docs for `Model` abstract base class."""
@@ -1533,6 +1559,7 @@ class GammaDistributedOmegaModel(DistributionModel):
         newvalues_list = [{} for k in range(self.ncats)] # new values for each model
         if update_all or any([param in self.distributionparams for param
                 in newvalues.keys()]):
+            self._d_distributionparams = {}
             for param in self.distributionparams:
                 if param in newvalues:
                     _checkParam(param, newvalues[param], self.PARAMLIMITS, 
@@ -1648,7 +1675,9 @@ class GammaDistributedOmegaModel(DistributionModel):
     @property
     def branchScale(self):
         """See docs for `Model` abstract base class."""
-        raise RuntimeError('not yet implemented')
+        bscales = [m.branchScale for m in self._models]
+        assert all([bscales[i] < bscales[i + 1] for i in range(self.ncats - 1)])
+        return (self.catweights * bscales).sum()
 
 
 def _checkParam(param, value, paramlimits, paramtypes):

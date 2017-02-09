@@ -8,7 +8,7 @@ import random
 import unittest
 import scipy
 import scipy.linalg
-import sympy
+import scipy.optimize
 from phydmslib.constants import *
 import phydmslib.models
 
@@ -63,7 +63,6 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
             rprefs /= rprefs.sum()
             prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
 
-        # create ExpCM with gamma omega (like M5 YNGKP)
         ncats = 4
         gammamodel = phydmslib.models.GammaDistributedOmegaModel(basemodel,
                 ncats)
@@ -100,6 +99,46 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
                         self.assertTrue(all([scipy.allclose(pvalue,
                                 getattr(m, param)) for m in 
                                 gammamodel._models]))
+
+            self.assertTrue(gammamodel._models[0].branchScale <
+                    gammamodel.branchScale < 
+                    gammamodel._models[-1].branchScale)
+
+            t = 0.15
+            for k in range(gammamodel.ncats):
+                M = gammamodel.M(k, t)
+                self.assertTrue(scipy.allclose(gammamodel._models[k].M(t), M))
+                for param in gammamodel.freeparams:
+                    if param not in gammamodel.distributionparams:
+                        dM = gammamodel.dM(k, t, param, M)
+                        self.assertTrue(scipy.allclose(dM,
+                                gammamodel._models[k].dM(t, param, Mt=None)))
+
+            # Check derivatives with respect to distribution params
+            d_distparams = gammamodel.d_distributionparams
+            self.assertTrue((d_distparams['alpha_omega'] > 0).all())
+            self.assertTrue((d_distparams['beta_omega'] < 0).all())
+            for param in gammamodel.distributionparams:
+                diffs = []
+                for k in range(gammamodel.ncats):
+                    pvalue = getattr(gammamodel, param)
+                    def func(x):
+                        gammamodel.updateParams({param:x[0]})
+                        return getattr(gammamodel._models[k], 
+                                gammamodel.distributedparam)
+                    def dfunc(x):
+                        gammamodel.updateParams({param:x[0]})
+                        return gammamodel.d_distributionparams[param][k]
+                    diff = scipy.optimize.check_grad(func, dfunc, 
+                            scipy.array([pvalue]))
+                    gammamodel.updateParams({param:pvalue})
+                    diffs.append(diff)
+                diffs = scipy.array(diffs)
+                self.assertTrue((diffs < 1e-5).all(), ("Excessive diff "
+                        "for d_distributionparams[{0}] when "
+                        "distributionparams = {1}:\n{2}".format(
+                        param, gammamodel.distributionparams, diffs)))
+
 
 
 class test_GammaDistributedOmega_YNGKP_M0(test_GammaDistributedOmega_ExpCM):
