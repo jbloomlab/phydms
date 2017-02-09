@@ -224,6 +224,9 @@ class ExpCM(Model):
         `Frxy` (`numpy.ndarray` of floats, shape `(nsites, N_CODON, N_CODON)`
             `Frxy[r][x][y]` fixation prob from `x` to `y`, diagonal
             undefined for each `Frxy[r]`.
+        `Frxy_no_omega` 
+            Like `Frxy` but **not** multiplied by `omega` for non-synonymous
+            mutations
         `frx` (`numpy.ndarray` of floats, shape `(nsites, N_CODON)`
             `frx[r][x]` is stationary state of `Frxy` for codon `x` at `r`.
         `pi_codon` (`numpy.ndarray` of floats, shape `(nsites, N_CODON)`)
@@ -268,7 +271,7 @@ class ExpCM(Model):
     ALLOWEDPARAMS = ['kappa', 'omega', 'beta', 'eta', 'mu']
     _REPORTPARAMS = ['kappa', 'omega', 'beta', 'phi']
     _PARAMLIMITS = {'kappa':(0.01, 100.0),
-                   'omega':(0.01, 100.0),
+                   'omega':(1.0e-5, 100.0),
                    'beta':(0.01, 10.0),
                    'eta':(0.01, 0.99),
                    'phi':(0.001, 0.999),
@@ -359,6 +362,8 @@ class ExpCM(Model):
         self.Qxy = scipy.zeros((N_CODON, N_CODON), dtype='float')
         self.qx = scipy.zeros(N_CODON, dtype='float')
         self.Frxy = scipy.ones((self.nsites, N_CODON, N_CODON), dtype='float')
+        self.Frxy_no_omega = scipy.ones((self.nsites, N_CODON, N_CODON), 
+                dtype='float')
         self.frx = scipy.zeros((self.nsites, N_CODON), dtype='float')
         self.D = scipy.zeros((self.nsites, N_CODON), dtype='float')
         self.A = scipy.zeros((self.nsites, N_CODON, N_CODON), dtype='float')
@@ -635,12 +640,15 @@ class ExpCM(Model):
 
     def _update_Frxy(self):
         """Update `Frxy` from `piAx_piAy_beta`, `omega`, and `beta`."""
+        self.Frxy.fill(1.0)
+        self.Frxy_no_omega.fill(1.0)
         with scipy.errstate(divide='raise', under='raise', over='raise',
                         invalid='ignore'):
-            scipy.copyto(self.Frxy, -self.omega * scipy.log(self.piAx_piAy_beta)
-                    / (1 - self.piAx_piAy_beta), where=CODON_NONSYN)
-        scipy.copyto(self.Frxy, self.omega, where=(scipy.logical_and(CODON_NONSYN,
-                scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
+            scipy.copyto(self.Frxy_no_omega, -scipy.log(self.piAx_piAy_beta)
+                    / (1 - self.piAx_piAy_beta), where=scipy.logical_and(
+                    CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta) > 
+                    ALMOST_ZERO))
+        scipy.copyto(self.Frxy, self.Frxy_no_omega * self.omega, where=CODON_NONSYN)
 
     def _update_frx(self):
         """Update `frx` using current `pi_codon` and `beta`."""
@@ -681,7 +689,7 @@ class ExpCM(Model):
                     where=CODON_TRANSITION)
             _fill_diagonals(self.dPrxy['kappa'], self._diag_indices)
         if 'omega' in self.freeparams:
-            scipy.copyto(self.dPrxy['omega'], self.Prxy / self.omega,
+            scipy.copyto(self.dPrxy['omega'], self.Frxy_no_omega * self.Qxy,
                     where=CODON_NONSYN)
             _fill_diagonals(self.dPrxy['omega'], self._diag_indices)
         if 'beta' in self.freeparams:
@@ -693,9 +701,9 @@ class ExpCM(Model):
                         scipy.log(self.piAx_piAy) / (1 - self.piAx_piAy_beta))),
                         where=CODON_NONSYN)
             scipy.copyto(self.dPrxy['beta'], self.Prxy/self.beta *
-                    (1 - self.piAx_piAy_beta), where=(scipy.logical_and(
+                    (1 - self.piAx_piAy_beta), where=scipy.logical_and(
                     CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta)
-                    < ALMOST_ZERO)))
+                    < ALMOST_ZERO))
             _fill_diagonals(self.dPrxy['beta'], self._diag_indices)
         if 'eta' in self.freeparams:
             for i in range(N_NT - 1):
@@ -936,8 +944,8 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
                         * self.Qxy * self.omega /
                         (1 - self.piAx_piAy_beta), where=CODON_NONSYN)
             scipy.copyto(self.dPrxy['omega2'], self.Qxy * self.omega,
-                       where=(scipy.logical_and(CODON_NONSYN, scipy.fabs(1 -
-                       self.piAx_piAy_beta) < ALMOST_ZERO)))
+                       where=scipy.logical_and(CODON_NONSYN, scipy.fabs(1 -
+                       self.piAx_piAy_beta) < ALMOST_ZERO))
             for r in range(self.nsites):
                 self.dPrxy['omega2'][r] *= self.deltar[r]
             _fill_diagonals(self.dPrxy['omega2'], self._diag_indices)
@@ -945,15 +953,19 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
 
     def _update_Frxy(self):
         """Update `Frxy` from `piAx_piAy_beta`, `omega`, `omega2`, and `beta`."""
+        self.Frxy.fill(1.0)
+        self.Frxy_no_omega.fill(1.0)
         with scipy.errstate(divide='raise', under='raise', over='raise',
                 invalid='ignore'):
-            scipy.copyto(self.Frxy, -1 * scipy.log(self.piAx_piAy_beta)
-                    / (1 - self.piAx_piAy_beta), where=CODON_NONSYN)
-        scipy.copyto(self.Frxy, 1, where=(scipy.logical_and(CODON_NONSYN,
-                scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
+            scipy.copyto(self.Frxy_no_omega, -scipy.log(self.piAx_piAy_beta)
+                    / (1 - self.piAx_piAy_beta), where=scipy.logical_and(
+                    CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta) >
+                    ALMOST_ZERO))
         for r in range(self.nsites):
-            scipy.copyto(self.Frxy[r], self.Frxy[r] * self.omega *
+            scipy.copyto(self.Frxy_no_omega[r], self.Frxy_no_omega[r] * 
                     (1 + self.omega2 * self.deltar[r]), where=CODON_NONSYN)
+        scipy.copyto(self.Frxy, self.Frxy_no_omega * self.omega, 
+                where=CODON_NONSYN)
 
 class YNGKP_M0(Model):
     """YNGKP_M0 model from Yang et al, 2000.
@@ -971,6 +983,9 @@ class YNGKP_M0(Model):
         `Pxy` (`numpy.ndarray` of floats, shape `(1, CODON, N_CODON)`
             `Pxy[0][x][y]` is substitution rate from codon `x` to `y`.
             Diagonal elements make rows sum to zero.
+        `Pxy_no_omega`
+            Like `Pxy` but **not** multiplied by `omega` for nonsynonymous
+            mutations.
         `dPxy` (dict)
             Keyed by each string in `freeparams`, each value is `numpy.ndarray`
             of floats giving derivative of `Pxy` with respect to that parameter.
@@ -1005,7 +1020,7 @@ class YNGKP_M0(Model):
     _REPORTPARAMS = ['kappa', 'omega', 'phi']
     ALLOWEDPARAMS = ['kappa', 'omega', 'mu']
     _PARAMLIMITS = {'kappa':(0.01, 100.0),
-                   'omega':(0.01, 100.0),
+                   'omega':(1.0e-5, 100.0),
                    'mu':(1.0e-3, 1.0e3),
                    'e_pw':(0.02, 0.94),
                   }
@@ -1067,6 +1082,7 @@ class YNGKP_M0(Model):
         # define other params, initialized appropriately
         #single site dimension to be carried through the calcs added here
         self.Pxy = scipy.zeros((1, N_CODON, N_CODON), dtype='float')
+        self.Pxy_no_omega = scipy.zeros((1, N_CODON, N_CODON), dtype='float')
         self.D = scipy.zeros((1, N_CODON), dtype='float')
         self.A = scipy.zeros((1, N_CODON, N_CODON), dtype='float')
         self.Ainv = scipy.zeros((1, N_CODON, N_CODON), dtype='float')
@@ -1294,9 +1310,11 @@ class YNGKP_M0(Model):
 
     def _update_Pxy(self):
         """Update `Pxy` using current `omega`, `kappa`, and `Phi_x`."""
-        scipy.copyto(self.Pxy, self.Phi_x.transpose(), where=CODON_SINGLEMUT)
+        scipy.copyto(self.Pxy_no_omega, self.Phi_x.transpose(), 
+                where=CODON_SINGLEMUT)
+        self.Pxy_no_omega[0][CODON_TRANSITION] *= self.kappa
+        self.Pxy = self.Pxy_no_omega.copy()
         self.Pxy[0][CODON_NONSYN] *= self.omega
-        self.Pxy[0][CODON_TRANSITION] *= self.kappa
         _fill_diagonals(self.Pxy, self._diag_indices)
 
     def _update_dPxy(self):
@@ -1306,7 +1324,7 @@ class YNGKP_M0(Model):
                     where=CODON_TRANSITION)
             _fill_diagonals(self.dPxy['kappa'], self._diag_indices)
         if 'omega' in self.freeparams:
-            scipy.copyto(self.dPxy['omega'], self.Pxy / self.omega,
+            scipy.copyto(self.dPxy['omega'], self.Pxy_no_omega,
                     where=CODON_NONSYN)
             _fill_diagonals(self.dPxy['omega'], self._diag_indices)
 
