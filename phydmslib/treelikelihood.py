@@ -134,7 +134,7 @@ class TreeLikelihood(object):
         assert isinstance(underflowfreq, int) and underflowfreq >= 1
         self.underflowfreq = underflowfreq
 
-        assert isinstance(model, phydmslib.models.Model), "invalid model"
+        self._checkModel(model)
         self.model = copy.deepcopy(model)
         self.nsites = self.model.nsites
 
@@ -245,6 +245,14 @@ class TreeLikelihood(object):
 
         # now update internal attributes related to likelihood
         self._updateInternals()
+
+    def _checkModel(self, model):
+        """Makes sure `model` is appropriate."""
+        assert isinstance(model, phydmslib.models.Model), "invalid model"
+        assert not isinstance(model, phydmslib.models.DistributionModel), (
+                "Cannot use a simple `Model` for `TreeLikelihood`. Use "
+                "`TreeLikelihoodDistributionModel` instead if you have "
+                "a `DistributionModel`.")
 
     def maximizeLikelihood(self, approx_grad=False):
         """Maximize the log likelihood.
@@ -434,7 +442,7 @@ class TreeLikelihood(object):
                 self.dloglik[param] = scipy.sum(self.dsiteloglik[param], axis=-1)
 
     def _computePartialLikelihoods(self):
-        """Update `L`."""
+        """Update `L`. and `dL`."""
         for n in range(self.ntips, self.nnodes):
             ni = n - self.ntips # internal node number
             nright = self.rdescend[ni]
@@ -512,6 +520,93 @@ class TreeLikelihood(object):
                         self.dL[param][ni][j] /= scale[:, scipy.newaxis] 
 
 
+class TreeLikelihoodDistribution(TreeLikelihood):
+    """Like `TreeLikelihood` but for `DistributionModel`.
+   
+    Differs from `TreeLikelihood` in that `model` is a `DistributionModel`
+    rather than just a simple `Model`. Otherwise inherits all attributes
+    and functions from `TreeLikelihood` with the following differences:
+
+    Attributes that differ from `TreeLikelihood` base model:
+        `model` (instance of `phydmslib.models.DistributionModel`)
+        `ncats` (`int`)
+            Number of categories for distributed parameter of `model`.
+            Determined from `model`.
+        `siteloglik` (`numpy.ndarray` of float, shape `(ncats, nsites)`)
+            `siteloglik[k][r]` is log likelihood at site `r` for
+            category `k`.
+        `dsiteloglik` (`dict`)
+            For each free parameter in `model.freeparams` that is 
+            **not** also in `model.distributionparams`, plus for
+            `model.distributedparam`, `dsiteloglik[param][k][r]` is
+            the derivative of `siteloglik[k][r]` with respect to
+            `param`.
+        `L` (`numpy.ndarray`, shape `(ninternal, ncats, nsites, N_CODON)`)
+            `L[n - ntips][k][r][x]` is partial conditional likelihood
+            of `x` at `r` at internal node `n` for category `k`.
+            Note that these must be corrected by adding 
+            `underflowlogscale`.
+        `dL` (`dict` keyed by strings)
+            For each free parameter that keys `dsiteloglik`,
+            `dL[param][n - ntips][k]` is the derivative of
+            `L[n - ntips][k]` with respect to `param`.
+    """
+
+    def __init__(self, tree, alignment, model, underflowfreq=5):
+        """Initialize a `TreeLikelihoodDistribution` object.
+
+        See docs for `TreeLikelihood.__init__`."""
+
+        super(TreeLikelihoodDistribution, self).__init__(
+                tree, alignment, model, underflowfreq=underflowfreq)
+
+        self.ncats = self.model.ncats
+
+    def _resize_attributes(self):
+        """Re-size attributes for `TreeLikelihoodDistribution`.
+
+        Some of the attributes for a `TreeLikelihoodDistribution`
+        have a different size than for a `TreeLikelihood` due to
+        need to store data for the `ncats` categories. This method
+        checks the size of all such attributes, and if necessary
+        re-sizes them.
+
+        This is needed because the `super` call to `__init__`
+        will leave sizes for `TreeLikelihood` rather than
+        `TreeLikelihoodDistribution`.
+        """
+        Lshape = (self.ninternal, self.ncats, self.nsites, N_CODON)
+        if self.L.shape != Lshape:
+            self.L = scipy.full(Lshape, -1, dtype='float')
+        for (param, paramdL) in list(self.dL.item()):
+            if paramdL.ndim == 3:
+                self.dL[param] = scipy.full(Lshape, -1, dtype='float')
+            elif paramdL.ndim == 4:
+                newshape = (self.ninternal, self.ncats, 
+                        paramdL.shape[1], self.nsites, N_CODON)
+                self.dL[param] = scipy.full(newshape, -1, 
+                        dtype='float')
+            else:
+                raise RuntimeError("Invalid shape: {0}, {1}".format(
+                        param, paramdL.shape)
+
+    def _checkModel(self, model):
+        """Makes sure `model` is appropriate."""
+        assert isinstance(model, phydmslib.models.DistributionModel), (
+                "TreeLikelihoodDistribution requires DistributionModel")
+
+    def _updateInternals(self):
+        """Update internal attributes related to likelihood.
+
+        Should be called anytime branch lengths or model parameters
+        are changed.
+        """
+        self._resize_attributes()
+        raise RuntimeError('not yet implemented')
+
+    def _computePartialLikelihoods(self):
+        """Update `L` and `dL`."""
+        raise RuntimeError('not yet implemented')
 
 
 if __name__ == '__main__':
