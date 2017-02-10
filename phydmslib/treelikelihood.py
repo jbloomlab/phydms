@@ -532,22 +532,12 @@ class TreeLikelihoodDistribution(TreeLikelihood):
         `ncats` (`int`)
             Number of categories for distributed parameter of `model`.
             Determined from `model`.
-        `siteloglik` (`numpy.ndarray` of float, shape `(ncats, nsites)`)
-            `siteloglik[k][r]` is log likelihood at site `r` for
-            category `k`.
-        `dsiteloglik` (`dict`)
-            For each free parameter in `model.freeparams` that is 
-            **not** also in `model.distributionparams`, plus for
-            `model.distributedparam`, `dsiteloglik[param][k][r]` is
-            the derivative of `siteloglik[k][r]` with respect to
-            `param`.
         `L` (`numpy.ndarray`, shape `(ninternal, ncats, nsites, N_CODON)`)
             `L[n - ntips][k][r][x]` is partial conditional likelihood
             of `x` at `r` at internal node `n` for category `k`.
             Note that these must be corrected by adding 
             `underflowlogscale`.
         `dL` (`dict` keyed by strings)
-            For each free parameter that keys `dsiteloglik`,
             `dL[param][n - ntips][k]` is the derivative of
             `L[n - ntips][k]` with respect to `param`.
     """
@@ -557,10 +547,11 @@ class TreeLikelihoodDistribution(TreeLikelihood):
 
         See docs for `TreeLikelihood.__init__`."""
 
+        self._resized = False
+        self.ncats = self.model.ncats
+
         super(TreeLikelihoodDistribution, self).__init__(
                 tree, alignment, model, underflowfreq=underflowfreq)
-
-        self.ncats = self.model.ncats
 
     def _resize_attributes(self):
         """Re-size attributes for `TreeLikelihoodDistribution`.
@@ -569,26 +560,38 @@ class TreeLikelihoodDistribution(TreeLikelihood):
         have a different size than for a `TreeLikelihood` due to
         need to store data for the `ncats` categories. This method
         checks the size of all such attributes, and if necessary
-        re-sizes them.
+        re-sizes them. This should only be necessary the first time
+        this method is called.
 
         This is needed because the `super` call to `__init__`
         will leave sizes for `TreeLikelihood` rather than
         `TreeLikelihoodDistribution`.
         """
-        Lshape = (self.ninternal, self.ncats, self.nsites, N_CODON)
-        if self.L.shape != Lshape:
+        if not self._resized:
+            self._resized = True
+            Lshape = (self.ninternal, self.ncats, self.nsites, N_CODON)
             self.L = scipy.full(Lshape, -1, dtype='float')
-        for (param, paramdL) in list(self.dL.item()):
-            if paramdL.ndim == 3:
-                self.dL[param] = scipy.full(Lshape, -1, dtype='float')
-            elif paramdL.ndim == 4:
-                newshape = (self.ninternal, self.ncats, 
-                        paramdL.shape[1], self.nsites, N_CODON)
-                self.dL[param] = scipy.full(newshape, -1, 
-                        dtype='float')
-            else:
-                raise RuntimeError("Invalid shape: {0}, {1}".format(
-                        param, paramdL.shape)
+            self.dL = {}
+            for param in (self.model.freeparams + 
+                    [self.model.distributedparam]):
+                if param in self.distributionparams:
+                    continue
+                if param == self.distributedparam:
+                    self.dL[param] = scipy.full(Lshape, -1, 
+                            dtype='float')
+                else:
+                    pvalue = getattr(self.model, param)
+                    if isinstance(pvalue, float):
+                        self.dL[param] = scipy.full(Lshape, -1, 
+                                dtype='float')
+                    elif isinstance(pvalue, scipy.ndarray) and (
+                            pvalue.ndim == 1):
+                        self.dL[param] = scipy.full((self.ninternal,
+                                self.ncats, len(pvalue), self.nsites,
+                                N_CODON), -1, dtype='float')
+                    else:
+                        raise RuntimeError("Invalid: {0}, {1}".format(
+                                param, pvalue.shape))
 
     def _checkModel(self, model):
         """Makes sure `model` is appropriate."""
@@ -602,11 +605,129 @@ class TreeLikelihoodDistribution(TreeLikelihood):
         are changed.
         """
         self._resize_attributes()
-        raise RuntimeError('not yet implemented')
+        with scipy.errstate(over='raise', under='raise', divide='raise',
+                invalid='raise'):
+            self.underflowlogscale.fill(0.0)
+            self._computePartialLikelihoods()
+            sitelik = scipy.zeros(self.nsites, dtype='float')
+            for k in range(self.ncats):
+                sitelik += scipy.sum(self.model.stationarystate, *
+                        self.L[-1][k], axis=1) * self.model.catweights[k]
+            self.siteloglik = scipy.log(sitelik) + self.underflowlogscale
+            self.loglik = scipy.sum(self.siteloglik)
+            self.dsiteloglik = {}
+            self.dloglik = {}
+            for param in self.model.freeparams:
+                if param in self.distributionparams:
+                    name = self.distributedparam
+                    dk = self.model.d_distributionparams[param]
+                else:
+                    name = param
+                    dk = scipy.ones(self.ncats, dtype='float')
+                self.dsiteloglik[param] = scipy.zeros(self.nsites,
+                        dtype='float')
+                for k in range(self.ncats):
+                    self.dsiteloglik[param] += (scipy.sum(
+                            self.model.dstationarystate(param) * 
+                            self.L[-1][k] + self.dL[name][-1][k] *
+                            self.model.stationarystate, axis=-1) *
+                            self.catweights[k] * dk[k])
+                self.dsiteloglik[param] /= sitelik
+                self.dloglik[param] = scipy.sum(
+                        self.dsiteloglik[param], axis=-1)
 
     def _computePartialLikelihoods(self):
         """Update `L` and `dL`."""
-        raise RuntimeError('not yet implemented')
+        for n in range(self.ntips, self.nnodes):
+            ni = n - self.ntips # internal node number
+            nright = self.rdescend[ni]
+            nleft = self.ldescend[ni]
+            nrighti = nright - self.ntips # internal node number
+            nlefti = nleft - self.ntips # internal node number
+            if nright < self.ntips:
+                istipr = True
+            else:
+                istipr = False
+            if nleft < self.ntips:
+                istipl = True
+            else:
+                istipl = False
+            tright = self.t[nright]
+            tleft = self.t[nleft]
+            for k in range(self.ncats):
+                if istipr:
+                    Mright = MLright = self.model.M(k, tright, 
+                            self.tips[nright], self.gaps[nright])
+                else:
+                    Mright = self.model.M(k, tright)
+                    MLright = broadcastMatrixVectorMultiply(Mright, 
+                            self.L[nrighti][k])
+                if istipl:
+                    Mleft = MLleft = self.model.M(k, tleft, 
+                            self.tips[nleft], self.gaps[nleft])
+                else:
+                    Mleft = self.model.M(k, tleft)
+                    MLleft = broadcastMatrixVectorMultiply(Mleft, 
+                            self.L[nlefti][k])
+                scipy.copyto(self.L[ni][k], MLright * MLleft)
+                for param in (self.model.freeparams + 
+                        [self.model.distributedparam]):
+                    if param in self.distributionparams:
+                        continue
+                    if param == self.model.distributedparam:
+                        indices = [()] # no sub-indexing needed
+                    else:
+                        paramvalue = getattr(self.model, param)
+                        if isinstance(paramvalue, float):
+                            indices = [()] # no sub-indexing needed
+                        elif (isinstance(paramvalue, scipy.ndarray) and 
+                                paramvalue.ndim == 1 and 
+                                paramvalue.shape[0] > 1):
+                            # sub-index for each param element
+                            indices = [(j,) for j in range(len(
+                                    paramvalue))]
+                        else:
+                            raise RuntimeError("invalid: {0}".format(
+                                    param))
+                    if istipr:
+                        dMright = self.model.dM(k, tright, param, Mright,
+                                self.tips[nright], self.gaps[nright])
+                    else:
+                        dMright = self.model.dM(k, tright, param, Mright)
+                    if istipl:
+                        dMleft = self.model.dM(k, tleft, param, Mleft, 
+                                self.tips[nleft], self.gaps[nleft])
+                    else:
+                        dMleft = self.model.dM(k, tleft, param, Mleft)
+                    for j in indices:
+                        if istipr:
+                            dMLright = dMright[j]
+                            MdLright = 0
+                        else:
+                            dMLright = broadcastMatrixVectorMultiply(
+                                    dMright[j], self.L[nrighti][k])
+                            MdLright = broadcastMatrixVectorMultiply(
+                                    Mright, self.dL[param][nrighti][k][j])
+                        if istipl:
+                            dMLleft = dMleft[j]
+                            MdLleft = 0
+                        else:
+                            dMLleft = broadcastMatrixVectorMultiply(
+                                    dMleft[j], self.L[nlefti][k])
+                            MdLleft = broadcastMatrixVectorMultiply(
+                                    Mleft, self.dL[param][nlefti][k][j])
+                        scipy.copyto(self.dL[param][ni][k][j], 
+                                (dMLright + MdLright) * MLleft +
+                                MLright * (dMLleft + MdLleft))
+            if ni > 0 and ni % self.underflowfreq == 0:
+                # rescale by same amount for each category k
+                scale = scipy.amax(scipy.array([scipy.amax(self.L[ni][k],
+                        axis=1) for k in range(self.ncats)]), axis=0)
+                assert scale.shape == (self.nsites,)
+                self.underflowlogscale += scipy.log(scale)
+                for k in range(self.ncats):
+                    self.L[ni][k] /= scale[:, scipy.newaxis]
+                    self.dL[param][ni][k][j] /= scale[:, scipy.newaxis] 
 
 
 if __name__ == '__main__':
