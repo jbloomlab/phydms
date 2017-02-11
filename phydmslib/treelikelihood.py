@@ -227,7 +227,7 @@ class TreeLikelihood(object):
 
         # _index_to_param defines internal mapping of
         # `paramsarray` indices and parameters
-        self._paramsarray = None # will be set by `paramsarray` property as needed
+        self._paramsarray = None # set by `paramsarray` property as needed
         self._index_to_param = {} # value is parameter associated with index
         i = 0
         for param in self.model.freeparams:
@@ -274,7 +274,7 @@ class TreeLikelihood(object):
         # http://www.scipy-lectures.org/advanced/mathematical_optimization/
 
         def func(x):
-            """Returns negative log likelihood when `x` is parameter array."""
+            """Negative log likelihood when `x` is parameter array."""
             self.paramsarray = x
             return -self.loglik
 
@@ -286,10 +286,10 @@ class TreeLikelihood(object):
         if approx_grad:
             dfunc = False
 
-        assert len(self.paramsarray) > 0, "There are no parameters to optimize"
+        assert len(self.paramsarray) > 0, "No parameters to optimize"
         result = scipy.optimize.minimize(func, self.paramsarray,
                 method='L-BFGS-B', jac=dfunc, bounds=self.paramsarraybounds)
-        assert result.success, ("Optimization failed with this message:\n{0}\n"
+        assert result.success, ("Optimization failed with message:\n{0}\n"
                 "Current mu = {1}\nCurrent model params: {2}").format(
                 result.message, self.model.mu, ', '.join(['{0} = {1}'.format(
                 p, pvalue) for (p, pvalue) in self.model.paramsReport.items()])) 
@@ -332,7 +332,7 @@ class TreeLikelihood(object):
         
         You are allowed to update model parameters by direct
         assignment of this property."""
-        # Always return copy of `_paramsarray` because setter checks if changed
+        # Return copy of `_paramsarray` because setter checks if changed
         if self._paramsarray is not None:
             return self._paramsarray.copy() 
         nparams = len(self._index_to_param)
@@ -548,10 +548,10 @@ class TreeLikelihoodDistribution(TreeLikelihood):
         See docs for `TreeLikelihood.__init__`."""
 
         self._resized = False
-        self.ncats = self.model.ncats
-
+        self.ncats = model.ncats
         super(TreeLikelihoodDistribution, self).__init__(
                 tree, alignment, model, underflowfreq=underflowfreq)
+        assert self.ncats == self.model.ncats
 
     def _resize_attributes(self):
         """Re-size attributes for `TreeLikelihoodDistribution`.
@@ -574,9 +574,9 @@ class TreeLikelihoodDistribution(TreeLikelihood):
             self.dL = {}
             for param in (self.model.freeparams + 
                     [self.model.distributedparam]):
-                if param in self.distributionparams:
+                if param in self.model.distributionparams:
                     continue
-                if param == self.distributedparam:
+                if param == self.model.distributedparam:
                     self.dL[param] = scipy.full(Lshape, -1, 
                             dtype='float')
                 else:
@@ -611,27 +611,30 @@ class TreeLikelihoodDistribution(TreeLikelihood):
             self._computePartialLikelihoods()
             sitelik = scipy.zeros(self.nsites, dtype='float')
             for k in range(self.ncats):
-                sitelik += scipy.sum(self.model.stationarystate, *
+                sitelik += scipy.sum(self.model.stationarystate *
                         self.L[-1][k], axis=1) * self.model.catweights[k]
             self.siteloglik = scipy.log(sitelik) + self.underflowlogscale
             self.loglik = scipy.sum(self.siteloglik)
             self.dsiteloglik = {}
             self.dloglik = {}
             for param in self.model.freeparams:
-                if param in self.distributionparams:
-                    name = self.distributedparam
+                if param in self.model.distributionparams:
+                    name = self.model.distributedparam
                     dk = self.model.d_distributionparams[param]
                 else:
                     name = param
                     dk = scipy.ones(self.ncats, dtype='float')
-                self.dsiteloglik[param] = scipy.zeros(self.nsites,
-                        dtype='float')
-                for k in range(self.ncats):
+                self.dsiteloglik[param] = (scipy.sum(
+                            self.model.dstationarystate(param) * 
+                            self.L[-1][0] + self.dL[name][-1][0] *
+                            self.model.stationarystate, axis=-1) *
+                            self.model.catweights[0] * dk[0])
+                for k in range(1, self.ncats):
                     self.dsiteloglik[param] += (scipy.sum(
                             self.model.dstationarystate(param) * 
                             self.L[-1][k] + self.dL[name][-1][k] *
                             self.model.stationarystate, axis=-1) *
-                            self.catweights[k] * dk[k])
+                            self.model.catweights[k] * dk[k])
                 self.dsiteloglik[param] /= sitelik
                 self.dloglik[param] = scipy.sum(
                         self.dsiteloglik[param], axis=-1)
@@ -672,7 +675,7 @@ class TreeLikelihoodDistribution(TreeLikelihood):
                 scipy.copyto(self.L[ni][k], MLright * MLleft)
                 for param in (self.model.freeparams + 
                         [self.model.distributedparam]):
-                    if param in self.distributionparams:
+                    if param in self.model.distributionparams:
                         continue
                     if param == self.model.distributedparam:
                         indices = [()] # no sub-indexing needed

@@ -445,6 +445,9 @@ class ExpCM(Model):
     @mu.setter
     def mu(self, value):
         """Set new `mu` value."""
+        _checkParam('mu', value, self.PARAMLIMITS, self.PARAMTYPES)
+        if value != self.mu:
+            self._cached = {}
         self._mu = value
 
     def updateParams(self, newvalues, update_all=False):
@@ -1561,9 +1564,9 @@ class GammaDistributedOmegaModel(DistributionModel):
                     dparam2 = scipy.misc.derivative(f, pvalue, stepchange * dx, 
                             n=1, order=5)
                     assert scipy.allclose(dparam, dparam2, atol=1e-5, rtol=1e-4), (
-                            "The numerical derivative of {0} evaluated at {1} "
-                            "differs considerably for step {2} and {3}, giving "
-                            "{4} and {5}, respectively.").format(param, pvalue,
+                            "Numerical derivative of {0} at {1} "
+                            "differs for step {2} and {3}: {4} and {5}"
+                            ", respectively.").format(param, pvalue,
                             dx, dx * stepchange, dparam, dparam2)
                 self._d_distributionparams[param] = dparam
         return self._d_distributionparams
@@ -1574,7 +1577,8 @@ class GammaDistributedOmegaModel(DistributionModel):
                 "Invalid entry in newvalues: {0}\nfreeparams: {1}".format(
                 ', '.join(newvalues.keys()), ', '.join(self.freeparams))
        
-        newvalues_list = [{} for k in range(self.ncats)] # new values for each model
+        newvalues_list = [{} for k in range(self.ncats)] 
+
         if update_all or any([param in self.distributionparams for param
                 in newvalues.keys()]):
             self._d_distributionparams = {}
@@ -1663,7 +1667,7 @@ class GammaDistributedOmegaModel(DistributionModel):
     def mu(self, value):
         """Set new `mu` value."""
         for k in range(self.ncats):
-            self._models[k].mu = value
+            self._models[k].updateParams({'mu':value})
 
     @property
     def stationarystate(self):
@@ -1677,7 +1681,7 @@ class GammaDistributedOmegaModel(DistributionModel):
         """See docs for `Model` abstract base class."""
         if param == self.distributedparam or param in self.distributionparams:
             for m in self._models:
-                ds = m.dstationarystate(self.distributionparam)
+                ds = m.dstationarystate(self.distributedparam)
                 if isinstance(ds, float):
                     assert ds == 0
                 else:
@@ -1686,7 +1690,7 @@ class GammaDistributedOmegaModel(DistributionModel):
         else:
             assert param in self.freeparams
             ds = self._models[0].dstationarystate(param)
-            assert all([scipy.allclose(ds == m.dstationarystate(param)) for
+            assert all([scipy.allclose(ds, m.dstationarystate(param)) for
                     m in self._models])
             return ds
 
