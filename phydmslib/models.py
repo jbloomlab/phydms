@@ -1473,7 +1473,6 @@ class GammaDistributedOmegaModel(DistributionModel):
     _PARAMLIMITS = {'alpha_omega':(0.3, 10),
                     'beta_omega':(0.3, 10),
                    }
-    _REPORTPARAMS = ['alpha_omega', 'beta_omega']
     PARAMTYPES = {'alpha_omega':float,
                   'beta_omega':float,
                  }
@@ -1528,9 +1527,6 @@ class GammaDistributedOmegaModel(DistributionModel):
                 pvalue = getattr(model, param)
                 _checkParam(param, pvalue, self.PARAMLIMITS, self.PARAMTYPES)
                 setattr(self, param, getattr(model, param))
-
-        self._REPORTPARAMS += [param for param in model._REPORTPARAMS if
-                param != self.distributedparam]
 
         self.updateParams({}, update_all=True)
 
@@ -1619,16 +1615,10 @@ class GammaDistributedOmegaModel(DistributionModel):
     @property
     def paramsReport(self):
         """See docs for `Model` abstract base class."""
-        report = {}
-        for param in self._REPORTPARAMS:
-            pvalue = getattr(self, param)
-            if isinstance(pvalue, float):
-                report[param] = pvalue
-            elif isinstance(pvalue, scipy.ndarray) and pvalue.shape == (N_NT,):
-                for w in range(N_NT - 1):
-                    report['{0}{1}'.format(param, INDEX_TO_NT[w])] = pvalue[w]
-            else:
-                raise RuntimeError("Unexpected param: {0}".format(param))
+        report = self._models[0].paramsReport
+        del report[self.distributedparam]
+        for param in self.distributionparams:
+            report[param] = getattr(self, param)
         return report
 
     @property

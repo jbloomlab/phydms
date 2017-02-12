@@ -73,6 +73,17 @@ def IntGreaterThanZero(n):
     else:
         return n
 
+def IntGreaterThanOne(n):
+    """If *n* is an integer > 1, returns it, otherwise an error."""
+    try:
+        n = int(n)
+    except:
+        raise ValueError("%s is not an integer" % n)
+    if n <= 1:
+        raise ValueError("%d is not > 1" % n)
+    else:
+        return n
+
 def FloatGreaterThanEqualToZero(x):
     """If *x* is a float >= 0, returns it, otherwise raises and error.
 
@@ -325,9 +336,9 @@ def PhyDMSComprehensiveParser():
 
 def PhyDMSParser():
     """Returns *argparse.ArgumentParser* for ``phydms`` script."""
-    parser = ArgumentParserNoArgHelp(description=('Phylogenetic inference '
-            'using deep mutational scanning data. {0} Version {1}. Full '
-            'documentation at {2}').format(phydmslib.__acknowledgments__, 
+    parser = ArgumentParserNoArgHelp(description=('Phylogenetic analysis '
+            'informed by deep mutational scanning data. {0} Version {1}. Full'
+            ' documentation at {2}').format(phydmslib.__acknowledgments__, 
             phydmslib.__version__, phydmslib.__url__), 
             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('alignment', type=ExistingFile, 
@@ -336,14 +347,19 @@ def PhyDMSParser():
             help="Existing Newick file giving input tree.")
     parser.add_argument('model', type=ModelOption, 
             help=("Substitution model: ExpCM_<prefsfile> or YNGKP_<m> ("
-            "where <m> is {0}). For ExpCM, <prefsfile> should have first "
-            "column labeled 'site' and other columns labeled by 1-letter "
+            "where <m> is {0}). For ExpCM, <prefsfile> has first "
+            "column labeled 'site' and others labeled by 1-letter "
             "amino-acid code.").format(', '.join(yngkp_modelvariants)))
-    parser.add_argument('outprefix', help='Prefix for output files.', type=str)
+    parser.add_argument('outprefix', help='Output file prefix.', type=str)
     parser.add_argument('--brlen', choices=['scale', 'optimize', 'fix'],
             default='scale', help=("How to handle branch lengths: scale "
             "by single parameter; optimize each one; fix to values "
             "in 'tree'.")) 
+    parser.set_defaults(gammaomega=False)
+    parser.add_argument('--gammaomega', action='store_true', 
+            dest='gammaomega', help="Omega for ExpCM from gamma "
+            "distribution rather than single value. To achieve "
+            "same for YNGKP, use 'model' of YNGKP_M5.")
     parser.set_defaults(fitphi=False)
     parser.add_argument('--fitphi', action='store_true', dest='fitphi',
             help='Fit ExpCM phi rather than setting so stationary '
@@ -367,11 +383,11 @@ def PhyDMSParser():
             "delimited."))
     parser.add_argument('--ncpus', default=1, type=int,
             help='Use this many CPUs; -1 means all available.')
-    parser.add_argument('-v', '--version', action='version', 
-            version='%(prog)s {version}'.format(version=phydmslib.__version__))
-    parser.add_argument('--minbrlen', default=phydmslib.constants.ALMOST_ZERO, 
-            type=FloatGreaterThanZero,
-            help="Adjust all branch length in starting 'tree' to >= this.")
+    parser.add_argument('--ncats', default=4, type=IntGreaterThanOne,
+            help='Number of categories for gamma-distributed omega.')
+    parser.add_argument('--minbrlen', type=FloatGreaterThanZero,
+            default=phydmslib.constants.ALMOST_ZERO, 
+            help="Adjust all branch lengths in starting 'tree' to >= this.")
     parser.add_argument('--minpref', default=0.005, type=FloatGreaterThanZero,
             help="Adjust all preferences in ExpCM 'prefsfile' to >= this.")
     parser.add_argument('--seed', type=int, default=1, help="Random number seed.")
@@ -379,6 +395,8 @@ def PhyDMSParser():
     parser.add_argument('--profile', dest='profile', action='store_true', 
             help="Profile likelihood maximization, write pstats files. "
             "For code-development purposes.")
+    parser.add_argument('-v', '--version', action='version', version=(
+            ('%(prog)s {version}'.format(version=phydmslib.__version__))))
     return parser
     
     
