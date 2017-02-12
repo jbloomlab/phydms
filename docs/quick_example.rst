@@ -12,7 +12,7 @@ To perform an analysis with `phydms`_, you need two pieces of input data:
 
     1) An alignment of homologous protein-coding genes.
 
-    2) A file giving the site-specific amino-acid preferences of these genes, as might be obtained from a deep mutational scanning experiment. If you aren't sure what these preferences are, then read :ref:`ExpCM` and the references therein.
+    2) A file giving the site-specific amino-acid preferences of these genes, as might be obtained from a deep mutational scanning experiment. If you aren't sure what these preferences are, then read :ref:`ExpCM` and the references therein. Importantly, these amino-acid preferences must be obtained **independently** from the sequence alignment being analyzed. A deep mutational scanning experiment is an independent means of obtaining the preferences, but estimating them from the amino-acid frequencies in the alignment of homologs is not a valid approach as you are then estimating the preferences from the same sequences that you are subsequently analyzing.
 
 For this quick example, we will use the alignment of 37 human influenza NP sequences described in `Doud et al, Mol Biol Evol, 32:2944-2960`_. We assume that we have a FASTA file called ``humanNPs.fasta`` that contains these sequences. This file is equivalent to the human influenza sequences in Supplementary file 4 of `Doud et al, Mol Biol Evol, 32:2944-2960`_. The first few lines of this file look like this::
 

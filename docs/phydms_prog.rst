@@ -59,6 +59,10 @@ Command-line usage
 
         * The more complex `dms_tools`_ `preferences file format`_
 
+    Importantly, the amino-acid preferences must be obtained **independently** from the sequence
+    alignment being analyzed. A deep mutational scanning experiment is an independent means
+    of obtaining the preferences, but estimating them from the amino-acid frequencies in the alignment of homologs is not a valid approach as you are then estimating the preferences from the same sequences that you are subsequently analyzing.
+
    outprefix
     If this prefix contains a directory name, that directory is created if it does not already exist. 
 

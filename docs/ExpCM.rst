@@ -12,6 +12,9 @@ Overview
 **Exp**\erimentally Informed **C**\odon **M**\odels (*ExpCM*) describe the evolution of protein-coding genes in terms of their site-specific amino-acid preferences. These models improve on conventional non-site-specific phylogenetic substitution models because they account for the different constraints at different sites of the protein encoded by the gene.
 
 Specifically, for each gene, we assume that we know the preference :math:`\pi_{r,a}` of site :math:`r` for each amino-acid :math:`a` (we constrain :math:`1 = \sum_a \pi_{r,a}`). Typically, these preferences might be measured in deep mutational scanning experiments. For a description of how the preferences can be inferred from experimental data, see `Bloom, BMC Bioinformatics, 16:168`_. 
+Importantly, these amino-acid preferences must be obtained **independently** from the sequence
+alignment being analyzed. A deep mutational scanning experiment is an independent means
+of obtaining the preferences, but estimating them from the amino-acid frequencies in the alilnment of homologs is not a valid approach as you are then estimating the preferences from the same sequences that you are subsequently analyzing.
 
 The *ExpCM* used here are the ones defined in:
 
