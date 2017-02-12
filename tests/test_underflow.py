@@ -1,4 +1,4 @@
-"""Tests correction for numerical underflow in `TreeLikelihood`.
+"""Tests correction for numerical underflow likelihood calculations.
 
 Written by Jesse Bloom.
 """
@@ -17,7 +17,7 @@ import Bio.Phylo
 
 
 class test_underflow(unittest.TestCase):
-    """Tests correction for numerical underflow."""
+    """Test underflow correction in `TreeLikelihood` and `TreeLikelihoodDistribution`."""
 
     def test_underflow(self):
         """Tests correction for numerical underflow."""
@@ -38,19 +38,26 @@ class test_underflow(unittest.TestCase):
         prefslist = [prefs[r] for r in sites]
 
         model = phydmslib.models.ExpCM(prefslist)
+        distmodel = phydmslib.models.GammaDistributedOmegaModel(
+                model, ncats=4)
 
-        tl = phydmslib.treelikelihood.TreeLikelihood(tree, alignment, model,
-                underflowfreq=5)
-        tl_nocorrection = phydmslib.treelikelihood.TreeLikelihood(tree, 
-                alignment, model, underflowfreq=10000)
+        for (m, desc) in [(model, 'simple'), (distmodel, 'distribution')]:
+            if isinstance(m, phydmslib.models.DistributionModel):
+                tl_class = phydmslib.treelikelihood.TreeLikelihoodDistribution
+            else:
+                tl_class = phydmslib.treelikelihood.TreeLikelihood
+            tl = tl_class(tree, alignment, m, underflowfreq=1)
+            tl_nocorrection = tl_class(tree, alignment, m, underflowfreq=10000)
 
-        self.assertTrue(scipy.allclose(tl.loglik, tl_nocorrection.loglik),
-                ("Log likelihoods differ with and without correction: "
-                "{0} versus {1}".format(tl.loglik, tl_nocorrection.loglik)))
-        for (param, dl) in tl_nocorrection.dloglik.items():
-            self.assertTrue(scipy.allclose(dl, tl.dloglik[param]),
-                    ('dloglik differs with and without correction for {0}: '
-                    '{1} versus {2}'.format(param, tl.dloglik[param], dl)))
+            self.assertTrue(scipy.allclose(tl.loglik, tl_nocorrection.loglik),
+                    ("Log likelihoods differ with and without correction "
+                    "for {0}: {1} versus {2}".format(desc, tl.loglik, 
+                    tl_nocorrection.loglik)))
+            for (param, dl) in tl_nocorrection.dloglik.items():
+                self.assertTrue(scipy.allclose(dl, tl.dloglik[param]),
+                        ('dloglik differs with and without correction for {0}: '
+                        '{1}, {2} versus {3}'.format(param, desc, 
+                        tl.dloglik[param], dl)))
 
 
 if __name__ == '__main__':

@@ -473,20 +473,8 @@ class TreeLikelihood(object):
                 Mleft = self.model.M(tleft)
                 MLleft = broadcastMatrixVectorMultiply(Mleft, self.L[nlefti])
             scipy.copyto(self.L[ni], MLright * MLleft)
-            if ni > 0 and ni % self.underflowfreq == 0:
-                scale = scipy.amax(self.L[ni], axis=1)
-                self.L[ni] /= scale[:, scipy.newaxis]
-                self.underflowlogscale += scipy.log(scale)
             for param in self.model.freeparams:
-                paramvalue = getattr(self.model, param)
-                if isinstance(paramvalue, float):
-                    indices = [()] # no sub-indexing needed
-                elif (isinstance(paramvalue, scipy.ndarray) and 
-                        paramvalue.ndim == 1 and paramvalue.shape[0] > 1):
-                    # need to sub-index calculations for each param element
-                    indices = [(j,) for j in range(len(paramvalue))]
-                else:
-                    raise RuntimeError("invalid param: {0}".format(param))
+                indices = self._sub_index_param(param)
                 if istipr:
                     dMright = self.model.dM(tright, param, Mright, 
                             self.tips[nright], self.gaps[nright])
@@ -516,8 +504,29 @@ class TreeLikelihood(object):
                                 self.dL[param][nlefti][j])
                     scipy.copyto(self.dL[param][ni][j], (dMLright + MdLright)
                             * MLleft + MLright * (dMLleft + MdLleft))
-                    if ni > 0 and ni % self.underflowfreq == 0:
+            if ni > 0 and ni % self.underflowfreq == 0:
+                scale = scipy.amax(self.L[ni], axis=1)
+                self.L[ni] /= scale[:, scipy.newaxis]
+                self.underflowlogscale += scipy.log(scale)
+                for param in self.model.freeparams:
+                    indices = self._sub_index_param(param)
+                    for j in indices:
                         self.dL[param][ni][j] /= scale[:, scipy.newaxis] 
+
+    def _sub_index_param(self, param):
+        """Returns list of sub-indexes for `param`.
+
+        Used in computing partial likelihoods; loop over these indices."""
+        paramvalue = getattr(self.model, param)
+        if isinstance(paramvalue, float):
+            indices = [()] # no sub-indexing needed
+        elif (isinstance(paramvalue, scipy.ndarray) and 
+                paramvalue.ndim == 1 and paramvalue.shape[0] > 1):
+            indices = [(j,) for j in range(len(paramvalue))]
+        else:
+            raise RuntimeError("Invalid param: {0}, {1}".format(
+                    param, paramvalue))
+        return indices
 
 
 class TreeLikelihoodDistribution(TreeLikelihood):
@@ -673,25 +682,11 @@ class TreeLikelihoodDistribution(TreeLikelihood):
                     MLleft = broadcastMatrixVectorMultiply(Mleft, 
                             self.L[nlefti][k])
                 scipy.copyto(self.L[ni][k], MLright * MLleft)
-                for param in (self.model.freeparams + 
-                        [self.model.distributedparam]):
-                    if param in self.model.distributionparams:
-                        continue
-                    if param == self.model.distributedparam:
-                        indices = [()] # no sub-indexing needed
-                    else:
-                        paramvalue = getattr(self.model, param)
-                        if isinstance(paramvalue, float):
-                            indices = [()] # no sub-indexing needed
-                        elif (isinstance(paramvalue, scipy.ndarray) and 
-                                paramvalue.ndim == 1 and 
-                                paramvalue.shape[0] > 1):
-                            # sub-index for each param element
-                            indices = [(j,) for j in range(len(
-                                    paramvalue))]
-                        else:
-                            raise RuntimeError("invalid: {0}".format(
-                                    param))
+                paramlist = [param for param in self.model.freeparams +
+                        [self.model.distributedparam] if param not in
+                        self.model.distributionparams]
+                for param in paramlist:
+                    indices = self._sub_index_param(param)
                     if istipr:
                         dMright = self.model.dM(k, tright, param, Mright,
                                 self.tips[nright], self.gaps[nright])
@@ -730,7 +725,18 @@ class TreeLikelihoodDistribution(TreeLikelihood):
                 self.underflowlogscale += scipy.log(scale)
                 for k in range(self.ncats):
                     self.L[ni][k] /= scale[:, scipy.newaxis]
-                    self.dL[param][ni][k][j] /= scale[:, scipy.newaxis] 
+                    for param in paramlist:
+                        for j in indices:
+                            self.dL[param][ni][k][j] /= scale[:, scipy.newaxis] 
+
+    def _sub_index_param(self, param):
+        """See docs for `TreeLikelihood` base class."""
+        if param == self.model.distributedparam:
+            indices = [()] # no sub-indexing needed
+        else:
+            indices = super(TreeLikelihoodDistribution, self)._sub_index_param(
+                    param)
+        return indices
 
 
 if __name__ == '__main__':
