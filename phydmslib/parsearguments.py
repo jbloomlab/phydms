@@ -283,16 +283,28 @@ def PhyDMSPlotSelectionParser():
 
 def PhyDMSComprehensiveParser():
     """Returns *argparse.ArgumentParser* for ``phdyms_comprehensive`` script."""
-    parser = ArgumentParserNoArgHelp(description="Comprehensive phylogenetic model comparison and detection of selection using deep mutational scanning data. This program runs 'phydms' to compare substitution models and detect selection at each site. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('outprefix', help='Prefix for output files.', type=str)
-    parser.add_argument('alignment', help='Existing FASTA file with aligned codon sequences.', type=ExistingFile)
-    parser.add_argument('prefsfiles', help='Existing files with site-specific amino-acid preferences.', type=ExistingFile, nargs='+')
-    #
+    parser = ArgumentParserNoArgHelp(description=("Comprehensive phylogenetic "
+            "model comparison and detection of selection informed by deep "
+            "mutational scanning data. This program runs 'phydms' repeatedly "
+            "to compare substitution models and detect selection. "
+            "{0} Version {1}. Full documentation at {2}").format(
+            phydmslib.__acknowledgments__, phydmslib.__version__, 
+            phydmslib.__url__), 
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('outprefix', help='Output file prefix.', type=str)
+    parser.add_argument('alignment', help='Existing FASTA file with aligned '
+            'codon sequences.', type=ExistingFile)
+    parser.add_argument('prefsfiles', help='Existing files with site-specific '
+            'amino-acid preferences.', type=ExistingFile, nargs='+')
+    
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--tree', default=False, type=ExistingFile,
              help="Existing Newick file giving input tree.")
-    group.add_argument('--raxml', help="Path to RAxML (http://sco.h-its.org/exelixis/software.html).", default='raxml')
-    parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; -1 means all available.', type=int)
+    group.add_argument('--raxml', help="Path to RAxML (http://sco.h-its.org/"
+            "exelixis/software.html).", default='raxml')
+
+    parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; -1 '
+            'means all available.', type=int)
     # parser.set_defaults(noomegabysite=False)
     # parser.add_argument('--no-omegabysite', dest='noomegabysite', action='store_true', help="No fitting of site-specific omegas.")
     # parser.set_defaults(nostringencybysite=False)
@@ -300,25 +312,21 @@ def PhyDMSComprehensiveParser():
     # parser.set_defaults(nodiffprefsbysite=False)
     # parser.add_argument('--no-diffprefsbysite', dest='nodiffprefsbysite', action='store_true', help="No fitting of differential preferences for ExpCM.")
     parser.set_defaults(noavgprefs=False)
-    parser.add_argument('--no-avgprefs', dest='noavgprefs', action='store_true', help="No fitting of models with preferences averaged across sites for ExpCM.")
-    # parser.add_argument('--dateseqs', default='None', type=ExistingFileOrNone, help="See 'phydms' option of the same name.")
-    # parser.set_defaults(gammarates=False)
-    # parser.add_argument('--gammarates', dest='gammarates', action='store_true', help="See 'phydms' option of the same name.")
-    parser.add_argument('--avgrandcontrol', default='None', type=ExistingFileOrNone, help="Fit average and random controls only for ExpCM using this preference file. Overrides '--no-avgprefs' and '--randprefs'.")
+    parser.add_argument('--no-avgprefs', dest='noavgprefs', action='store_true', 
+            help="No fitting of models with preferences averaged across sites "
+            "for ExpCM.")
+    parser.add_argument('--avgrandcontrol', default='None', 
+            type=ExistingFileOrNone, help="Fit average and random controls "
+            "only for ExpCM using this preference file. Overrides "
+            "'--no-avgprefs' and '--randprefs'.")
     # parser.set_defaults(omegabysite_fixsyn=False)
     # parser.add_argument('--omegabysite_fixsyn', action='store_true', dest='omegabysite_fixsyn', help="See 'phydms' option of the same name.")
-    # parser.set_defaults(useLog=False)
-    # parser.add_argument('--useLog', action='store_true', dest='useLog', help="See 'phydms' option of the same name.")
-    # parser.add_argument('--yngkp', default='M8', help="YNGKP models to use in addition to M0. Should be comma-separated list of models from the following: {0}".format(','.join([m for m in yngkp_modelvariants if m != 'M0'])), type=YNGKPList)
-    # parser.add_argument('--ncats', default=6, help="Number of beta-distributed categories for YNGKP M7 and M8.", type=IntGreaterThanZero)
     # parser.add_argument('--diffprefconc', help="Parameters determining the concentration of the regularizing prior over the differential preferences for '--diffprefsbysite'. Defaults to value of the same param for 'phydms'.", type=FloatGreaterThanEqualToZero, nargs=2, metavar=('C1', 'C2'))
     parser.set_defaults(randprefs=False)
-    parser.add_argument('--randprefs', dest='randprefs', action='store_true', help="Include ExpCM models with randomized preferences.")
-    # parser.set_defaults(fitF3X4=False)
-    # parser.add_argument('--fitF3X4', dest='fitF3X4', action='store_true', help='Fit F3X4 frequencies for YNGKP; otherwise use empirical')
-    # parser.set_defaults(use_existing=False)
-    # parser.add_argument('--use_existing', action='store_true', dest='use_existing', help="Use existing 'phydms' output for a model if it exists. BE CAREFUL: no checks are performed to ensure calling options the same.")
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
+    parser.add_argument('--randprefs', dest='randprefs', action='store_true', 
+            help="Include ExpCM models with randomized preferences.")
+    parser.add_argument('-v', '--version', action='version', version=
+            '%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
 
 

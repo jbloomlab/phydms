@@ -97,7 +97,7 @@ setup(
     ext_modules = lazy_cythonize(extensions),
     scripts = [
             'scripts/phydms',
-           'scripts/phydms_comprehensive',
+            'scripts/phydms_comprehensive',
             'scripts/phydms_prepalignment',
 #            'scripts/phydms_renumber',
 #            'scripts/phydms_plotselection',
