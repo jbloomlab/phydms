@@ -48,9 +48,9 @@ class testExpCM(unittest.TestCase):
         for update in range(2):
             self.params = {'omega':random.uniform(*self.expcm.PARAMLIMITS['omega']),
                       'kappa':random.uniform(*self.expcm.PARAMLIMITS['kappa']),
-                      'beta':random.uniform(0.5, 3),
+                      'beta':random.uniform(0.5, 2.5),
                       'eta':scipy.array([random.uniform(*self.expcm.PARAMLIMITS['eta']) for i in range(N_NT - 1)]),
-                      'mu':random.uniform(0.05, 5.0),
+                      'mu':random.uniform(0.05, 3.0),
                      }
             self.expcm.updateParams(self.params)
             self.check_ExpCM_attributes()

@@ -16,6 +16,8 @@ import scipy
 import scipy.misc
 import scipy.optimize
 import scipy.linalg
+import scipy.stats
+import scipy.special
 from phydmslib.numutils import *
 from phydmslib.constants import *
 
@@ -44,7 +46,7 @@ class Model(six.with_metaclass(abc.ABCMeta)):
                 `param` (string in `freeparams`)
 
             Returns:
-                `dstationarystate` (`numpy.ndarray` of floats)
+                `dstationarystate` (`numpy.ndarray` of floats or zero)
                     If `param` is a float, then `dstationarystate[r][x]`
                     is derivative of `stationarystate[r][x]` with respect
                     to `param`. If `param` is an array, then
@@ -172,15 +174,10 @@ class Model(six.with_metaclass(abc.ABCMeta)):
         pass
 
     @abc.abstractproperty
-    def ALLOWEDPARAMS(self):
-        """List of all strings that can be included in `freeparams`."""
-        pass
-
-    @abc.abstractproperty
     def PARAMLIMITS(self):
         """Dict of tuples giving lower and upper allowed param values.
 
-        For each `param` in `ALLOWEDPARAMS`, `PARAMLIMITS[param]`
+        For each `param` in `freeparams`, `PARAMLIMITS[param]`
         is a 2-tuple of floats giving upper and lower allowed
         values of `param` (or of each element in `param` if
         `param` is an array).
@@ -227,6 +224,9 @@ class ExpCM(Model):
         `Frxy` (`numpy.ndarray` of floats, shape `(nsites, N_CODON, N_CODON)`
             `Frxy[r][x][y]` fixation prob from `x` to `y`, diagonal
             undefined for each `Frxy[r]`.
+        `Frxy_no_omega` 
+            Like `Frxy` but **not** multiplied by `omega` for non-synonymous
+            mutations
         `frx` (`numpy.ndarray` of floats, shape `(nsites, N_CODON)`
             `frx[r][x]` is stationary state of `Frxy` for codon `x` at `r`.
         `pi_codon` (`numpy.ndarray` of floats, shape `(nsites, N_CODON)`)
@@ -268,17 +268,17 @@ class ExpCM(Model):
     """
 
     # class variables
-    _ALLOWEDPARAMS = ['kappa', 'omega', 'beta', 'eta', 'mu']
+    ALLOWEDPARAMS = ['kappa', 'omega', 'beta', 'eta', 'mu']
     _REPORTPARAMS = ['kappa', 'omega', 'beta', 'phi']
     _PARAMLIMITS = {'kappa':(0.01, 100.0),
-                   'omega':(0.01, 100.0),
+                   'omega':(1.0e-5, 100.0),
                    'beta':(0.01, 10.0),
                    'eta':(0.01, 0.99),
                    'phi':(0.001, 0.999),
                    'pi':(0.002, 0.998),
                    'mu':(1.0e-3, 1.0e3),
                   }
-    _PARAMTYPES = {'kappa':float,
+    PARAMTYPES = {'kappa':float,
                    'omega':float,
                    'beta':float,
                    'pi':float,
@@ -286,11 +286,6 @@ class ExpCM(Model):
                    'eta':(scipy.ndarray, (N_NT - 1,)),
                    'phi':(scipy.ndarray, (N_NT,)),
                   }
-
-    @property
-    def ALLOWEDPARAMS(self):
-        """See docs for `Model` abstract base class."""
-        return self._ALLOWEDPARAMS
 
     @property
     def PARAMLIMITS(self):
@@ -332,7 +327,7 @@ class ExpCM(Model):
             assert abs(1 - sum(prefs[r].values())) <= ALMOST_ZERO,\
                     "prefs don't sum to one for site {0}".format(r)
             for (a, aa) in INDEX_TO_AA.items():
-                _checkParam('pi', prefs[r][aa], self.PARAMLIMITS, self._PARAMTYPES)
+                _checkParam('pi', prefs[r][aa], self.PARAMLIMITS, self.PARAMTYPES)
                 self.pi[r][a] = prefs[r][aa]
             self.pi[r] /= self.pi[r].sum() # renormalize to sum to one
 
@@ -344,7 +339,7 @@ class ExpCM(Model):
         self._update_pi_vars()
 
         # construct eta from phi
-        _checkParam('phi', phi, self.PARAMLIMITS, self._PARAMTYPES)
+        _checkParam('phi', phi, self.PARAMLIMITS, self.PARAMTYPES)
         assert abs(1 - phi.sum()) <= ALMOST_ZERO, "phi doesn't sum to 1"
         self.phi = phi.copy()
         self.phi /= self.phi.sum()
@@ -357,7 +352,7 @@ class ExpCM(Model):
         self.beta = beta
         for (name, value) in [('kappa', self.kappa), ('omega', self.omega),
                 ('beta', self.beta), ('eta', self.eta), ('mu', self.mu)]:
-            _checkParam(name, value, self.PARAMLIMITS, self._PARAMTYPES)
+            _checkParam(name, value, self.PARAMLIMITS, self.PARAMTYPES)
 
         # define other params, initialized appropriately
         self.piAx_piAy_beta = scipy.zeros((self.nsites, N_CODON, N_CODON),
@@ -367,6 +362,8 @@ class ExpCM(Model):
         self.Qxy = scipy.zeros((N_CODON, N_CODON), dtype='float')
         self.qx = scipy.zeros(N_CODON, dtype='float')
         self.Frxy = scipy.ones((self.nsites, N_CODON, N_CODON), dtype='float')
+        self.Frxy_no_omega = scipy.ones((self.nsites, N_CODON, N_CODON), 
+                dtype='float')
         self.frx = scipy.zeros((self.nsites, N_CODON), dtype='float')
         self.D = scipy.zeros((self.nsites, N_CODON), dtype='float')
         self.A = scipy.zeros((self.nsites, N_CODON, N_CODON), dtype='float')
@@ -384,7 +381,7 @@ class ExpCM(Model):
                         dtype='float')
             elif param == 'mu':
                 self.dprx['mu'] = 0.0
-            elif param in self._ALLOWEDPARAMS:
+            elif param in self.ALLOWEDPARAMS:
                 self.dPrxy[param] = scipy.zeros((self.nsites, N_CODON, N_CODON),
                         dtype='float')
                 self.B[param] = scipy.zeros((self.nsites, N_CODON, N_CODON),
@@ -448,6 +445,9 @@ class ExpCM(Model):
     @mu.setter
     def mu(self, value):
         """Set new `mu` value."""
+        _checkParam('mu', value, self.PARAMLIMITS, self.PARAMTYPES)
+        if value != self.mu:
+            self._cached = {}
         self._mu = value
 
     def updateParams(self, newvalues, update_all=False):
@@ -457,7 +457,7 @@ class ExpCM(Model):
                 ', '.join(newvalues.keys()), ', '.join(self.freeparams))
         changed = set([]) # contains string names of changed params
         for (name, value) in newvalues.items():
-            _checkParam(name, value, self.PARAMLIMITS, self._PARAMTYPES)
+            _checkParam(name, value, self.PARAMLIMITS, self.PARAMTYPES)
             if isinstance(value, scipy.ndarray):
                 if (value != getattr(self, name)).any():
                     changed.add(name)
@@ -513,6 +513,8 @@ class ExpCM(Model):
         """See docs for method in `Model` abstract base class."""
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         assert param in self.freeparams, "Invalid param: {0}".format(param)
+        if Mt is None:
+            Mt = self.M(t, tips=tips, gaps=gaps)
         if param == 'mu':
             if tips is None:
                 dM_param = broadcastMatrixMultiply(self.Prxy, Mt, alpha=t)
@@ -598,7 +600,7 @@ class ExpCM(Model):
         for w in range(N_NT - 1):
             self.eta[w] = 1.0 - self.phi[w] / etaprod
             etaprod *= self.eta[w]
-        _checkParam('eta', self.eta, self.PARAMLIMITS, self._PARAMTYPES)
+        _checkParam('eta', self.eta, self.PARAMLIMITS, self.PARAMTYPES)
 
     def _update_phi(self):
         """Update `phi` using current `eta`."""
@@ -641,12 +643,15 @@ class ExpCM(Model):
 
     def _update_Frxy(self):
         """Update `Frxy` from `piAx_piAy_beta`, `omega`, and `beta`."""
+        self.Frxy.fill(1.0)
+        self.Frxy_no_omega.fill(1.0)
         with scipy.errstate(divide='raise', under='raise', over='raise',
                         invalid='ignore'):
-            scipy.copyto(self.Frxy, -self.omega * scipy.log(self.piAx_piAy_beta)
-                    / (1 - self.piAx_piAy_beta), where=CODON_NONSYN)
-        scipy.copyto(self.Frxy, self.omega, where=(scipy.logical_and(CODON_NONSYN,
-                scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
+            scipy.copyto(self.Frxy_no_omega, -scipy.log(self.piAx_piAy_beta)
+                    / (1 - self.piAx_piAy_beta), where=scipy.logical_and(
+                    CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta) > 
+                    ALMOST_ZERO))
+        scipy.copyto(self.Frxy, self.Frxy_no_omega * self.omega, where=CODON_NONSYN)
 
     def _update_frx(self):
         """Update `frx` using current `pi_codon` and `beta`."""
@@ -687,7 +692,7 @@ class ExpCM(Model):
                     where=CODON_TRANSITION)
             _fill_diagonals(self.dPrxy['kappa'], self._diag_indices)
         if 'omega' in self.freeparams:
-            scipy.copyto(self.dPrxy['omega'], self.Prxy / self.omega,
+            scipy.copyto(self.dPrxy['omega'], self.Frxy_no_omega * self.Qxy,
                     where=CODON_NONSYN)
             _fill_diagonals(self.dPrxy['omega'], self._diag_indices)
         if 'beta' in self.freeparams:
@@ -699,9 +704,9 @@ class ExpCM(Model):
                         scipy.log(self.piAx_piAy) / (1 - self.piAx_piAy_beta))),
                         where=CODON_NONSYN)
             scipy.copyto(self.dPrxy['beta'], self.Prxy/self.beta *
-                    (1 - self.piAx_piAy_beta), where=(scipy.logical_and(
+                    (1 - self.piAx_piAy_beta), where=scipy.logical_and(
                     CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta)
-                    < ALMOST_ZERO)))
+                    < ALMOST_ZERO))
             _fill_diagonals(self.dPrxy['beta'], self._diag_indices)
         if 'eta' in self.freeparams:
             for i in range(N_NT - 1):
@@ -779,12 +784,12 @@ class ExpCM_empirical_phi(ExpCM):
     """
 
     # class variables
-    _ALLOWEDPARAMS = copy.deepcopy(ExpCM._ALLOWEDPARAMS)
-    _ALLOWEDPARAMS.remove('eta')
+    ALLOWEDPARAMS = copy.deepcopy(ExpCM.ALLOWEDPARAMS)
+    ALLOWEDPARAMS.remove('eta')
     _PARAMLIMITS = copy.deepcopy(ExpCM._PARAMLIMITS)
     _PARAMLIMITS['g'] = (0.05, 0.85)
-    _PARAMTYPES = copy.deepcopy(ExpCM._PARAMTYPES)
-    _PARAMTYPES['g'] = (scipy.ndarray, (N_NT,))
+    PARAMTYPES = copy.deepcopy(ExpCM.PARAMTYPES)
+    PARAMTYPES['g'] = (scipy.ndarray, (N_NT,))
 
     def __init__(self, prefs, g, kappa=2.0, omega=0.5, beta=1.0, mu=1.0,
             freeparams=['kappa', 'omega', 'beta', 'mu']):
@@ -797,7 +802,7 @@ class ExpCM_empirical_phi(ExpCM):
                 Has the meaning described in the main class doc string.
         """
 
-        _checkParam('g', g, self.PARAMLIMITS, self._PARAMTYPES)
+        _checkParam('g', g, self.PARAMLIMITS, self.PARAMTYPES)
         assert abs(1 - g.sum()) <= ALMOST_ZERO, "g doesn't sum to 1"
         self.g = g.copy()
         self.g /= self.g.sum()
@@ -809,7 +814,7 @@ class ExpCM_empirical_phi(ExpCM):
     def _update_phi(self):
         """Compute `phi`, `dphi_dbeta`, and `eta` from `g` and `frxy`."""
         self.phi = self._compute_empirical_phi(self.beta)
-        _checkParam('phi', self.phi, self.PARAMLIMITS, self._PARAMTYPES)
+        _checkParam('phi', self.phi, self.PARAMLIMITS, self.PARAMTYPES)
         self._eta_from_phi()
         dbeta = 1.0e-3
         self.dphi_dbeta = scipy.misc.derivative(self._compute_empirical_phi,
@@ -902,14 +907,14 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
     """
 
     # class variables
-    _ALLOWEDPARAMS = copy.deepcopy(ExpCM_empirical_phi._ALLOWEDPARAMS)
-    _ALLOWEDPARAMS.append('omega2')
+    ALLOWEDPARAMS = copy.deepcopy(ExpCM_empirical_phi.ALLOWEDPARAMS)
+    ALLOWEDPARAMS.append('omega2')
     _REPORTPARAMS = copy.deepcopy(ExpCM_empirical_phi._REPORTPARAMS)
     _REPORTPARAMS.append('omega2')
     _PARAMLIMITS = copy.deepcopy(ExpCM_empirical_phi._PARAMLIMITS)
     _PARAMLIMITS['omega2'] = (-1, 999)
-    _PARAMTYPES = copy.deepcopy(ExpCM_empirical_phi._PARAMTYPES)
-    _PARAMTYPES['omega2'] = float
+    PARAMTYPES = copy.deepcopy(ExpCM_empirical_phi.PARAMTYPES)
+    PARAMTYPES['omega2'] = float
 
     def __init__(self, prefs, g, divPressureValues, kappa=2.0, omega=0.5,
             beta=1.0, mu=1.0,omega2=0.0,
@@ -922,7 +927,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
             `divPressureValues`, `omega2`
                 Meaning described in the main class doc string.
         """
-        _checkParam('omega2',omega2, self.PARAMLIMITS, self._PARAMTYPES)
+        _checkParam('omega2',omega2, self.PARAMLIMITS, self.PARAMTYPES)
         self.omega2 = omega2
         self.deltar = scipy.array(divPressureValues.copy())
         assert (max(scipy.absolute(self.deltar))) <= 1, (
@@ -942,8 +947,8 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
                         * self.Qxy * self.omega /
                         (1 - self.piAx_piAy_beta), where=CODON_NONSYN)
             scipy.copyto(self.dPrxy['omega2'], self.Qxy * self.omega,
-                       where=(scipy.logical_and(CODON_NONSYN, scipy.fabs(1 -
-                       self.piAx_piAy_beta) < ALMOST_ZERO)))
+                       where=scipy.logical_and(CODON_NONSYN, scipy.fabs(1 -
+                       self.piAx_piAy_beta) < ALMOST_ZERO))
             for r in range(self.nsites):
                 self.dPrxy['omega2'][r] *= self.deltar[r]
             _fill_diagonals(self.dPrxy['omega2'], self._diag_indices)
@@ -951,15 +956,19 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
 
     def _update_Frxy(self):
         """Update `Frxy` from `piAx_piAy_beta`, `omega`, `omega2`, and `beta`."""
+        self.Frxy.fill(1.0)
+        self.Frxy_no_omega.fill(1.0)
         with scipy.errstate(divide='raise', under='raise', over='raise',
                 invalid='ignore'):
-            scipy.copyto(self.Frxy, -1 * scipy.log(self.piAx_piAy_beta)
-                    / (1 - self.piAx_piAy_beta), where=CODON_NONSYN)
-        scipy.copyto(self.Frxy, 1, where=(scipy.logical_and(CODON_NONSYN,
-                scipy.fabs(1 - self.piAx_piAy_beta) < ALMOST_ZERO)))
+            scipy.copyto(self.Frxy_no_omega, -scipy.log(self.piAx_piAy_beta)
+                    / (1 - self.piAx_piAy_beta), where=scipy.logical_and(
+                    CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta) >
+                    ALMOST_ZERO))
         for r in range(self.nsites):
-            scipy.copyto(self.Frxy[r], self.Frxy[r] * self.omega *
+            scipy.copyto(self.Frxy_no_omega[r], self.Frxy_no_omega[r] * 
                     (1 + self.omega2 * self.deltar[r]), where=CODON_NONSYN)
+        scipy.copyto(self.Frxy, self.Frxy_no_omega * self.omega, 
+                where=CODON_NONSYN)
 
 class YNGKP_M0(Model):
     """YNGKP_M0 model from Yang et al, 2000.
@@ -970,8 +979,6 @@ class YNGKP_M0(Model):
     method, do **not** set attributes directly.
 
     Attributes (see also those inherited from `Model`):
-        `nsites` (int > 0)
-            Number of amino acid sites in the gene
         `kappa` (float > 0)
             Transition-transversion ratio.
         `omega` (float > 0)
@@ -979,6 +986,9 @@ class YNGKP_M0(Model):
         `Pxy` (`numpy.ndarray` of floats, shape `(1, CODON, N_CODON)`
             `Pxy[0][x][y]` is substitution rate from codon `x` to `y`.
             Diagonal elements make rows sum to zero.
+        `Pxy_no_omega`
+            Like `Pxy` but **not** multiplied by `omega` for nonsynonymous
+            mutations.
         `dPxy` (dict)
             Keyed by each string in `freeparams`, each value is `numpy.ndarray`
             of floats giving derivative of `Pxy` with respect to that parameter.
@@ -1011,22 +1021,17 @@ class YNGKP_M0(Model):
 
     # class variables
     _REPORTPARAMS = ['kappa', 'omega', 'phi']
-    _ALLOWEDPARAMS = ['kappa', 'omega', 'mu']
+    ALLOWEDPARAMS = ['kappa', 'omega', 'mu']
     _PARAMLIMITS = {'kappa':(0.01, 100.0),
-                   'omega':(0.01, 100.0),
+                   'omega':(1.0e-5, 100.0),
                    'mu':(1.0e-3, 1.0e3),
                    'e_pw':(0.02, 0.94),
                   }
-    _PARAMTYPES = {'kappa':float,
+    PARAMTYPES = {'kappa':float,
                    'omega':float,
                    'mu':float,
                    'e_pw':(scipy.ndarray, (3, N_NT)),
                   }
-
-    @property
-    def ALLOWEDPARAMS(self):
-        """See docs for `Model` abstract base class."""
-        return self._ALLOWEDPARAMS
 
     @property
     def PARAMLIMITS(self):
@@ -1045,7 +1050,7 @@ class YNGKP_M0(Model):
             `e_pw`, `nsites`
                 Meaning described in the main class doc string.
         """
-        _checkParam('e_pw', e_pw, self.PARAMLIMITS, self._PARAMTYPES)
+        _checkParam('e_pw', e_pw, self.PARAMLIMITS, self.PARAMTYPES)
         self.e_pw = e_pw.copy()
         self.phi = self._calculate_correctedF3X4()
         assert scipy.allclose(self.phi.sum(axis = 1),\
@@ -1075,18 +1080,19 @@ class YNGKP_M0(Model):
         self.omega = omega
         for (name, value) in [('kappa', self.kappa), ('omega', self.omega),
                     ('mu', self.mu)]:
-            _checkParam(name, value, self.PARAMLIMITS, self._PARAMTYPES)
+            _checkParam(name, value, self.PARAMLIMITS, self.PARAMTYPES)
 
         # define other params, initialized appropriately
         #single site dimension to be carried through the calcs added here
         self.Pxy = scipy.zeros((1, N_CODON, N_CODON), dtype='float')
+        self.Pxy_no_omega = scipy.zeros((1, N_CODON, N_CODON), dtype='float')
         self.D = scipy.zeros((1, N_CODON), dtype='float')
         self.A = scipy.zeros((1, N_CODON, N_CODON), dtype='float')
         self.Ainv = scipy.zeros((1, N_CODON, N_CODON), dtype='float')
         self.dPxy = {}
         self.B = {}
         for param in self.freeparams:
-            if param in self._ALLOWEDPARAMS:
+            if param in self.ALLOWEDPARAMS:
                 self.dPxy[param] = scipy.zeros((1, N_CODON, N_CODON),
                         dtype='float')
                 self.B[param] = scipy.zeros((1, N_CODON, N_CODON),
@@ -1196,7 +1202,7 @@ class YNGKP_M0(Model):
                 ', '.join(newvalues.keys()), ', '.join(self.freeparams))
         changed = set([]) # contains string names of changed params
         for (name, value) in newvalues.items():
-            _checkParam(name, value, self.PARAMLIMITS, self._PARAMTYPES)
+            _checkParam(name, value, self.PARAMLIMITS, self.PARAMTYPES)
             if isinstance(value, scipy.ndarray):
                 if (value != getattr(self, name)).any():
                     changed.add(name)
@@ -1245,12 +1251,16 @@ class YNGKP_M0(Model):
         """See docs for method in `Model` abstract base class."""
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
         assert param in self.freeparams, "Invalid param: {0}".format(param)
+        if Mt is None:
+            Mt = self.M(t, tips=tips, gaps=gaps)
         if param == 'mu':
             if tips is None:
-                dM_param = scipy.tile(broadcastMatrixMultiply(self.Pxy, scipy.tile(Mt[0], (1,1,1)), alpha=t), (self.nsites, 1, 1))
+                dM_param = scipy.tile(broadcastMatrixMultiply(self.Pxy, 
+                        scipy.tile(Mt[0], (1,1,1)), alpha=t), (self.nsites, 1, 1))
             else:
                 #Pxy is tiled over the number of sites
-                dM_param = broadcastMatrixVectorMultiply(scipy.tile(self.Pxy[0], (self.nsites,1,1)), Mt, alpha=t)
+                dM_param = broadcastMatrixVectorMultiply(scipy.tile(self.Pxy[0], 
+                        (self.nsites,1,1)), Mt, alpha=t)
                 if gaps is not None:
                     dM_param[gaps] = scipy.zeros(N_CODON, dtype='float')
             return dM_param
@@ -1303,9 +1313,11 @@ class YNGKP_M0(Model):
 
     def _update_Pxy(self):
         """Update `Pxy` using current `omega`, `kappa`, and `Phi_x`."""
-        scipy.copyto(self.Pxy, self.Phi_x.transpose(), where=CODON_SINGLEMUT)
+        scipy.copyto(self.Pxy_no_omega, self.Phi_x.transpose(), 
+                where=CODON_SINGLEMUT)
+        self.Pxy_no_omega[0][CODON_TRANSITION] *= self.kappa
+        self.Pxy = self.Pxy_no_omega.copy()
         self.Pxy[0][CODON_NONSYN] *= self.omega
-        self.Pxy[0][CODON_TRANSITION] *= self.kappa
         _fill_diagonals(self.Pxy, self._diag_indices)
 
     def _update_dPxy(self):
@@ -1315,7 +1327,7 @@ class YNGKP_M0(Model):
                     where=CODON_TRANSITION)
             _fill_diagonals(self.dPxy['kappa'], self._diag_indices)
         if 'omega' in self.freeparams:
-            scipy.copyto(self.dPxy['omega'], self.Pxy / self.omega,
+            scipy.copyto(self.dPxy['omega'], self.Pxy_no_omega,
                     where=CODON_NONSYN)
             _fill_diagonals(self.dPxy['omega'], self._diag_indices)
 
@@ -1345,6 +1357,341 @@ class YNGKP_M0(Model):
                     broadcastMatrixMultiply(self.dPxy[param], self.A))
 
 
+class DistributionModel(six.with_metaclass(abc.ABCMeta, Model)):
+    """Substitution model with a parameter drawn from distribution.
+
+    This abstract base class defines required methods / attributes
+    of substitution models one parameter (`distributedparam`) drawn 
+    from a distribution. An example is that `omega` might be
+    drawn from a gamma distribution.
+
+    It requires that the parameter drawn from the distribution does
+    **not** affect the stationary state and only alters the matrix
+    exponentials `M` and `dM` relative to a `Model` where the
+    distributed parameter has a single value. In other words, it
+    allows mixtures over the transition probabilities but **not**
+    over the stationary state.
+    """
+
+    @abc.abstractproperty
+    def distributedparam(self):
+        """String giving name of parameter drawn from the distribution.
+        
+        This parameter must be in `freeparams`."""
+        pass
+
+    @abc.abstractproperty
+    def distributionparams(self):
+        """List of params giving shape of distribution for `distributedparam`."""
+        pass
+
+    @abc.abstractproperty
+    def d_distributionparams(self):
+        """Derivatives of `distributedparam` with respect to `distributionparams`.
+
+        Returns:
+            `d_distributionparams` (`dict` keyed by params in `distributionparams`)
+                `d_distribution[param]` is a `numpy.ndarray` of `float` of
+                shape `(ncats,)`, with `d_distributionparam[param][k]` giving
+                the derivative of the `distributedparam` for category `k`
+                with respect to `param` where `param` is in `distributionparams`.
+        """
+        pass
+
+    @abc.abstractproperty
+    def ncats(self):
+        """Number of categories for distributed parameter.
+
+        Is an `int` > 1.
+        """
+        pass
+
+    @abc.abstractproperty
+    def catweights(self):
+        """Weight assigned to each category.
+
+        Is a `numpy.ndarray` of `float` of shape `(ncats,)` where each
+        entry is > 0 and the entries sum to one. `catweights[k]` is
+        the weight assigned to category `k` where `0 <= k < ncats`.
+        """
+        pass
+
+    @abc.abstractmethod
+    def M(self, k, t, tips=None, gaps=None):
+        """Matrix exponential `M(mu * t) = exp(mu * t * P)` for category `k`.
+
+        Similar to definition for `Model` abstract base class except
+        also specifies for which category `k` we are returning the 
+        matrix exponential. `k` is an `int` with `0 <= k < ncats`.
+        """
+        pass
+
+    @abc.abstractmethod
+    def dM(self, k, t, param, Mkt, tips=None, gaps=None):
+        """Derivative of `M(k, t)` with respect to `param`.
+
+        Similar to definiton for `Model` abstract base class
+        except also specifies for which category `k` we are
+        returning the derivative. `k` is an `int` with
+        `0 <= k < ncats`.
+
+        Also, `param` can be any string in `freeparams` **except**
+        those in `distributionparams`, and can also be `distributedparam`.
+        """
+        pass
+
+
+class GammaDistributedOmegaModel(DistributionModel):
+    """Implements gamma distribution over `omega` for a model.
+    
+    This model can be used to take a simple substitution model that
+    directly subclasses `Model` and implement a gamma distribution
+    over its `omega` parameter. For instance, if this is done for
+    the `YNGKP_M0` model, it yields a M5 variant of the YNGKP model.
+
+    The `omega` parameter is drawn from `ncats` categories, with
+    the values being at the mean of each of these categories and
+    equal weight assigned to each category.
+
+    This means that rather than optimizing `omega` directly,
+    we optimize the shape and inverse-scale parameters
+    of its gamma distribution.
+   
+    See `__init__` method for how to initialize a 
+    `GammaDistributedOmegaModel`.
+
+    Attributes should **only** be updated via the `updateParams`
+    method; do **not** set attributes directly.
+
+    Attributes (see also those inherited from `DistributionModel`):
+        `alpha_omega` (`float` > 0)
+            Gamma distribution shape parameter.
+        `beta_omega` (`float` > 0)
+            Gamma distribution inverse-scale parameter
+    """
+
+    _PARAMLIMITS = {'alpha_omega':(0.3, 10),
+                    'beta_omega':(0.3, 10),
+                   }
+    PARAMTYPES = {'alpha_omega':float,
+                  'beta_omega':float,
+                 }
+
+    @property
+    def distributedparam(self):
+        """Returns name of the distributed parameter, which is `omega`."""
+        return 'omega'
+
+    @property
+    def distributionparams(self):
+        """Returns list of params defining distribution of `distributedparam`.
+
+        This list is `['alpha_omega', 'beta_omega']`."""
+        return ['alpha_omega', 'beta_omega']
+
+    def __init__(self, model, ncats, alpha_omega=1.0, beta_omega=2.0):
+        """Initialize a `GammaDistributedOmegaModel`.
+
+        Args:
+            `model` (`Model`)
+                A substitution model with `distributedparam` as a free parameter
+                that does **not** have any other property drawn from
+                a distribution. Any other parameter that is in `freeparams`
+                of this model will also be an optimized parameter.
+            `ncats`, `alpha_omega`, `beta_omega`
+                Meaning described in main class doc string.
+        """
+        assert isinstance(model, Model) 
+        assert not isinstance(model, DistributionModel)
+        assert self.distributedparam in model.freeparams
+
+        self._nsites = model.nsites
+
+        assert isinstance(ncats, int) and ncats >= 2
+        self._ncats = ncats
+        self._catweights = scipy.ones(self._ncats, dtype='float') / self._ncats
+
+        self.alpha_omega = alpha_omega
+        self.beta_omega = beta_omega
+        self._models = [] # holds array of models for each category
+        for k in range(self.ncats):
+            self._models.append(copy.deepcopy(model))
+
+        # get free parameters: omega distribution params, plus model freeparams
+        self._freeparams = ['alpha_omega', 'beta_omega']
+        for param in model.freeparams:
+            if param != self.distributedparam:
+                self._freeparams.append(param)
+                self._PARAMLIMITS[param] = model.PARAMLIMITS[param]
+                self.PARAMTYPES[param] = model.PARAMTYPES[param]
+                pvalue = getattr(model, param)
+                _checkParam(param, pvalue, self.PARAMLIMITS, self.PARAMTYPES)
+                setattr(self, param, getattr(model, param))
+
+        self.updateParams({}, update_all=True)
+
+    def M(self, k, t, tips=None, gaps=None):
+        """See docs for `DistributionModel` abstract base class."""
+        assert 0 <= k < self.ncats
+        return self._models[k].M(t, tips=tips, gaps=gaps)
+
+    def dM(self, k, t, param, Mkt, tips=None, gaps=None):
+        """See docs for `DistributionModel` abstract base class."""
+        assert 0 <= k < self.ncats
+        assert param in self.freeparams or param == self.distributedparam
+        assert param not in self.distributionparams
+        return self._models[k].dM(t, param, Mkt, tips=tips, gaps=gaps)
+
+    @property
+    def d_distributionparams(self):
+        """See docs for `DistributionModel` abstract base class."""
+        if not self._d_distributionparams:
+            dx = 1.0e-3
+            def f_alpha(alpha):
+                return DiscreteGamma(alpha, self.beta_omega, self.ncats)
+            def f_beta(beta):
+                return DiscreteGamma(self.alpha_omega, beta, self.ncats)
+            assert set(self.distributionparams) == {'alpha_omega', 'beta_omega'}
+            for (param, f) in [('alpha_omega', f_alpha), ('beta_omega', f_beta)]:
+                pvalue = getattr(self, param)
+                dparam = scipy.misc.derivative(f, pvalue, dx, n=1, order=5)
+                assert dparam.shape == (self.ncats,)
+                for stepchange in [0.5, 2]: # make sure robust to step size
+                    dparam2 = scipy.misc.derivative(f, pvalue, stepchange * dx, 
+                            n=1, order=5)
+                    assert scipy.allclose(dparam, dparam2, atol=1e-5, rtol=1e-4), (
+                            "Numerical derivative of {0} at {1} "
+                            "differs for step {2} and {3}: {4} and {5}"
+                            ", respectively.").format(param, pvalue,
+                            dx, dx * stepchange, dparam, dparam2)
+                self._d_distributionparams[param] = dparam
+        return self._d_distributionparams
+
+    def updateParams(self, newvalues, update_all=False):
+        """See docs for `Model` abstract base class."""
+        assert all(map(lambda x: x in self.freeparams, newvalues.keys())),\
+                "Invalid entry in newvalues: {0}\nfreeparams: {1}".format(
+                ', '.join(newvalues.keys()), ', '.join(self.freeparams))
+       
+        newvalues_list = [{} for k in range(self.ncats)] 
+
+        if update_all or any([param in self.distributionparams for param
+                in newvalues.keys()]):
+            self._d_distributionparams = {}
+            for param in self.distributionparams:
+                if param in newvalues:
+                    _checkParam(param, newvalues[param], self.PARAMLIMITS, 
+                            self.PARAMTYPES)
+                    setattr(self, param, newvalues[param])
+            self._omegas = DiscreteGamma(self.alpha_omega, self.beta_omega, 
+                    self.ncats)
+            for (k, omega) in enumerate(self._omegas):
+                newvalues_list[k][self.distributedparam] = omega
+        for name in self.freeparams:
+            if name not in self.distributionparams:
+                if name in newvalues:
+                    value = newvalues[name]
+                    _checkParam(name, value, self.PARAMLIMITS, self.PARAMTYPES)
+                    setattr(self, name, value)
+                    for k in range(self.ncats):
+                        newvalues_list[k][name] = value
+                elif update_all:
+                    for k in range(self.ncats):
+                        newvalues_list[k][name] = getattr(self, name)
+
+        assert len(newvalues_list) == len(self._models) == self.ncats
+        for (k, newvalues_k) in enumerate(newvalues_list):
+            self._models[k].updateParams(newvalues_k)
+
+        # check to make sure all models have same parameter values
+        for param in self.freeparams:
+            if param not in self.distributionparams:
+                pvalue = getattr(self, param)
+                assert all([scipy.allclose(pvalue, getattr(model, param))
+                        for model in self._models]), ("{0}\n{1}".format(
+                        pvalue, '\n'.join([str(getattr(model, param))
+                        for model in self._models])))
+
+    @property
+    def paramsReport(self):
+        """See docs for `Model` abstract base class."""
+        report = self._models[0].paramsReport
+        del report[self.distributedparam]
+        for param in self.distributionparams:
+            report[param] = getattr(self, param)
+        return report
+
+    @property
+    def freeparams(self):
+        """See docs for `Model` abstract base class."""
+        return self._freeparams
+
+    @property
+    def PARAMLIMITS(self):
+        """See docs for `Model` abstract base class."""
+        return self._PARAMLIMITS
+
+    @property
+    def ncats(self):
+        """See docs for `DistributionModel` abstract base class."""
+        return self._ncats
+
+    @property
+    def catweights(self):
+        """See docs for `DistributionModel` abstract base class."""
+        return self._catweights
+
+    @property 
+    def nsites(self):
+        """See docs for `Model` abstract base class."""
+        return self._nsites
+
+    @property 
+    def mu(self):
+        """See docs for `Model` abstract base class."""    
+        mu = self._models[0].mu
+        assert all([mu == model.mu for model in self._models])
+        return mu
+
+    @mu.setter
+    def mu(self, value):
+        """Set new `mu` value."""
+        for k in range(self.ncats):
+            self._models[k].updateParams({'mu':value})
+
+    @property
+    def stationarystate(self):
+        """See docs for `Model` abstract base class."""
+        ss = self._models[0].stationarystate
+        assert all([scipy.allclose(ss, model.stationarystate) for model 
+                in self._models])
+        return ss
+
+    def dstationarystate(self, param):
+        """See docs for `Model` abstract base class."""
+        if param == self.distributedparam or param in self.distributionparams:
+            for m in self._models:
+                ds = m.dstationarystate(self.distributedparam)
+                if isinstance(ds, float):
+                    assert ds == 0
+                else:
+                    assert (0 == ds).all()
+            return 0.0
+        else:
+            assert param in self.freeparams
+            ds = self._models[0].dstationarystate(param)
+            assert all([scipy.allclose(ds, m.dstationarystate(param)) for
+                    m in self._models])
+            return ds
+
+    @property
+    def branchScale(self):
+        """See docs for `Model` abstract base class."""
+        bscales = [m.branchScale for m in self._models]
+        assert all([bscales[i] < bscales[i + 1] for i in range(self.ncats - 1)])
+        return (self.catweights * bscales).sum()
+
+
 def _checkParam(param, value, paramlimits, paramtypes):
     """Checks if `value` is allowable value for `param`.
 
@@ -1352,7 +1699,7 @@ def _checkParam(param, value, paramlimits, paramtypes):
     returns `None` if value is acceptable.
 
     `paramlimits` and `paramtypes` are the `PARAMLIMITS`
-    and `_PARAMTYPES` attributes of a `Model`.
+    and `PARAMTYPES` attributes of a `Model`.
     """
     assert param in paramlimits, "Invalid param: {0}".format(param)
     (lowlim, highlim) = paramlimits[param]
@@ -1388,6 +1735,66 @@ def _fill_diagonals(m, diag_indices):
         scipy.fill_diagonal(m[r], 0)
         m[r][diag_indices] -= scipy.sum(m[r], axis=1)
 
+
+def DiscreteGamma(alpha, beta, ncats):
+    """Returns category means for discretized gamma distribution.
+
+    The distribution is evenly divided into categories, and the
+    mean of each category is returned.
+
+    Args:
+        `alpha` (`float` > 0)
+            Shape parameter of gamma distribution.
+        `beta` (`float` > 0)
+            Inverse scale parameter of gamma distribution.
+        `ncats` (`int` > 1)
+            Number of categories in discretized gamma distribution.
+
+    Returns:
+        `catmeans` (`scipy.ndarray` of `float`, shape `(ncats,)`)
+            `catmeans[k]` is the mean of category `k` where 
+            `0 <= k < ncats`.
+
+    Check that we get values in Figure 1 of Yang, J Mol Evol, 39:306-314
+    >>> catmeans = DiscreteGamma(0.5, 0.5, 4)
+    >>> scipy.allclose(catmeans, scipy.array([0.0334, 0.2519, 0.8203, 2.8944]), atol=1e-4)
+    True
+
+    Make sure we get expected mean of alpha / beta
+    >>> alpha = 0.6
+    >>> beta = 0.8
+    >>> ncats = 6
+    >>> catmeans = DiscreteGamma(alpha, beta, ncats)
+    >>> scipy.allclose(catmeans.sum() / ncats, alpha / beta)
+    True
+    """
+    alpha = float(alpha)
+    beta = float(beta)
+    assert alpha > 0
+    assert beta > 0
+    assert ncats > 1
+    scale = 1.0 / beta
+    catmeans = scipy.ndarray(ncats, dtype='float')
+    for k in range(ncats):
+        if k == 0:
+            lower = 0.0
+            gammainc_lower = 0.0
+        else:
+            lower = upper
+            gammainc_lower = gammainc_upper
+        if k == ncats - 1:
+            upper = float('inf')
+            gammainc_upper = 1.0
+        else:
+            upper = scipy.stats.gamma.ppf((k + 1) / float(ncats), alpha, 
+                    scale=scale)
+            gammainc_upper = scipy.special.gammainc(alpha + 1, upper * beta)
+        catmeans[k] = alpha * ncats * (gammainc_upper - gammainc_lower) / beta
+    assert scipy.allclose(catmeans.sum() / ncats, alpha / beta), (
+            "catmeans is {0}, mean of catmeans is {1}, expected mean "
+            "alpha / beta = {2} / {3} = {4}").format(catmeans, 
+            catmeans.sum() / ncats, alpha, beta, alpha / beta)
+    return catmeans
 
 
 if __name__ == '__main__':

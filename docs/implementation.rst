@@ -710,6 +710,63 @@ In a single unit of time, the probability that if site :math:`r` is initially :m
 
 Therefore, if we optimize the branch lengths :math:`t_b` and the model parameters in :math:`P_{r,xy}`, and then at the end re-scale the branch lengths to :math:`t_b' = t_b \times \frac{-\mu}{L} \sum_{r=1}^L \sum_x p_{r,x} P_{r,xx}` then the re-scaled branch lengths :math:`t_b` are in units of substitutions per sites. Therefore, for input and output to ``phydms``, we assume that input branch lengths are already in units of substitutions per site, and scale them from :math:`t_b'` to :math:`t_b`. Optimization is performed on :math:`t_b`, and then for output we re-scale the optimized branch lengths from :math:`t_b` to :math:`t_b'`.
 
+Models with gamma-distributed :math:`\omega`
+---------------------------------------------
+The models described above fit a single :math:`\omega` value. 
+We can also fit a distribution of :math:`\omega` values across sites.
+For instance, when this is done for the *YNGKP* models, we get the *YNGKP_M5* model described in `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_.
+
+Specifically, let the :math:`\omega` values be drawn from :math:`K` discrete categories with omega values :math:`\omega_0, \omega_2, \ldots, \omega_{K-1}`, and give equal weight to each category. Then the overall likelihood at site :math:`r` is
+
+.. math::
+
+   \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right) =
+   \frac{1}{K} \sum_{k=0}^{K-1} \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_k}\right)
+
+and the derivative with respect to model parameter :math:`\lambda` is simply
+
+.. math::
+
+   \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \lambda} =
+   \frac{1}{K} \sum_{k=0}^{K-1} \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_k}\right)}{\partial \lambda}.
+
+The different :math:`\omega_k` values are drawn from the means of a gamma-distribution discretized into :math:`K` categories as described by `Yang, J Mol Evol, 39:306-314`_. Specifically, this gamma distribution is described by a shape parameter :math:`\alpha_{\omega}` and an inverse scale parameter :math:`\beta_{\omega}` such that the probability density function of a continuous :math:`\omega` is given by
+
+.. math::
+
+   g\left(\omega; \alpha_{\omega}, \beta_{\omega}\right) = \frac{\left(\beta_{\alpha}\right)^{\alpha_{\omega}} e^{-\beta_{\omega} \omega} \omega^{\alpha_{\omega} - 1}}{\Gamma\left(\alpha_{\omega}\right)}.
+
+This function can be evaluated by ``scipy.stats.gamma.pdf(omega, alpha_omega, scale=1.0 / beta_omega)``. Note also that the mean of this distribution is :math:`\frac{\alpha_{\omega}}{\beta_{\omega}}` and the variance is :math:`\frac{\alpha_{\omega}}{\left(\beta_{\omega}\right)^2}`.
+
+The lower and upper boundaries of the interval for each category :math:`k` are
+
+.. math::
+
+   \omega_{k,\rm{lower}} &=& Q_{\Gamma}\left(\frac{k}{K}; \alpha_{\omega}, \beta_{\omega}\right) \\
+   \omega_{k,\rm{upper}} &=& Q_{\Gamma}\left(\frac{k + 1}{K}; \alpha_{\omega}, \beta_{\omega}\right) 
+
+where :math:`Q_{\Gamma}` is the quantile function (or percent-point function) of the gamma distribution. This function can be evaluated by ``scipy.stats.gamma.ppf(k / K, alpha_omega, scale=1.0 / beta_omega)``. 
+
+The mean for each category :math:`k` is 
+
+.. math::
+
+   \omega_k = \frac{\alpha_{\omega}K}{\beta_{\omega}} \left[\gamma\left(\omega_{k,\rm{upper}} \beta_{\omega}, \alpha_{\omega} + 1\right) - \gamma\left( \omega_{k,\rm{lower}} \beta_{\omega}, \alpha_{\omega} + 1 \right)\right]
+
+where :math:`\gamma` is the lower-incomplete gamma function and can be evaluated by ``scipy.special.gammainc(alpha_omega + 1, omega_k_upper * beta_omega)``.
+
+Note that :math:`\omega_k` is not actually a free parameter, as it is determined by :math:`\alpha_{\omega}` and :math:`\beta_{\omega}`. 
+The derivative of the log likelihood at site :math:`r` with respect to these parameters is simply
+
+.. math::
+
+   \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \alpha_{\omega}} &=&
+   \frac{1}{K} \sum\limits_{k=0}^{K-1} \frac{\partial \omega_k}{\partial \omega_{\alpha}}\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_k}\right)}{\partial \omega_k} \\
+   \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \beta_{\omega}} &=&
+   \frac{1}{K} \sum\limits_{k=0}^{K-1} \frac{\partial \omega_k}{\partial \omega_{\beta}}\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_k}\right)}{\partial \omega_k}.
+
+The derivatives :math:`\frac{\partial \omega_k}{\partial \omega_{\alpha}}` and :math:`\frac{\partial \omega_k}{\partial \omega_{\beta}}` are computed numerically using the finite-difference method.
+
 .. include:: weblinks.txt
  
 

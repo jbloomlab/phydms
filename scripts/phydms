@@ -95,14 +95,16 @@ def main():
             pass 
         else:
             raise ValueError("Invalid --brlen of {0}".format(args['brlen']))
-        yngkp_match = re.compile('^YNGKP_M(?P<modelvariant>\d+)$')
+        yngkp_match = re.compile('^YNGKP_(?P<modelvariant>M\d+)$')
         if isinstance(args['model'], str) and yngkp_match.search(args['model']):
             for argname in ['randprefs', 'avgprefs', 'divpressure']:
                 assert not args[argname], "'--%s' incompatible with YNKGP".format(
                             argname)
+            assert not args['gammaomega'], ("Can't use --gammaomega with YNGKP "
+                    "model; use 'model' of YNGKP_M5 to achieve the same result.")
             modelvariant = yngkp_match.search(args['model']).group('modelvariant')
-            logger.info(('The codon substitution model with be the M{0} version '
-                    'of YNGKP (Yang, Nielsen, Goldman, and Pederson. Genetics. '
+            logger.info(('Codon substitution model with be M{0} version '
+                    'of YNGKP (Yang, Nielsen, Goldman, & Pederson. Genetics. '
                     '155:431-449).').format(modelvariant))
             e_pw = scipy.ones((3,phydmslib.constants.N_NT), dtype='float')
             for p in range(3):
@@ -113,6 +115,17 @@ def main():
             freeparams += ["omega", "kappa"]
             nsites = int(len(alignment[0][1])/3)
             model = phydmslib.models.YNGKP_M0(e_pw, nsites, freeparams=freeparams)
+            if modelvariant == 'M0':
+                pass 
+            elif modelvariant == 'M5':
+                logger.info(('For this {0} model, omega will be drawn from '
+                        '{1} gamma-distributed categories.').format(
+                        args['model'], args['ncats']))
+                model = phydmslib.models.GammaDistributedOmegaModel(
+                        model, args['ncats'])
+            else:
+                raise ValueError("Invalid variant {0} in {1}".format(
+                        modelvariant, args['model']))
         elif (isinstance(args['model'], tuple) and len(args['model']) == 2 and
                 args['model'][0] == 'ExpCM'):
             prefsfile = args['model'][1]
@@ -126,7 +139,7 @@ def main():
                     avgprefs=args['avgprefs'], randprefs=args['randprefs'],
                     seed=args['seed'])
             sites = sorted(prefs.keys())
-            prefslist = [prefs[r] for r in sites] # convert prefs from dict to list
+            prefslist = [prefs[r] for r in sites] # convert from dict to list
             assert len(prefs) == len(alignment[0][1]) // 3, ("The number of "
                     "preferences in {0} does not match the number of codon "
                     "sites in the alignment").format(prefsfile)
@@ -174,6 +187,11 @@ def main():
                             sorted(divPressureSites)])
                     model = phydmslib.models.ExpCM_empirical_phi_divpressure(
                             prefslist, g, divpressure, freeparams=freeparams)
+            if args['gammaomega']:
+                logger.info(('Omega will be drawn from {0} gamma-distributed '
+                            'categories.\n').format(args['ncats']))
+                model = phydmslib.models.GammaDistributedOmegaModel(
+                        model, args['ncats'])
         else:
             raise ValueError("Invalid model of %s" % args['model'])
 
@@ -199,7 +217,11 @@ def main():
 
         # set up tree likelihood
         logger.info('Initializing TreeLikelihood..')
-        tl = phydmslib.treelikelihood.TreeLikelihood(tree, alignment, model)
+        if isinstance(model, phydmslib.models.DistributionModel):
+            tl = phydmslib.treelikelihood.TreeLikelihoodDistribution(tree, 
+                    alignment, model)
+        else:
+            tl = phydmslib.treelikelihood.TreeLikelihood(tree, alignment, model)
         logger.info('TreeLikelihood initialized.')
 
         # maximize likelihood
@@ -209,8 +231,8 @@ def main():
             import cProfile
             import pstats
             pstatsfile = '{0}_pstats'.format(args['outprefix'])
-            logger.info('Performing maximization with cProfile (probably slower).')
-            logger.info('Profile stats will be written to {0}'.format(pstatsfile))
+            logger.info('Maximizing with cProfile (probably slower).')
+            logger.info('Profile stats will be in to {0}'.format(pstatsfile))
             maxresult = []
             def wrapper(maxresult): # wrapper to get return value from cProfile
                 maxresult.append(tl.maximizeLikelihood())

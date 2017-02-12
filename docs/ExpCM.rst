@@ -121,6 +121,14 @@ There are three independent :math:`g_w` values and three independent :math:`\phi
 These equations can be solved numerically for :math:`\hat{\phi}_w`, and these empirical estimates can be used in the place of estimating :math:`\phi_w` by maximum likelihood.
 Such a procedure speeds the numerical optimization by reducing the number of free parameters that must be optimized.
 
+Gamma-distributed :math:`\omega`
+----------------------------------
+In codon substitution models, it is common to allow :math:`\omega` to be drawn from several discrete gamma-distributed categories. 
+For instance, this is what is done for the *M5* variant of the *YNGKP* models described by `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_. 
+This can also be done for *ExpCM* by using the ``--gammaomega`` option.
+In this case, :math:`\omega` is drawn from ``--ncats`` categories placed at the means of a discretized gamma distribution with shape parameter :math:`\alpha_{\omega}` and inverse scale parameter :math:`\beta_{\omega}`. 
+Note that the mean :math:`\omega` value is then :math:`\alpha_{\omega} / \beta_{\omega}`.
+
 Identifying diversifying selection via site-specific :math:`\omega_r` values
 ------------------------------------------------------------------------------
 One type of interesting selection is *diversifying selection*, where there is continual pressure for amino-acid change. Such selection might be expected to occur at sites that are targeted by adaptive immunity or subjected to some other form of selection which constantly favors changes in the protein sequence. At such sites, we expect that the relative rate of nonsynonymous substitutions will be higher than suggested by the site-specific preferences :math:`\pi_{r,a}` due to this diversifying selection.
