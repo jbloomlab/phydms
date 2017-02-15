@@ -13,8 +13,8 @@ Overview
 In its simplest usage, you simply provide ``phydms_comprehensive`` with an alignment and one or more files giving site-specific amino-acid preferences.
 The program then first uses ``RAxML`` to infer a tree under the *Jukes Cantor* model.
 Alternatively, you can specify the tree using ``--tree`` flag.
-Then for each set of site-specific amino-acid preferences optimizes this tree (with fixed topology) for an *ExpCM*.
-(and a control *ExpCM* with the preferences averaged across sites (the ``phydms`` option ``--avgprefs``). )
+Then for each set of site-specific amino-acid preferences optimizes this tree (with fixed topology) for an *ExpCM* and an *ExpCM* with :math:`omega` following a :math:`Gamma` distribution.
+It also runs each of these *ExpCM* models with averaged preferences as a control.  
 It also creates a simple summary that enables comparison among the models.
 
 You could get all of this output by simply running ``phydms`` repeatedly, but using ``phydms_comprehensive`` automates this process for you.
