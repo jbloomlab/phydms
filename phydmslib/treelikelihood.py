@@ -538,9 +538,9 @@ class TreeLikelihoodDistribution(TreeLikelihood):
 
     Attributes that differ from `TreeLikelihood` base model:
         `model` (instance of `phydmslib.models.DistributionModel`)
+            Base model over which we distribute parameter.
         `ncats` (`int`)
             Number of categories for distributed parameter of `model`.
-            Determined from `model`.
         `L` (`numpy.ndarray`, shape `(ninternal, ncats, nsites, N_CODON)`)
             `L[n - ntips][k][r][x]` is partial conditional likelihood
             of `x` at `r` at internal node `n` for category `k`.
