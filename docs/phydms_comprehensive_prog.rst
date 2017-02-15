@@ -11,7 +11,7 @@ Overview
 ``phydms_comprehensive`` is a program that simplifies usage of ``phydms`` for standard analyses. Essentially, ``phydms_comprehensive`` runs ``phydms`` for several different models to enable model comparisons and identify selection.
 
 In its simplest usage, you simply provide ``phydms_comprehensive`` with an alignment and one or more files giving site-specific amino-acid preferences.
-The program then first uses ``RAxML`` to infer a tree under the *Jukes Cantor* model.
+The program then first uses ``RAxML`` to infer a tree under the *GTRCAT* model.
 Alternatively, you can specify the tree using ``--tree`` flag.
 Then for each set of site-specific amino-acid preferences optimizes this tree (with fixed topology) for an *ExpCM* and an *ExpCM* with :math:`omega` following a :math:`Gamma` distribution.
 It also runs each of these *ExpCM* models with averaged preferences as a control.  

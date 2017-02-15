@@ -283,8 +283,8 @@ def main():
             outprefix = "{0}{1}".format(args['outprefix'], modelname)
             cmds = ['phydms', args['alignment'], args["tree"], model,
                     outprefix] + additionalcmds
-            logger.info('Starting analysis to optimize tree in {0} using model\
-                    {1}. The command is: {2}\n'.format( args["tree"], \
+            logger.info('Starting analysis to optimize tree in {0} using model'
+                    '{1}. The command is: {2}\n'.format( args["tree"],
                     modelname, ' '.join(cmds)))
             pool[modelname] = multiprocessing.Process(target=RunCmds\
                     , args=(cmds,))
