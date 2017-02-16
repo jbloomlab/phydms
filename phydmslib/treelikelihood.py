@@ -655,7 +655,7 @@ class TreeLikelihoodDistribution(TreeLikelihood):
             self.underflowlogscale.fill(0.0)
             self._computePartialLikelihoods()
             sitelik = scipy.zeros(self.nsites, dtype='float')
-            for k in range(self.ncats):
+            for k in self._catindices:
                 sitelik += scipy.sum(self.model.stationarystate *
                         self.L[-1][k], axis=1) * self.model.catweights[k]
             self.siteloglik = scipy.log(sitelik) + self.underflowlogscale
@@ -669,12 +669,8 @@ class TreeLikelihoodDistribution(TreeLikelihood):
                 else:
                     name = param
                     dk = scipy.ones(self.ncats, dtype='float')
-                self.dsiteloglik[param] = (scipy.sum(
-                            self.model.dstationarystate(param) * 
-                            self.L[-1][0] + self.dL[name][-1][0] *
-                            self.model.stationarystate, axis=-1) *
-                            self.model.catweights[0] * dk[0])
-                for k in range(1, self.ncats):
+                self.dsiteloglik[param] = 0
+                for k in self._catindices:
                     self.dsiteloglik[param] += (scipy.sum(
                             self.model.dstationarystate(param) * 
                             self.L[-1][k] + self.dL[name][-1][k] *
