@@ -688,20 +688,6 @@ For reasons that are not immediately obvious to me but are clearly verified by n
 
 In practice, we work with the :math:`\tilde{L}_{r,n}\left(x\right)` values, and then apply the correction of adding :math:`\sum_n \ln\left(U_r,n\right)` at the end.
 
-
-Derivatives with respect to branch lengths
---------------------------------------------
-The section above describes how to compute the derivatives with respect to paramters (e.g., model parameters) that affect all parts of the tree. 
-In many cases, we may want to optimize individual branch lengths rather than the overall mutation rate :math:`\mu`.
-In this case, we need to compute the derivatives with respect to the branch lengths.
-This is somewhat simpler for each individual branch length, since each individual branch length only affects part of the tree.
-
-Specifically, for each internal node :math:`n`,
-
-.. math::
-
-   \frac{\partial L_{r,n}\left(x\right)}{\partial t_{\mathcal{d}_1\left(n\right)}} =
-
 Units of tree branch lengths
 ------------------------------
 When we optimize with the :math:`P_{r,xy}` substitution matrices described above, the resulting branch lengths are **not** in units of substitutions per site. Therefore, for tree input / output, we re-scale the branch lengths so that they are in units of substitution per site.
@@ -766,6 +752,27 @@ The derivative of the log likelihood at site :math:`r` with respect to these par
    \frac{1}{K} \sum\limits_{k=0}^{K-1} \frac{\partial \omega_k}{\partial \omega_{\beta}}\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_k}\right)}{\partial \omega_k}.
 
 The derivatives :math:`\frac{\partial \omega_k}{\partial \omega_{\alpha}}` and :math:`\frac{\partial \omega_k}{\partial \omega_{\beta}}` are computed numerically using the finite-difference method.
+
+Derivatives with respect to branch lengths
+--------------------------------------------
+The section above describes how to compute the derivatives with respect to paramters (e.g., model parameters) that affect all parts of the tree. 
+In many cases, we may want to optimize individual branch lengths rather than the overall mutation rate :math:`\mu`.
+In this case, we need to compute the derivatives with respect to the branch lengths.
+This is somewhat simpler for each individual branch length, since each individual branch length only affects part of the tree.
+
+Specifically, for each internal node :math:`n`,
+
+.. math::
+
+   \frac{\partial L_{r,n}\left(x\right)}{\partial t_{\mathcal{d}_1\left(n\right)}} &=& \frac{\partial}{\partial t_{\mathcal{d}_1\left(n\right)}} \left(\left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right) L_{r,\mathcal{d}_1\left(n\right)}\left(y\right)\right] \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) L_{r,\mathcal{d}_2\left(n\right)}\left(y\right)\right] \right) \\
+   &=& \left[\sum_y \frac{\partial M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right)}{\partial t_{\mathcal{d}_1\left(n\right)}} L_{r,\mathcal{d}_1\left(n\right)}\left(y\right)\right] \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) L_{r,\mathcal{d}_2\left(n\right)}\left(y\right)\right]
+
+where 
+
+.. math::
+  
+   \frac{\partial M_{r,xy}\left(t\right)}{\partial t} = \mu \mathbf{P_r} e^{\mu t \mathbf{P_r}}.
+
 
 .. include:: weblinks.txt
  
