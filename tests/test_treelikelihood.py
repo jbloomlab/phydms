@@ -1,4 +1,4 @@
-"""Tests `TreeLikelihood` and `TreeLikelihoodDistribution`.
+"""Tests `TreeLikelihood` for various models.
 
 Written by Jesse Bloom and Sarah Hilton.
 """
@@ -102,18 +102,18 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             raise ValueError("Invalid MODEL: {0}".format(self.MODEL))
 
         if self.DISTRIBUTIONMODEL is None:
-            self.TREELIKELIHOOD = phydmslib.treelikelihood.TreeLikelihood
+            pass
         elif (self.DISTRIBUTIONMODEL == 
                 phydmslib.models.GammaDistributedOmegaModel):
             self.model = self.DISTRIBUTIONMODEL(self.model, ncats=4)
-            self.TREELIKELIHOOD = phydmslib.treelikelihood.TreeLikelihoodDistribution
         else:
             raise ValueError("Invalid DISTRIBUTIONMODEL: {0}".format(
                     self.DISTRIBUTIONMODEL))
 
     def test_Initialize(self):
         """Test that initializes properly."""
-        tl = self.TREELIKELIHOOD(self.tree, self.alignment, self.model)
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+                self.alignment, self.model)
         self.assertTrue(tl.nsites == self.nsites)
         self.assertTrue(tl.nseqs == self.nseqs)
         self.assertTrue(tl.nnodes == tl.ninternal + tl.ntips)
@@ -131,7 +131,8 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         modelparams = self.getModelParams(seed=1)
         model = copy.deepcopy(self.model)
         model.updateParams(modelparams)
-        tl = self.TREELIKELIHOOD(self.tree, self.alignment, model)
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+                self.alignment, model)
         logl = tl.loglik
         paramsarray = tl.paramsarray
         nparams = len(paramsarray)
@@ -160,7 +161,8 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         for mu in mus:
             model = copy.deepcopy(self.model)
             model.updateParams({'mu':mu})
-            tl = self.TREELIKELIHOOD(self.tree, self.alignment, model)
+            tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+                    self.alignment, model)
             # Here we are doing the multiplication hand-coded for the
             # tree defined in `setUp`. This calculation would be wrong
             # if the tree in `setUp` were to be changed.
@@ -193,7 +195,8 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
 
     def test_LikelihoodDerivativesModelParams(self):
         """Test derivatives of with respect to model params."""
-        tl = self.TREELIKELIHOOD(self.tree, self.alignment, self.model)
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+                self.alignment, self.model)
 
         for itest in range(2):
             modelparams = self.getModelParams(seed=itest)
@@ -221,7 +224,8 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         """Tests maximization likelihood.
 
         Make sure it gives the same value for several starting points."""
-        tl = self.TREELIKELIHOOD(self.tree, self.alignment, self.model)
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+                self.alignment, self.model)
 
         logliks = []
         paramsarrays = []

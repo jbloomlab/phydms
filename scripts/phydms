@@ -217,11 +217,7 @@ def main():
 
         # set up tree likelihood
         logger.info('Initializing TreeLikelihood..')
-        if isinstance(model, phydmslib.models.DistributionModel):
-            tl = phydmslib.treelikelihood.TreeLikelihoodDistribution(tree, 
-                    alignment, model)
-        else:
-            tl = phydmslib.treelikelihood.TreeLikelihood(tree, alignment, model)
+        tl = phydmslib.treelikelihood.TreeLikelihood(tree, alignment, model)
         logger.info('TreeLikelihood initialized.')
 
         # maximize likelihood

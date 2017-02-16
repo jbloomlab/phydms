@@ -17,7 +17,7 @@ import Bio.Phylo
 
 
 class test_underflow(unittest.TestCase):
-    """Test underflow correction in `TreeLikelihood` and `TreeLikelihoodDistribution`."""
+    """Test underflow correction in `TreeLikelihood`."""
 
     def test_underflow(self):
         """Tests correction for numerical underflow."""
@@ -42,12 +42,10 @@ class test_underflow(unittest.TestCase):
                 model, ncats=4)
 
         for (m, desc) in [(model, 'simple'), (distmodel, 'distribution')]:
-            if isinstance(m, phydmslib.models.DistributionModel):
-                tl_class = phydmslib.treelikelihood.TreeLikelihoodDistribution
-            else:
-                tl_class = phydmslib.treelikelihood.TreeLikelihood
-            tl = tl_class(tree, alignment, m, underflowfreq=1)
-            tl_nocorrection = tl_class(tree, alignment, m, underflowfreq=10000)
+            tl = phydmslib.treelikelihood.TreeLikelihood(tree, 
+                    alignment, m, underflowfreq=1)
+            tl_nocorrection = phydmslib.treelikelihood.TreeLikelihood(
+                    tree, alignment, m, underflowfreq=100000)
 
             self.assertTrue(scipy.allclose(tl.loglik, tl_nocorrection.loglik),
                     ("Log likelihoods differ with and without correction "
