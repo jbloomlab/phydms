@@ -441,8 +441,42 @@ class TreeLikelihood(object):
                         * self.model.stationarystate, axis=-1) / sitelik
                 self.dloglik[param] = scipy.sum(self.dsiteloglik[param], axis=-1)
 
+    def _M(self, k, t, tips=None, gaps=None):
+        """Returns `self.model.M(t, tips, gaps)`.
+
+        `k` is simply a dummy argument that has no meaning.
+        But it is important for other classes that inherit
+        from this one and have distributed rates.
+        """
+        return self.model.M(t, tips, gaps)
+
+    def _dM(self, k, t, param, M, tips=None, gaps=None):
+        """Returns `self.model.dM(t, param, M, tips, gaps)`.
+
+        `k` is simply a dummy argument that has no meaning. But it is
+        important for other classes that inherit from this one and
+        have distributed rates.
+        """
+        return self.model.dM(t, param, M, tips, gaps)
+
+    @property
+    def _catindices(self):
+        """Returns list of indices of categories. 
+
+        For a simple `TreeLikelihood`, there are no such indices,
+        but this can change in classes that inherit from this one."""
+        return [slice(None)]
+
+    @property
+    def _paramlist_PartialLikelihoods(self):
+        """List of parameters looped over in `_computePartialLikelihoods`.
+        
+        This is just `self.model.freeparams` for a simple `TreeLikelihood`,
+        but can change in classes that inherit from this one."""
+        return self.model.freeparams
+
     def _computePartialLikelihoods(self):
-        """Update `L`. and `dL`."""
+        """Update `L` and `dL`."""
         for n in range(self.ntips, self.nnodes):
             ni = n - self.ntips # internal node number
             nright = self.rdescend[ni]
@@ -459,59 +493,64 @@ class TreeLikelihood(object):
                 istipl = False
             tright = self.t[nright]
             tleft = self.t[nleft]
-            if istipr:
-                Mright = MLright = self.model.M(tright, self.tips[nright], 
-                        self.gaps[nright])
-            else:
-                Mright = self.model.M(tright)
-                MLright = broadcastMatrixVectorMultiply(Mright, 
-                        self.L[nrighti])
-            if istipl:
-                Mleft = MLleft = self.model.M(tleft, self.tips[nleft], 
-                        self.gaps[nleft])
-            else:
-                Mleft = self.model.M(tleft)
-                MLleft = broadcastMatrixVectorMultiply(Mleft, self.L[nlefti])
-            scipy.copyto(self.L[ni], MLright * MLleft)
-            for param in self.model.freeparams:
-                indices = self._sub_index_param(param)
+            for k in self._catindices:
                 if istipr:
-                    dMright = self.model.dM(tright, param, Mright, 
+                    Mright = MLright = self._M(k, tright, 
                             self.tips[nright], self.gaps[nright])
                 else:
-                    dMright = self.model.dM(tright, param, Mright)
+                    Mright = self._M(k, tright)
+                    MLright = broadcastMatrixVectorMultiply(Mright, 
+                            self.L[nrighti][k])
                 if istipl:
-                    dMleft = self.model.dM(tleft, param, Mleft, 
+                    Mleft = MLleft = self._M(k, tleft, 
                             self.tips[nleft], self.gaps[nleft])
                 else:
-                    dMleft = self.model.dM(tleft, param, Mleft)
-                for j in indices:
+                    Mleft = self._M(k, tleft)
+                    MLleft = broadcastMatrixVectorMultiply(Mleft, 
+                            self.L[nlefti][k])
+                scipy.copyto(self.L[ni][k], MLright * MLleft)
+                for param in self._paramlist_PartialLikelihoods:
                     if istipr:
-                        dMLright = dMright[j]
-                        MdLright = 0
+                        dMright = self._dM(k, tright, param, Mright,
+                                self.tips[nright], self.gaps[nright])
                     else:
-                        dMLright = broadcastMatrixVectorMultiply(
-                                dMright[j], self.L[nrighti])
-                        MdLright = broadcastMatrixVectorMultiply(Mright,
-                                self.dL[param][nrighti][j])
+                        dMright = self._dM(k, tright, param, Mright)
                     if istipl:
-                        dMLleft = dMleft[j]
-                        MdLleft = 0
+                        dMleft = self._dM(k, tleft, param, Mleft, 
+                                self.tips[nleft], self.gaps[nleft])
                     else:
-                        dMLleft = broadcastMatrixVectorMultiply(
-                                dMleft[j], self.L[nlefti])
-                        MdLleft = broadcastMatrixVectorMultiply(Mleft,
-                                self.dL[param][nlefti][j])
-                    scipy.copyto(self.dL[param][ni][j], (dMLright + MdLright)
-                            * MLleft + MLright * (dMLleft + MdLleft))
+                        dMleft = self._dM(k, tleft, param, Mleft)
+                    for j in self._sub_index_param(param):
+                        if istipr:
+                            dMLright = dMright[j]
+                            MdLright = 0
+                        else:
+                            dMLright = broadcastMatrixVectorMultiply(
+                                    dMright[j], self.L[nrighti][k])
+                            MdLright = broadcastMatrixVectorMultiply(
+                                    Mright, self.dL[param][nrighti][k][j])
+                        if istipl:
+                            dMLleft = dMleft[j]
+                            MdLleft = 0
+                        else:
+                            dMLleft = broadcastMatrixVectorMultiply(
+                                    dMleft[j], self.L[nlefti][k])
+                            MdLleft = broadcastMatrixVectorMultiply(
+                                    Mleft, self.dL[param][nlefti][k][j])
+                        scipy.copyto(self.dL[param][ni][k][j], 
+                                (dMLright + MdLright) * MLleft +
+                                MLright * (dMLleft + MdLleft))
             if ni > 0 and ni % self.underflowfreq == 0:
-                scale = scipy.amax(self.L[ni], axis=1)
-                self.L[ni] /= scale[:, scipy.newaxis]
+                # rescale by same amount for each category k
+                scale = scipy.amax(scipy.array([scipy.amax(self.L[ni][k],
+                        axis=1) for k in self._catindices]), axis=0)
+                assert scale.shape == (self.nsites,)
                 self.underflowlogscale += scipy.log(scale)
-                for param in self.model.freeparams:
-                    indices = self._sub_index_param(param)
-                    for j in indices:
-                        self.dL[param][ni][j] /= scale[:, scipy.newaxis] 
+                for k in self._catindices:
+                    self.L[ni][k] /= scale[:, scipy.newaxis]
+                    for param in self._paramlist_PartialLikelihoods:
+                        for j in self._sub_index_param(param):
+                            self.dL[param][ni][k][j] /= scale[:, scipy.newaxis] 
 
     def _sub_index_param(self, param):
         """Returns list of sub-indexes for `param`.
@@ -581,10 +620,7 @@ class TreeLikelihoodDistribution(TreeLikelihood):
             Lshape = (self.ninternal, self.ncats, self.nsites, N_CODON)
             self.L = scipy.full(Lshape, -1, dtype='float')
             self.dL = {}
-            for param in (self.model.freeparams + 
-                    [self.model.distributedparam]):
-                if param in self.model.distributionparams:
-                    continue
+            for param in self._paramlist_PartialLikelihoods:
                 if param == self.model.distributedparam:
                     self.dL[param] = scipy.full(Lshape, -1, 
                             dtype='float')
@@ -648,86 +684,30 @@ class TreeLikelihoodDistribution(TreeLikelihood):
                 self.dloglik[param] = scipy.sum(
                         self.dsiteloglik[param], axis=-1)
 
-    def _computePartialLikelihoods(self):
-        """Update `L` and `dL`."""
-        for n in range(self.ntips, self.nnodes):
-            ni = n - self.ntips # internal node number
-            nright = self.rdescend[ni]
-            nleft = self.ldescend[ni]
-            nrighti = nright - self.ntips # internal node number
-            nlefti = nleft - self.ntips # internal node number
-            if nright < self.ntips:
-                istipr = True
-            else:
-                istipr = False
-            if nleft < self.ntips:
-                istipl = True
-            else:
-                istipl = False
-            tright = self.t[nright]
-            tleft = self.t[nleft]
-            for k in range(self.ncats):
-                if istipr:
-                    Mright = MLright = self.model.M(k, tright, 
-                            self.tips[nright], self.gaps[nright])
-                else:
-                    Mright = self.model.M(k, tright)
-                    MLright = broadcastMatrixVectorMultiply(Mright, 
-                            self.L[nrighti][k])
-                if istipl:
-                    Mleft = MLleft = self.model.M(k, tleft, 
-                            self.tips[nleft], self.gaps[nleft])
-                else:
-                    Mleft = self.model.M(k, tleft)
-                    MLleft = broadcastMatrixVectorMultiply(Mleft, 
-                            self.L[nlefti][k])
-                scipy.copyto(self.L[ni][k], MLright * MLleft)
-                paramlist = [param for param in self.model.freeparams +
-                        [self.model.distributedparam] if param not in
-                        self.model.distributionparams]
-                for param in paramlist:
-                    indices = self._sub_index_param(param)
-                    if istipr:
-                        dMright = self.model.dM(k, tright, param, Mright,
-                                self.tips[nright], self.gaps[nright])
-                    else:
-                        dMright = self.model.dM(k, tright, param, Mright)
-                    if istipl:
-                        dMleft = self.model.dM(k, tleft, param, Mleft, 
-                                self.tips[nleft], self.gaps[nleft])
-                    else:
-                        dMleft = self.model.dM(k, tleft, param, Mleft)
-                    for j in indices:
-                        if istipr:
-                            dMLright = dMright[j]
-                            MdLright = 0
-                        else:
-                            dMLright = broadcastMatrixVectorMultiply(
-                                    dMright[j], self.L[nrighti][k])
-                            MdLright = broadcastMatrixVectorMultiply(
-                                    Mright, self.dL[param][nrighti][k][j])
-                        if istipl:
-                            dMLleft = dMleft[j]
-                            MdLleft = 0
-                        else:
-                            dMLleft = broadcastMatrixVectorMultiply(
-                                    dMleft[j], self.L[nlefti][k])
-                            MdLleft = broadcastMatrixVectorMultiply(
-                                    Mleft, self.dL[param][nlefti][k][j])
-                        scipy.copyto(self.dL[param][ni][k][j], 
-                                (dMLright + MdLright) * MLleft +
-                                MLright * (dMLleft + MdLleft))
-            if ni > 0 and ni % self.underflowfreq == 0:
-                # rescale by same amount for each category k
-                scale = scipy.amax(scipy.array([scipy.amax(self.L[ni][k],
-                        axis=1) for k in range(self.ncats)]), axis=0)
-                assert scale.shape == (self.nsites,)
-                self.underflowlogscale += scipy.log(scale)
-                for k in range(self.ncats):
-                    self.L[ni][k] /= scale[:, scipy.newaxis]
-                    for param in paramlist:
-                        for j in indices:
-                            self.dL[param][ni][k][j] /= scale[:, scipy.newaxis] 
+    def _M(self, k, t, tips=None, gaps=None):
+        """Returns `self.model.M(k, t, tips, gaps)`.
+
+        `k` is simply a dummy argument that has no meaning.
+        But it is important for other classes that inherit
+        from this one and have distributed rates.
+        """
+        return self.model.M(k, t, tips, gaps)
+
+    def _dM(self, k, t, param, M, tips=None, gaps=None):
+        """Returns `self.model.dM(k, t, param, M, tips, gaps)`."""
+        return self.model.dM(k, t, param, M, tips, gaps)
+
+    @property
+    def _catindices(self):
+        """Returns list of indices of categories."""
+        return range(self.ncats)
+
+    @property
+    def _paramlist_PartialLikelihoods(self):
+        """List of parameters looped over in `_computePartialLikelihoods`."""
+        return [param for param in self.model.freeparams + 
+                [self.model.distributedparam] if param not in
+                self.model.distributionparams]
 
     def _sub_index_param(self, param):
         """See docs for `TreeLikelihood` base class."""
