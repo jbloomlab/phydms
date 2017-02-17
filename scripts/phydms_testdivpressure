@@ -18,32 +18,37 @@ import phydmslib
 import phydmslib.file_io
 import phydmslib.parsearguments
 import pandas as pd
+import random
 
 def randomizeDivpressure(divpressureFile,numberRandomizations,outprefix):
-    """Randomizes the diversifying pressures value the number of times specified by the user
-       Each randomization is written to a file in the directory 'randomFiles'
-       Returns a list of the new file names
     """
+    This function randomizes a diversfiying pressure list the number of
+    times specfied by the user. Each randomization is written to a new
+    diversifying pressures files in the directory 'randomizedFiles'.
+    The function returns a dictionary of file names keyed by the random seed.
+    """
+    divpressurefilebase = os.path.splitext(os.path.basename(divpressureFile))[0]
     outdir = os.path.dirname(outprefix+"randomizedFiles/")
     if outdir:
         if not os.path.isdir(outdir):
             if os.path.isfile(outdir):
                 os.remove(outdir)
             os.mkdir(outdir)
-    fileList = []
-    with open(divpressureFile) as f:
-        lines = [line.split() for line in f.readlines() if not line.isspace() and line[0] != '#']
-    assert all([len(line) == 2 for line in lines])
-    sites = [tup[0] for tup in lines]
-    divpressures = [tup[1] for tup in lines]
+    randomFiles = {}
+    divpressureValues = phydmslib.file_io.readDivPressure(divpressureFile)
+    sites = list(divpressureValues.keys())
+    divpressures = list(divpressureValues.values())
     for seed in range(int(numberRandomizations)):
         random.seed(seed)
         random.shuffle(divpressures)
-        randomDivpressureFile = outdir+'/%s_random_%s.txt' %((divpressureFile.split(".")[-2]), str(seed))
+        randomDivpressureFile = outdir+'/{0}_random_{1}.csv'\
+                .format(divpressurefilebase, seed)
         with open(randomDivpressureFile, 'w') as f:
-            f.write('\n'.join('{0} {1}'.format(site, dp) for (site, dp) in zip(sites, divpressures)))
-        fileList.append(randomDivpressureFile)
-    return fileList
+            f.write("#SITE,VALUE\n")
+            f.write('\n'.join('{0},{1}'.format(site, dp) for (site, dp) \
+                    in zip(sites, divpressures)))
+        randomFiles[seed] = randomDivpressureFile
+    return randomFiles
 
 def tabulateResults(fileList, modelComparisonName):
     """
@@ -96,7 +101,18 @@ def RunCmds(cmds):
         os.kill(pid, signal.SIGTERM)
 
 def main():
-    """Main body of script."""
+    """
+    Main body of script.
+
+    In this script, each run of `phydms` is considered one model. Each model
+    has a unique ID which describes the preferences and the diversifying
+    pressures used in the `ExpCM`. The ID is a tuple of the following form:
+    (preferences, diversifying pressure, True/Random/None diversifying
+    pressure, random seed or None).
+
+    All of the models are run with either the tree indicated by the user or
+    a tree inferred under *GTRCAT* with `RAxML`
+    """
 
     # Parse command line arguments
     parser = phydmslib.parsearguments.PhyDMSTestdivpressureParser()
@@ -183,13 +199,12 @@ def main():
     assert modelID not in filesuffixes, "Duplicate model ID"
     filesuffixes[modelID] = filesuffixlist
     models[modelID] = ('ExpCM_{0}'.format(args['prefsfile']),
-            expcmadditionalcmds, nempiricalExpCM, "ExpCM_" + '_'.join(str(item) for item\
-            in modelID if item != "None"))
+            expcmadditionalcmds, nempiricalExpCM, "ExpCM_" + '_'.join(str(item)\
+                    for item in modelID if item != "None"))
 
     #set up ExpCM with diversifying pressure
     for divpressure in args["divpressure"]:
         divpressurefilebase = os.path.splitext(os.path.basename(divpressure))[0]
-        print(divpressure, divpressurefilebase)
         modelID = (prefsfilebase, divpressurefilebase, "True", "None")
         assert modelID not in filesuffixes, "Duplicate model ID (divpressure)"
         filesuffixes[modelID] = filesuffixlist
@@ -197,7 +212,18 @@ def main():
                 expcmadditionalcmds + ["--divpressure", divpressure],
                 nempiricalExpCM, "ExpCM_" + '_'.join(str(item) for item\
                 in modelID if item != "None"))
-
+        #set up ExpCM with diversifying pressure randomizations
+        if args["randomizations"]:
+            randomFiles = randomizeDivpressure(divpressure,
+                    args["randomizations"], args["outprefix"])
+            for random in randomFiles.keys():
+                modelID = (prefsfilebase, divpressurefilebase, "Random", random)
+                assert modelID not in filesuffixes, "Duplicate model ID (divpressure)"
+                filesuffixes[modelID] = filesuffixlist
+                models[modelID] = ('ExpCM_{0}'.format(args['prefsfile']),
+                        expcmadditionalcmds + ["--divpressure", randomFiles[random]],
+                        nempiricalExpCM, "ExpCM_" + '_'.join(str(item) for item\
+                        in modelID if item != "None"))
 
     # check alignment
     logger.info('Checking that the alignment {0} is valid...'
@@ -260,9 +286,22 @@ def main():
         try:
             args['ncpus'] = multiprocessing.cpu_count()
         except:
-            raise RuntimeError("Encountered a problem trying to dynamically determine the number of available CPUs. Please manually specify the number of desired CPUs with '--ncpus' and try again.")
+            raise RuntimeError("Encountered a problem trying to dynamically"
+                    "determine the number of available CPUs. Please manually"
+                    " specify the number of desired CPUs with '--ncpus' and"
+                    " try again.")
         logger.info('Will use all %d available CPUs.\n' % args['ncpus'])
     assert args['ncpus'] >= 1, "Failed to specify valid number of CPUs"
+
+    #Each model gets at least 1 CPU
+    ncpus_per_model = {}
+    nperexpcm = max(1, (args['ncpus'] - 2) // len(models))
+    for modelID in models.keys():
+        ncpus_per_model[modelID] = nperexpcm
+        mtup = models[modelID]
+        assert len(mtup) == 4 # should be 3-tuple
+        models[modelID] = (mtup[0], mtup[1] + ['--ncpus',
+                str(ncpus_per_model[modelID])], mtup[2], mtup[3])
 
     pool = {} # holds process for model name
     started = {} # holds whether process started for model name
