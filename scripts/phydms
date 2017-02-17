@@ -92,7 +92,7 @@ def main():
         elif args['brlen'] == 'optimize':
             raise RuntimeError('--brlen of optimize not yet implemented')
         elif args['brlen'] == 'fix':
-            pass 
+            pass
         else:
             raise ValueError("Invalid --brlen of {0}".format(args['brlen']))
         yngkp_match = re.compile('^YNGKP_(?P<modelvariant>M\d+)$')
@@ -103,20 +103,20 @@ def main():
             assert not args['gammaomega'], ("Can't use --gammaomega with YNGKP "
                     "model; use 'model' of YNGKP_M5 to achieve the same result.")
             modelvariant = yngkp_match.search(args['model']).group('modelvariant')
-            logger.info(('Codon substitution model with be M{0} version '
+            logger.info(('Codon substitution model with be {0} version '
                     'of YNGKP (Yang, Nielsen, Goldman, & Pederson. Genetics. '
                     '155:431-449).').format(modelvariant))
             e_pw = scipy.ones((3,phydmslib.constants.N_NT), dtype='float')
             for p in range(3):
                 for (w, nt) in phydmslib.constants.INDEX_TO_NT.items():
-                    e_pw[p][w] = sum([list(seq)[p::3].count(nt) for (head, seq) 
+                    e_pw[p][w] = sum([list(seq)[p::3].count(nt) for (head, seq)
                             in alignment])
             e_pw = e_pw / e_pw.sum(axis=1)[0]
             freeparams += ["omega", "kappa"]
             nsites = int(len(alignment[0][1])/3)
             model = phydmslib.models.YNGKP_M0(e_pw, nsites, freeparams=freeparams)
             if modelvariant == 'M0':
-                pass 
+                pass
             elif modelvariant == 'M5':
                 logger.info(('For this {0} model, omega will be drawn from '
                         '{1} gamma-distributed categories.').format(
@@ -218,7 +218,7 @@ def main():
         # set up tree likelihood
         logger.info('Initializing TreeLikelihood..')
         if isinstance(model, phydmslib.models.DistributionModel):
-            tl = phydmslib.treelikelihood.TreeLikelihoodDistribution(tree, 
+            tl = phydmslib.treelikelihood.TreeLikelihoodDistribution(tree,
                     alignment, model)
         else:
             tl = phydmslib.treelikelihood.TreeLikelihood(tree, alignment, model)

@@ -29,34 +29,56 @@ def RunCmds(cmds):
         os.kill(pid, signal.SIGTERM)
 
 def createModelComparisonFile(models, outprefix):
-    """Creates a pandas dataframe for the parameter and
-    log likelihood values
     """
-    final = pd.DataFrame({"Model":[],"parameter":[], "value":[]})
+    Creates two summary files, a .csv and a .md
+
+    *modelcomparison.csv*
+        Columns include 'model', 'variable', 'value'
+        'variable' includes all of the optimized parameters, the final log
+        likelihood and the number of optimized parameters.
+    *modelcomparison.md*
+        Columns include 'model', 'Loglikelihood', 'deltaAIC', and all non-phi
+        optimized parameters.
+    """
+
+    #modelcomparison.csv
+    final = pd.DataFrame({"Model":[],"variable":[], "value":[]})
     for modelName in models.keys():
         df = pd.read_csv(outprefix + modelName + "_modelparams.txt",
                 sep = " = ", header = None, engine = 'python')
-        df.columns = ['parameter', 'value']
-        df["Model"] = [modelName for x in range(len(df))]
+        df.columns = ['variable', 'value'] #rename the columns
+        df["Model"] = [modelName for x in range(len(df))] #add the model column
+        df = pd.concat([df, pd.DataFrame({"Model":[modelName],"variable":\
+                ["nEmpiricalParams"], "value":[len(df)]})])
         final = pd.concat([final,df])
         with open(outprefix + modelName + "_loglikelihood.txt") as f:
-            temp = {"Model":[], "parameter":[], "value":[]}
+            temp = {"Model":[], "variable":[], "value":[]}
             lines = f.readlines()
             temp["Model"].append(modelName)
-            temp["parameter"].append("LogLikelihood")
+            temp["variable"].append("LogLikelihood")
             temp["value"].append(lines[0].split(" = ")[-1])
         final = pd.concat([final, pd.DataFrame(temp)])
     final.to_csv(outprefix + "modelcomparison.csv", index = False)
-
-    df2 = final.pivot(index = "Model", columns='parameter', values='value')
-    final = ["|".join(["Model"] + df2.columns.values)]
-    final.append(["---|" for x in range(len(df2.columns.values))] + ["---"])
-
+    final.reset_index(drop=True, inplace = True)
+    print(final)
+    #modelcomparison.md
+    #pivot the dataframe so the parameters are columns
+    mdDF = final.pivot(index = "Model", columns='variable', values='value')
+    mdDF = mdDF[[x for x in mdDF.columns.values if "phi" not in x]]#remove phi
+    mdDF["LogLikelihood"] = [float(x) for x in mdDF["LogLikelihood"]]
+    #calc AIC
+    mdDF["deltaAIC"] = 2 * (mdDF["nEmpiricalParams"] - mdDF["LogLikelihood"])
+    mdDF["deltaAIC"] = mdDF["deltaAIC"] - mdDF["deltaAIC"].min()#calc dAIC
+    mdDF.sort_values(['deltaAIC'], ascending=[True])#sort so "best" model first
+    #format for markdown
+    final = ["|".join(["Model"] + mdDF.columns.values)]
+    final.append(["---|" for x in range(len(mdDF.columns.values))] + ["---"])
+    #write markdown file
     with open(outprefix + "modelcomparison.md", "w") as f:
-        f.write("|".join(["Model"] + list(df2.columns.values)) + "\n")
-        f.write("".join(["---|" for x in range(len(df2.columns.values))]
+        f.write("|".join(["Model"] + list(mdDF.columns.values)) + "\n")
+        f.write("".join(["---|" for x in range(len(mdDF.columns.values))]
                 + ["---"]) + "\n")
-        for index, row in df2.iterrows():
+        for index, row in mdDF.iterrows():
             f.write("|".join([str(x) for x in [index]+ list(row)]) + "\n")
 
 
@@ -119,13 +141,15 @@ def main():
 
     #set up the YNGKP models
     yngkpadditionalcmds = []
-    models = {'YNGKP_M0':('YNGKP_M0', yngkpadditionalcmds, 9)}
+    models = {'YNGKP_M0':('YNGKP_M0', yngkpadditionalcmds, 2)}
     filesuffixes['YNGKP_M0'] = filesuffixlist
-    models['YNGKP_M5'] = ('YNGKP_M5', yngkpadditionalcmds, 9)
+    models['YNGKP_M5'] = ('YNGKP_M5', yngkpadditionalcmds, 3)
     filesuffixes['YNGKP_M5'] = filesuffixlist
 
     #set up the ExpCM
     expcmadditionalcmds = []
+    nempiricalExpCM = 3
+    nempiricalExpCM_gammaomega = 4
     for prefsfile in args['prefsfiles']:
         if re.search('\s', prefsfile):
             raise ValueError("There is a space in the preferences file name:\
@@ -137,33 +161,57 @@ def main():
                 "removing directory and extension".format(modelname, prefsfile)
         filesuffixes[modelname] = filesuffixlist
         models[modelname] = ('ExpCM_{0}'.format(prefsfile),
-                expcmadditionalcmds, 0)
+                expcmadditionalcmds, nempiricalExpCM)
+        if not args["nogammaomega"]:
+            gammaomegamodelname = '{0}_gammaomega'.format(modelname)
+            models[gammaomegamodelname] = ('ExpCM_{0}'.format(prefsfile),
+                    expcmadditionalcmds + ['--gammaomega'], nempiricalExpCM_gammaomega)
+            filesuffixes[gammaomegamodelname] = filesuffixlist
         if args['avgrandcontrol']:
             if prefsfile == args['avgrandcontrol']:
                 avgmodelname = 'averaged_{0}'.format(modelname)
                 models[avgmodelname] = ('ExpCM_{0}'.format(prefsfile),
-                        expcmadditionalcmds + ['--avgprefs'], 0)
+                        expcmadditionalcmds + ['--avgprefs'], nempiricalExpCM)
                 filesuffixes[avgmodelname] = filesuffixlist
                 randmodelname = 'randomized_{0}'.format(modelname)
                 models[randmodelname] = ('ExpCM_{0}'.format(prefsfile),
-                        expcmadditionalcmds + ['--randprefs'], 0)
+                        expcmadditionalcmds + ['--randprefs'], nempiricalExpCM)
                 filesuffixes[randmodelname] = filesuffixlist
+                if not args["nogammaomega"]:
+                    avgmodelname = 'averaged_{0}_gammaomega'.format(modelname)
+                    models[avgmodelname] = ('ExpCM_{0}'.format(prefsfile),
+                            expcmadditionalcmds + ['-gammaomega'] \
+                            + ['--avgprefs'], nempiricalExpCM_gammaomega)
+                    filesuffixes[avgmodelname] = filesuffixlist
+                    randmodelname = 'randomized_{0}_gammaomega'.format(modelname)
+                    models[randmodelname] = ('ExpCM_{0}'.format(prefsfile),
+                            expcmadditionalcmds + ['-gammaomega'] \
+                            + ['--randprefs'], nempiricalExpCM_gammaomega)
+                    filesuffixes[randmodelname] = filesuffixlist
+
         else:
             if not args['noavgprefs']:
                 avgmodelname = 'averaged_{0}'.format(modelname)
                 models[avgmodelname] = ('ExpCM_{0}'.format(prefsfile),
                         expcmadditionalcmds + ['--avgprefs'], 0)
                 filesuffixes[avgmodelname] = filesuffixlist
+                if not args["nogammaomega"]:
+                    avgmodelname = 'averaged_{0}_gammaomega'.format(modelname)
+                    models[avgmodelname] = ('ExpCM_{0}'.format(prefsfile),
+                            expcmadditionalcmds + ['--gammaomega'] \
+                            + ['--avgprefs'], 0)
+                    filesuffixes[avgmodelname] = filesuffixlist
             if args['randprefs']:
                 randmodelname = 'randomized_{0}'.format(modelname)
                 models[randmodelname] = ('ExpCM_{0}'.format(prefsfile),
                         expcmadditionalcmds + ['--randprefs'], 0)
                 filesuffixes[randmodelname] = filesuffixlist
-            if not args["nogammaomega"]:
-                avgmodelname = '{0}_gammaomega'.format(modelname)
-                models[avgmodelname] = ('ExpCM_{0}'.format(prefsfile),
-                        expcmadditionalcmds + ['--gammaomega'], 0)
-                filesuffixes[avgmodelname] = filesuffixlist
+                if not args["nogammaomega"]:
+                    randmodelname = 'randomized_{0}_gammaomega'.format(modelname)
+                    models[randmodelname] = ('ExpCM_{0}'.format(prefsfile),
+                            expcmadditionalcmds + ['--gammaomega'] \
+                            + ['--randprefs'], 0)
+                    filesuffixes[randmodelname] = filesuffixlist
 
     # check alignment
     logger.info('Checking that the alignment {0} is valid...'
@@ -283,7 +331,7 @@ def main():
             outprefix = "{0}{1}".format(args['outprefix'], modelname)
             cmds = ['phydms', args['alignment'], args["tree"], model,
                     outprefix] + additionalcmds
-            logger.info('Starting analysis to optimize tree in {0} using model'
+            logger.info('Starting analysis to optimize tree in {0} using model '
                     '{1}. The command is: {2}\n'.format( args["tree"],
                     modelname, ' '.join(cmds)))
             pool[modelname] = multiprocessing.Process(target=RunCmds\

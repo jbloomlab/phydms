@@ -2,8 +2,8 @@
 
 """Test different diversifying pressure models with ``phydms``.
 
-Written by Jesse Boom and Sarah Hilton.
-"""
+Written by Jesse Boom. 
+Edited by Sarah Hilton."""
 
 
 import sys
@@ -13,16 +13,19 @@ import time
 import logging
 import multiprocessing
 import subprocess
-import glob
+import signal
+import Bio.Alphabet.IUPAC
+import Bio.Phylo
+import dms_tools.file_io
 import phydmslib
 import phydmslib.file_io
 import phydmslib.parsearguments
-import pandas as pd
+import random
 
 def randomizeDivpressure(divpressureFile,numberRandomizations,outprefix):
     """Randomizes the diversifying pressures value the number of times specified by the user
        Each randomization is written to a file in the directory 'randomFiles'
-       Returns a list of the new file names
+       Returns a list of the new file names 
     """
     outdir = os.path.dirname(outprefix+"randomizedFiles/")
     if outdir:
@@ -101,7 +104,7 @@ def setupMultiprocessing(cmds, pool, outprefixes, completed, started, modelname)
     outprefixes[modelname] = modelname
     completed[modelname] = False
     started[modelname] = False
-    return pool, outprefixes, completed, started
+    return pool,outprefixes,completed, started
 
 def main():
     """Main body of script."""
@@ -111,55 +114,32 @@ def main():
     args = vars(parser.parse_args())
     prog = parser.prog
 
-    #create output directory if needed
+    # create output directory if needed
     outdir = os.path.dirname(args['outprefix'])
     if outdir:
         if not os.path.isdir(outdir):
             if os.path.isfile(outdir):
                 os.remove(outdir)
-            os.mkdir(outdir)
-
-    #setup files
-    #file names depend on whether outprefix is directory or file
+            os.mkdir(outdir)        
+            
+    #log, list of outputfiles and other "universal" strings
+    filesuffixlist = ['.log', '_tree.newick', '_loglikelihood.txt', '_modelparams.txt']
+    # file names slightly different depending on whether outprefix is directory or file
     if args['outprefix'][-1] == '/':
-        logfile = "{0}log.log".format(args['outprefix'])
+        logfile = "%slog.log" % args['outprefix']
     else:
-        logfile = "{0}.log".format(args['outprefix'])
-        args['outprefix'] = '{0}_'.format(args['outprefix'])
-    modelcomparisonfile = '{0}modelcomparison.txt'.format(args['outprefix'])
+        logfile = "%s.log" % args['outprefix']
+        args['outprefix'] = '%s_' % args['outprefix']
+    ExpCMmodel = "ExpCM_" + args["prefsfile"] 
+    modelOutputprefixList = []   
+    modelcomparisonfile = args["outprefix"] + "modelcomparison.txt"
 
-    #Set up to log everything to logfile.
-        # Set up to log everything to logfile.
-    if os.path.isfile(logfile):
-        os.remove(logfile)
-    logging.shutdown()
-    logging.captureWarnings(True)
-    versionstring = phydmslib.file_io.Versions()
-    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
-        level=logging.INFO)
-    logger = logging.getLogger(prog)
-    logfile_handler = logging.FileHandler(logfile)
-    logger.addHandler(logfile_handler)
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    logfile_handler.setFormatter(formatter)
-
-    #print some basic information
-    logger.info('Beginning execution of {0} in directory {1}\n'
-            .format(prog, os.getcwd()))
-    logger.info('Progress is being logged to {0}\n'.format(logfile))
-    logger.info('{0}\n'.format(versionstring))
-    logger.info('Parsed the following command-line arguments:\n{0}\n'
-            .format('\n'.join(['\t{0} = {1}'.format(key, args[key])
-            for key in args.keys()])))
-
-    raise ValueError() #debugging
-
-
+    
     #Set up to log everything to logfile.
     if os.path.isfile(logfile):
         os.remove(logfile)
     logging.shutdown()
-    versionstring = phydmslib.file_io.Versions()
+    versionstring = phydmslib.file_io.Versions() 
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
     logger = logging.getLogger(prog)
     logfile_handler = logging.FileHandler(logfile)
@@ -177,7 +157,7 @@ def main():
     logger.info('Checking that the alignment {0} is valid...'.format(args['alignment']))
     alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'], checknewickvalid=True)
     logger.info('Valid alignment specifying {0} sequences of length {1}.\n'.format(len(alignment), len(alignment[0][1])))
-
+    
     #setting up cpus
     if args['ncpus'] == -1:
         try:
@@ -186,13 +166,13 @@ def main():
             raise RuntimeError("Encountered a problem trying to dynamically determine the number of available CPUs. Please manually specify the number of desired CPUs with '--ncpus' and try again.")
         logger.info('Will use all %d available CPUs.\n' % args['ncpus'])
     assert args['ncpus'] >= 1, "Failed to specify valid number of CPUs"
-
+        
     #set up dictionaries to track multi-process calls
     pool = {} # holds process for model name
     started = {} # holds whether process started for model name
     completed = {} # holds whether process completed for model name
     outprefixes = {} # holds outprefix for model name
-#
+#     
     try:
         #first estimate tree with phydms using YNGKP_M0 model
         modelname = 'YNGKP_M0'
@@ -211,7 +191,7 @@ def main():
             logger.info("Found expected output file %s" % fname)
         logger.info('Analysis successful for %s\n' % modelname)
         assert os.path.isfile(treefile)
-
+        
         #Then optimize the tree using ExpCM without diversifying pressure and update treefile
         modelOutprefix = args["outprefix"]+"noDiversifyingpressure"
         cmds = ['phydms', args['alignment'], treefile, ExpCMmodel, modelOutprefix, '--ncpus', "1"]
@@ -223,7 +203,7 @@ def main():
             logger.info("Found expected output file %s" % fname)
         logger.info('Analysis successful for %s\n' % modelOutprefix)
         assert os.path.isfile(treefile)
-        treefile = '%s_tree.newick' % modelOutprefix
+        treefile = '%s_tree.newick' % modelOutprefix 
         modelOutputprefixList.append(modelOutprefix)
 
 
@@ -242,7 +222,7 @@ def main():
                     logger.info('Starting analysis. The command is: %s\n' % (' '.join(cmds)))
                     pool, outprefixes, completed, started= setupMultiprocessing(cmds, pool, outprefixes, completed, started, modelOutprefix)
                     modelOutputprefixList.append(modelOutprefix)
-
+                    
     # remove existing output files
         outfiles = []
         removed = []
@@ -285,14 +265,14 @@ def main():
         for fname in outfiles:
             if not os.path.isfile(fname):
                 raise RuntimeError("Cannot find expected output file %s" % fname)
-
+                
         # tabulate model comparison
         logger.info("Tabulating model comparisons and writing to %s" % modelcomparisonfile)
         tabulateResults(modelOutputprefixList, modelcomparisonfile)
         with open(modelcomparisonfile) as f:
             modelcomparisontext = f.read()
         logger.info("Here are the results of the model comparison:\n\t%s" % modelcomparisontext.replace('\n', '\n\t'))
-
+        
     except:
         logger.exception('Terminating %s at %s with ERROR' % (prog, time.asctime()))
     else:
@@ -305,6 +285,6 @@ def main():
 
 
 
-
+    
 if __name__ == '__main__':
     main() # run the script

@@ -306,13 +306,8 @@ def PhyDMSComprehensiveParser():
     parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; -1 '
             'means all available.', type=int)
     parser.set_defaults(nogammaomega=False)
-    parser.add_argument('--no-gammaomega', dest='nogammaomega', action='store_true', help="No ExpCM with gamma distributed omega.")
-    # parser.set_defaults(noomegabysite=False)
-    # parser.add_argument('--no-omegabysite', dest='noomegabysite', action='store_true', help="No fitting of site-specific omegas.")
-    # parser.set_defaults(nostringencybysite=False)
-    # parser.add_argument('--no-stringencybysite', dest='nostringencybysite', action='store_true', help="No fitting of site-specific stringency for ExpCM.")
-    # parser.set_defaults(nodiffprefsbysite=False)
-    # parser.add_argument('--no-diffprefsbysite', dest='nodiffprefsbysite', action='store_true', help="No fitting of differential preferences for ExpCM.")
+    parser.add_argument('--no-gammaomega', dest='nogammaomega', action=\
+            'store_true', help="No ExpCM with gamma distributed omega.")
     parser.set_defaults(noavgprefs=False)
     parser.add_argument('--no-avgprefs', dest='noavgprefs', action='store_true',
             help="No fitting of models with preferences averaged across sites "
@@ -321,9 +316,6 @@ def PhyDMSComprehensiveParser():
             type=ExistingFileOrNone, help="Fit average and random controls "
             "only for ExpCM using this preference file. Overrides "
             "'--no-avgprefs' and '--randprefs'.")
-    # parser.set_defaults(omegabysite_fixsyn=False)
-    # parser.add_argument('--omegabysite_fixsyn', action='store_true', dest='omegabysite_fixsyn', help="See 'phydms' option of the same name.")
-    # parser.add_argument('--diffprefconc', help="Parameters determining the concentration of the regularizing prior over the differential preferences for '--diffprefsbysite'. Defaults to value of the same param for 'phydms'.", type=FloatGreaterThanEqualToZero, nargs=2, metavar=('C1', 'C2'))
     parser.set_defaults(randprefs=False)
     parser.add_argument('--randprefs', dest='randprefs', action='store_true',
             help="Include ExpCM models with randomized preferences.")
@@ -399,16 +391,28 @@ def PhyDMSParser():
 
 
 def PhyDMSTestdivpressureParser():
-    """Returns *argparse.ArgumentParser* for ``phdyms_testdivpressure`` script."""
-    parser = ArgumentParserNoArgHelp(description="Test different models of diversifying pressure. This program runs 'phydms' and compares model log likelihoods with and without diversifying pressures. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    """Returns *argparse.ArgumentParser* for ``phdyms_testdivpressure``
+        script.
+    """
+    parser = ArgumentParserNoArgHelp(description="Test different models of "
+            "diversifying pressure. {0} Version {1}. Full documentation at {2}"\
+            .format(phydmslib.__acknowledgments__, phydmslib.__version__,\
+            phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('outprefix', help='Prefix for output files.', type=str)
-    parser.add_argument('alignment', help='Existing FASTA file with aligned codon sequences.', type=ExistingFile)
-    parser.add_argument('prefsfile', help='Existing file with site-specific amino-acid preferences.', type=ExistingFile)
-    parser.add_argument('divpressure', help='List of existing files with diversifying pressure at each site', type=ExistingFile, nargs='+')
-    parser.add_argument('--treetopology', help='Fix tree to this Newick topology.', default=None)
-    parser.add_argument('--randomizations', help = 'Number diversifying pressure randomizations.', default=0, type=NonNegativeInt)
-    parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; -1 means all available.', type=int)
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
+    parser.add_argument('alignment', help='Existing FASTA file with aligned'
+            'codon sequences.', type=ExistingFile)
+    parser.add_argument('prefsfile', help='Existing file with site-specific'
+            ' amino-acid preferences.', type=ExistingFile)
+    parser.add_argument('divpressure', help='List of existing files with '
+            'diversifying pressure at each site', type=ExistingFile, nargs='+')
+    parser.add_argument('--treetopology', help='Fix tree to this Newick'
+            ' topology.', default=None)
+    parser.add_argument('--randomizations', help = 'Number diversifying '
+            'pressure randomizations.', default=0, type=NonNegativeInt)
+    parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; '
+            '-1 means all available.', type=int)
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s '
+            '{version}'.format(version=phydmslib.__version__))
     return parser
 
 
