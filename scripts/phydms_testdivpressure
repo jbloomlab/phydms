@@ -172,20 +172,32 @@ def main():
     filesuffixes = {} # keyed by model, values are list of suffixes
     models = {}
 
-    #set up the ExpCM
+    #set up the ExpCM without diversifying pressure
     expcmadditionalcmds = []
     nempiricalExpCM = 3
     if re.search('\s', args['prefsfile']):
         raise ValueError("There is a space in the preferences file name:\
                 {0}".format(args['prefsfile']))
     prefsfilebase = os.path.splitext(os.path.basename(args['prefsfile']))[0]
-    modelname = 'ExpCM_{0}'.format(prefsfilebase)
-    assert modelname not in filesuffixes, "Duplicate preferences file"\
-            " base name {0} for {1}; make names unique even after "\
-            "removing directory and extension".format(modelname, args['prefsfile'])
-    filesuffixes[modelname] = filesuffixlist
-    models[modelname] = ('ExpCM_{0}'.format(args['prefsfile']),
-            expcmadditionalcmds, nempiricalExpCM)
+    modelID = (prefsfilebase, "None", "None", "None")
+    assert modelID not in filesuffixes, "Duplicate model ID"
+    filesuffixes[modelID] = filesuffixlist
+    models[modelID] = ('ExpCM_{0}'.format(args['prefsfile']),
+            expcmadditionalcmds, nempiricalExpCM, "ExpCM_" + '_'.join(str(item) for item\
+            in modelID if item != "None"))
+
+    #set up ExpCM with diversifying pressure
+    for divpressure in args["divpressure"]:
+        divpressurefilebase = os.path.splitext(os.path.basename(divpressure))[0]
+        print(divpressure, divpressurefilebase)
+        modelID = (prefsfilebase, divpressurefilebase, "True", "None")
+        assert modelID not in filesuffixes, "Duplicate model ID (divpressure)"
+        filesuffixes[modelID] = filesuffixlist
+        models[modelID] = ('ExpCM_{0}'.format(args['prefsfile']),
+                expcmadditionalcmds + ["--divpressure", divpressure],
+                nempiricalExpCM, "ExpCM_" + '_'.join(str(item) for item\
+                in modelID if item != "None"))
+
 
     # check alignment
     logger.info('Checking that the alignment {0} is valid...'
@@ -263,9 +275,9 @@ def main():
         # remove existing output files
         outfiles = []
         removed = []
-        for modelname in models.keys():
-            for suffix in filesuffixes[modelname]:
-                fname = "{0}{1}{2}".format(args['outprefix'], modelname, suffix)
+        for modelID in models.keys():
+            for suffix in filesuffixes[modelID]:
+                fname = "{0}{1}{2}".format(args['outprefix'], models[modelID][3], suffix)
                 outfiles.append(fname)
         for fname in outfiles:
             if os.path.isfile(fname):
@@ -277,42 +289,42 @@ def main():
                     'created: {0}\n'.format(', '.join(removed)))
 
     #now run the other models
-        for modelname in list(models.keys()):
-            (model, additionalcmds, nempirical) = models[modelname]
+        for modelID in list(models.keys()):
+            (model, additionalcmds, nempirical, modelname) = models[modelID]
             outprefix = "{0}{1}".format(args['outprefix'], modelname)
             cmds = ['phydms', args['alignment'], args["tree"], model,
                     outprefix] + additionalcmds
             logger.info('Starting analysis to optimize tree in {0} using model '
                     '{1}. The command is: {2}\n'.format( args["tree"],
                     modelname, ' '.join(cmds)))
-            pool[modelname] = multiprocessing.Process(target=RunCmds\
+            pool[modelID] = multiprocessing.Process(target=RunCmds\
                     , args=(cmds,))
-            outprefixes[modelname] = outprefix
-            completed[modelname] = False
-            started[modelname] = False
+            outprefixes[modelID] = outprefix
+            completed[modelID] = False
+            started[modelID] = False
         while not all(completed.values()):
             nrunning = list(started.values()).count(True) - \
                     list(completed.values()).count(True)
             if nrunning < args['ncpus']:
-                for (modelname, p) in pool.items():
-                    if not started[modelname]:
+                for (modelID, p) in pool.items():
+                    if not started[modelID]:
                         p.start()
-                        started[modelname] = True
+                        started[modelID] = True
                         break
-            for (modelname, p) in pool.items():
-                if started[modelname] and (not completed[modelname]) and \
+            for (modelID, p) in pool.items():
+                if started[modelID] and (not completed[modelID]) and \
                         (not p.is_alive()): # process just completed
-                    completed[modelname] = True
-                    logger.info('Analysis completed for {0}'.format(modelname))
-                    for fname in [outprefixes[modelname] + suffix for suffix
-                            in filesuffixes[modelname]]:
+                    completed[modelID] = True
+                    logger.info('Analysis completed for {0}'.format(modelID))
+                    for fname in [outprefixes[modelID] + suffix for suffix
+                            in filesuffixes[modelID]]:
                         if not os.path.isfile(fname):
                             raise RuntimeError("phydms failed to created"
                                     " expected output file {0}.".format(fname))
                         logger.info("Found expected output file {0}"\
                                 .format(fname))
                     logger.info('Analysis successful for {0}\n'\
-                            .format(modelname))
+                            .format(modelID))
             time.sleep(1)
 
     #make sure all expected output files are there
