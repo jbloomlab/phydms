@@ -296,13 +296,11 @@ def PhyDMSComprehensiveParser():
             'codon sequences.', type=ExistingFile)
     parser.add_argument('prefsfiles', help='Existing files with site-specific '
             'amino-acid preferences.', type=ExistingFile, nargs='+')
-
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--tree', default=False, type=ExistingFile,
              help="Existing Newick file giving input tree.")
     group.add_argument('--raxml', help="Path to RAxML (http://sco.h-its.org/"
             "exelixis/software.html).", default='raxml')
-
     parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; -1 '
             'means all available.', type=int)
     parser.set_defaults(nogammaomega=False)
@@ -405,8 +403,11 @@ def PhyDMSTestdivpressureParser():
             ' amino-acid preferences.', type=ExistingFile)
     parser.add_argument('divpressure', help='List of existing files with '
             'diversifying pressure at each site', type=ExistingFile, nargs='+')
-    parser.add_argument('--treetopology', help='Fix tree to this Newick'
-            ' topology.', default=None)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--tree', default=False, type=ExistingFile,
+             help="Existing Newick file giving input tree.")
+    group.add_argument('--raxml', help="Path to RAxML (http://sco.h-its.org/"
+            "exelixis/software.html).", default='raxml')
     parser.add_argument('--randomizations', help = 'Number diversifying '
             'pressure randomizations.', default=0, type=NonNegativeInt)
     parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; '

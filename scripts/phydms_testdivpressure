@@ -95,14 +95,6 @@ def RunCmds(cmds):
     except:
         os.kill(pid, signal.SIGTERM)
 
-def setupMultiprocessing(cmds, pool, outprefixes, completed, started, modelname):
-    """Given a command, updates the pool, outprefixes, completed, and started dictionaries"""
-    pool[modelname] = multiprocessing.Process(target=RunCmds, args=(cmds,))
-    outprefixes[modelname] = modelname
-    completed[modelname] = False
-    started[modelname] = False
-    return pool, outprefixes, completed, started
-
 def main():
     """Main body of script."""
 
@@ -152,15 +144,13 @@ def main():
             .format('\n'.join(['\t{0} = {1}'.format(key, args[key])
             for key in args.keys()])))
 
-    raise ValueError() #debugging
-
-
     #Set up to log everything to logfile.
     if os.path.isfile(logfile):
         os.remove(logfile)
     logging.shutdown()
     versionstring = phydmslib.file_io.Versions()
-    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
+    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
+            level=logging.INFO)
     logger = logging.getLogger(prog)
     logfile_handler = logging.FileHandler(logfile)
     logger.addHandler(logfile_handler)
@@ -168,15 +158,90 @@ def main():
     logfile_handler.setFormatter(formatter)
 
     #print some basic information
-    logger.info('Beginning execution of %s in directory %s\n' % (prog, os.getcwd()))
-    logger.info('Progress is being logged to %s\n' % logfile)
-    logger.info("%s\n" % versionstring)
-    logger.info('Parsed the following command-line arguments:\n%s\n' % '\n'.join(['\t%s = %s' % tup for tup in args.iteritems()]))
+    logger.info('Beginning execution of {0} in directory {1}\n'
+            .format(prog, os.getcwd()))
+    logger.info('Progress is being logged to {0}\n'.format(logfile))
+    logger.info('{0}\n'.format(versionstring))
+    logger.info('Parsed the following command-line arguments:\n{0}\n'
+            .format('\n'.join(['\t{0} = {1}'.format(key, args[key])
+            for key in args.keys()])))
 
-    #check alignment
-    logger.info('Checking that the alignment {0} is valid...'.format(args['alignment']))
-    alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'], checknewickvalid=True)
-    logger.info('Valid alignment specifying {0} sequences of length {1}.\n'.format(len(alignment), len(alignment[0][1])))
+    #setup models
+    filesuffixlist = ['.log', '_tree.newick', '_loglikelihood.txt',
+            '_modelparams.txt']
+    filesuffixes = {} # keyed by model, values are list of suffixes
+    models = {}
+
+    #set up the ExpCM
+    expcmadditionalcmds = []
+    nempiricalExpCM = 3
+    if re.search('\s', args['prefsfile']):
+        raise ValueError("There is a space in the preferences file name:\
+                {0}".format(args['prefsfile']))
+    prefsfilebase = os.path.splitext(os.path.basename(args['prefsfile']))[0]
+    modelname = 'ExpCM_{0}'.format(prefsfilebase)
+    assert modelname not in filesuffixes, "Duplicate preferences file"\
+            " base name {0} for {1}; make names unique even after "\
+            "removing directory and extension".format(modelname, args['prefsfile'])
+    filesuffixes[modelname] = filesuffixlist
+    models[modelname] = ('ExpCM_{0}'.format(args['prefsfile']),
+            expcmadditionalcmds, nempiricalExpCM)
+
+    # check alignment
+    logger.info('Checking that the alignment {0} is valid...'
+            .format(args['alignment']))
+    alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'],
+            checknewickvalid=True) #checks that the identifiers are unique
+    assert len(set([align[1] for align in alignment])) == len([align[1]
+            for align in alignment]), "Remove duplicate sequences from {0}."\
+                    .format(args["alignment"])
+    logger.info('Valid alignment specifying {0} sequences of length {1}.\n'
+            .format(len(alignment), len(alignment[0][1])))
+
+
+    #read or build a tree
+    if args["tree"]:
+      logger.info("Reading tree from {0}".format(args['tree']))
+    else:
+        logger.info("Tree not specified.")
+        try:
+            raxmlversion = subprocess.check_output([args['raxml'], '-v'],
+                    stderr=subprocess.STDOUT).strip()
+            logger.info("Inferring tree with RAxML using command {0}"
+                    .format(args['raxml']))
+
+            #remove pre-existing RAxML files
+            raxmlOutputName = os.path.splitext(os.path.basename(
+                    args["alignment"]))[0]
+            raxmlOutputFiles = [n for n in glob.glob("RAxML_*{0}"
+                    .format(raxmlOutputName)) if os.path.isfile(n)]
+            raxmlOutputFiles = []
+            for raxmlFile in glob.glob("RAxML_*{0}".format(raxmlOutputName)):
+                if os.path.isfile(raxmlFile):
+                    raxmlOutputFiles.append(raxmlFile)
+                    os.remove(raxmlFile)
+            if len(raxmlOutputFiles) > 0:
+                logger.info('Removed the following RAxML files:\n{0}\n'
+                    .format('\n'.join(['\t{0}'.format(fname) for
+                    fname in raxmlOutputFiles])))
+
+         # run RAxmL
+            raxmlCMD = [args['raxml'], '-s', args['alignment'], '-n',
+                    raxmlOutputName, '-m', 'GTRCAT', '-p1', '-T', '2']
+            subprocess.check_call(raxmlCMD)
+
+         # move RAxML tree to output directory and remove all other files
+            for  raxmlFile in glob.glob("RAxML_*{0}".format(raxmlOutputName)):
+                if "bestTree" in raxmlFile:
+                    os.rename(raxmlFile, args["outprefix"] + raxmlFile)
+                    args["tree"] = args["outprefix"] + raxmlFile
+                    logger.info("RAxML inferred tree, {0}, is in {1}."
+                            .format(raxmlFile, args["outprefix"]))
+                else:
+                    os.remove(raxmlFile)
+        except OSError:
+            raise ValueError("The raxml command of {0} is not valid."
+                    " Is raxml installed at this path?".format(args['raxml']))
 
     #setting up cpus
     if args['ncpus'] == -1:
@@ -187,82 +252,47 @@ def main():
         logger.info('Will use all %d available CPUs.\n' % args['ncpus'])
     assert args['ncpus'] >= 1, "Failed to specify valid number of CPUs"
 
-    #set up dictionaries to track multi-process calls
     pool = {} # holds process for model name
     started = {} # holds whether process started for model name
     completed = {} # holds whether process completed for model name
     outprefixes = {} # holds outprefix for model name
-#
+
+    # rest of execution in try / finally
     try:
-        #first estimate tree with phydms using YNGKP_M0 model
-        modelname = 'YNGKP_M0'
-        outprefix = "%s%s" % (args['outprefix'], modelname)
-        treefile = '%s_tree.newick' % outprefix
-        if args['treetopology']:
-            cmds = ['phydms', args['alignment'], args['treetopology'], modelname, outprefix]
-            logger.info('Optimizing tree in %s using the %s model. The command is: %s' % (model, args['treetopology'], ' '.join(cmds)))
-        else:
-            cmds = ['phydms', args['alignment'], 'nj', modelname, outprefix, '--infertopology']
-            logger.info('Inferring topology using the %s model starting from a simple neighbor joining tree. The command is: %s' % (modelname, ' '.join(cmds)))
-        subprocess.check_call(cmds)
-        for fname in [outprefix + suffix for suffix in filesuffixlist]:
-            if not os.path.isfile(fname):
-                raise RuntimeError("phydms failed to created expected output file %s." % fname)
-            logger.info("Found expected output file %s" % fname)
-        logger.info('Analysis successful for %s\n' % modelname)
-        assert os.path.isfile(treefile)
 
-        #Then optimize the tree using ExpCM without diversifying pressure and update treefile
-        modelOutprefix = args["outprefix"]+"noDiversifyingpressure"
-        cmds = ['phydms', args['alignment'], treefile, ExpCMmodel, modelOutprefix, '--ncpus', "1"]
-        logger.info('Starting analysis. The command is: %s\n' % (' '.join(cmds)))
-        subprocess.check_call(cmds)
-        for fname in [modelOutprefix + suffix for suffix in filesuffixlist]:
-            if not os.path.isfile(fname):
-                raise RuntimeError("phydms failed to created expected output file %s." % fname)
-            logger.info("Found expected output file %s" % fname)
-        logger.info('Analysis successful for %s\n' % modelOutprefix)
-        assert os.path.isfile(treefile)
-        treefile = '%s_tree.newick' % modelOutprefix
-        modelOutputprefixList.append(modelOutprefix)
-
-
-        #run the various divpresssure scenarios (true, random)
-        for divpressureFile in args["divpressure"]:
-            modelOutprefix = args["outprefix"] + os.path.splitext(os.path.basename(divpressureFile))[0]
-            cmds = ['phydms', args['alignment'], treefile, ExpCMmodel, modelOutprefix, '--divpressure', divpressureFile, '--ncpus', "1", '--fixbrlen','--addrateparameter']
-            logger.info('Starting analysis. The command is: %s\n' % (' '.join(cmds)))
-            pool, outprefixes, completed, started = setupMultiprocessing(cmds, pool, outprefixes, completed, started, modelOutprefix)
-            modelOutputprefixList.append(modelOutprefix)
-            if args["randomizations"]:
-                randomFileList = randomizeDivpressure(divpressureFile,args["randomizations"],args["outprefix"])
-                for file in randomFileList:
-                    modelOutprefix = args["outprefix"] + os.path.splitext(os.path.basename(file))[0]
-                    cmds = ['phydms', args['alignment'], treefile, ExpCMmodel, modelOutprefix, '--divpressure', file,'--ncpus', "1",'--fixbrlen','--addrateparameter']
-                    logger.info('Starting analysis. The command is: %s\n' % (' '.join(cmds)))
-                    pool, outprefixes, completed, started= setupMultiprocessing(cmds, pool, outprefixes, completed, started, modelOutprefix)
-                    modelOutputprefixList.append(modelOutprefix)
-
-    # remove existing output files
+        # remove existing output files
         outfiles = []
         removed = []
-        for modelname in modelOutputprefixList:
-            for suffix in filesuffixlist:
-                fname = "%s%s" % (modelname, suffix)
+        for modelname in models.keys():
+            for suffix in filesuffixes[modelname]:
+                fname = "{0}{1}{2}".format(args['outprefix'], modelname, suffix)
                 outfiles.append(fname)
-        for fname in [modelcomparisonfile]:
-            if os.path.isfile(fname):
-                #os.remove(fname)
-                removed.append(fname)
         for fname in outfiles:
             if os.path.isfile(fname):
-                #os.remove(fname)
+                os.remove(fname)
                 removed.append(fname)
         if removed:
-            logger.info('Removed the following existing files that have names that match the names of output files that will be created: %s\n' % ', '.join(removed))
-    #Running the different scenarios
+            logger.info('Removed the following existing files that have names'
+                    " that match the names of output files that will be "
+                    'created: {0}\n'.format(', '.join(removed)))
+
+    #now run the other models
+        for modelname in list(models.keys()):
+            (model, additionalcmds, nempirical) = models[modelname]
+            outprefix = "{0}{1}".format(args['outprefix'], modelname)
+            cmds = ['phydms', args['alignment'], args["tree"], model,
+                    outprefix] + additionalcmds
+            logger.info('Starting analysis to optimize tree in {0} using model '
+                    '{1}. The command is: {2}\n'.format( args["tree"],
+                    modelname, ' '.join(cmds)))
+            pool[modelname] = multiprocessing.Process(target=RunCmds\
+                    , args=(cmds,))
+            outprefixes[modelname] = outprefix
+            completed[modelname] = False
+            started[modelname] = False
         while not all(completed.values()):
-            nrunning = started.values().count(True) - completed.values().count(True)
+            nrunning = list(started.values()).count(True) - \
+                    list(completed.values()).count(True)
             if nrunning < args['ncpus']:
                 for (modelname, p) in pool.items():
                     if not started[modelname]:
@@ -270,40 +300,38 @@ def main():
                         started[modelname] = True
                         break
             for (modelname, p) in pool.items():
-                if started[modelname] and (not completed[modelname]) and (not p.is_alive()): # process just completed
+                if started[modelname] and (not completed[modelname]) and \
+                        (not p.is_alive()): # process just completed
                     completed[modelname] = True
-                    logger.info('Analysis completed for %s' % modelname)
-                    for fname in [outprefixes[modelname] + suffix for suffix in filesuffixlist]:
+                    logger.info('Analysis completed for {0}'.format(modelname))
+                    for fname in [outprefixes[modelname] + suffix for suffix
+                            in filesuffixes[modelname]]:
                         if not os.path.isfile(fname):
-                            raise RuntimeError("phydms failed to created expected output file %s." % fname)
-                        logger.info("Found expected output file %s" % fname)
-                    logger.info('Analysis successful for %s\n' % modelname)
+                            raise RuntimeError("phydms failed to created"
+                                    " expected output file {0}.".format(fname))
+                        logger.info("Found expected output file {0}"\
+                                .format(fname))
+                    logger.info('Analysis successful for {0}\n'\
+                            .format(modelname))
             time.sleep(1)
-
 
     #make sure all expected output files are there
         for fname in outfiles:
             if not os.path.isfile(fname):
-                raise RuntimeError("Cannot find expected output file %s" % fname)
+                raise RuntimeError("Cannot find expected output file {0}"
+                        .format(fname))
 
-        # tabulate model comparison
-        logger.info("Tabulating model comparisons and writing to %s" % modelcomparisonfile)
-        tabulateResults(modelOutputprefixList, modelcomparisonfile)
-        with open(modelcomparisonfile) as f:
-            modelcomparisontext = f.read()
-        logger.info("Here are the results of the model comparison:\n\t%s" % modelcomparisontext.replace('\n', '\n\t'))
 
     except:
-        logger.exception('Terminating %s at %s with ERROR' % (prog, time.asctime()))
+        logger.exception('Terminating {0} at {1} with ERROR'
+                .format(prog, time.asctime()))
     else:
-        logger.info('Successful completion of %s' % prog)
+        logger.info('Successful completion of {0}'.format(prog))
     finally:
         logging.shutdown()
         for p in pool.values():
             if p.is_alive():
                 p.terminate()
-
-
 
 
 if __name__ == '__main__':
