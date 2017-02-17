@@ -3,8 +3,7 @@
 This test examines the entire functionality of ``phydms``
 when run from the command line using an `ExpCM` model with `--divpressure`.
 
-Written by Jesse Bloom.
-Edited by Sarah Hilton
+Written by Jesse Bloom and Sarah Hilton.
 """
 
 import os
@@ -29,7 +28,7 @@ class test_phydms_divpressure(unittest.TestCase):
         if os.path.isdir(outprefix):
             shutil.rmtree(outprefix)
 
-        subprocess.check_call(['phydms', alignment, tree, 
+        subprocess.check_call(['phydms', alignment, tree,
                 'ExpCM_{0}'.format(prefs), outprefix, '--divpressure', divpressure])
 
 

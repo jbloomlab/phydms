@@ -60,7 +60,7 @@ def createModelComparisonFile(models, outprefix):
         final = pd.concat([final, pd.DataFrame(temp)])
     final.to_csv(outprefix + "modelcomparison.csv", index = False)
     final.reset_index(drop=True, inplace = True)
-    print(final)
+    
     #modelcomparison.md
     #pivot the dataframe so the parameters are columns
     mdDF = final.pivot(index = "Model", columns='variable', values='value')
