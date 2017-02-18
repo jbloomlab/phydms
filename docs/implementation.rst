@@ -785,7 +785,7 @@ and
 
 .. math::
 
-   \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \alpha} = \sum_x \left(\frac{\sum_y \frac{\partial M_{r,xy}\left(t_n\right)}{\partial t_n} L_{r,n}\left(y\right)}{\sum_y M_{r,xy}\left(t_n\right) L_{r,n}\left(y\right)}\right) L_{r,n_{\rm{root}}}\left(x\right) \times p_{r,x}.
+   \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial t_n} = \frac{\partial L_{r,n_{\rm{root}}}\left(x\right)}{\partial t_n} \times p_{r,x}.
 
 .. include:: weblinks.txt
  
