@@ -533,7 +533,7 @@ In this case, :math:`\mu` also becomes a free parameter of the model, and we wan
 
 .. math::
 
-   \frac{\partial \mathbf{M_r}\left(\mu t\right)}{\partial \mu} = t \mathbf{P_r} e^{\mu t \mathbf{P_r}}.
+   \frac{\partial \mathbf{M_r}\left(\mu t\right)}{\partial \mu} = t \mathbf{P_r} e^{\mu t \mathbf{P_r}} = t \mathbf{P_r} \mathbf{M_r}\left(\mu t\right).
 
 
 Calculating the likelihood and derivatives on a tree
@@ -765,14 +765,27 @@ Specifically, for each internal node :math:`n`,
 .. math::
 
    \frac{\partial L_{r,n}\left(x\right)}{\partial t_{\mathcal{d}_1\left(n\right)}} &=& \frac{\partial}{\partial t_{\mathcal{d}_1\left(n\right)}} \left(\left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right) L_{r,\mathcal{d}_1\left(n\right)}\left(y\right)\right] \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) L_{r,\mathcal{d}_2\left(n\right)}\left(y\right)\right] \right) \\
-   &=& \left[\sum_y \frac{\partial M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right)}{\partial t_{\mathcal{d}_1\left(n\right)}} L_{r,\mathcal{d}_1\left(n\right)}\left(y\right)\right] \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) L_{r,\mathcal{d}_2\left(n\right)}\left(y\right)\right]
+   &=& \left[\sum_y \frac{\partial M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right)}{\partial t_{\mathcal{d}_1\left(n\right)}} L_{r,\mathcal{d}_1\left(n\right)}\left(y\right)\right] \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) L_{r,\mathcal{d}_2\left(n\right)}\left(y\right)\right] \\
+   &=& \left(\frac{\sum_y \frac{\partial M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right)}{\partial t_{\mathcal{d}_1\left(n\right)}} L_{r,\mathcal{d}_1\left(n\right)}\left(y\right)}{\sum_y M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right) L_{r,\mathcal{d}_1\left(n\right)}\left(y\right)}\right) L_{r,n}\left(x\right) \\
 
 where 
 
 .. math::
   
-   \frac{\partial M_{r,xy}\left(t\right)}{\partial t} = \mu \mathbf{P_r} e^{\mu t \mathbf{P_r}}.
+   \frac{\partial M_{r,xy}\left(t\right)}{\partial t} = \mu \mathbf{P_r} e^{\mu t \mathbf{P_r}} = \mu \mathbf{P_r} \mathbf{M_r}\left(\mu t\right).
 
+Therefore, for every node (tip and internal) :math:`n`,
+
+.. math::
+
+   \frac{\partial L_{r,n_{\rm{root}}}\left(x\right)}{\partial t_n} = 
+   \left(\frac{\sum_y \frac{\partial M_{r,xy}\left(t_n\right)}{\partial t_n} L_{r,n}\left(y\right)}{\sum_y M_{r,xy}\left(t_n\right) L_{r,n}\left(y\right)}\right) L_{r,n_{\rm{root}}}\left(x\right)
+
+and 
+
+.. math::
+
+   \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \alpha} = \sum_x \left(\frac{\sum_y \frac{\partial M_{r,xy}\left(t_n\right)}{\partial t_n} L_{r,n}\left(y\right)}{\sum_y M_{r,xy}\left(t_n\right) L_{r,n}\left(y\right)}\right) L_{r,n_{\rm{root}}}\left(x\right) \times p_{r,x}.
 
 .. include:: weblinks.txt
  
