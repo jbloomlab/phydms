@@ -397,7 +397,7 @@ def PhyDMSTestdivpressureParser():
             .format(phydmslib.__acknowledgments__, phydmslib.__version__,\
             phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('outprefix', help='Prefix for output files.', type=str)
-    parser.add_argument('alignment', help='Existing FASTA file with aligned'
+    parser.add_argument('alignment', help='Existing FASTA file with aligned '
             'codon sequences.', type=ExistingFile)
     parser.add_argument('prefsfile', help='Existing file with site-specific'
             ' amino-acid preferences.', type=ExistingFile)
