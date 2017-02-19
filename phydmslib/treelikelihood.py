@@ -110,7 +110,7 @@ class TreeLikelihood(object):
             For each internal node `n`, `rdescend[n - ntips]`
             is its right descendant and `ldescend[n - ntips]` is its left 
             descendant.
-        `t` (`list` of `float`, length `nnodes - 1`)
+        `t` (`numpy.ndarray` of `float`, shape `(nnodes - 1,)`)
             `t[n]` is the branch length leading node `n`. The branch leading
             to the root node (which has index `nnodes - 1`) is undefined
             and not used, which is why `t` is of length `nnodes - 1` rather
@@ -232,7 +232,7 @@ class TreeLikelihood(object):
         internalnodes = []
         self.tips = scipy.zeros((self.ntips, self.nsites), dtype='int')
         self.gaps = []
-        self._t = [-1] * (self.nnodes - 1)
+        self._t = scipy.full((self.nnodes - 1,), -1, dtype='float')
         for node in self._tree.find_clades(order='postorder'):
             if node.is_terminal():
                 tipnodes.append(node)
@@ -449,7 +449,7 @@ class TreeLikelihood(object):
     @property
     def t(self):
         """Gets array of branch lengths."""
-        return self._t
+        return self._t.copy()
 
     @t.setter
     def t(self, value):
@@ -553,9 +553,9 @@ class TreeLikelihood(object):
                     self._dloglik_dt += catweights[k] * scipy.sum(
                             self.model.stationarystate * 
                             self.dLnroot_dt[k], axis=-1)
-                    self._dloglik_dt /= sitelik
-                    self._dloglik_dt = scipy.sum(self._dloglik_dt, axis=-1)
-                    assert self._dloglik_dt.shape == self.t.shape
+                self._dloglik_dt /= sitelik
+                self._dloglik_dt = scipy.sum(self._dloglik_dt, axis=-1)
+                assert self._dloglik_dt.shape == self.t.shape
 
     def _M(self, k, t, tips=None, gaps=None):
         """Returns matrix exponential `M`."""
