@@ -432,7 +432,7 @@ class TreeLikelihood(object):
             raise RuntimeError("Can't set both dparamscurrent and dtcurrent True")
         if value != self.dparamscurrent:
             self._dparamscurrent = value
-            raise RuntimeError("need to implement derivative updates")
+            self._updateInternals()
 
     @property
     def dtcurrent(self):
@@ -447,7 +447,7 @@ class TreeLikelihood(object):
             raise RuntimeError("Can't set both dparamscurrent and dtcurrent True")
         if value != self.dtcurrent:
             self._dtcurrent = value
-            raise RuntimeError("need to implement derivative updates")
+            self._updateInternals()
 
     @property
     def t(self):

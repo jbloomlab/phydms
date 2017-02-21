@@ -57,6 +57,19 @@ class test_underflow(unittest.TestCase):
                         '{1}, {2} versus {3}'.format(param, desc, 
                         tl.dloglik[param], dl)))
 
+            oldloglik = tl.loglik
+            tl.dparamscurrent = False
+            tl_nocorrection.dparamscurrent = False
+            tl.dtcurrent = True
+            tl_nocorrection.dtcurrent = True
+            self.assertTrue(scipy.allclose(tl.loglik, tl_nocorrection.loglik),
+                    ("Log likelihoods differ with and without correction "
+                    "for {0}: {1} versus {2}".format(desc, tl.loglik, 
+                    tl_nocorrection.loglik)))
+            self.assertTrue(scipy.allclose(tl.loglik, oldloglik))
+            self.assertTrue(scipy.allclose(tl.dloglik_dt, 
+                    tl_nocorrection.dloglik_dt))
+
 
 if __name__ == '__main__':
     runner = unittest.TextTestRunner()

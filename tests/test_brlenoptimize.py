@@ -126,39 +126,6 @@ class test_BrLenOptimize_ExpCM(unittest.TestCase):
             diff = scipy.optimize.check_grad(func, dfunc, t, k, r, x, y)
             self.assertTrue(abs(diff) < 1e-4, "diff = {0}".format(diff))
 
-    def test_dL_dt(self):
-        """Tests `dL_dt`."""
-        scipy.random.seed(0)
-        random.seed(0)
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
-                self.alignment, self.model, underflowfreq=self.underflowfreq,
-                dparamscurrent=False, dtcurrent=True)
-
-        def func(tdn, n, dn, k, r, x):
-            t = tl.t
-            t[dn] = tdn[0]
-            tl.t = t
-            return tl.L[n][k][r][x]
-
-        def dfunc(tdn, n, dn, k, r, x):
-            t = tl.t
-            t[dn] = tdn[0]
-            tl.t = t
-            return tl.dL_dt[dn][n][k][r][x]
-
-        for n in range(tl.ninternal):
-            for dn in random.sample(range(tl.nnodes - 1), 2):
-                for k in tl._catindices:
-                    for r in random.sample(range(self.nsites), 2):
-                        for x in random.sample(range(N_CODON), 2):
-                            tdn = scipy.array([tl.t[dn]])
-                            diff = scipy.optimize.check_grad(func, dfunc, tdn,
-                                    n, dn, k, r, x)
-                            if not any([dn in tl.descendants[n + tl.ntips]]):
-                                self.assertTrue(diff == 0, diff)
-                                continue
-                            self.assertTrue(diff < 1e-7, diff)
-
     def test_AdjustBrLen(self):
         """Tests adjusting branch lengths."""
         scipy.random.seed(1)
@@ -184,36 +151,68 @@ class test_BrLenOptimize_ExpCM(unittest.TestCase):
 
     def test_BrLenDerivatives(self):
         """Tests derivatives of branch lengths."""
-        return # debugging
         tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
                 self.alignment, self.model, underflowfreq=self.underflowfreq,
                 dparamscurrent=False, dtcurrent=True)
 
         def func(t, n):
             tx = tl.t
-            tx[n] = t[n]
+            tx[n] = t[0]
             tl.t = tx
             return tl.loglik
 
         def dfunc(t, n):
             tx = tl.t
-            tx[n] = t[n]
+            tx[n] = t[0]
             tl.t = tx
             return tl.dloglik_dt[n]
 
         for n in range(len(tl.t)):
-            diff = scipy.optimize.check_grad(func, dfunc, tl.t, n)
-            self.assertTrue(diff < 1e-4, diff)
-            print("n", n, "diff", diff)
-            dloglik_dt = tl.dloglik_dt[n]
-            loglik = tl.loglik
-            tx = tl.t
-            dt = 1e-4
-            tx[n] += dt
-            tl.t = tx
-            dloglik_delta = (tl.loglik - loglik) / dt
-            print("derivative:", dloglik_dt)
-            print("delta:", dloglik_delta)
+            diff = scipy.optimize.check_grad(func, dfunc, 
+                    scipy.array([tl.t[n]]), n)
+            self.assertTrue(diff < 1e-5, diff)
+
+
+    def test_dtcurrent(self):
+        """Tests use of `dtcurrent` attribute."""
+        tl1 = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+                self.alignment, self.model, underflowfreq=self.underflowfreq,
+                dparamscurrent=False, dtcurrent=True)
+
+        tl2 = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+                self.alignment, self.model, underflowfreq=self.underflowfreq,
+                dparamscurrent=True, dtcurrent=False)
+
+        self.assertTrue(scipy.allclose(tl1.loglik, tl2.loglik))
+
+        with self.assertRaises(Exception) as context:
+            tl2.dtcurrent = True
+
+        with self.assertRaises(Exception) as context:
+            tl1.dparamscurrent = True
+
+        with self.assertRaises(Exception) as context:
+            x = tl2.dloglik_dt
+
+        with self.assertRaises(Exception) as context:
+            x = tl1.dloglik
+
+        tl1.t = 1.1 * tl1.t
+        tl2.t = 1.1 * tl2.t
+        tl2.dparamscurrent = False
+        tl2.dtcurrent = True
+        self.assertTrue(scipy.allclose(tl1.dloglik_dt, tl2.dloglik_dt))
+        self.assertTrue(scipy.allclose(tl1.loglik, tl2.loglik))
+
+        tl1.updateParams({'kappa':3.15})
+        tl2.updateParams({'kappa':3.15})
+        tl2.dtcurrent = False
+        tl2.dparamscurrent = True
+        tl1.dtcurrent = False
+        tl1.dparamscurrent = True
+        for (param, deriv) in tl1.dloglik.items():
+            self.assertTrue(scipy.allclose(deriv, tl2.dloglik[param]))
+        self.assertTrue(scipy.allclose(tl1.loglik, tl2.loglik))
 
 
 class test_BrLenOptimize_ExpCM_empirical_phi(test_BrLenOptimize_ExpCM):
