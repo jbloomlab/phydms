@@ -765,8 +765,7 @@ Specifically, for each internal node :math:`n`,
 .. math::
 
    \frac{\partial L_{r,n}\left(x\right)}{\partial t_{\mathcal{d}_1\left(n\right)}} &=& \frac{\partial}{\partial t_{\mathcal{d}_1\left(n\right)}} \left(\left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right) L_{r,\mathcal{d}_1\left(n\right)}\left(y\right)\right] \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) L_{r,\mathcal{d}_2\left(n\right)}\left(y\right)\right] \right) \\
-   &=& \left[\sum_y \frac{\partial M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right)}{\partial t_{\mathcal{d}_1\left(n\right)}} L_{r,\mathcal{d}_1\left(n\right)}\left(y\right)\right] \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) L_{r,\mathcal{d}_2\left(n\right)}\left(y\right)\right] \\
-   &=& \left(\frac{\sum_y \frac{\partial M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right)}{\partial t_{\mathcal{d}_1\left(n\right)}} L_{r,\mathcal{d}_1\left(n\right)}\left(y\right)}{\sum_y M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right) L_{r,\mathcal{d}_1\left(n\right)}\left(y\right)}\right) L_{r,n}\left(x\right) \\
+   &=& \left[\sum_y \frac{\partial M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right)}{\partial t_{\mathcal{d}_1\left(n\right)}} L_{r,\mathcal{d}_1\left(n\right)}\left(y\right)\right] \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) L_{r,\mathcal{d}_2\left(n\right)}\left(y\right)\right] 
 
 where 
 
@@ -774,12 +773,16 @@ where
   
    \frac{\partial M_{r,xy}\left(t\right)}{\partial t} = \mu \mathbf{P_r} e^{\mu t \mathbf{P_r}} = \mu \mathbf{P_r} \mathbf{M_r}\left(\mu t\right).
 
-Therefore, for every node (tip and internal) :math:`n`,
+Therefore, for every node :math:`n` with descendents :math:`n_1` and :math:`n_2`:
 
 .. math::
 
-   \frac{\partial L_{r,n_{\rm{root}}}\left(x\right)}{\partial t_n} = 
-   \left(\frac{\sum_y \frac{\partial M_{r,xy}\left(t_n\right)}{\partial t_n} L_{r,n}\left(y\right)}{\sum_y M_{r,xy}\left(t_n\right) L_{r,n}\left(y\right)}\right) L_{r,n_{\rm{root}}}\left(x\right)
+   \frac{\partial L_{r,n}\left(x\right)}{\partial t_{n'}} =
+   \begin{cases}
+   0 & \mbox{if $n'$ is not a descendent of $n$} \\
+   \left[\sum_y \frac{\partial M_{r,xy}\left(t_{n'}\right)}{\partial t_{n'}} L_{r,n'}\left(y\right)\right] \left[\sum_y M_{r,xy}\left(t_{n_2}\right) L_{r,n_2}\left(y\right)\right] & \mbox{if $n_1$ is $n'$} \\
+   \left[\sum_y M_{r,xy}\left(t_{n_1}\right) \frac{\partial L_{r,n_1}\left(y\right)}{\partial t_{n'}}\right] \left[\sum_y M_{r,xy}\left(t_{n_2}\right) L_{r,n_2}\left(y\right)\right] & \mbox{if $n'$ is descendent of $n_1$} \\
+   \end{cases}
 
 and 
 

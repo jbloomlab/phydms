@@ -110,6 +110,9 @@ class TreeLikelihood(object):
             For each internal node `n`, `rdescend[n - ntips]`
             is its right descendant and `ldescend[n - ntips]` is its left 
             descendant.
+        `descendants` (`list` of `list`)
+            For each node `n`, `descendants[n]` is a list of all nodes
+            that are direct or indirect descendants of `n`.
         `t` (`numpy.ndarray` of `float`, shape `(nnodes - 1,)`)
             `t[n]` is the branch length leading node `n`. The branch leading
             to the root node (which has index `nnodes - 1`) is undefined
@@ -126,11 +129,9 @@ class TreeLikelihood(object):
             For each free model parameter `param`,
             `dL[param]` is derivative of `L` with respect to `param`.
             Only guaranteed to be valid if `dparamscurrent` is `True`.
-        `dLnroot_dt` (`numpy.ndarray` of `float`)
-            `dLnroot_dt[tn]` is the derivative of `L[-1]` (the partial
-            conditional likelihood at the root node) with respect to
-            the length of the branch (`t[n]`) leading to non-root node `n`
-            (`0 <= n < nnodes - 1`).
+        `dL_dt` (`numpy.ndarray` of `float`)
+            `dL_dt[n]` is the derivative of `L` with respect to `t[n]`
+            where `0 <= n < nnodes - 1`.
         `underflowfreq` (`int` >= 1)
             The frequency with which we rescale likelihoods to avoid
             numerical underflow
@@ -201,12 +202,10 @@ class TreeLikelihood(object):
         self.underflowlogscale = scipy.zeros(self.nsites, dtype='float')
         if self._distributionmodel:
             Lshape = (self.ninternal, self.model.ncats, self.nsites, N_CODON)
-            self.dLnroot_dt = scipy.full((self.nnodes - 1, self.model.ncats,
-                    self.nsites, N_CODON), -1, dtype='float')
         else:
             Lshape = (self.ninternal, self.nsites, N_CODON)
-            self.dLnroot_dt = scipy.full((self.nnodes - 1, self.nsites, 
-                    N_CODON), -1, dtype='float')
+        self.dL_dt = scipy.zeros([self.nnodes - 1] + list(Lshape), 
+                dtype='float')
         self.L = scipy.full(Lshape, -1, dtype='float')
         self.dL = {}
         for param in self._paramlist_PartialLikelihoods:
@@ -232,6 +231,7 @@ class TreeLikelihood(object):
         internalnodes = []
         self.tips = scipy.zeros((self.ntips, self.nsites), dtype='int')
         self.gaps = []
+        self.descendants = []
         self._t = scipy.full((self.nnodes - 1,), -1, dtype='float')
         for node in self._tree.find_clades(order='postorder'):
             if node.is_terminal():
@@ -244,6 +244,7 @@ class TreeLikelihood(object):
                 self._t[n] = node.branch_length
             if node.is_terminal():
                 assert n < self.ntips
+                self.descendants.append([])
                 seq = alignment_d[node.name]
                 nodegaps = []
                 for r in range(self.nsites):
@@ -267,6 +268,8 @@ class TreeLikelihood(object):
                 ni = n - self.ntips
                 self.rdescend[ni] = self.name_to_nodeindex[node.clades[0]]
                 self.ldescend[ni] = self.name_to_nodeindex[node.clades[1]]
+                self.descendants.append([self.name_to_nodeindex[nx] for nx 
+                        in node.find_clades() if nx != node])
             self.name_to_nodeindex[node] = n
         self.gaps = scipy.array(self.gaps)
         assert len(self.gaps) == self.ntips
@@ -550,9 +553,15 @@ class TreeLikelihood(object):
             if self.dtcurrent:
                 self._dloglik_dt = 0
                 for k in self._catindices:
+                    dLnroot_dt = self.dL_dt.swapaxes(0, 1)[-1]
+                    if isinstance(k, int):
+                        dLnrootk_dt = dLnroot_dt.swapaxes(0, 1)[k]
+                    else:
+                        assert k == slice(None)
+                        dLnrootk_dt = dLnroot_dt
                     self._dloglik_dt += catweights[k] * scipy.sum(
                             self.model.stationarystate * 
-                            self.dLnroot_dt[k], axis=-1)
+                            dLnrootk_dt, axis=-1)
                 self._dloglik_dt /= sitelik
                 self._dloglik_dt = scipy.sum(self._dloglik_dt, axis=-1)
                 assert self._dloglik_dt.shape == self.t.shape
@@ -625,9 +634,9 @@ class TreeLikelihood(object):
                 scipy.copyto(self.L[ni][k], MLright * MLleft)
 
                 if self.dtcurrent:
-                    for (tx, Mx, nx, nix, MLx, istipx) in [
-                            (tright, Mright, nright, nrighti, MLright, istipr),
-                            (tleft, Mleft, nleft, nlefti, MLleft, istipl)]:
+                    for (tx, Mx, nx, nix, MLxother, istipx) in [
+                            (tright, Mright, nright, nrighti, MLleft, istipr),
+                            (tleft, Mleft, nleft, nlefti, MLright, istipl)]:
                         if istipx:
                             tipsx = self.tips[nx]
                             gapsx = self.gaps[nx]
@@ -639,13 +648,11 @@ class TreeLikelihood(object):
                         else:
                             LdM_dt = broadcastMatrixVectorMultiply(
                                     dM_dt, self.L[nix][k])
-                        self.dLnroot_dt[nx][k].fill(0)
-                        with scipy.errstate(all='ignore'):
-                            # we expect some of MLx to be zero
-                            scipy.copyto(self.dLnroot_dt[nx][k], LdM_dt / MLx,
-                                    where=(scipy.fabs(MLx) > 1e4 *
-                                    scipy.finfo('float').tiny))
-                        assert scipy.isfinite(self.dLnroot_dt[nx][k]).all()
+                        self.dL_dt[nx][ni][k] = LdM_dt * MLxother
+                        for ndx in self.descendants[nx]:
+                            nidx = ndx - self.ntips
+                            self.dL_dt[ndx][ni][k] = broadcastMatrixVectorMultiply(
+                                    Mx, self.dL_dt[ndx][nix][k]) * MLxother
 
                 if self.dparamscurrent:
                     for param in self._paramlist_PartialLikelihoods:
@@ -688,14 +695,13 @@ class TreeLikelihood(object):
                 self.underflowlogscale += scipy.log(scale)
                 for k in self._catindices:
                     self.L[ni][k] /= scale[:, scipy.newaxis]
+                    if self.dtcurrent:
+                        for n in range(self.dL_dt.shape[0]):
+                            self.dL_dt[n][ni][k] /= scale[:, scipy.newaxis]
                     if self.dparamscurrent:
                         for param in self._paramlist_PartialLikelihoods:
                             for j in self._sub_index_param(param):
                                 self.dL[param][ni][k][j] /= scale[:, scipy.newaxis] 
-
-        if self.dtcurrent:
-            for n in range(self.nnodes - 1):
-                self.dLnroot_dt[n] *= self.L[-1]
 
     def _sub_index_param(self, param):
         """Returns list of sub-indexes for `param`.

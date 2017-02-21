@@ -33,7 +33,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         random.seed(1)
         scipy.random.seed(1)
 
-        # define tree and write image to a file
+        # define tree 
         self.newick = ('((node1:0.2,node2:0.3)node4:0.3,node3:0.5)node5:0.04;')
         tempfile = '_temp.tree'
         with open(tempfile, 'w') as f:
