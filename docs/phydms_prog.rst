@@ -72,11 +72,9 @@ Command-line usage
     The tree topology is fixed to that in ``tree``. 
     But there are several options for how the branch lengths are handled:
 
-      * *scale*: fix the relative length of the branches to the values in ``tree``, but scale them all by a single parameter :math:`\mu` that is optimized.
+      * *scale*: fix the relative length of the branches to the values in ``tree``, but scale them all by a single parameter :math:`\mu` that is optimized. This approach will be faster.
 
-      * *optimize*: optimize all branch lengths as free parameters.
-
-      * *fix*: fix the branch lengths to their values in ``tree``. Unless you have a good reason to be sure that the lengths are already scaled correctly, use *scale* instead of *fix* if you don't want to optimize all branches. 
+      * *optimize*: optimize all branch lengths as free parameters. This approach will be more accurate, but slower.
 
    \-\-gammaomega
     Use this option for a `model` of *ExpCM* if you want :math:`\omega` to be drawn from ``--ncats`` gamma-distributed categories, similar to a *YNGKP_M5* model.

@@ -39,13 +39,18 @@ def main():
             ('ExpCM_fitphi', 'ExpCM_{0}'.format(prefs), ['--fitphi']),
             ('ExpCM_gammaomega', 'ExpCM_{0}'.format(prefs), ['--gammaomega']),
             ]:
-        outprefix = os.path.join(profiledir, name)
-        for f in glob.glob('{0}*'.format(outprefix)):
-            os.remove(f)
-        cmd = ['phydms', alignment, tree, model, outprefix, '--profile'] + args
-        pool[name] = multiprocessing.Process(target=subprocess.check_call, 
-                args=(cmd,), kwargs={'stdout':subprocess.PIPE, 
-                'stderr':subprocess.PIPE})
+        for (brlen, brlenargs) in [
+                ('brlen-scale', ['--brlen', 'scale']),
+                ('brlen-optimize', ['--brlen', 'optimize']),
+                ]:
+            args += brlenargs
+            outprefix = '{0}/{1}_{2}'.format(profiledir, name, brlen)
+            for f in glob.glob('{0}*'.format(outprefix)):
+                os.remove(f)
+            cmd = ['phydms', alignment, tree, model, outprefix, '--profile'] + args
+            pool[name] = multiprocessing.Process(target=subprocess.check_call, 
+                    args=(cmd,), kwargs={'stdout':subprocess.PIPE, 
+                    'stderr':subprocess.PIPE})
     started = dict([(name, False) for name in pool])
     completed = dict([(name, False) for name in pool])
 

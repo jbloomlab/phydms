@@ -295,8 +295,14 @@ class TreeLikelihood(object):
         # now update internal attributes related to likelihood
         self._updateInternals()
 
-    def maximizeLikelihood(self, approx_grad=False):
+    def maximizeLikelihood(self, optimize_brlen=False,
+            approx_grad=False, logliktol=1.0e-2):
         """Maximize the log likelihood.
+
+        Maximizes log likelihood with respect to model parameters
+        and potentially branch lengths depending on `optimize_brlen`.
+        If optimizing the branch lengths, iterates between optimizing
+        the model parameters and branch lengths.
 
         Uses the L-BFGS-B method implemented in `scipy.optimize`.
 
@@ -304,38 +310,105 @@ class TreeLikelihood(object):
         will correspond to maximimum likelihood values.
 
         Args:
+            `optimize_brlen` (bool)
+                Do we optimize branch lengths?
             `approx_grad` (bool)
                 If `True`, then we numerically approximate the gradient
                 rather than using the analytical values.
+            `logliktol` (float)
+                When using `optimize_brlen`, keep iterating between
+                optimization of parameters and branch lengths until
+                change in log likelihood is less than `logliktol`.
 
         Returns:
-            A `scipy.optimize.OptimizeResult` with result of maximization.
+            A string giving a summary of the maximization.
         """
         # Some useful notes on optimization:
         # http://www.scipy-lectures.org/advanced/mathematical_optimization/
 
-        def func(x):
-            """Negative log likelihood when `x` is parameter array."""
+        assert len(self.paramsarray) > 0, "No parameters to optimize"
+        assert logliktol > 0
+
+        def paramsfunc(x):
+            """Negative log likelihood when `x` is params."""
             self.paramsarray = x
             return -self.loglik
 
-        def dfunc(x):
-            """Returns negative gradient log likelihood."""
+        def paramsdfunc(x):
+            """Negative gradient log likelihood with respect to params."""
             self.paramsarray = x
             return -self.dloglikarray
 
+        def tfunc(x):
+            """Negative log likelihood when `x` is branch lengths."""
+            self.t = x
+            return -self.loglik
+
+        def tdfunc(x):
+            """Negative gradient loglik with respect to branch lengths."""
+            self.t = x
+            return -self.dloglik_dt
+
         if approx_grad:
             dfunc = False
+            tdfunc = False
+            self.dtcurrent = False
+            self.dparamscurrent = False
 
-        assert len(self.paramsarray) > 0, "No parameters to optimize"
-        result = scipy.optimize.minimize(func, self.paramsarray,
-                method='L-BFGS-B', jac=dfunc, bounds=self.paramsarraybounds)
-        assert result.success, ("Optimization failed with message:\n{0}\n"
-                "Current mu = {1}\nCurrent model params: {2}").format(
-                result.message, self.model.mu, ', '.join(['{0} = {1}'.format(
-                p, pvalue) for (p, pvalue) in self.model.paramsReport.items()])) 
+        oldloglik = self.loglik
+        converged = False
+        summary = []
+        i = 1
+        while not converged:
+            if (not self.dparamscurrent) and (not approx_grad): 
+                self.dtcurrent = False
+                self.dparamscurrent = True
+            result = scipy.optimize.minimize(paramsfunc, self.paramsarray,
+                    method='L-BFGS-B', jac=paramsdfunc, 
+                    bounds=self.paramsarraybounds)
+            summary.append('Step {0}: optimized parameters, loglik went from '
+                    '{1:.2f} to {2:.2f} ({3} iterations, {4} function '
+                    'evals)'.format(i, oldloglik, self.loglik, result.nit,
+                    result.nfev))
+            i += 1
+            assert result.success, ("Optimization fail\n{0}\n{1}\n{2}".format(
+                    result.message, self.model.paramsReport, 
+                    '\n'.join(summary)))
+            if oldloglik - self.loglik > logliktol:
+                raise RuntimeError("loglik increased during param "
+                        "optimization: {0} to {1}".format(oldloglik,
+                        self.loglik))
+            elif self.loglik - oldloglik >= logliktol:
+                oldloglik = self.loglik
+                if optimize_brlen:
+                    if not approx_grad:
+                        self.dparamscurrent = False
+                        self.dtcurrent = True
+                    result = scipy.optimize.minimize(tfunc, self.t,
+                            method='L-BFGS-B', jac=tdfunc,
+                            bounds=[(ALMOST_ZERO, None)] * len(self.t))
+                    summary.append('Step {0}: optimized branches, loglik '
+                            'went from {1:.2f} to {2:.2f} ({3} iterations, '
+                            '{4} function evals)'.format(i, oldloglik,
+                            self.loglik, result.nit, result.nfev))
+                    i += 1
+                    assert result.success, ("Optimization failed\n{0}"
+                            "\n{1}\n{2}".format(result.message, self.t,
+                            '\n'.join(summary)))
+                    if oldloglik - self.loglik > logliktol:
+                        raise RuntimeError("loglik increased during t "
+                                "optimization: {0} to {1}".format(
+                                oldloglik, self.loglik))
+                    elif self.loglik - oldloglik >= logliktol:
+                        oldloglik = self.loglik
+                    else:
+                        converged = True
+                else:
+                    converged = True
+            else:
+                converged = True
 
-        return result
+        return '\n'.join(summary)
 
     @property
     def tree(self):
@@ -460,12 +533,12 @@ class TreeLikelihood(object):
         assert (isinstance(value, scipy.ndarray) and (value.dtype == 
                 'float') and (value.shape == self.t.shape))
         if (self._t != value).any():
-            self._t = value
+            self._t = value.copy()
             self._updateInternals()
 
     @property
     def dloglik(self):
-        """`dloglik[param]` is derivative of `loglik` with respect to `param`."""
+        """`dloglik[param]` is derivative of `loglik` by `param`."""
         assert self.dparamscurrent, "dloglik requires paramscurrent == True" 
         return self._dloglik
 
