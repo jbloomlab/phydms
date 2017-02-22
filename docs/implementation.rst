@@ -790,6 +790,12 @@ and
 
    \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial t_n} = \frac{\partial L_{r,n_{\rm{root}}}\left(x\right)}{\partial t_n} \times p_{r,x}.
 
+Optimization
+----------------
+The actual optimization is performed with the `L-BFGS <https://en.wikipedia.org/wiki/Limited-memory_BFGS>`_ optimizer implemented in `scipy`_ as ``scipy.optimize.minimize(method='L-BFGS-B')``. The approach is to first optimize all the model parameters along with branch-scaling parameter :math:`\mu`, then to optimize all the branch lengths, and to continue to repeat until any optimization step fails to lead to substantial further improvement in likelihood. 
+
+During the branch-length optimization, all branch lengths are updated simultaneously. This appears to be the minority approach in phylogenetics (most software does one branch length at a time), but reportedly some software does use simultaneous branch-length optimization (see table on page 18 `here <http://www.maths.otago.ac.nz/~dbryant/Papers/04IHPLikelihood.pdf>`_).
+
 .. include:: weblinks.txt
  
 

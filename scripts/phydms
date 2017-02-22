@@ -245,7 +245,8 @@ def main():
                 f.close()
         else:
             maxresult = tl.maximizeLikelihood(optimize_brlen=optimize_brlen)
-        logger.info('Maximization complete: {0}'.format(maxresult))
+        logger.info('Maximization complete:\n\t{0}'.format(
+                maxresult.replace('\n', '\n\t')))
         logger.info('Optimized log likelihood is {0:.2f}.'.format(tl.loglik))
         logger.info('Writing log likelihood to {0}'.format(loglikelihoodfile))
         with open(loglikelihoodfile, 'w') as f:

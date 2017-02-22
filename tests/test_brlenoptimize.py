@@ -98,10 +98,10 @@ class test_BrLenOptimize_ExpCM(unittest.TestCase):
         self.assertTrue(tl.loglik > tl2.loglik)
 
 
-#class test_BrLenOptimize_ExpCM_gamma_omega(
-#        test_BrLenOptimize_ExpCM):
-#    MODEL = phydmslib.models.ExpCM
-#    DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedOmegaModel
+class test_BrLenOptimize_ExpCM_gamma_omega(
+        test_BrLenOptimize_ExpCM):
+    MODEL = phydmslib.models.ExpCM
+    DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedOmegaModel
 
 
 if __name__ == '__main__':

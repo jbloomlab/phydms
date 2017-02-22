@@ -32,7 +32,7 @@ def main():
 
     # run in a multiprocessing pool to run several at same time
     pool = {}
-    for (name, model, args) in [
+    for (name1, model, args) in [
             ('YNGKP_M0', 'YNGKP_M0', []),
             ('YNGKP_M5', 'YNGKP_M5', []),
             ('ExpCM', 'ExpCM_{0}'.format(prefs), []),
@@ -44,7 +44,8 @@ def main():
                 ('brlen-optimize', ['--brlen', 'optimize']),
                 ]:
             args += brlenargs
-            outprefix = '{0}/{1}_{2}'.format(profiledir, name, brlen)
+            name = '{0}_{1}'.format(name1, brlen)
+            outprefix = '{0}/{1}'.format(profiledir, name)
             for f in glob.glob('{0}*'.format(outprefix)):
                 os.remove(f)
             cmd = ['phydms', alignment, tree, model, outprefix, '--profile'] + args
