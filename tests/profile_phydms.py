@@ -32,20 +32,26 @@ def main():
 
     # run in a multiprocessing pool to run several at same time
     pool = {}
-    for (name, model, args) in [
+    for (name1, model, args) in [
             ('YNGKP_M0', 'YNGKP_M0', []),
             ('YNGKP_M5', 'YNGKP_M5', []),
             ('ExpCM', 'ExpCM_{0}'.format(prefs), []),
             ('ExpCM_fitphi', 'ExpCM_{0}'.format(prefs), ['--fitphi']),
             ('ExpCM_gammaomega', 'ExpCM_{0}'.format(prefs), ['--gammaomega']),
             ]:
-        outprefix = os.path.join(profiledir, name)
-        for f in glob.glob('{0}*'.format(outprefix)):
-            os.remove(f)
-        cmd = ['phydms', alignment, tree, model, outprefix, '--profile'] + args
-        pool[name] = multiprocessing.Process(target=subprocess.check_call, 
-                args=(cmd,), kwargs={'stdout':subprocess.PIPE, 
-                'stderr':subprocess.PIPE})
+        for (brlen, brlenargs) in [
+                ('brlen-scale', ['--brlen', 'scale']),
+                ('brlen-optimize', ['--brlen', 'optimize']),
+                ]:
+            args += brlenargs
+            name = '{0}_{1}'.format(name1, brlen)
+            outprefix = '{0}/{1}'.format(profiledir, name)
+            for f in glob.glob('{0}*'.format(outprefix)):
+                os.remove(f)
+            cmd = ['phydms', alignment, tree, model, outprefix, '--profile'] + args
+            pool[name] = multiprocessing.Process(target=subprocess.check_call, 
+                    args=(cmd,), kwargs={'stdout':subprocess.PIPE, 
+                    'stderr':subprocess.PIPE})
     started = dict([(name, False) for name in pool])
     completed = dict([(name, False) for name in pool])
 

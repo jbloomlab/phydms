@@ -84,17 +84,6 @@ def main():
         seqnames = set([head for (head, seq) in alignment])
 
         # process the substitution model
-        freeparams = []
-        if args['brlen'] == 'scale':
-            logger.info("Scaling branch lengths by adding 'mu' parameter "
-                    "to model.\n")
-            freeparams.append('mu')
-        elif args['brlen'] == 'optimize':
-            raise RuntimeError('--brlen of optimize not yet implemented')
-        elif args['brlen'] == 'fix':
-            pass
-        else:
-            raise ValueError("Invalid --brlen of {0}".format(args['brlen']))
         yngkp_match = re.compile('^YNGKP_(?P<modelvariant>M\d+)$')
         if isinstance(args['model'], str) and yngkp_match.search(args['model']):
             for argname in ['randprefs', 'avgprefs', 'divpressure']:
@@ -112,9 +101,9 @@ def main():
                     e_pw[p][w] = sum([list(seq)[p::3].count(nt) for (head, seq)
                             in alignment])
             e_pw = e_pw / e_pw.sum(axis=1)[0]
-            freeparams += ["omega", "kappa"]
             nsites = int(len(alignment[0][1])/3)
-            model = phydmslib.models.YNGKP_M0(e_pw, nsites, freeparams=freeparams)
+            model = phydmslib.models.YNGKP_M0(e_pw, nsites, freeparams=
+                    ['mu', 'omega', 'kappa'])
             if modelvariant == 'M0':
                 pass
             elif modelvariant == 'M5':
@@ -145,7 +134,7 @@ def main():
                     "sites in the alignment").format(prefsfile)
             logger.info(('Successfully read site-specific amino-acid preferences '
                     'for all {0} sites.\n').format(len(prefs)))
-            freeparams += ['kappa', 'omega', 'beta']
+            freeparams = ['mu', 'kappa', 'omega', 'beta']
             if args['fitphi']:
                 assert not args['divpressure'], (
                         "Can't use --divpressure and --fitphi")
@@ -217,16 +206,21 @@ def main():
 
         # set up tree likelihood
         logger.info('Initializing TreeLikelihood..')
-        if isinstance(model, phydmslib.models.DistributionModel):
-            tl = phydmslib.treelikelihood.TreeLikelihoodDistribution(tree,
-                    alignment, model)
-        else:
-            tl = phydmslib.treelikelihood.TreeLikelihood(tree, alignment, model)
+        tl = phydmslib.treelikelihood.TreeLikelihood(tree, alignment, model)
         logger.info('TreeLikelihood initialized.')
 
         # maximize likelihood
-        logger.info('Maximizing log likelihood (initial value {0:.2f})...'.format(
+        logger.info('Maximizing log likelihood (initially {0:.2f}).'.format(
                 tl.loglik))
+        if args['brlen'] == 'scale':
+            optimize_brlen = False
+            logger.info("Branch lengths will be scaled but not optimized "
+                    "individually.")
+        elif args['brlen'] == 'optimize':
+            logger.info("Branch lengths will be optimized individually.")
+            optimize_brlen = True
+        else:
+            raise ValueError("Invalid brlen {0}".format(args['brlen']))
         if args['profile']:
             import cProfile
             import pstats
@@ -235,7 +229,8 @@ def main():
             logger.info('Profile stats will be in to {0}'.format(pstatsfile))
             maxresult = []
             def wrapper(maxresult): # wrapper to get return value from cProfile
-                maxresult.append(tl.maximizeLikelihood())
+                maxresult.append(tl.maximizeLikelihood(
+                        optimize_brlen=optimize_brlen))
             cProfile.runctx('wrapper(maxresult)', globals(), locals(), pstatsfile)
             maxresult = maxresult[0]
             for psort in ['cumulative', 'tottime']:
@@ -249,11 +244,10 @@ def main():
                 s.print_stats()
                 f.close()
         else:
-            maxresult = tl.maximizeLikelihood()
-        logger.info(('Maximization complete after {0} iterations and {1} '
-                'function evaluations.').format(maxresult.nit, maxresult.nfev))
+            maxresult = tl.maximizeLikelihood(optimize_brlen=optimize_brlen)
+        logger.info('Maximization complete:\n\t{0}'.format(
+                maxresult.replace('\n', '\n\t')))
         logger.info('Optimized log likelihood is {0:.2f}.'.format(tl.loglik))
-        assert scipy.allclose(tl.loglik, -maxresult.fun)
         logger.info('Writing log likelihood to {0}'.format(loglikelihoodfile))
         with open(loglikelihoodfile, 'w') as f:
             f.write('log likelihood = {0:.2f}'.format(tl.loglik))

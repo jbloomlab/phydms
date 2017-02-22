@@ -533,7 +533,7 @@ In this case, :math:`\mu` also becomes a free parameter of the model, and we wan
 
 .. math::
 
-   \frac{\partial \mathbf{M_r}\left(\mu t\right)}{\partial \mu} = t \mathbf{P_r} e^{\mu t \mathbf{P_r}}.
+   \frac{\partial \mathbf{M_r}\left(\mu t\right)}{\partial \mu} = t \mathbf{P_r} e^{\mu t \mathbf{P_r}} = t \mathbf{P_r} \mathbf{M_r}\left(\mu t\right).
 
 
 Calculating the likelihood and derivatives on a tree
@@ -688,20 +688,6 @@ For reasons that are not immediately obvious to me but are clearly verified by n
 
 In practice, we work with the :math:`\tilde{L}_{r,n}\left(x\right)` values, and then apply the correction of adding :math:`\sum_n \ln\left(U_r,n\right)` at the end.
 
-
-Derivatives with respect to branch lengths
---------------------------------------------
-The section above describes how to compute the derivatives with respect to paramters (e.g., model parameters) that affect all parts of the tree. 
-In many cases, we may want to optimize individual branch lengths rather than the overall mutation rate :math:`\mu`.
-In this case, we need to compute the derivatives with respect to the branch lengths.
-This is somewhat simpler for each individual branch length, since each individual branch length only affects part of the tree.
-
-Specifically, for each internal node :math:`n`,
-
-.. math::
-
-   \frac{\partial L_{r,n}\left(x\right)}{\partial t_{\mathcal{d}_1\left(n\right)}} =
-
 Units of tree branch lengths
 ------------------------------
 When we optimize with the :math:`P_{r,xy}` substitution matrices described above, the resulting branch lengths are **not** in units of substitutions per site. Therefore, for tree input / output, we re-scale the branch lengths so that they are in units of substitution per site.
@@ -766,6 +752,49 @@ The derivative of the log likelihood at site :math:`r` with respect to these par
    \frac{1}{K} \sum\limits_{k=0}^{K-1} \frac{\partial \omega_k}{\partial \omega_{\beta}}\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_k}\right)}{\partial \omega_k}.
 
 The derivatives :math:`\frac{\partial \omega_k}{\partial \omega_{\alpha}}` and :math:`\frac{\partial \omega_k}{\partial \omega_{\beta}}` are computed numerically using the finite-difference method.
+
+Derivatives with respect to branch lengths
+--------------------------------------------
+The section above describes how to compute the derivatives with respect to paramters (e.g., model parameters) that affect all parts of the tree. 
+In many cases, we may want to optimize individual branch lengths rather than the overall mutation rate :math:`\mu`.
+In this case, we need to compute the derivatives with respect to the branch lengths.
+This is somewhat simpler for each individual branch length, since each individual branch length only affects part of the tree.
+
+Specifically, for each internal node :math:`n`,
+
+.. math::
+
+   \frac{\partial L_{r,n}\left(x\right)}{\partial t_{\mathcal{d}_1\left(n\right)}} &=& \frac{\partial}{\partial t_{\mathcal{d}_1\left(n\right)}} \left(\left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right) L_{r,\mathcal{d}_1\left(n\right)}\left(y\right)\right] \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) L_{r,\mathcal{d}_2\left(n\right)}\left(y\right)\right] \right) \\
+   &=& \left[\sum_y \frac{\partial M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right)}{\partial t_{\mathcal{d}_1\left(n\right)}} L_{r,\mathcal{d}_1\left(n\right)}\left(y\right)\right] \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) L_{r,\mathcal{d}_2\left(n\right)}\left(y\right)\right] 
+
+where 
+
+.. math::
+  
+   \frac{\partial M_{r,xy}\left(t\right)}{\partial t} = \mu \mathbf{P_r} e^{\mu t \mathbf{P_r}} = \mu \mathbf{P_r} \mathbf{M_r}\left(\mu t\right).
+
+Therefore, for every node :math:`n` with descendents :math:`n_1` and :math:`n_2`:
+
+.. math::
+
+   \frac{\partial L_{r,n}\left(x\right)}{\partial t_{n'}} =
+   \begin{cases}
+   0 & \mbox{if $n'$ is not a descendent of $n$} \\
+   \left[\sum_y \frac{\partial M_{r,xy}\left(t_{n'}\right)}{\partial t_{n'}} L_{r,n'}\left(y\right)\right] \left[\sum_y M_{r,xy}\left(t_{n_2}\right) L_{r,n_2}\left(y\right)\right] & \mbox{if $n_1$ is $n'$} \\
+   \left[\sum_y M_{r,xy}\left(t_{n_1}\right) \frac{\partial L_{r,n_1}\left(y\right)}{\partial t_{n'}}\right] \left[\sum_y M_{r,xy}\left(t_{n_2}\right) L_{r,n_2}\left(y\right)\right] & \mbox{if $n'$ is descendent of $n_1$} \\
+   \end{cases}
+
+and 
+
+.. math::
+
+   \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial t_n} = \frac{\partial L_{r,n_{\rm{root}}}\left(x\right)}{\partial t_n} \times p_{r,x}.
+
+Optimization
+----------------
+The actual optimization is performed with the `L-BFGS <https://en.wikipedia.org/wiki/Limited-memory_BFGS>`_ optimizer implemented in `scipy`_ as ``scipy.optimize.minimize(method='L-BFGS-B')``. The approach is to first optimize all the model parameters along with branch-scaling parameter :math:`\mu`, then to optimize all the branch lengths, and to continue to repeat until any optimization step fails to lead to substantial further improvement in likelihood. 
+
+During the branch-length optimization, all branch lengths are updated simultaneously. This appears to be the minority approach in phylogenetics (most software does one branch length at a time), but reportedly some software does use simultaneous branch-length optimization (see table on page 18 `here <http://www.maths.otago.ac.nz/~dbryant/Papers/04IHPLikelihood.pdf>`_).
 
 .. include:: weblinks.txt
  

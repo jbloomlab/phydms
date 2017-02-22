@@ -96,7 +96,8 @@ class test_branchScale_ExpCM(unittest.TestCase):
                     alignment, 'fasta')]
             assert len(a[0][1]) == len(a[1][1]) == nsites * 3
             for f in [alignment, info, rates]:
-                os.remove(f)
+                if os.path.isfile(f):
+                    os.remove(f)
             for r in range(nsites):
                 codon1 = a[0][1][3 * r : 3 * r + 3]
                 codon2 = a[1][1][3 * r : 3 * r + 3]

@@ -117,8 +117,9 @@ class Model(six.with_metaclass(abc.ABCMeta)):
         Args:
             `t` (float > 0)
                 The branch length.
-            `param` (string in `freeparams`)
-                Differentiate with respect to this model parameter.
+            `param` (string in `freeparams` or the string `'t'`)
+                Differentiate with respect to this model parameter, 
+                or with respect to branch length if `'t'`.
             `Mt` (`numpy.ndarray`.)
                 The current value of `M(t, tips, gaps)`. Typically this
                 has already been pre-computed which is why it is passed
@@ -512,14 +513,21 @@ class ExpCM(Model):
     def dM(self, t, param, Mt, tips=None, gaps=None):
         """See docs for method in `Model` abstract base class."""
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
-        assert param in self.freeparams, "Invalid param: {0}".format(param)
+        assert (param == 't') or (param in self.freeparams), (
+                "Invalid param: {0}".format(param))
+
         if Mt is None:
             Mt = self.M(t, tips=tips, gaps=gaps)
-        if param == 'mu':
-            if tips is None:
-                dM_param = broadcastMatrixMultiply(self.Prxy, Mt, alpha=t)
+
+        if (param == 'mu') or (param == 't'):
+            if param == 'mu':
+                alpha = t
             else:
-                dM_param = broadcastMatrixVectorMultiply(self.Prxy, Mt, alpha=t)
+                alpha = self.mu
+            if tips is None:
+                dM_param = broadcastMatrixMultiply(self.Prxy, Mt, alpha=alpha)
+            else:
+                dM_param = broadcastMatrixVectorMultiply(self.Prxy, Mt, alpha=alpha)
                 if gaps is not None:
                     dM_param[gaps] = scipy.zeros(N_CODON, dtype='float')
             return dM_param
@@ -1250,17 +1258,25 @@ class YNGKP_M0(Model):
     def dM(self, t, param, Mt, tips=None, gaps=None):
         """See docs for method in `Model` abstract base class."""
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
-        assert param in self.freeparams, "Invalid param: {0}".format(param)
+        assert (param == 't') or (param in self.freeparams), (
+                "Invalid param: {0}".format(param))
+
         if Mt is None:
             Mt = self.M(t, tips=tips, gaps=gaps)
-        if param == 'mu':
+
+        if (param == 'mu') or (param == 't'):
+            if param == 'mu':
+                alpha = t
+            else:
+                alpha = self.mu
             if tips is None:
                 dM_param = scipy.tile(broadcastMatrixMultiply(self.Pxy, 
-                        scipy.tile(Mt[0], (1,1,1)), alpha=t), (self.nsites, 1, 1))
+                        scipy.tile(Mt[0], (1, 1, 1)), alpha=alpha), 
+                        (self.nsites, 1, 1))
             else:
                 #Pxy is tiled over the number of sites
                 dM_param = broadcastMatrixVectorMultiply(scipy.tile(self.Pxy[0], 
-                        (self.nsites,1,1)), Mt, alpha=t)
+                        (self.nsites, 1, 1)), Mt, alpha=alpha)
                 if gaps is not None:
                     dM_param[gaps] = scipy.zeros(N_CODON, dtype='float')
             return dM_param
@@ -1538,7 +1554,8 @@ class GammaDistributedOmegaModel(DistributionModel):
     def dM(self, k, t, param, Mkt, tips=None, gaps=None):
         """See docs for `DistributionModel` abstract base class."""
         assert 0 <= k < self.ncats
-        assert param in self.freeparams or param == self.distributedparam
+        assert ((param in self.freeparams) or (param == 't') or (
+                param == self.distributedparam))
         assert param not in self.distributionparams
         return self._models[k].dM(t, param, Mkt, tips=tips, gaps=gaps)
 

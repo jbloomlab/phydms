@@ -17,7 +17,7 @@ import Bio.Phylo
 
 
 class test_underflow(unittest.TestCase):
-    """Test underflow correction in `TreeLikelihood` and `TreeLikelihoodDistribution`."""
+    """Test underflow correction in `TreeLikelihood`."""
 
     def test_underflow(self):
         """Tests correction for numerical underflow."""
@@ -42,12 +42,10 @@ class test_underflow(unittest.TestCase):
                 model, ncats=4)
 
         for (m, desc) in [(model, 'simple'), (distmodel, 'distribution')]:
-            if isinstance(m, phydmslib.models.DistributionModel):
-                tl_class = phydmslib.treelikelihood.TreeLikelihoodDistribution
-            else:
-                tl_class = phydmslib.treelikelihood.TreeLikelihood
-            tl = tl_class(tree, alignment, m, underflowfreq=1)
-            tl_nocorrection = tl_class(tree, alignment, m, underflowfreq=10000)
+            tl = phydmslib.treelikelihood.TreeLikelihood(tree, 
+                    alignment, m, underflowfreq=1)
+            tl_nocorrection = phydmslib.treelikelihood.TreeLikelihood(
+                    tree, alignment, m, underflowfreq=100000)
 
             self.assertTrue(scipy.allclose(tl.loglik, tl_nocorrection.loglik),
                     ("Log likelihoods differ with and without correction "
@@ -58,6 +56,19 @@ class test_underflow(unittest.TestCase):
                         ('dloglik differs with and without correction for {0}: '
                         '{1}, {2} versus {3}'.format(param, desc, 
                         tl.dloglik[param], dl)))
+
+            oldloglik = tl.loglik
+            tl.dparamscurrent = False
+            tl_nocorrection.dparamscurrent = False
+            tl.dtcurrent = True
+            tl_nocorrection.dtcurrent = True
+            self.assertTrue(scipy.allclose(tl.loglik, tl_nocorrection.loglik),
+                    ("Log likelihoods differ with and without correction "
+                    "for {0}: {1} versus {2}".format(desc, tl.loglik, 
+                    tl_nocorrection.loglik)))
+            self.assertTrue(scipy.allclose(tl.loglik, oldloglik))
+            self.assertTrue(scipy.allclose(tl.dloglik_dt, 
+                    tl_nocorrection.dloglik_dt))
 
 
 if __name__ == '__main__':

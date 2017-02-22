@@ -339,10 +339,9 @@ def PhyDMSParser():
             "column labeled 'site' and others labeled by 1-letter "
             "amino-acid code.").format(', '.join(yngkp_modelvariants)))
     parser.add_argument('outprefix', help='Output file prefix.', type=str)
-    parser.add_argument('--brlen', choices=['scale', 'optimize', 'fix'],
-            default='scale', help=("How to handle branch lengths: scale "
-            "by single parameter; optimize each one; fix to values "
-            "in 'tree'."))
+    parser.add_argument('--brlen', choices=['scale', 'optimize'],
+            default='optimize', help=("How to handle branch lengths: "
+            "scale by single parameter or optimize each one"))
     parser.set_defaults(gammaomega=False)
     parser.add_argument('--gammaomega', action='store_true',
             dest='gammaomega', help="Omega for ExpCM from gamma "

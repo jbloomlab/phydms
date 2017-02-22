@@ -6,6 +6,7 @@ using the indexing schemes defined in `phydmslib.constants`.
 
 
 import sys
+import math
 import copy
 import scipy
 import scipy.optimize
@@ -39,11 +40,12 @@ class TreeLikelihood(object):
             substitutions per site for the current `model`.
         `model` (instance of `phydmslib.models.Model` derived class)
             Specifies the substitution model for `nsites` codon sites.
+            This can either be a simple `Model` or a `DistributionModel`.
         `alignment` (list of 2-tuples of strings, `(head, seq)`)
             Aligned protein-coding codon sequences. Headers match
             tip names in `tree`; sequences contain `nsites` codons.
         `paramsarray` (`numpy.ndarray` of floats, 1-dimensional)
-            An array of all of the free parameters. You can directly
+            An array of the model free parameters. You can directly
             assign to `paramsarray`, and the correct parameters will
             be internally updated vi `updateParams`. 
             `paramsarray` is actually a property rather than an attribute.
@@ -55,17 +57,30 @@ class TreeLikelihood(object):
             Current log likelihood.
         `siteloglik` (`numpy.ndarray` of floats, length `nsites`)
             `siteloglik[r]` is current log likelihood at site `r`.
+        `dparamscurrent` (`bool`)
+            Do we keep the derivatives of the likelihood with
+            respect to model parameters current? Doing so
+            involves computational costs, so only set to `True`
+            if using these derivatives. Currently, only one of
+            `dparamscurrent` and `dtcurrent` can be `True` simultaneously,
+            as we optimize parameters and branch lengths separately.
+        `dtcurrent` (`bool`)
+            Do we keep the derivatives of the likelihood with
+            respect to branch lengths current? Doing so
+            involves computational costs, so only set to `True`
+            if using these derivatives.
         `dloglik` (`dict`)
             For each `param` in `model.freeparams`, `dloglik[param]`
             is the derivative of `loglik` with respect to `param`.
+            Only accessible if `dparamscurrent` is `True`.
         `dloglikarray` (`numpy.ndarray` of floats, 1-dimensional)
             `dloglikarray[i]` is the derivative of `loglik` with respect
             to the parameter represented in `paramsarray[i]`. This is
             the same information as in `dloglik`, but in a different
-            representation.
-        `dsiteloglik` (`dict`)
-            For each `param` in `model.freeparams`, `dsiteloglik[param][r]`
-            is the derivative of `siteloglik[r]` with respect to to `param`.
+            representation. Only accessible if `dparamscurrent` is `True`.
+        `dloglik_dt` (`numpy.ndarray` of floats, shape `(nnodes - 1,)`.
+            `dloglik_dt` is the derivative of `loglik` with respect
+            to the branch lengths `t`.
         `nsites` (int)
             Number of codon sites.
         `nseqs` (int)
@@ -95,7 +110,10 @@ class TreeLikelihood(object):
             For each internal node `n`, `rdescend[n - ntips]`
             is its right descendant and `ldescend[n - ntips]` is its left 
             descendant.
-        `t` (`list` of `float`, length `nnodes - 1`)
+        `descendants` (`list` of `list`)
+            For each node `n`, `descendants[n]` is a list of all nodes
+            that are direct or indirect descendants of `n`.
+        `t` (`numpy.ndarray` of `float`, shape `(nnodes - 1,)`)
             `t[n]` is the branch length leading node `n`. The branch leading
             to the root node (which has index `nnodes - 1`) is undefined
             and not used, which is why `t` is of length `nnodes - 1` rather
@@ -104,14 +122,16 @@ class TreeLikelihood(object):
             `L[n - ntips][r][x]` is the partial conditional likelihood of
             codon `x` at site `r` at internal node `n`. Note that these
             must be corrected by adding `underflowlogscale`.
+            If `model` is a `DistributionModel`, then `L` is instead
+            of shape `(ninternal, model.ncats, nsites, N_CODON)` with the
+            second index ranging over the model categories.
         `dL` (`dict` keyed by strings, values `numpy.ndarray` of `float`)
-            For each free model parameter `param` in `model.freeparam`, 
+            For each free model parameter `param`,
             `dL[param]` is derivative of `L` with respect to `param`.
-            If `param` is float, `dL[param][n - ntips][r][x]` is derivative
-            of `L[n - ntips][r][x]` with respect to `param`. If `param` is 
-            array, `dL[param][n - ntips][i][r][x]` is derivative of 
-            `L[n][r][x]` with respect to `param[i]`.
-            with respect to `param[i]`.
+            Only guaranteed to be valid if `dparamscurrent` is `True`.
+        `dL_dt` (`numpy.ndarray` of `float`)
+            `dL_dt[n]` is the derivative of `L` with respect to `t[n]`
+            where `0 <= n < nnodes - 1`.
         `underflowfreq` (`int` >= 1)
             The frequency with which we rescale likelihoods to avoid
             numerical underflow
@@ -121,11 +141,12 @@ class TreeLikelihood(object):
             performed.
     """
 
-    def __init__(self, tree, alignment, model, underflowfreq=5):
+    def __init__(self, tree, alignment, model, underflowfreq=5, 
+            dparamscurrent=True, dtcurrent=False):
         """Initialize a `TreeLikelihood` object.
 
         Args:
-            `tree`, `model`, `alignment`, `underflowfreq`
+            Calling arguments
                 Attributes of same name described in class doc string.
                 Note that we make copies of both `tree` and `model`
                 so the calling objects are not modified during 
@@ -134,7 +155,19 @@ class TreeLikelihood(object):
         assert isinstance(underflowfreq, int) and underflowfreq >= 1
         self.underflowfreq = underflowfreq
 
-        self._checkModel(model)
+        assert isinstance(dparamscurrent, bool)
+        self._dparamscurrent = dparamscurrent
+        assert isinstance(dtcurrent, bool)
+        self._dtcurrent = dtcurrent
+        assert not (self.dparamscurrent and self.dtcurrent), (
+                "Only one of dparamscurrent or dtcurrent can be True")
+
+        if isinstance(model, phydmslib.models.DistributionModel):
+            self._distributionmodel = True
+        elif isinstance(model, phydmslib.models.Model):
+            self._distributionmodel = False
+        else:
+            raise ValueError("model is not a valid model")
         self.model = copy.deepcopy(model)
         self.nsites = self.model.nsites
 
@@ -166,27 +199,40 @@ class TreeLikelihood(object):
         self.nnodes = self.ntips + self.ninternal
         self.rdescend = [-1] * self.ninternal
         self.ldescend = [-1] * self.ninternal
-        self.t = [-1] * (self.nnodes - 1)
-        self.L = scipy.full((self.ninternal, self.nsites, N_CODON), -1, 
-                dtype='float')
         self.underflowlogscale = scipy.zeros(self.nsites, dtype='float')
+        if self._distributionmodel:
+            Lshape = (self.ninternal, self.model.ncats, self.nsites, N_CODON)
+        else:
+            Lshape = (self.ninternal, self.nsites, N_CODON)
+        self.dL_dt = scipy.zeros([self.nnodes - 1] + list(Lshape), 
+                dtype='float')
+        self.L = scipy.full(Lshape, -1, dtype='float')
         self.dL = {}
-        for param in self.model.freeparams:
-            paramvalue = getattr(self.model, param)
-            if isinstance(paramvalue, float):
-                self.dL[param] = scipy.full((self.ninternal, self.nsites,
-                        N_CODON), -1, dtype='float')
-            elif isinstance(paramvalue, scipy.ndarray) and (paramvalue.ndim
-                    == 1):
-                self.dL[param] = scipy.full((self.ninternal, len(paramvalue),
-                        self.nsites, N_CODON), -1, dtype='float')
+        for param in self._paramlist_PartialLikelihoods:
+            if self._distributionmodel and param == self.model.distributedparam:
+                self.dL[param] = scipy.full(Lshape, -1, dtype='float')
             else:
-                raise ValueError("Cannot handle param: {0}, {1}".format(
-                        param, paramvalue))
+                paramvalue = getattr(self.model, param)
+                if isinstance(paramvalue, float):
+                    self.dL[param] = scipy.full(Lshape, -1, dtype='float')
+                elif isinstance(paramvalue, scipy.ndarray) and (paramvalue.ndim
+                        == 1):
+                    if self._distributionmodel:
+                        paramLshape = (self.ninternal, self.model.ncats, 
+                                len(paramvalue), self.nsites, N_CODON)
+                    else:
+                        paramLshape = (self.ninternal, len(paramvalue),
+                                self.nsites, N_CODON)
+                    self.dL[param] = scipy.full(paramLshape, -1, dtype='float')
+                else:
+                    raise ValueError("Cannot handle param: {0}, {1}".format(
+                            param, paramvalue))
         tipnodes = []
         internalnodes = []
         self.tips = scipy.zeros((self.ntips, self.nsites), dtype='int')
         self.gaps = []
+        self.descendants = []
+        self._t = scipy.full((self.nnodes - 1,), -1, dtype='float')
         for node in self._tree.find_clades(order='postorder'):
             if node.is_terminal():
                 tipnodes.append(node)
@@ -195,9 +241,10 @@ class TreeLikelihood(object):
         for (n, node) in enumerate(tipnodes + internalnodes):
             if node != self._tree.root:
                 assert n < self.nnodes - 1
-                self.t[n] = node.branch_length
+                self._t[n] = node.branch_length
             if node.is_terminal():
                 assert n < self.ntips
+                self.descendants.append([])
                 seq = alignment_d[node.name]
                 nodegaps = []
                 for r in range(self.nsites):
@@ -221,6 +268,8 @@ class TreeLikelihood(object):
                 ni = n - self.ntips
                 self.rdescend[ni] = self.name_to_nodeindex[node.clades[0]]
                 self.ldescend[ni] = self.name_to_nodeindex[node.clades[1]]
+                self.descendants.append([self.name_to_nodeindex[nx] for nx 
+                        in node.find_clades() if nx != node])
             self.name_to_nodeindex[node] = n
         self.gaps = scipy.array(self.gaps)
         assert len(self.gaps) == self.ntips
@@ -246,16 +295,14 @@ class TreeLikelihood(object):
         # now update internal attributes related to likelihood
         self._updateInternals()
 
-    def _checkModel(self, model):
-        """Makes sure `model` is appropriate."""
-        assert isinstance(model, phydmslib.models.Model), "invalid model"
-        assert not isinstance(model, phydmslib.models.DistributionModel), (
-                "Cannot use a simple `Model` for `TreeLikelihood`. Use "
-                "`TreeLikelihoodDistributionModel` instead if you have "
-                "a `DistributionModel`.")
-
-    def maximizeLikelihood(self, approx_grad=False):
+    def maximizeLikelihood(self, optimize_brlen=False,
+            approx_grad=False, logliktol=1.0e-2):
         """Maximize the log likelihood.
+
+        Maximizes log likelihood with respect to model parameters
+        and potentially branch lengths depending on `optimize_brlen`.
+        If optimizing the branch lengths, iterates between optimizing
+        the model parameters and branch lengths.
 
         Uses the L-BFGS-B method implemented in `scipy.optimize`.
 
@@ -263,38 +310,105 @@ class TreeLikelihood(object):
         will correspond to maximimum likelihood values.
 
         Args:
+            `optimize_brlen` (bool)
+                Do we optimize branch lengths?
             `approx_grad` (bool)
                 If `True`, then we numerically approximate the gradient
                 rather than using the analytical values.
+            `logliktol` (float)
+                When using `optimize_brlen`, keep iterating between
+                optimization of parameters and branch lengths until
+                change in log likelihood is less than `logliktol`.
 
         Returns:
-            A `scipy.optimize.OptimizeResult` with result of maximization.
+            A string giving a summary of the maximization.
         """
         # Some useful notes on optimization:
         # http://www.scipy-lectures.org/advanced/mathematical_optimization/
 
-        def func(x):
-            """Negative log likelihood when `x` is parameter array."""
+        assert len(self.paramsarray) > 0, "No parameters to optimize"
+        assert logliktol > 0
+
+        def paramsfunc(x):
+            """Negative log likelihood when `x` is params."""
             self.paramsarray = x
             return -self.loglik
 
-        def dfunc(x):
-            """Returns negative gradient log likelihood."""
+        def paramsdfunc(x):
+            """Negative gradient log likelihood with respect to params."""
             self.paramsarray = x
             return -self.dloglikarray
 
+        def tfunc(x):
+            """Negative log likelihood when `x` is branch lengths."""
+            self.t = x
+            return -self.loglik
+
+        def tdfunc(x):
+            """Negative gradient loglik with respect to branch lengths."""
+            self.t = x
+            return -self.dloglik_dt
+
         if approx_grad:
             dfunc = False
+            tdfunc = False
+            self.dtcurrent = False
+            self.dparamscurrent = False
 
-        assert len(self.paramsarray) > 0, "No parameters to optimize"
-        result = scipy.optimize.minimize(func, self.paramsarray,
-                method='L-BFGS-B', jac=dfunc, bounds=self.paramsarraybounds)
-        assert result.success, ("Optimization failed with message:\n{0}\n"
-                "Current mu = {1}\nCurrent model params: {2}").format(
-                result.message, self.model.mu, ', '.join(['{0} = {1}'.format(
-                p, pvalue) for (p, pvalue) in self.model.paramsReport.items()])) 
+        oldloglik = self.loglik
+        converged = False
+        summary = []
+        i = 1
+        while not converged:
+            if (not self.dparamscurrent) and (not approx_grad): 
+                self.dtcurrent = False
+                self.dparamscurrent = True
+            result = scipy.optimize.minimize(paramsfunc, self.paramsarray,
+                    method='L-BFGS-B', jac=paramsdfunc, 
+                    bounds=self.paramsarraybounds)
+            summary.append('Step {0}: optimized parameters, loglik went from '
+                    '{1:.2f} to {2:.2f} ({3} iterations, {4} function '
+                    'evals)'.format(i, oldloglik, self.loglik, result.nit,
+                    result.nfev))
+            i += 1
+            assert result.success, ("Optimization fail\n{0}\n{1}\n{2}".format(
+                    result.message, self.model.paramsReport, 
+                    '\n'.join(summary)))
+            if oldloglik - self.loglik > logliktol:
+                raise RuntimeError("loglik increased during param "
+                        "optimization: {0} to {1}".format(oldloglik,
+                        self.loglik))
+            elif self.loglik - oldloglik >= logliktol:
+                oldloglik = self.loglik
+                if optimize_brlen:
+                    if not approx_grad:
+                        self.dparamscurrent = False
+                        self.dtcurrent = True
+                    result = scipy.optimize.minimize(tfunc, self.t,
+                            method='L-BFGS-B', jac=tdfunc,
+                            bounds=[(ALMOST_ZERO, None)] * len(self.t))
+                    summary.append('Step {0}: optimized branches, loglik '
+                            'went from {1:.2f} to {2:.2f} ({3} iterations, '
+                            '{4} function evals)'.format(i, oldloglik,
+                            self.loglik, result.nit, result.nfev))
+                    i += 1
+                    assert result.success, ("Optimization failed\n{0}"
+                            "\n{1}\n{2}".format(result.message, self.t,
+                            '\n'.join(summary)))
+                    if oldloglik - self.loglik > logliktol:
+                        raise RuntimeError("loglik increased during t "
+                                "optimization: {0} to {1}".format(
+                                oldloglik, self.loglik))
+                    elif self.loglik - oldloglik >= logliktol:
+                        oldloglik = self.loglik
+                    else:
+                        converged = True
+                else:
+                    converged = True
+            else:
+                converged = True
 
-        return result
+        return '\n'.join(summary)
 
     @property
     def tree(self):
@@ -379,8 +493,65 @@ class TreeLikelihood(object):
         self._paramsarray = self.paramsarray
 
     @property
+    def dparamscurrent(self):
+        """Are derivatives with respect to model parameters current?"""
+        return self._dparamscurrent
+
+    @dparamscurrent.setter
+    def dparamscurrent(self, value):
+        """Set value of `dparamscurrent`, update derivatives if needed."""
+        assert isinstance(value, bool)
+        if value and self.dtcurrent:
+            raise RuntimeError("Can't set both dparamscurrent and dtcurrent True")
+        if value != self.dparamscurrent:
+            self._dparamscurrent = value
+            self._updateInternals()
+
+    @property
+    def dtcurrent(self):
+        """Are derivatives with respect to branch lengths current?"""
+        return self._dtcurrent
+
+    @dtcurrent.setter
+    def dtcurrent(self, value):
+        """Set value of `dtcurrent`, update derivatives if needed."""
+        assert isinstance(value, bool)
+        if value and self.dparamscurrent:
+            raise RuntimeError("Can't set both dparamscurrent and dtcurrent True")
+        if value != self.dtcurrent:
+            self._dtcurrent = value
+            self._updateInternals()
+
+    @property
+    def t(self):
+        """Gets array of branch lengths."""
+        return self._t.copy()
+
+    @t.setter
+    def t(self, value):
+        """Set new branch lengths, update likelihood and derivatives."""
+        assert (isinstance(value, scipy.ndarray) and (value.dtype == 
+                'float') and (value.shape == self.t.shape))
+        if (self._t != value).any():
+            self._t = value.copy()
+            self._updateInternals()
+
+    @property
+    def dloglik(self):
+        """`dloglik[param]` is derivative of `loglik` by `param`."""
+        assert self.dparamscurrent, "dloglik requires paramscurrent == True" 
+        return self._dloglik
+
+    @property
+    def dloglik_dt(self):
+        """`dloglik_dt` is derivative of `loglik` with respect to `t`."""
+        assert self.dtcurrent, "dloglik_dt requires dtcurrent == True"
+        return self._dloglik_dt
+
+    @property
     def dloglikarray(self):
         """Derivative of `loglik` with respect to `paramsarray`."""
+        assert self.dparamscurrent, "dloglikarray requires paramscurrent == True" 
         nparams = len(self._index_to_param)
         dloglikarray = scipy.ndarray(shape=(nparams,), dtype='float')
         for (i, param) in self._index_to_param.items():
@@ -391,32 +562,24 @@ class TreeLikelihood(object):
         return dloglikarray
 
     def updateParams(self, newvalues):
-        """Update parameters and re-compute likelihoods.
+        """Update model parameters and re-compute likelihoods.
 
         This method is the **only** acceptable way to update model
-        or tree parameters. The likelihood is re-computed as needed
+        parameters. The likelihood is re-computed as needed
         by this method.
 
         Args:
             `newvalues` (dict)
                 A dictionary keyed by param name and with value as new
-                value to set. Each parameter name must either be
-                a string in `model.freeparams` or a string that represents
-                a valid branch length.
+                value to set. Each parameter name must either be a
+                valid model parameter (in `model.freeparams`).
         """
-        modelparams = {}
-        otherparams = {}
         for (param, value) in newvalues.items():
-            if param in self.model.freeparams:
-                modelparams[param] = value
-            else:
-                otherparams[param] = value
-        if modelparams:
-            self.model.updateParams(modelparams)
-        if otherparams:
-            raise RuntimeError("Cannot handle non-model params: {0}".format(
-                    otherparams))
+            if param not in self.model.freeparams:
+                raise RuntimeError("Can't handle param: {0}".format(
+                        param))
         if newvalues:
+            self.model.updateParams(newvalues)
             self._updateInternals()
             self._paramsarray = None
 
@@ -426,227 +589,87 @@ class TreeLikelihood(object):
         Should be called any time branch lengths or model parameters
         are changed.
         """
-        with scipy.errstate(over='raise', under='raise', divide='raise',
-                invalid='raise'):
-            self.underflowlogscale.fill(0.0)
-            self._computePartialLikelihoods()
-            sitelik = scipy.sum(self.L[-1] * self.model.stationarystate, axis=1)
-            self.siteloglik = scipy.log(sitelik) + self.underflowlogscale
-            self.loglik = scipy.sum(self.siteloglik)
-            self.dsiteloglik = {}
-            self.dloglik = {}
-            for param in self.model.freeparams:
-                self.dsiteloglik[param] = scipy.sum(self.model.dstationarystate(param)
-                        * self.L[-1] + self.dL[param][-1] 
-                        * self.model.stationarystate, axis=-1) / sitelik
-                self.dloglik[param] = scipy.sum(self.dsiteloglik[param], axis=-1)
-
-    def _computePartialLikelihoods(self):
-        """Update `L`. and `dL`."""
-        for n in range(self.ntips, self.nnodes):
-            ni = n - self.ntips # internal node number
-            nright = self.rdescend[ni]
-            nleft = self.ldescend[ni]
-            nrighti = nright - self.ntips # internal node number
-            nlefti = nleft - self.ntips # internal node number
-            if nright < self.ntips:
-                istipr = True
-            else:
-                istipr = False
-            if nleft < self.ntips:
-                istipl = True
-            else:
-                istipl = False
-            tright = self.t[nright]
-            tleft = self.t[nleft]
-            if istipr:
-                Mright = MLright = self.model.M(tright, self.tips[nright], 
-                        self.gaps[nright])
-            else:
-                Mright = self.model.M(tright)
-                MLright = broadcastMatrixVectorMultiply(Mright, 
-                        self.L[nrighti])
-            if istipl:
-                Mleft = MLleft = self.model.M(tleft, self.tips[nleft], 
-                        self.gaps[nleft])
-            else:
-                Mleft = self.model.M(tleft)
-                MLleft = broadcastMatrixVectorMultiply(Mleft, self.L[nlefti])
-            scipy.copyto(self.L[ni], MLright * MLleft)
-            for param in self.model.freeparams:
-                indices = self._sub_index_param(param)
-                if istipr:
-                    dMright = self.model.dM(tright, param, Mright, 
-                            self.tips[nright], self.gaps[nright])
-                else:
-                    dMright = self.model.dM(tright, param, Mright)
-                if istipl:
-                    dMleft = self.model.dM(tleft, param, Mleft, 
-                            self.tips[nleft], self.gaps[nleft])
-                else:
-                    dMleft = self.model.dM(tleft, param, Mleft)
-                for j in indices:
-                    if istipr:
-                        dMLright = dMright[j]
-                        MdLright = 0
-                    else:
-                        dMLright = broadcastMatrixVectorMultiply(
-                                dMright[j], self.L[nrighti])
-                        MdLright = broadcastMatrixVectorMultiply(Mright,
-                                self.dL[param][nrighti][j])
-                    if istipl:
-                        dMLleft = dMleft[j]
-                        MdLleft = 0
-                    else:
-                        dMLleft = broadcastMatrixVectorMultiply(
-                                dMleft[j], self.L[nlefti])
-                        MdLleft = broadcastMatrixVectorMultiply(Mleft,
-                                self.dL[param][nlefti][j])
-                    scipy.copyto(self.dL[param][ni][j], (dMLright + MdLright)
-                            * MLleft + MLright * (dMLleft + MdLleft))
-            if ni > 0 and ni % self.underflowfreq == 0:
-                scale = scipy.amax(self.L[ni], axis=1)
-                self.L[ni] /= scale[:, scipy.newaxis]
-                self.underflowlogscale += scipy.log(scale)
-                for param in self.model.freeparams:
-                    indices = self._sub_index_param(param)
-                    for j in indices:
-                        self.dL[param][ni][j] /= scale[:, scipy.newaxis] 
-
-    def _sub_index_param(self, param):
-        """Returns list of sub-indexes for `param`.
-
-        Used in computing partial likelihoods; loop over these indices."""
-        paramvalue = getattr(self.model, param)
-        if isinstance(paramvalue, float):
-            indices = [()] # no sub-indexing needed
-        elif (isinstance(paramvalue, scipy.ndarray) and 
-                paramvalue.ndim == 1 and paramvalue.shape[0] > 1):
-            indices = [(j,) for j in range(len(paramvalue))]
+        if self._distributionmodel:
+            catweights = self.model.catweights
         else:
-            raise RuntimeError("Invalid param: {0}, {1}".format(
-                    param, paramvalue))
-        return indices
-
-
-class TreeLikelihoodDistribution(TreeLikelihood):
-    """Like `TreeLikelihood` but for `DistributionModel`.
-   
-    Differs from `TreeLikelihood` in that `model` is a `DistributionModel`
-    rather than just a simple `Model`. Otherwise inherits all attributes
-    and functions from `TreeLikelihood` with the following differences:
-
-    Attributes that differ from `TreeLikelihood` base model:
-        `model` (instance of `phydmslib.models.DistributionModel`)
-        `ncats` (`int`)
-            Number of categories for distributed parameter of `model`.
-            Determined from `model`.
-        `L` (`numpy.ndarray`, shape `(ninternal, ncats, nsites, N_CODON)`)
-            `L[n - ntips][k][r][x]` is partial conditional likelihood
-            of `x` at `r` at internal node `n` for category `k`.
-            Note that these must be corrected by adding 
-            `underflowlogscale`.
-        `dL` (`dict` keyed by strings)
-            `dL[param][n - ntips][k]` is the derivative of
-            `L[n - ntips][k]` with respect to `param`.
-    """
-
-    def __init__(self, tree, alignment, model, underflowfreq=5):
-        """Initialize a `TreeLikelihoodDistribution` object.
-
-        See docs for `TreeLikelihood.__init__`."""
-
-        self._resized = False
-        self.ncats = model.ncats
-        super(TreeLikelihoodDistribution, self).__init__(
-                tree, alignment, model, underflowfreq=underflowfreq)
-        assert self.ncats == self.model.ncats
-
-    def _resize_attributes(self):
-        """Re-size attributes for `TreeLikelihoodDistribution`.
-
-        Some of the attributes for a `TreeLikelihoodDistribution`
-        have a different size than for a `TreeLikelihood` due to
-        need to store data for the `ncats` categories. This method
-        checks the size of all such attributes, and if necessary
-        re-sizes them. This should only be necessary the first time
-        this method is called.
-
-        This is needed because the `super` call to `__init__`
-        will leave sizes for `TreeLikelihood` rather than
-        `TreeLikelihoodDistribution`.
-        """
-        if not self._resized:
-            self._resized = True
-            Lshape = (self.ninternal, self.ncats, self.nsites, N_CODON)
-            self.L = scipy.full(Lshape, -1, dtype='float')
-            self.dL = {}
-            for param in (self.model.freeparams + 
-                    [self.model.distributedparam]):
-                if param in self.model.distributionparams:
-                    continue
-                if param == self.model.distributedparam:
-                    self.dL[param] = scipy.full(Lshape, -1, 
-                            dtype='float')
-                else:
-                    pvalue = getattr(self.model, param)
-                    if isinstance(pvalue, float):
-                        self.dL[param] = scipy.full(Lshape, -1, 
-                                dtype='float')
-                    elif isinstance(pvalue, scipy.ndarray) and (
-                            pvalue.ndim == 1):
-                        self.dL[param] = scipy.full((self.ninternal,
-                                self.ncats, len(pvalue), self.nsites,
-                                N_CODON), -1, dtype='float')
-                    else:
-                        raise RuntimeError("Invalid: {0}, {1}".format(
-                                param, pvalue.shape))
-
-    def _checkModel(self, model):
-        """Makes sure `model` is appropriate."""
-        assert isinstance(model, phydmslib.models.DistributionModel), (
-                "TreeLikelihoodDistribution requires DistributionModel")
-
-    def _updateInternals(self):
-        """Update internal attributes related to likelihood.
-
-        Should be called anytime branch lengths or model parameters
-        are changed.
-        """
-        self._resize_attributes()
+            catweights = scipy.ones(1, dtype='float')
         with scipy.errstate(over='raise', under='raise', divide='raise',
                 invalid='raise'):
             self.underflowlogscale.fill(0.0)
             self._computePartialLikelihoods()
             sitelik = scipy.zeros(self.nsites, dtype='float')
-            for k in range(self.ncats):
+            for k in self._catindices:
                 sitelik += scipy.sum(self.model.stationarystate *
-                        self.L[-1][k], axis=1) * self.model.catweights[k]
+                        self.L[-1][k], axis=1) * catweights[k]
             self.siteloglik = scipy.log(sitelik) + self.underflowlogscale
             self.loglik = scipy.sum(self.siteloglik)
-            self.dsiteloglik = {}
-            self.dloglik = {}
-            for param in self.model.freeparams:
-                if param in self.model.distributionparams:
-                    name = self.model.distributedparam
-                    dk = self.model.d_distributionparams[param]
-                else:
-                    name = param
-                    dk = scipy.ones(self.ncats, dtype='float')
-                self.dsiteloglik[param] = (scipy.sum(
-                            self.model.dstationarystate(param) * 
-                            self.L[-1][0] + self.dL[name][-1][0] *
-                            self.model.stationarystate, axis=-1) *
-                            self.model.catweights[0] * dk[0])
-                for k in range(1, self.ncats):
-                    self.dsiteloglik[param] += (scipy.sum(
-                            self.model.dstationarystate(param) * 
-                            self.L[-1][k] + self.dL[name][-1][k] *
-                            self.model.stationarystate, axis=-1) *
-                            self.model.catweights[k] * dk[k])
-                self.dsiteloglik[param] /= sitelik
-                self.dloglik[param] = scipy.sum(
-                        self.dsiteloglik[param], axis=-1)
+            if self.dparamscurrent:
+                self._dloglik = {}
+                for param in self.model.freeparams:
+                    if self._distributionmodel and (param in 
+                            self.model.distributionparams):
+                        name = self.model.distributedparam
+                        weighted_dk = (self.model.d_distributionparams[param] 
+                                * catweights)
+                    else:
+                        name = param
+                        weighted_dk = catweights 
+                    dsiteloglik = 0
+                    for k in self._catindices:
+                        dsiteloglik += (scipy.sum(
+                                self.model.dstationarystate(param) *
+                                self.L[-1][k] + self.dL[name][-1][k] *
+                                self.model.stationarystate, axis=-1) *
+                                weighted_dk[k])
+                    dsiteloglik /= sitelik
+                    self._dloglik[param] = scipy.sum(dsiteloglik, axis=-1)
+            if self.dtcurrent:
+                self._dloglik_dt = 0
+                for k in self._catindices:
+                    dLnroot_dt = self.dL_dt.swapaxes(0, 1)[-1]
+                    if isinstance(k, int):
+                        dLnrootk_dt = dLnroot_dt.swapaxes(0, 1)[k]
+                    else:
+                        assert k == slice(None)
+                        dLnrootk_dt = dLnroot_dt
+                    self._dloglik_dt += catweights[k] * scipy.sum(
+                            self.model.stationarystate * 
+                            dLnrootk_dt, axis=-1)
+                self._dloglik_dt /= sitelik
+                self._dloglik_dt = scipy.sum(self._dloglik_dt, axis=-1)
+                assert self._dloglik_dt.shape == self.t.shape
+
+    def _M(self, k, t, tips=None, gaps=None):
+        """Returns matrix exponential `M`."""
+        if self._distributionmodel:
+            return self.model.M(k, t, tips, gaps)
+        else:
+            return self.model.M(t, tips, gaps)
+
+    def _dM(self, k, t, param, M, tips=None, gaps=None):
+        """Returns derivative of matrix exponential."""
+        if self._distributionmodel:
+            return self.model.dM(k, t, param, M, tips, gaps)
+        else:
+            return self.model.dM(t, param, M, tips, gaps)
+
+    @property
+    def _catindices(self):
+        """Returns list of indices of categories."""
+        if self._distributionmodel:
+            return range(self.model.ncats)
+        else:
+            return [slice(None)]
+
+    @property
+    def _paramlist_PartialLikelihoods(self):
+        """List of parameters looped over in `_computePartialLikelihoods`."""
+        if self._distributionmodel:
+            return [param for param in self.model.freeparams +
+                    [self.model.distributedparam] if param not in
+                    self.model.distributionparams]
+        else:
+            return self.model.freeparams
 
     def _computePartialLikelihoods(self):
         """Update `L` and `dL`."""
@@ -666,77 +689,112 @@ class TreeLikelihoodDistribution(TreeLikelihood):
                 istipl = False
             tright = self.t[nright]
             tleft = self.t[nleft]
-            for k in range(self.ncats):
+            for k in self._catindices:
                 if istipr:
-                    Mright = MLright = self.model.M(k, tright, 
+                    Mright = MLright = self._M(k, tright, 
                             self.tips[nright], self.gaps[nright])
                 else:
-                    Mright = self.model.M(k, tright)
+                    Mright = self._M(k, tright)
                     MLright = broadcastMatrixVectorMultiply(Mright, 
                             self.L[nrighti][k])
                 if istipl:
-                    Mleft = MLleft = self.model.M(k, tleft, 
+                    Mleft = MLleft = self._M(k, tleft, 
                             self.tips[nleft], self.gaps[nleft])
                 else:
-                    Mleft = self.model.M(k, tleft)
+                    Mleft = self._M(k, tleft)
                     MLleft = broadcastMatrixVectorMultiply(Mleft, 
                             self.L[nlefti][k])
                 scipy.copyto(self.L[ni][k], MLright * MLleft)
-                paramlist = [param for param in self.model.freeparams +
-                        [self.model.distributedparam] if param not in
-                        self.model.distributionparams]
-                for param in paramlist:
-                    indices = self._sub_index_param(param)
-                    if istipr:
-                        dMright = self.model.dM(k, tright, param, Mright,
-                                self.tips[nright], self.gaps[nright])
-                    else:
-                        dMright = self.model.dM(k, tright, param, Mright)
-                    if istipl:
-                        dMleft = self.model.dM(k, tleft, param, Mleft, 
-                                self.tips[nleft], self.gaps[nleft])
-                    else:
-                        dMleft = self.model.dM(k, tleft, param, Mleft)
-                    for j in indices:
+
+                if self.dtcurrent:
+                    for (tx, Mx, nx, nix, MLxother, istipx) in [
+                            (tright, Mright, nright, nrighti, MLleft, istipr),
+                            (tleft, Mleft, nleft, nlefti, MLright, istipl)]:
+                        if istipx:
+                            tipsx = self.tips[nx]
+                            gapsx = self.gaps[nx]
+                        else:
+                            tipsx = gapsx = None
+                        dM_dt = self._dM(k, tx, 't', Mx, tipsx, gapsx)
+                        if istipx:
+                            LdM_dt = dM_dt
+                        else:
+                            LdM_dt = broadcastMatrixVectorMultiply(
+                                    dM_dt, self.L[nix][k])
+                        self.dL_dt[nx][ni][k] = LdM_dt * MLxother
+                        for ndx in self.descendants[nx]:
+                            nidx = ndx - self.ntips
+                            self.dL_dt[ndx][ni][k] = broadcastMatrixVectorMultiply(
+                                    Mx, self.dL_dt[ndx][nix][k]) * MLxother
+
+                if self.dparamscurrent:
+                    for param in self._paramlist_PartialLikelihoods:
                         if istipr:
-                            dMLright = dMright[j]
-                            MdLright = 0
+                            dMright = self._dM(k, tright, param, Mright,
+                                    self.tips[nright], self.gaps[nright])
                         else:
-                            dMLright = broadcastMatrixVectorMultiply(
-                                    dMright[j], self.L[nrighti][k])
-                            MdLright = broadcastMatrixVectorMultiply(
-                                    Mright, self.dL[param][nrighti][k][j])
+                            dMright = self._dM(k, tright, param, Mright)
                         if istipl:
-                            dMLleft = dMleft[j]
-                            MdLleft = 0
+                            dMleft = self._dM(k, tleft, param, Mleft, 
+                                    self.tips[nleft], self.gaps[nleft])
                         else:
-                            dMLleft = broadcastMatrixVectorMultiply(
-                                    dMleft[j], self.L[nlefti][k])
-                            MdLleft = broadcastMatrixVectorMultiply(
-                                    Mleft, self.dL[param][nlefti][k][j])
-                        scipy.copyto(self.dL[param][ni][k][j], 
-                                (dMLright + MdLright) * MLleft +
-                                MLright * (dMLleft + MdLleft))
+                            dMleft = self._dM(k, tleft, param, Mleft)
+                        for j in self._sub_index_param(param):
+                            if istipr:
+                                dMLright = dMright[j]
+                                MdLright = 0
+                            else:
+                                dMLright = broadcastMatrixVectorMultiply(
+                                        dMright[j], self.L[nrighti][k])
+                                MdLright = broadcastMatrixVectorMultiply(
+                                        Mright, self.dL[param][nrighti][k][j])
+                            if istipl:
+                                dMLleft = dMleft[j]
+                                MdLleft = 0
+                            else:
+                                dMLleft = broadcastMatrixVectorMultiply(
+                                        dMleft[j], self.L[nlefti][k])
+                                MdLleft = broadcastMatrixVectorMultiply(
+                                        Mleft, self.dL[param][nlefti][k][j])
+                            scipy.copyto(self.dL[param][ni][k][j], 
+                                    (dMLright + MdLright) * MLleft +
+                                    MLright * (dMLleft + MdLleft))
+
             if ni > 0 and ni % self.underflowfreq == 0:
                 # rescale by same amount for each category k
                 scale = scipy.amax(scipy.array([scipy.amax(self.L[ni][k],
-                        axis=1) for k in range(self.ncats)]), axis=0)
+                        axis=1) for k in self._catindices]), axis=0)
                 assert scale.shape == (self.nsites,)
                 self.underflowlogscale += scipy.log(scale)
-                for k in range(self.ncats):
+                for k in self._catindices:
                     self.L[ni][k] /= scale[:, scipy.newaxis]
-                    for param in paramlist:
-                        for j in indices:
-                            self.dL[param][ni][k][j] /= scale[:, scipy.newaxis] 
+                    if self.dtcurrent:
+                        for n in range(self.dL_dt.shape[0]):
+                            self.dL_dt[n][ni][k] /= scale[:, scipy.newaxis]
+                    if self.dparamscurrent:
+                        for param in self._paramlist_PartialLikelihoods:
+                            for j in self._sub_index_param(param):
+                                self.dL[param][ni][k][j] /= scale[:, scipy.newaxis] 
 
     def _sub_index_param(self, param):
-        """See docs for `TreeLikelihood` base class."""
-        if param == self.model.distributedparam:
-            indices = [()] # no sub-indexing needed
+        """Returns list of sub-indexes for `param`.
+
+        Used in computing partial likelihoods; loop over these indices."""
+        if self._distributionmodel and (param == 
+                self.model.distributedparam):
+            indices = [()]
         else:
-            indices = super(TreeLikelihoodDistribution, self)._sub_index_param(
-                    param)
+            paramvalue = getattr(self.model, param)
+            if isinstance(paramvalue, float):
+                indices = [()] 
+            elif (isinstance(paramvalue, scipy.ndarray) and 
+                    paramvalue.ndim == 1 and paramvalue.shape[0] > 1):
+                indices = [(j,) for j in range(len(paramvalue))]
+            else:
+                raise RuntimeError("Invalid param: {0}, {1}".format(
+                        param, paramvalue))
         return indices
+
 
 
 if __name__ == '__main__':
