@@ -72,7 +72,7 @@ def createModelComparisonFile(models, outprefix):
             The value of the variable
     *modelcomparison.md*
         Columns include 'Diversifying Pressure Set', 'Loglikelihood',
-        and all non-phi optimized parameters.
+        and all optimized parameters.
         Only the non-randomized `phydms` runs are included.
     """
 
@@ -113,7 +113,7 @@ def createModelComparisonFile(models, outprefix):
     mdDF = final[final["DiversifyingPressureType"] != "Random"]\
             .pivot(index = "DiversifyingPressureSet", columns='variable',
              values='value')
-    mdDF = mdDF[[x for x in mdDF.columns.values if "phi" not in x]]
+    mdDF = mdDF[[x for x in mdDF.columns.values]]
     with open(outprefix + "modelcomparison.md", "w") as f:
         f.write("|".join(["DiversifyingPressureSet"] \
                 + list(mdDF.columns.values)) + "\n")
@@ -387,8 +387,16 @@ def main():
                         if not os.path.isfile(fname):
                             raise RuntimeError("phydms failed to created"
                                     " expected output file {0}.".format(fname))
-                    logger.info('Analysis successful for {0}\n'\
-                            .format(modelID))
+                    if modelID[1] != "None":
+                        if modelID[2] != "True":
+                            logger.info('Analysis successful for {0} with diversifying pressure {1} and random seed {2}\n'\
+                                .format(modelID[0], modelID[1], modelID[3]))
+                        else:
+                            logger.info('Analysis successful for {0} with diversifying pressure {1}\n'\
+                                .format(modelID[0], modelID[1]))
+                    else:
+                        logger.info('Analysis successful for {0} without diversifying pressure.\n'\
+                            .format(modelID[0]))
             time.sleep(1)
 
     #make sure all expected output files are there
