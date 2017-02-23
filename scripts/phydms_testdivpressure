@@ -135,14 +135,24 @@ def main():
     """
     Main body of script.
 
-    In this script, each run of `phydms` is considered one model. Each model
-    has a unique ID which describes the preferences and the diversifying
-    pressures used in the `ExpCM`. The ID is a tuple of the following form:
-    (preferences, diversifying pressure, True/Random/None diversifying
-    pressure, random seed or None).
+    *modelID* tuple
+        Each run of `phydms` is considered one model by this script.
+        Each model has unique ID which describes the preferences and the
+        diversifying pressures used in the `ExpCM`.
+        The ID is a tuple of the following form:
+            (pref file, diversifying pressure (name of file or "None"),
+            diversifying pressure type ("None", "True", or "Random"), and the
+            random seend (integer or "None"))
+    *models* dictionary keyed by modelID
+        each value is a tuple of the following form:
+            (pref file, list of `phydms` commands,
+            number of empirical parameters, modelprefix)
 
-    All of the models are run with either the tree indicated by the user or
-    a tree inferred under *GTRCAT* with `RAxML`
+    The branch lengths are optimized using `ExpCM` without diversifying pressure
+    on either the tree specfied by the user or the tree inferred under the
+    *GTRCAT* with `RAxML`. The `ExpCM` with diversifying pressures are run with
+    this optimized tree and the branch lengths are scaled but not individually
+    optimized. 
     """
 
     # Parse command line arguments
@@ -358,12 +368,36 @@ def main():
                     " that match the names of output files that will be "
                     'created: {0}\n'.format(', '.join(removed)))
 
+    # first run the `ExpCM` model without diversiying pressure to optimize
+    #the branch lengths
+        noDivPressure = [x for x in list(models.keys()) if x[1] == "None"]
+        assert len(noDivPressure) == 1, "More than one ExpCM without\
+                diversifying pressure was specified"
+        noDivPressure = noDivPressure[0]
+        (model, additionalcmds, nempirical, modelname) = models[noDivPressure]
+        outprefix = "{0}{1}".format(args['outprefix'], modelname)
+        cmds = ['phydms', args['alignment'], args["tree"], model,
+                outprefix] + additionalcmds + ["--brlen", "optimize"]
+        logger.info('Starting analysis. Optimizing the branch lengths. The command is: %s\n' % (' '.join(cmds)))
+        outprefixes[noDivPressure] = outprefix
+        subprocess.check_call(cmds)
+        for fname in [outprefixes[noDivPressure] + suffix for suffix
+                in filesuffixes[noDivPressure]]:
+            if not os.path.isfile(fname):
+                raise RuntimeError("phydms failed to created"
+                        " expected output file {0}.".format(fname))
+        logger.info('Analysis successful for {0} without diversifying pressure.\n'\
+                .format(modelID[0]))
+        treeFile = '{0}_tree.newick'.format(outprefix)
+        assert os.path.isfile(treeFile)
+
     #now run the other models
-        for modelID in list(models.keys()):
+        divPressureModels = [x for x in list(models.keys()) if x[1] != "None"]
+        for modelID in divPressureModels:
             (model, additionalcmds, nempirical, modelname) = models[modelID]
             outprefix = "{0}{1}".format(args['outprefix'], modelname)
-            cmds = ['phydms', args['alignment'], args["tree"], model,
-                    outprefix] + additionalcmds
+            cmds = ['phydms', args['alignment'], treeFile, model,
+                    outprefix] + additionalcmds + ["--brlen", "scale"]
             pool[modelID] = multiprocessing.Process(target=RunCmds\
                     , args=(cmds,))
             outprefixes[modelID] = outprefix
