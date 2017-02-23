@@ -10,12 +10,13 @@ Overview
 ------------
 ``phydms_testdivpressure`` is a program that simplifies usage of ``phydms`` to compare different models of diversifying pressure.
 
-In its simplest usage, you simply provide ``phydms_testdivpressure`` with an alignment, a file giving site-specific amino-acid preferences, and a file giving site-specific diversifying pressures.
+In its simplest usage, you provide ``phydms_testdivpressure`` with an alignment, a file giving site-specific amino-acid preferences, and a file giving site-specific diversifying pressures.
 The program then first uses ``RAxML`` to infer a tree under the *GTRCAT* model.
 Alternatively, you can specify the tree using ``--tree`` flag.
-Then, the tree is optimized for a control *ExpCM* without any diversifying pressures and an *ExpCM* for each of the site-specific diversifying pressures.
-For additional controls, ``phydms_testdivpressure`` will also optimize the tree with randomized diversifying pressures.
-It also creates simple summary files that enable comparison among the models.
+Then, each branch length of the tree is optimized with a control *ExpCM* without any diversifying pressures.
+This optimized tree's branch lengths are then scaled with a single parameter under *ExpCM* for each of the site-specific diversifying pressures.
+For a control, ``phydms_testdivpressure`` will also optimize the tree with randomized diversifying pressures.
+It creates simple summary files that enable comparison among the models.
 
 See below for information on `Command-line usage`_ and `Output files`_.
 
