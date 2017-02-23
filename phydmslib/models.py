@@ -1064,12 +1064,6 @@ class YNGKP_M0(Model):
         assert scipy.allclose(self.phi.sum(axis = 1),\
                 scipy.ones(3, dtype='float'),atol=1e-4, rtol=5e-3),\
                 "The `phi` values do not sum to 1 for all `p`"
-        # Not certain that this test should always be true,
-        # so commenting it out.
-        #assert (((self.e_pw - self.phi) * STOP_POSITIONS) >= 0.0).all(), (
-        #        "Illogical `phi` values:\nphi = {0}\ne_pw = {1}\n"
-        #        "(e_pw - phi) * STOP_POSITIONS = {2}".format(self.phi,
-        #        self.e_pw, (self.e_pw - self.phi) * STOP_POSITIONS))
 
         self.Phi_x = scipy.ones(N_CODON, dtype='float')
         self._calculate_Phi_x()
@@ -1390,6 +1384,11 @@ class DistributionModel(six.with_metaclass(abc.ABCMeta, Model)):
     """
 
     @abc.abstractproperty
+    def basemodeltype(self):
+        """Type of base model of which this model is distributed."""
+        pass
+
+    @abc.abstractproperty
     def distributedparam(self):
         """String giving name of parameter drawn from the distribution.
         
@@ -1492,6 +1491,11 @@ class GammaDistributedOmegaModel(DistributionModel):
     PARAMTYPES = {'alpha_omega':float,
                   'beta_omega':float,
                  }
+
+    @property
+    def basemodeltype(self):
+        """See docs for `DistributionModel` abstract base class."""
+        return type(self._models[0])
 
     @property
     def distributedparam(self):

@@ -142,15 +142,29 @@ class TreeLikelihood(object):
     """
 
     def __init__(self, tree, alignment, model, underflowfreq=5, 
-            dparamscurrent=True, dtcurrent=False):
+            dparamscurrent=True, dtcurrent=False, branchScale=None):
         """Initialize a `TreeLikelihood` object.
 
         Args:
-            Calling arguments
+            `tree`, `alignment`, `model`, `underflowfreq`
                 Attributes of same name described in class doc string.
                 Note that we make copies of both `tree` and `model`
                 so the calling objects are not modified during 
                 optimization.
+            `dparamscurrent`, `dtcurrent`
+                Current values of these flags indicating which
+                derivatives to compute.
+            `branchScale` (`None` or float > 0)
+                The branch lengths in the input tree are assumed
+                to be in units of substitutions per site with
+                the scaling defined by `model.branchScale`. If
+                the scaling should instead be defined by some 
+                other value of `branchScale`, indicate by
+                setting to that value rather than `None`. This
+                is useful if tree was inferred on models across
+                many sites but you are now just analyzing an
+                individual one. Note that this option applies
+                only to the input tree, not the output one.
         """
         assert isinstance(underflowfreq, int) and underflowfreq >= 1
         self.underflowfreq = underflowfreq
@@ -187,7 +201,10 @@ class TreeLikelihood(object):
         assert isinstance(tree, Bio.Phylo.BaseTree.Tree), "invalid tree"
         self._tree = copy.deepcopy(tree)
         assert self._tree.count_terminals() == self.nseqs
-        branchScale = self.model.branchScale
+        if branchScale == None:
+            branchScale = self.model.branchScale
+        else:
+            assert isinstance(branchScale, float) and branchScale > 0
         for node in self._tree.find_clades():
             if node != self._tree.root:
                 node.branch_length /= branchScale

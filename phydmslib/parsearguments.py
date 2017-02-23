@@ -357,7 +357,7 @@ def PhyDMSParser():
     parser.set_defaults(omegabysite_fixsyn=False)
     parser.add_argument('--omegabysite_fixsyn', dest='omegabysite_fixsyn',
             action='store_true', help="For '--omegabysite', assign all "
-            "sites same dS rather than for each site.")
+            "sites same dS rather than fit for each site.")
     parser.set_defaults(randprefs=False)
     parser.add_argument('--randprefs', dest='randprefs', action='store_true',
             help="Randomize preferences among sites for ExpCM.")
