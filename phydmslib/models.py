@@ -1384,8 +1384,14 @@ class DistributionModel(six.with_metaclass(abc.ABCMeta, Model)):
     """
 
     @abc.abstractproperty
-    def basemodeltype(self):
-        """Type of base model of which this model is distributed."""
+    def basemodel(self):
+        """Base model over which this model is distributed.
+        
+        A `DistributionModel` is a base model with some property
+        drawn from a distribution. This gives such a base model. 
+        Parameters of this base model that are **not** distributed
+        among sites will be current, but the distributed parameter
+        will not."""
         pass
 
     @abc.abstractproperty
@@ -1493,9 +1499,9 @@ class GammaDistributedOmegaModel(DistributionModel):
                  }
 
     @property
-    def basemodeltype(self):
+    def basemodel(self):
         """See docs for `DistributionModel` abstract base class."""
-        return type(self._models[0])
+        return self._models[0]
 
     @property
     def distributedparam(self):

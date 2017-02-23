@@ -41,7 +41,8 @@ def broadcastMatrixMultiply(numpy.ndarray a, numpy.ndarray b,
     assert r == b.shape[0]
     cdef int n = a.shape[1]
     assert n == a.shape[2] == b.shape[2] == b.shape[1]
-    assert a.flags['C'], "a not C contiguous"
+    if not a.flags['C']:
+        a = scipy.ascontiguousarray(a)
     assert b.flags['C'], "b not C contiguous"
     cdef numpy.ndarray ab = numpy.ndarray((r, n, n), dtype=numpy.double)
     cdef int i
@@ -91,7 +92,8 @@ def broadcastMatrixVectorMultiply(numpy.ndarray m, numpy.ndarray v,
     assert r == m.shape[0]
     cdef int n = v.shape[1]
     assert n == m.shape[1] == m.shape[2]
-    assert m.flags['C']
+    if not m.flags['C']:
+        m = scipy.ascontiguousarray(m)
     assert v.flags['C']
     cdef numpy.ndarray mv = numpy.ndarray((r, n), dtype=numpy.double)
     cdef int i
