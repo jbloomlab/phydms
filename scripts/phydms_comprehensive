@@ -60,7 +60,7 @@ def createModelComparisonFile(models, outprefix):
         final = pd.concat([final, pd.DataFrame(temp)])
     final.to_csv(outprefix + "modelcomparison.csv", index = False)
     final.reset_index(drop=True, inplace = True)
-    
+
     #modelcomparison.md
     #pivot the dataframe so the parameters are columns
     mdDF = final.pivot(index = "Model", columns='variable', values='value')
@@ -138,16 +138,16 @@ def main():
             '_modelparams.txt']
     filesuffixes = {} # keyed by model, values are list of suffixes
     models = {}
-
+    additinalcmds = ["--brlen", args["brlen"]]
     #set up the YNGKP models
-    yngkpadditionalcmds = []
+    yngkpadditionalcmds = [] + additinalcmds
     models = {'YNGKP_M0':('YNGKP_M0', yngkpadditionalcmds, 2)}
     filesuffixes['YNGKP_M0'] = filesuffixlist
     models['YNGKP_M5'] = ('YNGKP_M5', yngkpadditionalcmds, 3)
     filesuffixes['YNGKP_M5'] = filesuffixlist
 
     #set up the ExpCM
-    expcmadditionalcmds = []
+    expcmadditionalcmds = [] + additinalcmds
     nempiricalExpCM = 3
     nempiricalExpCM_gammaomega = 4
     for prefsfile in args['prefsfiles']:

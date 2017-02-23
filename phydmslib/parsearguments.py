@@ -303,6 +303,9 @@ def PhyDMSComprehensiveParser():
             "exelixis/software.html).", default='raxml')
     parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; -1 '
             'means all available.', type=int)
+    parser.add_argument('--brlen', choices=['scale', 'optimize'],
+            default='optimize', help=("How to handle branch lengths: "
+            "scale by single parameter or optimize each one"))
     parser.set_defaults(nogammaomega=False)
     parser.add_argument('--no-gammaomega', dest='nogammaomega', action=\
             'store_true', help="No ExpCM with gamma distributed omega.")
