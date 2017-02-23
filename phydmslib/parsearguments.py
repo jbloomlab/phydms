@@ -320,6 +320,9 @@ def PhyDMSComprehensiveParser():
     parser.set_defaults(randprefs=False)
     parser.add_argument('--randprefs', dest='randprefs', action='store_true',
             help="Include ExpCM models with randomized preferences.")
+    parser.set_defaults(omegabysite=False)
+    parser.add_argument('--omegabysite', dest='omegabysite',
+            action='store_true', help="Fit omega (dN/dS) for each site.")
     parser.add_argument('-v', '--version', action='version', version=
             '%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
@@ -369,8 +372,8 @@ def PhyDMSParser():
             help="Average preferences across sites for ExpCM.")
     parser.add_argument('--divpressure', type=ExistingFileOrNone,
             help=("Known diversifying pressure at sites: file with column 1 "
-            "= position, column 2 = diversification pressure; columns space "
-            "delimited."))
+            "= position, column 2 = diversification pressure; columns space-, "
+            "tab-, or comma-delimited."))
     parser.add_argument('--ncpus', default=1, type=int,
             help='Use this many CPUs; -1 means all available.')
     parser.add_argument('--ncats', default=4, type=IntGreaterThanOne,
