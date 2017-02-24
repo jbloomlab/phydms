@@ -381,7 +381,7 @@ def PhyDMSParser():
     parser.add_argument('--minbrlen', type=FloatGreaterThanZero,
             default=phydmslib.constants.ALMOST_ZERO,
             help="Adjust all branch lengths in starting 'tree' to >= this.")
-    parser.add_argument('--minpref', default=0.005, type=FloatGreaterThanZero,
+    parser.add_argument('--minpref', default=0.002, type=FloatGreaterThanZero,
             help="Adjust all preferences in ExpCM 'prefsfile' to >= this.")
     parser.add_argument('--seed', type=int, default=1, help="Random number seed.")
     parser.set_defaults(profile=False)
