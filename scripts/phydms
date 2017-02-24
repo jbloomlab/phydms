@@ -252,7 +252,9 @@ def main():
         assert tree.is_bifurcating(), "Tree is not bifurcating: cannot handle"
         nadjusted = 0
         for node in tree.get_terminals() + tree.get_nonterminals():
-            if node.branch_length < args['minbrlen']:
+            if (node.branch_length == None) and (node == tree.root):
+                node.branch_length = args['minbrlen']
+            elif node.branch_length < args['minbrlen']:
                 nadjusted += 1
                 node.branch_length = args['minbrlen']
         logger.info('Adjusted {0} branch lengths up to minbrlen {1}\n'.format(
