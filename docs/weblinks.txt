@@ -57,7 +57,7 @@
 .. _`Benjamini-Hochberg`: https://en.wikipedia.org/wiki/False_discovery_rate#Benjamini.E2.80.93Hochberg_procedure
 .. _`Goldman and Whelan, Mol Biol Evol, 19:1821-1831`: http://mbe.oxfordjournals.org/content/19/11/1821.long
 .. _`Knudsen and Miyamoto, BMC Evol Biol, 5:21`: http://bmcevolbiol.biomedcentral.com/articles/10.1186/1471-2148-5-21
-.. _`Bloom, Biology Direct, 12:1`: http://download.springer.com/static/pdf/712/art%253A10.1186%252Fs13062-016-0172-z.pdf?originUrl=http%3A%2F%2Fbiologydirect.biomedcentral.com%2Farticle%2F10.1186%2Fs13062-016-0172-z&token2=exp=1485797323~acl=%2Fstatic%2Fpdf%2F712%2Fart%25253A10.1186%25252Fs13062-016-0172-z.pdf*~hmac=d2b16b932e2c98c260c97bd2dc4a4191e7907458ae48aa138957b465275ca9f7
+.. _`Bloom, Biology Direct, 12:1`: http://biologydirect.biomedcentral.com/articles/10.1186/s13062-016-0172-z
 .. _`RAxML`: http://sco.h-its.org/exelixis/web/software/raxml/index.html
 .. _`Felsenstein, J Mol Evol, 1981`: http://rd.springer.com/article/10.1007/BF01734359
 .. _`Yang, J Mol Evol, 51:423-432`: http://abacus.gene.ucl.ac.uk/ziheng/pdf/2000YangJMEv51p423.pdf
