@@ -64,15 +64,19 @@ def fitOmegaBySite(argtup):
     
     Returns tuple of P-value, tab-separated line with site, omega, P, dLnL"""
     (site, treeliks) = argtup
-    logliks = {}
     for name in ['fix', 'fit']:
-        result = treeliks[name].maximizeLikelihood()
-        logliks[name] = treeliks[name].loglik
+        result = treeliks[name].maximizeLikelihood(optimize_brlen=False)
         if name == 'fit':
             omega = treeliks[name].model.omega
-    dLnL = logliks['fit'] - logliks['fix']
-    assert dLnL > -1e-3, str(logliks)
-    p = scipy.stats.chi2.sf(2.0 * dLnL, df=1)
+    dLnL = treeliks['fit'].loglik - treeliks['fix'].loglik
+    if dLnL < -0.01:
+        msg = '\nsite {0}'.format(site)
+        for name in ['fix', 'fit']:
+            msg += '\nloglik_{0} {1}'.format(name, treeliks[name].loglik)
+            msg += '\nmu_{0} {1}'.format(name, treeliks[name].model.mu)
+            msg += '\nomega_{0} {1}'.format(name, treeliks[name].model.omega)
+        raise RuntimeError("loglik higher for fit omega:{0}".format(msg))
+    p = scipy.stats.chi2.sf(2.0 * max(0, dLnL), df=1)
     return (p, '{0}\t{1:.3f}\t{2:.3g}\t{3:.3f}'.format(site, omega, p, dLnL))
 
 
