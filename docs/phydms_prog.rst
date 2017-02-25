@@ -120,6 +120,10 @@ Command-line usage
    \-\-seed
     The random number seed affects the outcomes when there is randomization, as when using ``--randprefs``.
 
+   \-\-ncpus
+    Using multiples CPUs accelerates the by-site fitting (e.g., ``--omegabysite``) as multiple sites can be analyzed at once.
+    However, it does not accelerate the initial optimization of the model and tree, as this calculation is not currently parallelized.
+
 
 Output files
 --------------
@@ -189,26 +193,30 @@ This file has the suffix ``_omegabysite.txt``, and is created only if using the 
 
 Here is an example of the first few lines of a file::
 
-    # Omega fit to each site after fixing tree and and all other parameters.
-    # Fits compared to null model of omega = 1.000; P-values NOT corrected for multiple testing.
+    # Omega fit to each site after fixing tree and all other parameters.
+    # Fits compared to null model of omega = 1.
+    # P-values NOT corrected for multiple hypothesis testing.
+    # Will fit different synonymous rate for each site.
     #
     # site  omega   P   dLnL
-    472 99.000  0.00199 4.778
-    284 0.001   0.00434 4.067
-    319 0.001   0.00723 3.607
-    20  99.000  0.00852 3.460
-    373 99.000  0.00936 3.376
-    350 0.001   0.0126  3.113
-    465 99.000  0.0149  2.966
-    470 99.000  0.0158  2.911
-    289 0.001   0.016   2.899
-    396 0.001   0.024   2.546
-    129 0.001   0.0253  2.501
-    84  0.001   0.0279  2.418
-    247 0.001   0.029   2.383
-    101 8.381   0.0325  2.287
+    472 100.000 0.00207 4.741
+    284 0.000   0.00277 4.477
+    470 100.000 0.0124  3.126
+    319 0.000   0.0196  2.725
+    465 100.000 0.0196  2.722
+    350 0.000   0.0215  2.642
+    84  0.000   0.0229  2.588
+    129 0.000   0.0233  2.573
+    417 0.000   0.0341  2.244
+    373 100.000 0.0424  2.059
+    76  100.000 0.0579  1.799
+    247 0.000   0.059   1.783
+    101 7.871   0.0596  1.774
 
 The columns should be self-explanatory, the *P*-values are for rejection of the null hypothesis that :math:`\omega_r = 1` (calculated using a :math:`\chi_1^2` test; no correction for multiple testing is included, so you need to do that yourself if necessary for your question). The sites are sorted in the file by *P*-value.
+
+For this type of test, the quantity of interest is typically not so much the exact value of :math:`\omega_r`, but rather the P-value that :math:`\omega_r \ne 1`.
+That P-value is what indicates the credence that you should lend to the idea that a site is under diversifying selection if :math:`\omega_r > 1`.
 
 
 .. include:: weblinks.txt

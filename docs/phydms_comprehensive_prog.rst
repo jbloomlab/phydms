@@ -14,9 +14,13 @@ In its simplest usage, you simply provide ``phydms_comprehensive`` with an align
 The program then first uses ``RAxML`` to infer a tree under the *GTRCAT* model.
 Alternatively, you can specify the tree using ``--tree`` flag.
 For each set of site-specific amino-acid preferences, ``phydms_comprehensive`` optimizes the tree with the following models:
+
   * *ExpCM*
-  * *ExpCM* with a :math:`\Gamma` distributed :math:`\omega`
+
+  * *ExpCM* with a gamma-distributed :math:`\omega`
+
   * *YNGKP_M0*
+
   * *YNGKP_M5*
 
 It also runs each of these *ExpCM* with averaged preferences as a control.
