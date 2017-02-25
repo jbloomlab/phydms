@@ -65,7 +65,8 @@ def fitOmegaBySite(argtup):
     Returns tuple of P-value, tab-separated line with site, omega, P, dLnL"""
     (site, treeliks) = argtup
     for name in ['fix', 'fit']:
-        result = treeliks[name].maximizeLikelihood(optimize_brlen=False)
+        if treeliks[name].model.freeparams: # can be no params if using fixsyn
+            result = treeliks[name].maximizeLikelihood(optimize_brlen=False)
         if name == 'fit':
             omega = treeliks[name].model.omega
     dLnL = treeliks['fit'].loglik - treeliks['fix'].loglik
