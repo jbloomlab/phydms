@@ -54,18 +54,18 @@ class test_branchScale_ExpCM(unittest.TestCase):
             phi = scipy.random.dirichlet([7] * N_NT)
             model = phydmslib.models.ExpCM(prefs, kappa=kappa, omega=omega,
                     beta=beta, mu=mu, phi=phi, freeparams=['mu'])
-            partitions = phydmslib.simulate.pyvolvePartitionsExpCM(model)
+            partitions = phydmslib.simulate.pyvolvePartitions(model)
         elif self.MODEL == phydmslib.models.ExpCM_empirical_phi:
             g = scipy.random.dirichlet([7] * N_NT)
             model = phydmslib.models.ExpCM_empirical_phi(prefs, g,
                     kappa=kappa, omega=omega, beta=beta, mu=mu,
                     freeparams=['mu'])
-            partitions = phydmslib.simulate.pyvolvePartitionsExpCM(model)
+            partitions = phydmslib.simulate.pyvolvePartitions(model)
         elif self.MODEL == phydmslib.models.YNGKP_M0:
             e_pw = scipy.asarray([scipy.random.dirichlet([7] * N_NT) for i 
                     in range(3)])
             model = phydmslib.models.YNGKP_M0(e_pw, nsites)
-            partitions = phydmslib.simulate.pyvolvePartitionsYNGKP_M0(model)
+            partitions = phydmslib.simulate.pyvolvePartitions(model)
         else:
             raise ValueError("Invalid MODEL: {0}".format(type(self.MODEL)))
 
@@ -83,7 +83,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
         # Then estimate subs per site in a heuristic way that will be 
         # roughly correct for short branches. Do this all several times
         # and average results to get better accuracy.
-        alignment = '_temp_simulatedalignment.fasta'
+        alignment = '_temp_branchScale_simulatedalignment.fasta'
         info = '_temp_info.txt'
         rates = '_temp_ratefile.txt'
         evolver = pyvolve.Evolver(partitions=partitions, tree=pyvolvetree)
@@ -102,8 +102,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
                 codon1 = a[0][1][3 * r : 3 * r + 3]
                 codon2 = a[1][1][3 * r : 3 * r + 3]
                 nsubs += len([j for j in range(3) if codon1[j] != codon2[j]])
-            tl = phydmslib.treelikelihood.TreeLikelihood(biotree, a, 
-                    copy.deepcopy(model)) 
+            tl = phydmslib.treelikelihood.TreeLikelihood(biotree, a, model)
             tl.maximizeLikelihood()
             treedist += sum([n.branch_length for n in tl.tree.get_terminals()])
         nsubs /= float(nsites * nreplicates)

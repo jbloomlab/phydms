@@ -50,7 +50,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
         e_pw = scipy.ndarray((3, N_NT), dtype='float')
         e_pw.fill(0.25)
         yngkp_m0 = phydmslib.models.YNGKP_M0(e_pw, self.nsites)
-        partitions = phydmslib.simulate.pyvolvePartitionsYNGKP_M0(yngkp_m0)
+        partitions = phydmslib.simulate.pyvolvePartitions(yngkp_m0)
         alignment = '_temp_simulatedalignment.fasta'
         info = '_temp_info.txt'
         rates = '_temp_ratefile.txt'

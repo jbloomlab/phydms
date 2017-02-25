@@ -58,7 +58,7 @@ class test_BrLenOptimize_ExpCM(unittest.TestCase):
         pyvolvetree = pyvolve.read_tree(tree=self.newick)
         self.nseqs = self.tree.count_terminals()
         expcm = phydmslib.models.ExpCM(prefs)
-        partitions = phydmslib.simulate.pyvolvePartitionsExpCM(expcm)
+        partitions = phydmslib.simulate.pyvolvePartitions(expcm)
         alignment = '_temp_simulatedalignment.fasta'
         info = '_temp_info.txt'
         rates = '_temp_ratefile.txt'
