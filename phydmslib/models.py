@@ -12,6 +12,7 @@ import copy
 import functools
 import six
 import abc
+import warnings
 import scipy
 import scipy.misc
 import scipy.optimize
@@ -276,7 +277,7 @@ class ExpCM(Model):
                    'beta':(0.01, 10.0),
                    'eta':(0.01, 0.99),
                    'phi':(0.001, 0.999),
-                   'pi':(0.001, 0.998),
+                   'pi':(ALMOST_ZERO, 1),
                    'mu':(1.0e-3, 1.0e3),
                   }
     PARAMTYPES = {'kappa':float,
@@ -337,7 +338,6 @@ class ExpCM(Model):
         self.ln_pi_codon = scipy.full((self.nsites, N_CODON), -1, dtype='float')
         self.piAx_piAy = scipy.full((self.nsites, N_CODON, N_CODON), -1,
                 dtype='float')
-        self._update_pi_vars()
 
         # construct eta from phi
         _checkParam('phi', phi, self.PARAMLIMITS, self.PARAMTYPES)
@@ -373,23 +373,25 @@ class ExpCM(Model):
         self.B = {}
         self.dprx = {}
         for param in self.freeparams:
-            if param == 'eta':
-                self.dPrxy[param] = scipy.zeros((N_NT - 1, self.nsites, N_CODON,
-                        N_CODON), dtype='float')
-                self.B[param] = scipy.zeros((N_NT - 1, self.nsites, N_CODON,
-                        N_CODON), dtype='float')
-                self.dprx[param] = scipy.zeros((N_NT - 1, self.nsites, N_CODON),
-                        dtype='float')
-            elif param == 'mu':
+            if param == 'mu':
                 self.dprx['mu'] = 0.0
-            elif param in self.ALLOWEDPARAMS:
+            elif self.PARAMTYPES[param] == float:
                 self.dPrxy[param] = scipy.zeros((self.nsites, N_CODON, N_CODON),
                         dtype='float')
                 self.B[param] = scipy.zeros((self.nsites, N_CODON, N_CODON),
                         dtype='float')
                 self.dprx[param] = scipy.zeros((self.nsites, N_CODON), dtype='float')
             else:
-                raise ValueError("Unrecognized param {0}".format(param))
+                assert self.PARAMTYPES[param][0] == scipy.ndarray
+                paramshape = self.PARAMTYPES[param][1]
+                assert len(paramshape) == 1, "Can't handle multi-dimensional ndarray"
+                paramlen = paramshape[0]
+                self.dPrxy[param] = scipy.zeros((paramlen, self.nsites, N_CODON,
+                        N_CODON), dtype='float')
+                self.B[param] = scipy.zeros((paramlen, self.nsites, N_CODON,
+                        N_CODON), dtype='float')
+                self.dprx[param] = scipy.zeros((paramlen, self.nsites, N_CODON),
+                        dtype='float')
 
         # indexes diagonals in square matrices
         self._diag_indices = scipy.diag_indices(N_CODON)
@@ -417,7 +419,7 @@ class ExpCM(Model):
                 for w in range(N_NT - 1):
                     report['{0}{1}'.format(param, INDEX_TO_NT[w])] = pvalue[w]
             else:
-                raise RuntimeError("Unexpected param: {0}".format(param))
+                raise ValueError("Unexpected param: {0}".format(param))
         return report
 
     @property
@@ -462,11 +464,11 @@ class ExpCM(Model):
             if isinstance(value, scipy.ndarray):
                 if (value != getattr(self, name)).any():
                     changed.add(name)
-                    setattr(self, name, value)
+                    setattr(self, name, value.copy())
             else:
                 if value != getattr(self, name):
                     changed.add(name)
-                    setattr(self, name, value)
+                    setattr(self, name, copy.copy(value))
 
         if update_all or changed:
             self._cached = {}
@@ -478,6 +480,7 @@ class ExpCM(Model):
         # for all possible parameter changes, but just doing it
         # this way is much simpler and adds negligible cost.
         if update_all or (changed and changed != set(['mu'])):
+            self._update_pi_vars()
             self._update_piAx_piAy_beta()
             self._update_frx()
             self._update_phi()
@@ -636,9 +639,7 @@ class ExpCM(Model):
         with scipy.errstate(divide='raise', under='raise', over='raise',
                 invalid='raise'):
             for r in range(self.nsites):
-                for a in range(N_AA):
-                    scipy.copyto(self.pi_codon[r], self.pi[r][a],
-                            where=(CODON_TO_AA == a))
+                self.pi_codon[r] = self.pi[r][CODON_TO_AA]
                 pim = scipy.tile(self.pi_codon[r], (N_CODON, 1)) # [x][y] is piAy
                 self.piAx_piAy[r] = pim.transpose() / pim
             self.ln_pi_codon = scipy.log(self.pi_codon)
@@ -767,6 +768,142 @@ class ExpCM(Model):
             m[r][self._diag_indices] -= scipy.sum(m[r], axis=1)
 
 
+class ExpCM_fitprefs(ExpCM):
+    """An `ExpCM` with the preferences `pi` as free parameters.
+
+    The way this class is currently implemented, it will be very inefficient
+    if there is more than one site. Therefore, the recommended usage is
+    to optimize across-site parameters with fixed preferences, and then 
+    optimize preferences for each site individually with this class after
+    fixing the across-site parameters. 
+
+    See `__init__` method for how to initialize an `ExpCM_fitprefs`.
+
+    The difference between `ExpCM` and `ExpCM_fitprefs` is that the
+    amino-acid preferences `pi` are optimized for the latter.
+
+    Has all the attributes of an `ExpCM`, plus the following:
+        `zeta` (`numpy.ndarray` of float, shape `(nsites * (N_AA - 1))`)
+            Transformation of the preferences `pi`; all entries are
+            > 0 and < 1. We use `zeta` rather than `pi` as the free
+            parameter during optimization. The entry
+            `zeta.reshape(nsites, N_AA - 1)[r][i]` is value `i`
+            for site `r` (`0 <= r < nsites`) where `0 <= i < N_AA - 1`.
+        `dPrxy` (dict)
+            Like for `ExpCM`, but also contains entry keyed by 'zeta' of
+            of shape `(nsites * (N_AA - 1), nsites, N_CODON, N_CODON)`
+            where the first index ranges over the elements in `zeta`.
+        `tildeFrxyQxy` (`numpy.ndarray` of `float`, shape `(nsites, N_CODON, N_CODON)`)
+            Contains quantities used in calculating derivative of 
+            `dPrxy` with respect to `zeta`.
+    """
+
+    # class variables
+    ALLOWEDPARAMS = copy.deepcopy(ExpCM.ALLOWEDPARAMS)
+    ALLOWEDPARAMS.append('zeta')
+    _PARAMLIMITS = copy.deepcopy(ExpCM._PARAMLIMITS)
+    _PARAMLIMITS['zeta'] = (ALMOST_ZERO, 1 - ALMOST_ZERO)
+
+    def __init__(self, prefs, kappa, omega, mu, phi, beta=1.0, freeparams=['zeta']):
+        """Initialize an `ExpCM_fitprefs` object.
+        
+        The calling parameters have the same meaning as for `ExpCM`. However,
+        the default values have changed consistent with the recommended usage
+        of this class. This recommended usage is that you have already estimated
+        the across-site parameters (`kappa`, `omega`, `mu`, `phi`) and so
+        are specifying fixed values for those. If you are fitting the preferences,
+        `beta` is most reasonably just fixed to one as it is confounded with
+        the preferences during optimization. You are then just optimizing the
+        preferences in their variable-transformed form `zeta` from the initial
+        values in `prefs`."""
+        # PARAMTYPES must be instance attribute as zeta value depends on nsites
+        self.PARAMTYPES = copy.deepcopy(ExpCM.PARAMTYPES)
+        self.PARAMTYPES['zeta'] = (scipy.ndarray, (len(prefs) * (N_AA - 1),))
+        super(ExpCM_fitprefs, self).__init__(prefs, kappa=kappa, omega=omega,
+                beta=beta, mu=mu, phi=phi, freeparams=freeparams)
+        assert (self.PARAMTYPES['zeta'][1] == self.zeta.shape
+                == (self.nsites * (N_AA - 1),))
+        if self.nsites > 1: 
+            warnings.warn("ExpCM_fitprefs not recommended for use with more than "
+                    "one site. The current implementation will lead to lots"
+                    "of computational waste if you are trying to optimize "
+                    "preferences for multiple sites simultaneously. Instead, "
+                    "you are suggested to optimize for each site separately.", 
+                    Warning)
+        # _aa_for_x[x][y] is the x amino acid in indexing of codon matrices
+        # _aa_for_y[x][y] is the y amino acid in indexing of codon matrices
+        self._aa_for_y = scipy.tile(CODON_TO_AA, (N_CODON, 1))
+        self._aa_for_x = self._aa_for_y.transpose()
+
+    def _update_pi_vars(self):
+        """Update variables that depend in `pi` from `zeta`.
+        
+        The updated variables are: `pi`, `pi_codon`, `ln_pi_codon`, `piAx_piAy`,
+        `piAx_piAy_beta`.
+        
+        If `zeta` is undefined (as it will be on the first call), then first
+        update `zeta` from `pi`."""
+        if not hasattr(self, 'zeta'):
+            # should only execute on first call to initialize zeta
+            self.zeta = scipy.ndarray(self.nsites * (N_AA - 1), dtype='float')
+            self.tildeFrxyQxy = scipy.zeros((self.nsites, N_CODON, N_CODON),
+                    dtype='float')
+            for r in range(self.nsites):
+                zetaprod = 1.0
+                for i in range(N_AA - 1):
+                    zetari = 1.0 - self.pi[r][i] / zetaprod
+                    self.zeta.reshape(self.nsites, N_AA - 1)[r][i] = zetari
+                    zetaprod *= zetari
+            _checkParam('zeta', self.zeta, self.PARAMLIMITS, self.PARAMTYPES)
+        else:
+            # after first call, we are updating pi from zeta
+            minpi = self.PARAMLIMITS['pi'][0]
+            for r in range(self.nsites):
+                zetaprod = 1.0
+                for i in range(N_AA - 1):
+                    zetari = self.zeta.reshape(self.nsites, N_AA - 1)[r][i]
+                    self.pi[r][a] = zetaprod * (1 - zetari)
+                    zetaprod *= zetari
+                self.pi[r][N_AA - 1] = zetaprod
+                self.pi[r][self.pi[r] < minpi] = minpi
+                self.pi[r] /= self.pi[r].sum()
+
+        super(ExpCM_fitprefs, self)._update_pi_vars()
+
+        with scipy.errstate(divide='raise', under='raise', over='raise',
+                invalid='ignore'):
+            scipy.copyto(self.tildeFrxyQxy, self.omega * self.beta
+                    (self.piAx_piAy_beta * (scipy.log(self.piAx_piAy_beta) - 1) + 1) 
+                    / (1 - self.piAx_piAy_beta)**2, 
+                    where=CODON_NONSYN)
+        scipy.copyto(self.tildeFrxyQxy, self.omega * self.beta / 2.0, 
+                where=scipy.logical_and(CODON_NONSYN, scipy.fabs(1 -
+                self.piAx_piAy_beta) < ALMOST_ZERO))
+        self.tildeFrxyQxy *= self.Qxy
+
+    def _update_dPrxy(self):
+        """Update `dPrxy`."""
+        super(ExpCM_fitprefs, self)._update_dPrxy()
+
+        if 'zeta' in self.freeparams:
+            j = 0
+            zetaxterm = scipy.ndarray((self.nsites, N_CODON, N_CODON), dtype='float')
+            zetayterm = scipy.ndarray((self.nsites, N_CODON, N_CODON), dtype='float')
+            for r in range(self.nsites):
+                for i in range(N_AA - 1):
+                    zetari = self.zeta[j]
+                    zetaxterm.fill(0)
+                    zetayterm.fill(0)
+                    zetaxterm[r][self._aa_for_x < i] = -1.0 / zetari
+                    zetaxterm[r][self._aa_for_x == i] = -1.0 (zetari - 1.0)
+                    zetayterm[r][self._aa_for_x < i] = 1.0 / zetari
+                    zetayterm[r][self._aa_for_x == i] = 1.0 (zetari - 1.0)
+                    self.dPrxy['zeta'][j] = self.tildeFrxyQxy * (zetayterm + zetaxterm)
+                    _fill_diagonals(self.dPrxy['zeta'][j], self._diag_indices)
+                    j += 1
+
+
+
 class ExpCM_empirical_phi(ExpCM):
     """An `ExpCM` with `phi` calculated empirically from nucleotide frequencies.
 
@@ -814,7 +951,6 @@ class ExpCM_empirical_phi(ExpCM):
         assert abs(1 - g.sum()) <= ALMOST_ZERO, "g doesn't sum to 1"
         self.g = g.copy()
         self.g /= self.g.sum()
-
 
         super(ExpCM_empirical_phi, self).__init__(prefs, kappa=kappa,
                 omega=omega, beta=beta, mu=mu, freeparams=freeparams)
@@ -1130,7 +1266,7 @@ class YNGKP_M0(Model):
                         report['{0}{1}{2}'.format(param, p, INDEX_TO_NT[w])] =\
                                 pvalue[p][w]
             else:
-                raise RuntimeError("Unexpected param: {0}".format(param))
+                raise ValueError("Unexpected param: {0}".format(param))
         return report
 
     @property
@@ -1208,11 +1344,11 @@ class YNGKP_M0(Model):
             if isinstance(value, scipy.ndarray):
                 if (value != getattr(self, name)).any():
                     changed.add(name)
-                    setattr(self, name, value)
+                    setattr(self, name, value.copy())
             else:
                 if value != getattr(self, name):
                     changed.add(name)
-                    setattr(self, name, value)
+                    setattr(self, name, copy.copy(value))
 
         if update_all or changed:
             self._cached = {}
@@ -1552,7 +1688,7 @@ class GammaDistributedOmegaModel(DistributionModel):
                 self.PARAMTYPES[param] = model.PARAMTYPES[param]
                 pvalue = getattr(model, param)
                 _checkParam(param, pvalue, self.PARAMLIMITS, self.PARAMTYPES)
-                setattr(self, param, getattr(model, param))
+                setattr(self, param, copy.copy(getattr(model, param)))
 
         self.updateParams({}, update_all=True)
 
@@ -1609,7 +1745,7 @@ class GammaDistributedOmegaModel(DistributionModel):
                 if param in newvalues:
                     _checkParam(param, newvalues[param], self.PARAMLIMITS, 
                             self.PARAMTYPES)
-                    setattr(self, param, newvalues[param])
+                    setattr(self, param, copy.copy(newvalues[param]))
             self._omegas = DiscreteGamma(self.alpha_omega, self.beta_omega, 
                     self.ncats)
             for (k, omega) in enumerate(self._omegas):
@@ -1619,7 +1755,7 @@ class GammaDistributedOmegaModel(DistributionModel):
                 if name in newvalues:
                     value = newvalues[name]
                     _checkParam(name, value, self.PARAMLIMITS, self.PARAMTYPES)
-                    setattr(self, name, value)
+                    setattr(self, name, copy.copy(value))
                     for k in range(self.ncats):
                         newvalues_list[k][name] = value
                 elif update_all:
