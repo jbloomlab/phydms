@@ -58,7 +58,7 @@ We define a variable transformation of the four nucleotide frequency parameters 
 This transformation aids in numerical optimization. 
 Specifically, we number the four nucleotides in alphabetical order so that :math:`w = 0` denotes *A*, :math:`w = 1` denotes *C*, :math:`w = 2` denotes *G*, and :math:`w = 3` denotes *T*. 
 We then define the three free variables :math:`\eta_0`, :math:`\eta_1`, and :math:`\eta_2`, all of which are constrained to fall between zero and one.
-For notational convenience in the formulas below, we also define :math:`\eta_3 = 0` -- note however that :math:`\eta_3` is not a free parameter, as it is always zero.
+For notational convenience in the formulas below, we also define :math:`\eta_3 = 0`; note however that :math:`\eta_3` is not a free parameter, as it is always zero.
 We define :math:`\phi_w` in terms of these :math:`\eta_i` variables by
 
 .. math::
@@ -260,7 +260,7 @@ Since we do not have an analytic expression for :math:`\hat{\phi}_w`, we cannot 
 But we can compute these derivatives numerically.
 This is done using a finite-difference method.
 
-We now update the formula in Equation :eq:`dPrxy_dbeta` for the case when `\phi_w` depends on `\beta`. In that case, we have:
+We now update the formula in Equation :eq:`dPrxy_dbeta` for the case when :math:`\phi_w` depends on :math:`\beta`. In that case, we have:
 
 .. math::
    :label: dQxy_dbeta_empirical_phi
@@ -381,6 +381,62 @@ We have added one more parameter to Equation :eq:`Prxy`, :math:`\omega_2`, so we
    \omega \times \delta_r \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} \times Q_{xy} & \mbox{if $\operatorname{A}\left(x\right) \ne \operatorname{A}\left(y\right)$,} \\
    -\sum\limits_{z \ne x} \frac{\partial P_{r,xy}}{\partial \omega_2} & \mbox{if $x = y$.}
    \end{cases}. 
+
+*ExpCM* with the preferences as free parameters
+------------------------------------------------
+In most situations, the amino-acid preferences :math:`\pi_{r,a}` are experimentally measured. 
+But in certain situations, we wish to treat these as free parameters that we optimize by maximum likelihood.
+
+For this optimization, we define a variable transformation from the 20 :math:`\pi_{r,a}` values at each site :math:`r` (19 of these 20 values are unique since they sum to one). 
+This transformation is analogous to that in Equations :eq:`phi_from_eta` and :eq:`eta_from_phi`.
+Specifically, we number the 20 amino acids such that :math:`a = 0` means alanine, :math:`a = 1` means cysteine, and so on up to :math:`a = 19` meaning tyrosine.. 
+We then define 19 free variables for each site :math:`r`: :math:`\zeta_{r,0}, \zeta_{r,1}, \ldots, \zeta_{r,18}`, all of which are constrained to value between zero and one.
+For notational convenience, we also define :math:`\zeta_{r,19} = 0`, but not that :math:`\zeta_{r,19}` is **not** a free parameter as it is always zero.
+
+We the define
+
+.. math::
+   :label: pi_from_zeta
+
+   \pi_{r,a} = \left(\prod\limits_{i=0}^{a - 1} \zeta_{r,i}\right) \left(1 - \zeta_{r,a}\right)
+
+and conversely
+
+.. math::
+   :label: zeta_from_pi
+
+   \zeta_{r,a} = 1 - \pi_{r,a} / \left(\prod\limits_{i=0}^{a - 1} \zeta_{r,i} \right).
+
+Note that setting :math:`\zeta_{r,a} = \frac{19 - a}{20 - a}` makes all the :math:`\pi_{r,a}` values equal to :math:`\frac{1}{20}`.
+
+In analogy with Equation :eq:`dphi_deta`, we have
+
+.. math::
+   :label: dpi_dzeta
+
+   \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} =
+   \begin{cases}
+   \frac{\pi_{r,a}}{\zeta_{r,i} - \delta_{ia}} & \mbox{if $i \le w$,} \\
+   0 & \mbox{otherwise,}
+   \end{cases}
+
+where :math:`\delta_{ij}` is the Kronecker-delta.
+   
+The :math:`F_{r,xy}` terms defined by Equation :eq:`Frxy` depend on :math:`\pi_{r,a}`. 
+The derivative is
+
+.. math::
+   :label: dFrxy_dpi
+
+   \frac{\partial F_{r,xy}}{\partial \pi_{r,\mathcal{A}\left(x\right)}} &=&
+   \begin{cases}
+   0 & \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$,} \\
+   \frac{-\omega \beta}{2 \pi_{r,\mathcal{A}\left(x\right)}} & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$}, \\
+   \frac{\omega \beta}{\pi_{r,\mathcal{A}\left(x\right)}} \frac{\left(\pi_{r,\mathcal{A}\left(x\right)} / \pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\left[1 - \ln\left(\left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right)\right] - 1}{\left(1 - \left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right)^2} & \mbox{otherwise}, \\
+   \end{cases}
+
+where the expression for the second case is derived from application of L'Hopital's rule to the more general third case.
+
 
 *YNGKP_M0* model
 ------------------
