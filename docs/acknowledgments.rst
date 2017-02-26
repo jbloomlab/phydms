@@ -20,11 +20,11 @@ The following references are also relevant to the *ExpCM* implemented by `phydms
 
     * `Bloom, Mol Biol Evol, 31:2753-2769`_
 
-Please also cite `pyvolve`_, which is used by `phydms`_ for simulations. The citation for `pyvolve`_ is:
+If you use any of the simulation capabilities of `phydms`_, please also cite `pyvolve`_:
 
     * `Spielman and Wilke, PLoS One, 10:e0139047`_
 
-If you use ``phydms_plotselection`` to create a figure for your paper, please also cite `weblogo`_ (which is used to create the logo plots):
+If you use ``phydms_plotselection`` to create logo plots, please also cite `weblogo`_:
 
     * `Crooks et al, Genome Research, 14:1188-1190`_
 

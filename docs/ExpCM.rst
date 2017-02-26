@@ -11,10 +11,14 @@ Overview
 -------------
 **Exp**\erimentally Informed **C**\odon **M**\odels (*ExpCM*) describe the evolution of protein-coding genes in terms of their site-specific amino-acid preferences. These models improve on conventional non-site-specific phylogenetic substitution models because they account for the different constraints at different sites of the protein encoded by the gene.
 
-Specifically, for each gene, we assume that we know the preference :math:`\pi_{r,a}` of site :math:`r` for each amino-acid :math:`a` (we constrain :math:`1 = \sum_a \pi_{r,a}`). Typically, these preferences might be measured in deep mutational scanning experiments. For a description of how the preferences can be inferred from experimental data, see `Bloom, BMC Bioinformatics, 16:168`_. 
+Specifically, for each gene, we assume that we know the preference :math:`\pi_{r,a}` of site :math:`r` for each amino-acid :math:`a` (we constrain :math:`1 = \sum_a \pi_{r,a}`). 
+Typically, these preferences might be measured in deep mutational scanning experiments. 
+The preferences represent the effect of each amino-acid mutation at each site, normalized to sum to one.
+They can therefore be obtained by simply re-normalizing deep mutational scanning enrichment ratios to sum to one at each site.
+For a more involved description of how the preferences can be inferred from deep mutational scanning experimental data, see `Bloom, BMC Bioinformatics, 16:168`_. 
 Importantly, these amino-acid preferences must be obtained **independently** from the sequence
 alignment being analyzed. A deep mutational scanning experiment is an independent means
-of obtaining the preferences, but estimating them from the amino-acid frequencies in the alilnment of homologs is not a valid approach as you are then estimating the preferences from the same sequences that you are subsequently analyzing.
+of obtaining the preferences, but estimating them from the amino-acid frequencies in the alilnment of homologs is **not** a valid approach as you are then estimating the preferences from the same sequences that you are subsequently analyzing.
 
 The *ExpCM* used here are the ones defined in:
 
@@ -155,27 +159,6 @@ and then fit the values for :math:`\mu_r` and :math:`\omega_r`. After this fitti
 The null hypothesis is that :math:`\omega_r = 1`. We compute a P-value for rejection of this null hypothesis using a :math:`\chi_1^2` test to compare the likelihood obtained when fitting both :math:`\mu_r` and :math:`\omega_r` to that obtained when fitting only :math:`\mu_r` and fixing :math:`\omega_r = 1`. See `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_ for a justification for using a :math:`\chi_1^2` test for this type of analysis. Note that the P-values reported by ``phydms`` are **not** adjusted for multiple testing, so you will want to make such an adjustment if you are testng the hypothesis that any site has :math:`\omega_r \ne 1`. Note also that in many cases, the fitted value of :math:`\omega_r` will either be very small (e.g. close to zero) or very large (e.g. close to :math:`\infty`) -- in general, it is more informative to look for sites with small P-values and then simply look to see if :math:`\omega` is > or < 1.
 
 Significant support for a value of :math:`\omega_r > 1` can be taken as evidence for diversifying selection beyond that expected given the constraints encapsulated in the site-specific amino-acid preferences. Significant support for a value of :math:`\omega_r < 1` can be taken as evidence for selection against amino-acid change beyond that expected given the constraints encapsulated in the site-specific amino-acid preferences. Note, however, that if the site-specific preferences don't accurately describe the real constraints, you might get :math:`\omega_r \ne 1` simply because of this fact -- so you will want to examine if sites might be subject to selection that is better described by modulating the stringency parameter :math:`\beta` or by invoking differential preferences, as described below.
-
-Identifying differential selection via site-specific :math:`\beta_r` values
------------------------------------------------------------------------------
-Another type of interesting selection is when natural evolution prefers different amino acids than suggested by the :math:`\pi_{r,a}` values. This type of differential selection suggests discordant selection pressures between natural evolution and the process used to obtain the :math:`\pi_{r,a}` values.
-
-One way to test for differential selection is to fit a different stringency parameter :math:`\beta_r` for each site :math:`r` after fixing the tree / branches and all other model parameters to their maximum-likelihood values obtained for the entire tree. Specifically, after fixing all of these other parameters, for each site :math:`r` we re-define Equation :eq:`Frxy` as
-
-.. math::
-   :label: Frxy_stringencybysite
-
-   F_{r,xy} = 
-   \begin{cases}
-   1 & \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
-   \omega & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
-   \omega \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta_r} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta_r}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta_r} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta_r}\right)} & \mbox{otherwise.}
-   \end{cases}
-
-and then fit a value for :math:`\beta_r`. We compare the likelihood using this fitted value of :math:`\beta_r` to that obtained when using the value :math:`\beta` obtained by fitting a single :math:`\beta` over the entire gene, and compute the ratio :math:`\beta_r / \beta`. The null hypothesis is that :math:`\beta_r / \beta = 1`. We compute a P-value for rejection of this null hypothesis using a :math:`\chi_1^2` test; note that the P-values reported by ``phydms`` are **not** adjusted for multiple-hypothesis testing, so you will want to make such an adjustment if testing the hypothesis that any site has :math:`\beta_r / \beta \ne 1`. This analysis can be performed using ``phydms`` with the ``--stringencybysite`` option. Note that ``phydms`` reports the ratio :math:`\beta_r / \beta`, **not** the value of :math:`\beta_r` itself.
-
-Significant support for :math:`\beta_r / \beta < 1` indicates that preferences don't actual describe the constraints on the gene's evolution accurately. Unfortunately, the ratio alone does not tell which particular amino acids are more or less disfavored by natural evolution, but a ratio < 1 does indicate that flatter preferences (more uniform across amino acids) do describe the evolution of the site better than the preferences encapsulated in the :math:`\pi_{r,a}` values. A value of :math:`\beta_r / \beta > 1` indicates that natural selection favors the amino acids with high :math:`\pi_{r,a}`, but that at the specific site :math:`r` this preference is more stringent than for the typical site in the gene (i.e. the preferences point in the direction of actual selection, but actual selection is more stringent at this site than suggested by the preferences).
-
 
 Identifying differentially selected amino acids by fitting preferences for each site
 ---------------------------------------------------------------------------------------
