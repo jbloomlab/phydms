@@ -439,6 +439,32 @@ The derivative is
 
 where the expressions when :math:`\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}` are derived from application of L'Hopital's rule.
 
+So define
+
+.. math::
+  
+   \tilde{F}_{r,xy} = 
+   \begin{cases}
+   0 & \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$,} \\
+   \frac{\omega \beta}{2} & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$,} \\
+   \left(\omega \beta\right) \frac{\left(\pi_{r,\mathcal{A}\left(x\right)} / \pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\left[\ln\left(\left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right) - 1\right] + 1}{\left(1 - \left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right)^2} & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} \ne \pi_{r,\mathcal{A}\left(y\right)}$.}
+   \end{cases}
+
+We then have
+
+.. math::
+   :label: dPrxy_dzeta
+
+   \frac{\partial P_{r,xy}}{\partial \zeta_{r,i}} =
+   Q_{xy} \sum\limits_a \frac{\partial F_{r,xy}}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} =
+   \begin{cases}
+   0 & \mbox{if $i > \mathcal{A}\left(x\right)$ and $i > \mathcal{A}\left(y\right)$ and $x \ne y$,} \\
+   \frac{Q_{xy} \tilde{F}_{r,xy}}{\zeta_{r,i} - \delta_{i\mathcal{A}\left(y\right)}} & \mbox{if $i > \mathcal{A}\left(x\right)$ and $i \le \mathcal{A}\left(y\right)$ and $x \ne y$,} \\
+   -\frac{Q_{xy} \tilde{F}_{r,xy}}{\zeta_{r,i} - \delta_{i\mathcal{A}\left(x\right)}} & \mbox{if $i \le \mathcal{A}\left(x\right)$ and $i > \mathcal{A}\left(y\right)$ and $x \ne y$,} \\
+   \frac{Q_{xy} \tilde{F}_{r,xy}}{\zeta_{r,i} - \delta_{i\mathcal{A}\left(y\right)}} - \frac{Q_{xy} \tilde{F}_{r,xy}}{\zeta_{r,i} - \delta_{i\mathcal{A}\left(x\right)}} & \mbox{if $i \le \mathcal{A}\left(x\right)$ and $i \le \mathcal{A}\left(y\right)$ and $x \ne y$} \\
+   -\sum\limits_{z \ne x} \frac{\partial P_{r,xy}}{\partial \zeta_{r,i}} & \mbox{if $x = y$}.
+   \end{cases}
+
 
 *YNGKP_M0* model
 ------------------

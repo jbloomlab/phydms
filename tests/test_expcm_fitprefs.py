@@ -21,10 +21,14 @@ class testExpCM_fitprefs(unittest.TestCase):
         omega, beta, pirAx, pirAy = sympy.symbols('omega beta pirAx pirAy')
         Frxy = omega * -beta * sympy.ln(pirAx / pirAy) / (1 - 
                 (pirAx / pirAy)**beta)
-        dFrxy_dpirAx = omega * beta * ((pirAx / pirAy)**beta * (1 - sympy.ln(
-                (pirAx / pirAy)**beta)) - 1) / (pirAx * (1 - 
+        dFrxy_dpirAx = (-omega * beta / pirAx) * ((pirAx / pirAy)**beta * (
+                sympy.ln((pirAx / pirAy)**beta) - 1) + 1) / ((1 - 
                 (pirAx / pirAy)**beta)**2)
         dFrxy_dpirAx_prefsequal = -omega * beta / (2 * pirAx)
+        dFrxy_dpirAy = (omega * beta / pirAy) * ((pirAx / pirAy)**beta * (
+                sympy.ln((pirAx / pirAy)**beta) - 1) + 1) / ((1 - 
+                (pirAx / pirAy)**beta)**2)
+        dFrxy_dpirAy_prefsequal = omega * beta / (2 * pirAy)
         diffpref = 1.0e-5
         for itest in range(5):
             values = [[beta, random.uniform(0.5, 2.0)], 
@@ -36,9 +40,13 @@ class testExpCM_fitprefs(unittest.TestCase):
                     "are too close.")
             self.assertTrue(scipy.allclose(float(dFrxy_dpirAx.subs(values)),
                     float(sympy.diff(Frxy, pirAx).subs(values))))
+            self.assertTrue(scipy.allclose(float(dFrxy_dpirAy.subs(values)),
+                    float(sympy.diff(Frxy, pirAy).subs(values))))
             values[2][1] = values[1][1] * (1 + diffpref)
             self.assertTrue(scipy.allclose(float(dFrxy_dpirAx_prefsequal.subs(
                     values)), float(sympy.diff(Frxy, pirAx).subs(values))))
+            self.assertTrue(scipy.allclose(float(dFrxy_dpirAy_prefsequal.subs(
+                    values)), float(sympy.diff(Frxy, pirAy).subs(values))))
 
 
 
