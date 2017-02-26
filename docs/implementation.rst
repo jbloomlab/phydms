@@ -416,7 +416,7 @@ In analogy with Equation :eq:`dphi_deta`, we have
 
    \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} =
    \begin{cases}
-   \frac{\pi_{r,a}}{\zeta_{r,i} - \delta_{ia}} & \mbox{if $i \le w$,} \\
+   \frac{\pi_{r,a}}{\zeta_{r,i} - \delta_{ia}} & \mbox{if $i \le a$,} \\
    0 & \mbox{otherwise,}
    \end{cases}
 
@@ -428,14 +428,16 @@ The derivative is
 .. math::
    :label: dFrxy_dpi
 
-   \frac{\partial F_{r,xy}}{\partial \pi_{r,\mathcal{A}\left(x\right)}} &=&
+   \frac{\partial F_{r,xy}}{\partial \pi_{r,a}} &=&
    \begin{cases}
-   0 & \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$,} \\
-   \frac{-\omega \beta}{2 \pi_{r,\mathcal{A}\left(x\right)}} & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$}, \\
-   \frac{\omega \beta}{\pi_{r,\mathcal{A}\left(x\right)}} \frac{\left(\pi_{r,\mathcal{A}\left(x\right)} / \pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\left[1 - \ln\left(\left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right)\right] - 1}{\left(1 - \left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right)^2} & \mbox{otherwise}, \\
+   \frac{-\omega \beta}{2 \pi_{r,a}} & \mbox{if $a = \mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$}, \\
+   \frac{-\omega \beta}{\pi_{r,a}} \frac{\left(\pi_{r,\mathcal{A}\left(x\right)} / \pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\left[\ln\left(\left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right) - 1\right] + 1}{\left(1 - \left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right)^2} & \mbox{if $a = \mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} \ne \pi_{r,\mathcal{A}\left(y\right)}$}, \\
+   \frac{\omega \beta}{2 \pi_{r,a}} & \mbox{if $a = \mathcal{A}\left(y\right) \ne \mathcal{A}\left(x\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$}, \\
+   \frac{\omega \beta}{\pi_{r,a}} \frac{\left(\pi_{r,\mathcal{A}\left(x\right)} / \pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\left[\ln\left(\left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right) - 1\right] + 1}{\left(1 - \left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right)^2} & \mbox{if $a = \mathcal{A}\left(y\right) \ne \mathcal{A}\left(x\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} \ne \pi_{r,\mathcal{A}\left(y\right)}$}, \\
+   0 & \mbox{otherwise,} \\
    \end{cases}
 
-where the expression for the second case is derived from application of L'Hopital's rule to the more general third case.
+where the expressions when :math:`\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}` are derived from application of L'Hopital's rule.
 
 
 *YNGKP_M0* model
