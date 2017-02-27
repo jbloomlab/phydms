@@ -800,9 +800,22 @@ class ExpCM_fitprefs(ExpCM):
         `tildeFrxy` (`numpy.ndarray` of `float`, shape `(nsites, N_CODON, N_CODON)`)
             Contains quantities used in calculating derivative of 
             `dPrxy` with respect to `zeta`.
+        `origbeta` (`float`)
+            The preferences in `prefs` are re-scaled by `origbeta` and
+            used as the initial value. `origbeta` might be different
+            than 1 if you have already optimized it using a fixed-preference
+            model.
+        `origpi` (`numpy.ndarray` of float, shape `(nsites, N_AA)`)
+            `origpi[r][a]` is the original preference for amino-acid
+            `a` at site `r` as given by the calling parameter `prefs`
+            and re-scaled by `origbeta`. This value is **not** updated
+            as `zeta` and `pi` are optimized, and is rather used to
+            keep track of where the optimization starts. Set to one
+            if you have not already optimized a stringency parameter
+            prior to initializing this class.
 
     `beta` (the stringency parameter) is **not** a possible free parameter,
-    and is instead fixed to one. This is because it does not make sense
+    and is instead fixed to 1. This is because it does not make sense
     to optimize a stringency parameter if you are also optimizing the 
     preferences as they are confounded.
     """
@@ -813,7 +826,8 @@ class ExpCM_fitprefs(ExpCM):
     _PARAMLIMITS = copy.deepcopy(ExpCM._PARAMLIMITS)
     _PARAMLIMITS['zeta'] = (ALMOST_ZERO, 1 - ALMOST_ZERO)
 
-    def __init__(self, prefs, kappa, omega, mu, phi, freeparams=['zeta']):
+    def __init__(self, prefs, kappa, omega, mu, phi, origbeta=1.0,
+            freeparams=['zeta']):
         """Initialize an `ExpCM_fitprefs` object.
         
         The calling parameters have the same meaning as for `ExpCM`. However,
@@ -822,17 +836,20 @@ class ExpCM_fitprefs(ExpCM):
         the across-site parameters (`kappa`, `omega`, `mu`, `phi`) and so
         are specifying fixed values for those. You are then just optimizing the
         preferences in their variable-transformed form `zeta` from the initial
-        values in `prefs`.
+        values in `prefs` scaled by `origbeta`. The meaning of `origbeta`
+        is described in the main class doc string.
         
         Note that `beta` is **not** a free parameter but rather is fixed to
         one. It does not make sense to optimize a stringency parameter
         if you are also fitting the preferences."""
 
-        self.beta = 1.0
-
         # PARAMTYPES must be instance attribute as zeta value depends on nsites
         self.PARAMTYPES = copy.deepcopy(ExpCM.PARAMTYPES)
         self.PARAMTYPES['zeta'] = (scipy.ndarray, (len(prefs) * (N_AA - 1),))
+
+        self.beta = 1.0
+        self.origbeta = origbeta
+        _checkParam('beta', self.origbeta, self.PARAMLIMITS, self.PARAMTYPES)
 
         # _aa_for_x[x][y] is the x amino acid in indexing of codon matrices
         # _aa_for_y[x][y] is the y amino acid in indexing of codon matrices
@@ -857,10 +874,18 @@ class ExpCM_fitprefs(ExpCM):
         The updated variables are: `pi`, `pi_codon`, `ln_pi_codon`, `piAx_piAy`,
         `piAx_piAy_beta`, `ln_piAx_piAy_beta`.
         
-        If `zeta` is undefined (as it will be on the first call), then first
-        update `zeta` from `pi`."""
+        If `zeta` is undefined (as it will be on the first call), then create
+        `zeta` and `origpi` from `pi` and `origbeta`."""
+        minpi = self.PARAMLIMITS['pi'][0]
         if not hasattr(self, 'zeta'):
             # should only execute on first call to initialize zeta
+            assert not hasattr(self, 'origpi')
+            self.origpi = self.pi**self.origbeta
+            for r in range(self.nsites):
+                self.origpi[r] /= self.origpi[r].sum()
+                self.origpi[r][self.origpi[r] < minpi] = minpi
+                self.origpi[r] /= self.origpi[r].sum()
+            self.pi = self.origpi.copy()
             self.zeta = scipy.ndarray(self.nsites * (N_AA - 1), dtype='float')
             self.tildeFrxy = scipy.zeros((self.nsites, N_CODON, N_CODON),
                     dtype='float')
@@ -873,7 +898,6 @@ class ExpCM_fitprefs(ExpCM):
             _checkParam('zeta', self.zeta, self.PARAMLIMITS, self.PARAMTYPES)
         else:
             # after first call, we are updating pi from zeta
-            minpi = self.PARAMLIMITS['pi'][0]
             for r in range(self.nsites):
                 zetaprod = 1.0
                 for i in range(N_AA - 1):

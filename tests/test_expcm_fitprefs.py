@@ -111,18 +111,52 @@ class test_ExpCM_fitprefs(unittest.TestCase):
         random.seed(1)
         nsites = 1
         minpref = 0.001
-        prefs = []
+        self.prefs = []
         for r in range(nsites):
             rprefs = scipy.random.dirichlet([0.7] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs[0] = rprefs[1] + 1.0e-8 # ensure near equal prefs handled OK
             rprefs /= rprefs.sum()
-            prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        self.expcm_fitprefs = phydmslib.models.ExpCM_fitprefs(prefs, 
+            self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
+        self.expcm_fitprefs = phydmslib.models.ExpCM_fitprefs(self.prefs, 
                 kappa=3.0, omega=0.3, mu=1.0,
                 phi=scipy.random.dirichlet([5] * N_NT))
         assert len(self.expcm_fitprefs.zeta.flatten()) == nsites * (N_AA - 1)
         assert self.expcm_fitprefs.nsites == nsites
+
+
+    def test_origbeta(self):
+        """Test `origbeta` parameter to `ExpCM_fitprefs`."""
+        for origbeta in [0.8, 1.0, 1.2]:
+            expcm_fitprefs2 = phydmslib.models.ExpCM_fitprefs(self.prefs,
+                    kappa=self.expcm_fitprefs.kappa,
+                    omega=self.expcm_fitprefs.omega,
+                    mu=self.expcm_fitprefs.mu,
+                    phi=self.expcm_fitprefs.phi,
+                    origbeta=origbeta)
+            zeta = self.expcm_fitprefs.zeta
+            zeta2 = expcm_fitprefs2.zeta
+            pi = self.expcm_fitprefs.zeta
+            pi2 = expcm_fitprefs2.zeta
+            self.assertTrue(scipy.allclose(zeta, zeta2) == (origbeta == 1))
+            self.assertTrue(scipy.allclose(pi, pi2) == (origbeta == 1))
+            for r in range(expcm_fitprefs2.nsites):
+                for x in range(N_CODON):
+                    pix = self.expcm_fitprefs.pi_codon[r][x]
+                    pix2 = expcm_fitprefs2.pi_codon[r][x]
+                    for y in range(N_CODON):
+                        piy = self.expcm_fitprefs.pi_codon[r][y]
+                        piy2 = expcm_fitprefs2.pi_codon[r][y]
+                        if piy == pix:
+                            self.assertTrue(pix2 == piy2)
+                        elif origbeta == 1:
+                            self.assertTrue((pix == pix2) and (piy == piy2))
+                        elif piy > pix:
+                            self.assertTrue((origbeta > 1) == (piy2 / pix2 >
+                                    piy / pix))
+                        else:
+                            self.assertTrue((origbeta > 1) == (piy2 / pix2 <
+                                    piy / pix))
 
 
     def test_zeta_updates(self):
@@ -132,6 +166,7 @@ class test_ExpCM_fitprefs(unittest.TestCase):
 
         expcm_fitprefs = copy.deepcopy(self.expcm_fitprefs)
 
+        self.assertTrue(scipy.allclose(expcm_fitprefs.pi, expcm_fitprefs.origpi))
         k = 0
         for r in range(expcm_fitprefs.nsites):
             for i in range(N_AA - 1):
@@ -143,6 +178,8 @@ class test_ExpCM_fitprefs(unittest.TestCase):
                 self.assertFalse(scipy.allclose(oldzeta, expcm_fitprefs.zeta))
                 self.assertFalse(scipy.allclose(oldpi[r], 
                         expcm_fitprefs.pi[r]))
+                self.assertFalse(scipy.allclose(expcm_fitprefs.pi,
+                        expcm_fitprefs.origpi))
                 self.assertTrue(expcm_fitprefs.pi[r][i] > oldpi[r][i])
                 self.assertTrue(all([expcm_fitprefs.pi[r][j] < oldpi[r][j]
                         for j in range(i + 1, N_AA)]))
