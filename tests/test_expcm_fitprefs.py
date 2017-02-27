@@ -5,6 +5,7 @@ Written by Jesse Bloom."""
 
 import random
 import unittest
+import copy
 import scipy
 import scipy.linalg
 import sympy
@@ -49,30 +50,94 @@ class test_ExpCM_fitprefs(unittest.TestCase):
             self.assertTrue(scipy.allclose(float(dFrxy_dpirAy_prefsequal.subs(
                     values)), float(sympy.diff(Frxy, pirAy).subs(values))))
 
-    def test_ExpCM_fitprefs_derivs(self):
-        """Initialize `ExpCM_fitprefs`, test derivatives with respect to `zeta`."""
-        random.seed(1)
-        scipy.random.seed(1)
+        expcm_fitprefs = copy.deepcopy(self.expcm_fitprefs)
+        for r in range(expcm_fitprefs.nsites):
+            for x in range(N_CODON):
+                for y in range(N_CODON):
+                    if x == y:
+                        continue
+                    values = {}
+                    values[beta] = expcm_fitprefs.beta
+                    values[omega] = expcm_fitprefs.omega
+                    values[pirAx] = expcm_fitprefs.pi_codon[r][x]
+                    values[pirAy] = expcm_fitprefs.pi_codon[r][y]
+                    Qxy = expcm_fitprefs.Qxy[x][y]
 
-        # initialize
+                    # check Prxy values
+                    if values[pirAx] == values[pirAy]:
+                        if CODON_TO_AA[x] == CODON_TO_AA[y]:
+                            self.assertTrue(scipy.allclose(Qxy,
+                                    expcm_fitprefs.Prxy[r][x][y]))
+                        else:
+                            self.assertTrue(scipy.allclose(Qxy * values[omega],
+                                    expcm_fitprefs.Prxy[r][x][y]))
+                    else:
+                        self.assertTrue(scipy.allclose(Qxy * float(Frxy.subs(
+                            values.items())), expcm_fitprefs.Prxy[r][x][y]))
+
+                    # check dFrxy_dpi
+                    if values[pirAx] == values[pirAy]:
+                        if CODON_TO_AA[x] == CODON_TO_AA[y]:
+                            self.assertTrue(scipy.allclose(0,
+                                    -expcm_fitprefs.tildeFrxy[r][x][y] / 
+                                    values[pirAx]))
+                            self.assertTrue(scipy.allclose(0,
+                                    -expcm_fitprefs.tildeFrxy[r][x][y] / 
+                                    values[pirAy]))
+                        else:
+                            self.assertTrue(scipy.allclose(
+                                    float(dFrxy_dpirAx_prefsequal.subs(
+                                    values.items())),
+                                    -expcm_fitprefs.tildeFrxy[r][x][y] / 
+                                    values[pirAx]))
+                            self.assertTrue(scipy.allclose(
+                                    float(dFrxy_dpirAy_prefsequal.subs(
+                                    values.items())),
+                                    expcm_fitprefs.tildeFrxy[r][x][y] / 
+                                    values[pirAy]))
+                    else:
+                        self.assertTrue(scipy.allclose(
+                                float(dFrxy_dpirAx.subs(values.items())),
+                                -expcm_fitprefs.tildeFrxy[r][x][y] / 
+                                values[pirAx]))
+                        self.assertTrue(scipy.allclose(
+                                float(dFrxy_dpirAy.subs(values.items())),
+                                expcm_fitprefs.tildeFrxy[r][x][y] / 
+                                values[pirAy]))
+
+    def setUp(self):
+        """Set up for tests."""
+        scipy.random.seed(1)
+        random.seed(1)
         nsites = 1
         minpref = 0.001
         prefs = []
         for r in range(nsites):
-            rprefs = scipy.random.dirichlet([0.5] * N_AA)
+            rprefs = scipy.random.dirichlet([0.7] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
             prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        expcm_fitprefs = phydmslib.models.ExpCM_fitprefs(prefs, kappa=3.0,
-                omega=0.3, mu=1.0, phi=scipy.random.dirichlet([5] * N_NT))
-        assert len(expcm_fitprefs.zeta.flatten()) == nsites * (N_AA - 1)
+        self.expcm_fitprefs = phydmslib.models.ExpCM_fitprefs(prefs, 
+                kappa=3.0, omega=0.3, mu=1.0, 
+                phi=scipy.random.dirichlet([5] * N_NT))
+        assert len(self.expcm_fitprefs.zeta.flatten()) == nsites * (N_AA - 1)
+        assert self.expcm_fitprefs.nsites == nsites
 
-        for r in range(nsites):
+
+    def test_zeta_updates(self):
+        """Test updating `zeta` of `ExpCM_fitprefs`."""
+        random.seed(1)
+        scipy.random.seed(1)
+
+        expcm_fitprefs = copy.deepcopy(self.expcm_fitprefs)
+
+        k = 0
+        for r in range(expcm_fitprefs.nsites):
             for i in range(N_AA - 1):
                 oldzeta = expcm_fitprefs.zeta.copy()
                 oldpi = expcm_fitprefs.pi.copy()
                 zeta = oldzeta.copy()
-                zeta[r * nsites + i] *= 0.9
+                zeta[k] *= 0.9
                 expcm_fitprefs.updateParams({'zeta':zeta})
                 self.assertFalse(scipy.allclose(oldzeta, expcm_fitprefs.zeta))
                 self.assertFalse(scipy.allclose(oldpi[r], 
@@ -80,8 +145,44 @@ class test_ExpCM_fitprefs(unittest.TestCase):
                 self.assertTrue(expcm_fitprefs.pi[r][i] > oldpi[r][i])
                 self.assertTrue(all([expcm_fitprefs.pi[r][j] < oldpi[r][j]
                         for j in range(i + 1, N_AA)]))
+                k += 1
 
+    def test_dPrxy_dzeta(self):
+        """Test `dPrxy['zeta']`."""
+        random.seed(1)
 
+        expcm_fitprefs = copy.deepcopy(self.expcm_fitprefs)
+        nsites = expcm_fitprefs.nsites
+
+        def func(zetari, i, r, x, y):
+            zeta = expcm_fitprefs.zeta.copy()
+            zeta.reshape(nsites, N_AA - 1)[r][i] = zetari
+            expcm_fitprefs.updateParams({'zeta':zeta})
+            return expcm_fitprefs.Prxy[r][x][y]
+
+        def dfunc(zetari, i, r, x, y):
+            zeta = expcm_fitprefs.zeta.copy()
+            zeta.reshape(nsites, N_AA - 1)[r][i] = zetari
+            expcm_fitprefs.updateParams({'zeta':zeta})
+            return expcm_fitprefs.dPrxy['zeta'][i + r * (N_AA - 1)][r][x][y]
+
+        j = 0
+        for r in range(nsites):
+            for i in range(N_AA - 1):
+                zetari = scipy.array([expcm_fitprefs.zeta.reshape(
+                        nsites, N_AA - 1)[r][i]])
+                for x in random.sample(range(N_CODON), 10):
+                    for y in random.sample(range(N_CODON), 10):
+                        if x == y:
+                            continue
+                        diff = scipy.optimize.check_grad(func, dfunc,
+                                zetari, i, r, x, y)
+                        deriv = expcm_fitprefs.dPrxy['zeta'][j][r][x][y]
+                        self.assertTrue(diff < max(1e-4, 1e-5 * abs(deriv)),
+                                "{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}".format(
+                                diff, zetari, i, r, x, y, CODON_TO_AA[x], CODON_TO_AA[y], deriv)
+                                )
+                j += 1
 
 
 

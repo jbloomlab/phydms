@@ -797,7 +797,7 @@ class ExpCM_fitprefs(ExpCM):
             Like for `ExpCM`, but also contains entry keyed by 'zeta' of
             of shape `(nsites * (N_AA - 1), nsites, N_CODON, N_CODON)`
             where the first index ranges over the elements in `zeta`.
-        `tildeFrxyQxy` (`numpy.ndarray` of `float`, shape `(nsites, N_CODON, N_CODON)`)
+        `tildeFrxy` (`numpy.ndarray` of `float`, shape `(nsites, N_CODON, N_CODON)`)
             Contains quantities used in calculating derivative of 
             `dPrxy` with respect to `zeta`.
     """
@@ -836,7 +836,7 @@ class ExpCM_fitprefs(ExpCM):
                 == (self.nsites * (N_AA - 1),))
         if self.nsites > 1: 
             warnings.warn("ExpCM_fitprefs not recommended for use with more than "
-                    "one site. The current implementation will lead to lots"
+                    "one site. The current implementation will lead to lots "
                     "of computational waste if you are trying to optimize "
                     "preferences for multiple sites simultaneously. Instead, "
                     "you are suggested to optimize for each site separately.", 
@@ -853,7 +853,7 @@ class ExpCM_fitprefs(ExpCM):
         if not hasattr(self, 'zeta'):
             # should only execute on first call to initialize zeta
             self.zeta = scipy.ndarray(self.nsites * (N_AA - 1), dtype='float')
-            self.tildeFrxyQxy = scipy.zeros((self.nsites, N_CODON, N_CODON),
+            self.tildeFrxy = scipy.zeros((self.nsites, N_CODON, N_CODON),
                     dtype='float')
             for r in range(self.nsites):
                 zetaprod = 1.0
@@ -879,36 +879,36 @@ class ExpCM_fitprefs(ExpCM):
 
         with scipy.errstate(divide='raise', under='raise', over='raise',
                 invalid='ignore'):
-            scipy.copyto(self.tildeFrxyQxy, self.omega * self.beta *
+            scipy.copyto(self.tildeFrxy, self.omega * self.beta *
                     (self.piAx_piAy_beta * (self.ln_piAx_piAy_beta - 1)
                     + 1) / (1 - self.piAx_piAy_beta)**2, 
                     where=CODON_NONSYN)
-        scipy.copyto(self.tildeFrxyQxy, self.omega * self.beta / 2.0, 
+        scipy.copyto(self.tildeFrxy, self.omega * self.beta / 2.0, 
                 where=scipy.logical_and(CODON_NONSYN, scipy.fabs(1 -
                 self.piAx_piAy_beta) < ALMOST_ZERO))
-        self.tildeFrxyQxy *= self.Qxy
 
     def _update_dPrxy(self):
         """Update `dPrxy`."""
         super(ExpCM_fitprefs, self)._update_dPrxy()
 
         if 'zeta' in self.freeparams:
+            tildeFrxyQxy = self.tildeFrxy * self.Qxy
             j = 0
             zetaxterm = scipy.ndarray((self.nsites, N_CODON, N_CODON), dtype='float')
             zetayterm = scipy.ndarray((self.nsites, N_CODON, N_CODON), dtype='float')
             for r in range(self.nsites):
                 for i in range(N_AA - 1):
                     zetari = self.zeta[j]
+                    assert zetari == self.zeta.reshape(self.nsites, N_AA - 1)[r][i]
                     zetaxterm.fill(0)
                     zetayterm.fill(0)
-                    zetaxterm[r][self._aa_for_x < i] = -1.0 / zetari
+                    zetaxterm[r][self._aa_for_x > i] = -1.0 / zetari
                     zetaxterm[r][self._aa_for_x == i] = -1.0 / (zetari - 1.0)
-                    zetayterm[r][self._aa_for_x < i] = 1.0 / zetari
-                    zetayterm[r][self._aa_for_x == i] = 1.0 / (zetari - 1.0)
-                    self.dPrxy['zeta'][j] = self.tildeFrxyQxy * (zetayterm + zetaxterm)
+                    zetayterm[r][self._aa_for_y > i] = 1.0 / zetari
+                    zetayterm[r][self._aa_for_y == i] = 1.0 / (zetari - 1.0)
+                    self.dPrxy['zeta'][j] = tildeFrxyQxy * (zetayterm + zetaxterm)
                     _fill_diagonals(self.dPrxy['zeta'][j], self._diag_indices)
                     j += 1
-
 
 
 class ExpCM_empirical_phi(ExpCM):
