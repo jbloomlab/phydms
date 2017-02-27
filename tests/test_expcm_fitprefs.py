@@ -12,12 +12,13 @@ from phydmslib.constants import *
 import phydmslib.models
 
 
-class testExpCM_fitprefs(unittest.TestCase):
+class test_ExpCM_fitprefs(unittest.TestCase):
     """Test `ExpCM` with preferences as free parameters."""
 
     def test_DerivativeExpressions(self):
         """Makes sure we have right equations for derivatives."""
         random.seed(1)
+        scipy.random.seed(1)
         omega, beta, pirAx, pirAy = sympy.symbols('omega beta pirAx pirAy')
         Frxy = omega * -beta * sympy.ln(pirAx / pirAy) / (1 - 
                 (pirAx / pirAy)**beta)
@@ -47,6 +48,40 @@ class testExpCM_fitprefs(unittest.TestCase):
                     values)), float(sympy.diff(Frxy, pirAx).subs(values))))
             self.assertTrue(scipy.allclose(float(dFrxy_dpirAy_prefsequal.subs(
                     values)), float(sympy.diff(Frxy, pirAy).subs(values))))
+
+    def test_ExpCM_fitprefs_derivs(self):
+        """Initialize `ExpCM_fitprefs`, test derivatives with respect to `zeta`."""
+        random.seed(1)
+        scipy.random.seed(1)
+
+        # initialize
+        nsites = 1
+        minpref = 0.001
+        prefs = []
+        for r in range(nsites):
+            rprefs = scipy.random.dirichlet([0.5] * N_AA)
+            rprefs[rprefs < minpref] = minpref
+            rprefs /= rprefs.sum()
+            prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
+        expcm_fitprefs = phydmslib.models.ExpCM_fitprefs(prefs, kappa=3.0,
+                omega=0.3, mu=1.0, phi=scipy.random.dirichlet([5] * N_NT))
+        assert len(expcm_fitprefs.zeta.flatten()) == nsites * (N_AA - 1)
+
+        for r in range(nsites):
+            for i in range(N_AA - 1):
+                oldzeta = expcm_fitprefs.zeta.copy()
+                oldpi = expcm_fitprefs.pi.copy()
+                zeta = oldzeta.copy()
+                zeta[r * nsites + i] *= 0.9
+                expcm_fitprefs.updateParams({'zeta':zeta})
+                self.assertFalse(scipy.allclose(oldzeta, expcm_fitprefs.zeta))
+                self.assertFalse(scipy.allclose(oldpi[r], 
+                        expcm_fitprefs.pi[r]))
+                self.assertTrue(expcm_fitprefs.pi[r][i] > oldpi[r][i])
+                self.assertTrue(all([expcm_fitprefs.pi[r][j] < oldpi[r][j]
+                        for j in range(i + 1, N_AA)]))
+
+
 
 
 

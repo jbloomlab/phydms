@@ -241,6 +241,8 @@ class ExpCM(Model):
             encoded by codon `x` divided by pref for that encoded by `y`.
         `piAx_piAy_beta` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
             Equal to `piAx_piAy` raised to the power of `beta`.
+        `ln_piAx_piAy_beta (`numpy.ndarray` of floats)
+            Natural logarithm of `piAx_piAy_beta`.
         `dPrxy` (dict)
             Keyed by each string in `freeparams`, each value is `numpy.ndarray`
             of floats giving derivative of `Prxy` with respect to that parameter.
@@ -357,6 +359,8 @@ class ExpCM(Model):
 
         # define other params, initialized appropriately
         self.piAx_piAy_beta = scipy.zeros((self.nsites, N_CODON, N_CODON),
+                dtype='float')
+        self.ln_piAx_piAy_beta = scipy.zeros((self.nsites, N_CODON, N_CODON),
                 dtype='float')
         self.Prxy = scipy.zeros((self.nsites, N_CODON, N_CODON), dtype='float')
         self.prx = scipy.zeros((self.nsites, N_CODON), dtype='float')
@@ -481,7 +485,6 @@ class ExpCM(Model):
         # this way is much simpler and adds negligible cost.
         if update_all or (changed and changed != set(['mu'])):
             self._update_pi_vars()
-            self._update_piAx_piAy_beta()
             self._update_frx()
             self._update_phi()
             self._update_qx()
@@ -635,7 +638,12 @@ class ExpCM(Model):
                 self.qx[CODON_NT[j][w]] *= self.phi[w]
 
     def _update_pi_vars(self):
-        """Update `pi_codon`, `ln_pi_codon`, `piAx_piAy` from current `pi`."""
+        """Update variables that depend on `pi`.
+        
+        These are `pi_codon`, `ln_pi_codon`, `piAx_piAy`, `piAx_piAy_beta`,
+        `ln_piAx_piAy_beta`.
+        
+        Update using current `pi` and `beta`."""
         with scipy.errstate(divide='raise', under='raise', over='raise',
                 invalid='raise'):
             for r in range(self.nsites):
@@ -643,20 +651,16 @@ class ExpCM(Model):
                 pim = scipy.tile(self.pi_codon[r], (N_CODON, 1)) # [x][y] is piAy
                 self.piAx_piAy[r] = pim.transpose() / pim
             self.ln_pi_codon = scipy.log(self.pi_codon)
-
-    def _update_piAx_piAy_beta(self):
-        """Update `piAx_piAy_beta` from `piAx_piAy` and `beta`."""
-        with scipy.errstate(divide='raise', under='raise', over='raise',
-                invalid='raise'):
             self.piAx_piAy_beta = self.piAx_piAy**self.beta
+            self.ln_piAx_piAy_beta = scipy.log(self.piAx_piAy_beta)
 
     def _update_Frxy(self):
-        """Update `Frxy` from `piAx_piAy_beta`, `omega`, and `beta`."""
+        """Update `Frxy` from `piAx_piAy_beta`, `ln_piAx_piAy_beta`, `omega`, `beta`."""
         self.Frxy.fill(1.0)
         self.Frxy_no_omega.fill(1.0)
         with scipy.errstate(divide='raise', under='raise', over='raise',
                         invalid='ignore'):
-            scipy.copyto(self.Frxy_no_omega, -scipy.log(self.piAx_piAy_beta)
+            scipy.copyto(self.Frxy_no_omega, -self.ln_piAx_piAy_beta
                     / (1 - self.piAx_piAy_beta), where=scipy.logical_and(
                     CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta) > 
                     ALMOST_ZERO))
@@ -709,9 +713,9 @@ class ExpCM(Model):
             with scipy.errstate(divide='raise', under='raise', over='raise',
                     invalid='ignore'):
                 scipy.copyto(self.dPrxy['beta'], self.Prxy *
-                        (1 / self.beta + (self.piAx_piAy_beta *
-                        scipy.log(self.piAx_piAy) / (1 - self.piAx_piAy_beta))),
-                        where=CODON_NONSYN)
+                        (1 / self.beta + (self.piAx_piAy_beta * 
+                        (self.ln_piAx_piAy_beta / self.beta) / 
+                        (1 - self.piAx_piAy_beta))), where=CODON_NONSYN)
             scipy.copyto(self.dPrxy['beta'], self.Prxy/self.beta *
                     (1 - self.piAx_piAy_beta), where=scipy.logical_and(
                     CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta)
@@ -816,9 +820,16 @@ class ExpCM_fitprefs(ExpCM):
         the preferences during optimization. You are then just optimizing the
         preferences in their variable-transformed form `zeta` from the initial
         values in `prefs`."""
+
         # PARAMTYPES must be instance attribute as zeta value depends on nsites
         self.PARAMTYPES = copy.deepcopy(ExpCM.PARAMTYPES)
         self.PARAMTYPES['zeta'] = (scipy.ndarray, (len(prefs) * (N_AA - 1),))
+
+        # _aa_for_x[x][y] is the x amino acid in indexing of codon matrices
+        # _aa_for_y[x][y] is the y amino acid in indexing of codon matrices
+        self._aa_for_y = scipy.tile(CODON_TO_AA, (N_CODON, 1))
+        self._aa_for_x = self._aa_for_y.transpose()
+
         super(ExpCM_fitprefs, self).__init__(prefs, kappa=kappa, omega=omega,
                 beta=beta, mu=mu, phi=phi, freeparams=freeparams)
         assert (self.PARAMTYPES['zeta'][1] == self.zeta.shape
@@ -830,16 +841,12 @@ class ExpCM_fitprefs(ExpCM):
                     "preferences for multiple sites simultaneously. Instead, "
                     "you are suggested to optimize for each site separately.", 
                     Warning)
-        # _aa_for_x[x][y] is the x amino acid in indexing of codon matrices
-        # _aa_for_y[x][y] is the y amino acid in indexing of codon matrices
-        self._aa_for_y = scipy.tile(CODON_TO_AA, (N_CODON, 1))
-        self._aa_for_x = self._aa_for_y.transpose()
 
     def _update_pi_vars(self):
-        """Update variables that depend in `pi` from `zeta`.
+        """Update variables that depend on `pi` from `zeta`.
         
         The updated variables are: `pi`, `pi_codon`, `ln_pi_codon`, `piAx_piAy`,
-        `piAx_piAy_beta`.
+        `piAx_piAy_beta`, `ln_piAx_piAy_beta`.
         
         If `zeta` is undefined (as it will be on the first call), then first
         update `zeta` from `pi`."""
@@ -862,7 +869,7 @@ class ExpCM_fitprefs(ExpCM):
                 zetaprod = 1.0
                 for i in range(N_AA - 1):
                     zetari = self.zeta.reshape(self.nsites, N_AA - 1)[r][i]
-                    self.pi[r][a] = zetaprod * (1 - zetari)
+                    self.pi[r][i] = zetaprod * (1 - zetari)
                     zetaprod *= zetari
                 self.pi[r][N_AA - 1] = zetaprod
                 self.pi[r][self.pi[r] < minpi] = minpi
@@ -872,9 +879,9 @@ class ExpCM_fitprefs(ExpCM):
 
         with scipy.errstate(divide='raise', under='raise', over='raise',
                 invalid='ignore'):
-            scipy.copyto(self.tildeFrxyQxy, self.omega * self.beta
-                    (self.piAx_piAy_beta * (scipy.log(self.piAx_piAy_beta) - 1) + 1) 
-                    / (1 - self.piAx_piAy_beta)**2, 
+            scipy.copyto(self.tildeFrxyQxy, self.omega * self.beta *
+                    (self.piAx_piAy_beta * (self.ln_piAx_piAy_beta - 1)
+                    + 1) / (1 - self.piAx_piAy_beta)**2, 
                     where=CODON_NONSYN)
         scipy.copyto(self.tildeFrxyQxy, self.omega * self.beta / 2.0, 
                 where=scipy.logical_and(CODON_NONSYN, scipy.fabs(1 -
@@ -895,9 +902,9 @@ class ExpCM_fitprefs(ExpCM):
                     zetaxterm.fill(0)
                     zetayterm.fill(0)
                     zetaxterm[r][self._aa_for_x < i] = -1.0 / zetari
-                    zetaxterm[r][self._aa_for_x == i] = -1.0 (zetari - 1.0)
+                    zetaxterm[r][self._aa_for_x == i] = -1.0 / (zetari - 1.0)
                     zetayterm[r][self._aa_for_x < i] = 1.0 / zetari
-                    zetayterm[r][self._aa_for_x == i] = 1.0 (zetari - 1.0)
+                    zetayterm[r][self._aa_for_x == i] = 1.0 / (zetari - 1.0)
                     self.dPrxy['zeta'][j] = self.tildeFrxyQxy * (zetayterm + zetaxterm)
                     _fill_diagonals(self.dPrxy['zeta'][j], self._diag_indices)
                     j += 1
@@ -1087,7 +1094,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         if 'omega2' in self.freeparams:
             with scipy.errstate(divide='raise', under='raise', over='raise',
                             invalid='ignore'):
-                scipy.copyto(self.dPrxy['omega2'], -scipy.log(self.piAx_piAy_beta)
+                scipy.copyto(self.dPrxy['omega2'], -self.ln_piAx_piAy_beta
                         * self.Qxy * self.omega /
                         (1 - self.piAx_piAy_beta), where=CODON_NONSYN)
             scipy.copyto(self.dPrxy['omega2'], self.Qxy * self.omega,
@@ -1104,7 +1111,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         self.Frxy_no_omega.fill(1.0)
         with scipy.errstate(divide='raise', under='raise', over='raise',
                 invalid='ignore'):
-            scipy.copyto(self.Frxy_no_omega, -scipy.log(self.piAx_piAy_beta)
+            scipy.copyto(self.Frxy_no_omega, -self.ln_piAx_piAy_beta
                     / (1 - self.piAx_piAy_beta), where=scipy.logical_and(
                     CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta) >
                     ALMOST_ZERO))
