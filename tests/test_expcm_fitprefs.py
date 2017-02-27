@@ -33,7 +33,7 @@ class test_ExpCM_fitprefs(unittest.TestCase):
         dFrxy_dpirAy_prefsequal = omega * beta / (2 * pirAy)
         diffpref = 1.0e-5
         for itest in range(5):
-            values = [[beta, random.uniform(0.5, 2.0)], 
+            values = [[beta, 1], 
                       [pirAx, random.uniform(0.01, 0.5)], 
                       [pirAy, random.uniform(0.01, 0.5)], 
                       [omega, random.uniform(0.1, 2.0)]]
@@ -115,10 +115,11 @@ class test_ExpCM_fitprefs(unittest.TestCase):
         for r in range(nsites):
             rprefs = scipy.random.dirichlet([0.7] * N_AA)
             rprefs[rprefs < minpref] = minpref
+            rprefs[0] = rprefs[1] + 1.0e-8 # ensure near equal prefs handled OK
             rprefs /= rprefs.sum()
             prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
         self.expcm_fitprefs = phydmslib.models.ExpCM_fitprefs(prefs, 
-                kappa=3.0, omega=0.3, mu=1.0, 
+                kappa=3.0, omega=0.3, mu=1.0,
                 phi=scipy.random.dirichlet([5] * N_NT))
         assert len(self.expcm_fitprefs.zeta.flatten()) == nsites * (N_AA - 1)
         assert self.expcm_fitprefs.nsites == nsites
@@ -180,10 +181,47 @@ class test_ExpCM_fitprefs(unittest.TestCase):
                         deriv = expcm_fitprefs.dPrxy['zeta'][j][r][x][y]
                         self.assertTrue(diff < max(1e-4, 1e-5 * abs(deriv)),
                                 "{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}".format(
-                                diff, zetari, i, r, x, y, CODON_TO_AA[x], CODON_TO_AA[y], deriv)
-                                )
+                                diff, zetari, i, r, x, y, CODON_TO_AA[x], 
+                                CODON_TO_AA[y], deriv))
                 j += 1
 
+    def test_dM_dzeta(self):
+        """Test `dM['zeta']`."""
+        random.seed(1)
+
+        expcm_fitprefs = copy.deepcopy(self.expcm_fitprefs)
+        nsites = expcm_fitprefs.nsites
+
+        def func(zetari, i, r, x, y, t):
+            zeta = expcm_fitprefs.zeta.copy()
+            zeta.reshape(nsites, N_AA - 1)[r][i] = zetari
+            expcm_fitprefs.updateParams({'zeta':zeta})
+            return expcm_fitprefs.M(t)[r][x][y]
+
+        def dfunc(zetari, i, r, x, y, t):
+            zeta = expcm_fitprefs.zeta.copy()
+            zeta.reshape(nsites, N_AA - 1)[r][i] = zetari
+            expcm_fitprefs.updateParams({'zeta':zeta})
+            j = i + r * (N_AA - 1)
+            return expcm_fitprefs.dM(t, 'zeta', None)[j][r][x][y]
+
+        for r in range(nsites):
+            for i in range(N_AA - 1):
+                zetari = scipy.array([expcm_fitprefs.zeta.reshape(
+                        nsites, N_AA - 1)[r][i]])
+                for x in random.sample(range(N_CODON), 10):
+                    for y in random.sample(range(N_CODON), 10):
+                        if x == y:
+                            continue
+                        for t in [0.1, 0.5]:
+                            diff = scipy.optimize.check_grad(func, dfunc,
+                                    zetari, i, r, x, y, t)
+                            deriv = dfunc(zetari, i, r, x, y, t)
+                            self.assertTrue(diff < max(0.02, 1e-4 * abs(deriv)),
+                                    "{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, "
+                                    "{8}, {9}".format(
+                                    diff, zetari, i, r, x, y, CODON_TO_AA[x], 
+                                    CODON_TO_AA[y], deriv, t))
 
 
 if __name__ == '__main__':

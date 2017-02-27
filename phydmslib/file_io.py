@@ -227,9 +227,12 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False, seed=1):
             "Sites in prefsfile {0} not consecutive starting at 1").format(prefsfile)
     assert all([all([pi >= 0 for pi in rprefs.values()]) for rprefs in
             prefs.values()]), "Some prefs < 0 in prefsfile {0}".format(prefsfile)
-    assert all([sum(rprefs.values()) - 1 <= phydmslib.constants.ALMOST_ZERO for
-            rprefs in prefs.values()]), ("Prefs in prefsfile {0} don't all sum "
-            "to one").format(prefsfile)
+    for r in list(prefs.keys()):
+        rprefs = prefs[r]
+        assert sum(rprefs.values()) - 1 <= 0.01, (
+            "Prefs in prefsfile {0} don't sum to one".format(prefsfile))
+        rsum = float(sum(rprefs.values()))
+        prefs[r] = dict([(aa, pi / rsum) for (aa, pi) in rprefs.items()])
     prefs = dict([(int(r), rprefs) for (r, rprefs) in prefs.items()])
     assert set(sites) == set(prefs.keys())
 
@@ -247,7 +250,7 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False, seed=1):
         rprefs = prefs[r]
         iterations = 0
         while any([pi < minpref for pi in rprefs.values()]):
-            rprefs = dict([(aa, max(minpref + phydmslib.constants.ALMOST_ZERO, 
+            rprefs = dict([(aa, max(1.1 * minpref, 
                     pi)) for (aa, pi) in rprefs.items()])
             newsum = float(sum(rprefs.values()))
             rprefs = dict([(aa, pi / newsum) for (aa, pi) in rprefs.items()])

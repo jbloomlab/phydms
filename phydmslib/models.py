@@ -800,26 +800,35 @@ class ExpCM_fitprefs(ExpCM):
         `tildeFrxy` (`numpy.ndarray` of `float`, shape `(nsites, N_CODON, N_CODON)`)
             Contains quantities used in calculating derivative of 
             `dPrxy` with respect to `zeta`.
+
+    `beta` (the stringency parameter) is **not** a possible free parameter,
+    and is instead fixed to one. This is because it does not make sense
+    to optimize a stringency parameter if you are also optimizing the 
+    preferences as they are confounded.
     """
 
     # class variables
-    ALLOWEDPARAMS = copy.deepcopy(ExpCM.ALLOWEDPARAMS)
+    ALLOWEDPARAMS = [param for param in ExpCM.ALLOWEDPARAMS if param != 'beta']
     ALLOWEDPARAMS.append('zeta')
     _PARAMLIMITS = copy.deepcopy(ExpCM._PARAMLIMITS)
     _PARAMLIMITS['zeta'] = (ALMOST_ZERO, 1 - ALMOST_ZERO)
 
-    def __init__(self, prefs, kappa, omega, mu, phi, beta=1.0, freeparams=['zeta']):
+    def __init__(self, prefs, kappa, omega, mu, phi, freeparams=['zeta']):
         """Initialize an `ExpCM_fitprefs` object.
         
         The calling parameters have the same meaning as for `ExpCM`. However,
         the default values have changed consistent with the recommended usage
         of this class. This recommended usage is that you have already estimated
         the across-site parameters (`kappa`, `omega`, `mu`, `phi`) and so
-        are specifying fixed values for those. If you are fitting the preferences,
-        `beta` is most reasonably just fixed to one as it is confounded with
-        the preferences during optimization. You are then just optimizing the
+        are specifying fixed values for those. You are then just optimizing the
         preferences in their variable-transformed form `zeta` from the initial
-        values in `prefs`."""
+        values in `prefs`.
+        
+        Note that `beta` is **not** a free parameter but rather is fixed to
+        one. It does not make sense to optimize a stringency parameter
+        if you are also fitting the preferences."""
+
+        self.beta = 1.0
 
         # PARAMTYPES must be instance attribute as zeta value depends on nsites
         self.PARAMTYPES = copy.deepcopy(ExpCM.PARAMTYPES)
@@ -831,7 +840,7 @@ class ExpCM_fitprefs(ExpCM):
         self._aa_for_x = self._aa_for_y.transpose()
 
         super(ExpCM_fitprefs, self).__init__(prefs, kappa=kappa, omega=omega,
-                beta=beta, mu=mu, phi=phi, freeparams=freeparams)
+                beta=self.beta, mu=mu, phi=phi, freeparams=freeparams)
         assert (self.PARAMTYPES['zeta'][1] == self.zeta.shape
                 == (self.nsites * (N_AA - 1),))
         if self.nsites > 1: 
@@ -899,7 +908,6 @@ class ExpCM_fitprefs(ExpCM):
             for r in range(self.nsites):
                 for i in range(N_AA - 1):
                     zetari = self.zeta[j]
-                    assert zetari == self.zeta.reshape(self.nsites, N_AA - 1)[r][i]
                     zetaxterm.fill(0)
                     zetayterm.fill(0)
                     zetaxterm[r][self._aa_for_x > i] = -1.0 / zetari
