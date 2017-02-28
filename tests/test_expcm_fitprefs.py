@@ -119,7 +119,7 @@ class test_ExpCM_fitprefs(unittest.TestCase):
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
         self.expcm_fitprefs = phydmslib.models.ExpCM_fitprefs(self.prefs, 
-                kappa=3.0, omega=0.3, mu=1.0,
+                kappa=3.0, omega=0.3,
                 phi=scipy.random.dirichlet([5] * N_NT))
         assert len(self.expcm_fitprefs.zeta.flatten()) == nsites * (N_AA - 1)
         assert self.expcm_fitprefs.nsites == nsites

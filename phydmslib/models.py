@@ -812,7 +812,7 @@ class ExpCM_fitprefs(ExpCM):
     _PARAMLIMITS = copy.deepcopy(ExpCM._PARAMLIMITS)
     _PARAMLIMITS['zeta'] = (ALMOST_ZERO, 1 - ALMOST_ZERO)
 
-    def __init__(self, prefs, kappa, omega, mu, phi, origbeta=1.0,
+    def __init__(self, prefs, kappa, omega, phi, mu=1.0, origbeta=1.0,
             freeparams=['zeta']):
         """Initialize an `ExpCM_fitprefs` object.
         
