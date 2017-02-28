@@ -221,16 +221,12 @@ class ExpCM(Model):
             This attribute is equivalent to `stationarystate`.
         `Qxy` (`numpy.ndarray` of floats, shape `(N_CODON, N_CODON)`
             `Qxy[x][y]` is mutation rate from `x` to `y`, diagonal undefined.
-        `qx` (`numpy.ndarray` of floats, length `N_CODON`
-            `qx[x]` is stationary state of `Qxy` for codon `x`.
         `Frxy` (`numpy.ndarray` of floats, shape `(nsites, N_CODON, N_CODON)`
             `Frxy[r][x][y]` fixation prob from `x` to `y`, diagonal
             undefined for each `Frxy[r]`.
         `Frxy_no_omega` 
             Like `Frxy` but **not** multiplied by `omega` for non-synonymous
             mutations
-        `frx` (`numpy.ndarray` of floats, shape `(nsites, N_CODON)`
-            `frx[r][x]` is stationary state of `Frxy` for codon `x` at `r`.
         `pi_codon` (`numpy.ndarray` of floats, shape `(nsites, N_CODON)`)
             `pi_codon[r][x]` is preference of site `r` for amino acid
             encoded by codon `x`.
@@ -365,11 +361,9 @@ class ExpCM(Model):
         self.Prxy = scipy.zeros((self.nsites, N_CODON, N_CODON), dtype='float')
         self.prx = scipy.zeros((self.nsites, N_CODON), dtype='float')
         self.Qxy = scipy.zeros((N_CODON, N_CODON), dtype='float')
-        self.qx = scipy.zeros(N_CODON, dtype='float')
         self.Frxy = scipy.ones((self.nsites, N_CODON, N_CODON), dtype='float')
         self.Frxy_no_omega = scipy.ones((self.nsites, N_CODON, N_CODON), 
                 dtype='float')
-        self.frx = scipy.zeros((self.nsites, N_CODON), dtype='float')
         self.D = scipy.zeros((self.nsites, N_CODON), dtype='float')
         self.A = scipy.zeros((self.nsites, N_CODON, N_CODON), dtype='float')
         self.Ainv = scipy.zeros((self.nsites, N_CODON, N_CODON), dtype='float')
@@ -485,9 +479,7 @@ class ExpCM(Model):
         # this way is much simpler and adds negligible cost.
         if update_all or (changed and changed != set(['mu'])):
             self._update_pi_vars()
-            self._update_frx()
             self._update_phi()
-            self._update_qx()
             self._update_prx()
             self._update_dprx()
             self._update_Qxy()
@@ -630,13 +622,6 @@ class ExpCM(Model):
             scipy.copyto(self.Qxy, self.phi[w], where=CODON_NT_MUT[w])
         self.Qxy[CODON_TRANSITION] *= self.kappa
 
-    def _update_qx(self):
-        """Update `qx` using current `phi`."""
-        self.qx.fill(1.0)
-        for j in range(3):
-            for w in range(N_NT):
-                self.qx[CODON_NT[j][w]] *= self.phi[w]
-
     def _update_pi_vars(self):
         """Update variables that depend on `pi`.
         
@@ -666,10 +651,6 @@ class ExpCM(Model):
                     ALMOST_ZERO))
         scipy.copyto(self.Frxy, self.Frxy_no_omega * self.omega, where=CODON_NONSYN)
 
-    def _update_frx(self):
-        """Update `frx` using current `pi_codon` and `beta`."""
-        self.frx = self.pi_codon**self.beta
-
     def _update_Prxy(self):
         """Update `Prxy` using current `Frxy` and `Qxy`."""
         self.Prxy = self.Frxy * self.Qxy
@@ -691,8 +672,13 @@ class ExpCM(Model):
             self.A[r] = (pr_neghalf * evecs.transpose()).transpose()
 
     def _update_prx(self):
-        """Update `prx` using current `frx` and `qx`."""
-        self.prx = self.frx * self.qx
+        """Update `prx` from `phi`, `pi_codon`, and `beta`."""
+        qx = scipy.ones(N_CODON, dtype='float')
+        for j in range(3):
+            for w in range(N_NT):
+                qx[CODON_NT[j][w]] *= self.phi[w]
+        frx = self.pi_codon**self.beta
+        self.prx = frx * qx
         with scipy.errstate(divide='raise', under='raise', over='raise',
                 invalid='raise'):
             for r in range(self.nsites):
