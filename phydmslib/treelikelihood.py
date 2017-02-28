@@ -41,6 +41,8 @@ class TreeLikelihood(object):
         `model` (instance of `phydmslib.models.Model` derived class)
             Specifies the substitution model for `nsites` codon sites.
             This can either be a simple `Model` or a `DistributionModel`.
+            Note that if a non-zero prior is defined by `model`, this
+            is included in `loglik` and `dloglik`.
         `alignment` (list of 2-tuples of strings, `(head, seq)`)
             Aligned protein-coding codon sequences. Headers match
             tip names in `tree`; sequences contain `nsites` codons.
@@ -54,7 +56,8 @@ class TreeLikelihood(object):
             for parameter `paramsarray[i]`. Set `minbound` or `maxbound`
             are `None` if there is no lower or upper bound.
         `loglik` (`float`)
-            Current log likelihood.
+            Current log likelihood. Also includes `model.logprior`
+            if this is non-zero.
         `siteloglik` (`numpy.ndarray` of floats, length `nsites`)
             `siteloglik[r]` is current log likelihood at site `r`.
         `dparamscurrent` (`bool`)
@@ -72,7 +75,8 @@ class TreeLikelihood(object):
         `dloglik` (`dict`)
             For each `param` in `model.freeparams`, `dloglik[param]`
             is the derivative of `loglik` with respect to `param`.
-            Only accessible if `dparamscurrent` is `True`.
+            Only accessible if `dparamscurrent` is `True`. Also
+            includes `model.dlogprior` if this is non-zero.
         `dloglikarray` (`numpy.ndarray` of floats, 1-dimensional)
             `dloglikarray[i]` is the derivative of `loglik` with respect
             to the parameter represented in `paramsarray[i]`. This is
@@ -619,7 +623,7 @@ class TreeLikelihood(object):
                 sitelik += scipy.sum(self.model.stationarystate *
                         self.L[-1][k], axis=1) * catweights[k]
             self.siteloglik = scipy.log(sitelik) + self.underflowlogscale
-            self.loglik = scipy.sum(self.siteloglik)
+            self.loglik = scipy.sum(self.siteloglik) + self.model.logprior
             if self.dparamscurrent:
                 self._dloglik = {}
                 for param in self.model.freeparams:
@@ -639,7 +643,8 @@ class TreeLikelihood(object):
                                 self.model.stationarystate, axis=-1) *
                                 weighted_dk[k])
                     dsiteloglik /= sitelik
-                    self._dloglik[param] = scipy.sum(dsiteloglik, axis=-1)
+                    self._dloglik[param] = (scipy.sum(dsiteloglik, axis=-1)
+                            + self.model.dlogprior(param))
             if self.dtcurrent:
                 self._dloglik_dt = 0
                 for k in self._catindices:

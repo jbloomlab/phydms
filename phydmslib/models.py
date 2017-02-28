@@ -30,6 +30,27 @@ class Model(six.with_metaclass(abc.ABCMeta)):
     """
 
     @abc.abstractproperty
+    def logprior(self):
+        """Log prior over current model.
+
+        Is a float giving log prior over current model, or
+        0 if there is no prior defined over this model."""
+        pass
+
+    @abc.abstractmethod
+    def dlogprior(self, param):
+        """Derivative of `logprior` with respect to `param`.
+
+        Args:
+            `param` (string in `freeparams`)
+
+        Returns:
+            Derivative of `logprior` with respect to `param`,
+            or 0 if there is no prior defined over this model.
+        """
+        pass
+
+    @abc.abstractproperty
     def stationarystate(self):
         """Stationary state of substitution model.
 
@@ -395,6 +416,16 @@ class ExpCM(Model):
         self._diag_indices = scipy.diag_indices(N_CODON)
 
         self.updateParams({}, update_all=True)
+
+    @property
+    def logprior(self):
+        """Is zero, as no prior is defined over this model."""
+        return 0.0
+
+    def dlogprior(self, param):
+        """Zero for all `param`, as no prior defined over this model."""
+        assert param in self.freeparams, "Invalid param: {0}".format(param)
+        return 0.0
 
     @property
     def stationarystate(self):
@@ -1224,6 +1255,16 @@ class YNGKP_M0(Model):
         """See docs for `Model` abstract base class."""
         return self._PARAMLIMITS
 
+    @property
+    def logprior(self):
+        """Is zero, as no prior is defined over this model."""
+        return 0.0
+
+    def dlogprior(self, param):
+        """Zero for all `param`, as no prior defined over this model."""
+        assert param in self.freeparams, "Invalid param: {0}".format(param)
+        return 0.0
+
     def __init__(self, e_pw, nsites, kappa=2.0, omega=0.5, mu=1.0,
             freeparams=['kappa', 'omega', 'mu']):
         """Initialize an `YNGKP_M0` object.
@@ -1675,6 +1716,16 @@ class GammaDistributedOmegaModel(DistributionModel):
     PARAMTYPES = {'alpha_omega':float,
                   'beta_omega':float,
                  }
+
+    @property
+    def logprior(self):
+        """Is zero, as no prior is defined over this model."""
+        return 0.0
+
+    def dlogprior(self, param):
+        """Zero for all `param`, as no prior defined over this model."""
+        assert param in self.freeparams, "Invalid param: {0}".format(param)
+        return 0.0
 
     @property
     def basemodel(self):
