@@ -465,6 +465,29 @@ We then have
    -\sum\limits_{z \ne x} \frac{\partial P_{r,xy}}{\partial \zeta_{r,i}} & \mbox{if $x = y$}.
    \end{cases}
 
+We also need to calculate the derivative of the stationary state :math:`p_{r,x}` given by Equation :eq:`prx` with respect to the preference. In this calculation, we simplify the algebra by taking advantage of the fact that for our fit preferences models, we always have :math:`\beta = 1` to simplify from the first to the second line below:
+
+.. math::
+   :label: dprx_dpi
+
+   \frac{\partial p_{r,x}}{\partial \pi_{r,a}} &=&
+   \frac{\partial}{\partial \pi_{r,x}}\left(\frac{q_x \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}}{\sum_z q_z \left(\pi_{r,\mathcal{A}\left(z\right)}\right)^{\beta}}\right) \\
+   &=&
+   \frac{\partial}{\partial \pi_{r,x}}\left(\frac{q_x \pi_{r,\mathcal{A}\left(x\right)}}{\sum_z q_z \pi_{r,\mathcal{A}\left(z\right)}}\right) \\
+   &=&
+   \frac{q_x \delta_{a\mathcal{A}\left(x\right)}\left( \sum_z q_z \pi_{r,\mathcal{A}\left(z\right)}\right) - q_x \pi_{r,\mathcal{A}\left(x\right)} \times \sum_z q_z \delta_{a\mathcal{A}\left(z\right)} }{\left( \sum_z q_z \pi_{r,\mathcal{A}\left(z\right)} \right)^2} \\
+   &=&
+   \delta_{a\mathcal{A}\left(x\right)} \frac{p_{r,x}}{\pi_{r,a}} - p_{r,x} \sum_z\delta_{a\mathcal{A}\left(z\right)} \frac{p_{r,z}}{\pi_{r,a}}.
+
+So:
+
+.. math::
+   :label: dprx_dzeta
+
+   \frac{\partial p_{r,x}}{\partial \zeta_{r,i}} &=&
+   \sum\limits_a \frac{\partial p_{r,x}}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
+   &=& p_{r,x} \sum\limits_{a \ge i} \frac{1}{\zeta_{r,i} - \delta_{ia}} \left(\delta_{a\mathcal{A}\left(x\right)} - \sum_z\delta_{a\mathcal{A}\left(z\right)} p_{r,z} \right)
+ 
 
 *YNGKP_M0* model
 ------------------

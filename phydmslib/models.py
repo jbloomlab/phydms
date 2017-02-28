@@ -928,6 +928,23 @@ class ExpCM_fitprefs(ExpCM):
                     _fill_diagonals(self.dPrxy['zeta'][j], self._diag_indices)
                     j += 1
 
+    def _update_dprx(self):
+        """Update `dprx`."""
+        super(ExpCM_fitprefs, self)._update_dprx()
+        j = 0
+        if 'zeta' in self.freeparams:
+            self.dprx['zeta'].fill(0)
+            for r in range(self.nsites):
+                for i in range(N_AA - 1):
+                    zetari = self.zeta[j]
+                    for a in range(i, N_AA):
+                        delta_aAx = (CODON_TO_AA == a).astype('float')
+                        self.dprx['zeta'][j][r] += (delta_aAx - (delta_aAx
+                                * self.prx[r]).sum())/ (zetari - int(i == a))
+                    self.dprx['zeta'][j] *= self.prx[r]
+                    j += 1
+
+
 
 class ExpCM_empirical_phi(ExpCM):
     """An `ExpCM` with `phi` calculated empirically from nucleotide frequencies.
@@ -1122,7 +1139,6 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
                 self.dPrxy['omega2'][r] *= self.deltar[r]
             _fill_diagonals(self.dPrxy['omega2'], self._diag_indices)
 
-
     def _update_Frxy(self):
         """Update `Frxy` from `piAx_piAy_beta`, `omega`, `omega2`, and `beta`."""
         self.Frxy.fill(1.0)
@@ -1138,6 +1154,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
                     (1 + self.omega2 * self.deltar[r]), where=CODON_NONSYN)
         scipy.copyto(self.Frxy, self.Frxy_no_omega * self.omega, 
                 where=CODON_NONSYN)
+
 
 class YNGKP_M0(Model):
     """YNGKP_M0 model from Yang et al, 2000.

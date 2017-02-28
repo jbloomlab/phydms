@@ -185,6 +185,40 @@ class test_ExpCM_fitprefs(unittest.TestCase):
                         for j in range(i + 1, N_AA)]))
                 k += 1
 
+    def test_dprx_dzeta(self):
+        """Test `dprx['zeta']`."""
+        random.seed(1)
+
+        expcm_fitprefs = copy.deepcopy(self.expcm_fitprefs)
+        nsites = expcm_fitprefs.nsites
+
+        def func(zetari, i, r, x):
+            zeta = expcm_fitprefs.zeta.copy()
+            zeta.reshape(nsites, N_AA - 1)[r][i] = zetari
+            expcm_fitprefs.updateParams({'zeta':zeta})
+            return expcm_fitprefs.prx[r][x]
+
+        def dfunc(zetari, i, r, x):
+            zeta = expcm_fitprefs.zeta.copy()
+            zeta.reshape(nsites, N_AA - 1)[r][i] = zetari
+            expcm_fitprefs.updateParams({'zeta':zeta})
+            return expcm_fitprefs.dprx['zeta'][i + r * (N_AA - 1)][r][x]
+
+        j = 0
+        for r in range(nsites):
+            for i in range(N_AA - 1):
+                zetari = scipy.array([expcm_fitprefs.zeta.reshape(
+                        nsites, N_AA - 1)[r][i]])
+                for x in range(N_CODON):
+                    diff = scipy.optimize.check_grad(func, dfunc,
+                            zetari, i, r, x)
+                    deriv = dfunc(zetari, i, r, x)
+                    self.assertTrue(diff < max(1e-4, 1e-5 * abs(deriv)),
+                            "{0}, {1}, {2}, {3}, {4}, {5}, {6}".format(
+                            diff, zetari, i, r, x, CODON_TO_AA[x], deriv))
+                j += 1
+
+
     def test_dPrxy_dzeta(self):
         """Test `dPrxy['zeta']`."""
         random.seed(1)
