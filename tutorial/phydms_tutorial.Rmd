@@ -1,0 +1,158 @@
+---
+title: "`phydms` Tutorial"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+---
+
+In this tutorial you will learn the basics of `phydms`. `phydms` calculates the likelihood of a given set of sequences given a tree and a substitution model. It can be used to compare several substitution models, including the [ExpCM](https://academic.oup.com/mbe/article/31/10/2753/1015257/An-Experimentally-Informed-Evolutionary-Model) which uses site-specific amino-acid preferences from Deep Mutational Scanning data. We will provide you with a step-by-step procedure to prepare your input data and interpret the results of `phydms`.   
+
+`phydms` was developed at the [Bloom Lab](http://research.fhcrc.org/bloom/en.html) ([full list of contributors](https://github.com/jbloomlab/phydms/graphs/contributors))
+
+**Citation**:
+[Bloom, Biology Direct, 12:1](#http://biologydirect.biomedcentral.com/articles/10.1186/s13062-016-0172-z)
+
+#Installation
+`phydms` is currently built using `python3`. If you have [`python3`](https://www.python.org/downloads/) and the [minimal requirements](http://jbloomlab.github.io/phydms/) installed, you can install `phydms` by typing 
+```
+pip install phydms --user
+```  
+For more complete installation instructions, please see the [`phydms` documentation](http://jbloomlab.github.io/phydms/).  
+
+#Preparing input files
+For the simplest use, `phydms` requires [aligned codon sequences](#seqs), [site-specific amino-acid preferences](#prefs), and a [tree](#tree).  
+
+##Sequences{#seqs}
+We will use the file `HA_sequences.fasta` found in the `tutorial/HA_example_data` directory to walk-through the `phydms` formatting requirements for inputs sequences. 
+You can use the `phdyms` auxiliary program [`phydms_prepalignment`](http://jbloomlab.github.io/phydms/phydms_prepalignment.html) to filter your sequences for you.  
+
+#####1. The file containing the sequences must be in the **FASTA** format.   
+
+For each sequence, there is one header line, denoted by the `>` character, and at least one line of sequence information.  
+For example, the beginning of `HA_sequences.fasta` looks like this:  
+```
+>cds_AAA92280_A/WS/1933_1933//_HA
+AAGGCAAAACTACTGGTCCTGTTATGTGCACTTGCAGCTACAGATGCAGACACAATATGT
+ATAGGCTACCATGCGAACAACTCAACCGACACTGTTGACACACTACTCGAGAAGAATGTG
+ACAGTGACACATTCTGTTAACCTGCTCGAAGACAGCCACAACGGGAAACTATGTAAATTA
+AAAGGAATAGCCCCACTACAATTGGGGAAATGTAACATCGCCGGATGGCTCTTGGGAAAC
+CCAGAATGCGACTCACTGCTTCCAGCGAAATCATGGTCCTACATTGTAGAAACACCAAAC
+TCTGAGAATGGAGCATGTTATCCAGGAGATTTCATCGACTATGAGGAACTGAAGGAGCAA
+TTGAGCTCAGTATCATCATTAGAAAGATTCGAAATATTTCCCAAGGAAAGTTCATGGCCC
+AACCACACACTCAAAGGAGTAACAGCAGCATGCTCCCATAGGGGAAAAAGCAGTTTTTAC
+AGAAATTTGCTATGGCTGACGAAAACGGGGGACTCATACCCAAAGCTGAACAATTCCTAT
+GTGAACAATAAAGGGAAAGAAGTCCTTGTACTATGGGGTGTTCATCACCCGTCTAGCAGT
+AATGAGCAACAGAGTCTCTATCATAATGTAAATGCTTATGTCTCTGTAGTGTCTTCAAAT
+TATAACAGGAGATTCACCCCGGAAATAGCTGCAAGACCCAAAGTAAGAGATCAACCTGGG
+AGGATGAACTATTACTGGACCTTGCTAGAACCCGGAGACACAATAATATTTGAGGCAACT
+GGTAATCTAATAGCACCATGGTATGCTTTCGCACTGAGTAGAGGGTTTGGGTCCGGCATC
+ATCACCTCAAACGCGTCAATGCATGAGTGTAACACGAAGTCTCAAACACCCCAGGGAGCT
+ATAAACAGCAGTCTCCCTTTCCAGAATATACACCCAGTCCCAATAGGAGAGTGCCCAAAA
+TATGTCAGGAGTACCAAATTGAGGATGGTTACAGGACTAAGAAACATCCCATCCATTCAA
+TCCAGAGGTCTATTTGGAGCCATTGCTGGTTTTATTGAGGGGGGATGGACTGGAATGATA
+GATGGATGGTATGGTTATCATCATCAGAATGAACAGGGATCAGGCTATGCAGCGGATCAA
+AAAAGCACACAAAATGCCATTAACGGGATTACAAACAAGGTGAACTCTATTATCGAGAAA
+ATGAACACTCAATTCACAGCTGTGAGTAAAGAATTCAACAACTTAGAAAAAAGGATGGAA
+AATTTAAATAAAAAAGTTGATGATGGATTTCTGGACATTTGGACATATAATGCAGAATTG
+TTAGTTCTACTGGAAAATGAAAGGACTTTGGATTTCCATGACTCAAATGTGAAGAATCTG
+TACGAGAAAGTAAAAAGCCAATTAAAGAATAATGCCAAAGAAATCGGAAATGGGTGTTTT
+GAGTTCTACCACAAGTGTGACAATGAATGCATGGAAAGTGTAAGAAATGGGACTTATGAT
+TATCCAAAATATTCAGAAGAATCAAAGCTGAACAGGGAAAAGATAGATGGAGTGAAATTG
+GAATCAATGGGGGTGTATCAGATTCTGGCGATCTACTCAACTGTCGCTAGTTCACTGGTG
+CTTTTGGTCTCCCTGGGGGCAATCAGTTTCTGGATGTGTTCTAATGGGTCTTTGCAGTGC
+AGAATATGCATC
+>cds_ACF41834_A/Puerto_Rico/8/1934_1934//_HA
+AAGGCAAACCTACTGGTCCTGTTATGTGCACTTGCAGCTGCAGATGCAGACACAATATGT
+```
+
+#####2. The sequences must be aligned at the codon level 
+This step can be achieved using a variety of multiple sequence aligners, such as [`MAFFT`](http://mafft.cbrc.jp/alignment/software/). 
+
+#####3. The sequences must not contain **STOP** codons, except at the last codon position. 
+The **STOP** codon set (**TAA**, **TAG**, **TGA**) is defined by the [`BioPython`](http://biopython.org/wiki/Seq) `generic_dna` alphabet unless another alphabet is specified by modifying the [`phydms` source code](https://github.com/jbloomlab/phydms). Terminal **STOP** codons will be automatically trimmed by `phydms`.
+
+#####4. The sequence headers must be unique strings free of special characters
+The sequence header is defined as the string of characters following `>` until the end of the line. Each sequence must have a unique sequence header and the sequence header string cannot contain **spaces**, **commas**, **colons**, **semi-colons**, **parenthesis**, **square brackets**, **single quotes**, or **double quotes**.   
+
+###Other sequence considerations
+The adherence to the following formatting constraints is not required by `phydms` but may improve the ease of your analysis.   
+
+####Duplicate Sequences
+`phydms` neither checks nor removes identical sequences. If there are a lot of identical sequences in your alignment you may want to remove them yourself.   
+
+####`RAxML` requirements 
+Some `phydms` auxiliary programs, such as [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) and [`phydms_testdivpressure`](http://jbloomlab.github.io/phydms/phydms_testdivpressure_prog.html), allow you to build a tree using [`RAxML`](http://sco.h-its.org/exelixis/software.html) rather than specifying a pre-existing tree. If you are going to use `RAxML` your sequences must also meet the following requirements:  
+
+#####1. All sequences must be unique. 
+As mentioned above, it is often beneficial to remove duplicate sequences in an alignment. This step is not required by `phydms` but is mandatory for `RAxML`.   
+
+#####2. All sequences must end with a newline character. 
+Oftentimes, the last sequence in a file will not contain an **End of Line** (EOL) character. `RAxML` interprets this sequence as being shorter than all of the other sequences and will throw an error. 
+```
+Fasta parsing error, RAxML expects an alignment.
+the last sequence in the alignment seems to have a different length
+```
+Common EOLs include `\n` and `\r`.  You can check whether or not the last character is a new line with the following command:  
+```
+tail -c 1 <filename>
+```
+If the last character is an EOL character you will see an empty line: 
+```
+sarahs-air-3:HA_example_data sarah$ tail -c 1 HA_sequences.fasta 
+
+
+```
+Otherwise you will see a nucleotide:
+```
+sarahs-air-3:HA_example_data sarah$ tail -c 1 HA_sequences.fasta 
+Tsarahs-air-3:HA_example_data sarah$
+```
+
+##Site-specific amino-acid preferences (for the *ExpCM* model only){#prefs}
+The preference file must specify a preference for the amino-acid at each site of every sequence in the alignment. Importantly, the amino-acid preferences must be obtained independently from the sequence alignment being analyzed. A deep mutational scanning experiment is an independent means of obtaining the preferences, but estimating them from the amino-acid frequencies in the alignment of homologs is not a valid approach as you are then estimating the preferences from the same sequences that you are subsequently analyzing.  
+
+###Site-Specfic Amino-Acid Preferences file formats
+The preferences file must specify the site-specific amino-acid preferences using sequential 1, 2, .... numbering. Any stop-codon preferences specified in the file will be ignored. The preferences for a single site in the protein (each row of the preferences input file) must sum to $1$.
+
+The preference file can be in several formats. These include comma-separate values, tab-separated values, space-separated values, or the more complicated [`dms_tools`](http://jbloomlab.github.io/dms_tools/fileformats.html) file format. Examples of all four file formats can be found in the directory `tutorial/HA_example_data`. Here is an example of HA preferences in the comma-separated values format   
+```
+site,A,C,D,E,F,G,H,I,K,L,M,N,P,Q,R,S,T,V,W,Y
+1,0.04,0.04,0.04,0.04,0.04,0.04,0.05,0.02,0.04,0.04,0.17,0.04,0.04,0.04,0.04,0.04,0.03,0.02,0.04,0.04
+2,0.65,0.00,0.00,0.02,0.00,0.019,0.00,0.00,0.00,0.00,0.03,0.00,0.00,0.00,0.00,0.01,0.01,0.14,0.00,0.00
+```
+and here is the `dms_tools` format: 
+```
+# POSITION WT SITE_ENTROPY A C D E F G H I K L M N P Q R S T V W Y
+1 M 4.16 0.04 0.04 0.04 0.04 0.04 0.04 0.05 0.02 0.04 0.04 0.17 0.04 0.04 0.04 0.04 0.04 0.03 0.02 0.04 0.04
+2 A 1.99 0.65 0.00 0.00 0.02 0.00 0.01 0.00 0.00 0.00 0.00 0.03 0.00 0.00 0.00 0.00 0.01 0.01 0.14 0.00 0.00
+```
+###Inferring Site-Specfic Amino-Acid Preferences from Deep Mutational Scan Deep Sequencing Data
+Due to deep sequencing's inability to exhaustively sample every molecule in the deep mutational scanning library, it is advisable to infer the site-specific amino-acid preferences rather than taking the raw ratio of the mutation frequencies pre-and post-selection. We recommend using the algorithm from [Bloom, 2015](http://download.springer.com/static/pdf/476/art%253A10.1186%252Fs12859-015-0590-4.pdf?originUrl=http%3A%2F%2Fbmcbioinformatics.biomedcentral.com%2Farticle%2F10.1186%2Fs12859-015-0590-4&token2=exp=1488328740~acl=%2Fstatic%2Fpdf%2F476%2Fart%25253A10.1186%25252Fs12859-015-0590-4.pdf*~hmac=26e1bd9961fe648505639b04cc4181262e5ad5f94caa9c4013babd1b8b8f0cd2) implemented in [`dms_tools`](http://jbloomlab.github.io/dms_tools/index.html) program [`dms_inferprefs`](http://jbloomlab.github.io/dms_tools/dms_inferprefs.html#dms-inferprefs). 
+
+Briefly, we describe the relationship the frequency of codon $x$ at protein-site $r$ per-selection ($f_{r,x}$) and post-selection ($\mu_{r,x}$) to the site-specific amino-acid preference of codon $x$ at site $r$ ($\pi_{r,x}$) as $f_{r,x} = \frac{\mu_{r,x} \times \pi_{r,x}}{\sum_{y}\mu_{r,y} \times \pi_{r,y} }$.  Since $f_{r,x}$ and $\mu_{r,x}$ can be estimated from the deep sequencing data, we can infer the preferences ($\pi_{r,x}$) using **MCMC**. 
+
+##Phylogenetic Tree{#tree}  
+The input tree describes the assumed evolutionary relationship between the sequences specified in the alignment file. `phydms` fixes the topology to this tree and the branch lengths are assume to be codon substitutions per site.  See the [`phydms` analysis](#phydms) portion of this tutorial for more information on user specfied branch length options. 
+
+The tree must be in the [Newick file format](http://evolution.genetics.washington.edu/phylip/newicktree.html). As a simple example, the tree
+```
+   /-B
+  |
+  |   /-A
+  |--|
+--|  |   /-C
+  |   \-|
+  |      \-E
+  |
+   \-D
+```
+would be written as 
+```
+(B,(A,(C,E)),D);
+```
+Typically you infer this tree using a program such as [RAxML](http://sco.h-its.org/exelixis/software.html) or [codonPhyML](codonPhyML).
+
+#`phydms` analysis{#phydms}
+#Auxillary Programs
+##`phydms_comprehensive`
