@@ -152,9 +152,9 @@ class TreeLikelihood(object):
         Args:
             `tree`, `alignment`, `model`, `underflowfreq`
                 Attributes of same name described in class doc string.
-                Note that we make copies of both `tree` and `model`
-                so the calling objects are not modified during 
-                optimization.
+                Note that we make copies of `tree`, `model`, and
+                `alignment`' so the calling objects are not modified 
+                during optimization.
             `dparamscurrent`, `dtcurrent`
                 Current values of these flags indicating which
                 derivatives to compute.
@@ -195,7 +195,7 @@ class TreeLikelihood(object):
         assert all([len(seq) == 3 * self.nsites for (head, seq) in alignment])
         assert set([head for (head, seq) in alignment]) == set([clade.name for
                 clade in tree.get_terminals()])
-        self.alignment = alignment
+        self.alignment = copy.deepcopy(alignment)
         self.nseqs = len(alignment)
         alignment_d = dict(self.alignment)
 
