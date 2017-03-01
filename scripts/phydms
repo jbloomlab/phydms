@@ -98,18 +98,12 @@ def main():
             os.mkdir(outdir)
 
     # output files, remove if they already exist
-    if args['outprefix'][-1] == '/':
-        logfile = "{0}log.log".format(args['outprefix'])
-        modelparamsfile = '{0}modelparams.txt'.format(args['outprefix'])
-        loglikelihoodfile = '{0}loglikelihood.txt'.format(args['outprefix'])
-        treefile = "{0}tree.newick".format(args['outprefix'])
-        omegafile = '{0}omegabysite.txt'.format(args['outprefix'])
-    else:
-        logfile = "{0}.log".format(args['outprefix'])
-        modelparamsfile = '{0}._modelparams.txt'.format(args['outprefix'])
-        loglikelihoodfile = '{0}._loglikelihood.txt'.format(args['outprefix'])
-        treefile = "{0}._tree.newick".format(args['outprefix'])
-        omegafile = '{0}._omegabysite.txt'.format(args['outprefix'])
+    underscore = '' if args['outprefix'][-1] == '/' else '_'
+    logfile = '{0}{1}log.log'.format(args['outprefix'], underscore)
+    modelparamsfile = '{0}{1}modelparams.txt'.format(args['outprefix'], underscore)
+    loglikelihoodfile = '{0}{1}loglikelihood.txt'.format(args['outprefix'], underscore)
+    treefile = '{0}{1}tree.newick'.format(args['outprefix'], underscore)
+    omegafile = '{0}{1}omegabysite.txt'.format(args['outprefix'], underscore)
     to_remove = [modelparamsfile, loglikelihoodfile, treefile, omegafile, logfile]
     for f in to_remove:
         if os.path.isfile(f):
