@@ -33,16 +33,16 @@ def treeliksForOmegaBySite(site, tl, prefslist, fixsyn):
         modeltotype = tl.model.basemodel
     else:
         modeltotype = tl.model
-    sitealignment = [(head, seq[3 * (site - 1) : 3 * site]) for 
+    sitealignment = [(head, seq[3 * (site - 1) : 3 * site]) for
             (head, seq) in tl.alignment]
     freeparams = [] if fixsyn else ['mu']
     treeliks = {}
     for (name, addparam) in [('fix', []), ('fit', ['omega'])]:
         if isinstance(modeltotype, phydmslib.models.ExpCM):
             assert len(prefslist) == tl.nsites
-            sitemodel = phydmslib.models.ExpCM([prefslist[site - 1]], 
+            sitemodel = phydmslib.models.ExpCM([prefslist[site - 1]],
                     kappa=tl.model.kappa, omega=1.0, beta=tl.model.beta,
-                    mu=1.0, phi=modeltotype.phi, 
+                    mu=1.0, phi=modeltotype.phi,
                     freeparams=(freeparams + addparam))
         elif isinstance(modeltotype, phydmslib.models.YNGKP_M0):
             assert prefslist is None
@@ -52,8 +52,8 @@ def treeliksForOmegaBySite(site, tl, prefslist, fixsyn):
         else:
             raise ValueError("Invalid modeltype {0}".format(modeltype))
         treeliks[name] = phydmslib.treelikelihood.TreeLikelihood(
-                tl.tree, sitealignment, sitemodel, 
-                branchScale=tl.model.branchScale) 
+                tl.tree, sitealignment, sitemodel,
+                branchScale=tl.model.branchScale)
     return (site, treeliks)
 
 
@@ -61,7 +61,7 @@ def fitOmegaBySite(argtup):
     """Fits omega for a site, for use in multiprocessing pool.
 
     `argtup` is return value of `treeliksForOmegaBySite`.
-    
+
     Returns tuple of P-value, tab-separated line with site, omega, P, dLnL"""
     (site, treeliks) = argtup
     for name in ['fix', 'fit']:
@@ -98,11 +98,18 @@ def main():
             os.mkdir(outdir)
 
     # output files, remove if they already exist
-    modelparamsfile = '%s_modelparams.txt' % args['outprefix']
-    loglikelihoodfile = '%s_loglikelihood.txt' % args['outprefix']
-    treefile = "%s_tree.newick" % args['outprefix']
-    omegafile = '%s_omegabysite.txt' % args['outprefix']
-    logfile = "%s.log" % args['outprefix']
+    if args['outprefix'][-1] == '/':
+        logfile = "{0}log.log".format(args['outprefix'])
+        modelparamsfile = '{0}modelparams.txt'.format(args['outprefix'])
+        loglikelihoodfile = '{0}loglikelihood.txt'.format(args['outprefix'])
+        treefile = "{0}tree.newick".format(args['outprefix'])
+        omegafile = '{0}omegabysite.txt'.format(args['outprefix'])
+    else:
+        logfile = "{0}.log".format(args['outprefix'])
+        modelparamsfile = '{0}._modelparams.txt'.format(args['outprefix'])
+        loglikelihoodfile = '{0}._loglikelihood.txt'.format(args['outprefix'])
+        treefile = "{0}._tree.newick".format(args['outprefix'])
+        omegafile = '{0}._omegabysite.txt'.format(args['outprefix'])
     to_remove = [modelparamsfile, loglikelihoodfile, treefile, omegafile, logfile]
     for f in to_remove:
         if os.path.isfile(f):
@@ -338,7 +345,7 @@ def main():
             logger.info("Now fitting with {0} CPUs...".format(args['ncpus']))
             pool = multiprocessing.Pool(args['ncpus'])
             omegaresults = pool.map(fitOmegaBySite, map(treeliksForOmegaBySite,
-                    range(1, tl.nsites + 1), itertools.repeat(tl, tl.nsites), 
+                    range(1, tl.nsites + 1), itertools.repeat(tl, tl.nsites),
                     itertools.repeat(prefslist, tl.nsites),
                     itertools.repeat(args['omegabysite_fixsyn'], tl.nsites)))
             pool.close()
