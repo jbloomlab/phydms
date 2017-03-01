@@ -976,14 +976,13 @@ class ExpCM_fitprefs(ExpCM):
             aaindex = scipy.arange(N_AA)
             for r in range(self.nsites):
                 pidiffr = self.pi[r] - self.origpi[r]
-                rlogprior = -c2 * scipy.log(1 + c1 * pdiffr**2).sum()
-                rprior = math.exp(rlogprior)
+                rlogprior = -c2 * scipy.log(1 + c1 * pidiffr**2).sum()
                 self._logprior += rlogprior
                 for i in range(N_AA - 1):
                     zetari = self.zeta[j]
-                    self._dlogprior['zeta'][j] = (-2 * c1 * c2 / rprior) * (
+                    self._dlogprior['zeta'][j] = -2 * c1 * c2 * (
                             pidiffr[i : ] / (1 + c1 * pidiffr[i : ]**2) *
-                            self.pir[r][i : ] / (zetari - (aaindex == i).astype(
+                            self.pi[r][i : ] / (zetari - (aaindex == i).astype(
                             'float')[i : ])).sum()
                     j += 1
         else:

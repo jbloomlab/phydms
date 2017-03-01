@@ -518,18 +518,16 @@ The derivative is
 
 .. math::
 
-   \frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \pi_{r,a}} &=&
-   \frac{-C_2 \times \frac{2 C_1 \left(\pi_{r,a} - \theta_{r,a}\right)}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2 }}{\Pr_r\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right)} \\
-   &=& \frac{-2 C_1 C_2}{\Pr_r\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right)} \times \frac{\left(\pi_{r,a} - \theta_{r,a}\right)}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2 },
+   \frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \pi_{r,a}} =
+   \frac{-2 C_1 C_2 \left(\pi_{r,a} - \theta_{r,a}\right)}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2},
 
-
-where we use :math:`\Pr_r` to refer to contribution of the prior from just site :math:`r`. So:
+so,
 
 .. math::
 
    \frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \zeta_{r,i}} 
-   &=& \sum\limits_a \frac{\partial \ln\left[ \Pr_r\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
-   &=& \frac{-2 C_1 C_2}{\Pr_r\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right)} \sum\limits_{a \ge i} \frac{\left(\pi_{r,a} - \theta_{r,a}\right)}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2 } \frac{\pi_{r,a}}{\zeta_{r,i} - \delta_ia}.
+   &=& \sum\limits_a \frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
+   &=& -2 C_1 C_2 \sum\limits_{a \ge i} \frac{\left(\pi_{r,a} - \theta_{r,a}\right)}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2 } \frac{\pi_{r,a}}{\zeta_{r,i} - \delta_ia}.
 
 *YNGKP_M0* model
 ------------------
