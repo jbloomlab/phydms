@@ -37,13 +37,13 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
             scipy.random.shuffle(rprefs)
             self.realprefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        kappa = 3.0
-        omega = 3.0
-        phi = scipy.random.dirichlet([5] * N_NT)
+        self.kappa = 3.0
+        self.omega = 3.0
+        self.phi = scipy.random.dirichlet([5] * N_NT)
         self.model = phydmslib.models.ExpCM_fitprefs(self.prefs, 
-                prior=None, kappa=kappa, omega=omega, phi=phi)
+                prior=None, kappa=self.kappa, omega=self.omega, phi=self.phi)
         self.realmodel = phydmslib.models.ExpCM(self.realprefs, 
-                kappa=kappa, omega=omega, mu=10.0, phi=phi)
+                kappa=self.kappa, omega=self.omega, mu=10.0, phi=self.phi)
 
         treefile = 'NP_data/NP_tree.newick'
         self.tree = Bio.Phylo.read(treefile, 'newick')
@@ -69,29 +69,67 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
         self.tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model)
 
+    def test_fitprefs_invquadratic_prior(self):
+        """Tests fitting of preferences with invquadratic prior."""
+        tls = {'no prior':copy.deepcopy(self.tl)}
+        for (name, c1, c2) in [('weak prior', 100, 0.25),
+                               ('strong C1 prior', 200, 0.25),
+                               ('strong C2 prior', 100, 0.75)]:
+            model = phydmslib.models.ExpCM_fitprefs(self.prefs,
+                    prior=('invquadratic', c1, c2), kappa=self.kappa,
+                    omega=self.omega, phi=self.phi)
+            tls[name] = phydmslib.treelikelihood.TreeLikelihood(self.tree,
+                    self.alignment, model)
+
+        logliks = [tl.loglik for tl in tls.values()]
+        self.assertTrue(all([scipy.allclose(logliks[0], logliki)
+                for logliki in logliks]),
+                "All loglik should be equal prior to optimization as pi "
+                "starts at initial origpi values.")
+
+        for (name, tl) in tls.items():
+            maxresult = tl.maximizeLikelihood()
+
+        self.assertTrue([tls['no prior'].loglik > tl.loglik for
+                (name, tl) in tls.items() if name != 'no prior'],
+                "Unconstrained model does not have the highest loglik.")
+
+        self.assertTrue([tls['weak prior'].loglik > tl.loglik for
+                (name, tl) in tls.items() if 'strong' in name],
+                "Weak prior does not have higher loglik than strong prior.")
+
+        pidiff2 = dict([(name, ((tl.model.pi - tl.model.origpi)**2).sum()) for
+                (name, tl) in tls.items()])
+        self.assertTrue([pidiff2['no prior'] > x for (name, x) in
+                pidiff2.items() if name != 'no prior'])
+        self.assertTrue([pidiff2['weak prior'] > x for (name, x) in
+                pidiff2.items() if 'strong' in name])
+
+
     def test_fitprefs_noprior(self):
         """Tests fitting of preferences with no prior."""
+        tl = copy.deepcopy(self.tl)
         firstloglik = None
         for seed in range(3):
             scipy.random.seed(seed)
-            self.tl.paramsarray = scipy.random.uniform(0.1, 0.99, 
-                    len(self.tl.paramsarray))
+            tl.paramsarray = scipy.random.uniform(0.1, 0.99, 
+                    len(tl.paramsarray))
             if firstloglik:
-                self.assertFalse(scipy.allclose(firstloglik, self.tl.loglik, 
+                self.assertFalse(scipy.allclose(firstloglik, tl.loglik, 
                         atol=0.02), "loglik matches even with random pi")
-            maxresult = self.tl.maximizeLikelihood()
+            maxresult = tl.maximizeLikelihood()
             if firstloglik:
-                self.assertTrue(scipy.allclose(firstloglik, self.tl.loglik,
+                self.assertTrue(scipy.allclose(firstloglik, tl.loglik,
                         atol=0.02), "loglik not the same for different starts")
             else:
-                firstloglik = self.tl.loglik
-            self.assertTrue(scipy.allclose(self.tl.model.origpi, self.model.pi))
+                firstloglik = tl.loglik
+            self.assertTrue(scipy.allclose(tl.model.origpi, self.model.pi))
             # ensure highest prefs are for amino acids with nonzero counts
-            for r in range(self.tl.nsites):
+            for r in range(tl.nsites):
                 aas_with_counts = set([a for a in range(N_AA) if 
                         self.aacounts[r][a]])
                 pref_sorted_aas = [tup[1] for tup in sorted(
-                        [(self.tl.model.pi[r][a], a) for a in range(N_AA)],
+                        [(tl.model.pi[r][a], a) for a in range(N_AA)],
                         reverse=True)]
                 self.assertTrue(aas_with_counts == set(pref_sorted_aas[ : 
                         len(aas_with_counts)]), "top prefs not for amino "
