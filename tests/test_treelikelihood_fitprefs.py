@@ -41,7 +41,7 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
         omega = 3.0
         phi = scipy.random.dirichlet([5] * N_NT)
         self.model = phydmslib.models.ExpCM_fitprefs(self.prefs, 
-                kappa=kappa, omega=omega, phi=phi)
+                prior=None, kappa=kappa, omega=omega, phi=phi)
         self.realmodel = phydmslib.models.ExpCM(self.realprefs, 
                 kappa=kappa, omega=omega, mu=10.0, phi=phi)
 
@@ -85,11 +85,9 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
                         atol=0.02), "loglik not the same for different starts")
             else:
                 firstloglik = self.tl.loglik
-            print(maxresult)
             self.assertTrue(scipy.allclose(self.tl.model.origpi, self.model.pi))
             # ensure highest prefs are for amino acids with nonzero counts
             for r in range(self.tl.nsites):
-                #print("initial\tmaximized\treal\tcounts")
                 aas_with_counts = set([a for a in range(N_AA) if 
                         self.aacounts[r][a]])
                 pref_sorted_aas = [tup[1] for tup in sorted(

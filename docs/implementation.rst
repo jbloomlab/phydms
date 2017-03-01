@@ -487,7 +487,49 @@ So:
    \frac{\partial p_{r,x}}{\partial \zeta_{r,i}} &=&
    \sum\limits_a \frac{\partial p_{r,x}}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
    &=& p_{r,x} \sum\limits_{a \ge i} \frac{1}{\zeta_{r,i} - \delta_{ia}} \left(\delta_{a\mathcal{A}\left(x\right)} - \sum_z\delta_{a\mathcal{A}\left(z\right)} p_{r,z} \right)
- 
+
+Regularizing preferences for *ExpCM* with preferences as free parameters
+-------------------------------------------------------------------------
+When the preferences are free parameters, we typically want to regularize them to avoid fitting lots of values of one or zero. 
+We do this by defining a regularizing prior over the preferences, and then maximizing the product of the likelihood and this regularizing prior (essentially, the *maximum a posteriori* estimate).
+
+Inverse-quadratic prior
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is the prior used in `Bloom, Biology Direct, 12:1`_ (note that the notation used here is slightly different than in that reference).
+Let :math:`\pi_{r,a}` be the preference that we are trying to optimize, and let :math:`\theta_{r,a}` be our prior estimate of :math:`\pi_{r,a}`.
+Typically, this estimate is the original experimentally measured preference :math:`\pi_{r,a}^{\rm{orig}}` re-scaled by the optimized stringency parameter :math:`\beta`, namely :math:`\theta_{r,a} = \frac{\left(\pi_{r,a}^{\rm{orig}}\right)^{\beta}}{\sum_{a'} \left(\pi_{r,a'}^{\rm{orig}}\right)^{\beta}}`.
+
+The prior is then 
+
+.. math::
+
+   \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) =
+   \prod\limits_r \prod\limits_a \left(\frac{1}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2}\right)^{C_2}
+
+or equivalently
+
+.. math::
+
+   \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right] = -C_2 \sum\limits_r \sum\limits_a \ln\left(1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2 \right)
+
+where :math:`C_1` and :math:`C_2` are parameters that specify how concentrated the prior is (larger values make the prior more strongly peaked at :math:`\theta_{r,a}`).
+
+The derivative is
+
+.. math::
+
+   \frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \pi_{r,a}} &=&
+   \frac{-C_2 \times \frac{2 C_1 \left(\pi_{r,a} - \theta_{r,a}\right)}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2 }}{\Pr_r\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right)} \\
+   &=& \frac{-2 C_1 C_2}{\Pr_r\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right)} \times \frac{\left(\pi_{r,a} - \theta_{r,a}\right)}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2 },
+
+
+where we use :math:`\Pr_r` to refer to contribution of the prior from just site :math:`r`. So:
+
+.. math::
+
+   \frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \zeta_{r,i}} 
+   &=& \sum\limits_a \frac{\partial \ln\left[ \Pr_r\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
+   &=& \frac{-2 C_1 C_2}{\Pr_r\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right)} \sum\limits_{a \ge i} \frac{\left(\pi_{r,a} - \theta_{r,a}\right)}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2 } \frac{\pi_{r,a}}{\zeta_{r,i} - \delta_ia}.
 
 *YNGKP_M0* model
 ------------------

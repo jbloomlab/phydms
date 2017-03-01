@@ -792,18 +792,19 @@ class ExpCM(Model):
 class ExpCM_fitprefs(ExpCM):
     """An `ExpCM` with the preferences `pi` as free parameters.
 
+    The difference between `ExpCM` and `ExpCM_fitprefs` is that the
+    amino-acid preferences `pi` are optimized for the latter. There
+    can also be a regularizing prior on these preferences.
+
     The way this class is currently implemented, it will be very inefficient
-    if there is more than one site. Therefore, the recommended usage is
-    to optimize across-site parameters with fixed preferences, and then 
-    optimize preferences for each site individually with this class after
-    fixing the across-site parameters. 
+    if there is more than one site. The recommended usage is to optimize
+    across-site parameters with fixed preferences, then optimize preferences
+    for each site individually with this class after fixing across-site 
+    parameters.
 
     See `__init__` method for how to initialize an `ExpCM_fitprefs`.
 
-    The difference between `ExpCM` and `ExpCM_fitprefs` is that the
-    amino-acid preferences `pi` are optimized for the latter.
-
-    Has all the attributes of an `ExpCM`, plus the following:
+    Has all the attributes of an `ExpCM`, plus:
         `zeta` (`numpy.ndarray` of float, shape `(nsites * (N_AA - 1))`)
             Transformation of the preferences `pi`; all entries are
             > 0 and < 1. We use `zeta` rather than `pi` as the free
@@ -817,11 +818,6 @@ class ExpCM_fitprefs(ExpCM):
         `tildeFrxy` (`numpy.ndarray` of `float`, shape `(nsites, N_CODON, N_CODON)`)
             Contains quantities used in calculating derivative of 
             `dPrxy` with respect to `zeta`.
-        `origbeta` (`float`)
-            The preferences in `prefs` are re-scaled by `origbeta` and
-            used as the initial value. `origbeta` might be different
-            than 1 if you have already optimized it using a fixed-preference
-            model.
         `origpi` (`numpy.ndarray` of float, shape `(nsites, N_AA)`)
             `origpi[r][a]` is the original preference for amino-acid
             `a` at site `r` as given by the calling parameter `prefs`
@@ -830,8 +826,14 @@ class ExpCM_fitprefs(ExpCM):
             keep track of where the optimization starts. Set to one
             if you have not already optimized a stringency parameter
             prior to initializing this class.
+        `prior` (`None` or a tuple)
+            Specifies the regularizing prior over the preferences.
+            This prior is centered on the preferences in `origpi`.
+            A value of `None` indicates no regularizing prior.
+            A tuple of `('invquadratic', c1, c2)` is the inverse
+            quadratic prior described in Bloom, *Biology Direct*, 12:1.
 
-    `beta` (the stringency parameter) is **not** a possible free parameter,
+    `beta` (the stringency parameter) is **not** a free parameter,
     and is instead fixed to 1. This is because it does not make sense
     to optimize a stringency parameter if you are also optimizing the 
     preferences as they are confounded.
@@ -843,30 +845,45 @@ class ExpCM_fitprefs(ExpCM):
     _PARAMLIMITS = copy.deepcopy(ExpCM._PARAMLIMITS)
     _PARAMLIMITS['zeta'] = (ALMOST_ZERO, 1 - ALMOST_ZERO)
 
-    def __init__(self, prefs, kappa, omega, phi, mu=1.0, origbeta=1.0,
+    def __init__(self, prefs, prior, kappa, omega, phi, mu=1.0, origbeta=1.0,
             freeparams=['zeta']):
         """Initialize an `ExpCM_fitprefs` object.
         
-        The calling parameters have the same meaning as for `ExpCM`. However,
-        the default values have changed consistent with the recommended usage
-        of this class. This recommended usage is that you have already estimated
+        The calling parameters have the meaning described in the main class doc
+        string. The default values have changed consistent with recommended 
+        usage of this class: that you have already estimated
         the across-site parameters (`kappa`, `omega`, `mu`, `phi`) and so
         are specifying fixed values for those. You are then just optimizing the
         preferences in their variable-transformed form `zeta` from the initial
         values in `prefs` scaled by `origbeta`. The meaning of `origbeta`
         is described in the main class doc string.
-        
-        Note that `beta` is **not** a free parameter but rather is fixed to
-        one. It does not make sense to optimize a stringency parameter
-        if you are also fitting the preferences."""
+
+        Additional arguments:
+            `origbeta` (`float`)
+                The preferences in `prefs` are re-scaled by `origbeta` and
+                used as the initial value and stored in `origpi`. `origbeta` 
+                might differ from 1 if you already optimized `prefs` using
+                a fixed-preference `ExpCM` prior to initializing this model.
+        """
+
+        self.prior = prior
+        if self.prior is None:
+            pass
+        elif (isinstance(self.prior, tuple) and len(self.prior) == 3 and
+                self.prior[0] == 'invquadratic'):
+            assert all([isinstance(c, (float, int)) and c > 0 for c in
+                    self.prior[1 : ]]), ("Invalid C values in elements "
+                    "in prior: {0}".format(self.prior))
+        else:
+            raise ValueError("Invalid prior: {0}".format(self.prior))
 
         # PARAMTYPES must be instance attribute as zeta value depends on nsites
         self.PARAMTYPES = copy.deepcopy(ExpCM.PARAMTYPES)
         self.PARAMTYPES['zeta'] = (scipy.ndarray, (len(prefs) * (N_AA - 1),))
 
         self.beta = 1.0
-        self.origbeta = origbeta
-        _checkParam('beta', self.origbeta, self.PARAMLIMITS, self.PARAMTYPES)
+        _checkParam('beta', origbeta, self.PARAMLIMITS, self.PARAMTYPES)
+        self._origbeta = origbeta
 
         # _aa_for_x[x][y] is the x amino acid in indexing of codon matrices
         # _aa_for_y[x][y] is the y amino acid in indexing of codon matrices
@@ -885,11 +902,21 @@ class ExpCM_fitprefs(ExpCM):
                     "you are suggested to optimize for each site separately.", 
                     Warning)
 
+    @property
+    def logprior(self):
+        """Value of log prior depends on value of `prior`."""
+        return self._logprior
+
+    def dlogprior(self, param):
+        """Value of derivative of prior depends on value of `prior`."""
+        assert param in self.freeparams, "Invalid param: {0}".format(param)
+        return self._dlogprior[param]
+
     def _update_pi_vars(self):
         """Update variables that depend on `pi` from `zeta`.
         
         The updated variables are: `pi`, `pi_codon`, `ln_pi_codon`, `piAx_piAy`,
-        `piAx_piAy_beta`, `ln_piAx_piAy_beta`.
+        `piAx_piAy_beta`, `ln_piAx_piAy_beta`, and `_logprior`.
         
         If `zeta` is undefined (as it will be on the first call), then create
         `zeta` and `origpi` from `pi` and `origbeta`."""
@@ -897,7 +924,7 @@ class ExpCM_fitprefs(ExpCM):
         if not hasattr(self, 'zeta'):
             # should only execute on first call to initialize zeta
             assert not hasattr(self, 'origpi')
-            self.origpi = self.pi**self.origbeta
+            self.origpi = self.pi**self._origbeta
             for r in range(self.nsites):
                 self.origpi[r] /= self.origpi[r].sum()
                 self.origpi[r][self.origpi[r] < minpi] = minpi
@@ -936,6 +963,31 @@ class ExpCM_fitprefs(ExpCM):
         scipy.copyto(self.tildeFrxy, self.omega * self.beta / 2.0, 
                 where=scipy.logical_and(CODON_NONSYN, scipy.fabs(1 -
                 self.piAx_piAy_beta) < ALMOST_ZERO))
+
+        self._logprior = 0.0
+        self._dlogprior = dict([(param, 0.0) for param in self.freeparams])
+        if self.prior is None:
+            pass
+        elif self.prior[0] == 'invquadratic':
+            (priorstr, c1, c2) = self.prior
+            self._dlogprior = dict([(param, 0.0) for param in self.freeparams])
+            self._dlogprior['zeta'] = scipy.zeros(self.zeta.shape, dtype='float')
+            j = 0
+            aaindex = scipy.arange(N_AA)
+            for r in range(self.nsites):
+                pidiffr = self.pi[r] - self.origpi[r]
+                rlogprior = -c2 * scipy.log(1 + c1 * pdiffr**2).sum()
+                rprior = math.exp(rlogprior)
+                self._logprior += rlogprior
+                for i in range(N_AA - 1):
+                    zetari = self.zeta[j]
+                    self._dlogprior['zeta'][j] = (-2 * c1 * c2 / rprior) * (
+                            pidiffr[i : ] / (1 + c1 * pidiffr[i : ]**2) *
+                            self.pir[r][i : ] / (zetari - (aaindex == i).astype(
+                            'float')[i : ])).sum()
+                    j += 1
+        else:
+            raise ValueError("Invalid prior: {0}".format(self.prior))
 
     def _update_dPrxy(self):
         """Update `dPrxy`."""
