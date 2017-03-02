@@ -58,7 +58,7 @@ We define a variable transformation of the four nucleotide frequency parameters 
 This transformation aids in numerical optimization. 
 Specifically, we number the four nucleotides in alphabetical order so that :math:`w = 0` denotes *A*, :math:`w = 1` denotes *C*, :math:`w = 2` denotes *G*, and :math:`w = 3` denotes *T*. 
 We then define the three free variables :math:`\eta_0`, :math:`\eta_1`, and :math:`\eta_2`, all of which are constrained to fall between zero and one.
-For notational convenience in the formulas below, we also define :math:`\eta_3 = 0` -- note however that :math:`\eta_3` is not a free parameter, as it is always zero.
+For notational convenience in the formulas below, we also define :math:`\eta_3 = 0`; note however that :math:`\eta_3` is not a free parameter, as it is always zero.
 We define :math:`\phi_w` in terms of these :math:`\eta_i` variables by
 
 .. math::
@@ -260,7 +260,7 @@ Since we do not have an analytic expression for :math:`\hat{\phi}_w`, we cannot 
 But we can compute these derivatives numerically.
 This is done using a finite-difference method.
 
-We now update the formula in Equation :eq:`dPrxy_dbeta` for the case when `\phi_w` depends on `\beta`. In that case, we have:
+We now update the formula in Equation :eq:`dPrxy_dbeta` for the case when :math:`\phi_w` depends on :math:`\beta`. In that case, we have:
 
 .. math::
    :label: dQxy_dbeta_empirical_phi
@@ -381,6 +381,153 @@ We have added one more parameter to Equation :eq:`Prxy`, :math:`\omega_2`, so we
    \omega \times \delta_r \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} \times Q_{xy} & \mbox{if $\operatorname{A}\left(x\right) \ne \operatorname{A}\left(y\right)$,} \\
    -\sum\limits_{z \ne x} \frac{\partial P_{r,xy}}{\partial \omega_2} & \mbox{if $x = y$.}
    \end{cases}. 
+
+*ExpCM* with the preferences as free parameters
+------------------------------------------------
+In most situations, the amino-acid preferences :math:`\pi_{r,a}` are experimentally measured. 
+But in certain situations, we wish to treat these as free parameters that we optimize by maximum likelihood.
+
+For this optimization, we define a variable transformation from the 20 :math:`\pi_{r,a}` values at each site :math:`r` (19 of these 20 values are unique since they sum to one). 
+This transformation is analogous to that in Equations :eq:`phi_from_eta` and :eq:`eta_from_phi`.
+Specifically, we number the 20 amino acids such that :math:`a = 0` means alanine, :math:`a = 1` means cysteine, and so on up to :math:`a = 19` meaning tyrosine.. 
+We then define 19 free variables for each site :math:`r`: :math:`\zeta_{r,0}, \zeta_{r,1}, \ldots, \zeta_{r,18}`, all of which are constrained to value between zero and one.
+For notational convenience, we also define :math:`\zeta_{r,19} = 0`, but not that :math:`\zeta_{r,19}` is **not** a free parameter as it is always zero.
+
+We the define
+
+.. math::
+   :label: pi_from_zeta
+
+   \pi_{r,a} = \left(\prod\limits_{i=0}^{a - 1} \zeta_{r,i}\right) \left(1 - \zeta_{r,a}\right)
+
+and conversely
+
+.. math::
+   :label: zeta_from_pi
+
+   \zeta_{r,a} = 1 - \pi_{r,a} / \left(\prod\limits_{i=0}^{a - 1} \zeta_{r,i} \right).
+
+Note that setting :math:`\zeta_{r,a} = \frac{19 - a}{20 - a}` makes all the :math:`\pi_{r,a}` values equal to :math:`\frac{1}{20}`.
+
+In analogy with Equation :eq:`dphi_deta`, we have
+
+.. math::
+   :label: dpi_dzeta
+
+   \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} =
+   \begin{cases}
+   \frac{\pi_{r,a}}{\zeta_{r,i} - \delta_{ia}} & \mbox{if $i \le a$,} \\
+   0 & \mbox{otherwise,}
+   \end{cases}
+
+where :math:`\delta_{ij}` is the Kronecker-delta.
+   
+The :math:`F_{r,xy}` terms defined by Equation :eq:`Frxy` depend on :math:`\pi_{r,a}`. 
+The derivative is
+
+.. math::
+   :label: dFrxy_dpi
+
+   \frac{\partial F_{r,xy}}{\partial \pi_{r,a}} &=&
+   \begin{cases}
+   \frac{-\omega \beta}{2 \pi_{r,a}} & \mbox{if $a = \mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$}, \\
+   \frac{-\omega \beta}{\pi_{r,a}} \frac{\left(\pi_{r,\mathcal{A}\left(x\right)} / \pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\left[\ln\left(\left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right) - 1\right] + 1}{\left(1 - \left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right)^2} & \mbox{if $a = \mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} \ne \pi_{r,\mathcal{A}\left(y\right)}$}, \\
+   \frac{\omega \beta}{2 \pi_{r,a}} & \mbox{if $a = \mathcal{A}\left(y\right) \ne \mathcal{A}\left(x\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$}, \\
+   \frac{\omega \beta}{\pi_{r,a}} \frac{\left(\pi_{r,\mathcal{A}\left(x\right)} / \pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\left[\ln\left(\left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right) - 1\right] + 1}{\left(1 - \left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right)^2} & \mbox{if $a = \mathcal{A}\left(y\right) \ne \mathcal{A}\left(x\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} \ne \pi_{r,\mathcal{A}\left(y\right)}$}, \\
+   0 & \mbox{otherwise,} \\
+   \end{cases}
+
+where the expressions when :math:`\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}` are derived from application of L'Hopital's rule.
+
+So define
+
+.. math::
+  
+   \tilde{F}_{r,xy} = 
+   \begin{cases}
+   0 & \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$,} \\
+   \frac{\omega \beta}{2} & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$,} \\
+   \left(\omega \beta\right) \frac{\left(\pi_{r,\mathcal{A}\left(x\right)} / \pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\left[\ln\left(\left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right) - 1\right] + 1}{\left(1 - \left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right)^2} & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} \ne \pi_{r,\mathcal{A}\left(y\right)}$.}
+   \end{cases}
+
+We then have
+
+.. math::
+   :label: dPrxy_dzeta
+
+   \frac{\partial P_{r,xy}}{\partial \zeta_{r,i}} =
+   Q_{xy} \sum\limits_a \frac{\partial F_{r,xy}}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} =
+   \begin{cases}
+   0 & \mbox{if $i > \mathcal{A}\left(x\right)$ and $i > \mathcal{A}\left(y\right)$ and $x \ne y$,} \\
+   \frac{Q_{xy} \tilde{F}_{r,xy}}{\zeta_{r,i} - \delta_{i\mathcal{A}\left(y\right)}} & \mbox{if $i > \mathcal{A}\left(x\right)$ and $i \le \mathcal{A}\left(y\right)$ and $x \ne y$,} \\
+   -\frac{Q_{xy} \tilde{F}_{r,xy}}{\zeta_{r,i} - \delta_{i\mathcal{A}\left(x\right)}} & \mbox{if $i \le \mathcal{A}\left(x\right)$ and $i > \mathcal{A}\left(y\right)$ and $x \ne y$,} \\
+   \frac{Q_{xy} \tilde{F}_{r,xy}}{\zeta_{r,i} - \delta_{i\mathcal{A}\left(y\right)}} - \frac{Q_{xy} \tilde{F}_{r,xy}}{\zeta_{r,i} - \delta_{i\mathcal{A}\left(x\right)}} & \mbox{if $i \le \mathcal{A}\left(x\right)$ and $i \le \mathcal{A}\left(y\right)$ and $x \ne y$} \\
+   -\sum\limits_{z \ne x} \frac{\partial P_{r,xy}}{\partial \zeta_{r,i}} & \mbox{if $x = y$}.
+   \end{cases}
+
+We also need to calculate the derivative of the stationary state :math:`p_{r,x}` given by Equation :eq:`prx` with respect to the preference. In this calculation, we simplify the algebra by taking advantage of the fact that for our fit preferences models, we always have :math:`\beta = 1` to simplify from the first to the second line below:
+
+.. math::
+   :label: dprx_dpi
+
+   \frac{\partial p_{r,x}}{\partial \pi_{r,a}} &=&
+   \frac{\partial}{\partial \pi_{r,x}}\left(\frac{q_x \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}}{\sum_z q_z \left(\pi_{r,\mathcal{A}\left(z\right)}\right)^{\beta}}\right) \\
+   &=&
+   \frac{\partial}{\partial \pi_{r,x}}\left(\frac{q_x \pi_{r,\mathcal{A}\left(x\right)}}{\sum_z q_z \pi_{r,\mathcal{A}\left(z\right)}}\right) \\
+   &=&
+   \frac{q_x \delta_{a\mathcal{A}\left(x\right)}\left( \sum_z q_z \pi_{r,\mathcal{A}\left(z\right)}\right) - q_x \pi_{r,\mathcal{A}\left(x\right)} \times \sum_z q_z \delta_{a\mathcal{A}\left(z\right)} }{\left( \sum_z q_z \pi_{r,\mathcal{A}\left(z\right)} \right)^2} \\
+   &=&
+   \delta_{a\mathcal{A}\left(x\right)} \frac{p_{r,x}}{\pi_{r,a}} - p_{r,x} \sum_z\delta_{a\mathcal{A}\left(z\right)} \frac{p_{r,z}}{\pi_{r,a}}.
+
+So:
+
+.. math::
+   :label: dprx_dzeta
+
+   \frac{\partial p_{r,x}}{\partial \zeta_{r,i}} &=&
+   \sum\limits_a \frac{\partial p_{r,x}}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
+   &=& p_{r,x} \sum\limits_{a \ge i} \frac{1}{\zeta_{r,i} - \delta_{ia}} \left(\delta_{a\mathcal{A}\left(x\right)} - \sum_z\delta_{a\mathcal{A}\left(z\right)} p_{r,z} \right)
+
+Regularizing preferences for *ExpCM* with preferences as free parameters
+-------------------------------------------------------------------------
+When the preferences are free parameters, we typically want to regularize them to avoid fitting lots of values of one or zero. 
+We do this by defining a regularizing prior over the preferences, and then maximizing the product of the likelihood and this regularizing prior (essentially, the *maximum a posteriori* estimate).
+
+Inverse-quadratic prior
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is the prior used in `Bloom, Biology Direct, 12:1`_ (note that the notation used here is slightly different than in that reference).
+Let :math:`\pi_{r,a}` be the preference that we are trying to optimize, and let :math:`\theta_{r,a}` be our prior estimate of :math:`\pi_{r,a}`.
+Typically, this estimate is the original experimentally measured preference :math:`\pi_{r,a}^{\rm{orig}}` re-scaled by the optimized stringency parameter :math:`\beta`, namely :math:`\theta_{r,a} = \frac{\left(\pi_{r,a}^{\rm{orig}}\right)^{\beta}}{\sum_{a'} \left(\pi_{r,a'}^{\rm{orig}}\right)^{\beta}}`.
+
+The prior is then 
+
+.. math::
+
+   \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) =
+   \prod\limits_r \prod\limits_a \left(\frac{1}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2}\right)^{C_2}
+
+or equivalently
+
+.. math::
+
+   \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right] = -C_2 \sum\limits_r \sum\limits_a \ln\left(1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2 \right)
+
+where :math:`C_1` and :math:`C_2` are parameters that specify how concentrated the prior is (larger values make the prior more strongly peaked at :math:`\theta_{r,a}`).
+
+The derivative is
+
+.. math::
+
+   \frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \pi_{r,a}} =
+   \frac{-2 C_1 C_2 \left(\pi_{r,a} - \theta_{r,a}\right)}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2},
+
+so,
+
+.. math::
+
+   \frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \zeta_{r,i}} 
+   &=& \sum\limits_a \frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
+   &=& -2 C_1 C_2 \sum\limits_{a \ge i} \frac{\left(\pi_{r,a} - \theta_{r,a}\right)}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2 } \frac{\pi_{r,a}}{\zeta_{r,i} - \delta_ia}.
 
 *YNGKP_M0* model
 ------------------

@@ -28,7 +28,7 @@ class test_phydms_ExpCM(unittest.TestCase):
             shutil.rmtree(outprefix)
 
         subprocess.check_call(['phydms', alignment, tree, 
-                'ExpCM_{0}'.format(prefs), outprefix])
+                'ExpCM_{0}'.format(prefs), outprefix, '--omegabysite', '--diffprefsbysite'])
 
 
 if __name__ == '__main__':

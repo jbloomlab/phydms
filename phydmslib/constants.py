@@ -60,7 +60,7 @@ import scipy
 import Bio.Alphabet.IUPAC
 import Bio.Seq
 
-ALMOST_ZERO = 1.0e-5
+ALMOST_ZERO = 1.0e-6
 
 INDEX_TO_NT = dict(enumerate(sorted(Bio.Alphabet.IUPAC.IUPACUnambiguousDNA.letters)))
 NT_TO_INDEX = dict([(nt, i) for (i, nt) in INDEX_TO_NT.items()])

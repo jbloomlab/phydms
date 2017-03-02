@@ -12,6 +12,7 @@ import copy
 import functools
 import six
 import abc
+import warnings
 import scipy
 import scipy.misc
 import scipy.optimize
@@ -27,6 +28,27 @@ class Model(six.with_metaclass(abc.ABCMeta)):
 
     Specifies required methods / attributes of substitution models.
     """
+
+    @abc.abstractproperty
+    def logprior(self):
+        """Log prior over current model.
+
+        Is a float giving log prior over current model, or
+        0 if there is no prior defined over this model."""
+        pass
+
+    @abc.abstractmethod
+    def dlogprior(self, param):
+        """Derivative of `logprior` with respect to `param`.
+
+        Args:
+            `param` (string in `freeparams`)
+
+        Returns:
+            Derivative of `logprior` with respect to `param`,
+            or 0 if there is no prior defined over this model.
+        """
+        pass
 
     @abc.abstractproperty
     def stationarystate(self):
@@ -220,16 +242,12 @@ class ExpCM(Model):
             This attribute is equivalent to `stationarystate`.
         `Qxy` (`numpy.ndarray` of floats, shape `(N_CODON, N_CODON)`
             `Qxy[x][y]` is mutation rate from `x` to `y`, diagonal undefined.
-        `qx` (`numpy.ndarray` of floats, length `N_CODON`
-            `qx[x]` is stationary state of `Qxy` for codon `x`.
         `Frxy` (`numpy.ndarray` of floats, shape `(nsites, N_CODON, N_CODON)`
             `Frxy[r][x][y]` fixation prob from `x` to `y`, diagonal
             undefined for each `Frxy[r]`.
         `Frxy_no_omega` 
             Like `Frxy` but **not** multiplied by `omega` for non-synonymous
             mutations
-        `frx` (`numpy.ndarray` of floats, shape `(nsites, N_CODON)`
-            `frx[r][x]` is stationary state of `Frxy` for codon `x` at `r`.
         `pi_codon` (`numpy.ndarray` of floats, shape `(nsites, N_CODON)`)
             `pi_codon[r][x]` is preference of site `r` for amino acid
             encoded by codon `x`.
@@ -240,6 +258,8 @@ class ExpCM(Model):
             encoded by codon `x` divided by pref for that encoded by `y`.
         `piAx_piAy_beta` (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
             Equal to `piAx_piAy` raised to the power of `beta`.
+        `ln_piAx_piAy_beta (`numpy.ndarray` of floats)
+            Natural logarithm of `piAx_piAy_beta`.
         `dPrxy` (dict)
             Keyed by each string in `freeparams`, each value is `numpy.ndarray`
             of floats giving derivative of `Prxy` with respect to that parameter.
@@ -276,7 +296,7 @@ class ExpCM(Model):
                    'beta':(0.01, 10.0),
                    'eta':(0.01, 0.99),
                    'phi':(0.001, 0.999),
-                   'pi':(0.001, 0.998),
+                   'pi':(ALMOST_ZERO, 1),
                    'mu':(1.0e-3, 1.0e3),
                   }
     PARAMTYPES = {'kappa':float,
@@ -337,7 +357,6 @@ class ExpCM(Model):
         self.ln_pi_codon = scipy.full((self.nsites, N_CODON), -1, dtype='float')
         self.piAx_piAy = scipy.full((self.nsites, N_CODON, N_CODON), -1,
                 dtype='float')
-        self._update_pi_vars()
 
         # construct eta from phi
         _checkParam('phi', phi, self.PARAMLIMITS, self.PARAMTYPES)
@@ -358,14 +377,14 @@ class ExpCM(Model):
         # define other params, initialized appropriately
         self.piAx_piAy_beta = scipy.zeros((self.nsites, N_CODON, N_CODON),
                 dtype='float')
+        self.ln_piAx_piAy_beta = scipy.zeros((self.nsites, N_CODON, N_CODON),
+                dtype='float')
         self.Prxy = scipy.zeros((self.nsites, N_CODON, N_CODON), dtype='float')
         self.prx = scipy.zeros((self.nsites, N_CODON), dtype='float')
         self.Qxy = scipy.zeros((N_CODON, N_CODON), dtype='float')
-        self.qx = scipy.zeros(N_CODON, dtype='float')
         self.Frxy = scipy.ones((self.nsites, N_CODON, N_CODON), dtype='float')
         self.Frxy_no_omega = scipy.ones((self.nsites, N_CODON, N_CODON), 
                 dtype='float')
-        self.frx = scipy.zeros((self.nsites, N_CODON), dtype='float')
         self.D = scipy.zeros((self.nsites, N_CODON), dtype='float')
         self.A = scipy.zeros((self.nsites, N_CODON, N_CODON), dtype='float')
         self.Ainv = scipy.zeros((self.nsites, N_CODON, N_CODON), dtype='float')
@@ -373,28 +392,40 @@ class ExpCM(Model):
         self.B = {}
         self.dprx = {}
         for param in self.freeparams:
-            if param == 'eta':
-                self.dPrxy[param] = scipy.zeros((N_NT - 1, self.nsites, N_CODON,
-                        N_CODON), dtype='float')
-                self.B[param] = scipy.zeros((N_NT - 1, self.nsites, N_CODON,
-                        N_CODON), dtype='float')
-                self.dprx[param] = scipy.zeros((N_NT - 1, self.nsites, N_CODON),
-                        dtype='float')
-            elif param == 'mu':
+            if param == 'mu':
                 self.dprx['mu'] = 0.0
-            elif param in self.ALLOWEDPARAMS:
+            elif self.PARAMTYPES[param] == float:
                 self.dPrxy[param] = scipy.zeros((self.nsites, N_CODON, N_CODON),
                         dtype='float')
                 self.B[param] = scipy.zeros((self.nsites, N_CODON, N_CODON),
                         dtype='float')
                 self.dprx[param] = scipy.zeros((self.nsites, N_CODON), dtype='float')
             else:
-                raise ValueError("Unrecognized param {0}".format(param))
+                assert self.PARAMTYPES[param][0] == scipy.ndarray
+                paramshape = self.PARAMTYPES[param][1]
+                assert len(paramshape) == 1, "Can't handle multi-dimensional ndarray"
+                paramlen = paramshape[0]
+                self.dPrxy[param] = scipy.zeros((paramlen, self.nsites, N_CODON,
+                        N_CODON), dtype='float')
+                self.B[param] = scipy.zeros((paramlen, self.nsites, N_CODON,
+                        N_CODON), dtype='float')
+                self.dprx[param] = scipy.zeros((paramlen, self.nsites, N_CODON),
+                        dtype='float')
 
         # indexes diagonals in square matrices
         self._diag_indices = scipy.diag_indices(N_CODON)
 
         self.updateParams({}, update_all=True)
+
+    @property
+    def logprior(self):
+        """Is zero, as no prior is defined over this model."""
+        return 0.0
+
+    def dlogprior(self, param):
+        """Zero for all `param`, as no prior defined over this model."""
+        assert param in self.freeparams, "Invalid param: {0}".format(param)
+        return 0.0
 
     @property
     def stationarystate(self):
@@ -416,8 +447,14 @@ class ExpCM(Model):
             elif isinstance(pvalue, scipy.ndarray) and pvalue.shape == (N_NT,):
                 for w in range(N_NT - 1):
                     report['{0}{1}'.format(param, INDEX_TO_NT[w])] = pvalue[w]
+            elif isinstance(pvalue, scipy.ndarray) and (pvalue.shape == 
+                    (self.nsites, N_AA)):
+                for r in range(self.nsites):
+                    for a in range(N_AA):
+                        report['{0}{1}{2}'.format(param, r + 1, INDEX_TO_AA[a])
+                                ] = pvalue[r][a]
             else:
-                raise RuntimeError("Unexpected param: {0}".format(param))
+                raise ValueError("Unexpected param: {0}".format(param))
         return report
 
     @property
@@ -462,11 +499,11 @@ class ExpCM(Model):
             if isinstance(value, scipy.ndarray):
                 if (value != getattr(self, name)).any():
                     changed.add(name)
-                    setattr(self, name, value)
+                    setattr(self, name, value.copy())
             else:
                 if value != getattr(self, name):
                     changed.add(name)
-                    setattr(self, name, value)
+                    setattr(self, name, copy.copy(value))
 
         if update_all or changed:
             self._cached = {}
@@ -478,10 +515,8 @@ class ExpCM(Model):
         # for all possible parameter changes, but just doing it
         # this way is much simpler and adds negligible cost.
         if update_all or (changed and changed != set(['mu'])):
-            self._update_piAx_piAy_beta()
-            self._update_frx()
+            self._update_pi_vars()
             self._update_phi()
-            self._update_qx()
             self._update_prx()
             self._update_dprx()
             self._update_Qxy()
@@ -624,46 +659,34 @@ class ExpCM(Model):
             scipy.copyto(self.Qxy, self.phi[w], where=CODON_NT_MUT[w])
         self.Qxy[CODON_TRANSITION] *= self.kappa
 
-    def _update_qx(self):
-        """Update `qx` using current `phi`."""
-        self.qx.fill(1.0)
-        for j in range(3):
-            for w in range(N_NT):
-                self.qx[CODON_NT[j][w]] *= self.phi[w]
-
     def _update_pi_vars(self):
-        """Update `pi_codon`, `ln_pi_codon`, `piAx_piAy` from current `pi`."""
+        """Update variables that depend on `pi`.
+        
+        These are `pi_codon`, `ln_pi_codon`, `piAx_piAy`, `piAx_piAy_beta`,
+        `ln_piAx_piAy_beta`.
+        
+        Update using current `pi` and `beta`."""
         with scipy.errstate(divide='raise', under='raise', over='raise',
                 invalid='raise'):
             for r in range(self.nsites):
-                for a in range(N_AA):
-                    scipy.copyto(self.pi_codon[r], self.pi[r][a],
-                            where=(CODON_TO_AA == a))
+                self.pi_codon[r] = self.pi[r][CODON_TO_AA]
                 pim = scipy.tile(self.pi_codon[r], (N_CODON, 1)) # [x][y] is piAy
                 self.piAx_piAy[r] = pim.transpose() / pim
             self.ln_pi_codon = scipy.log(self.pi_codon)
-
-    def _update_piAx_piAy_beta(self):
-        """Update `piAx_piAy_beta` from `piAx_piAy` and `beta`."""
-        with scipy.errstate(divide='raise', under='raise', over='raise',
-                invalid='raise'):
             self.piAx_piAy_beta = self.piAx_piAy**self.beta
+            self.ln_piAx_piAy_beta = scipy.log(self.piAx_piAy_beta)
 
     def _update_Frxy(self):
-        """Update `Frxy` from `piAx_piAy_beta`, `omega`, and `beta`."""
+        """Update `Frxy` from `piAx_piAy_beta`, `ln_piAx_piAy_beta`, `omega`, `beta`."""
         self.Frxy.fill(1.0)
         self.Frxy_no_omega.fill(1.0)
         with scipy.errstate(divide='raise', under='raise', over='raise',
                         invalid='ignore'):
-            scipy.copyto(self.Frxy_no_omega, -scipy.log(self.piAx_piAy_beta)
+            scipy.copyto(self.Frxy_no_omega, -self.ln_piAx_piAy_beta
                     / (1 - self.piAx_piAy_beta), where=scipy.logical_and(
                     CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta) > 
                     ALMOST_ZERO))
         scipy.copyto(self.Frxy, self.Frxy_no_omega * self.omega, where=CODON_NONSYN)
-
-    def _update_frx(self):
-        """Update `frx` using current `pi_codon` and `beta`."""
-        self.frx = self.pi_codon**self.beta
 
     def _update_Prxy(self):
         """Update `Prxy` using current `Frxy` and `Qxy`."""
@@ -686,8 +709,13 @@ class ExpCM(Model):
             self.A[r] = (pr_neghalf * evecs.transpose()).transpose()
 
     def _update_prx(self):
-        """Update `prx` using current `frx` and `qx`."""
-        self.prx = self.frx * self.qx
+        """Update `prx` from `phi`, `pi_codon`, and `beta`."""
+        qx = scipy.ones(N_CODON, dtype='float')
+        for j in range(3):
+            for w in range(N_NT):
+                qx[CODON_NT[j][w]] *= self.phi[w]
+        frx = self.pi_codon**self.beta
+        self.prx = frx * qx
         with scipy.errstate(divide='raise', under='raise', over='raise',
                 invalid='raise'):
             for r in range(self.nsites):
@@ -708,9 +736,9 @@ class ExpCM(Model):
             with scipy.errstate(divide='raise', under='raise', over='raise',
                     invalid='ignore'):
                 scipy.copyto(self.dPrxy['beta'], self.Prxy *
-                        (1 / self.beta + (self.piAx_piAy_beta *
-                        scipy.log(self.piAx_piAy) / (1 - self.piAx_piAy_beta))),
-                        where=CODON_NONSYN)
+                        (1 / self.beta + (self.piAx_piAy_beta * 
+                        (self.ln_piAx_piAy_beta / self.beta) / 
+                        (1 - self.piAx_piAy_beta))), where=CODON_NONSYN)
             scipy.copyto(self.dPrxy['beta'], self.Prxy/self.beta *
                     (1 - self.piAx_piAy_beta), where=scipy.logical_and(
                     CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta)
@@ -767,6 +795,250 @@ class ExpCM(Model):
             m[r][self._diag_indices] -= scipy.sum(m[r], axis=1)
 
 
+class ExpCM_fitprefs(ExpCM):
+    """An `ExpCM` with the preferences `pi` as free parameters.
+
+    The difference between `ExpCM` and `ExpCM_fitprefs` is that the
+    amino-acid preferences `pi` are optimized for the latter. There
+    can also be a regularizing prior on these preferences.
+
+    The way this class is currently implemented, it will be very inefficient
+    if there is more than one site. The recommended usage is to optimize
+    across-site parameters with fixed preferences, then optimize preferences
+    for each site individually with this class after fixing across-site 
+    parameters.
+
+    See `__init__` method for how to initialize an `ExpCM_fitprefs`.
+
+    Has all the attributes of an `ExpCM`, plus:
+        `zeta` (`numpy.ndarray` of float, shape `(nsites * (N_AA - 1))`)
+            Transformation of the preferences `pi`; all entries are
+            > 0 and < 1. We use `zeta` rather than `pi` as the free
+            parameter during optimization. The entry
+            `zeta.reshape(nsites, N_AA - 1)[r][i]` is value `i`
+            for site `r` (`0 <= r < nsites`) where `0 <= i < N_AA - 1`.
+        `dPrxy` (dict)
+            Like for `ExpCM`, but also contains entry keyed by 'zeta' of
+            of shape `(nsites * (N_AA - 1), nsites, N_CODON, N_CODON)`
+            where the first index ranges over the elements in `zeta`.
+        `tildeFrxy` (`numpy.ndarray` of `float`, shape `(nsites, N_CODON, N_CODON)`)
+            Contains quantities used in calculating derivative of 
+            `dPrxy` with respect to `zeta`.
+        `origpi` (`numpy.ndarray` of float, shape `(nsites, N_AA)`)
+            `origpi[r][a]` is the original preference for amino-acid
+            `a` at site `r` as given by the calling parameter `prefs`
+            and re-scaled by `origbeta`. This value is **not** updated
+            as `zeta` and `pi` are optimized, and is rather used to
+            keep track of where the optimization starts. Set to one
+            if you have not already optimized a stringency parameter
+            prior to initializing this class.
+        `prior` (`None` or a tuple)
+            Specifies the regularizing prior over the preferences.
+            This prior is centered on the preferences in `origpi`.
+            A value of `None` indicates no regularizing prior.
+            A tuple of `('invquadratic', c1, c2)` is the inverse
+            quadratic prior described in Bloom, *Biology Direct*, 12:1.
+
+    `beta` (the stringency parameter) is **not** a free parameter,
+    and is instead fixed to 1. This is because it does not make sense
+    to optimize a stringency parameter if you are also optimizing the 
+    preferences as they are confounded.
+    """
+
+    # class variables
+    ALLOWEDPARAMS = [param for param in ExpCM.ALLOWEDPARAMS if param != 'beta']
+    ALLOWEDPARAMS.append('zeta')
+    _PARAMLIMITS = copy.deepcopy(ExpCM._PARAMLIMITS)
+    _PARAMLIMITS['zeta'] = (ALMOST_ZERO, 1 - ALMOST_ZERO)
+    _REPORTPARAMS = copy.deepcopy(ExpCM._REPORTPARAMS)
+    _REPORTPARAMS.append('pi')
+
+    def __init__(self, prefs, prior, kappa, omega, phi, mu=1.0, origbeta=1.0,
+            freeparams=['zeta']):
+        """Initialize an `ExpCM_fitprefs` object.
+        
+        The calling parameters have the meaning described in the main class doc
+        string. The default values have changed consistent with recommended 
+        usage of this class: that you have already estimated
+        the across-site parameters (`kappa`, `omega`, `mu`, `phi`) and so
+        are specifying fixed values for those. You are then just optimizing the
+        preferences in their variable-transformed form `zeta` from the initial
+        values in `prefs` scaled by `origbeta`. The meaning of `origbeta`
+        is described in the main class doc string.
+
+        Additional arguments:
+            `origbeta` (`float`)
+                The preferences in `prefs` are re-scaled by `origbeta` and
+                used as the initial value and stored in `origpi`. `origbeta` 
+                might differ from 1 if you already optimized `prefs` using
+                a fixed-preference `ExpCM` prior to initializing this model.
+        """
+
+        self.prior = prior
+        if self.prior is None:
+            pass
+        elif (isinstance(self.prior, tuple) and len(self.prior) == 3 and
+                self.prior[0] == 'invquadratic'):
+            assert all([isinstance(c, (float, int)) and c > 0 for c in
+                    self.prior[1 : ]]), ("Invalid C values in elements "
+                    "in prior: {0}".format(self.prior))
+        else:
+            raise ValueError("Invalid prior: {0}".format(self.prior))
+
+        # PARAMTYPES must be instance attribute as zeta value depends on nsites
+        self.PARAMTYPES = copy.deepcopy(ExpCM.PARAMTYPES)
+        self.PARAMTYPES['zeta'] = (scipy.ndarray, (len(prefs) * (N_AA - 1),))
+
+        self.beta = 1.0
+        _checkParam('beta', origbeta, self.PARAMLIMITS, self.PARAMTYPES)
+        self._origbeta = origbeta
+
+        # _aa_for_x[x][y] is the x amino acid in indexing of codon matrices
+        # _aa_for_y[x][y] is the y amino acid in indexing of codon matrices
+        self._aa_for_y = scipy.tile(CODON_TO_AA, (N_CODON, 1))
+        self._aa_for_x = self._aa_for_y.transpose()
+
+        super(ExpCM_fitprefs, self).__init__(prefs, kappa=kappa, omega=omega,
+                beta=self.beta, mu=mu, phi=phi, freeparams=freeparams)
+        assert (self.PARAMTYPES['zeta'][1] == self.zeta.shape
+                == (self.nsites * (N_AA - 1),))
+        if self.nsites > 1: 
+            warnings.warn("ExpCM_fitprefs not recommended for use with more than "
+                    "one site. The current implementation will lead to lots "
+                    "of computational waste if you are trying to optimize "
+                    "preferences for multiple sites simultaneously. Instead, "
+                    "you are suggested to optimize for each site separately.", 
+                    Warning)
+
+    @property
+    def logprior(self):
+        """Value of log prior depends on value of `prior`."""
+        return self._logprior
+
+    def dlogprior(self, param):
+        """Value of derivative of prior depends on value of `prior`."""
+        assert param in self.freeparams, "Invalid param: {0}".format(param)
+        return self._dlogprior[param]
+
+    def _update_pi_vars(self):
+        """Update variables that depend on `pi` from `zeta`.
+        
+        The updated variables are: `pi`, `pi_codon`, `ln_pi_codon`, `piAx_piAy`,
+        `piAx_piAy_beta`, `ln_piAx_piAy_beta`, and `_logprior`.
+        
+        If `zeta` is undefined (as it will be on the first call), then create
+        `zeta` and `origpi` from `pi` and `origbeta`."""
+        minpi = self.PARAMLIMITS['pi'][0]
+        if not hasattr(self, 'zeta'):
+            # should only execute on first call to initialize zeta
+            assert not hasattr(self, 'origpi')
+            self.origpi = self.pi**self._origbeta
+            for r in range(self.nsites):
+                self.origpi[r] /= self.origpi[r].sum()
+                self.origpi[r][self.origpi[r] < minpi] = minpi
+                self.origpi[r] /= self.origpi[r].sum()
+            self.pi = self.origpi.copy()
+            self.zeta = scipy.ndarray(self.nsites * (N_AA - 1), dtype='float')
+            self.tildeFrxy = scipy.zeros((self.nsites, N_CODON, N_CODON),
+                    dtype='float')
+            for r in range(self.nsites):
+                zetaprod = 1.0
+                for i in range(N_AA - 1):
+                    zetari = 1.0 - self.pi[r][i] / zetaprod
+                    self.zeta.reshape(self.nsites, N_AA - 1)[r][i] = zetari
+                    zetaprod *= zetari
+            (minzeta, maxzeta) = self.PARAMLIMITS['zeta']
+            self.zeta[self.zeta < minzeta] = minzeta
+            self.zeta[self.zeta > maxzeta] = maxzeta
+            _checkParam('zeta', self.zeta, self.PARAMLIMITS, self.PARAMTYPES)
+        else:
+            # after first call, we are updating pi from zeta
+            for r in range(self.nsites):
+                zetaprod = 1.0
+                for i in range(N_AA - 1):
+                    zetari = self.zeta.reshape(self.nsites, N_AA - 1)[r][i]
+                    self.pi[r][i] = zetaprod * (1 - zetari)
+                    zetaprod *= zetari
+                self.pi[r][N_AA - 1] = zetaprod
+                self.pi[r][self.pi[r] < minpi] = minpi
+                self.pi[r] /= self.pi[r].sum()
+
+        super(ExpCM_fitprefs, self)._update_pi_vars()
+
+        with scipy.errstate(divide='raise', under='raise', over='raise',
+                invalid='ignore'):
+            scipy.copyto(self.tildeFrxy, self.omega * self.beta *
+                    (self.piAx_piAy_beta * (self.ln_piAx_piAy_beta - 1)
+                    + 1) / (1 - self.piAx_piAy_beta)**2, 
+                    where=CODON_NONSYN)
+        scipy.copyto(self.tildeFrxy, self.omega * self.beta / 2.0, 
+                where=scipy.logical_and(CODON_NONSYN, scipy.fabs(1 -
+                self.piAx_piAy_beta) < ALMOST_ZERO))
+
+        self._logprior = 0.0
+        self._dlogprior = dict([(param, 0.0) for param in self.freeparams])
+        if self.prior is None:
+            pass
+        elif self.prior[0] == 'invquadratic':
+            (priorstr, c1, c2) = self.prior
+            self._dlogprior = dict([(param, 0.0) for param in self.freeparams])
+            self._dlogprior['zeta'] = scipy.zeros(self.zeta.shape, dtype='float')
+            j = 0
+            aaindex = scipy.arange(N_AA)
+            for r in range(self.nsites):
+                pidiffr = self.pi[r] - self.origpi[r]
+                rlogprior = -c2 * scipy.log(1 + c1 * pidiffr**2).sum()
+                self._logprior += rlogprior
+                for i in range(N_AA - 1):
+                    zetari = self.zeta[j]
+                    self._dlogprior['zeta'][j] = -2 * c1 * c2 * (
+                            pidiffr[i : ] / (1 + c1 * pidiffr[i : ]**2) *
+                            self.pi[r][i : ] / (zetari - (aaindex == i).astype(
+                            'float')[i : ])).sum()
+                    j += 1
+        else:
+            raise ValueError("Invalid prior: {0}".format(self.prior))
+
+    def _update_dPrxy(self):
+        """Update `dPrxy`."""
+        super(ExpCM_fitprefs, self)._update_dPrxy()
+
+        if 'zeta' in self.freeparams:
+            tildeFrxyQxy = self.tildeFrxy * self.Qxy
+            j = 0
+            zetaxterm = scipy.ndarray((self.nsites, N_CODON, N_CODON), dtype='float')
+            zetayterm = scipy.ndarray((self.nsites, N_CODON, N_CODON), dtype='float')
+            for r in range(self.nsites):
+                for i in range(N_AA - 1):
+                    zetari = self.zeta[j]
+                    zetaxterm.fill(0)
+                    zetayterm.fill(0)
+                    zetaxterm[r][self._aa_for_x > i] = -1.0 / zetari
+                    zetaxterm[r][self._aa_for_x == i] = -1.0 / (zetari - 1.0)
+                    zetayterm[r][self._aa_for_y > i] = 1.0 / zetari
+                    zetayterm[r][self._aa_for_y == i] = 1.0 / (zetari - 1.0)
+                    self.dPrxy['zeta'][j] = tildeFrxyQxy * (zetayterm + zetaxterm)
+                    _fill_diagonals(self.dPrxy['zeta'][j], self._diag_indices)
+                    j += 1
+
+    def _update_dprx(self):
+        """Update `dprx`."""
+        super(ExpCM_fitprefs, self)._update_dprx()
+        j = 0
+        if 'zeta' in self.freeparams:
+            self.dprx['zeta'].fill(0)
+            for r in range(self.nsites):
+                for i in range(N_AA - 1):
+                    zetari = self.zeta[j]
+                    for a in range(i, N_AA):
+                        delta_aAx = (CODON_TO_AA == a).astype('float')
+                        self.dprx['zeta'][j][r] += (delta_aAx - (delta_aAx
+                                * self.prx[r]).sum())/ (zetari - int(i == a))
+                    self.dprx['zeta'][j] *= self.prx[r]
+                    j += 1
+
+
+
 class ExpCM_empirical_phi(ExpCM):
     """An `ExpCM` with `phi` calculated empirically from nucleotide frequencies.
 
@@ -814,7 +1086,6 @@ class ExpCM_empirical_phi(ExpCM):
         assert abs(1 - g.sum()) <= ALMOST_ZERO, "g doesn't sum to 1"
         self.g = g.copy()
         self.g /= self.g.sum()
-
 
         super(ExpCM_empirical_phi, self).__init__(prefs, kappa=kappa,
                 omega=omega, beta=beta, mu=mu, freeparams=freeparams)
@@ -951,7 +1222,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         if 'omega2' in self.freeparams:
             with scipy.errstate(divide='raise', under='raise', over='raise',
                             invalid='ignore'):
-                scipy.copyto(self.dPrxy['omega2'], -scipy.log(self.piAx_piAy_beta)
+                scipy.copyto(self.dPrxy['omega2'], -self.ln_piAx_piAy_beta
                         * self.Qxy * self.omega /
                         (1 - self.piAx_piAy_beta), where=CODON_NONSYN)
             scipy.copyto(self.dPrxy['omega2'], self.Qxy * self.omega,
@@ -961,14 +1232,13 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
                 self.dPrxy['omega2'][r] *= self.deltar[r]
             _fill_diagonals(self.dPrxy['omega2'], self._diag_indices)
 
-
     def _update_Frxy(self):
         """Update `Frxy` from `piAx_piAy_beta`, `omega`, `omega2`, and `beta`."""
         self.Frxy.fill(1.0)
         self.Frxy_no_omega.fill(1.0)
         with scipy.errstate(divide='raise', under='raise', over='raise',
                 invalid='ignore'):
-            scipy.copyto(self.Frxy_no_omega, -scipy.log(self.piAx_piAy_beta)
+            scipy.copyto(self.Frxy_no_omega, -self.ln_piAx_piAy_beta
                     / (1 - self.piAx_piAy_beta), where=scipy.logical_and(
                     CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta) >
                     ALMOST_ZERO))
@@ -977,6 +1247,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
                     (1 + self.omega2 * self.deltar[r]), where=CODON_NONSYN)
         scipy.copyto(self.Frxy, self.Frxy_no_omega * self.omega, 
                 where=CODON_NONSYN)
+
 
 class YNGKP_M0(Model):
     """YNGKP_M0 model from Yang et al, 2000.
@@ -1045,6 +1316,16 @@ class YNGKP_M0(Model):
     def PARAMLIMITS(self):
         """See docs for `Model` abstract base class."""
         return self._PARAMLIMITS
+
+    @property
+    def logprior(self):
+        """Is zero, as no prior is defined over this model."""
+        return 0.0
+
+    def dlogprior(self, param):
+        """Zero for all `param`, as no prior defined over this model."""
+        assert param in self.freeparams, "Invalid param: {0}".format(param)
+        return 0.0
 
     def __init__(self, e_pw, nsites, kappa=2.0, omega=0.5, mu=1.0,
             freeparams=['kappa', 'omega', 'mu']):
@@ -1130,7 +1411,7 @@ class YNGKP_M0(Model):
                         report['{0}{1}{2}'.format(param, p, INDEX_TO_NT[w])] =\
                                 pvalue[p][w]
             else:
-                raise RuntimeError("Unexpected param: {0}".format(param))
+                raise ValueError("Unexpected param: {0}".format(param))
         return report
 
     @property
@@ -1208,11 +1489,11 @@ class YNGKP_M0(Model):
             if isinstance(value, scipy.ndarray):
                 if (value != getattr(self, name)).any():
                     changed.add(name)
-                    setattr(self, name, value)
+                    setattr(self, name, value.copy())
             else:
                 if value != getattr(self, name):
                     changed.add(name)
-                    setattr(self, name, value)
+                    setattr(self, name, copy.copy(value))
 
         if update_all or changed:
             self._cached = {}
@@ -1498,6 +1779,20 @@ class GammaDistributedOmegaModel(DistributionModel):
                   'beta_omega':float,
                  }
 
+
+    @property
+    def logprior(self):
+        """Equal to value of `basemodel.logprior`."""
+        return self._models[0].logprior
+
+    def dlogprior(self, param):
+        """Equal to value of `basemodel.dlogprior`."""
+        assert param in self.freeparams, "Invalid param: {0}".format(param)
+        if param in self.distributionparams:
+            return 0.0
+        else:
+            return self._models[0].dlogprior(param)
+
     @property
     def basemodel(self):
         """See docs for `DistributionModel` abstract base class."""
@@ -1552,7 +1847,7 @@ class GammaDistributedOmegaModel(DistributionModel):
                 self.PARAMTYPES[param] = model.PARAMTYPES[param]
                 pvalue = getattr(model, param)
                 _checkParam(param, pvalue, self.PARAMLIMITS, self.PARAMTYPES)
-                setattr(self, param, getattr(model, param))
+                setattr(self, param, copy.copy(getattr(model, param)))
 
         self.updateParams({}, update_all=True)
 
@@ -1609,7 +1904,7 @@ class GammaDistributedOmegaModel(DistributionModel):
                 if param in newvalues:
                     _checkParam(param, newvalues[param], self.PARAMLIMITS, 
                             self.PARAMTYPES)
-                    setattr(self, param, newvalues[param])
+                    setattr(self, param, copy.copy(newvalues[param]))
             self._omegas = DiscreteGamma(self.alpha_omega, self.beta_omega, 
                     self.ncats)
             for (k, omega) in enumerate(self._omegas):
@@ -1619,7 +1914,7 @@ class GammaDistributedOmegaModel(DistributionModel):
                 if name in newvalues:
                     value = newvalues[name]
                     _checkParam(name, value, self.PARAMLIMITS, self.PARAMTYPES)
-                    setattr(self, name, value)
+                    setattr(self, name, copy.copy(value))
                     for k in range(self.ncats):
                         newvalues_list[k][name] = value
                 elif update_all:

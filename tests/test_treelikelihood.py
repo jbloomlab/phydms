@@ -237,11 +237,12 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             self.assertTrue(tl.loglik > startloglik, "no loglik increase: "
                     "start = {0}, end = {1}".format(startloglik, tl.loglik))
             for (otherloglik, otherparams) in zip(logliks, paramsarrays):
-                self.assertTrue(scipy.allclose(tl.loglik, otherloglik),
+                self.assertTrue(scipy.allclose(tl.loglik, otherloglik, 
+                        atol=1e-3, rtol=1e-3),
                         "Large difference in loglik: {0} vs {1}".format(
                         otherloglik, tl.loglik))
                 self.assertTrue(scipy.allclose(tl.paramsarray, otherparams,
-                        atol=1e-4, rtol=5e-3),
+                        atol=1e-3, rtol=1e-2),
                         "Large difference in paramsarray: {0} vs {1}, {2}".format(
                         otherparams, tl.paramsarray, self.model))
             logliks.append(tl.loglik)
@@ -281,12 +282,6 @@ class test_TreeLikelihood_YNGKP_M0(test_TreeLikelihood_ExpCM):
 class test_TreeLikelihood_YNGKP_M5(test_TreeLikelihood_ExpCM):
     """Tests for `YNGKP_M5`."""
     MODEL = phydmslib.models.YNGKP_M0
-    DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedOmegaModel
-
-class test_TreeLikelihood_ExpCM_gamma_omega(
-        test_TreeLikelihood_ExpCM):
-    """Tests for `ExpCM` with gamma omega."""
-    MODEL = phydmslib.models.ExpCM
     DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedOmegaModel
 
 class test_TreeLikelihood_ExpCM_empirical_phi_gamma_omega(

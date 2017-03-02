@@ -94,6 +94,21 @@ Command-line usage
    \-\-omegabysite_fixsyn
     This option is meaningful only if you are using ``--omegabysite``. If you use this option, then we compare a model in which we fit a nonsynonymous rate to each site to a model in which we fit nothing. The synonymous rate is not fit, and so is assumed to be equal to the overall value fit for the tree. According to `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_, in some cases this can yield greater power if there is relatively limited data. However, it comes with the risk of giving spurious results if there is substantial variation in the synonymous substitution rate among sites.
 
+   \-\-diffprefsbysite
+    This option can only be used with *ExpCM* models, **not** with *YNGKP* models.
+
+    The fitting of site-specific differential selection is designed to identify sites that prefer different amino acids in the natural alignment than expected from the deep mutational scanning data. 
+    This approach is described in `Bloom, Biology Direct, 12:1`_.
+
+    The prior that is used is specified by ``--diffprefsprior``.
+  
+   \-\-diffprefsprior
+    How do we regularize the differential preferences when using ``--diffprefsbysite``?
+
+    To use the inverse-quadratic prior in `Bloom, Biology Direct, 12:1`_, specify
+    the string `invquadratic,C1,C2` where `C1` and `C2` are numbers > 0 that specify
+    how concentrated the prior is.
+
    \-\-divpressure
     Only for *ExpCM* models. This option specifies the name of the file with the predetermined diversifying pressure for each site, :math:`\delta_{r}`. ``phydms`` will fit :math:`\omega` and :math:`\omega_{2}` as described in :ref:`ExpCM`.
 
