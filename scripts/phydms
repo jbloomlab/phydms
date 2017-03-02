@@ -12,6 +12,11 @@ import logging
 import random
 import time
 import itertools
+# get map as imap for Python2 (http://python-future.org/compatible_idioms.html#imap)
+try:
+    import itertools.imap as map
+except ImportError:
+    pass
 import math
 import multiprocessing
 import scipy
@@ -142,6 +147,7 @@ def main():
     loglikelihoodfile = '{0}{1}loglikelihood.txt'.format(args['outprefix'], underscore)
     treefile = '{0}{1}tree.newick'.format(args['outprefix'], underscore)
     omegafile = '{0}{1}omegabysite.txt'.format(args['outprefix'], underscore)
+    diffprefsfile = '{0}{1}diffprefsbysite.txt'.format(args['outprefix'], underscore)
     to_remove = [modelparamsfile, loglikelihoodfile, treefile, omegafile, logfile]
     for f in to_remove:
         if os.path.isfile(f):
@@ -376,7 +382,7 @@ def main():
             logger.info(fixsynstr)
             logger.info("Fitting with {0} CPUs...".format(args['ncpus']))
             pool = multiprocessing.Pool(args['ncpus'])
-            omegaresults = pool.map(fitOmegaBySite, map(treeliksForOmegaBySite,
+            omegaresults = pool.imap(fitOmegaBySite, map(treeliksForOmegaBySite,
                     range(1, tl.nsites + 1), itertools.repeat(tl, tl.nsites),
                     itertools.repeat(prefslist, tl.nsites),
                     itertools.repeat(args['omegabysite_fixsyn'], tl.nsites)))
@@ -398,8 +404,8 @@ def main():
                     "detect differential selection.")
             logger.info("Fitting with {0} CPUs...".format(args['ncpus']))
             pool = multiprocessing.Pool(args['ncpus'])
-            diffprefresults = pool.map(fitDiffPrefsBySite, map(
-                    treelikForDiffPrefsBySite, range(1, tl.nsites),
+            diffprefresults = pool.imap(fitDiffPrefsBySite, map(
+                    treelikForDiffPrefsBySite, range(1, tl.nsites + 1),
                     itertools.repeat(tl, tl.nsites), 
                     itertools.repeat(prefslist, tl.nsites),
                     itertools.repeat(args['diffprefsprior'], tl.nsites)))

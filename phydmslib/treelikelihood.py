@@ -401,12 +401,17 @@ class TreeLikelihood(object):
                         'evals)'.format(i, oldloglik, self.loglik, result.nit,
                         result.nfev))
                 summary.append(msg)
-                if result.success:
+                if result.success and (not (oldloglik - self.loglik > logliktol)):
                     paramsconverged = True
                 else:
+                    if not result.success:
+                        resultmessage = result.message
+                    else:
+                        resultmessage = ('loglik increased during param optimization '
+                                'from {0} to {1}'.format(oldloglik, self.loglik))
                     nparamstry += 1
                     failmsg = ("Optimization failure {0}\n{1}\n{2}\n{3}".format(
-                            nparamstry, result.message, '\n'.join([
+                            nparamstry, resultmessage, '\n'.join([
                             '{0} = {1}'.format(tup[0], tup[1]) for tup in 
                             sorted(self.model.paramsReport.items())]), 
                             '\n'.join(summary)))
@@ -425,11 +430,8 @@ class TreeLikelihood(object):
                                 assert newparams[j] < self.paramsarraybounds[j][1]
                         self.paramsarray = newparams
             i += 1
-            if oldloglik - self.loglik > logliktol:
-                raise RuntimeError("loglik increased during param "
-                        "optimization: {0} to {1}".format(oldloglik,
-                        self.loglik))
-            elif self.loglik - oldloglik >= logliktol:
+            assert oldloglik - self.loglik <= logliktol
+            if self.loglik - oldloglik >= logliktol:
                 oldloglik = self.loglik
                 if optimize_brlen:
                     if not approx_grad:

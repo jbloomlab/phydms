@@ -8,7 +8,7 @@ the ``phydms`` program
 
 Overview
 ------------
-``phydms`` can perform phylogenetic analyses with :ref:`ExpCM` as well as with some standard non-site-specific substitution models (variants of the *YNGKP* models described in `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_). In addition, ``phydms`` can be used to detect site-specific diversifying or differential selection using the :ref:`ExpCM`.
+``phydms`` can perform phylogenetic analyses with :ref:`ExpCM` as well as with some standard non-site-specific substitution models (variants of the *YNGKP* models described in `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_). In addition, ``phydms`` can be used to detect site-specific diversifying or differential selection using the :ref:`ExpCM` as described in `Bloom, Biology Direct, 12:1`_.
 
 See below for information on the `Command-line usage`_ and `Output files`_.
 
@@ -204,7 +204,7 @@ The branch lengths are in units of codon substitutions per site.
 
 Site-specific omega file
 +++++++++++++++++++++++++++
-This file has the suffix ``_omegabysite.txt``, and is created only if using the ``--omegabysite`` option. This file gives the :math:`\omega_r` values optimized for each site. In the case of a *YNGKP* model, these are site-specific dN/dS ratios that should be essentially analogous to those obtained under the *FEL* model described by `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_. In the case of an *ExpCM* model, these values indicate diversifying selection for nonsynonymous amino-acid change as described in :ref:`ExpCM`.
+This file has the suffix ``_omegabysite.txt``, and is created only if using the ``--omegabysite`` option. This file gives the :math:`\omega_r` values optimized for each site. In the case of a *YNGKP* model, these are site-specific dN/dS ratios that should be essentially analogous to those obtained under the *FEL* model described by `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_. In the case of an *ExpCM* model, these values indicate diversifying selection for nonsynonymous amino-acid change as described in `Bloom, Biology Direct, 12:1`_ (see also :ref:`ExpCM`).
 
 Here is an example of the first few lines of a file::
 
@@ -213,7 +213,7 @@ Here is an example of the first few lines of a file::
     # P-values NOT corrected for multiple hypothesis testing.
     # Will fit different synonymous rate for each site.
     #
-    # site  omega   P   dLnL
+    site  omega   P   dLnL
     472 100.000 0.00207 4.741
     284 0.000   0.00277 4.477
     470 100.000 0.0124  3.126
@@ -232,6 +232,16 @@ The columns should be self-explanatory, the *P*-values are for rejection of the 
 
 For this type of test, the quantity of interest is typically not so much the exact value of :math:`\omega_r`, but rather the P-value that :math:`\omega_r \ne 1`.
 That P-value is what indicates the credence that you should lend to the idea that a site is under diversifying selection if :math:`\omega_r > 1`.
+
+Site-specific differential selection
++++++++++++++++++++++++++++++++++++++++
+This file has the suffix ``_diffprefsbysite.txt``, and is created only if using the ``--diffprefsbysite`` option to an *ExpCM*. These are the differential preferences (the :math:`\Delta\pi_{r,a}` values) described in `Bloom, Biology Direct, 12:1`_ and :ref:`ExpCM`.
+
+Here is an example of the first few lines of a file:::
+
+
+
+The columns should be self-explanatory: they give the site numbers and then the differential selection for or against each amino acid.
 
 
 .. include:: weblinks.txt

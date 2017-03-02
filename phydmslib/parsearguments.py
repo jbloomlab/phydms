@@ -318,6 +318,13 @@ def PhyDMSComprehensiveParser():
     parser.add_argument('--brlen', choices=['scale', 'optimize'],
             default='optimize', help=("How to handle branch lengths: "
             "scale by single parameter or optimize each one"))
+    parser.set_defaults(omegabysite=False)
+    parser.add_argument('--omegabysite', dest='omegabysite',
+            action='store_true', help="Fit omega (dN/dS) for each site.")
+    parser.set_defaults(diffprefsbysite=False)
+    parser.add_argument('--diffprefsbysite', dest='diffprefsbysite',
+            action='store_true', help="Fit differential preferences for "
+            "each site.")
     parser.set_defaults(nogammaomega=False)
     parser.add_argument('--no-gammaomega', dest='nogammaomega', action=\
             'store_true', help="No ExpCM with gamma distributed omega.")
@@ -325,16 +332,9 @@ def PhyDMSComprehensiveParser():
     parser.add_argument('--no-avgprefs', dest='noavgprefs', action='store_true',
             help="No fitting of models with preferences averaged across sites "
             "for ExpCM.")
-    parser.add_argument('--avgrandcontrol', default='None',
-            type=ExistingFileOrNone, help="Fit average and random controls "
-            "only for ExpCM using this preference file. Overrides "
-            "'--no-avgprefs' and '--randprefs'.")
     parser.set_defaults(randprefs=False)
     parser.add_argument('--randprefs', dest='randprefs', action='store_true',
             help="Include ExpCM models with randomized preferences.")
-    parser.set_defaults(omegabysite=False)
-    parser.add_argument('--omegabysite', dest='omegabysite',
-            action='store_true', help="Fit omega (dN/dS) for each site.")
     parser.add_argument('-v', '--version', action='version', version=
             '%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser

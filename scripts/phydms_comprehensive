@@ -9,6 +9,7 @@ import sys
 import os
 import re
 import time
+import copy
 import logging
 import multiprocessing
 import subprocess
@@ -100,7 +101,7 @@ def main():
 
     #setup files
     # file names slightly different depending on
-    #whether outprefix is directory or file
+    # whether outprefix is directory or file
     if args['outprefix'][-1] == '/':
         logfile = "{0}log.log".format(args['outprefix'])
     else:
@@ -109,7 +110,6 @@ def main():
     modelcomparisonfile = '{0}modelcomparison.txt'.format(args['outprefix'])
 
     #Set up to log everything to logfile.
-        # Set up to log everything to logfile.
     if os.path.isfile(logfile):
         os.remove(logfile)
     logging.shutdown()
@@ -132,28 +132,27 @@ def main():
             .format('\n'.join(['\t{0} = {1}'.format(key, args[key])
             for key in args.keys()])))
 
-
     #setup models
-    filesuffixlist = ['.log', '_tree.newick', '_loglikelihood.txt',
+    filesuffixlist = ['_log.log', '_tree.newick', '_loglikelihood.txt',
             '_modelparams.txt']
     filesuffixes = {} # keyed by model, values are list of suffixes
     models = {}
     additionalcmds = ["--brlen", args["brlen"]]
+    if args['omegabysite']:
+        additionalcmds.append('--omegabysite')
+        filesuffixlist = copy.deepcopy(filesuffixlist) + ['_omegabysite.txt']
 
     #set up the YNGKP models
-    yngkpadditionalcmds = [] + additionalcmds
-    models = {'YNGKP_M0':('YNGKP_M0', yngkpadditionalcmds, 2)}
+    models = {'YNGKP_M0':('YNGKP_M0', additionalcmds)}
     filesuffixes['YNGKP_M0'] = filesuffixlist
-    models['YNGKP_M5'] = ('YNGKP_M5', yngkpadditionalcmds, 3)
+    models['YNGKP_M5'] = ('YNGKP_M5', additionalcmds)
     filesuffixes['YNGKP_M5'] = filesuffixlist
 
     #set up the ExpCM
-    if args["omegabysite"]:
-        expcmadditionalcmds = ["--omegabysite"] + additionalcmds
-    else:
-        expcmadditionalcmds = [] + additionalcmds
-    nempiricalExpCM = 3
-    nempiricalExpCM_gammaomega = 4
+    additionalcmds = copy.deepcopy(additionalcmds)
+    if args['diffprefsbysite']:
+        additionalcmds = copy.deepcopy(additionalcmds) + ['--diffprefsbysite']
+        filesuffixlist = copy.deepcopy(filesuffixlist) + ['_diffprefsbysite.txt']
     for prefsfile in args['prefsfiles']:
         if re.search('\s', prefsfile):
             raise ValueError("There is a space in the preferences file name:\
@@ -164,58 +163,34 @@ def main():
                 " base name {0} for {1}; make names unique even after "\
                 "removing directory and extension".format(modelname, prefsfile)
         filesuffixes[modelname] = filesuffixlist
-        models[modelname] = ('ExpCM_{0}'.format(prefsfile),
-                expcmadditionalcmds, nempiricalExpCM)
+        models[modelname] = ('ExpCM_{0}'.format(prefsfile), additionalcmds)
         if not args["nogammaomega"]:
             gammaomegamodelname = '{0}_gammaomega'.format(modelname)
             models[gammaomegamodelname] = ('ExpCM_{0}'.format(prefsfile),
-                    expcmadditionalcmds + ['--gammaomega'], nempiricalExpCM_gammaomega)
+                    additionalcmds + ['--gammaomega'])
             filesuffixes[gammaomegamodelname] = filesuffixlist
-        if args['avgrandcontrol']:
-            if prefsfile == args['avgrandcontrol']:
-                avgmodelname = 'averaged_{0}'.format(modelname)
+        if not args['noavgprefs']:
+            avgmodelname = 'averaged_{0}'.format(modelname)
+            models[avgmodelname] = ('ExpCM_{0}'.format(prefsfile),
+                    additionalcmds + ['--avgprefs'], 0)
+            filesuffixes[avgmodelname] = filesuffixlist
+            if not args["nogammaomega"]:
+                avgmodelname = 'averaged_{0}_gammaomega'.format(modelname)
                 models[avgmodelname] = ('ExpCM_{0}'.format(prefsfile),
-                        expcmadditionalcmds + ['--avgprefs'], nempiricalExpCM)
+                        additionalcmds + ['--gammaomega'] \
+                        + ['--avgprefs'], 0)
                 filesuffixes[avgmodelname] = filesuffixlist
-                randmodelname = 'randomized_{0}'.format(modelname)
+        if args['randprefs']:
+            randmodelname = 'randomized_{0}'.format(modelname)
+            models[randmodelname] = ('ExpCM_{0}'.format(prefsfile),
+                    additionalcmds + ['--randprefs'], 0)
+            filesuffixes[randmodelname] = filesuffixlist
+            if not args["nogammaomega"]:
+                randmodelname = 'randomized_{0}_gammaomega'.format(modelname)
                 models[randmodelname] = ('ExpCM_{0}'.format(prefsfile),
-                        expcmadditionalcmds + ['--randprefs'], nempiricalExpCM)
+                        additionalcmds + ['--gammaomega'] \
+                        + ['--randprefs'], 0)
                 filesuffixes[randmodelname] = filesuffixlist
-                if not args["nogammaomega"]:
-                    avgmodelname = 'averaged_{0}_gammaomega'.format(modelname)
-                    models[avgmodelname] = ('ExpCM_{0}'.format(prefsfile),
-                            expcmadditionalcmds + ['-gammaomega'] \
-                            + ['--avgprefs'], nempiricalExpCM_gammaomega)
-                    filesuffixes[avgmodelname] = filesuffixlist
-                    randmodelname = 'randomized_{0}_gammaomega'.format(modelname)
-                    models[randmodelname] = ('ExpCM_{0}'.format(prefsfile),
-                            expcmadditionalcmds + ['-gammaomega'] \
-                            + ['--randprefs'], nempiricalExpCM_gammaomega)
-                    filesuffixes[randmodelname] = filesuffixlist
-
-        else:
-            if not args['noavgprefs']:
-                avgmodelname = 'averaged_{0}'.format(modelname)
-                models[avgmodelname] = ('ExpCM_{0}'.format(prefsfile),
-                        expcmadditionalcmds + ['--avgprefs'], 0)
-                filesuffixes[avgmodelname] = filesuffixlist
-                if not args["nogammaomega"]:
-                    avgmodelname = 'averaged_{0}_gammaomega'.format(modelname)
-                    models[avgmodelname] = ('ExpCM_{0}'.format(prefsfile),
-                            expcmadditionalcmds + ['--gammaomega'] \
-                            + ['--avgprefs'], 0)
-                    filesuffixes[avgmodelname] = filesuffixlist
-            if args['randprefs']:
-                randmodelname = 'randomized_{0}'.format(modelname)
-                models[randmodelname] = ('ExpCM_{0}'.format(prefsfile),
-                        expcmadditionalcmds + ['--randprefs'], 0)
-                filesuffixes[randmodelname] = filesuffixlist
-                if not args["nogammaomega"]:
-                    randmodelname = 'randomized_{0}_gammaomega'.format(modelname)
-                    models[randmodelname] = ('ExpCM_{0}'.format(prefsfile),
-                            expcmadditionalcmds + ['--gammaomega'] \
-                            + ['--randprefs'], 0)
-                    filesuffixes[randmodelname] = filesuffixlist
 
     # check alignment
     logger.info('Checking that the alignment {0} is valid...'
@@ -254,12 +229,12 @@ def main():
                     .format('\n'.join(['\t{0}'.format(fname) for
                     fname in raxmlOutputFiles])))
 
-         # run RAxmL
+            # run RAxmL
             raxmlCMD = [args['raxml'], '-s', args['alignment'], '-n',
                     raxmlOutputName, '-m', 'GTRCAT', '-p1', '-T', '2']
             subprocess.check_call(raxmlCMD)
 
-         # move RAxML tree to output directory and remove all other files
+            # move RAxML tree to output directory and remove all other files
             for  raxmlFile in glob.glob("RAxML_*{0}".format(raxmlOutputName)):
                 if "bestTree" in raxmlFile:
                     os.rename(raxmlFile, args["outprefix"] + raxmlFile)
@@ -285,7 +260,7 @@ def main():
     assert args['ncpus'] >= 1, "Failed to specify valid number of CPUs"
 
     # YNGKP models get one CPU
-    #ExpCM get more than one if excess over number of models
+    # ExpCM get more than one if excess over number of models
     expcm_modelnames = [modelname for modelname in models.keys() \
             if 'ExpCM' in modelname]
     yngkp_modelnames = [modelname for modelname in models.keys() \
@@ -293,16 +268,13 @@ def main():
     assert len(models.keys()) == len(expcm_modelnames) + len(yngkp_modelnames)\
             , "not ExpCM or YNGKP:\n{0}".format(str(models.keys()))
     ncpus_per_model = dict([(modelname, 1) for modelname in yngkp_modelnames])
-    ncpus_per_model['YNGKP_M0'] = 1
-    ncpus_per_model['YNGKP_M5'] = 1
     nperexpcm = max(1, (args['ncpus'] - 2) // len(expcm_modelnames))
     for modelname in expcm_modelnames:
         ncpus_per_model[modelname] = nperexpcm
     for modelname in models.keys():
         mtup = models[modelname]
-        assert len(mtup) == 3 # should be 3-tuple
         models[modelname] = (mtup[0], mtup[1] + ['--ncpus',
-                str(ncpus_per_model[modelname])], mtup[2])
+                str(ncpus_per_model[modelname])])
 
 
     pool = {} # holds process for model name
@@ -329,9 +301,9 @@ def main():
                     " that match the names of output files that will be "
                     'created: {0}\n'.format(', '.join(removed)))
 
-    #now run the other models
+        #now run the models
         for modelname in list(models.keys()):
-            (model, additionalcmds, nempirical) = models[modelname]
+            (model, additionalcmds) = models[modelname]
             outprefix = "{0}{1}".format(args['outprefix'], modelname)
             cmds = ['phydms', args['alignment'], args["tree"], model,
                     outprefix] + additionalcmds
@@ -368,13 +340,12 @@ def main():
                             .format(modelname))
             time.sleep(1)
 
-    #make sure all expected output files are there
+        # make sure all expected output files are there
         for fname in outfiles:
             if not os.path.isfile(fname):
                 raise RuntimeError("Cannot find expected output file {0}"
                         .format(fname))
         createModelComparisonFile(models, args["outprefix"])
-
 
     except:
         logger.exception('Terminating {0} at {1} with ERROR'

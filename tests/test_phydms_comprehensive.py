@@ -23,13 +23,10 @@ class test_phydms_comprehensive(unittest.TestCase):
         tree = '{0}/NP_tree.newick'.format(npdir)
         for f in [prefs, alignment]:
             self.assertTrue(os.path.isfile(f), "Can't find file {0}".format(f))
-        outprefix = './NP_test_results/phydms_comprehensive/'
-        if os.path.isdir(outprefix):
-            shutil.rmtree(outprefix)
-
+        outprefix = './NP_test_results/'
 
         subprocess.check_call(['phydms_comprehensive', outprefix, alignment,
-                prefs, "--tree", tree, "--brlen", "scale"])
+                prefs, "--tree", tree, "--omegabysite", '--diffprefsbysite'])
 
 
 if __name__ == '__main__':
