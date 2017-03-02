@@ -29,16 +29,22 @@ def treelikForDiffPrefsBySite(site, tl, prefslist, prior):
     """Returns `TreeLikelihood` for fitting diffprefs for a site.
 
     The returned value can be passed to `fitDiffPrefsBySite`."""
-    if isinstance(tl.model, phydmslib.models.DistributionModel):
-        raise ValueError("not yet implemented for DistributionModel")
-    else:
-        assert type(tl.model) in [phydmslib.models.ExpCM, 
-                phydmslib.models.ExpCM_empirical_phi]
     sitealignment = [(head, seq[3 * (site - 1) : 3 * site]) for 
             (head, seq) in tl.alignment]
+    gammaomegamodel = False
+    if isinstance(tl.model, phydmslib.models.GammaDistributedOmegaModel):
+        modeltotype = tl.model.basemodel
+        gammomegamodel = True
+    else:
+        modeltotype = tl.model
+    assert type(modeltotype) in [phydmslib.models.ExpCM, 
+            phydmslib.models.ExpCM_empirical_phi]
     sitemodel = phydmslib.models.ExpCM_fitprefs([prefslist[site - 1]],
-            prior, tl.model.kappa, tl.model.omega, tl.model.phi,
-            origbeta=tl.model.beta, freeparams=['zeta'])
+            prior, modeltotype.kappa, modeltotype.omega, modeltotype.phi,
+            origbeta=modeltotype.beta, freeparams=['zeta'])
+    if gammaomegamodel:
+        sitemodel = phydmslib.models.GammaDistributedOmegaModel(sitemodel,
+                tl.model.ncats, tl.model.alpha_omega, tl.model.beta_omega)
     treelik = phydmslib.treelikelihood.TreeLikelihood(
             tl.tree, sitealignment, sitemodel, 
             branchScale=tl.model.branchScale)
@@ -383,7 +389,7 @@ def main():
                         'all other parameters.\n# Fits compared to null model '
                         'of omega = 1.\n# P-values NOT corrected for multiple '
                         'hypothesis testing.\n# {0}\n#\n'
-                        '# site\tomega\tP\tdLnL\n{1}'.format(fixsynstr,
+                        'site\tomega\tP\tdLnL\n{1}'.format(fixsynstr,
                         '\n'.join([tup[1] for tup in sorted(omegaresults)])))
 
         # optimize differential preferences for each site
@@ -404,7 +410,7 @@ def main():
             with open(diffprefsfile, 'w') as f:
                 f.write('# Differential preferences fit to each site.\n' +
                         '# Regularizing prior: {0}\n#\n'.format(args['diffprefsprior'])
-                        + '# site\t' + '\t'.join(['dpi_{0}'.format(INDEX_TO_AA[a]) 
+                        + 'site\t' + '\t'.join(['dpi_{0}'.format(INDEX_TO_AA[a]) 
                         for a in range(N_AA)]) + '\n')
                 f.write('\n'.join(diffprefresults))
 

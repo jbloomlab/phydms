@@ -383,7 +383,7 @@ class TreeLikelihood(object):
 
         oldloglik = self.loglik
         converged = False
-        options = {'ftol':1.0e-6} # optimization options
+        options = {'ftol':1.0e-7} # optimization options
         summary = []
         i = 1
         while not converged:
@@ -394,7 +394,7 @@ class TreeLikelihood(object):
             paramsconverged = False
             while not paramsconverged:
                 result = scipy.optimize.minimize(paramsfunc, self.paramsarray,
-                        method='L-BFGS-B', jac=paramsdfunc, 
+                        method='L-BFGS-B', jac=paramsdfunc,
                         bounds=self.paramsarraybounds, options=options)
                 msg = ('Step {0}: optimized parameters, loglik went from '
                         '{1:.2f} to {2:.2f} ({3} iterations, {4} function '

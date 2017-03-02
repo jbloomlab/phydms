@@ -19,6 +19,7 @@ import pyvolve
 
 class test_OmegaBySiteExpCM(unittest.TestCase):
     """Tests ``--omegabysite`` to ``phydms`` for `ExpCM`."""
+    gammaomega_arg = []
 
     def setUp(self):
         random.seed(1)
@@ -41,13 +42,17 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
             prefs[r - 1] = dict(zip(aas, rprefs))
         self.model = phydmslib.models.ExpCM(prefs, beta=1.5)
         self.outdir = './diffprefsbysite_test_results/'
-        self.modelname = 'ExpCM'
+        if self.gammaomega_arg:
+            self.modelname = 'ExpCM_gammaomega'
+        else:
+            self.modelname = 'ExpCM'
         self.modelarg = 'ExpCM_{0}'.format(self.prefs)
 
         if not os.path.isdir(self.outdir):
             os.mkdir(self.outdir)
 
     def test_OnSimulatedData(self):
+        """Run ``phydms`` on the simulated data."""
         random.seed(1)
         scipy.random.seed(1)
         partitions = phydmslib.simulate.pyvolvePartitions(self.model)
@@ -61,7 +66,7 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
         subprocess.check_call(['phydms', simulatedalignment, self.tree,
                 self.modelarg, simulateprefix, '--diffprefsbysite', 
                 '--brlen', 'scale', '--ncpus', '-1', '--diffprefsprior',
-                'invquadratic,50,0.25'])
+                'invquadratic,50,0.25'] + self.gammaomega_arg)
         diffprefsbysitefile = simulateprefix + '_diffprefsbysite.txt'
         aas = [INDEX_TO_AA[a] for a in range(N_AA)]
         diffprefs = pandas.read_csv(diffprefsbysitefile, sep='\t', comment='#',
@@ -69,6 +74,11 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
         diffprefs['total'] = diffprefs[aas].sum(axis=1)
         for (site, a) in self.targetaas.items():
             self.assertTrue((diffprefs[diffprefs['site'] == site][a] > 0).all())
+
+
+class test_OmegaBySiteExpCMGammaOmega(test_OmegaBySiteExpCM):
+    """Tests ``--omegabysite`` to ``phydms`` for `ExpCM` with ``--gammaomega``."""
+    gammaomega_arg = ['--gammaomega']
 
 
 if __name__ == '__main__':

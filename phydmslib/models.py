@@ -1779,15 +1779,19 @@ class GammaDistributedOmegaModel(DistributionModel):
                   'beta_omega':float,
                  }
 
+
     @property
     def logprior(self):
-        """Is zero, as no prior is defined over this model."""
-        return 0.0
+        """Equal to value of `basemodel.logprior`."""
+        return self._models[0].logprior
 
     def dlogprior(self, param):
-        """Zero for all `param`, as no prior defined over this model."""
+        """Equal to value of `basemodel.dlogprior`."""
         assert param in self.freeparams, "Invalid param: {0}".format(param)
-        return 0.0
+        if param in self.distributionparams:
+            return 0.0
+        else:
+            return self._models[0].dlogprior(param)
 
     @property
     def basemodel(self):
