@@ -237,7 +237,8 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             self.assertTrue(tl.loglik > startloglik, "no loglik increase: "
                     "start = {0}, end = {1}".format(startloglik, tl.loglik))
             for (otherloglik, otherparams) in zip(logliks, paramsarrays):
-                self.assertTrue(scipy.allclose(tl.loglik, otherloglik),
+                self.assertTrue(scipy.allclose(tl.loglik, otherloglik, 
+                        atol=1e-3, rtol=1e-5),
                         "Large difference in loglik: {0} vs {1}".format(
                         otherloglik, tl.loglik))
                 self.assertTrue(scipy.allclose(tl.paramsarray, otherparams,

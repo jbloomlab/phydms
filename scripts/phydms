@@ -177,7 +177,7 @@ def main():
         # process the substitution model
         yngkp_match = re.compile('^YNGKP_(?P<modelvariant>M\d+)$')
         if isinstance(args['model'], str) and yngkp_match.search(args['model']):
-            for argname in ['randprefs', 'avgprefs', 'divpressure', 'diffprefsybsite']:
+            for argname in ['randprefs', 'avgprefs', 'divpressure', 'diffprefsbysite']:
                 assert not args[argname], "'--%s' incompatible with YNKGP".format(
                             argname)
             assert not args['gammaomega'], ("Can't use --gammaomega with YNGKP "

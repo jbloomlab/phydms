@@ -67,10 +67,8 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
         diffprefs = pandas.read_csv(diffprefsbysitefile, sep='\t', comment='#',
                 header=None, names=(['site'] + aas))
         diffprefs['total'] = diffprefs[aas].sum(axis=1)
-        diffprefs.sort_values('total', ascending=False, inplace=True)
-        print(diffprefs)
-        print(self.shuffledsites)
-        print(self.targetaas)
+        for (site, a) in self.targetaas.items():
+            self.assertTrue((diffprefs[diffprefs['site'] == site][a] > 0).all())
 
 
 if __name__ == '__main__':

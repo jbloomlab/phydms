@@ -131,9 +131,11 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
                 pref_sorted_aas = [tup[1] for tup in sorted(
                         [(tl.model.pi[r][a], a) for a in range(N_AA)],
                         reverse=True)]
-                self.assertTrue(aas_with_counts == set(pref_sorted_aas[ : 
-                        len(aas_with_counts)]), "top prefs not for amino "
-                        "acids with counts.")
+                self.assertTrue(aas_with_counts <= set(pref_sorted_aas[ : 
+                        len(aas_with_counts) + 1]), "top prefs not for amino "
+                        "acids with counts:\naas_with_counts: {0}\n"
+                        "pref_sorted_aas: {1}".format(aas_with_counts,
+                        pref_sorted_aas))
 
 
 if __name__ == '__main__':

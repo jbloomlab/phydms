@@ -413,8 +413,8 @@ class TreeLikelihood(object):
                     if nparamstry > nparamsretry:
                         raise RuntimeError(failmsg)
                     else:
-                        warnings.warn(failmsg)
-                        warnings.warn("Re-trying with different initial params.")
+                        warnings.warn(failmsg + '\n\n' + 
+                                "Re-trying with different initial params.")
                         scipy.random.seed(nparamstry)
                         newparams = scipy.random.uniform(0.5, 0.9,
                                 self.paramsarray.shape) * self.paramsarray
