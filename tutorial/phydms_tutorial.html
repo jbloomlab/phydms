@@ -156,7 +156,6 @@ $(document).ready(function () {
 <li><a href="#tree">Phylogenetic Tree</a></li>
 </ul></li>
 <li><a href="#phydms"><code>phydms</code> analysis</a><ul>
-<li><a href="#basic-phydms-analysis">Basic <code>phydms</code> analysis</a></li>
 <li><a href="#modelChoice">Model choice</a></li>
 <li><a href="#phydmsCommandline">Command-line usage</a></li>
 <li><a href="#output">Output files</a></li>
@@ -280,6 +279,7 @@ the last sequence in the alignment seems to have a different length</code></pre>
 <pre><code># POSITION WT SITE_ENTROPY A C D E F G H I K L M N P Q R S T V W Y
 1 M 4.16 0.04 0.04 0.04 0.04 0.04 0.04 0.05 0.02 0.04 0.04 0.17 0.04 0.04 0.04 0.04 0.04 0.03 0.02 0.04 0.04
 2 A 1.99 0.65 0.00 0.00 0.02 0.00 0.01 0.00 0.00 0.00 0.00 0.03 0.00 0.00 0.00 0.00 0.01 0.01 0.14 0.00 0.00</code></pre>
+<p>Any line starting with <code>#</code> will be ignored in any of the file formats.</p>
 </div>
 <div id="inferring-site-specfic-amino-acid-preferences-from-deep-mutational-scanning-deep-sequencing-data" class="section level3">
 <h3>Inferring Site-Specfic Amino-Acid Preferences from Deep Mutational Scanning Deep Sequencing Data</h3>
@@ -307,10 +307,7 @@ the last sequence in the alignment seems to have a different length</code></pre>
 </div>
 <div id="phydms" class="section level1">
 <h1><code>phydms</code> analysis</h1>
-<div id="basic-phydms-analysis" class="section level2">
-<h2>Basic <code>phydms</code> analysis</h2>
 <p><code>phydms</code> can perform phylogenetic analysis with <strong>ExpCM</strong> as well as non-site-specific substitution models (variants of the YNGKP models described in <a href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a>).</p>
-</div>
 <div id="modelChoice" class="section level2">
 <h2>Model choice</h2>
 <p><code>phydms</code> can be run with four different substitution models <strong>ExpCM</strong>, <strong>ExpCM with a <span class="math inline">\(\Gamma\)</span> distributed <span class="math inline">\(\omega\)</span></strong>, <strong>YNGKP_M0</strong>, <strong>YNGKP_M5</strong>. These models can be characterized by their inclusion or exclusion of site-specific terms and whether or not the <span class="math inline">\(dN/dS\)</span> ratio is constant for all of the sites or drawn from a <span class="math inline">\(\Gamma\)</span> distribution. If you would like to run multiple models and compare their results, please see the part of the tutorial on the <a href="#phydms_comprehensive_link">auxillary program <code>phymds_comprehenseive</code></a></p>
@@ -504,7 +501,8 @@ phiG = 0.218769</code></pre>
 <p>This option is only for the <strong>ExpCM</strong> or the <strong>ExpCM with a <span class="math inline">\(\Gamma\)</span> distributed <span class="math inline">\(\omega\)</span></strong>. For more information, see the <a href="http://jbloomlab.github.io/phydms/ExpCM.html#specifiying-diversifying-pressure-at-sites">complete documentation</a>.</p>
 <p>In a similar fashion to the <a href="#prefs">preferences</a>, the diversifying pressure set can be in a comma-, tab-, or space-separated file. Here is the beginning of a HA divpressure file.</p>
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">cat</span> HA_example_data/HA_divpressure.csv <span class="kw">|</span> <span class="kw">head</span> -n 20</code></pre></div>
-<pre><code>#site,value
+<pre><code>#Caton Sites
+#site,value
 1,0
 2,0
 3,0
@@ -522,11 +520,11 @@ phiG = 0.218769</code></pre>
 15,0
 16,0
 17,0
-18,0
-19,0</code></pre>
+18,0</code></pre>
 <p>All of the sites in the snippet above have the same diversifying pressure value, <span class="math inline">\(0\)</span>. But if we look in the middle of the gene, we can see that these values vary between the sites.</p>
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">cat</span> HA_example_data/HA_divpressure.csv <span class="kw">|</span> <span class="kw">sed</span> -n <span class="st">'80,95p'</span></code></pre></div>
-<pre><code>79,0
+<pre><code>78,0
+79,0
 80,0
 81,0
 82,0
@@ -540,8 +538,7 @@ phiG = 0.218769</code></pre>
 90,1
 91,1
 92,0
-93,0
-94,0</code></pre>
+93,0</code></pre>
 <p>This diversifying pressure set is binary, the value for a given site is either <span class="math inline">\(0\)</span> or <span class="math inline">\(1\)</span>. This is not required and the diversifying pressure strength can range from <span class="math inline">\(\infty\)</span> to <span class="math inline">\(-\infty\)</span>. For our HA example data we could run <code>phydms</code> with diversifying pressure with the following command</p>
 <pre><code>phydms HA_example_data/HA_sequences.fasta HA_example_data/RAxML_bestTree.HA_example ExpCM_HA_example_data/HA_preferences.csv phydms_results_ExpCM_divpressure/ --divpressure HA_example_data/HA_divpressure.csv</code></pre>
 <p>The same number of <a href="#output">output files</a> are created and the follow the same format as a basic <code>phydms</code> run. However, if we compare the log likelihood between this run with <code>--divpressure</code> and the run with the same input files but no <code>--divpressure</code>, we can see there is a difference in the final log likelihood.</p>
@@ -672,6 +669,8 @@ log likelihood = -7234.82</code></pre>
 </div>
 <div id="phydms_testdivpressure" class="section level2">
 <h2><code id="phydms_testdivpressure_link">phydms_testdivpressure</code></h2>
+<p>When testing a particular <a href="#divpressure">diversifying pressure set</a> or multiple <a href="#divpressure">diversifying pressure sets</a>, there are several controls which are necessary for interpretation of the results. You will proabably want to compare the log-likelihood of the ExpCM model with the diversifying pressure set to the log-likelihood of the ExpCM model without diversifying pressure given the same preferences, alignment, and tree. If there is no signficant change in log-likelihood then you might conclude the diversifying pressure set is not very good. But how do you determine if the change in log-likelihood is signficant? One way is through permutations. By shuffling the values of diversifying pressure across the sites and re-running the analysis you can create a null distribution and determine signifiance of the true diversifying pressure set from this distribution.</p>
+<p><code>phydms_test</code> divpressure is an easy way to run and summarize the results of the analysis described above.</p>
 </div>
 </div>
 <div id="debug" class="section level1">
