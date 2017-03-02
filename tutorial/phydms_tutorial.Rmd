@@ -91,6 +91,8 @@ and here is the `dms_tools` format:
 1 M 4.16 0.04 0.04 0.04 0.04 0.04 0.04 0.05 0.02 0.04 0.04 0.17 0.04 0.04 0.04 0.04 0.04 0.03 0.02 0.04 0.04
 2 A 1.99 0.65 0.00 0.00 0.02 0.00 0.01 0.00 0.00 0.00 0.00 0.03 0.00 0.00 0.00 0.00 0.01 0.01 0.14 0.00 0.00
 ```
+Any line starting with `#` will be ignored in any of the file formats.  
+
 ###Inferring Site-Specfic Amino-Acid Preferences from Deep Mutational Scanning Deep Sequencing Data
 Due to deep sequencing's inability to exhaustively sample every molecule in the deep mutational scanning library, it is advisable to infer the site-specific amino-acid preferences rather than taking the raw ratio of the mutation frequencies pre-and post-selection. We recommend using the algorithm from [Bloom, 2015](http://download.springer.com/static/pdf/476/art%253A10.1186%252Fs12859-015-0590-4.pdf?originUrl=http%3A%2F%2Fbmcbioinformatics.biomedcentral.com%2Farticle%2F10.1186%2Fs12859-015-0590-4&token2=exp=1488328740~acl=%2Fstatic%2Fpdf%2F476%2Fart%25253A10.1186%25252Fs12859-015-0590-4.pdf*~hmac=26e1bd9961fe648505639b04cc4181262e5ad5f94caa9c4013babd1b8b8f0cd2) implemented in [`dms_tools`](http://jbloomlab.github.io/dms_tools/index.html) program [`dms_inferprefs`](http://jbloomlab.github.io/dms_tools/dms_inferprefs.html#dms-inferprefs). 
 
@@ -119,7 +121,6 @@ would be written as
 Typically you infer this tree using a program such as [RAxML](http://sco.h-its.org/exelixis/software.html) or [codonPhyML](codonPhyML).   
 
 #`phydms` analysis{#phydms}
-##Basic `phydms` analysis
 `phydms` can perform phylogenetic analysis with **ExpCM** as well as non-site-specific substitution models (variants of the YNGKP models described in [Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449](http://www.genetics.org/content/155/1/431)).   
 
 ##Model choice{#modelChoice}     
@@ -322,7 +323,11 @@ The random number seed affects the outcomes when there is randomization, as when
 #Auxillary Programs
 ##`phydms_prepalignment`
 ##`phydms_comprehensive`{#phydms_comprehensive_link}
-##`phydms_testdivpressure`{#phydms_testdivpressure_link}
+##`phydms_testdivpressure`{#phydms_testdivpressure_link}   
+
+When testing a particular [diversifying pressure set](#divpressure) or multiple [diversifying pressure sets](#divpressure), there are several controls which are necessary for interpretation of the results. You will proabably want to compare the log-likelihood of the ExpCM model with the diversifying pressure set to the log-likelihood of the ExpCM model without diversifying pressure given the same preferences, alignment, and tree. If there is no signficant change in log-likelihood then you might conclude the diversifying pressure set is not very good. But how do you determine if the change in log-likelihood is signficant? One way is through permutations. By shuffling the values of diversifying pressure across the sites and re-running the analysis you can create a null distribution and determine signifiance of the true diversifying pressure set from this distribution. 
+
+`phydms_test` divpressure is an easy way to run and summarize the results of the analysis described above.  
 
 #Debug
 ####`RAxML` error 
