@@ -447,6 +447,12 @@ class ExpCM(Model):
             elif isinstance(pvalue, scipy.ndarray) and pvalue.shape == (N_NT,):
                 for w in range(N_NT - 1):
                     report['{0}{1}'.format(param, INDEX_TO_NT[w])] = pvalue[w]
+            elif isinstance(pvalue, scipy.ndarray) and (pvalue.shape == 
+                    (self.nsites, N_AA)):
+                for r in range(self.nsites):
+                    for a in range(N_AA):
+                        report['{0}{1}{2}'.format(param, r + 1, INDEX_TO_AA[a])
+                                ] = pvalue[r][a]
             else:
                 raise ValueError("Unexpected param: {0}".format(param))
         return report
@@ -844,6 +850,8 @@ class ExpCM_fitprefs(ExpCM):
     ALLOWEDPARAMS.append('zeta')
     _PARAMLIMITS = copy.deepcopy(ExpCM._PARAMLIMITS)
     _PARAMLIMITS['zeta'] = (ALMOST_ZERO, 1 - ALMOST_ZERO)
+    _REPORTPARAMS = copy.deepcopy(ExpCM._REPORTPARAMS)
+    _REPORTPARAMS.append('pi')
 
     def __init__(self, prefs, prior, kappa, omega, phi, mu=1.0, origbeta=1.0,
             freeparams=['zeta']):
@@ -939,6 +947,9 @@ class ExpCM_fitprefs(ExpCM):
                     zetari = 1.0 - self.pi[r][i] / zetaprod
                     self.zeta.reshape(self.nsites, N_AA - 1)[r][i] = zetari
                     zetaprod *= zetari
+            (minzeta, maxzeta) = self.PARAMLIMITS['zeta']
+            self.zeta[self.zeta < minzeta] = minzeta
+            self.zeta[self.zeta > maxzeta] = maxzeta
             _checkParam('zeta', self.zeta, self.PARAMLIMITS, self.PARAMTYPES)
         else:
             # after first call, we are updating pi from zeta

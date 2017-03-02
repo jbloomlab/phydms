@@ -8,6 +8,7 @@ using the indexing schemes defined in `phydmslib.constants`.
 import sys
 import math
 import copy
+import warnings
 import scipy
 import scipy.optimize
 import Bio.Phylo
@@ -317,7 +318,7 @@ class TreeLikelihood(object):
         self._updateInternals()
 
     def maximizeLikelihood(self, optimize_brlen=False,
-            approx_grad=False, logliktol=1.0e-2):
+            approx_grad=False, logliktol=1.0e-2, nparamsretry=1):
         """Maximize the log likelihood.
 
         Maximizes log likelihood with respect to model parameters
@@ -340,6 +341,9 @@ class TreeLikelihood(object):
                 When using `optimize_brlen`, keep iterating between
                 optimization of parameters and branch lengths until
                 change in log likelihood is less than `logliktol`.
+            `nparamsretry` (int >= 0)
+                Number of times to retry parameter optimization from 
+                different initial values if it fails the first time.
 
         Returns:
             A string giving a summary of the maximization.
@@ -348,6 +352,7 @@ class TreeLikelihood(object):
         # http://www.scipy-lectures.org/advanced/mathematical_optimization/
 
         assert len(self.paramsarray) > 0, "No parameters to optimize"
+        assert nparamsretry >= 0
         assert logliktol > 0
 
         def paramsfunc(x):
@@ -378,23 +383,48 @@ class TreeLikelihood(object):
 
         oldloglik = self.loglik
         converged = False
+        options = {'ftol':1.0e-6} # optimization options
         summary = []
         i = 1
         while not converged:
             if (not self.dparamscurrent) and (not approx_grad): 
                 self.dtcurrent = False
                 self.dparamscurrent = True
-            result = scipy.optimize.minimize(paramsfunc, self.paramsarray,
-                    method='L-BFGS-B', jac=paramsdfunc, 
-                    bounds=self.paramsarraybounds)
-            summary.append('Step {0}: optimized parameters, loglik went from '
-                    '{1:.2f} to {2:.2f} ({3} iterations, {4} function '
-                    'evals)'.format(i, oldloglik, self.loglik, result.nit,
-                    result.nfev))
+            nparamstry = 0
+            paramsconverged = False
+            while not paramsconverged:
+                result = scipy.optimize.minimize(paramsfunc, self.paramsarray,
+                        method='L-BFGS-B', jac=paramsdfunc, 
+                        bounds=self.paramsarraybounds, options=options)
+                msg = ('Step {0}: optimized parameters, loglik went from '
+                        '{1:.2f} to {2:.2f} ({3} iterations, {4} function '
+                        'evals)'.format(i, oldloglik, self.loglik, result.nit,
+                        result.nfev))
+                summary.append(msg)
+                if result.success:
+                    paramsconverged = True
+                else:
+                    nparamstry += 1
+                    failmsg = ("Optimization failure {0}\n{1}\n{2}\n{3}".format(
+                            nparamstry, result.message, '\n'.join([
+                            '{0} = {1}'.format(tup[0], tup[1]) for tup in 
+                            sorted(self.model.paramsReport.items())]), 
+                            '\n'.join(summary)))
+                    if nparamstry > nparamsretry:
+                        raise RuntimeError(failmsg)
+                    else:
+                        warnings.warn(failmsg)
+                        warnings.warn("Re-trying with different initial params.")
+                        scipy.random.seed(nparamstry)
+                        newparams = scipy.random.uniform(0.5, 0.9,
+                                self.paramsarray.shape) * self.paramsarray
+                        assert newparams.ndim == 1
+                        for j in range(len(newparams)):
+                            while newparams[j] <= self.paramsarraybounds[j][0]:
+                                newparams[j] *= 1.1
+                                assert newparams[j] < self.paramsarraybounds[j][1]
+                        self.paramsarray = newparams
             i += 1
-            assert result.success, ("Optimization fail\n{0}\n{1}\n{2}".format(
-                    result.message, self.model.paramsReport, 
-                    '\n'.join(summary)))
             if oldloglik - self.loglik > logliktol:
                 raise RuntimeError("loglik increased during param "
                         "optimization: {0} to {1}".format(oldloglik,
@@ -406,7 +436,7 @@ class TreeLikelihood(object):
                         self.dparamscurrent = False
                         self.dtcurrent = True
                     result = scipy.optimize.minimize(tfunc, self.t,
-                            method='L-BFGS-B', jac=tdfunc,
+                            method='L-BFGS-B', jac=tdfunc, options=options,
                             bounds=[(ALMOST_ZERO, None)] * len(self.t))
                     summary.append('Step {0}: optimized branches, loglik '
                             'went from {1:.2f} to {2:.2f} ({3} iterations, '

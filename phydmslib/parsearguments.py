@@ -143,6 +143,18 @@ def FloatBetweenZeroAndOne(x):
         raise ValueError("{0} not a float between 0 and 1.".format(x))
 
 
+def diffPrefsPrior(priorstring):
+    """Parses `priorstring` and returns `prior` tuple."""
+    assert isinstance(priorstring, str)
+    prior = priorstring.split(',')
+    if len(prior) == 3 and prior[0] == 'invquadratic':
+        [c1, c2] = [float(x) for x in prior[1 : ]]
+        assert c1 > 0 and c2 > 0, "C1 and C2 must be > 1 for invquadratic prior"
+        return ('invquadratic', c1, c2)
+    else:
+        raise ValueError("Invalid diffprefsprior: {0}".format(priorstring))
+
+
 def ExistingFile(fname):
     """If *fname* is name of an existing file return it, otherwise an error.
 
@@ -353,10 +365,6 @@ def PhyDMSParser():
             dest='gammaomega', help="Omega for ExpCM from gamma "
             "distribution rather than single value. To achieve "
             "same for YNGKP, use 'model' of YNGKP_M5.")
-    parser.set_defaults(fitphi=False)
-    parser.add_argument('--fitphi', action='store_true', dest='fitphi',
-            help='Fit ExpCM phi rather than setting so stationary '
-            'state matches alignment frequencies.')
     parser.set_defaults(omegabysite=False)
     parser.add_argument('--omegabysite', dest='omegabysite',
             action='store_true', help="Fit omega (dN/dS) for each site.")
@@ -364,6 +372,18 @@ def PhyDMSParser():
     parser.add_argument('--omegabysite_fixsyn', dest='omegabysite_fixsyn',
             action='store_true', help="For '--omegabysite', assign all "
             "sites same dS rather than fit for each site.")
+    parser.set_defaults(diffprefsbysite=False)
+    parser.add_argument('--diffprefsbysite', dest='diffprefsbysite',
+            action='store_true', help="Fit differential preferences "
+            "for each site.")
+    parser.add_argument('--diffprefsprior', default='invquadratic,150,0.5',
+            type=diffPrefsPrior, help="Regularizing prior for "
+            "'--diffprefsbysite': 'invquadratic,C1,C2' is prior in "
+            "Bloom, Biology Direct, 12:1.")
+    parser.set_defaults(fitphi=False)
+    parser.add_argument('--fitphi', action='store_true', dest='fitphi',
+            help='Fit ExpCM phi rather than setting so stationary '
+            'state matches alignment frequencies.')
     parser.set_defaults(randprefs=False)
     parser.add_argument('--randprefs', dest='randprefs', action='store_true',
             help="Randomize preferences among sites for ExpCM.")
