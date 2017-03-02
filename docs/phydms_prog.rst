@@ -20,7 +20,7 @@ Command-line usage
    :prog: phydms
 
    alignment
-    Should contain aligned DNA codon sequences. 
+    Should contain aligned DNA codon sequences.
     Stop codons are **not** allowed, except if a stop codon is the terminal character in all sequences, in which case they are automatically trimmed.
 
     No checking is done to remove identical sequences, so you may want to remove such sequences yourself if there a lot of them.
@@ -35,17 +35,17 @@ Command-line usage
     per site.
 
    model
-    *YNGKP_<m>* is a *non-site-specific* Goldman-Yang style codon model from `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_. 
-    The *<m>* indicates the model variant. 
+    *YNGKP_<m>* is a *non-site-specific* Goldman-Yang style codon model from `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_.
+    The *<m>* indicates the model variant.
     Codon frequencies are set empirically using the *CF3X4* method described by `Pond et al, PLoS One, 5:e11230`_ (this sets the codon frequencies to the the product of nucleotide frequency parameters at each of the three positions after correcting for stop codons).
-    The transition-transversion ratio :math:`\kappa` is optimized by maximum likelihood. 
+    The transition-transversion ratio :math:`\kappa` is optimized by maximum likelihood.
     The nonsynonymous-synonymous ratio :math:`\omega` is optimized differently depending on the variant:
-     
+
         - *YNGKP_M0* : a single :math:`\omega` is optimized by maximum likelihood.
 
         - *YNGKP_M5* : :math:`\omega` drawn from a gamma distribution with the two parameters optimized by maximum likelihood. The distribution has ``--ncats`` categories.
- 
-    *ExpCM_<prefsfile>* is an :ref:`ExpCM` with amino-acid preferences taken from the file ``prefsfile``. 
+
+    *ExpCM_<prefsfile>* is an :ref:`ExpCM` with amino-acid preferences taken from the file ``prefsfile``.
     The preferences file must specify a preference for the amino acid encoded by every site in ``alignment``, using sequential 1, 2, ... numbering.
     Any stop-codon preferences specified in the file are ignored.
     The preferences file can be in several formats:
@@ -64,12 +64,12 @@ Command-line usage
     of obtaining the preferences, but estimating them from the amino-acid frequencies in the alignment of homologs is not a valid approach as you are then estimating the preferences from the same sequences that you are subsequently analyzing.
 
    outprefix
-    If this prefix contains a directory name, that directory is created if it does not already exist. 
+    If this prefix contains a directory name, that directory is created if it does not already exist.
 
     See `Output files`_ for a description of the files created with this prefix. Any existing files with these names are deleted at the start of the program's execution.
 
    \-\-brlen
-    The tree topology is fixed to that in ``tree``. 
+    The tree topology is fixed to that in ``tree``.
     But there are several options for how the branch lengths are handled:
 
       * *scale*: fix the relative length of the branches to the values in ``tree``, but scale them all by a single parameter :math:`\mu` that is optimized. This approach will be faster.
@@ -83,7 +83,7 @@ Command-line usage
     You do **not** use this option with *YNGKP* models; for those, simply set ``model`` to *YNGKP_M5* to get gamma-distributed :math:`\omega`.
 
    \-\-ncats
-    Determines the number of categories when using ``--gammarates`` and `model` of *YNGKP_M5*. More categories leads to longer run-time, values of 4-5 are usually adequate.
+    Determines the number of categories when using ``--gammaomega`` and `model` of *YNGKP_M5*. More categories leads to longer run-time, values of 4-5 are usually adequate.
 
    \-\-fitphi
     This option is not typically recommended. It will typically lead to only very slight improvements in log likelihood at substantial computational cost.
@@ -92,7 +92,7 @@ Command-line usage
     If using a YNGKP model, then the :math:`\omega_r` value is nearly analogous that obtained using the *FEL* model described by `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_. If using and *ExpCM*, then :math:`\omega_r` has the meaning described in :ref:`ExpCM`. Essentially, we fix all other model / tree parameters and then compare a model that fits a synonymous and nonsynonymous rate to each site to a null model that only fits a synonymous rate; there is evidence for :math:`\omega_r \ne 1` if fitting both nonsynonymous and synonymous rate gives sufficiently better likelihood than fitting synonymous rate alone. See also the ``--omegabysite_fixsyn`` option.
 
    \-\-omegabysite_fixsyn
-    This option is meaningful only if you are using ``--omegabysite``. If you use this option, then we compare a model in which we fit a nonsynonymous rate to each site to a model in which we fit nothing. The synonymous rate is not fit, and so is assumed to be equal to the overall value fit for the tree. According to `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_, in some cases this can yield greater power if there is relatively limited data. However, it comes with the risk of giving spurious results if there is substantial variation in the synonymous substitution rate among sites.  
+    This option is meaningful only if you are using ``--omegabysite``. If you use this option, then we compare a model in which we fit a nonsynonymous rate to each site to a model in which we fit nothing. The synonymous rate is not fit, and so is assumed to be equal to the overall value fit for the tree. According to `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_, in some cases this can yield greater power if there is relatively limited data. However, it comes with the risk of giving spurious results if there is substantial variation in the synonymous substitution rate among sites.
 
    \-\-divpressure
     Only for *ExpCM* models. This option specifies the name of the file with the predetermined diversifying pressure for each site, :math:`\delta_{r}`. ``phydms`` will fit :math:`\omega` and :math:`\omega_{2}` as described in :ref:`ExpCM`.
@@ -100,17 +100,17 @@ Command-line usage
     You can **not** use ``--divpressure`` and ``--fitphi`` simultaneously.
 
    \-\-randprefs
-    Only for *ExpCM* models. 
-    This option randomly reassigns the preferences among sites. 
+    Only for *ExpCM* models.
+    This option randomly reassigns the preferences among sites.
     This can be used as a control: randomizing the preferences should make them lose their efficacy for describing evolution.
 
    \-\-avgprefs
-    Only for *ExpCM* models. 
-    This option computes an average of each preference across sites (:math:`\pi_a = \frac{1}{L} \sum_r \pi_{r,a}` where :math:`r = 1, \ldots, L`), and then uses these average preferences for all sites. 
+    Only for *ExpCM* models.
+    This option computes an average of each preference across sites (:math:`\pi_a = \frac{1}{L} \sum_r \pi_{r,a}` where :math:`r = 1, \ldots, L`), and then uses these average preferences for all sites.
     This can be used as a control, as it merges all the information in the preferences into a non-site-specific model.
 
    \-\-minbrlen
-    All branches with lengths less than this value will be set to this value in the initial starting tree. 
+    All branches with lengths less than this value will be set to this value in the initial starting tree.
     Branches can still end up with lengths less than this after subsequent optimization of this starting tree.
 
    \-\-minpref
@@ -136,12 +136,12 @@ This is a text file with the suffix ``.log`` that records information about the 
 Log likelihood file
 ++++++++++++++++++++++
 This file has the suffix ``_loglikelihood.txt``. It simply gives the optimized log likelihood. Here is an example of a file's contents::
-                
+
     log likelihood = -4415.24
 
 Model parameters
 ++++++++++++++++++++
-This file has the suffix ``_modelparams.txt``. 
+This file has the suffix ``_modelparams.txt``.
 
 Here is an example of the contents for an *ExpCM* model.
 It gives the values of the parameters described in :ref:`ExpCM`; note that :math:`\mu` is **not** included as it is confounded with the branch lengths::
@@ -153,7 +153,7 @@ It gives the values of the parameters described in :ref:`ExpCM`; note that :math
     phiC = 0.196416
     phiG = 0.224367
 
-Here is an example of the contents for a *YNGKP_M0* model. 
+Here is an example of the contents for a *YNGKP_M0* model.
 In this file, `phi0A` is the corrected empirical frequency of `A` at the first codon site, `phi0A` is the frequency of `A` at the second codon site, etc.::
 
     kappa = 5.78484
@@ -169,7 +169,7 @@ In this file, `phi0A` is the corrected empirical frequency of `A` at the first c
     phi2G = 0.243997
 
 If you use a model with a gamma-distributed :math:`\omega` (i.e., the ``--gammarates`` option for an *ExpCM*, or the *YNGKP_M5* model), then rather than having a single :math:`\omega` value, there are instead two parameters that determine the gamma distribution.
-These are the shape parameter :math:`\alpha_{\omega}` (denoted *alpha_omega*) and the inverse scale parameter :math:`\beta_{\omega}` (denoted by *beta_omega*). 
+These are the shape parameter :math:`\alpha_{\omega}` (denoted *alpha_omega*) and the inverse scale parameter :math:`\beta_{\omega}` (denoted by *beta_omega*).
 The mean and variance of the omega distribution are :math:`\alpha_{\omega}/ \beta_{\omega}` and :math:`\alpha_{\omega} / \left(\beta_{\omega}\right)^2`, respectively.
 To get the exact values, use the :ref:`api` to call ``phydmslib.models.DiscreteGamma(alpha_omega, beta_omega, ncats)`` where *ncats* is the value set by ``--ncats``. Here is an example of the model parameter file contents for an *ExpCM* with ``--gammaomega``::
 
@@ -184,7 +184,7 @@ To get the exact values, use the :ref:`api` to call ``phydmslib.models.DiscreteG
 
 Tree file
 ++++++++++++
-This file has the suffix ``_tree.newick``, and gives the optimized tree in Newick format. 
+This file has the suffix ``_tree.newick``, and gives the optimized tree in Newick format.
 The branch lengths are in units of codon substitutions per site.
 
 Site-specific omega file
@@ -220,4 +220,3 @@ That P-value is what indicates the credence that you should lend to the idea tha
 
 
 .. include:: weblinks.txt
-   
