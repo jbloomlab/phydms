@@ -11,12 +11,6 @@ import re
 import logging
 import random
 import time
-import itertools
-# get map as imap for Python2 (http://python-future.org/compatible_idioms.html#imap)
-try:
-    import itertools.imap as map
-except ImportError:
-    pass
 import math
 import multiprocessing
 import scipy
@@ -38,18 +32,22 @@ def treelikForDiffPrefsBySite(site, tl, prefslist, prior):
             (head, seq) in tl.alignment]
     gammaomegamodel = False
     if isinstance(tl.model, phydmslib.models.GammaDistributedOmegaModel):
-        modeltotype = tl.model.basemodel
-        gammomegamodel = True
-    else:
-        modeltotype = tl.model
-    assert type(modeltotype) in [phydmslib.models.ExpCM, 
-            phydmslib.models.ExpCM_empirical_phi]
-    sitemodel = phydmslib.models.ExpCM_fitprefs([prefslist[site - 1]],
-            prior, modeltotype.kappa, modeltotype.omega, modeltotype.phi,
-            origbeta=modeltotype.beta, freeparams=['zeta'])
-    if gammaomegamodel:
+        basemodel = tl.model.basemodel
+        assert type(basemodel) in [phydmslib.models.ExpCM, 
+                phydmslib.models.ExpCM_empirical_phi]
+        sitemodel = phydmslib.models.ExpCM_fitprefs([prefslist[site - 1]],
+                prior, basemodel.kappa, basemodel.omega, basemodel.phi,
+                origbeta=basemodel.beta, freeparams=['zeta', 'omega'])
         sitemodel = phydmslib.models.GammaDistributedOmegaModel(sitemodel,
-                tl.model.ncats, tl.model.alpha_omega, tl.model.beta_omega)
+                tl.model.ncats, tl.model.alpha_omega, tl.model.beta_omega,
+                freeparams=[])
+    else:
+        assert type(tl.model) in [phydmslib.models.ExpCM, 
+                phydmslib.models.ExpCM_empirical_phi]
+        sitemodel = phydmslib.models.ExpCM_fitprefs([prefslist[site - 1]],
+                prior, tl.model.kappa, tl.model.omega, tl.model.phi,
+                origbeta=tl.model.beta, freeparams=['zeta'])
+    assert sitemodel.freeparams == ['zeta']
     treelik = phydmslib.treelikelihood.TreeLikelihood(
             tl.tree, sitealignment, sitemodel, 
             branchScale=tl.model.branchScale)
@@ -59,7 +57,7 @@ def treelikForDiffPrefsBySite(site, tl, prefslist, prior):
 def fitDiffPrefsBySite(argtup):
     """Fits diffprefs for a site, use in a multiprocessing pool.
     
-    `argtup` is return value of `treelikeForDiffPrefsBySite`."""
+    `argtup` is return value of `treelikForDiffPrefsBySite`."""
     (site, treelik) = argtup
     maxresult = treelik.maximizeLikelihood(optimize_brlen=False)
     resultstr = [str(site)] + ['{0:.5f}'.format(treelik.model.pi[0][a] 
@@ -148,7 +146,8 @@ def main():
     treefile = '{0}{1}tree.newick'.format(args['outprefix'], underscore)
     omegafile = '{0}{1}omegabysite.txt'.format(args['outprefix'], underscore)
     diffprefsfile = '{0}{1}diffprefsbysite.txt'.format(args['outprefix'], underscore)
-    to_remove = [modelparamsfile, loglikelihoodfile, treefile, omegafile, logfile]
+    to_remove = [modelparamsfile, loglikelihoodfile, treefile, omegafile, 
+            logfile, diffprefsfile]
     for f in to_remove:
         if os.path.isfile(f):
             os.remove(f)
@@ -382,10 +381,13 @@ def main():
             logger.info(fixsynstr)
             logger.info("Fitting with {0} CPUs...".format(args['ncpus']))
             pool = multiprocessing.Pool(args['ncpus'])
-            omegaresults = pool.imap(fitOmegaBySite, map(treeliksForOmegaBySite,
-                    range(1, tl.nsites + 1), itertools.repeat(tl, tl.nsites),
-                    itertools.repeat(prefslist, tl.nsites),
-                    itertools.repeat(args['omegabysite_fixsyn'], tl.nsites)))
+#            omegaresults = pool.imap(fitOmegaBySite, map(treeliksForOmegaBySite,
+#                    range(1, tl.nsites + 1), itertools.repeat(tl, tl.nsites),
+#                    itertools.repeat(prefslist, tl.nsites),
+#                    itertools.repeat(args['omegabysite_fixsyn'], tl.nsites)))
+            omegaresults = pool.imap(fitOmegaBySite, [treeliksForOmegaBySite(
+                    site, tl, prefslist, args['omegabysite_fixsyn']) for 
+                    site in range(1, tl.nsites + 1)])
             pool.close()
             pool.join()
             logger.info("Completed fitting the site-specific omega values.")
@@ -404,11 +406,14 @@ def main():
                     "detect differential selection.")
             logger.info("Fitting with {0} CPUs...".format(args['ncpus']))
             pool = multiprocessing.Pool(args['ncpus'])
-            diffprefresults = pool.imap(fitDiffPrefsBySite, map(
-                    treelikForDiffPrefsBySite, range(1, tl.nsites + 1),
-                    itertools.repeat(tl, tl.nsites), 
-                    itertools.repeat(prefslist, tl.nsites),
-                    itertools.repeat(args['diffprefsprior'], tl.nsites)))
+#            diffprefresults = pool.imap(fitDiffPrefsBySite, map(
+#                    treelikForDiffPrefsBySite, range(1, tl.nsites + 1),
+#                    itertools.repeat(tl, tl.nsites), 
+#                    itertools.repeat(prefslist, tl.nsites),
+#                    itertools.repeat(args['diffprefsprior'], tl.nsites)))
+            diffprefresults = pool.imap(fitDiffPrefsBySite, 
+                    [treelikForDiffPrefsBySite(site, tl, prefslist,
+                    args['diffprefsprior']) for site in range(1, tl.nsites + 1)])
             pool.close()
             pool.join()
             logger.info("Completed fitting site-specific differential preferences.")

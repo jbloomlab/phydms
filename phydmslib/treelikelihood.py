@@ -421,7 +421,7 @@ class TreeLikelihood(object):
                         warnings.warn(failmsg + '\n\n' + 
                                 "Re-trying with different initial params.")
                         scipy.random.seed(nparamstry)
-                        newparams = scipy.random.uniform(0.5, 0.9,
+                        newparams = scipy.random.uniform(0.6, 0.9,
                                 self.paramsarray.shape) * self.paramsarray
                         assert newparams.ndim == 1
                         for j in range(len(newparams)):

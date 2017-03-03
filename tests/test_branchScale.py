@@ -38,7 +38,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
         random.seed(1)
 
         # define model, only free parameter is mu for testing simulations
-        nsites = 200
+        nsites = 50
         prefs = []
         minpref = 0.01
         for r in range(nsites):
@@ -89,7 +89,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
         evolver = pyvolve.Evolver(partitions=partitions, tree=pyvolvetree)
         nsubs = 0 # subs in simulated seqs (estimate from Hamming distance)
         treedist = 0.0 # distance inferred by `TreeLikelihood`
-        nreplicates = 300
+        nreplicates = 100
         for i in range(nreplicates):
             evolver(seqfile=alignment, infofile=info, ratefile=rates)
             a = [(s.description, str(s.seq)) for s in Bio.SeqIO.parse(
@@ -110,11 +110,11 @@ class test_branchScale_ExpCM(unittest.TestCase):
 
         # We expect nsubs = branchScale * t, but build in some tolerance
         # with rtol since we simulated finite number of sites.
-        self.assertTrue(scipy.allclose(nsubs, model.branchScale * t, rtol=0.1),
+        self.assertTrue(scipy.allclose(nsubs, model.branchScale * t, rtol=0.2),
                 ("Simulated subs per site of {0} is not close "
                 "to expected value of {1} (branchScale = {2}, t = {3})").format(
                 nsubs, t * model.branchScale, model.branchScale, t))
-        self.assertTrue(scipy.allclose(treedist, nsubs, rtol=0.1), (
+        self.assertTrue(scipy.allclose(treedist, nsubs, rtol=0.2), (
                 "Simulated subs per site of {0} is not close to inferred "
                 "branch length of {1}").format(nsubs, treedist))
 

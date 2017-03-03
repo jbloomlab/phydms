@@ -68,17 +68,13 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
                 '--brlen', 'scale', '--ncpus', '-1', '--diffprefsprior',
                 'invquadratic,50,0.25'] + self.gammaomega_arg)
         diffprefsbysitefile = simulateprefix + '_diffprefsbysite.txt'
-        aas = [INDEX_TO_AA[a] for a in range(N_AA)]
-        diffprefs = pandas.read_csv(diffprefsbysitefile, sep='\t', comment='#',
-                header=None, names=(['site'] + aas))
+        aas = ['dpi_{0}'.format(INDEX_TO_AA[a]) for a in range(N_AA)]
+        diffprefs = pandas.read_csv(diffprefsbysitefile, sep='\t', comment='#')
         diffprefs['total'] = diffprefs[aas].sum(axis=1)
         for (site, a) in self.targetaas.items():
-            self.assertTrue((diffprefs[diffprefs['site'] == site][a] > 0).all())
+            self.assertTrue((diffprefs[diffprefs['site'] == site][
+                    'dpi_{0}'.format(a)] > 0).all())
 
-
-class test_OmegaBySiteExpCMGammaOmega(test_OmegaBySiteExpCM):
-    """Tests ``--omegabysite`` to ``phydms`` for `ExpCM` with ``--gammaomega``."""
-    gammaomega_arg = ['--gammaomega']
 
 
 if __name__ == '__main__':

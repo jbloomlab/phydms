@@ -903,12 +903,11 @@ class ExpCM_fitprefs(ExpCM):
         assert (self.PARAMTYPES['zeta'][1] == self.zeta.shape
                 == (self.nsites * (N_AA - 1),))
         if self.nsites > 1: 
-            warnings.warn("ExpCM_fitprefs not recommended for use with more than "
+            raise RuntimeError("ExpCM_fitprefs not validated for more than "
                     "one site. The current implementation will lead to lots "
                     "of computational waste if you are trying to optimize "
                     "preferences for multiple sites simultaneously. Instead, "
-                    "you are suggested to optimize for each site separately.", 
-                    Warning)
+                    "you are suggested to optimize for each site separately.")
 
     @property
     def logprior(self):
@@ -935,7 +934,7 @@ class ExpCM_fitprefs(ExpCM):
             self.origpi = self.pi**self._origbeta
             for r in range(self.nsites):
                 self.origpi[r] /= self.origpi[r].sum()
-                self.origpi[r][self.origpi[r] < minpi] = minpi
+                self.origpi[r][self.origpi[r] < 2 * minpi] = 2 * minpi
                 self.origpi[r] /= self.origpi[r].sum()
             self.pi = self.origpi.copy()
             self.zeta = scipy.ndarray(self.nsites * (N_AA - 1), dtype='float')
@@ -1810,7 +1809,8 @@ class GammaDistributedOmegaModel(DistributionModel):
         This list is `['alpha_omega', 'beta_omega']`."""
         return ['alpha_omega', 'beta_omega']
 
-    def __init__(self, model, ncats, alpha_omega=1.0, beta_omega=2.0):
+    def __init__(self, model, ncats, alpha_omega=1.0, beta_omega=2.0,
+            freeparams=['alpha_omega', 'beta_omega']):
         """Initialize a `GammaDistributedOmegaModel`.
 
         Args:
@@ -1821,6 +1821,9 @@ class GammaDistributedOmegaModel(DistributionModel):
                 of this model will also be an optimized parameter.
             `ncats`, `alpha_omega`, `beta_omega`
                 Meaning described in main class doc string.
+            `freeparams`
+                The free parameters will be these **plus** anything
+                in `model.freeparams` other than `distributedparam`.
         """
         assert isinstance(model, Model) 
         assert not isinstance(model, DistributionModel)
@@ -1838,8 +1841,7 @@ class GammaDistributedOmegaModel(DistributionModel):
         for k in range(self.ncats):
             self._models.append(copy.deepcopy(model))
 
-        # get free parameters: omega distribution params, plus model freeparams
-        self._freeparams = ['alpha_omega', 'beta_omega']
+        self._freeparams = copy.copy(freeparams)
         for param in model.freeparams:
             if param != self.distributedparam:
                 self._freeparams.append(param)
