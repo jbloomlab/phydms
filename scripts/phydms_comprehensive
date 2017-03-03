@@ -29,9 +29,10 @@ def RunCmds(cmds):
     except:
         os.kill(pid, signal.SIGTERM)
 
-def createModelComparisonFile(models, outprefix):
-    """
-    Creates two summary files, a .csv and a .md
+def createModelComparisonFile(models, outprefix, modelcomparisonfile):
+    """Creates `modelcomparisonfile` in Markdown format.
+
+    `models` is a list of the prefixes used for each run.
 
     *modelcomparison.csv*
         Columns include 'model', 'variable', 'value'
@@ -42,45 +43,38 @@ def createModelComparisonFile(models, outprefix):
         optimized parameters.
     """
 
-    #modelcomparison.csv
-    final = pd.DataFrame({"Model":[],"variable":[], "value":[]})
-    for modelName in models.keys():
-        df = pd.read_csv(outprefix + modelName + "_modelparams.txt",
-                sep = " = ", header = None, engine = 'python')
-        df.columns = ['variable', 'value'] #rename the columns
-        df["Model"] = [modelName for x in range(len(df))] #add the model column
-        df = pd.concat([df, pd.DataFrame({"Model":[modelName],"variable":\
-                ["nEmpiricalParams"], "value":[len(df)]})])
-        final = pd.concat([final,df])
-        with open(outprefix + modelName + "_loglikelihood.txt") as f:
-            temp = {"Model":[], "variable":[], "value":[]}
-            lines = f.readlines()
-            temp["Model"].append(modelName)
-            temp["variable"].append("LogLikelihood")
-            temp["value"].append(lines[0].split(" = ")[-1])
-        final = pd.concat([final, pd.DataFrame(temp)])
-    final.to_csv(outprefix + "modelcomparison.csv", index = False)
-    final.reset_index(drop=True, inplace = True)
-
-    #modelcomparison.md
-    #pivot the dataframe so the parameters are columns
-    mdDF = final.pivot(index = "Model", columns='variable', values='value')
-    mdDF = mdDF[[x for x in mdDF.columns.values if "phi" not in x]]#remove phi
-    mdDF["LogLikelihood"] = [float(x) for x in mdDF["LogLikelihood"]]
-    #calc AIC
-    mdDF["deltaAIC"] = 2 * (mdDF["nEmpiricalParams"] - mdDF["LogLikelihood"])
-    mdDF["deltaAIC"] = mdDF["deltaAIC"] - mdDF["deltaAIC"].min()#calc dAIC
-    mdDF.sort_values(['deltaAIC'], ascending=[True])#sort so "best" model first
-    #format for markdown
-    final = ["|".join(["Model"] + mdDF.columns.values)]
-    final.append(["---|" for x in range(len(mdDF.columns.values))] + ["---"])
-    #write markdown file
-    with open(outprefix + "modelcomparison.md", "w") as f:
-        f.write("|".join(["Model"] + list(mdDF.columns.values)) + "\n")
-        f.write("".join(["---|" for x in range(len(mdDF.columns.values))]
-                + ["---"]) + "\n")
-        for index, row in mdDF.iterrows():
-            f.write("|".join([str(x) for x in [index]+ list(row)]) + "\n")
+    # modelcomparison.csv
+    columns = ['Model', 'deltaAIC', 'LogLikelihood', 'nParams', 'ParamValues']
+    stats = dict([(col, []) for col in columns])
+    for modelName in models:
+        stats['Model'].append(modelName)
+        with open(outprefix + modelName + '_loglikelihood.txt') as f:
+            stats['LogLikelihood'].append(float(f.read().split()[-1]))
+        with open(outprefix + modelName + '_modelparams.txt') as f:
+            params = [(line.split('=')) for line in f]
+        stats['nParams'].append(len(params))
+        paramvalues = ['{0}={1:.2f}'.format(name.strip(), float(value)) for 
+                (name, value) in sorted(params) if 'phi' not in name]
+        stats['ParamValues'].append(', '.join(paramvalues))
+        stats['deltaAIC'].append(2 * (stats['nParams'][-1] - 
+                stats['LogLikelihood'][-1]))
+    minAIC = min(stats['deltaAIC'])
+    stats['deltaAIC'] = [x - minAIC for x in stats['deltaAIC']]
+    nrows = len(stats['Model'])
+    indexorder = [tup[1] for tup in sorted(zip(stats['deltaAIC'], range(nrows)))]
+    for col in ['deltaAIC', 'LogLikelihood']:
+        stats[col] = ['{0:.2f}'.format(x) for x in stats[col]]
+    stats['nParams'] = [str(x) for x in stats['nParams']]
+    colwidths = [max(map(len, stats[col] + [col])) for col in columns]
+    formatline = ('| ' + ' | '.join(['{' + str(i) + ':' + str(w) + '}' 
+            for (i, w) in enumerate(colwidths)]) + ' |')
+    sepline = '|-' + '-|-'.join(['-' * w for w in colwidths]) + '-|'
+    text = [formatline.format(*columns), sepline]
+    for i in indexorder:
+        line = [stats[col][i] for col in columns]
+        text.append(formatline.format(*line))
+    with open(modelcomparisonfile, 'w') as f:
+        f.write('\n'.join(text))
 
 
 def main():
@@ -107,7 +101,7 @@ def main():
     else:
         logfile = "{0}.log".format(args['outprefix'])
         args['outprefix'] = '{0}_'.format(args['outprefix'])
-    modelcomparisonfile = '{0}modelcomparison.txt'.format(args['outprefix'])
+    modelcomparisonfile = '{0}modelcomparison.md'.format(args['outprefix'])
 
     #Set up to log everything to logfile.
     if os.path.isfile(logfile):
@@ -286,7 +280,7 @@ def main():
     try:
 
         # remove existing output files
-        outfiles = []
+        outfiles = [modelcomparisonfile]
         removed = []
         for modelname in models.keys():
             for suffix in filesuffixes[modelname]:
@@ -340,12 +334,14 @@ def main():
                             .format(modelname))
             time.sleep(1)
 
+        createModelComparisonFile(models.keys(), args["outprefix"], 
+                modelcomparisonfile)
+
         # make sure all expected output files are there
         for fname in outfiles:
             if not os.path.isfile(fname):
                 raise RuntimeError("Cannot find expected output file {0}"
                         .format(fname))
-        createModelComparisonFile(models, args["outprefix"])
 
     except:
         logger.exception('Terminating {0} at {1} with ERROR'

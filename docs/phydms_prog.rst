@@ -146,7 +146,7 @@ Running ``phydms`` will create the following output files, all with the prefix s
 
 Log file
 +++++++++++++
-This is a text file with the suffix ``.log`` that records information about the program's progress.
+This is a text file with the suffix ``_log.log`` that records information about the program's progress.
 
 Log likelihood file
 ++++++++++++++++++++++
@@ -239,7 +239,11 @@ This file has the suffix ``_diffprefsbysite.txt``, and is created only if using 
 
 Here is an example of the first few lines of a file:::
 
-
+    site    dpi_A   dpi_C   dpi_D   dpi_E   dpi_F   dpi_G   dpi_H   dpi_I   dpi_K   dpi_L   dpi_M   dpi_N   dpi_P   dpi_Q   dpi_R   dpi_S   dpi_T   dpi_V   dpi_W   dpi_Y
+    1   0.00073 0.00907 0.00411 -0.00114    0.00956 -0.00130    0.00549 -0.00294    -0.01473    -0.00961    0.01907 -0.00312    0.00247 0.00096 -0.01336    -0.01061    -0.00817    -0.00336    0.01190 0.00496
+    2   0.01170 -0.00000    -0.00000    -0.00009    -0.00000    -0.00003    -0.00000    -0.00000    -0.00000    -0.00000    -0.00017    -0.00000    -0.00000    -0.00000    -0.00000    -0.00001    -0.00001    -0.01137    -0.00000    -0.00000
+    3   -0.00412    -0.00045    -0.00001    -0.00001    -0.00110    -0.00300    -0.00032    -0.00137    -0.00011    -0.00585    0.00146 -0.00430    -0.00049    -0.00087    -0.00088    0.03252 -0.00877    -0.00019    0.00258 -0.00472
+    4   -0.00160    -0.00031    -0.00000    -0.00124    -0.00693    -0.00002    -0.00067    -0.00972    -0.00059    -0.02123    -0.00395    -0.01580    -0.02009    0.11832 -0.00002    -0.02045    -0.00352    -0.00125    -0.00096    -0.00998
 
 The columns should be self-explanatory: they give the site numbers and then the differential selection for or against each amino acid.
 

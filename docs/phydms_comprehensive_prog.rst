@@ -63,30 +63,20 @@ A file with the suffix ``.log`` will be created that summarizes the overall prog
 
 Model comparison files
 +++++++++++++++++++++++++
-Two model comparison files will be created, one with the suffix ``modelcomparison.csv`` and one with the suffix ``modelcomparison.md`` to summarize the model fitting.
-The first summary file includes all of the parameters and the final log likelihood for each model.
-The second file reports a subset of the parameters, the final log likelihood, and the :math:`\Delta` AIC in reference to the best-fit model.
+A file with the suffix ``modelcomparison.md`` will be created that summarizes the model comparison.
+For each model, it reports the :math:`\Delta\rm{AIC}`, the optimized log likelihood, and the values of key parameters.
+This file is in Markdown format::
+
+    | Model                   | deltaAIC | LogLikelihood | nParams | ParamValues                                   |
+    |-------------------------|----------|---------------|---------|-----------------------------------------------|
+    | ExpCM_NP_prefs          | 0.00     | -3389.38      | 6       | beta=2.99, kappa=6.31, omega=0.78             |
+    | averaged_ExpCM_NP_prefs | 2586.44  | -4682.60      | 6       | beta=0.28, kappa=6.51, omega=0.12             |
+    | YNGKP_M5                | 2599.70  | -4683.23      | 12      | alpha_omega=0.30, beta_omega=2.41, kappa=5.84 |
+    | YNGKP_M0                | 2679.50  | -4724.13      | 11      | kappa=5.79, omega=0.11                        |
 
 
 ``phydms`` output for each model
 ++++++++++++++++++++++++++++++++++
-For each individual model, there will also be all of the expected ``phydms`` output files as described in :ref:`phydms_prog`. These files will begin with the prefix specified by ``outprefix``, which will be followed by a description of the model. For instance, if the command is::
-
-    phydms_comprehensive my_directory/ alignment.fasta prefs1.txt prefs2.txt
-
-then we expect output files with the following prefixes:
-
-    * ``my_directory/ExpCM_prefs1_*`` : the *ExpCM* using the preferences in ``prefs1.txt``.
-
-    * ``my_directory/averaged_ExpCM_prefs1_*`` : the *ExpCM* using the preferences in ``prefs1.txt`` averaged across sites.
-
-    * ``my_directory/ExpCM_prefs2_*`` : the *ExpCM* using the preferences in ``prefs2.txt``.
-
-    * ``my_directory/averaged_ExpCM_prefs2_*`` : the *ExpCM* using the preferences in ``prefs2.txt`` averaged across sites.
-
-    * ``my_directory/YNGKP_M0_*`` : the *YNGKP_M0* model.
-
-    * ``my_directory/YNGKP_M8_*`` : the *YNGKP_M8* model.
-
+For each individual model, there will also be all of the expected ``phydms`` output files as described in :ref:`phydms_prog`. These files will begin with the prefix specified by ``outprefix``, which will be followed by the name of the model. 
 
 .. include:: weblinks.txt

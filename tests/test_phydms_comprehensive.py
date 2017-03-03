@@ -7,9 +7,10 @@ Written by Jesse Bloom and Sarah Hilton.
 """
 
 import os
-import shutil
 import unittest
 import subprocess
+import scipy
+import pandas
 
 
 class test_phydms_comprehensive(unittest.TestCase):
@@ -26,8 +27,39 @@ class test_phydms_comprehensive(unittest.TestCase):
         outprefix = './NP_test_results/'
 
         subprocess.check_call(['phydms_comprehensive', outprefix, alignment,
-                prefs, "--tree", tree, "--omegabysite", '--brlen', 'scale',
-                '--gammaomega'])
+                prefs, "--tree", tree, "--omegabysite", '--brlen', 'scale'])
+
+        expectedresults = './expected_NP_test_results/'
+
+        models = ['ExpCM_NP_prefs', 'averaged_ExpCM_NP_prefs', 'YNGKP_M0',
+                'YNGKP_M5']
+
+        for model in models:
+            values = {}
+            for (name, prefix) in [('expected', expectedresults), ('actual', outprefix)]:
+                values[name] = {}
+                for suffix in ['_loglikelihood.txt', '_modelparams.txt']:
+                    with open(prefix + model + suffix) as f:
+                        for line in f:
+                            (x, y) = line.split('=')
+                            values[name][x.strip()] = float(y)
+            for param in values['actual'].keys():
+                self.assertTrue(scipy.allclose(values['actual'][param],
+                        values['expected'][param], atol=1e-2, rtol=1e-5))
+
+            omegas = {}
+            for (name, prefix) in [('expected', expectedresults), ('actual', outprefix)]:
+                omegas[name] = pandas.read_csv(prefix + model + '_omegabysite.txt', 
+                        comment='#', sep='\t')
+                omegas[name] = omegas[name].sort_values(by='site', axis=0)
+                p = omegas[name]['P'].values
+            self.assertTrue(scipy.allclose(omegas['actual']['P'].values,
+                    omegas['expected']['P'].values, atol=0.01, rtol=0.01))
+            sigsites = omegas['expected'][omegas['expected']['P'] < 0.05]['site'].values
+            sigomegas = {}
+            for (name, df) in omegas.items():
+                sigomegas[name] = omegas[name][omegas[name]['site'].isin(sigsites)]['omega'].values
+            self.assertTrue(((sigomegas['actual'] > 1) == (sigomegas['expected'] > 1)).all())
 
 
 if __name__ == '__main__':
