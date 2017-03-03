@@ -17,7 +17,7 @@ For each set of site-specific amino-acid preferences, ``phydms_comprehensive`` o
 
   * *ExpCM*
 
-  * *ExpCM* with a gamma-distributed :math:`\omega`
+  * *ExpCM* with a gamma-distributed :math:`\omega` (if using the ``--gammaomega`` flag).
 
   * *YNGKP_M0*
 

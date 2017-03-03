@@ -164,7 +164,7 @@ def main():
                 "removing directory and extension".format(modelname, prefsfile)
         filesuffixes[modelname] = filesuffixlist
         models[modelname] = ('ExpCM_{0}'.format(prefsfile), additionalcmds)
-        if not args["nogammaomega"]:
+        if args["gammaomega"]:
             gammaomegamodelname = '{0}_gammaomega'.format(modelname)
             models[gammaomegamodelname] = ('ExpCM_{0}'.format(prefsfile),
                     additionalcmds + ['--gammaomega'])
@@ -174,7 +174,7 @@ def main():
             models[avgmodelname] = ('ExpCM_{0}'.format(prefsfile),
                     additionalcmds + ['--avgprefs'], 0)
             filesuffixes[avgmodelname] = filesuffixlist
-            if not args["nogammaomega"]:
+            if args["gammaomega"]:
                 avgmodelname = 'averaged_{0}_gammaomega'.format(modelname)
                 models[avgmodelname] = ('ExpCM_{0}'.format(prefsfile),
                         additionalcmds + ['--gammaomega'] \
@@ -185,7 +185,7 @@ def main():
             models[randmodelname] = ('ExpCM_{0}'.format(prefsfile),
                     additionalcmds + ['--randprefs'], 0)
             filesuffixes[randmodelname] = filesuffixlist
-            if not args["nogammaomega"]:
+            if args["gammaomega"]:
                 randmodelname = 'randomized_{0}_gammaomega'.format(modelname)
                 models[randmodelname] = ('ExpCM_{0}'.format(prefsfile),
                         additionalcmds + ['--gammaomega'] \

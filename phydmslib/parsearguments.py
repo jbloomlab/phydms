@@ -325,9 +325,9 @@ def PhyDMSComprehensiveParser():
     parser.add_argument('--diffprefsbysite', dest='diffprefsbysite',
             action='store_true', help="Fit differential preferences for "
             "each site.")
-    parser.set_defaults(nogammaomega=False)
-    parser.add_argument('--no-gammaomega', dest='nogammaomega', action=\
-            'store_true', help="No ExpCM with gamma distributed omega.")
+    parser.set_defaults(gammaomega=False)
+    parser.add_argument('--gammaomega', dest='gammaomega', action=\
+            'store_true', help="Fit ExpCM with gamma distributed omega.")
     parser.set_defaults(noavgprefs=False)
     parser.add_argument('--no-avgprefs', dest='noavgprefs', action='store_true',
             help="No fitting of models with preferences averaged across sites "

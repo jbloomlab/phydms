@@ -26,7 +26,8 @@ class test_phydms_comprehensive(unittest.TestCase):
         outprefix = './NP_test_results/'
 
         subprocess.check_call(['phydms_comprehensive', outprefix, alignment,
-                prefs, "--tree", tree, "--omegabysite", '--brlen', 'scale'])
+                prefs, "--tree", tree, "--omegabysite", '--brlen', 'scale',
+                '--gammaomega'])
 
 
 if __name__ == '__main__':
