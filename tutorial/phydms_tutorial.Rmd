@@ -4,31 +4,33 @@ output:
   html_document:
     toc: true
     toc_depth: 2
+    toc_float: true
     highlight: pygments
+    theme: sandstone
 ---
 
-In this tutorial you will learn the basics of `phydms`. `phydms` calculates the likelihood of a given set of sequences given a tree and a substitution model. It can be used to compare several substitution models, including the [ExpCM](https://academic.oup.com/mbe/article/31/10/2753/1015257/An-Experimentally-Informed-Evolutionary-Model) which uses site-specific amino-acid preferences from Deep Mutational Scanning data. We will provide you with a step-by-step procedure to prepare your input data and interpret the results of `phydms`. For more details on any of the steps, please see the [phydms documentation](http://jbloomlab.github.io/phydms/).     
+In this tutorial you will learn the basics of `phydms`. `phydms` calculates the likelihood of a set of sequences given a tree and a substitution model. It can be used to compare several substitution models, including the [ExpCM](https://academic.oup.com/mbe/article/31/10/2753/1015257/An-Experimentally-Informed-Evolutionary-Model) which uses site-specific amino-acid preferences from Deep Mutational Scanning data. We will provide you with a step-by-step procedure to prepare your input data and interpret the results of `phydms`. For more details on any of the steps, please see the [phydms documentation](http://jbloomlab.github.io/phydms/).     
 
 `phydms` was developed at the [Bloom Lab](http://research.fhcrc.org/bloom/en.html) ([full list of contributors](https://github.com/jbloomlab/phydms/graphs/contributors))
 
 **Citation**:
 [Bloom, Biology Direct, 12:1](#http://biologydirect.biomedcentral.com/articles/10.1186/s13062-016-0172-z)
 
+
 #Installation
-`phydms` is currently built using `python3`. If you have [`python3`](https://www.python.org/downloads/) and the [minimal requirements](http://jbloomlab.github.io/phydms/installation.html#minimal-requirements) installed, you can install `phydms` by typing 
+`phydms` is currently built using `python3`. If you have [`python3`](https://www.python.org/downloads/) and the [minimal requirements](http://jbloomlab.github.io/phydms/installation.html#minimal-requirements), you can install `phydms` by typing 
 ```
 pip install phydms --user
 ```  
 For more complete installation instructions, please see the [`phydms` documentation](http://jbloomlab.github.io/phydms/).  
 
-#Preparing input files
-For the simplest use, `phydms` requires [aligned codon sequences](#seqs), [site-specific amino-acid preferences](#prefs), and a [tree](#tree).  
+#Preparing input files{#input} 
+For the simplest use, `phydms` requires [a set of aligned codon sequences](#seqs), a [tree](#tree) and [site-specific amino-acid preferences](#prefs) (for the *ExpCM* only). For the rest of the tutorial, we are going to use an example of `phydms` analysis of the Influenza Virus protein Hemmalutinin (HA). The input files can be found in the directory `./HA_example_data/`.  
 
 ##Sequences{#seqs}
-We will use the file `HA_sequences.fasta` found in the `tutorial/HA_example_data` directory to walk-through the `phydms` formatting requirements for inputs sequences. 
-You can use the `phdyms` auxiliary program [`phydms_prepalignment`](http://jbloomlab.github.io/phydms/phydms_prepalignment.html) to filter your sequences for you.  
+The alignment file contains coding (nucleotide) sequences from your protein of choice. `phydms` has specific formatting and sequence-level of requirements of the alignment, which we will discuss below. For ease, you can use the `phdyms` auxiliary program [`phydms_prepalignment`](http://jbloomlab.github.io/phydms/phydms_prepalignment.html) to filter your sequences for you.  
 
-#####1. The file containing the sequences must be in the **FASTA** format.   
+#####1. The file containing the sequences must be in the [FASTA format](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=BlastHelp).   
 
 For each sequence, there is one header line, denoted by the `>` character, and at least one line of sequence information.  
 For example, the beginning of `HA_sequences.fasta` looks like this:  
@@ -38,22 +40,25 @@ head -n 35 HA_example_data/HA_sequences.fasta
 ```
 
 #####2. The sequences must be aligned at the codon level 
-This step can be achieved using a variety of multiple sequence aligners, such as [`MAFFT`](http://mafft.cbrc.jp/alignment/software/). 
+This step can be achieved using a variety of multiple sequence aligners, such as [`MAFFT`](http://mafft.cbrc.jp/alignment/software/). This also means that each sequence must be divisible by $3$.
 
 #####3. The sequences must not contain **STOP** codons, except at the last codon position. 
-The **STOP** codon set (**TAA**, **TAG**, **TGA**) is defined by the [`BioPython`](http://biopython.org/wiki/Seq) `generic_dna` alphabet unless another alphabet is specified by modifying the [`phydms` source code](https://github.com/jbloomlab/phydms). Terminal **STOP** codons will be automatically trimmed by `phydms`.
+The **STOP** codon set (**TAA**, **TAG**, **TGA**) is defined by the [`BioPython`](http://biopython.org/wiki/Seq) `generic_dna` alphabet unless another alphabet is specified by modifying the [`phydms` source code](https://github.com/jbloomlab/phydms). Terminal **STOP** codons are allowed but will be automatically trimmed by `phydms`.
 
 #####4. The sequence headers must be unique strings free of special characters
-The sequence header is defined as the string of characters following `>` until the end of the line. Each sequence must have a unique sequence header and the sequence header string cannot contain **spaces**, **commas**, **colons**, **semi-colons**, **parenthesis**, **square brackets**, **single quotes**, or **double quotes**.   
+These prohibited special characters are **spaces**, **commas**, **colons**, **semi-colons**, **parenthesis**, **square brackets**, **single quotes**, or **double quotes**.   
+
+#####5. The sequences must not include ambigious characters
+Each sequence can only contain the characters $A$, $C$, $G$, $T$.   
 
 ###Other sequence considerations
 The adherence to the following formatting constraints is not required by `phydms` but may improve the ease of your analysis.   
 
 ####Duplicate Sequences
-`phydms` neither checks nor removes identical sequences. If there are a lot of identical sequences in your alignment you may want to remove them yourself.   
+`phydms` neither checks nor removes identical sequences. If there are a lot of identical sequences in your alignment you may want to remove them yourself.  
 
-####`RAxML` requirements 
-Some `phydms` auxiliary programs, such as [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) and [`phydms_testdivpressure`](http://jbloomlab.github.io/phydms/phydms_testdivpressure_prog.html), allow you to build a tree using [`RAxML`](http://sco.h-its.org/exelixis/software.html) rather than specifying a pre-existing tree. If you are going to use `RAxML` your sequences must also meet the following requirements:  
+####`RAxML` requirements{#raxml} 
+Some `phydms` auxiliary programs, such as [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) and [`phydms_testdivpressure`](http://jbloomlab.github.io/phydms/phydms_testdivpressure_prog.html), will build a tree using [`RAxML`](http://sco.h-its.org/exelixis/software.html) for you rather than using a pre-existing tree. If you are going to use `RAxML` your sequences must also meet the following requirements:  
 
 #####1. All sequences must be unique. 
 As mentioned above, it is often beneficial to remove duplicate sequences in an alignment. This step is not required by `phydms` but is mandatory for `RAxML`.   
@@ -64,7 +69,7 @@ Oftentimes, the last sequence in a file will not contain an **End of Line** (EOL
 Fasta parsing error, RAxML expects an alignment.
 the last sequence in the alignment seems to have a different length
 ```
-Common EOLs include `\n` and `\r`.  You can check whether or not the last character is a new line with the following command:  
+Common EOLs include `\n` and `\r` and are "invisible" in most text editors.  You can check whether or not the last character is a new line with the following command:  
 ```
 tail -c 1 <filename>
 ```
@@ -76,10 +81,29 @@ tail -c 1 HA_example_data/HA_sequences.fasta
 ##Site-specific amino-acid preferences (for the *ExpCM* model only){#prefs}
 The preference file must specify a preference for the amino-acid at each site of every sequence in the alignment. Importantly, the amino-acid preferences must be obtained independently from the sequence alignment being analyzed. A deep mutational scanning experiment is an independent means of obtaining the preferences, but estimating them from the amino-acid frequencies in the alignment of homologs is not a valid approach as you are then estimating the preferences from the same sequences that you are subsequently analyzing.  
 
-###Site-Specfic Amino-Acid Preferences file formats
-The preferences file must specify the site-specific amino-acid preferences using sequential 1, 2, .... numbering. Any stop-codon preferences specified in the file will be ignored. The preferences for a single site in the protein (each row of the preferences input file) must sum to $1$.
+###1. Site-Specfic Amino-Acid Preferences file formatting
+In the same vein as the alignment, the preference file has some very specific formatting and content-related requirements.  
 
-The preference file can be in several formats. These include comma-separate values, tab-separated values, space-separated values, or the more complicated [`dms_tools`](http://jbloomlab.github.io/dms_tools/fileformats.html) file format. Examples of all four file formats can be found in the directory `tutorial/HA_example_data`. Here is an example of HA preferences in the comma-separated values format   
+####2. The first site must be designated as site $1$
+This is true even if the preferences do not include the start codon. In fact, the first site in a coding sequence is often dropped from these analyses because it is invariant in nature. In this case, the preferences for the second site would be labeled as site $1$.  
+
+####3. The sites must be numbered sequentially 
+This refers to both the order of the sites in the file and the inclusion of every site. If your deep mutational scanning experiment did not measure the site-specific amino-acid preferences at every site in the protein, you will have to either remove sites from your alignment or add in "dummy" preferences. See the [longer discussion](#gaps) below. 
+
+####4. The sites must be unique
+You cannot include duplicate entries for any of the sites in the protein. 
+
+####5. All amino-acid must be present 
+The amino-acids are designated in the heading of the preferences file and must contain all $20$ amino-acids. If for some reason you do not have any data for a given amino acid, please add in "dummy" data. There is flexibility on whether or not **STOP** preferences are included because `phydms` ignores these values in the analysis.  
+
+####6. The preferences for a given site must sum to $1$
+This is enforced if you use [`dms_tools`](http://jbloomlab.github.io/dms_tools/dms_inferprefs.html#dms-inferprefs) to [infer](#infer) your amino-acid preferences. If you inferred your amino acid preferences some other way or had to add in "dummy" data, re-normalize the values so they sum to $1$.  
+
+####7. There number of sites in the preference file must match the number of sites in the alignment file
+This can most easily be addressed by aligning your coding sequences to the reference sequence used in the deep mutational scan and removing gaps relative to this sequence. See either the `phydms` auxiliary program [`phydms_prepalignment`](#phydms_prepalignment) or the [discussion](#gaps) below. 
+
+####8. The file must be in a `phydms` approved file format
+This includes comma-, tab-, and  space-separated values or the more complicated [`dms_tools`](http://jbloomlab.github.io/dms_tools/fileformats.html) file format. Examples of all four file formats can be found in the directory `tutorial/HA_example_data`. Here is an example of HA preferences in the comma-separated values format   
 ```
 site,A,C,D,E,F,G,H,I,K,L,M,N,P,Q,R,S,T,V,W,Y
 1,0.04,0.04,0.04,0.04,0.04,0.04,0.05,0.02,0.04,0.04,0.17,0.04,0.04,0.04,0.04,0.04,0.03,0.02,0.04,0.04
@@ -91,40 +115,49 @@ and here is the `dms_tools` format:
 1 M 4.16 0.04 0.04 0.04 0.04 0.04 0.04 0.05 0.02 0.04 0.04 0.17 0.04 0.04 0.04 0.04 0.04 0.03 0.02 0.04 0.04
 2 A 1.99 0.65 0.00 0.00 0.02 0.00 0.01 0.00 0.00 0.00 0.00 0.03 0.00 0.00 0.00 0.00 0.01 0.01 0.14 0.00 0.00
 ```
-Any line starting with `#` will be ignored in any of the file formats.  
 
-###Inferring Site-Specfic Amino-Acid Preferences from Deep Mutational Scanning Deep Sequencing Data
+###Inferring Site-Specfic Amino-Acid Preferences from Deep Mutational Scanning Deep Sequencing Data{#infer}
 Due to deep sequencing's inability to exhaustively sample every molecule in the deep mutational scanning library, it is advisable to infer the site-specific amino-acid preferences rather than taking the raw ratio of the mutation frequencies pre-and post-selection. We recommend using the algorithm from [Bloom, 2015](http://download.springer.com/static/pdf/476/art%253A10.1186%252Fs12859-015-0590-4.pdf?originUrl=http%3A%2F%2Fbmcbioinformatics.biomedcentral.com%2Farticle%2F10.1186%2Fs12859-015-0590-4&token2=exp=1488328740~acl=%2Fstatic%2Fpdf%2F476%2Fart%25253A10.1186%25252Fs12859-015-0590-4.pdf*~hmac=26e1bd9961fe648505639b04cc4181262e5ad5f94caa9c4013babd1b8b8f0cd2) implemented in [`dms_tools`](http://jbloomlab.github.io/dms_tools/index.html) program [`dms_inferprefs`](http://jbloomlab.github.io/dms_tools/dms_inferprefs.html#dms-inferprefs). 
 
 Briefly, we describe the relationship the frequency of codon $x$ at protein-site $r$ per-selection ($f_{r,x}$) and post-selection ($\mu_{r,x}$) to the site-specific amino-acid preference of codon $x$ at site $r$ ($\pi_{r,x}$) as $f_{r,x} = \frac{\mu_{r,x} \times \pi_{r,x}}{\sum_{y}\mu_{r,y} \times \pi_{r,y} }$.  Since $f_{r,x}$ and $\mu_{r,x}$ can be estimated from the deep sequencing data, we can infer the preferences ($\pi_{r,x}$) using **MCMC**. 
 
+###What if I don't have site-specific amino-acid preferences for every site in my alignment?{#gaps} 
+
+There are two common situations in which you may have missing data for some sites in your alignment. 
+
+####There have been insertions/deletions in the evolution of your protein compared to the background the deep mutational scan was performed in.
+The easiest way to address this problem is to remove gaps in your alignment compared to the reference. Once again, this can be done with the `phydms` auxiliary program [`phydms_prepalignment`](#phydms_prepalignment).  
+
+####The deep mutational scan made a measurements for only a subset of the protein.
+There are two options to address this concern. You can remove the sites without measurements from the alignment or you can add "dummy data" in place of true, experimental measurements. The most logical form of "dummy data" is to add equal preferences ($1/20 = 0.05$) for every amino-acid at that site. 
+
 ##Phylogenetic Tree{#tree}  
-The input tree describes the assumed evolutionary relationship between the sequences specified in the alignment file. `phydms` fixes the topology to this tree and the branch lengths are assume to be codon substitutions per site.  See the [`phydms` analysis](#phydms) portion of this tutorial for more information on user specified branch length options. 
+The input tree describes the assumed evolutionary relationship between the sequences specified in the alignment file. `phydms` fixes the topology to this tree and the branch lengths are assume to be codon substitutions per site.  See the [`phydms` analysis](#phydms) portion of this tutorial for more information on user-specified branch length options. 
 
 The tree must be in the [Newick file format](http://evolution.genetics.washington.edu/phylip/newicktree.html). As a simple example, the tree
 ```
-   /-B
-  |
-  |   /-A
-  |--|
---|  |   /-C
+      /-B
+   /-|
+  |  |   /-A
   |   \-|
-  |      \-E
+--|     |   /-C
+  |      \-|
+  |         \-E
   |
    \-D
 ```
 would be written as 
 ```
-(B,(A,(C,E)),D);
+((B,(A,(C,E))),D);
 ```  
 
-Typically you infer this tree using a program such as [RAxML](http://sco.h-its.org/exelixis/software.html) or [codonPhyML](codonPhyML).   
+Typically, you infer this tree using a program such as [RAxML](http://sco.h-its.org/exelixis/software.html) or [codonPhyML](codonPhyML).  The tree must also be strictly [bifurcating](https://en.wikipedia.org/wiki/Phylogenetic_tree#Bifurcating_tree).      
 
 #`phydms` analysis{#phydms}
 `phydms` can perform phylogenetic analysis with **ExpCM** as well as non-site-specific substitution models (variants of the YNGKP models described in [Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449](http://www.genetics.org/content/155/1/431)).   
 
 ##Model choice{#modelChoice}     
-`phydms` can be run with four different substitution models **ExpCM**, **ExpCM with a $\Gamma$ distributed $\omega$**, **YNGKP_M0**, **YNGKP_M5**. These models can be characterized by their inclusion or exclusion of site-specific terms and whether or not the $dN/dS$ ratio is constant for all of the sites or drawn from a $\Gamma$ distribution. If you would like to run multiple models and compare their results, please see the part of the tutorial on the [auxillary program `phymds_comprehenseive`](#phydms_comprehensive_link)  
+`phydms` can be run with four different substitution models **ExpCM**, **ExpCM with a $\Gamma$ distributed $\omega$**, **YNGKP_M0**, **YNGKP_M5**. These models can be characterized by their inclusion or exclusion of site-specific terms and whether or not the $dN/dS$ ratio is constant for all of the sites or drawn from a $\Gamma$ distribution. If you would like to run multiple models and compare their results, please see the part of the tutorial on the [auxillary program `phydms_comprehensive`](#phydms_comprehensive_link)  
 
 
 | *Model* | *Site-Specific?* | *Single-value or $\Gamma$-distributed $dN/dS$?*|
@@ -161,6 +194,7 @@ positional arguments:
                         1-letter amino-acid code.
   outprefix             Output file prefix.
 ```  
+
 The two **YNGKP** models are specified by their name only. For example, to run `phydms` on the HA example data using the **YNGKP_M0** simply type
 ```
 phydms HA_example_data/HA_sequences.fasta HA_example_data/RAxML_bestTree.HA_example YNGKP_M0 phydms_results_YNGKP_M0/
@@ -169,13 +203,13 @@ The **ExpCM** model is specified by `ExpCM_` followed by the name of the file co
 ```
 phydms HA_example_data/HA_sequences.fasta HA_example_data/RAxML_bestTree.HA_example ExpCM_HA_example_data/HA_preferences.csv phydms_results_ExpCM/
 ```
-The **ExpCM with a $\Gamma$ distributed $\omega$** model name is the same as *ExpCM* but you must include the option [`--gammaomega`](#gammaomega)
+The **ExpCM with a $\Gamma$ distributed $\omega$** model name is the same as *ExpCM* but you must include the option [`--gammaomega`](#gammaomega). For more information on how to define the $\Gamma$ distribution, see the `phydms` option [`--ncats`](##ncats). 
 ```
 phydms HA_example_data/HA_sequences.fasta HA_example_data/RAxML_bestTree.HA_example ExpCM_HA_example_data/HA_preferences.csv phydms_results_ExpCM_gammaomega/ --gammaomega
 ``` 
 
 ##Output files{#output}
-Each run of `phydms` produces 3 summary files: the log file, the loglikelihood file, and the model parameters file. If the outprefix is a directory, these files will be in the directory with the names `log.txt`, `loglikelihood.txt`, and `modelparams.text`. If the outprefix is a file prefix, the files will follow the pattern `<outprefix>_log.txt`, `<outprefix>_loglikelihood.txt`, and `<outprefix>_modelparams.txt`.  
+Each run of `phydms` produces 3 summary files: the log file, the loglikelihood file, and the model parameters file. If the outprefix is a directory, these files will be in the directory with the names `log.txt`, `loglikelihood.txt`, and `modelparams.txt`. If the outprefix is a file prefix, the files will follow the pattern `<outprefix>_log.txt`, `<outprefix>_loglikelihood.txt`, and `<outprefix>_modelparams.txt`.  
 
 We will go through the three output files produced for the [HA example with the *ExpCM* model](#ExpCMexample) above. 
 
@@ -197,7 +231,7 @@ cat phydms_results_ExpCM/modelparams.txt
 ```    
 
 ##Other `phydms` options
-If you look at the beginning of the `phydms` log file, you will see the value of the optional arguments. For example, in a `phydms` run without any optional flags (such as the [HA example above](#phydmsCommandline)), the optional arguments take the default values
+If you look at the beginning of the `phydms` log file, you will see the value of the optional arguments. For example, in a `phydms` run without any optional flags (such as the [HA example above](#phydmsCommandline)), the optional arguments take the default values:
 ```
 2017-03-01 14:00:08,222 - INFO - Parsed the following arguments:
 	divpressure = None
@@ -273,7 +307,7 @@ we would have additional output files including one called `omegabysite.txt` whi
 ```{r omegabysite sig, engine='bash', comment=NA}
 cat phydms_results_YNGKP_M0_omegabysite/omegabysite.txt | head -n 21
 ```  
-and here are the 15 least signficant sites
+and here are the 15 least significant sites
 ```{r omegabysite nonsig, engine='bash', comment=NA}
 cat phydms_results_YNGKP_M0_omegabysite/omegabysite.txt | tail -n 15
 ```    
@@ -281,20 +315,20 @@ cat phydms_results_YNGKP_M0_omegabysite/omegabysite.txt | tail -n 15
 For a slightly faster version of this analysis, see the option [`--omegabysite_fitsyn`](#omegabysite_fixsyn)
 
 ####`--omegabysite_fixsyn`{#omegabysite_fixsyn}
-This option is meaningful only if you are using [`--omegabysite`](#omegabysite). If you use this option, then `phydms` compares a model in which it fits a nonsynonymous rate to each site to a model in which it fits nothing. The synonymous rate is not fit, and so is assumed to be equal to the overall value fit for the tree. According to [Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222](https://academic.oup.com/mbe/article/22/5/1208/1066893/Not-So-Different-After-All-A-Comparison-of-Methods), in some cases this can yield greater power if there is relatively limited data. However, it comes with the risk of giving spurious results if there is substantial variation in the synonymous substitution rate among sites.  
+This option is meaningful only if you are using [`--omegabysite`](#omegabysite). If you use this option, then `phydms` compares a model in which it fits a non-synonymous rate to each site to a model in which it fits nothing. The synonymous rate is not fit, and so is assumed to be equal to the overall value fit for the tree. According to [Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222](https://academic.oup.com/mbe/article/22/5/1208/1066893/Not-So-Different-After-All-A-Comparison-of-Methods), in some cases this can yield greater power if there is relatively limited data. However, it comes with the risk of giving spurious results if there is substantial variation in the synonymous substitution rate among sites.  
 
 ####`--gammaomega`{#gammaomega}
-Use this flag if you would like to draw the $\omega$ ($dN/dS$) from a $\Gamma$ distribution defined by the number of categories specfied by [`--ncats`](#ncats) rather than a single value. This will result in the [**ExpCM with a $\Gamma$ distributed $\omega$**](#modelChoice) and is equivalent to the *YNGKP_M5* for the *YNGKP* models. The is a good option if you think there are sites in your gene which are evolving under different diversifying pressures.  
+Use this flag if you would like to draw the $\omega$ ($dN/dS$) from a $\Gamma$ distribution defined by the number of categories specified by [`--ncats`](#ncats) rather than a single value. This will result in the [**ExpCM with a $\Gamma$ distributed $\omega$**](#modelChoice) and is equivalent to the *YNGKP_M5* for the *YNGKP* models. The is a good option if you think there are sites in your gene which are evolving under different diversifying pressures.  
 
 This option will increase runtime about 5-fold is you use the default number of [`--ncats`](#ncats). 
 
 ####`--ncats`{#ncats}
-Determines the number of categories when using [`--gammaomega`](#gammaomega) or the *YNGKP_M5*. A value of $4$(default) or $5$ is usually adequate and more categories leads to a longer run time.  
+Determines the number of categories when using [`--gammaomega`](#gammaomega) or the *YNGKP_M5*. A value of $4$(default) or $5$ is usually adequate. Run-time will increase with the number of categories.  
 
 ####`--brelen`
 There are two options for how `phydms` will optimize the branch lengths of the [starting tree](#tree), `scale` or `optimize`.   
 
-For either option, the tree tropology is fixed. With the `scale` option, the *relative* branch lengths are fixed but all of the branches are scaled by a single, optimized parameter. With the `optimize` option, each branch length will be optimized as a free parameter. The `optimize` option will be more accurate but slower. It is also the default.  
+For either option, the tree topology is fixed. With the `scale` option, the *relative* branch lengths are fixed but all of the branches are scaled by a single, optimized parameter. With the `optimize` option, each branch length will be optimized as a free parameter. The `optimize` option will be more accurate but slower. It is also the default.  
 
 ###Housekeeping
 These options change small options, such as minimum values for preferences, the random seed, and the number of cpus `phydms` uses. There are very few reasons to change the from the default.    
@@ -306,12 +340,12 @@ The number of CPUs `phydms` will use. If $-1$ is specified then `phydms` will us
 Profile likelihood maximization, write pstats files. For code-development purposes.  
 
 ####`--fitphi`
-Both the *YNGKP* and the *ExpCM* models have 3 $\phi$ paramters which represent the nucleotide frequencies of nucleotides $A$, $C$, and $G$ (the frequency of $T$ can be easily computed since the $4$ frequencies must sum to $1$). The default setting is to set these values to the stationary state of the model, you can read more about the specifics for these procedures in the [documentation]. 
+Both the *YNGKP* and the *ExpCM* models have 3 $\phi$ parameters which represent the nucleotide frequencies of nucleotides $A$, $C$, and $G$ (the frequency of $T$ can be easily computed since the $4$ frequencies must sum to $1$). The default setting is to set these values to the stationary state of the model, you can read more about the specifics for these procedures in the [documentation]. 
 
 Alternatively, you can optimize the three $\phi$ values using this flag. This is rarely recommend because the log likelihood improvement tends to be minimal while the computational cost is quite high. You also cannot use with [`-divpressure`](#divpressure)
 
 ####`--minbrlen`
-This option defines the minimum length of a given branch in the [starting tree](#tree). Before beginning optimization, `phydms` will set short branches to this length. Branches can still end up with lengths less than this after subsequent optimization of this starting tree. It is not recommend to set this value to be very low. The default value is $1e^{-05}$.
+This option defines the minimum length of a given branch in the [starting tree](#tree). Before beginning optimization, `phydms` will set short branches to this length. Branches can still end up with lengths less than this after subsequent optimization of the starting tree. It is not recommend to set this value to be very low. The default value is $1e^{-05}$.
 
 ####`--minpref`
 This option will force the minimum value for any amino-acid at any site to be at least this large. If this number is too close to zero, you will get runtime errors. The default value is $0.005$. 
@@ -322,14 +356,217 @@ The random number seed affects the outcomes when there is randomization, as when
 
 #Auxillary Programs
 ##`phydms_prepalignment`
-##`phydms_comprehensive`{#phydms_comprehensive_link}
-##`phydms_testdivpressure`{#phydms_testdivpressure_link}   
+`phydms_prepalignment` is useful for preparing your [alignment](#seqs) for input to `phydms`. The basic notion is that you have some reference sequence (presumably what you used for the deep mutational scanning), and want to get homologs aligned to that sequence for analysis.  
 
-When testing a particular [diversifying pressure set](#divpressure) or multiple [diversifying pressure sets](#divpressure), there are several controls which are necessary for interpretation of the results. You will proabably want to compare the log-likelihood of the ExpCM model with the diversifying pressure set to the log-likelihood of the ExpCM model without diversifying pressure given the same preferences, alignment, and tree. If there is no signficant change in log-likelihood then you might conclude the diversifying pressure set is not very good. But how do you determine if the change in log-likelihood is signficant? One way is through permutations. By shuffling the values of diversifying pressure across the sites and re-running the analysis you can create a null distribution and determine signifiance of the true diversifying pressure set from this distribution. 
+###`phydms_prepalignment` filters
+`phydms_prepalignment` checks the [formatting requirements](#seqs) for the alignment and removes sequences which do not pass. This includes  
+• removing sequences which are not divisible by $3$.     
+• removing sequences with ambiguous nucleotides.   
+• removing sequences with non-terminal stop codons.   
+• replacing special characters in the headers with `_`.   
+• aligning the sequences using `MAFFT`.  
 
-`phydms_test` divpressure is an easy way to run and summarize the results of the analysis described above.  
+`phydms_prepalignment` includes additional filtering steps which are not required by `phydms` but may improve the analysis. These include  
+• removing sequence which do not encode unique proteins.    
+• removing closely related sequences.    
+
+Please see the [`phydms_prepalignment` documentation](http://jbloomlab.github.io/phydms/phydms_prepalignment.html) for more information and other functions, including the order in which these filters are performed.  
+
+###`phydms_prepalignment` command-line usage
+In the simplest use, you provide `phydms_prepalignment` with an input sequences files (including the reference sequence), a prefix to name the output files (including the final alignment), and a string unique to the reference sequence header.  
+```
+shilton@rhino3:~/phydmsv2/phydms/tests$ phydms_prepalignment -h
+usage: phydms_prepalignment [-h] [--prealigned] [--mafft MAFFT]
+                            [--minidentity MINIDENTITY]
+                            [--minuniqueness MINUNIQUENESS]
+                            [--purgeseqs [PURGESEQS [PURGESEQS ...]]]
+                            [--keepseqs [KEEPSEQS [KEEPSEQS ...]]] [-v]
+                            inseqs alignment refseq
+
+Prepare alignment of protein-coding DNA sequences.
+
+Steps:
+ * Any sequences specified by '--purgeseqs' are removed.
+ * Sequences not of length divisible by 3 are removed.
+ * Sequences with ambiguous nucleotides are removed.
+ * Sequences with non-terminal stop codons are removed;
+   terminal stop codons are trimmed.
+ * Sequences that do not encode unique proteins are removed
+   unless they are specified for retention by '--keepseqs'.
+ * A multiple sequence alignment is built using MAFFT.
+   This step is skipped if you specify '--prealigned'.
+ * Sites gapped in reference sequence are stripped.
+ * Sequences with too little protein identity to reference
+   sequence are removed, counting both mismatches and unstripped
+   gaps as differences. Identity cutoff set by '--minidentity'.
+ * Sequences too similar to other sequences are removed. An
+   effort is made to keep one representative of sequences found
+   many times in input set. Uniqueness threshold set 
+   by '--minuniqueness'. You can specify sequences to not
+   remove via '--keepseqs'.
+ * Problematic characters in header names are replaced by
+   underscores. This is any space, comma, colon, semicolon
+   parenthesis, bracket, single quote, or double quote.
+ * An alignment is written, as well as a plot with same root
+   but extension '.pdf' that shows divergence from reference
+   of all sequences retained and purged due to identity or
+   uniqueness.
+
+The 'phydms' package is written by the Bloom lab (see https://github.com/jbloomlab/phydms/contributors).
+Version 2.0.dev0
+Full documentation at http://jbloomlab.github.io/phydms
+
+positional arguments:
+  inseqs                FASTA file giving input coding sequences.
+  alignment             Name of created output FASTA alignment. PDF plot has
+                        same root, but extension '.pdf'.
+  refseq                Reference sequence in 'inseqs': specify substring
+                        found ONLY in header for that sequence.
+```
+###Other options
+####`MAFFT` options 
+If your sequences are already a codon alignment, you can skip the `MAFFT` alignment with the option `--prealigned`. You can also specify the path to `MAFFT`, which is necessary if `MAFFT` is not installed globally.   
+
+####Specific sequence options
+`phydms_prepalignments` default action is to discard sequences which do not pass the filters. There may be instances when this is not desirable. You can create a file with the sequence header names of sequences you want to keep and give this file to `phydms_prepalignment` with the option `--keepseqs`. Conversely, there may be sequences which you know you would like to exclude from the final alignment. You may have evidence they are mislabeled or of low quality, etc. You specify a file with these sequences with the option `--purgeseqs`.    
+
+####Minimum identity and minimum uniqueness 
+`phydms_prepalignment` has two filters which try to maintain a high a certain level of sequence diversity in the alignment. The first is to remove proteins which are too similar to the reference sequence. The cutoff for this filter is specified by the option `--minidentity`. The second is to remove sequences which are too close to each other. The cutoff for this filter is specified by the option `--minuniqueness`.  For more information on the specific values these options are controlling, see the [`phydms_prepalignment` documentation](http://jbloomlab.github.io/phydms/phydms_prepalignment.html).  
+
+##`phydms_comprehensive`
+##`phydms_testdivpressure`   
+
+When testing one or more [diversifying pressure sets](#divpressure), there are several natural controls or comparisons to aide in interpretation. You will probably want to compare the log-likelihood of the *ExpCM* with the diversifying pressure set to the log-likelihood of the *ExpCM* without a diversifying pressure set given the same preferences, alignment, and tree. If there is no significant change in log-likelihood then you might conclude the diversifying pressure set is not very good. But how do you determine if the change in log-likelihood is significant? One way is through randomizations. By shuffling the values of diversifying pressure across the sites and re-running the analysis you can approximate a null distribution to determine significance. 
+
+`phydms_testdivpressure` is an easy way to run and summarize the results of the analysis described above. 
+
+###`phydms_testdivpressure` command-line usage 
+In the simplest usage, you provide `phydms_testdivpressure` with the output prefix, the [alignment](#seqs), the [preferences](#prefs), and a list of one or more [diversifying pressure sets](#divpressure). 
+```
+sarahs-air-3:phydms sarah$ phydms_testdivpressure -h
+usage: phydms_testdivpressure [-h] [--tree TREE | --raxml RAXML]
+                              [--randomizations RANDOMIZATIONS]
+                              [--ncpus NCPUS] [-v]
+                              outprefix alignment prefsfile divpressure
+                              [divpressure ...]
+
+Test different models of diversifying pressure. The 'phydms' package is
+written by the Bloom lab (see
+https://github.com/jbloomlab/phydms/contributors). Version 2.0.dev0. Full
+documentation at http://jbloomlab.github.io/phydms
+
+positional arguments:
+  outprefix             Prefix for output files.
+  alignment             Existing FASTA file with aligned codon sequences.
+  prefsfile             Existing file with site-specific amino-acid
+                        preferences.
+  divpressure           List of existing files with diversifying pressure at
+                        each site
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --tree TREE           Existing Newick file giving input tree. (default:
+                        False)
+  --raxml RAXML         Path to RAxML
+                        (http://sco.h-its.org/exelixis/software.html).
+                        (default: raxml)
+  --randomizations RANDOMIZATIONS
+                        Number diversifying pressure randomizations. (default:
+                        0)
+  --ncpus NCPUS         Use this many CPUs; -1 means all available. (default:
+                        -1)
+  -v, --version         show program's version number and exit
+```
+Unlike [`phydms`](#phydmsCommandline), you are not required to provide a [pre-existing tree](#tree). `phydms_testdivpressure` will infer a tree using [`RAxML`](#http://sco.h-its.org/exelixis/software.html). If you are going to use `RAxML` to infer your tree, be aware your alignment must meet other [requirements](#raxml) beyond those specified by `phydms`. If you already have a tree, you can skip the `RaxML` step using the `--tree` option. 
+
+We can run `phydms_testdivpressure` using the HA example data and two diversifying pressure sets called `HA_divpressure.csv` and `HA_Koel_divpressure.txt` in the `HA_example_data` directory using the command.  
+```
+phydms_testdivpressure phydms_testdivpressure_results/ HA_example_data/HA_sequences.fasta HA_example_data/HA_preferences.csv HA_example_data/HA_divpressure.csv HA_example_data/HA_Koel_divpressure.txt --randomizations 100
+```
+
+###Output files and interpretation of the results
+`phydms_testdivpressure` is a wrapper script which calls [`phydms`](#phydmsCommandline) for each *ExpCM* with true, random, or no diversifying pressure. Each run of `phydms` produces the standard [`phymds` output files](#output) (log file, log-likelihood file, and model parameters file). In addition, `phydms_testdivpressure` produces a directory called `randomizedFiles` which contains the randomized diversifying pressure files, a log file for the `phydms_testdivpressure` run itself, and two summary files called `modelcomparison.csv` and `modelcomparison.md`.    
+
+`modelcomparison.md` provides a summary of the log-likelihood and parameter values for the *ExpCM* model with no diversifying pressure or with the true diversifying pressure values, as shown below.   
+
+DiversifyingPressureSet|LogLikelihood|beta|kappa|omega|omega2
+---|---|---|---|---|---
+HA_Caton_divpressure|-7235.42|2.05769|4.11526|0.674359|0.542747
+HA_IED_divpressure|-7220.21|2.0223|4.125780000000001|0.614641|1.1352200000000001
+HA_Li_divpressure|-7227.21|2.03698|4.11395|0.615024|0.758361
+HA_Linderman_divpressure|-7235.24|2.06506|4.14341|0.693196|0.84577
+None|-7240.85|2.07998|4.12782|0.724588|None  
+
+We can see that all of the runs with diversifying pressure sets had lower log-likelihoods than the run without any diversifying pressure set but with differing magnitudes 
+
+`modelcomparison.csv` has the same information as `modelcomparison.md` includes all of the `phydms` runs. 
+```{r modelcomparison.csv, engine='bash', comment=NA, error=TRUE}
+cat phydms_testdivpressure_results/modelcomparison.csv | head -n 20
+```   
+
+You can use `modelcomparison.csv` to visualize the null distributions created by the randomizations
+```{r phydms_testdivpressure visualization, comment=NA}
+require(ggplot2)
+library(ggplot2)
+df = read.csv("phydms_testdivpressure_results/modelcomparison.csv")
+df = subset(df,(variable == "LogLikelihood") & (DiversifyingPressureType) != "None") 
+true = subset(df, DiversifyingPressureType == "True")
+random = subset(df, DiversifyingPressureType == "Random")
+p = ggplot(random, aes(DiversifyingPressureSet,value)) + geom_violin() +geom_point(data = true, size = 3, color = "red")
+p = p + xlab("Diversifying Pressure Set") + ylab("Log-likelihood")
+p
+```   
+
+These randomizations allow you to compute a p-value for your diversifying pressure sets. Below are the randomization p-values for the above example using the formula $p = \frac{B+1}{M+1}$ where $B$ is the number of diversifying pressure set randomizations with a log-likelihood greater than the log-likelihood of the model without diversifying pressure and $M$ is the total number of randomizations. 
+
+```{r permutations p-value, engine="python", comment = NA, echo=FALSE}
+import pandas as pd
+final = {"DiversifyingPressureSet":[], "RandomPvalue":[]}
+df = pd.read_csv("phydms_testdivpressure_results/modelcomparison.csv")
+divpressureSets = [x for x in list(set(df["DiversifyingPressureSet"].tolist())) if x != "None"]
+for divpressureSet in divpressureSets:
+    temp = df[(df["DiversifyingPressureSet"] == divpressureSet) & (df["variable"] == "LogLikelihood")]
+    trueLL = temp[temp["DiversifyingPressureType"] == "True"]["value"].iloc[0]
+    temp = temp[temp["DiversifyingPressureType"] == "Random"]
+    final["DiversifyingPressureSet"].append(divpressureSet)
+    final["RandomPvalue"].append(float(len(temp[temp["value"]>trueLL])+1)/(len(temp)+1))
+final = pd.DataFrame(final)
+print final
+```
 
 #Debug
-####`RAxML` error 
-####Optimization Failure
+###I have an error about ...
 
+####The preferences
+These could include but are not limited to:   
+**prefsfile \<prefences file\> does not include all amino acids at site <r>**  
+**Prefs in prefsfile \<prefences file\> don't sum to one **   
+**Sites in prefsfile \<prefences file\> not consecutive starting at 1**    
+**minpref adjustment not converging**    
+**Non-unique sites in prefsfile \<prefences file\>**     
+**The sites in \<prefences file\> are different from <preferences file>**      
+Please see the section in this tutorial about the [preference file format](#prefs)  
+
+####The sequences   
+These could include but are not limited to:    
+**All sequences in \<sequence file\> are not of the same length; they must not be properly aligned**       
+**The length of the sequences in \<sequence file\> is <number> which is not divisible by 3; they are not valid codon sequences  **   
+**In \<sequence file\>, sequence \<sequence header name\>, non-terminal codon \<site number\> is stop codon: \<STOP codon\> **    
+Please see the section in this tutorial about the [sequence file](#seqs)  
+
+####The tree   
+These could include but are not limited to:    
+**non-unique tip names? **     
+**Names in alignment do not match those in tree. **     
+**Tree is not bifurcating: cannot handle**    
+Please see the section in this tutorial about the [tree](#tree)     
+
+####The model    
+These could include but are not limited to:     
+**Invalid variant \<fragment of model name\> in \<model name\>**     
+There are only three accepted model names: `YNGKP_M0`, `YNGKP_M5`, and `ExpCM_<preference file>`.  
+Please see the section in this tutorial about the accepted [models](#modelChoice)
+  
+
+####`RAxML` error   
+####Optimization Failure   
