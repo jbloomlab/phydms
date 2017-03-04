@@ -123,7 +123,7 @@ class TreeLikelihood(object):
             to the root node (which has index `nnodes - 1`) is undefined
             and not used, which is why `t` is of length `nnodes - 1` rather
             than `nnodes`.
-        `L` (dict)
+        `L` (`dict`)
             `L[n]` is a `numpy.ndarray` of `float` of shape `(nsites, N_CODON)`.
             for each node `n`. `L[n][r][x] is the partial condition likelihood
             of codon `x` at site `r` at node `n`. Note that these
@@ -132,11 +132,13 @@ class TreeLikelihood(object):
             of shape `(model.ncats, nsites, N_CODON)` with the
             first index ranging over the model categories.
             Entries in `L` are only defined and saved for nodes as needed
-            in order to save memory, so they may not always be defined.
-        `dL` (`dict` keyed by strings, values `numpy.ndarray` of `float`)
-            For each free model parameter `param`,
-            `dL[param]` is derivative of `L` with respect to `param`.
-            Only guaranteed to be valid if `dparamscurrent` is `True`.
+            in order to save memory.
+        `dL` (`dict` keyed by strings)
+            For each free model parameter `param` and node `n`,
+            `dL[param][n]` is derivative of `L[n]` with respect to `param`.
+            Only guaranteed to be valid if `dparamscurrent` is `True`,
+            and entries are only defined and saved for nodes as needed
+            in order to save memory.
         `dL_dt` (`numpy.ndarray` of `float`)
             `dL_dt[n]` is the derivative of `L` with respect to `t[n]`
             where `0 <= n < nnodes - 1`.
@@ -235,22 +237,23 @@ class TreeLikelihood(object):
                 dtype='float')
         self.L = {}
         self.dL = {}
+        self._dLshape = {}
         for param in self._paramlist_PartialLikelihoods:
+            self.dL[param] = {}
             if self._distributionmodel and param == self.model.distributedparam:
-                self.dL[param] = scipy.full(Lshape, -1, dtype='float')
+                self._dLshape[param] = self._Lshape
             else:
                 paramvalue = getattr(self.model, param)
                 if isinstance(paramvalue, float):
-                    self.dL[param] = scipy.full(Lshape, -1, dtype='float')
+                    self._dLshape[param] = self._Lshape
                 elif isinstance(paramvalue, scipy.ndarray) and (paramvalue.ndim
                         == 1):
                     if self._distributionmodel:
-                        paramLshape = (self.ninternal, self.model.ncats, 
+                        self._dLshape[param] = (self.model.ncats, 
                                 len(paramvalue), self.nsites, N_CODON)
                     else:
-                        paramLshape = (self.ninternal, len(paramvalue),
+                        self._dLshape[param] = (len(paramvalue),
                                 self.nsites, N_CODON)
-                    self.dL[param] = scipy.full(paramLshape, -1, dtype='float')
                 else:
                     raise ValueError("Cannot handle param: {0}, {1}".format(
                             param, paramvalue))
@@ -684,7 +687,7 @@ class TreeLikelihood(object):
                     for k in self._catindices:
                         dsiteloglik += (scipy.sum(
                                 self.model.dstationarystate(param) *
-                                self.L[rootnode][k] + self.dL[name][-1][k] *
+                                self.L[rootnode][k] + self.dL[name][rootnode][k] *
                                 self.model.stationarystate, axis=-1) *
                                 weighted_dk[k])
                     dsiteloglik /= sitelik
@@ -739,7 +742,7 @@ class TreeLikelihood(object):
             return self.model.freeparams
 
     def _computePartialLikelihoods(self):
-        """Update `L` and `dL`."""
+        """Update `L`, `dL`, `dL_dt`."""
         for n in range(self.ntips, self.nnodes):
             ni = n - self.ntips # internal node number
             nright = self.rdescend[ni]
@@ -757,6 +760,9 @@ class TreeLikelihood(object):
             tright = self.t[nright]
             tleft = self.t[nleft]
             self.L[n] = scipy.ndarray(self._Lshape, dtype='float')
+            for param in self._paramlist_PartialLikelihoods:
+                self.dL[param][n] = scipy.ndarray(self._dLshape[param], 
+                        dtype='float')
             for k in self._catindices:
                 if istipr:
                     Mright = MLright = self._M(k, tright, 
@@ -815,7 +821,7 @@ class TreeLikelihood(object):
                                 dMLright = broadcastMatrixVectorMultiply(
                                         dMright[j], self.L[nright][k])
                                 MdLright = broadcastMatrixVectorMultiply(
-                                        Mright, self.dL[param][nrighti][k][j])
+                                        Mright, self.dL[param][nright][k][j])
                             if istipl:
                                 dMLleft = dMleft[j]
                                 MdLleft = 0
@@ -823,10 +829,9 @@ class TreeLikelihood(object):
                                 dMLleft = broadcastMatrixVectorMultiply(
                                         dMleft[j], self.L[nleft][k])
                                 MdLleft = broadcastMatrixVectorMultiply(
-                                        Mleft, self.dL[param][nlefti][k][j])
-                            scipy.copyto(self.dL[param][ni][k][j], 
-                                    (dMLright + MdLright) * MLleft +
-                                    MLright * (dMLleft + MdLleft))
+                                        Mleft, self.dL[param][nleft][k][j])
+                            self.dL[param][n][k][j] = ((dMLright + MdLright) 
+                                    * MLleft + MLright * (dMLleft + MdLleft))
 
             if ni > 0 and ni % self.underflowfreq == 0:
                 # rescale by same amount for each category k
@@ -842,12 +847,15 @@ class TreeLikelihood(object):
                     if self.dparamscurrent:
                         for param in self._paramlist_PartialLikelihoods:
                             for j in self._sub_index_param(param):
-                                self.dL[param][ni][k][j] /= scale[:, scipy.newaxis] 
+                                self.dL[param][n][k][j] /= scale[:, scipy.newaxis] 
 
             # free unneeded memory by deleting already used values
             for ntodel in [nright, nleft]:
                 if ntodel in self.L:
                     del self.L[ntodel]
+                for param in self._paramlist_PartialLikelihoods:
+                    if ntodel in self.dL[param]:
+                        del self.dL[param][ntodel]
 
     def _sub_index_param(self, param):
         """Returns list of sub-indexes for `param`.
