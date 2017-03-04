@@ -229,12 +229,12 @@ def main():
             subprocess.check_call(raxmlCMD)
 
             # move RAxML tree to output directory and remove all other files
-            for  raxmlFile in glob.glob("RAxML_*{0}".format(raxmlOutputName)):
+            for raxmlFile in glob.glob("RAxML_*{0}".format(raxmlOutputName)):
                 if "bestTree" in raxmlFile:
-                    os.rename(raxmlFile, args["outprefix"] + raxmlFile)
-                    args["tree"] = args["outprefix"] + raxmlFile
-                    logger.info("RAxML inferred tree, {0}, is in {1}."
-                            .format(raxmlFile, args["outprefix"]))
+                    args["tree"] = args["outprefix"] + 'RAxML_tree.newick'
+                    os.rename(raxmlFile, args['tree'])
+                    logger.info("RAxML inferred tree is now named {0}".format(
+                            args['tree']))
                 else:
                     os.remove(raxmlFile)
         except OSError:
