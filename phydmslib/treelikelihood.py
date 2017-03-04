@@ -646,14 +646,21 @@ class TreeLikelihood(object):
             catweights = self.model.catweights
         else:
             catweights = scipy.ones(1, dtype='float')
-        with scipy.errstate(over='raise', under='raise', divide='raise',
-                invalid='raise'):
+        # When there are multiple categories, it is acceptable
+        # for some (but not all) of them to have underflow at
+        # any given site. Note that we still include a check for
+        # Underflow by ensuring that none of the site likelihoods is 
+        # zero.
+        undererrstate = 'ignore' if len(catweights) > 1 else 'raise'
+        with scipy.errstate(over='raise', under=undererrstate, 
+                divide='raise', invalid='raise'):
             self.underflowlogscale.fill(0.0)
             self._computePartialLikelihoods()
             sitelik = scipy.zeros(self.nsites, dtype='float')
             for k in self._catindices:
                 sitelik += scipy.sum(self.model.stationarystate *
                         self.L[-1][k], axis=1) * catweights[k]
+            assert (sitelik > 0).all(), "Underflow"
             self.siteloglik = scipy.log(sitelik) + self.underflowlogscale
             self.loglik = scipy.sum(self.siteloglik) + self.model.logprior
             if self.dparamscurrent:
