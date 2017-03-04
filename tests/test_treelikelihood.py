@@ -182,7 +182,8 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
                     siteloglik[r] += partials[r][y] * model.stationarystate[r, y]
                 siteloglik[r] = math.log(siteloglik[r])
                 loglik += siteloglik[r]
-            partials_by_mu[mu] = {'actual':tl.L[-1], 'expected':partials}
+            rootnode = tl.nnodes - 1
+            partials_by_mu[mu] = {'actual':tl.L[rootnode], 'expected':partials}
             siteloglik_by_mu[mu] = {'actual':tl.siteloglik, 'expected':siteloglik}
             loglik_by_mu[mu] = {'actual':tl.loglik, 'expected':loglik}
 

@@ -123,13 +123,16 @@ class TreeLikelihood(object):
             to the root node (which has index `nnodes - 1`) is undefined
             and not used, which is why `t` is of length `nnodes - 1` rather
             than `nnodes`.
-        `L` (`numpy.ndarray` of `float`, shape `(ninternal, nsites, N_CODON)`)
-            `L[n - ntips][r][x]` is the partial conditional likelihood of
-            codon `x` at site `r` at internal node `n`. Note that these
+        `L` (dict)
+            `L[n]` is a `numpy.ndarray` of `float` of shape `(nsites, N_CODON)`.
+            for each node `n`. `L[n][r][x] is the partial condition likelihood
+            of codon `x` at site `r` at node `n`. Note that these
             must be corrected by adding `underflowlogscale`.
-            If `model` is a `DistributionModel`, then `L` is instead
-            of shape `(ninternal, model.ncats, nsites, N_CODON)` with the
-            second index ranging over the model categories.
+            If `model` is a `DistributionModel`, then `L[n]` is instead
+            of shape `(model.ncats, nsites, N_CODON)` with the
+            first index ranging over the model categories.
+            Entries in `L` are only defined and saved for nodes as needed
+            in order to save memory, so they may not always be defined.
         `dL` (`dict` keyed by strings, values `numpy.ndarray` of `float`)
             For each free model parameter `param`,
             `dL[param]` is derivative of `L` with respect to `param`.
@@ -224,11 +227,13 @@ class TreeLikelihood(object):
         self.underflowlogscale = scipy.zeros(self.nsites, dtype='float')
         if self._distributionmodel:
             Lshape = (self.ninternal, self.model.ncats, self.nsites, N_CODON)
+            self._Lshape = (self.model.ncats, self.nsites, N_CODON)
         else:
             Lshape = (self.ninternal, self.nsites, N_CODON)
+            self._Lshape = (self.nsites, N_CODON)
         self.dL_dt = scipy.zeros([self.nnodes - 1] + list(Lshape), 
                 dtype='float')
-        self.L = scipy.full(Lshape, -1, dtype='float')
+        self.L = {}
         self.dL = {}
         for param in self._paramlist_PartialLikelihoods:
             if self._distributionmodel and param == self.model.distributedparam:
@@ -642,6 +647,7 @@ class TreeLikelihood(object):
         Should be called any time branch lengths or model parameters
         are changed.
         """
+        rootnode = self.nnodes - 1
         if self._distributionmodel:
             catweights = self.model.catweights
         else:
@@ -659,7 +665,7 @@ class TreeLikelihood(object):
             sitelik = scipy.zeros(self.nsites, dtype='float')
             for k in self._catindices:
                 sitelik += scipy.sum(self.model.stationarystate *
-                        self.L[-1][k], axis=1) * catweights[k]
+                        self.L[rootnode][k], axis=1) * catweights[k]
             assert (sitelik > 0).all(), "Underflow"
             self.siteloglik = scipy.log(sitelik) + self.underflowlogscale
             self.loglik = scipy.sum(self.siteloglik) + self.model.logprior
@@ -678,7 +684,7 @@ class TreeLikelihood(object):
                     for k in self._catindices:
                         dsiteloglik += (scipy.sum(
                                 self.model.dstationarystate(param) *
-                                self.L[-1][k] + self.dL[name][-1][k] *
+                                self.L[rootnode][k] + self.dL[name][-1][k] *
                                 self.model.stationarystate, axis=-1) *
                                 weighted_dk[k])
                     dsiteloglik /= sitelik
@@ -750,6 +756,7 @@ class TreeLikelihood(object):
                 istipl = False
             tright = self.t[nright]
             tleft = self.t[nleft]
+            self.L[n] = scipy.ndarray(self._Lshape, dtype='float')
             for k in self._catindices:
                 if istipr:
                     Mright = MLright = self._M(k, tright, 
@@ -757,15 +764,15 @@ class TreeLikelihood(object):
                 else:
                     Mright = self._M(k, tright)
                     MLright = broadcastMatrixVectorMultiply(Mright, 
-                            self.L[nrighti][k])
+                            self.L[nright][k])
                 if istipl:
                     Mleft = MLleft = self._M(k, tleft, 
                             self.tips[nleft], self.gaps[nleft])
                 else:
                     Mleft = self._M(k, tleft)
                     MLleft = broadcastMatrixVectorMultiply(Mleft, 
-                            self.L[nlefti][k])
-                scipy.copyto(self.L[ni][k], MLright * MLleft)
+                            self.L[nleft][k])
+                self.L[n][k] = MLright * MLleft
 
                 if self.dtcurrent:
                     for (tx, Mx, nx, nix, MLxother, istipx) in [
@@ -781,7 +788,7 @@ class TreeLikelihood(object):
                             LdM_dt = dM_dt
                         else:
                             LdM_dt = broadcastMatrixVectorMultiply(
-                                    dM_dt, self.L[nix][k])
+                                    dM_dt, self.L[nx][k])
                         self.dL_dt[nx][ni][k] = LdM_dt * MLxother
                         for ndx in self.descendants[nx]:
                             nidx = ndx - self.ntips
@@ -806,7 +813,7 @@ class TreeLikelihood(object):
                                 MdLright = 0
                             else:
                                 dMLright = broadcastMatrixVectorMultiply(
-                                        dMright[j], self.L[nrighti][k])
+                                        dMright[j], self.L[nright][k])
                                 MdLright = broadcastMatrixVectorMultiply(
                                         Mright, self.dL[param][nrighti][k][j])
                             if istipl:
@@ -814,7 +821,7 @@ class TreeLikelihood(object):
                                 MdLleft = 0
                             else:
                                 dMLleft = broadcastMatrixVectorMultiply(
-                                        dMleft[j], self.L[nlefti][k])
+                                        dMleft[j], self.L[nleft][k])
                                 MdLleft = broadcastMatrixVectorMultiply(
                                         Mleft, self.dL[param][nlefti][k][j])
                             scipy.copyto(self.dL[param][ni][k][j], 
@@ -823,12 +830,12 @@ class TreeLikelihood(object):
 
             if ni > 0 and ni % self.underflowfreq == 0:
                 # rescale by same amount for each category k
-                scale = scipy.amax(scipy.array([scipy.amax(self.L[ni][k],
+                scale = scipy.amax(scipy.array([scipy.amax(self.L[n][k],
                         axis=1) for k in self._catindices]), axis=0)
                 assert scale.shape == (self.nsites,)
                 self.underflowlogscale += scipy.log(scale)
                 for k in self._catindices:
-                    self.L[ni][k] /= scale[:, scipy.newaxis]
+                    self.L[n][k] /= scale[:, scipy.newaxis]
                     if self.dtcurrent:
                         for n in range(self.dL_dt.shape[0]):
                             self.dL_dt[n][ni][k] /= scale[:, scipy.newaxis]
@@ -836,6 +843,11 @@ class TreeLikelihood(object):
                         for param in self._paramlist_PartialLikelihoods:
                             for j in self._sub_index_param(param):
                                 self.dL[param][ni][k][j] /= scale[:, scipy.newaxis] 
+
+            # free unneeded memory by deleting already used values
+            for ntodel in [nright, nleft]:
+                if ntodel in self.L:
+                    del self.L[ntodel]
 
     def _sub_index_param(self, param):
         """Returns list of sub-indexes for `param`.

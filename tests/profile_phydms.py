@@ -41,10 +41,10 @@ def main():
             ]:
         for (brlen, brlenargs) in [
                 ('brlen-scale', ['--brlen', 'scale']),
-                ('brlen-optimize', ['--brlen', 'optimize']),
+#                ('brlen-optimize', ['--brlen', 'optimize']),
                 ]:
             args = baseargs + brlenargs
-            args.append('--omegabysite')
+#            args.append('--omegabysite')
             name = '{0}_{1}'.format(name1, brlen)
             outprefix = '{0}/{1}'.format(profiledir, name)
             for f in glob.glob('{0}*'.format(outprefix)):
