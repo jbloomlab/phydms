@@ -41,7 +41,7 @@ def main():
             ]:
         for (brlen, brlenargs) in [
                 ('brlen-scale', ['--brlen', 'scale']),
-#                ('brlen-optimize', ['--brlen', 'optimize']),
+                ('brlen-optimize', ['--brlen', 'optimize']),
                 ]:
             args = baseargs + brlenargs
 #            args.append('--omegabysite')
