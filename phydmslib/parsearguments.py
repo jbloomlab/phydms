@@ -309,9 +309,8 @@ def PhyDMSComprehensiveParser():
     parser.add_argument('prefsfiles', help='Existing files with site-specific '
             'amino-acid preferences.', type=ExistingFile, nargs='+')
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--raxml', help="Path to RAxML (http://sco.h-its.org/"
-            "exelixis/software.html).", default='raxml')
-    group.add_argument('--tree', default=False, type=ExistingFile,
+    group.add_argument('--raxml', help="Path to RAxML (e.g., 'raxml')")
+    group.add_argument('--tree', type=ExistingFile,
              help="Existing Newick file giving input tree.")
     parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; -1 '
             'means all available.', type=int)
