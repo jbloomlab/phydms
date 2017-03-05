@@ -388,37 +388,31 @@ In most situations, the amino-acid preferences :math:`\pi_{r,a}` are experimenta
 But in certain situations, we wish to treat these as free parameters that we optimize by maximum likelihood.
 
 For this optimization, we define a variable transformation from the 20 :math:`\pi_{r,a}` values at each site :math:`r` (19 of these 20 values are unique since they sum to one). 
-This transformation is analogous to that in Equations :eq:`phi_from_eta` and :eq:`eta_from_phi`.
-Specifically, we number the 20 amino acids such that :math:`a = 0` means alanine, :math:`a = 1` means cysteine, and so on up to :math:`a = 19` meaning tyrosine.. 
-We then define 19 free variables for each site :math:`r`: :math:`\zeta_{r,0}, \zeta_{r,1}, \ldots, \zeta_{r,18}`, all of which are constrained to value between zero and one.
-For notational convenience, we also define :math:`\zeta_{r,19} = 0`, but not that :math:`\zeta_{r,19}` is **not** a free parameter as it is always zero.
+We then define 19 free variables for each site :math:`r`: :math:`\zeta_{r,0}, \zeta_{r,1}, \ldots, \zeta_{r,18}`, all of which are constrained to be greater than zero.
+For notational convenience, we also define :math:`\zeta_{r,19} = 1`, but not that :math:`\zeta_{r,19}` is **not** a free parameter as it is always one.
 
 We the define
 
 .. math::
    :label: pi_from_zeta
 
-   \pi_{r,a} = \left(\prod\limits_{i=0}^{a - 1} \zeta_{r,i}\right) \left(1 - \zeta_{r,a}\right)
+   \pi_{r,a} = \frac{\zeta_{r,a}}{\sum_{j} \zeta_{r,j}}
 
 and conversely
 
 .. math::
    :label: zeta_from_pi
 
-   \zeta_{r,a} = 1 - \pi_{r,a} / \left(\prod\limits_{i=0}^{a - 1} \zeta_{r,i} \right).
+   \zeta_{r,a} = \frac{\pi_{r,a}}{\pi_{r,19}}.
 
-Note that setting :math:`\zeta_{r,a} = \frac{19 - a}{20 - a}` makes all the :math:`\pi_{r,a}` values equal to :math:`\frac{1}{20}`.
-
-In analogy with Equation :eq:`dphi_deta`, we have
+We therefore have
 
 .. math::
    :label: dpi_dzeta
 
-   \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} =
-   \begin{cases}
-   \frac{\pi_{r,a}}{\zeta_{r,i} - \delta_{ia}} & \mbox{if $i \le a$,} \\
-   0 & \mbox{otherwise,}
-   \end{cases}
+   \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} &=&
+   \frac{1}{\sum_{j} \zeta_{r,j}} \left(\delta_{ia} - \frac{\zeta_{r,a}}{\sum_{j} \zeta_{r,j}}\right) \\
+   &=& \frac{\pi_{r,a}}{\zeta_{r,a}} \left(\delta_{ia} - \pi_{r,a}\right)
 
 where :math:`\delta_{ij}` is the Kronecker-delta.
    
@@ -430,11 +424,8 @@ The derivative is
 
    \frac{\partial F_{r,xy}}{\partial \pi_{r,a}} &=&
    \begin{cases}
-   \frac{-\omega \beta}{2 \pi_{r,a}} & \mbox{if $a = \mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$}, \\
-   \frac{-\omega \beta}{\pi_{r,a}} \frac{\left(\pi_{r,\mathcal{A}\left(x\right)} / \pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\left[\ln\left(\left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right) - 1\right] + 1}{\left(1 - \left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right)^2} & \mbox{if $a = \mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} \ne \pi_{r,\mathcal{A}\left(y\right)}$}, \\
-   \frac{\omega \beta}{2 \pi_{r,a}} & \mbox{if $a = \mathcal{A}\left(y\right) \ne \mathcal{A}\left(x\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$}, \\
-   \frac{\omega \beta}{\pi_{r,a}} \frac{\left(\pi_{r,\mathcal{A}\left(x\right)} / \pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\left[\ln\left(\left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right) - 1\right] + 1}{\left(1 - \left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right)^2} & \mbox{if $a = \mathcal{A}\left(y\right) \ne \mathcal{A}\left(x\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} \ne \pi_{r,\mathcal{A}\left(y\right)}$}, \\
-   0 & \mbox{otherwise,} \\
+   \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\omega \beta}{2 \pi_{r,a}} & \mbox{if $\pi_{r, \mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$}, \\
+   \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\omega \beta}{\pi_{r,a}} \frac{\left(\pi_{r,\mathcal{A}\left(x\right)} / \pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\left[\ln\left(\left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right) - 1\right] + 1}{\left(1 - \left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right)^2} & \mbox{if $\pi_{r, \mathcal{A}\left(x\right)} \ne \pi_{r,\mathcal{A}\left(y\right)}$}, \\
    \end{cases}
 
 where the expressions when :math:`\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}` are derived from application of L'Hopital's rule.
@@ -447,23 +438,25 @@ So define
    \begin{cases}
    0 & \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$,} \\
    \frac{\omega \beta}{2} & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$,} \\
-   \left(\omega \beta\right) \frac{\left(\pi_{r,\mathcal{A}\left(x\right)} / \pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\left[\ln\left(\left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right) - 1\right] + 1}{\left(1 - \left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right)^2} & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} \ne \pi_{r,\mathcal{A}\left(y\right)}$.}
+   \left(\omega \beta\right) \frac{\left(\pi_{r,\mathcal{A}\left(x\right)} / \pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\left[\ln\left(\left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right) - 1\right] + 1}{\left(1 - \left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right)^2} & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} \ne \pi_{r,\mathcal{A}\left(y\right)}$,}
    \end{cases}
+
+so that
+
+.. math::
+
+   \frac{\partial F_{r,xy}}{\partial \pi_{r,a}} = \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\tilde{F}_{r,xy}}{\pi_{r,a}}.
 
 We then have
 
 .. math::
    :label: dPrxy_dzeta
 
-   \frac{\partial P_{r,xy}}{\partial \zeta_{r,i}} =
-   Q_{xy} \sum\limits_a \frac{\partial F_{r,xy}}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} =
-   \begin{cases}
-   0 & \mbox{if $i > \mathcal{A}\left(x\right)$ and $i > \mathcal{A}\left(y\right)$ and $x \ne y$,} \\
-   \frac{Q_{xy} \tilde{F}_{r,xy}}{\zeta_{r,i} - \delta_{i\mathcal{A}\left(y\right)}} & \mbox{if $i > \mathcal{A}\left(x\right)$ and $i \le \mathcal{A}\left(y\right)$ and $x \ne y$,} \\
-   -\frac{Q_{xy} \tilde{F}_{r,xy}}{\zeta_{r,i} - \delta_{i\mathcal{A}\left(x\right)}} & \mbox{if $i \le \mathcal{A}\left(x\right)$ and $i > \mathcal{A}\left(y\right)$ and $x \ne y$,} \\
-   \frac{Q_{xy} \tilde{F}_{r,xy}}{\zeta_{r,i} - \delta_{i\mathcal{A}\left(y\right)}} - \frac{Q_{xy} \tilde{F}_{r,xy}}{\zeta_{r,i} - \delta_{i\mathcal{A}\left(x\right)}} & \mbox{if $i \le \mathcal{A}\left(x\right)$ and $i \le \mathcal{A}\left(y\right)$ and $x \ne y$} \\
-   -\sum\limits_{z \ne x} \frac{\partial P_{r,xy}}{\partial \zeta_{r,i}} & \mbox{if $x = y$}.
-   \end{cases}
+   \frac{\partial P_{r,xy}}{\partial \zeta_{r,i}} &=&
+   Q_{xy} \sum\limits_a \frac{\partial F_{r,xy}}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
+   &=& Q_{xy} \tilde{F}_{r,xy} \sum\limits_a \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{1}{\zeta_{r,a}} \left(\delta_{ia} - \pi_{r,a}\right) \\
+   &=& Q_{xy} \tilde{F}_{r,xy} \left[\left(\sum\limits_a \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\delta_{ia}}{\zeta_{r,a}}\right) - \left(\sum\limits_a \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\pi_{r,a}}{\zeta_{r,a}}\right)\right] \\
+   &=& Q_{xy} \tilde{F}_{r,xy} \left[\frac{\delta_{i\mathcal{A}\left(y\right)} - \delta_{i\mathcal{A}\left(x\right)}}{\zeta_{r,i}} - \left(\sum\limits_a \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\pi_{r,a}}{\zeta_{r,a}}\right)\right].
 
 We also need to calculate the derivative of the stationary state :math:`p_{r,x}` given by Equation :eq:`prx` with respect to the preference. In this calculation, we simplify the algebra by taking advantage of the fact that for our fit preferences models, we always have :math:`\beta = 1` to simplify from the first to the second line below:
 
