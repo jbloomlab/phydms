@@ -543,6 +543,8 @@ class ExpCM(Model):
                         self.Ainv, tips))
                 if gaps is not None:
                     M[gaps] = scipy.ones(N_CODON, dtype='float')
+        assert M.min() > -1e-3, "Overly negative M: {0}".format(M.min())
+        M[M < 0] = 0.0
         return M
 
     def dM(self, t, param, Mt, tips=None, gaps=None):
@@ -1517,10 +1519,13 @@ class YNGKP_M0(Model):
                 self._cached[('expD', t)] = scipy.exp(self.D * self.mu * t)
             expD = self._cached[('expD', t)]
             # swap axes to broadcast multiply D as diagonal matrix
-            temp = scipy.ascontiguousarray((self.A.swapaxes(0, 1) * expD).swapaxes(1, 0), dtype = float)
+            temp = scipy.ascontiguousarray((self.A.swapaxes(0, 1) 
+                    * expD).swapaxes(1, 0), dtype=float)
             M = broadcastMatrixMultiply(temp, self.Ainv)
+            assert M.min() > -1e-3, "Overly negative M: {0}".format(M.min())
+            M[M < 0] = 0.0
             if tips is None:
-                return scipy.tile(M, (self.nsites,1,1))
+                return scipy.tile(M, (self.nsites, 1, 1))
             else:
                 newM = scipy.zeros((len(tips), N_CODON))
                 for i in range(len(tips)):
@@ -1576,7 +1581,7 @@ class YNGKP_M0(Model):
             Dxx_Dyy_lt_ALMOST_ZERO = self._cached['Dxx_Dyy_lt_ALMOST_ZERO']
             with scipy.errstate(divide='raise', under='ignore',
                     over='raise', invalid='ignore'):
-                expDyy = scipy.tile(expD,(1, N_CODON)).reshape(
+                expDyy = scipy.tile(expD, (1, N_CODON)).reshape(
                         1, N_CODON, N_CODON)
                 expDxx = scipy.array([expDyy[r].transpose() for r in
                         range(1)])

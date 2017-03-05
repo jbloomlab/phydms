@@ -62,7 +62,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
                     freeparams=['mu'])
             partitions = phydmslib.simulate.pyvolvePartitions(model)
         elif self.MODEL == phydmslib.models.YNGKP_M0:
-            e_pw = scipy.asarray([scipy.random.dirichlet([8] * N_NT) for i 
+            e_pw = scipy.asarray([scipy.random.dirichlet([7] * N_NT) for i 
                     in range(3)])
             model = phydmslib.models.YNGKP_M0(e_pw, nsites)
             partitions = phydmslib.simulate.pyvolvePartitions(model)
