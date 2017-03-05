@@ -72,8 +72,9 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
         diffprefs = pandas.read_csv(diffprefsbysitefile, sep='\t', comment='#')
         diffprefs['total'] = diffprefs[aas].sum(axis=1)
         for (site, a) in self.targetaas.items():
-            self.assertTrue((diffprefs[diffprefs['site'] == site][
-                    'dpi_{0}'.format(a)] > 0).all())
+            siteentry = diffprefs[diffprefs['site'] == site]
+            self.assertTrue(len(siteentry) == 1, str(len(siteentry)))
+            self.assertTrue((siteentry['dpi_{0}'.format(a)] > 0).all())
 
 
 

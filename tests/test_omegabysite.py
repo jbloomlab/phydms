@@ -57,6 +57,7 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
         omegabysitefile = simulateprefix + '_omegabysite.txt'
         omegas = pandas.read_csv(omegabysitefile, sep='\t', comment='#')
         divpressureomegas = omegas[omegas['site'].isin(divpressuresites)]
+        self.assertTrue(len(divpressureomegas) == len(divpressuresites))
         self.assertTrue((divpressureomegas['omega'].values > 2).all(),
                 "Not all divpressure sites have omega > 2:\n{0}".format(
                 divpressureomegas))

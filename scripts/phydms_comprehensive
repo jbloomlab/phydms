@@ -13,6 +13,7 @@ import copy
 import logging
 import multiprocessing
 import subprocess
+import signal
 import glob
 import phydmslib
 import phydmslib.file_io
