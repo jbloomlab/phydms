@@ -53,10 +53,10 @@ def createModelComparisonFile(models, outprefix, modelcomparisonfile):
         with open(outprefix + modelName + '_modelparams.txt') as f:
             params = [(line.split('=')) for line in f]
         stats['nParams'].append(len(params))
-        paramvalues = ['{0}={1:.2f}'.format(name.strip(), float(value)) for 
+        paramvalues = ['{0}={1:.2f}'.format(name.strip(), float(value)) for
                 (name, value) in sorted(params) if 'phi' not in name]
         stats['ParamValues'].append(', '.join(paramvalues))
-        stats['deltaAIC'].append(2 * (stats['nParams'][-1] - 
+        stats['deltaAIC'].append(2 * (stats['nParams'][-1] -
                 stats['LogLikelihood'][-1]))
     minAIC = min(stats['deltaAIC'])
     stats['deltaAIC'] = [x - minAIC for x in stats['deltaAIC']]
@@ -66,7 +66,7 @@ def createModelComparisonFile(models, outprefix, modelcomparisonfile):
         stats[col] = ['{0:.2f}'.format(x) for x in stats[col]]
     stats['nParams'] = [str(x) for x in stats['nParams']]
     colwidths = [max(map(len, stats[col] + [col])) for col in columns]
-    formatline = ('| ' + ' | '.join(['{' + str(i) + ':' + str(w) + '}' 
+    formatline = ('| ' + ' | '.join(['{' + str(i) + ':' + str(w) + '}'
             for (i, w) in enumerate(colwidths)]) + ' |')
     sepline = '|-' + '-|-'.join(['-' * w for w in colwidths]) + '-|'
     text = [formatline.format(*columns), sepline]
@@ -102,6 +102,7 @@ def main():
         logfile = "{0}.log".format(args['outprefix'])
         args['outprefix'] = '{0}_'.format(args['outprefix'])
     modelcomparisonfile = '{0}modelcomparison.md'.format(args['outprefix'])
+    raxmlStandardOutputFile = '{0}ramxl_output.txt'.format(args['outprefix'])
 
     #Set up to log everything to logfile.
     if os.path.isfile(logfile):
@@ -226,7 +227,8 @@ def main():
             # run RAxmL
             raxmlCMD = [args['raxml'], '-s', args['alignment'], '-n',
                     raxmlOutputName, '-m', 'GTRCAT', '-p1', '-T', '2']
-            subprocess.check_call(raxmlCMD)
+            with open(raxmlStandardOutputFile, 'w') as f:
+                subprocess.check_call(raxmlCMD, stdout = f)
 
             # move RAxML tree to output directory and remove all other files
             for raxmlFile in glob.glob("RAxML_*{0}".format(raxmlOutputName)):
@@ -334,7 +336,7 @@ def main():
                             .format(modelname))
             time.sleep(1)
 
-        createModelComparisonFile(models.keys(), args["outprefix"], 
+        createModelComparisonFile(models.keys(), args["outprefix"],
                 modelcomparisonfile)
 
         # make sure all expected output files are there
