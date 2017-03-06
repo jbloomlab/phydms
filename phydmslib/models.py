@@ -804,11 +804,11 @@ class ExpCM_fitprefs(ExpCM):
     amino-acid preferences `pi` are optimized for the latter. There
     can also be a regularizing prior on these preferences.
 
-    The way this class is currently implemented, it will be very inefficient
+    The way this class is currently implemented, it will be inefficient
     if there is more than one site. The recommended usage is to optimize
     across-site parameters with fixed preferences, then optimize preferences
     for each site individually with this class after fixing across-site 
-    parameters.
+    parameters. You currently can **not** initialize with more than one site.
 
     See `__init__` method for how to initialize an `ExpCM_fitprefs`.
 
@@ -851,7 +851,7 @@ class ExpCM_fitprefs(ExpCM):
     ALLOWEDPARAMS = [param for param in ExpCM.ALLOWEDPARAMS if param != 'beta']
     ALLOWEDPARAMS.append('zeta')
     _PARAMLIMITS = copy.deepcopy(ExpCM._PARAMLIMITS)
-    _PARAMLIMITS['zeta'] = (ALMOST_ZERO, 1 - ALMOST_ZERO)
+    _PARAMLIMITS['zeta'] = (ALMOST_ZERO, 1.0 / ALMOST_ZERO)
     _REPORTPARAMS = copy.deepcopy(ExpCM._REPORTPARAMS)
     _REPORTPARAMS.append('pi')
 
@@ -940,27 +940,26 @@ class ExpCM_fitprefs(ExpCM):
                 self.origpi[r] /= self.origpi[r].sum()
             self.pi = self.origpi.copy()
             self.zeta = scipy.ndarray(self.nsites * (N_AA - 1), dtype='float')
-            self.tildeFrxy = scipy.zeros((self.nsites, N_CODON, N_CODON),
-                    dtype='float')
             for r in range(self.nsites):
-                zetaprod = 1.0
-                for i in range(N_AA - 1):
-                    zetari = 1.0 - self.pi[r][i] / zetaprod
-                    self.zeta.reshape(self.nsites, N_AA - 1)[r][i] = zetari
-                    zetaprod *= zetari
+                self.zeta.reshape(self.nsites, N_AA - 1)[r] = (self.pi[r][ : -1] 
+                        / self.pi[r][-1])
             (minzeta, maxzeta) = self.PARAMLIMITS['zeta']
             self.zeta[self.zeta < minzeta] = minzeta
             self.zeta[self.zeta > maxzeta] = maxzeta
             _checkParam('zeta', self.zeta, self.PARAMLIMITS, self.PARAMTYPES)
+            self.tildeFrxy = scipy.zeros((self.nsites, N_CODON, N_CODON),
+                    dtype='float')
         else:
             # after first call, we are updating pi from zeta
+            # _zetafull[r] has N_AA entries, with 1 as the last one
+            # _zetasum[r] is sum of zeta at site r
+            self._zetafull = scipy.ones((self.nsites, N_AA), dtype='float')
+            self._zetasum = scipy.ndarray(self.nsites, dtype='float')
             for r in range(self.nsites):
-                zetaprod = 1.0
-                for i in range(N_AA - 1):
-                    zetari = self.zeta.reshape(self.nsites, N_AA - 1)[r][i]
-                    self.pi[r][i] = zetaprod * (1 - zetari)
-                    zetaprod *= zetari
-                self.pi[r][N_AA - 1] = zetaprod
+                self._zetafull[r][ : N_AA - 1] = self.zeta.reshape(
+                        self.nsites, N_AA - 1)[r]
+                self._zetasum[r] = self._zetafull[r].sum()
+                self.pi[r] = self._zetafull[r] / self._zetasum[r]
                 self.pi[r][self.pi[r] < minpi] = minpi
                 self.pi[r] /= self.pi[r].sum()
 
@@ -1005,22 +1004,18 @@ class ExpCM_fitprefs(ExpCM):
         super(ExpCM_fitprefs, self)._update_dPrxy()
 
         if 'zeta' in self.freeparams:
+            self.dPrxy['zeta'].fill(0.0)
             tildeFrxyQxy = self.tildeFrxy * self.Qxy
             j = 0
-            zetaxterm = scipy.ndarray((self.nsites, N_CODON, N_CODON), dtype='float')
-            zetayterm = scipy.ndarray((self.nsites, N_CODON, N_CODON), dtype='float')
             for r in range(self.nsites):
                 for i in range(N_AA - 1):
                     zetari = self.zeta[j]
-                    zetaxterm.fill(0)
-                    zetayterm.fill(0)
-                    zetaxterm[r][self._aa_for_x > i] = -1.0 / zetari
-                    zetaxterm[r][self._aa_for_x == i] = -1.0 / (zetari - 1.0)
-                    zetayterm[r][self._aa_for_y > i] = 1.0 / zetari
-                    zetayterm[r][self._aa_for_y == i] = 1.0 / (zetari - 1.0)
-                    self.dPrxy['zeta'][j] = tildeFrxyQxy * (zetayterm + zetaxterm)
-                    _fill_diagonals(self.dPrxy['zeta'][j], self._diag_indices)
+                    self.dPrxy['zeta'][j][r] = tildeFrxyQxy[r] * (
+                            ((i == self._aa_for_y).astype('float') - 
+                            (i == self._aa_for_x).astype('float')) / zetari)
                     j += 1
+            for j in range(self.dPrxy['zeta'].shape[0]):
+                _fill_diagonals(self.dPrxy['zeta'][j], self._diag_indices)
 
     def _update_dprx(self):
         """Update `dprx`."""
@@ -2058,7 +2053,7 @@ def _checkParam(param, value, paramlimits, paramtypes):
 
 def _fill_diagonals(m, diag_indices):
     """Fills diagonals of `nsites` matrices in `m` so rows sum to 0."""
-    assert m.ndim ==3, "M must have 3 dimensions"
+    assert m.ndim == 3, "M must have 3 dimensions"
     assert m.shape[1] == m.shape[2], "M must contain square matrices"
     for r in range(m.shape[0]):
         scipy.fill_diagonal(m[r], 0)
