@@ -190,7 +190,6 @@ class test_ExpCM_fitprefs(unittest.TestCase):
 
     def test_dprx_dzeta(self):
         """Test `dprx['zeta']`."""
-        return
         random.seed(1)
 
         expcm_fitprefs = copy.deepcopy(self.expcm_fitprefs)

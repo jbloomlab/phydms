@@ -952,14 +952,11 @@ class ExpCM_fitprefs(ExpCM):
         else:
             # after first call, we are updating pi from zeta
             # _zetafull[r] has N_AA entries, with 1 as the last one
-            # _zetasum[r] is sum of zeta at site r
-            self._zetafull = scipy.ones((self.nsites, N_AA), dtype='float')
-            self._zetasum = scipy.ndarray(self.nsites, dtype='float')
+            _zetafull = scipy.ones((self.nsites, N_AA), dtype='float')
             for r in range(self.nsites):
-                self._zetafull[r][ : N_AA - 1] = self.zeta.reshape(
+                _zetafull[r][ : N_AA - 1] = self.zeta.reshape(
                         self.nsites, N_AA - 1)[r]
-                self._zetasum[r] = self._zetafull[r].sum()
-                self.pi[r] = self._zetafull[r] / self._zetasum[r]
+                self.pi[r] = _zetafull[r] / _zetafull[r].sum()
                 self.pi[r][self.pi[r] < minpi] = minpi
                 self.pi[r] /= self.pi[r].sum()
 
@@ -1026,11 +1023,9 @@ class ExpCM_fitprefs(ExpCM):
             for r in range(self.nsites):
                 for i in range(N_AA - 1):
                     zetari = self.zeta[j]
-                    for a in range(i, N_AA):
-                        delta_aAx = (CODON_TO_AA == a).astype('float')
-                        self.dprx['zeta'][j][r] += (delta_aAx - (delta_aAx
-                                * self.prx[r]).sum())/ (zetari - int(i == a))
-                    self.dprx['zeta'][j] *= self.prx[r]
+                    self.dprx['zeta'][j][r] = (self.prx[r] / zetari) * (
+                            (CODON_TO_AA == i).astype('float') - 
+                            ((CODON_TO_AA == i).astype('float') * self.prx[r]).sum())
                     j += 1
 
 

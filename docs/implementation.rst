@@ -481,7 +481,11 @@ So:
 
    \frac{\partial p_{r,x}}{\partial \zeta_{r,i}} &=&
    \sum\limits_a \frac{\partial p_{r,x}}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
-   &=& p_{r,x} \sum\limits_{a \ge i} \frac{1}{\zeta_{r,i} - \delta_{ia}} \left(\delta_{a\mathcal{A}\left(x\right)} - \sum_z\delta_{a\mathcal{A}\left(z\right)} p_{r,z} \right)
+   &=& p_{r,x} \sum\limits_{a} \frac{\delta_{ia} - \pi_{r,a}}{\zeta_{r,a}} \left(\delta_{a\mathcal{A}\left(x\right)} - \sum_z\delta_{a\mathcal{A}\left(z\right)} p_{r,z} \right) \\
+   &=& p_{r,x} \left[\frac{1}{\zeta_{r,i}} \left(\delta_{i\mathcal{A}\left(x\right)} - \sum_z\delta_{i\mathcal{A}\left(z\right)} p_{r,z} \right) - \sum\limits_{a} \frac{\pi_{r,a}}{\zeta_{r,a}} \left(\delta_{a\mathcal{A}\left(x\right)} - \sum_z\delta_{a\mathcal{A}\left(z\right)} p_{r,z} \right)\right] \\
+   &=& p_{r,x} \left[\frac{1}{\zeta_{r,i}} \left(\delta_{i\mathcal{A}\left(x\right)} - \sum_z\delta_{i\mathcal{A}\left(z\right)} p_{r,z} \right) - \frac{\pi_{r,\mathcal{A}\left(x\right)}}{\zeta_{r,\mathcal{A}\left(x\right)}} + \sum\limits_{a} \frac{\pi_{r,a}}{\zeta_{r,a}} \sum_z\delta_{a\mathcal{A}\left(z\right)} p_{r,z}\right] \\
+   &=& p_{r,x} \left[\frac{1}{\zeta_{r,i}} \left(\delta_{i\mathcal{A}\left(x\right)} - \sum_z\delta_{i\mathcal{A}\left(z\right)} p_{r,z} \right) - \frac{1}{\sum_j \zeta_{r,j}} + \frac{1}{\sum_j \zeta_{r,j}} \sum\limits_{a} \sum_z\delta_{a\mathcal{A}\left(z\right)} p_{r,z}\right] \\
+   &=& \frac{p_{r,x}}{\zeta_{r,i}} \left(\delta_{i\mathcal{A}\left(x\right)} - \sum_z\delta_{i\mathcal{A}\left(z\right)} p_{r,z} \right).
 
 Regularizing preferences for *ExpCM* with preferences as free parameters
 -------------------------------------------------------------------------
