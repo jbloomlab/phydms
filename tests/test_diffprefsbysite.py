@@ -10,6 +10,7 @@ import subprocess
 import random
 import pandas
 import scipy
+import scipy.stats
 import phydmslib.file_io
 import phydmslib.models
 import phydmslib.simulate
@@ -63,22 +64,39 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
         info = simulateprefix + '_temp_info.txt'
         rates = simulateprefix + '_temp_ratefile.txt'
         evolver(seqfile=simulatedalignment, infofile=info, ratefile=rates)
+
+        prefsbymethod = {}
         for fitprefsmethod in ['1', '2']:
             outprefix = simulateprefix + '_fitprefsmethod{0}'.format(
                     fitprefsmethod)
             subprocess.check_call(['phydms', simulatedalignment, self.tree,
                     self.modelarg, outprefix, '--diffprefsbysite', 
                     '--brlen', 'scale', '--ncpus', '-1', '--diffprefsprior',
-                    'invquadratic,50,0.25'] + self.gammaomega_arg +
+                    'invquadratic,150,0.5'] + self.gammaomega_arg +
                     ['--fitprefsmethod', fitprefsmethod])
             diffprefsbysitefile = outprefix + '_diffprefsbysite.txt'
             aas = ['dpi_{0}'.format(INDEX_TO_AA[a]) for a in range(N_AA)]
-            diffprefs = pandas.read_csv(diffprefsbysitefile, sep='\t', comment='#')
-            diffprefs['total'] = diffprefs[aas].sum(axis=1)
+            diffprefs = pandas.read_csv(diffprefsbysitefile, sep='\t', 
+                    comment='#')
+            diffprefs['total'] = diffprefs[aas].abs().sum(axis=1)
             for (site, a) in self.targetaas.items():
                 siteentry = diffprefs[diffprefs['site'] == site]
                 self.assertTrue(len(siteentry) == 1, str(len(siteentry)))
                 self.assertTrue((siteentry['dpi_{0}'.format(a)] > 0).all())
+
+            prefsbymethod[fitprefsmethod] = diffprefs
+
+        for (i, (method1, prefs1)) in enumerate(sorted(prefsbymethod.items())):
+            total1 = prefs1['total'].values
+            for (method2, prefs2) in sorted(prefsbymethod.items())[i + 1 : ]:
+                total2 = prefs2['total'].values
+                (r, p) = scipy.stats.pearsonr(total1, total2)
+                self.assertTrue(r > 0.99, "Correlation between fitprefsmethod")
+                #import matplotlib.pyplot as plt
+                #plt.scatter(total1, total2)
+                #plt.xlabel('fitprefsmethod{0}'.format(method1))
+                #plt.ylabel('fitprefsmethod{0}'.format(method2))
+                #plt.show()
 
 
 

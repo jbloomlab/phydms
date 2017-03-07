@@ -418,7 +418,7 @@ def main():
                          args['fitprefsmethod']]
             logger.info("For the fitting, using {0} implementation "
                     "as specified by fitprefsmethod = {1}".format(
-                    modeltype, args['fitprefsmethod']))
+                    modeltype.__name__, args['fitprefsmethod']))
             logger.info("Fitting with {0} CPUs...".format(ncpus))
             # We use a multiprocessing pool if more than 1 CPU.
             # To save memory, use pool sizes equal to number of CPUs
