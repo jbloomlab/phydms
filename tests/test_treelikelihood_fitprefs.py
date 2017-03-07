@@ -61,9 +61,12 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
         assert len(self.alignment[0][1]) == nsites * 3
         for f in [alignmentfile, info, rates]:
             os.remove(f)
-        self.aacounts = dict([(r, dict([(a, 0) for a in range(N_AA)])) for
-                r in range(nsites)])
+        self.codoncounts = dict([(r, dict([(INDEX_TO_CODON[c], 0) 
+                for c in range(N_CODON)])) for r in range(nsites)])
+        self.aacounts = dict([(r, dict([(a, 0) for a in range(N_AA)]))
+                for r in range(nsites)])
         for (head, seq) in self.alignment:
+            self.codoncounts[r][seq] += 1
             self.aacounts[r][CODON_TO_AA[CODON_TO_INDEX[seq]]] += 1
 
         self.tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
@@ -112,7 +115,7 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
         firstloglik = None
         for seed in range(3):
             scipy.random.seed(seed)
-            tl.paramsarray = scipy.random.uniform(0.1, 0.99, 
+            tl.paramsarray = scipy.random.uniform(0.5, 5.0, 
                     len(tl.paramsarray))
             if firstloglik:
                 self.assertFalse(scipy.allclose(firstloglik, tl.loglik, 
@@ -120,22 +123,26 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
             maxresult = tl.maximizeLikelihood()
             if firstloglik:
                 self.assertTrue(scipy.allclose(firstloglik, tl.loglik,
-                        atol=0.02), "loglik not the same for different starts")
+                        atol=0.4), "loglik not the same for different starts:"
+                        " {0} versus {1}".format(firstloglik, tl.loglik))
             else:
                 firstloglik = tl.loglik
             self.assertTrue(scipy.allclose(tl.model.origpi, self.model.pi))
             # ensure highest prefs are for amino acids with nonzero counts
             for r in range(tl.nsites):
-                aas_with_counts = set([a for a in range(N_AA) if 
-                        self.aacounts[r][a]])
-                pref_sorted_aas = [tup[1] for tup in sorted(
-                        [(tl.model.pi[r][a], a) for a in range(N_AA)],
-                        reverse=True)]
-                self.assertTrue(aas_with_counts <= set(pref_sorted_aas[ : 
-                        len(aas_with_counts) + 1]), "top prefs not for amino "
-                        "acids with counts:\naas_with_counts: {0}\n"
-                        "pref_sorted_aas: {1}".format(aas_with_counts,
-                        pref_sorted_aas))
+                for (c, nc) in self.codoncounts[r].items():
+                    if nc > 0:
+                        for (c2, nc2) in self.codoncounts[r].items():
+                            ndiffs = len([i for (i, ci) in enumerate(c)
+                                    if ci != c2[i]])
+                            a = CODON_TO_AA[CODON_TO_INDEX[c]]
+                            a2 = CODON_TO_AA[CODON_TO_INDEX[c2]]
+                            na2 = self.aacounts[r][a2]
+                            if ndiffs == 1 and na2 == 0:
+                                if a != a2:
+                                    pira = tl.model.pi[r][a]
+                                    pira2 = tl.model.pi[r][a2]
+                                    self.assertTrue(pira - pira2 > -0.01)
 
 
 if __name__ == '__main__':

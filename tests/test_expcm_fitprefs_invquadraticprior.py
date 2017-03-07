@@ -52,7 +52,7 @@ class test_ExpCM_fitprefs_invquadraticprior(unittest.TestCase):
 
         expcm_fitprefs = copy.deepcopy(self.expcm_fitprefs)
         self.assertTrue(scipy.allclose(expcm_fitprefs.pi, expcm_fitprefs.origpi))
-        newzeta = expcm_fitprefs.zeta.copy() * scipy.random.uniform(0.9, 1.0, 
+        newzeta = expcm_fitprefs.zeta.copy() * scipy.random.uniform(0.01, 10.0, 
                 expcm_fitprefs.zeta.shape)
         expcm_fitprefs.updateParams({'zeta':newzeta})
         self.assertFalse(scipy.allclose(expcm_fitprefs.pi, expcm_fitprefs.origpi))

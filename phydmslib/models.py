@@ -983,15 +983,16 @@ class ExpCM_fitprefs(ExpCM):
             j = 0
             aaindex = scipy.arange(N_AA)
             for r in range(self.nsites):
+                # Add 1 because that is zeta for the last amino acid
+                zetasum = 1 + self.zeta.reshape(self.nsites, N_AA - 1)[r].sum()
                 pidiffr = self.pi[r] - self.origpi[r]
                 rlogprior = -c2 * scipy.log(1 + c1 * pidiffr**2).sum()
                 self._logprior += rlogprior
                 for i in range(N_AA - 1):
                     zetari = self.zeta[j]
-                    self._dlogprior['zeta'][j] = -2 * c1 * c2 * (
-                            pidiffr[i : ] / (1 + c1 * pidiffr[i : ]**2) *
-                            self.pi[r][i : ] / (zetari - (aaindex == i).astype(
-                            'float')[i : ])).sum()
+                    self._dlogprior['zeta'][j] = (-2 * c1 * c2 / zetasum) * (
+                            pidiffr / (1 + c1 * pidiffr**2) *
+                            ((aaindex == i).astype('float') - self.pi[r])).sum()
                     j += 1
         else:
             raise ValueError("Invalid prior: {0}".format(self.prior))

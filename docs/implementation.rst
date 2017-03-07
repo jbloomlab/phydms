@@ -526,7 +526,8 @@ so,
 
    \frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \zeta_{r,i}} 
    &=& \sum\limits_a \frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
-   &=& -2 C_1 C_2 \sum\limits_{a \ge i} \frac{\left(\pi_{r,a} - \theta_{r,a}\right)}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2 } \frac{\pi_{r,a}}{\zeta_{r,i} - \delta_ia}.
+   &=& -2 C_1 C_2 \sum\limits_{a} \frac{\left(\pi_{r,a} - \theta_{r,a}\right)}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2 } \frac{\pi_{r,a}}{\zeta_{r,a}}\left(\delta_{ia} - \pi_{r,a}\right) \\
+   &=& \frac{-2 C_1 C_2}{\sum_j\zeta_{r,j}} \sum\limits_{a} \frac{\left(\pi_{r,a} - \theta_{r,a}\right)}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2 } \left(\delta_{ia} - \pi_{r,a}\right).
 
 *YNGKP_M0* model
 ------------------
