@@ -796,7 +796,6 @@ class ExpCM(Model):
             scipy.fill_diagonal(m[r], 0)
             m[r][self._diag_indices] -= scipy.sum(m[r], axis=1)
 
-
 class ExpCM_fitprefs(ExpCM):
     """An `ExpCM` with the preferences `pi` as free parameters.
 
@@ -808,7 +807,8 @@ class ExpCM_fitprefs(ExpCM):
     if there is more than one site. The recommended usage is to optimize
     across-site parameters with fixed preferences, then optimize preferences
     for each site individually with this class after fixing across-site 
-    parameters. You currently can **not** initialize with more than one site.
+    parameters. You currently can *not* initialize with more than one
+    site.
 
     See `__init__` method for how to initialize an `ExpCM_fitprefs`.
 
@@ -851,7 +851,7 @@ class ExpCM_fitprefs(ExpCM):
     ALLOWEDPARAMS = [param for param in ExpCM.ALLOWEDPARAMS if param != 'beta']
     ALLOWEDPARAMS.append('zeta')
     _PARAMLIMITS = copy.deepcopy(ExpCM._PARAMLIMITS)
-    _PARAMLIMITS['zeta'] = (ALMOST_ZERO, 1.0 / ALMOST_ZERO)
+    _PARAMLIMITS['zeta'] = (ALMOST_ZERO, 1 - ALMOST_ZERO)
     _REPORTPARAMS = copy.deepcopy(ExpCM._REPORTPARAMS)
     _REPORTPARAMS.append('pi')
 
@@ -904,7 +904,7 @@ class ExpCM_fitprefs(ExpCM):
                 beta=self.beta, mu=mu, phi=phi, freeparams=freeparams)
         assert (self.PARAMTYPES['zeta'][1] == self.zeta.shape
                 == (self.nsites * (N_AA - 1),))
-        if self.nsites > 1: 
+        if self.nsites > 1:
             raise RuntimeError("ExpCM_fitprefs not validated for more than "
                     "one site. The current implementation will lead to lots "
                     "of computational waste if you are trying to optimize "
@@ -920,6 +920,137 @@ class ExpCM_fitprefs(ExpCM):
         """Value of derivative of prior depends on value of `prior`."""
         assert param in self.freeparams, "Invalid param: {0}".format(param)
         return self._dlogprior[param]
+
+    def _update_pi_vars(self):
+        """Update variables that depend on `pi` from `zeta`.
+        
+        The updated variables are: `pi`, `pi_codon`, `ln_pi_codon`, `piAx_piAy`,
+        `piAx_piAy_beta`, `ln_piAx_piAy_beta`, and `_logprior`.
+        
+        If `zeta` is undefined (as it will be on the first call), then create
+        `zeta` and `origpi` from `pi` and `origbeta`."""
+        minpi = self.PARAMLIMITS['pi'][0]
+        if not hasattr(self, 'zeta'):
+            # should only execute on first call to initialize zeta
+            assert not hasattr(self, 'origpi')
+            self.origpi = self.pi**self._origbeta
+            for r in range(self.nsites):
+                self.origpi[r] /= self.origpi[r].sum()
+                self.origpi[r][self.origpi[r] < 2 * minpi] = 2 * minpi
+                self.origpi[r] /= self.origpi[r].sum()
+            self.pi = self.origpi.copy()
+            self.zeta = scipy.ndarray(self.nsites * (N_AA - 1), dtype='float')
+            self.tildeFrxy = scipy.zeros((self.nsites, N_CODON, N_CODON),
+                    dtype='float')
+            for r in range(self.nsites):
+                zetaprod = 1.0
+                for i in range(N_AA - 1):
+                    zetari = 1.0 - self.pi[r][i] / zetaprod
+                    self.zeta.reshape(self.nsites, N_AA - 1)[r][i] = zetari
+                    zetaprod *= zetari
+            (minzeta, maxzeta) = self.PARAMLIMITS['zeta']
+            self.zeta[self.zeta < minzeta] = minzeta
+            self.zeta[self.zeta > maxzeta] = maxzeta
+            _checkParam('zeta', self.zeta, self.PARAMLIMITS, self.PARAMTYPES)
+        else:
+            # after first call, we are updating pi from zeta
+            for r in range(self.nsites):
+                zetaprod = 1.0
+                for i in range(N_AA - 1):
+                    zetari = self.zeta.reshape(self.nsites, N_AA - 1)[r][i]
+                    self.pi[r][i] = zetaprod * (1 - zetari)
+                    zetaprod *= zetari
+                self.pi[r][N_AA - 1] = zetaprod
+                self.pi[r][self.pi[r] < minpi] = minpi
+                self.pi[r] /= self.pi[r].sum()
+
+        super(ExpCM_fitprefs, self)._update_pi_vars()
+
+        with scipy.errstate(divide='raise', under='raise', over='raise',
+                invalid='ignore'):
+            scipy.copyto(self.tildeFrxy, self.omega * self.beta *
+                    (self.piAx_piAy_beta * (self.ln_piAx_piAy_beta - 1)
+                    + 1) / (1 - self.piAx_piAy_beta)**2,
+                    where=CODON_NONSYN)
+        scipy.copyto(self.tildeFrxy, self.omega * self.beta / 2.0,
+                where=scipy.logical_and(CODON_NONSYN, scipy.fabs(1 -
+                self.piAx_piAy_beta) < ALMOST_ZERO))
+
+        self._logprior = 0.0
+        self._dlogprior = dict([(param, 0.0) for param in self.freeparams])
+        if self.prior is None:
+            pass
+        elif self.prior[0] == 'invquadratic':
+            (priorstr, c1, c2) = self.prior
+            self._dlogprior = dict([(param, 0.0) for param in self.freeparams])
+            self._dlogprior['zeta'] = scipy.zeros(self.zeta.shape, dtype='float')
+            j = 0
+            aaindex = scipy.arange(N_AA)
+            for r in range(self.nsites):
+                pidiffr = self.pi[r] - self.origpi[r]
+                rlogprior = -c2 * scipy.log(1 + c1 * pidiffr**2).sum()
+                self._logprior += rlogprior
+                for i in range(N_AA - 1):
+                    zetari = self.zeta[j]
+                    self._dlogprior['zeta'][j] = -2 * c1 * c2 * (
+                            pidiffr[i : ] / (1 + c1 * pidiffr[i : ]**2) *
+                            self.pi[r][i : ] / (zetari - (aaindex == i).astype(
+                            'float')[i : ])).sum()
+                    j += 1
+        else:
+            raise ValueError("Invalid prior: {0}".format(self.prior))
+
+    def _update_dPrxy(self):
+        """Update `dPrxy`."""
+        super(ExpCM_fitprefs, self)._update_dPrxy()
+
+        if 'zeta' in self.freeparams:
+            tildeFrxyQxy = self.tildeFrxy * self.Qxy
+            j = 0
+            zetaxterm = scipy.ndarray((self.nsites, N_CODON, N_CODON), dtype='float')
+            zetayterm = scipy.ndarray((self.nsites, N_CODON, N_CODON), dtype='float')
+            for r in range(self.nsites):
+                for i in range(N_AA - 1):
+                    zetari = self.zeta[j]
+                    zetaxterm.fill(0)
+                    zetayterm.fill(0)
+                    zetaxterm[r][self._aa_for_x > i] = -1.0 / zetari
+                    zetaxterm[r][self._aa_for_x == i] = -1.0 / (zetari - 1.0)
+                    zetayterm[r][self._aa_for_y > i] = 1.0 / zetari
+                    zetayterm[r][self._aa_for_y == i] = 1.0 / (zetari - 1.0)
+                    self.dPrxy['zeta'][j] = tildeFrxyQxy * (zetayterm + zetaxterm)
+                    _fill_diagonals(self.dPrxy['zeta'][j], self._diag_indices)
+                    j += 1
+
+    def _update_dprx(self):
+        """Update `dprx`."""
+        super(ExpCM_fitprefs, self)._update_dprx()
+        j = 0
+        if 'zeta' in self.freeparams:
+            self.dprx['zeta'].fill(0)
+            for r in range(self.nsites):
+                for i in range(N_AA - 1):
+                    zetari = self.zeta[j]
+                    for a in range(i, N_AA):
+                        delta_aAx = (CODON_TO_AA == a).astype('float')
+                        self.dprx['zeta'][j][r] += (delta_aAx - (delta_aAx
+                                * self.prx[r]).sum())/ (zetari - int(i == a))
+                    self.dprx['zeta'][j] *= self.prx[r]
+                    j += 1
+
+
+class ExpCM_fitprefs2(ExpCM_fitprefs):
+    """An `ExpCM` with the preferences `pi` as free parameters.
+
+    This class differs from `ExpCM_fitprefs` in the way that
+    it internally handles the transformation from the preferences
+    `pi` to the optimization variables `zeta`. All other attributes
+    are the same as for an `ExpCM_fitprefs`.
+    """
+
+    # class variables
+    _PARAMLIMITS = copy.deepcopy(ExpCM_fitprefs._PARAMLIMITS)
+    _PARAMLIMITS['zeta'] = (ALMOST_ZERO, 1.0 / ALMOST_ZERO)
 
     def _update_pi_vars(self):
         """Update variables that depend on `pi` from `zeta`.

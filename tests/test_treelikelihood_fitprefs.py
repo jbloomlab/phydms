@@ -1,4 +1,4 @@
-"""Tests `TreeLikelihood` with `ExpCM_fitprefs`.
+"""Tests `TreeLikelihood` with `ExpCM_fitprefs` and `ExpCM_fitprefs2`.
 
 Written by Jesse Bloom."""
 
@@ -19,7 +19,9 @@ import pyvolve
 
 
 class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
-    """Test `ExpCM` with preferences as free parameters."""
+    """Test `ExpCM_fitprefs` in `TreeLikelihood`."""
+
+    MODEL = phydmslib.models.ExpCM_fitprefs
 
     def setUp(self):
         """Set up for tests."""
@@ -40,7 +42,7 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
         self.kappa = 3.0
         self.omega = 3.0
         self.phi = scipy.random.dirichlet([5] * N_NT)
-        self.model = phydmslib.models.ExpCM_fitprefs(self.prefs, 
+        self.model = self.MODEL(self.prefs, 
                 prior=None, kappa=self.kappa, omega=self.omega, phi=self.phi)
         self.realmodel = phydmslib.models.ExpCM(self.realprefs, 
                 kappa=self.kappa, omega=self.omega, mu=10.0, phi=self.phi)
@@ -78,7 +80,7 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
         for (name, c1, c2) in [('weak prior', 100, 0.25),
                                ('strong C1 prior', 200, 0.25),
                                ('strong C2 prior', 100, 0.75)]:
-            model = phydmslib.models.ExpCM_fitprefs(self.prefs,
+            model = self.MODEL(self.prefs,
                     prior=('invquadratic', c1, c2), kappa=self.kappa,
                     omega=self.omega, phi=self.phi)
             tls[name] = phydmslib.treelikelihood.TreeLikelihood(self.tree,
@@ -115,8 +117,14 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
         firstloglik = None
         for seed in range(3):
             scipy.random.seed(seed)
-            tl.paramsarray = scipy.random.uniform(0.5, 5.0, 
-                    len(tl.paramsarray))
+            if self.MODEL == phydmslib.models.ExpCM_fitprefs:
+                tl.paramsarray = scipy.random.uniform(0.1, 0.99, 
+                        len(tl.paramsarray))
+            elif self.MODEL == phydmslib.models.ExpCM_fitprefs2:
+                tl.paramsarray = scipy.random.uniform(0.5, 5.0, 
+                        len(tl.paramsarray))
+            else:
+                raise ValueError("Unrecognized MODEL: {0}".format(self.MODEL))
             if firstloglik:
                 self.assertFalse(scipy.allclose(firstloglik, tl.loglik, 
                         atol=0.02), "loglik matches even with random pi")
@@ -143,6 +151,13 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
                                     pira = tl.model.pi[r][a]
                                     pira2 = tl.model.pi[r][a2]
                                     self.assertTrue(pira - pira2 > -0.01)
+
+
+class test_TreeLikelihood_ExpCM_fitprefs2(test_TreeLikelihood_ExpCM_fitprefs):
+    """Test `ExpCM_fitprefs2` in `TreeLikelihood`."""
+
+    MODEL = phydmslib.models.ExpCM_fitprefs2
+
 
 
 if __name__ == '__main__':

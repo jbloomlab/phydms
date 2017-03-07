@@ -63,18 +63,22 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
         info = simulateprefix + '_temp_info.txt'
         rates = simulateprefix + '_temp_ratefile.txt'
         evolver(seqfile=simulatedalignment, infofile=info, ratefile=rates)
-        subprocess.check_call(['phydms', simulatedalignment, self.tree,
-                self.modelarg, simulateprefix, '--diffprefsbysite', 
-                '--brlen', 'scale', '--ncpus', '-1', '--diffprefsprior',
-                'invquadratic,50,0.25'] + self.gammaomega_arg)
-        diffprefsbysitefile = simulateprefix + '_diffprefsbysite.txt'
-        aas = ['dpi_{0}'.format(INDEX_TO_AA[a]) for a in range(N_AA)]
-        diffprefs = pandas.read_csv(diffprefsbysitefile, sep='\t', comment='#')
-        diffprefs['total'] = diffprefs[aas].sum(axis=1)
-        for (site, a) in self.targetaas.items():
-            siteentry = diffprefs[diffprefs['site'] == site]
-            self.assertTrue(len(siteentry) == 1, str(len(siteentry)))
-            self.assertTrue((siteentry['dpi_{0}'.format(a)] > 0).all())
+        for fitprefsmethod in ['1', '2']:
+            outprefix = simulateprefix + '_fitprefsmethod{0}'.format(
+                    fitprefsmethod)
+            subprocess.check_call(['phydms', simulatedalignment, self.tree,
+                    self.modelarg, outprefix, '--diffprefsbysite', 
+                    '--brlen', 'scale', '--ncpus', '-1', '--diffprefsprior',
+                    'invquadratic,50,0.25'] + self.gammaomega_arg +
+                    ['--fitprefsmethod', fitprefsmethod])
+            diffprefsbysitefile = outprefix + '_diffprefsbysite.txt'
+            aas = ['dpi_{0}'.format(INDEX_TO_AA[a]) for a in range(N_AA)]
+            diffprefs = pandas.read_csv(diffprefsbysitefile, sep='\t', comment='#')
+            diffprefs['total'] = diffprefs[aas].sum(axis=1)
+            for (site, a) in self.targetaas.items():
+                siteentry = diffprefs[diffprefs['site'] == site]
+                self.assertTrue(len(siteentry) == 1, str(len(siteentry)))
+                self.assertTrue((siteentry['dpi_{0}'.format(a)] > 0).all())
 
 
 

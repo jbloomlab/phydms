@@ -132,6 +132,10 @@ Command-line usage
     Adjust all amino-acid preferences in the *ExpCM* ``prefsfile`` to be at least this large.
     If this number is too close to zero, you will get runtime errors.
 
+   \-\-fitprefsmethod
+    As described in :ref:`implementation`, there are two different internal parameter representations that can be used when optimizing the preferences as free parameters.
+    Both in principle should give the same result, but in practice one method might be more efficient than the other or work better in rare cases where the optimization runs into problems.
+
    \-\-seed
     The random number seed affects the outcomes when there is randomization, as when using ``--randprefs``.
 

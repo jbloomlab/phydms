@@ -395,6 +395,8 @@ def PhyDMSParser():
             "tab-, or comma-delimited."))
     parser.add_argument('--ncpus', default=1, type=int,
             help='Use this many CPUs; -1 means all available.')
+    parser.add_argument('--fitprefsmethod', choices=[1, 2], default=1,
+            help='Implementation to we use when fitting prefs.', type=int)
     parser.add_argument('--ncats', default=4, type=IntGreaterThanOne,
             help='Number of categories for gamma-distributed omega.')
     parser.add_argument('--minbrlen', type=FloatGreaterThanZero,

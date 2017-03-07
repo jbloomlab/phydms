@@ -385,37 +385,12 @@ We have added one more parameter to Equation :eq:`Prxy`, :math:`\omega_2`, so we
 *ExpCM* with the preferences as free parameters
 ------------------------------------------------
 In most situations, the amino-acid preferences :math:`\pi_{r,a}` are experimentally measured. 
-But in certain situations, we wish to treat these as free parameters that we optimize by maximum likelihood.
+But in certain situations, we wish to treat these as free parameters that we optimize by maximum likelihood. 
+There are two different implementations of how this is done, instantiated in the ``ExpCM_fitprefs`` and ``ExpCM_fitprefs2`` classes.
+These classes differ in how the preferences are represented as parameters, and so may have different optimization efficiencies.
 
-For this optimization, we define a variable transformation from the 20 :math:`\pi_{r,a}` values at each site :math:`r` (19 of these 20 values are unique since they sum to one). 
-We then define 19 free variables for each site :math:`r`: :math:`\zeta_{r,0}, \zeta_{r,1}, \ldots, \zeta_{r,18}`, all of which are constrained to be greater than zero.
-For notational convenience, we also define :math:`\zeta_{r,19} = 1`, but not that :math:`\zeta_{r,19}` is **not** a free parameter as it is always one.
+First, we describe aspects general to both implementations, then we describe the details specific to each. 
 
-We the define
-
-.. math::
-   :label: pi_from_zeta
-
-   \pi_{r,a} = \frac{\zeta_{r,a}}{\sum_{j} \zeta_{r,j}}
-
-and conversely
-
-.. math::
-   :label: zeta_from_pi
-
-   \zeta_{r,a} = \frac{\pi_{r,a}}{\pi_{r,19}}.
-
-We therefore have
-
-.. math::
-   :label: dpi_dzeta
-
-   \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} &=&
-   \frac{1}{\sum_{j} \zeta_{r,j}} \left(\delta_{ia} - \frac{\zeta_{r,a}}{\sum_{j} \zeta_{r,j}}\right) \\
-   &=& \frac{\pi_{r,a}}{\zeta_{r,a}} \left(\delta_{ia} - \pi_{r,a}\right)
-
-where :math:`\delta_{ij}` is the Kronecker-delta.
-   
 The :math:`F_{r,xy}` terms defined by Equation :eq:`Frxy` depend on :math:`\pi_{r,a}`. 
 The derivative is
 
@@ -428,9 +403,9 @@ The derivative is
    \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\omega \beta}{\pi_{r,a}} \frac{\left(\pi_{r,\mathcal{A}\left(x\right)} / \pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\left[\ln\left(\left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right) - 1\right] + 1}{\left(1 - \left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right)^2} & \mbox{if $\pi_{r, \mathcal{A}\left(x\right)} \ne \pi_{r,\mathcal{A}\left(y\right)}$}, \\
    \end{cases}
 
-where the expressions when :math:`\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}` are derived from application of L'Hopital's rule.
+where the expressions when :math:`\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}` are derived from application of L'Hopital's rule, and :math:`\delta_{ij}` is the Kronecker delta. 
 
-So define
+Define
 
 .. math::
   
@@ -447,19 +422,6 @@ so that
 
    \frac{\partial F_{r,xy}}{\partial \pi_{r,a}} = \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\tilde{F}_{r,xy}}{\pi_{r,a}}.
 
-We then have
-
-.. math::
-   :label: dPrxy_dzeta
-
-   \frac{\partial P_{r,xy}}{\partial \zeta_{r,i}} &=&
-   Q_{xy} \sum\limits_a \frac{\partial F_{r,xy}}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
-   &=& Q_{xy} \tilde{F}_{r,xy} \sum\limits_a \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{1}{\zeta_{r,a}} \left(\delta_{ia} - \pi_{r,a}\right) \\
-   &=& Q_{xy} \tilde{F}_{r,xy} \left[\left(\sum\limits_a \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\delta_{ia}}{\zeta_{r,a}}\right) - \left(\sum\limits_a \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\pi_{r,a}}{\zeta_{r,a}}\right)\right] \\
-   &=& Q_{xy} \tilde{F}_{r,xy} \left[\frac{\delta_{i\mathcal{A}\left(y\right)} - \delta_{i\mathcal{A}\left(x\right)}}{\zeta_{r,i}} - \left(\sum\limits_a \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\pi_{r,a}}{\zeta_{r,a}}\right)\right] \\
-   &=& Q_{xy} \tilde{F}_{r,xy} \left[\frac{\delta_{i\mathcal{A}\left(y\right)} - \delta_{i\mathcal{A}\left(x\right)}}{\zeta_{r,i}} - \left(\frac{1}{\sum_j \zeta_{r,j}}\sum\limits_a \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \right)\right] \\
-   &=& Q_{xy} \tilde{F}_{r,xy} \left[\frac{\delta_{i\mathcal{A}\left(y\right)} - \delta_{i\mathcal{A}\left(x\right)}}{\zeta_{r,i}}\right].
-
 We also need to calculate the derivative of the stationary state :math:`p_{r,x}` given by Equation :eq:`prx` with respect to the preference. In this calculation, we simplify the algebra by taking advantage of the fact that for our fit preferences models, we always have :math:`\beta = 1` to simplify from the first to the second line below:
 
 .. math::
@@ -474,10 +436,116 @@ We also need to calculate the derivative of the stationary state :math:`p_{r,x}`
    &=&
    \delta_{a\mathcal{A}\left(x\right)} \frac{p_{r,x}}{\pi_{r,a}} - p_{r,x} \sum_z\delta_{a\mathcal{A}\left(z\right)} \frac{p_{r,z}}{\pi_{r,a}}.
 
-So:
+``ExpCM_fitprefs`` implementation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+We define a variable transformation from the 20 :math:`\pi_{r,a}` values at each site :math:`r` (19 of these 20 values are unique since they sum to one).
+This transformation is analogous to that in Equations :eq:`phi_from_eta` and :eq:`eta_from_phi`.
+Specifically, we number the 20 amino acids such that :math:`a = 0` means alanine, :math:`a = 1` means cysteine, and so on up to :math:`a = 19` meaning tyrosine..
+We then define 19 free variables for each site :math:`r`: :math:`\zeta_{r,0}, \zeta_{r,1}, \ldots, \zeta_{r,18}`, all of which are constrained to value between zero and one.
+For notational convenience, we also define :math:`\zeta_{r,19} = 0`, but not that :math:`\zeta_{r,19}` is **not** a free parameter as it is always zero.
+
+We the define
+
+.. math::
+   :label: pi_from_zeta
+
+   \pi_{r,a} = \left(\prod\limits_{i=0}^{a - 1} \zeta_{r,i}\right) \left(1 - \zeta_{r,a}\right)
+
+and conversely
+
+.. math::
+   :label: zeta_from_pi
+
+   \zeta_{r,a} = 1 - \pi_{r,a} / \left(\prod\limits_{i=0}^{a - 1} \zeta_{r,i} \right).
+
+Note that setting :math:`\zeta_{r,a} = \frac{19 - a}{20 - a}` makes all the :math:`\pi_{r,a}` values equal to :math:`\frac{1}{20}`.
+
+In analogy with Equation :eq:`dphi_deta`, we have
+
+.. math::
+   :label: dpi_dzeta
+
+   \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} =
+   \begin{cases}
+   \frac{\pi_{r,a}}{\zeta_{r,i} - \delta_{ia}} & \mbox{if $i \le a$,} \\
+   0 & \mbox{otherwise,}
+   \end{cases}
+
+where :math:`\delta_{ij}` is the Kronecker-delta.
+
+We then have
+
+.. math::
+   :label: dPrxy_dzeta
+
+   \frac{\partial P_{r,xy}}{\partial \zeta_{r,i}} =
+   Q_{xy} \sum\limits_a \frac{\partial F_{r,xy}}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} =
+   \begin{cases}
+   0 & \mbox{if $i > \mathcal{A}\left(x\right)$ and $i > \mathcal{A}\left(y\right)$ and $x \ne y$,} \\
+   \frac{Q_{xy} \tilde{F}_{r,xy}}{\zeta_{r,i} - \delta_{i\mathcal{A}\left(y\right)}} & \mbox{if $i > \mathcal{A}\left(x\right)$ and $i \le \mathcal{A}\left(y\right)$ and $x \ne y$,} \\
+   -\frac{Q_{xy} \tilde{F}_{r,xy}}{\zeta_{r,i} - \delta_{i\mathcal{A}\left(x\right)}} & \mbox{if $i \le \mathcal{A}\left(x\right)$ and $i > \mathcal{A}\left(y\right)$ and $x \ne y$,} \\
+   \frac{Q_{xy} \tilde{F}_{r,xy}}{\zeta_{r,i} - \delta_{i\mathcal{A}\left(y\right)}} - \frac{Q_{xy} \tilde{F}_{r,xy}}{\zeta_{r,i} - \delta_{i\mathcal{A}\left(x\right)}} & \mbox{if $i \le \mathcal{A}\left(x\right)$ and $i \le \mathcal{A}\left(y\right)$ and $x \ne y$} \\
+   -\sum\limits_{z \ne x} \frac{\partial P_{r,xy}}{\partial \zeta_{r,i}} & \mbox{if $x = y$}.
+   \end{cases}
+
+We also have:
 
 .. math::
    :label: dprx_dzeta
+
+   \frac{\partial p_{r,x}}{\partial \zeta_{r,i}} &=&
+   \sum\limits_a \frac{\partial p_{r,x}}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
+   &=& p_{r,x} \sum\limits_{a \ge i} \frac{1}{\zeta_{r,i} - \delta_{ia}} \left(\delta_{a\mathcal{A}\left(x\right)} - \sum_z\delta_{a\mathcal{A}\left(z\right)} p_{r,z} \right).
+
+
+``ExpCM_prefs2`` implementation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+For this implementation, we define a different variable transformation from the 20 :math:`\pi_{r,a}` values at each site :math:`r` (19 of these 20 values are unique since they sum to one). 
+We define 19 free variables for each site :math:`r`: :math:`\zeta_{r,0}, \zeta_{r,1}, \ldots, \zeta_{r,18}`, all of which are constrained to be greater than zero.
+For notational convenience, we also define :math:`\zeta_{r,19} = 1`, but not that :math:`\zeta_{r,19}` is **not** a free parameter as it is always one.
+
+We then define
+
+.. math::
+   :label: pi_from_zeta2
+
+   \pi_{r,a} = \frac{\zeta_{r,a}}{\sum_{j} \zeta_{r,j}}
+
+and conversely
+
+.. math::
+   :label: zeta_from_pi2
+
+   \zeta_{r,a} = \frac{\pi_{r,a}}{\pi_{r,19}}.
+
+We therefore have
+
+.. math::
+   :label: dpi_dzeta2
+
+   \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} &=&
+   \frac{1}{\sum_{j} \zeta_{r,j}} \left(\delta_{ia} - \frac{\zeta_{r,a}}{\sum_{j} \zeta_{r,j}}\right) \\
+   &=& \frac{\pi_{r,a}}{\zeta_{r,a}} \left(\delta_{ia} - \pi_{r,a}\right)
+
+where :math:`\delta_{ij}` is the Kronecker-delta.
+   
+We then have
+
+.. math::
+   :label: dPrxy_dzeta2
+
+   \frac{\partial P_{r,xy}}{\partial \zeta_{r,i}} &=&
+   Q_{xy} \sum\limits_a \frac{\partial F_{r,xy}}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
+   &=& Q_{xy} \tilde{F}_{r,xy} \sum\limits_a \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{1}{\zeta_{r,a}} \left(\delta_{ia} - \pi_{r,a}\right) \\
+   &=& Q_{xy} \tilde{F}_{r,xy} \left[\left(\sum\limits_a \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\delta_{ia}}{\zeta_{r,a}}\right) - \left(\sum\limits_a \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\pi_{r,a}}{\zeta_{r,a}}\right)\right] \\
+   &=& Q_{xy} \tilde{F}_{r,xy} \left[\frac{\delta_{i\mathcal{A}\left(y\right)} - \delta_{i\mathcal{A}\left(x\right)}}{\zeta_{r,i}} - \left(\sum\limits_a \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\pi_{r,a}}{\zeta_{r,a}}\right)\right] \\
+   &=& Q_{xy} \tilde{F}_{r,xy} \left[\frac{\delta_{i\mathcal{A}\left(y\right)} - \delta_{i\mathcal{A}\left(x\right)}}{\zeta_{r,i}} - \left(\frac{1}{\sum_j \zeta_{r,j}}\sum\limits_a \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \right)\right] \\
+   &=& Q_{xy} \tilde{F}_{r,xy} \left[\frac{\delta_{i\mathcal{A}\left(y\right)} - \delta_{i\mathcal{A}\left(x\right)}}{\zeta_{r,i}}\right].
+
+We also have:
+
+.. math::
+   :label: dprx_dzeta2
 
    \frac{\partial p_{r,x}}{\partial \zeta_{r,i}} &=&
    \sum\limits_a \frac{\partial p_{r,x}}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
@@ -503,9 +571,9 @@ The prior is then
 .. math::
 
    \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) =
-   \prod\limits_r \prod\limits_a \left(\frac{1}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2}\right)^{C_2}
+   \prod\limits_r \prod\limits_a \left(\frac{1}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2}\right)^{C_2}.
 
-or equivalently
+or
 
 .. math::
 
@@ -520,7 +588,18 @@ The derivative is
    \frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \pi_{r,a}} =
    \frac{-2 C_1 C_2 \left(\pi_{r,a} - \theta_{r,a}\right)}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2},
 
-so,
+This prior can then be defined in terms of the transformation variable for the ``ExpCM_fitprefs`` or ``ExpCM_fitprefs2`` implementation:
+
+``ExpCM_fitprefs`` implementation
+++++++++++++++++++++++++++++++++++++
+.. math::
+
+   \frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \zeta_{r,i}} 
+      &=& \sum\limits_a \frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
+         &=& -2 C_1 C_2 \sum\limits_{a \ge i} \frac{\left(\pi_{r,a} - \theta_{r,a}\right)}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2 } \frac{\pi_{r,a}}{\zeta_{r,i} - \delta_ia}.
+
+``ExpCM_fitprefs2`` implementation
+++++++++++++++++++++++++++++++++++++
 
 .. math::
 

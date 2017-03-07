@@ -1,4 +1,4 @@
-"""Tests `ExpCM` with fitting of preferences as free paramters.
+"""Tests `ExpCM` with fitting of preferences as free parameters.
 
 Written by Jesse Bloom."""
 
@@ -14,7 +14,9 @@ import phydmslib.models
 
 
 class test_ExpCM_fitprefs(unittest.TestCase):
-    """Test `ExpCM` with preferences as free parameters."""
+    """Test `ExpCM_fitprefs`."""
+
+    MODEL = phydmslib.models.ExpCM_fitprefs
 
     def test_DerivativeExpressions(self):
         """Makes sure we have right equations for derivatives."""
@@ -118,7 +120,7 @@ class test_ExpCM_fitprefs(unittest.TestCase):
             rprefs[0] = rprefs[1] + 1.0e-8 # ensure near equal prefs handled OK
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        self.expcm_fitprefs = phydmslib.models.ExpCM_fitprefs(self.prefs, 
+        self.expcm_fitprefs = self.MODEL(self.prefs, 
                 prior=None, kappa=3.0, omega=0.3,
                 phi=scipy.random.dirichlet([5] * N_NT))
         assert len(self.expcm_fitprefs.zeta.flatten()) == nsites * (N_AA - 1)
@@ -126,9 +128,9 @@ class test_ExpCM_fitprefs(unittest.TestCase):
 
 
     def test_origbeta(self):
-        """Test `origbeta` parameter to `ExpCM_fitprefs`."""
+        """Test `origbeta` parameter."""
         for origbeta in [0.8, 1.0, 1.2]:
-            expcm_fitprefs2 = phydmslib.models.ExpCM_fitprefs(self.prefs,
+            expcm_fitprefs2 = self.MODEL(self.prefs,
                     prior=None,
                     kappa=self.expcm_fitprefs.kappa,
                     omega=self.expcm_fitprefs.omega,
@@ -161,7 +163,7 @@ class test_ExpCM_fitprefs(unittest.TestCase):
 
 
     def test_zeta_updates(self):
-        """Test updating `zeta` of `ExpCM_fitprefs`."""
+        """Test updating `zeta`."""
         random.seed(1)
         scipy.random.seed(1)
 
@@ -181,11 +183,15 @@ class test_ExpCM_fitprefs(unittest.TestCase):
                         expcm_fitprefs.pi[r]))
                 self.assertFalse(scipy.allclose(expcm_fitprefs.pi,
                         expcm_fitprefs.origpi))
-                self.assertTrue(expcm_fitprefs.pi[r][i] < oldpi[r][i])
-                zeta[k] *= 2
-                expcm_fitprefs.updateParams({'zeta':zeta})
-                self.assertTrue(expcm_fitprefs.pi[r][i] > oldpi[r][i])
-                expcm_fitprefs.updateParams({'zeta':zeta})
+                if self.MODEL == phydmslib.models.ExpCM_fitprefs:
+                    self.assertTrue(expcm_fitprefs.pi[r][i] > oldpi[r][i])
+                    self.assertTrue(all([expcm_fitprefs.pi[r][j] < 
+                            oldpi[r][j] for j in range(i + 1, N_AA)]))
+                elif self.MODEL == phydmslib.models.ExpCM_fitprefs2:
+                    self.assertTrue(expcm_fitprefs.pi[r][i] < oldpi[r][i])
+                    zeta[k] *= 2
+                    expcm_fitprefs.updateParams({'zeta':zeta})
+                    self.assertTrue(expcm_fitprefs.pi[r][i] > oldpi[r][i])
                 k += 1
 
     def test_dprx_dzeta(self):
@@ -291,12 +297,17 @@ class test_ExpCM_fitprefs(unittest.TestCase):
                             diff = scipy.optimize.check_grad(func, dfunc,
                                     zetari, i, r, x, y, t)
                             deriv = dfunc(zetari, i, r, x, y, t)
-                            self.assertTrue(diff < max(0.01, 1e-4 * abs(deriv)),
+                            self.assertTrue(diff < max(0.02, 1e-4 * abs(deriv)),
                                     "{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, "
                                     "{8}, {9}".format(
                                     diff, zetari, i, r, x, y, CODON_TO_AA[x], 
                                     CODON_TO_AA[y], deriv, t))
 
+
+class test_ExpCM_fitprefs2(test_ExpCM_fitprefs):
+    """Test `ExpCM_fitprefs2`."""
+
+    MODEL = phydmslib.models.ExpCM_fitprefs2
 
 if __name__ == '__main__':
     runner = unittest.TextTestRunner()
