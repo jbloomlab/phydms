@@ -12,7 +12,7 @@ These auxiliary programs are installed as part of `phydms`_. All of them can be 
    phydms_comprehensive_prog
    phydms_prepalignment
    phydms_plotselection_prog
-   phydms_analyzeselection_prog
    phydms_testdivpressure_prog
+
 .. include:: weblinks.txt
    

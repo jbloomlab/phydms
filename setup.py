@@ -100,7 +100,6 @@ setup(
             'scripts/phydms_comprehensive',
             'scripts/phydms_prepalignment',
 #            'scripts/phydms_plotselection',
-#            'scripts/phydms_analyzeselection',
            'scripts/phydms_testdivpressure',
             ],
 )
