@@ -12,8 +12,6 @@ Overview
 
 You can run ``phydms_analyzeselection`` **after** you have used ``phydms`` (or ``phydms_comprehensive``) to create files that summarize the site-specific selection.
 
-If you need to change the site numbers from the sequential numbering in the ``phydms`` output, use :ref:`phydms_renumber_prog` to renumber this output before passing it to ``phydms_analyzeselection``.
-
 The `Output plots`_ created by ``phydms_analyzeselection`` are created using `matplotlib`_. You will also need command-line `latex`_ available for rendering of some of the labels, and may get an error message during the plotting if you don't have `latex`_.
 
 See below for information on `Command-line usage`_ for ``phydms_analyzeselection``.

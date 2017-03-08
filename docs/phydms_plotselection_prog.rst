@@ -18,8 +18,6 @@ Overview
 
 You can run ``phydms_plotselection`` **after** you have used ``phydms`` (or ``phydms_comprehensive``) to infer the site-specific selection -- ``phydms_plotselection`` requires that the output ``phydms`` files describing the site-specific selection already exist. 
 
-If you need to change the site numbers from the sequential numbering in the ``phydms`` output, use :ref:`phydms_renumber_prog` to renumber this output before passing it to ``phydms_plotselection``.
-
 The `Output plot`_ created by ``phydms_plotselection`` is created using `matplotlib`_ and the `weblogolib`_ that comes with `weblogo`_. 
 See below for information on `Command-line usage`_ for ``phydms_plotselection``.
 

@@ -216,16 +216,6 @@ def PhyDMSAnalyzeSelectionParser():
     return parser
 
 
-def PhyDMSRenumberParser():
-    """Returns an *argparse.ArgumentParser* for ``phydms_renumber``."""
-    parser = ArgumentParserNoArgHelp(description="Renumber by-site output files from 'phydms'. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('renumberfile', type=ExistingFile, help="Column 1 lists current number for a site; column 2 gives new number. Put 'None' in column 2 if you want a site excluded from renumbered output. Lines beginning with '#' are ignored.")
-    parser.add_argument('outprefixes', help="Output prefixes for which we renumber files with appropriate suffixes. Use '*' as a wildcard character.", nargs='+')
-    parser.add_argument('--renumberedprefix', default='renumbered', help='Add this prefix followed by underscore to names of renumbered files.')
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
-    return parser
-
-
 def PhyDMSPrepAlignmentParser():
     """Returns *argparse.ArgumentParser* for ``phydms_prepalignment``."""
     parser = ArgumentParserNoArgHelp(formatter_class=ArgumentDefaultsRawDescriptionFormatter,
