@@ -210,46 +210,38 @@ Site-specific omega file
 +++++++++++++++++++++++++++
 This file has the suffix ``_omegabysite.txt``, and is created only if using the ``--omegabysite`` option. This file gives the :math:`\omega_r` values optimized for each site. In the case of a *YNGKP* model, these are site-specific dN/dS ratios that should be essentially analogous to those obtained under the *FEL* model described by `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_. In the case of an *ExpCM* model, these values indicate diversifying selection for nonsynonymous amino-acid change as described in `Bloom, Biology Direct, 12:1`_ (see also :ref:`ExpCM`).
 
-Here is an example of the first few lines of a file::
+Here is an example of the first few lines of a file. The entries are tab separated::
 
-    # Omega fit to each site after fixing tree and all other parameters.
-    # Fits compared to null model of omega = 1.
-    # P-values NOT corrected for multiple hypothesis testing.
-    # Will fit different synonymous rate for each site.
-    #
-    site  omega   P   dLnL
-    472 100.000 0.00207 4.741
-    284 0.000   0.00277 4.477
-    470 100.000 0.0124  3.126
-    319 0.000   0.0196  2.725
-    465 100.000 0.0196  2.722
-    350 0.000   0.0215  2.642
-    84  0.000   0.0229  2.588
-    129 0.000   0.0233  2.573
-    417 0.000   0.0341  2.244
-    373 100.000 0.0424  2.059
-    76  100.000 0.0579  1.799
-    247 0.000   0.059   1.783
-    101 7.871   0.0596  1.774
+    site    omega   P   dLnL    Q
+    213 0.000   0.000216    6.841   0.108
+    55  0.000   0.000649    5.815   0.162
+    354 0.000   0.00166 4.948   0.177
+    298 0.000   0.00181 4.865   0.177
 
-The columns should be self-explanatory, the *P*-values are for rejection of the null hypothesis that :math:`\omega_r = 1` (calculated using a :math:`\chi_1^2` test; no correction for multiple testing is included, so you need to do that yourself if necessary for your question). The sites are sorted in the file by *P*-value.
+The *P*-values are for rejection of the null hypothesis that :math:`\omega_r = 1` (calculated using a :math:`\chi_1^2` test). 
+These *P*-values are **not** corrected for multiple hypothesis testing; so you should instead look at the *Q*-values, which give the false discovery rate if this site and all above it are considered to have :math:`\omega \ne 1`. 
+The sites are sorted in the file by *P*-value.
 
-For this type of test, the quantity of interest is typically not so much the exact value of :math:`\omega_r`, but rather the P-value that :math:`\omega_r \ne 1`.
-That P-value is what indicates the credence that you should lend to the idea that a site is under diversifying selection if :math:`\omega_r > 1`.
+For this type of test, the quantity of interest is typically not so much the exact value of :math:`\omega_r`, but rather the *P*-value (or *Q*-value) that :math:`\omega_r \ne 1`.
+That *P*-value (or *Q*-value) is what indicates the credence that you should lend to the idea that a site is under diversifying selection if :math:`\omega_r > 1`.
 
 Site-specific differential selection
 +++++++++++++++++++++++++++++++++++++++
 This file has the suffix ``_diffprefsbysite.txt``, and is created only if using the ``--diffprefsbysite`` option to an *ExpCM*. These are the differential preferences (the :math:`\Delta\pi_{r,a}` values) described in `Bloom, Biology Direct, 12:1`_ and :ref:`ExpCM`.
 
-Here is an example of the first few lines of a file:::
+Here is an example of the first few lines of a file. The entries are tab separated::
 
-    site    dpi_A   dpi_C   dpi_D   dpi_E   dpi_F   dpi_G   dpi_H   dpi_I   dpi_K   dpi_L   dpi_M   dpi_N   dpi_P   dpi_Q   dpi_R   dpi_S   dpi_T   dpi_V   dpi_W   dpi_Y
-    1   0.00073 0.00907 0.00411 -0.00114    0.00956 -0.00130    0.00549 -0.00294    -0.01473    -0.00961    0.01907 -0.00312    0.00247 0.00096 -0.01336    -0.01061    -0.00817    -0.00336    0.01190 0.00496
-    2   0.01170 -0.00000    -0.00000    -0.00009    -0.00000    -0.00003    -0.00000    -0.00000    -0.00000    -0.00000    -0.00017    -0.00000    -0.00000    -0.00000    -0.00000    -0.00001    -0.00001    -0.01137    -0.00000    -0.00000
-    3   -0.00412    -0.00045    -0.00001    -0.00001    -0.00110    -0.00300    -0.00032    -0.00137    -0.00011    -0.00585    0.00146 -0.00430    -0.00049    -0.00087    -0.00088    0.03252 -0.00877    -0.00019    0.00258 -0.00472
-    4   -0.00160    -0.00031    -0.00000    -0.00124    -0.00693    -0.00002    -0.00067    -0.00972    -0.00059    -0.02123    -0.00395    -0.01580    -0.02009    0.11832 -0.00002    -0.02045    -0.00352    -0.00125    -0.00096    -0.00998
+    site    dpi_A   dpi_C   dpi_D   dpi_E   dpi_F   dpi_G   dpi_H   dpi_I   dpi_K   dpi_L   dpi_M   dpi_N   dpi_P   dpi_Q   dpi_R   dpi_S   dpi_T   dpi_V   dpi_W   dpi_Y   half_sum_abs_dpi
+    375 -0.0004 -0.0040 0.0995  -0.8408 -0.0014 0.4839  -0.0029 -0.0003 -0.0062 -0.0333 -0.0092 -0.0039 -0.0003 -0.0340 -0.0000 -0.0036 -0.0073 0.3659  -0.0013 -0.0003 0.9492
+    421 -0.0107 -0.0062 -0.0092 0.1521  -0.0009 -0.0004 -0.0078 -0.0124 -0.0003 -0.0168 -0.0036 -0.0271 -0.0000 -0.0019 -0.0060 -0.0259 -0.0022 -0.0116 -0.0003 -0.0085 0.1521
+    283 -0.0126 -0.0124 -0.0001 -0.0031 -0.0052 -0.0129 -0.0131 -0.0047 -0.0014 -0.0085 -0.0077 -0.0012 0.1502  -0.0123 -0.0004 -0.0237 -0.0164 -0.0089 -0.0054 -0.0000 0.1502
+    294 -0.0078 -0.0087 -0.0112 0.1458  -0.0084 -0.0079 -0.0098 -0.0001 -0.0064 -0.0028 -0.0079 -0.0134 -0.0000 -0.0126 -0.0104 -0.0156 -0.0110 -0.0115 -0.0001 -0.0002 0.1458
+    127 -0.0088 -0.0006 -0.0010 0.1423  -0.0021 -0.0179 -0.0059 -0.0096 -0.0208 -0.0100 -0.0021 -0.0095 -0.0007 -0.0066 -0.0073 -0.0114 -0.0146 -0.0075 -0.0010 -0.0049 0.1423
+    289 -0.0079 -0.0127 -0.0005 -0.0002 -0.0228 -0.0005 -0.0154 -0.0156 -0.0033 -0.0167 -0.0113 -0.0034 -0.0004 -0.0004 -0.0094 -0.0020 -0.0028 -0.0133 -0.0006 0.1391  0.1391
 
-The columns should be self-explanatory: they give the site numbers and then the differential selection for or against each amino acid.
+The first column gives the site numbers, subsequent columns give the differential preference (:math:`\Delta\pi_{r,a}`) for each amino acid.
+The last column gives the half absolute sum of the differential preferences, :math:`\sum_a |\Delta\pi_{r,a}|`, at each site. This quantity can range from zero to one.
+The sites are sorted with the highest half absolute sum differential preference first.
 
 
 .. include:: weblinks.txt

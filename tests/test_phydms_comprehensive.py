@@ -27,7 +27,8 @@ class test_phydms_comprehensive(unittest.TestCase):
         outprefix = './NP_test_results/'
 
         subprocess.check_call(['phydms_comprehensive', outprefix, alignment,
-                prefs, "--tree", tree, "--omegabysite", '--brlen', 'scale'])
+                prefs, "--tree", tree, "--omegabysite", '--brlen', 'scale',
+                '--diffprefsbysite'])
 
         expectedresults = './expected_NP_test_results/'
 
@@ -52,7 +53,6 @@ class test_phydms_comprehensive(unittest.TestCase):
                 omegas[name] = pandas.read_csv(prefix + model + '_omegabysite.txt', 
                         comment='#', sep='\t')
                 omegas[name] = omegas[name].sort_values(by='site', axis=0)
-                p = omegas[name]['P'].values
             self.assertTrue(scipy.allclose(omegas['actual']['P'].values,
                     omegas['expected']['P'].values, atol=0.01, rtol=0.01))
             sigsites = omegas['expected'][omegas['expected']['P'] < 0.05]['site'].values
@@ -60,6 +60,24 @@ class test_phydms_comprehensive(unittest.TestCase):
             for (name, df) in omegas.items():
                 sigomegas[name] = omegas[name][omegas[name]['site'].isin(sigsites)]['omega'].values
             self.assertTrue(((sigomegas['actual'] > 1) == (sigomegas['expected'] > 1)).all())
+
+            if 'ExpCM' in model:
+                diffprefs = {}
+                largecutoff = 0.1
+                smallcutoff = 0.01
+                largesites = {}
+                smallsites = {}
+                for (name, prefix) in [('expected', expectedresults), ('actual', outprefix)]:
+                    diffprefs[name] = pandas.read_csv(prefix + model + '_diffprefsbysite.txt',
+                        comment='#', sep='\t')
+                    # factor builds in a margin in expected versus actual 
+                    factor = {'actual':1, 'expected':1.5}[name]
+                    largesites[name] = set(diffprefs[name][diffprefs[name][
+                            'half_sum_abs_dpi'] > largecutoff * factor]['site'].values)
+                    smallsites[name] = set(diffprefs[name][diffprefs[name][
+                            'half_sum_abs_dpi'] < smallcutoff / factor]['site'].values)
+                self.assertTrue(largesites['actual'] >= largesites['expected'])
+                self.assertTrue(smallsites['actual'] >= smallsites['expected'])
 
 
 if __name__ == '__main__':

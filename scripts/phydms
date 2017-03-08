@@ -15,6 +15,7 @@ import math
 import multiprocessing
 import scipy
 import scipy.stats
+import statsmodels.sandbox.stats.multicomp
 import Bio.Phylo
 import phydmslib
 from phydmslib.constants import *
@@ -57,12 +58,18 @@ def treelikForDiffPrefsBySite(site, tl, prefslist, prior, modeltype):
 def fitDiffPrefsBySite(argtup):
     """Fits diffprefs for a site, use in a multiprocessing pool.
     
-    `argtup` is return value of `treelikForDiffPrefsBySite`."""
+    `argtup` is return value of `treelikForDiffPrefsBySite`.
+    
+    The return value is a tuple of half the absolute total diffpref,
+    then a tab-separated string describing the results for the site."""
     (site, treelik) = argtup
     maxresult = treelik.maximizeLikelihood(optimize_brlen=False)
-    resultstr = [str(site)] + ['{0:.5f}'.format(treelik.model.pi[0][a]
-            - treelik.model.origpi[0][a]) for a in range(N_AA)]
-    return '\t'.join(resultstr)
+    diffprefs = treelik.model.pi[0] - treelik.model.origpi[0]
+    resultstr = [str(site)] + ['{0:.4f}'.format(diffprefs[a])
+            for a in range(N_AA)]
+    halfabssum = 0.5 * scipy.absolute(diffprefs).sum()
+    resultstr.append('{0:.4f}'.format(halfabssum))
+    return (halfabssum, '\t'.join(resultstr))
 
 
 def treeliksForOmegaBySite(site, tl, prefslist, fixsyn):
@@ -399,15 +406,21 @@ def main():
                 if ncpus > 1:
                     pool.close()
                     pool.join()
+            omegaresults = sorted(omegaresults)
+            qvalues = statsmodels.sandbox.stats.multicomp.multipletests(
+                    scipy.array([tup[0] for tup in omegaresults]),
+                    method='fdr_bh')[1]
+            omegaresults = ['{0}\t{1:.3g}'.format(tup[1], q) for 
+                    (tup, q) in zip(omegaresults, qvalues)]
             logger.info("Completed fitting the site-specific omega values.")
             logger.info("Writing results to {0}\n".format(omegafile))
             with open(omegafile, 'w') as f:
                 f.write('# Omega fit to each site after fixing tree and '
                         'all other parameters.\n# Fits compared to null model '
                         'of omega = 1.\n# P-values NOT corrected for multiple '
-                        'hypothesis testing.\n# {0}\n#\n'
-                        'site\tomega\tP\tdLnL\n{1}'.format(fixsynstr,
-                        '\n'.join([tup[1] for tup in sorted(omegaresults)])))
+                        'testing, so consider Q-values too.\n# {0}\n#\n'
+                        'site\tomega\tP\tdLnL\tQ\n{1}'.format(fixsynstr,
+                        '\n'.join(omegaresults)))
 
         # optimize differential preferences for each site
         if args['diffprefsbysite']:
@@ -444,8 +457,9 @@ def main():
                 f.write('# Differential preferences fit to each site.\n' +
                         '# Regularizing prior: {0}\n#\n'.format(args['diffprefsprior'])
                         + 'site\t' + '\t'.join(['dpi_{0}'.format(INDEX_TO_AA[a])
-                        for a in range(N_AA)]) + '\n')
-                f.write('\n'.join(diffprefresults))
+                        for a in range(N_AA)]) + '\thalf_sum_abs_dpi\n')
+                f.write('\n'.join([tup[1] for tup in sorted(diffprefresults, 
+                        reverse=True)]))
 
     except:
         logger.exception('Terminating {0} at {1} with ERROR'.format(prog, time.asctime()))

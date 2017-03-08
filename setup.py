@@ -91,6 +91,7 @@ setup(
         'six>=1.10',
         'pandas>=0.18',
         'pyvolve>=0.8.4',
+        'statsmodels>=0.8',
         ],
     packages = ['phydmslib'],
     package_dir = {'phydmslib':'phydmslib'},
