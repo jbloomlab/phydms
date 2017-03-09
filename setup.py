@@ -92,7 +92,7 @@ setup(
         'pandas>=0.18',
         'pyvolve>=0.8.4',
         'statsmodels>=0.8',
-        'weblogo>=3.4',
+        'weblogo>=3.4, <3.6',
         'PyPDF2>=1.26',
         ],
     packages = ['phydmslib'],

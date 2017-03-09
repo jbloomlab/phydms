@@ -44,14 +44,6 @@ phydmslib.parsearguments module
     :undoc-members:
     :show-inheritance:
 
-phydmslib.plot module
----------------------
-
-.. automodule:: phydmslib.plot
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 phydmslib.simulate module
 -------------------------
 
@@ -72,6 +64,14 @@ phydmslib.utils module
 ----------------------
 
 .. automodule:: phydmslib.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+phydmslib.weblogo module
+------------------------
+
+.. automodule:: phydmslib.weblogo
     :members:
     :undoc-members:
     :show-inheritance:

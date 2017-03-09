@@ -24,7 +24,7 @@ If you use any of the simulation capabilities of `phydms`_, please also cite `py
 
     * `Spielman and Wilke, PLoS One, 10:e0139047`_
 
-If you use ``phydms_plotselection`` to create logo plots, please also cite `weblogo`_:
+If you use ``phydms_logoplot`` to create logo plots, please also cite `weblogo`_:
 
     * `Crooks et al, Genome Research, 14:1188-1190`_
 
