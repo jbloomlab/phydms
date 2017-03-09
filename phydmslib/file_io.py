@@ -232,6 +232,9 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
         assert (min(sites) == 1 and max(sites) - min(sites) == len(sites) - 1),\
                 "Sites not consecutive starting at 1"
         prefs = dict([(int(r), rprefs) for (r, rprefs) in prefs.items()])
+    else:
+        sites = [str(r) for r in sites]
+        prefs = dict([(str(r), rprefs) for (r, rprefs) in prefs.items()])
 
     assert len(set(sites)) == len(sites), "Non-unique sites in prefsfiles"
     assert all([all([pi >= 0 for pi in rprefs.values()]) for rprefs in

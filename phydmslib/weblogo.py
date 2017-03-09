@@ -412,7 +412,11 @@ def LogoPlot(sites, datatype, data, plotfile, nperline, numberevery=10, allowuns
         colormapping[separatorchar] = '#000000' # black
         color_scheme = weblogolib.colorscheme.ColorScheme()
         for x in chars_for_string:
-            color_scheme.rules.append(weblogolib.colorscheme.SymbolColor(x, colormapping[x], "'%s'" % x))
+            if hasattr(color_scheme, 'hrules'):
+                color_scheme.rules.append(weblogolib.colorscheme.SymbolColor(x, colormapping[x], "'%s'" % x))
+            else:
+                # this part is needed for weblogo 3.4
+                color_scheme.groups.append(weblogolib.colorscheme.ColorGroup(x, colormapping[x], "'%s'" % x))
         logo_options.color_scheme = color_scheme
         logo_options.annotate = [{True:r, False:''}[0 == isite % numberevery] for (isite, r) in enumerate(sites)]
         logoformat = weblogolib.LogoFormat(logodata, logo_options)
@@ -576,7 +580,12 @@ def _my_eps_formatter(logodata, format, ordered_alphabets) :
     substitutions["default_color"] = format_color(format.default_color)
 
     colors = []  
-    for group in format.color_scheme.rules :
+    if hasattr(format.color_scheme, 'rules'):
+        grouplist = format.color_scheme.rules
+    else:
+        # this line needed for weblogo 3.4
+        grouplist = format.color_scheme.groups
+    for group in grouplist:
         cf = format_color(group.color)
         for s in group.symbols :
             colors.append( "  ("+s+") " + cf )
