@@ -32,7 +32,9 @@ def Versions():
             '\tPython version: %s' % sys.version.replace('\n', ' '),
             '\tphydms version: %s' % phydmslib.__version__,
             ]
-    for modname in ['Bio', 'scipy', 'matplotlib']:
+    for modname in ['Bio', 'cython', 'numpy', 'scipy', 'matplotlib', 
+            'natsort', 'sympy', 'six', 'pandas', 'pyvolve', 'statsmodels',
+            'weblogolib', 'PyPDF2']:
         try:
             v = importlib.import_module(modname).__version__
             s.append('\t%s version: %s' % (modname, v))
@@ -166,7 +168,8 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
     return seqs
 
 
-def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False, seed=1):
+def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False, 
+        seed=1, sites_as_strings=False):
     """Read preferences from file with some error checking.
 
     Args:
@@ -186,10 +189,14 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False, seed=1):
             randomize prefs across sites.
         `seed` (int)
             Seed used to sort random number generator for `randprefs`.
+        `sites_as_strings` (bool)
+            By default, the site numers are coerced to integers.
+            If this option is `True`, then they are kept as strings.
 
     Returns:
-        `prefs` (dict keyed by ints)
+        `prefs` (dict)
             `prefs[r][a]` is the preference of site `r` for amino-acid `a`.
+            `r` is an `int` unless `sites_as_strings=True`.
     """
     assert minpref >= 0, 'minpref must be >= 0'
 
@@ -217,23 +224,24 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False, seed=1):
         sites = list(prefs.keys())
 
     # error check prefs
-    try:
-        sites = [int(r) for r in sites]
-    except ValueError:
-        raise ValueError("sites not int in prefsfile {0}".format(prefsfile))
-    assert len(set(sites)) == len(sites), ("Non-unique sites in prefsfile {0}"
-            ).format(prefsfile)
-    assert (min(sites) == 1 and max(sites) - min(sites) == len(sites) - 1), (
-            "Sites in prefsfile {0} not consecutive starting at 1").format(prefsfile)
+    if not sites_as_strings:
+        try:
+            sites = [int(r) for r in sites]
+        except ValueError:
+            raise ValueError("sites not int in prefsfile {0}".format(prefsfile))
+        assert (min(sites) == 1 and max(sites) - min(sites) == len(sites) - 1),\
+                "Sites not consecutive starting at 1"
+        prefs = dict([(int(r), rprefs) for (r, rprefs) in prefs.items()])
+
+    assert len(set(sites)) == len(sites), "Non-unique sites in prefsfiles"
     assert all([all([pi >= 0 for pi in rprefs.values()]) for rprefs in
-            prefs.values()]), "Some prefs < 0 in prefsfile {0}".format(prefsfile)
+            prefs.values()]), "prefs < 0 in prefsfile {0}".format(prefsfile)
     for r in list(prefs.keys()):
         rprefs = prefs[r]
         assert sum(rprefs.values()) - 1 <= 0.01, (
             "Prefs in prefsfile {0} don't sum to one".format(prefsfile))
         rsum = float(sum(rprefs.values()))
         prefs[r] = dict([(aa, pi / rsum) for (aa, pi) in rprefs.items()])
-    prefs = dict([(int(r), rprefs) for (r, rprefs) in prefs.items()])
     assert set(sites) == set(prefs.keys())
 
     # make sure there is a pref for every amino acid and remove any for stops

@@ -243,21 +243,44 @@ def PhyDMSPrepAlignmentParser():
     return parser
 
 
-def PhyDMSPlotSelectionParser():
-    """Returns an *argparse.ArgumentParser* for ``phydms_plotselection``."""
-    parser = ArgumentParserNoArgHelp(description="Visualization of site-specific selection inferred using 'phydms' with an 'ExpCM' model. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('diffprefsbysite', help="A '*_diffprefsbysite.txt' file created by 'phydms' specifying the differential preferences for each site.", type=ExistingFile)
-    parser.add_argument('plotfile', help='Name of created PDF file.')
-    parser.add_argument('--omegabysite', help="To overlay site-specific omega values, specify a '*_omegabysite.txt' file created by 'phydms'. Sites must match those in 'diffprefs'.", type=ExistingFileOrNone)
-    parser.add_argument('--stringencybysite', help="To overlay site-specific stringency (beta) values, specify a '*_stringencybysite.txt' file created by 'phydms'. Sites must match those in 'diffprefs'.", type=ExistingFileOrNone)
-    parser.add_argument('--nperline', type=IntGreaterThanZero, default=70, help="Number of sites per line in plot.")
-    parser.add_argument('--numberevery', type=IntGreaterThanZero, default=10, help="Number sites at this interval.")
-    parser.add_argument('--diffprefheight', type=FloatGreaterThanZero, default=1.0, help="Height of differential preferences logo stacks in each direction. If using '--updiffprefheight' then the height may be higher than this.")
-    parser.set_defaults(updiffprefheight=False)
-    parser.add_argument('--updiffprefheight', dest='updiffprefheight', action='store_true', help="Automatically increase '--diffprefheight' to make it exceed max differential preferences.")
-    parser.add_argument('--minP', type=FloatGreaterThanZero, default=1e-4, help="Minimum plotted P-value for omega and stringency by site.")
-    parser.add_argument('--colormap', type=str, default='jet', help='Colormap for amino-acid hydrophobicity. Must specify a valid ``pylab`` color map')
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
+def PhyDMSLogoPlotParser():
+    """Returns `argparse.ArgumentParser` for ``phydms_logoplot``."""
+    parser = ArgumentParserNoArgHelp(description=
+            "Make logo plot of preferences or differential preferences. "
+            "Uses weblogo (http://weblogo.threeplusone.com/). "
+            "{0} Version {1}. Full documentation at {2}".format(
+            phydmslib.__acknowledgments__, 
+            phydmslib.__version__, phydmslib.__url__), 
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--prefs', type=ExistingFile, help="File with "
+            "amino-acid preferences; same format as input to 'phydms'.")
+    group.add_argument('--diffprefs', type=ExistingFile, help="File with "
+            "differential preferences; in format output by 'phydms'.")
+    parser.add_argument('outfile', help='Name of created PDF logo plot.')
+    parser.add_argument('--stringency', type=FloatGreaterThanEqualToZero,
+            default=1, help="Stringency parameter to re-scale prefs.")
+    parser.add_argument('--nperline', type=IntGreaterThanZero, default=70, 
+            help="Number of sites per line.")
+    parser.add_argument('--numberevery', type=IntGreaterThanZero, default=10, 
+            help="Number sites at this interval.")
+    parser.add_argument('--mapmetric', default='kd', choices=['kd',
+            'mw', 'charge', 'functionalgroup'], help='Metric used to color '
+            'amino-acid letters. kd = Kyte-Doolittle hydrophobicity; '
+            'mw = molecular weight; functionalgroup = divide in 7 '
+            'groups; charge = charge at neutral pH.')
+    parser.add_argument('--colormap', type=str, default='jet', 
+            help="Colormap for amino-acids. Must specify a valid 'matplotlib' "
+            "color map. Only used when '--mapmetric' is 'kd' or 'mw'.")
+    parser.add_argument('--diffprefheight', type=FloatGreaterThanZero, 
+            default=1.0, help="Height of diffpref logo in each direction.")
+    parser.add_argument('--omegabysite', help="Overlay omega on "
+            "logo plot. Specify '*_omegabysite.txt' file from 'phydms'.",
+            type=ExistingFileOrNone)
+    parser.add_argument('--minP', type=FloatGreaterThanZero, default=1e-4, 
+            help="Min plotted P-value for '--omegabysite' overlay.")
+    parser.add_argument('-v', '--version', action='version', 
+            version='%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
 
 
