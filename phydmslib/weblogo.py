@@ -412,7 +412,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline, numberevery=10, allowuns
         colormapping[separatorchar] = '#000000' # black
         color_scheme = weblogolib.colorscheme.ColorScheme()
         for x in chars_for_string:
-            if hasattr(color_scheme, 'hrules'):
+            if hasattr(color_scheme, 'rules'):
                 color_scheme.rules.append(weblogolib.colorscheme.SymbolColor(x, colormapping[x], "'%s'" % x))
             else:
                 # this part is needed for weblogo 3.4
