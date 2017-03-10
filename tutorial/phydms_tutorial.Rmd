@@ -67,6 +67,12 @@ df.to_csv("example_data/betaLactamase_prefs.csv", index = False)
 print df.iloc[:,:9].head(20).to_string(index = False)
 ```   
 
+```{r bacLactamase logoplot, engine="bash", comment=NA, error=TRUE, echo=FALSE}
+phydms_logoplot logoplots/betaLactamase_prefs.pdf --prefs example_data/betaLactamase_prefs.csv
+```
+
+We can visualize the preferences as a [logoplot](logoplots/betaLactamase_prefs.pdf) using [phydms_logoplot](http://jbloomlab.github.io/phydms/phydms_logoplot.html)
+
 For more information on the preference file formats, please see the [full `phydms` documentation](http://jbloomlab.github.io/phydms/phydms_prog.html). 
 
 ###Sequences{#seqs}
@@ -168,6 +174,14 @@ HA_prefs_avg.to_csv("example_data/HA_prefs_avg.csv", index=False)
 ``` 
 
 As we would expect, the preferences measured from the two experiments are similar but not identical. Please note that the preferences in a [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) analysis must be sequentially numbered starting with $1$. 
+
+```{r HA logoplot, engine="bash", comment=NA, error=TRUE, echo=FALSE}
+phydms_logoplot logoplots/HA_prefs_Thyagarajan.pdf --prefs example_data/HA_prefs_Thyagarajan.csv
+phydms_logoplot logoplots/HA_prefs_Doud.pdf --prefs example_data/HA_prefs_Doud.csv
+phydms_logoplot logoplots/HA_prefs_avg.pdf --prefs example_data/HA_prefs_avg.csv
+```
+
+We can visualize each set of preferences as a logoplot ([HA_prefs_Thyagarajan](logoplots/HA_prefs_Thyagarajan.pdf), [HA_prefs_Doud](logoplots/HA_prefs_Doud.pdf), and [HA_prefs_avg](logoplots/HA_prefs_avg.pdf)) using [phydms_logoplot](http://jbloomlab.github.io/phydms/phydms_logoplot.html)
 
 For more information on how to change *enrichment scores* to *amino-acid preferences*, please see the [Comparing your `DMS` data to natural sequence evolution](#prefs) section of this tutorial. 
 For more information on the preference file formats, please see the [full `phydms` documentation](http://jbloomlab.github.io/phydms/phydms_prog.html). 
@@ -293,6 +307,7 @@ ls betaLactamase_omegabysite/*
 To detect sites under diversifying selection, we can look at the summary files with the suffix `_omegabysite.txt`. First, we will look at the results from the HA run. 
 
 [HA_omegabysite/ExpCM_HA_prefs_avg_omegabysite.txt](HA_omegabysite/ExpCM_HA_prefs_avg_omegabysite.txt) lists the site, the fitted $\omega$ value, the p-value for the hypothesis $H_0: \omega = 1$, the dLnL, and the Q-value (false discovery rate). The sites are sorted by the p-value which means the sites with the strongest evidence for deviations from the *ExpCM* will be at the top of the file. 
+
 ```{r phydms_comprehensive HA omegabysite head, engine='bash', comment=NA, error=TRUE}
 head -n 20 HA_omegabysite/ExpCM_HA_prefs_avg_omegabysite.txt
 ```    
@@ -301,7 +316,12 @@ and sites with the weakest evidence for deviation from the *ExpCM* will be at th
 tail -n 20 HA_omegabysite/ExpCM_HA_prefs_avg_omegabysite.txt
 ```    
 
-You will notice that the sites with strong evidence have a fitted $\omega$ that is either very large ($100$) or very small ($0$) while the sites with weak evidence have a fitted $\omega$ close to $1$.  
+You will notice that the sites with strong evidence have a fitted $\omega$ that is either very large ($100$) or very small ($0$) while the sites with weak evidence have a fitted $\omega$ close to $1$.
+
+<!-- ```{r HA omega, engine="bash", comment=NA, error=TRUE, echo=FALSE} -->
+<!-- phydms_logoplot logoplots/HA_prefs_avg_omegabysite.pdf --prefs example_data/HA_prefs_avg.csv --omegabysite HA_omegabysite/ExpCM_HA_prefs_avg_omegabysite.txt -->
+<!-- ``` -->
+<!-- We can map these fitted $\omega$ values onto a [logoplot](logoplots/HA_prefs_avg_omegabysite.pdf) using [`phydms_logoplot`]() -->
 
 Here are the sites in $\beta$-lactamase with the strongest evidence for deviations from the *ExpCM*
 ```{r phydms_comprehensive beta omegabysite head, engine='bash', comment=NA, error=TRUE}
