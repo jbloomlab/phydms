@@ -125,11 +125,6 @@ def main():
     parser = phydmslib.parsearguments.PhyDMSTestdivpressureParser()
     args = vars(parser.parse_args())
     prog = parser.prog
-    
-    #check to make sure the string "random" is not in any of the divpressure files names
-    for divpressureFile in args["divpressure"]:
-        assert "random" not in divpressureFile, "Remove 'random' from %s name" %(divpressureFile)
-        assert "noDiversifyingpressure" not in divpressureFile, "Remove 'noDiversifyingpressure' from %s name" %(divpressureFile)
 
 #create output directory if needed
     outdir = os.path.dirname(args['outprefix'])
@@ -150,7 +145,6 @@ def main():
     ExpCMmodel = "ExpCM_" + args["prefsfile"] 
     modelOutputprefixList = []   
     modelcomparisonfile = args["outprefix"] + "modelcomparison.csv"
-    
     
 
     
