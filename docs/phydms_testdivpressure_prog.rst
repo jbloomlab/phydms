@@ -11,13 +11,13 @@ Overview
 ``phydms_testdivpressure`` is a program that simplifies usage of ``phydms`` to compare different models of diversifying pressure. 
 
 In its simplest usage, you provide ``phydms_testdivpressure`` with an alignment, a file giving site-specific amino-acid preferences, and a file giving site-specific diversifying pressures. 
-The program first uses ``phydms`` to infer a tree under the *YNGKP_M0* model (starting from a crude neighbor-joining tree) and then optimizes the tree under the *ExpCM* (without any diversifying pressures specified).
-The program then fits an *ExpCM* augmented by each set of diversifying pressures to the optimized tree.
+The program first uses ``phydms`` to infer a tree under the *YNGKP_M0* model (starting from a crude neighbor-joining tree) and then optimizes the tree under the ExpCM (without any diversifying pressures specified).
+The program then fits an ExpCM given the alignment preferences, the optimized tree, and each set of the diversifying pressures.
 Finally, it creates a summary that enables comparison among the models.
 
 For an additional control, ``phydms_testdivpressure`` can randomize the diversifying pressures and fit an *ExpCM* using these randomized diversifying pressures. 
 
-If this program hangs up on the initial inference of the tree with *YNGKP_M0*, then infer a tree using another tree-building program such as `codonPhyML`_ and pass that tree via the ``--treetopology`` option.
+If this program hangs up on the initial inference of the tree with *YNGKP_M0*, then infer a tree using another tree-building program such as `codonPhyML`_ and then pass that via the ``--treetopology`` option.
 
 See below for information on `Command-line usage`_ and `Output files`_.
 
@@ -35,11 +35,8 @@ Command-line usage
    alignment
     The alignment must meet the same specifications described in the ``phydms`` documentation for the argument of the same name (see :ref:`phydms_prog`).
 
-   prefsfile
-    The format should be same as that described in the ``phydms`` documentation (see :ref:`phydms_prog`).
-
-   divpressure
-    The format should be the same as that described in the ``phydms`` documentation (see :ref:`phydms_prog`).
+   prefsfiles
+    Provide the name of one or more files giving site-specific amino-acid preferences. These files should meet the same specifications described in the ``phydms`` documentation for the *prefsfile* that should accompany an *ExpCM* (see :ref:`phydms_prog`).
 
    \-\-treetopology
     By default, ``phydms_testdivpressure`` uses ``phydms`` to infer a tree topology under the *YNGKP_M0* model starting from a crude neighbor-joining tree. If you want to instead fix the tree to some existing topology, use this argument and provide the name of a file giving a valid tree in Newick format.
@@ -48,7 +45,7 @@ Command-line usage
     This number specifies the number of times the diversifying pressures are randomized. An adequate number of simulations will give an approximate p-value.
     
    \-\-optimizebrlen
-    By default, ``phydms_testdivpressure`` fixes the tree topology optimized under an *ExpCM* without diversifying pressure. Then for each analysis with diversifying pressure, it only re-scales all branch lengths by a single parameter (this is equivalent to passing the ``--fixbrlen`` and ``--addrateparameter`` to ``phydms``). If instead you want to optimize all the branch lengths for each diversifing pressure analysis, use this argument.
+    By default, ``phydms_testdivpressure`` fixes the tree topology optimized under a *ExpCM* by adding ``--fixbrlen`` and ``--addrate paramter`` (see :ref:`phydms_prog`) to the ``phydms`` runs with diversifying pressure. If you want to optimize the tree for each run, use this argument.
 
    \-\-randomseed
     This number specifies the first random seed used to randomized the diversifying pressure and the random seed number increments by one for each subsequent randomization.
