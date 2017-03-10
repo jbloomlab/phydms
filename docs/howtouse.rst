@@ -44,6 +44,6 @@ Bayesian approaches `don't have the same problem with overfitting <http://bayesi
 Tutorial
 -----------
 The best way to learn to use `phydms`_ is to look at the tutorials.
-`You can access the tutorials by clicking here <../../../tutorial/phydms_tutorial.html>`_.
+`You can access the tutorials by clicking here <http://htmlpreview.github.io/?https://github.com/jbloomlab/phydms/blob/master/tutorial/phydms_tutorial.html>`_.
 
 .. include:: weblinks.txt
