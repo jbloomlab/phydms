@@ -395,8 +395,6 @@ def PhyDMSTestdivpressureParser():
     parser.add_argument('--treetopology', help='Fix tree to this Newick topology.', default=None)
     parser.add_argument('--randomizations', help = 'Number diversifying pressure randomizations.', default=0, type=NonNegativeInt)
     parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; -1 means all available.', type=int)
-    parser.add_argument('--optimizebrlen', dest='optimizebrlen', action='store_true', help="The tree branchlengths will be optimized for each diversifying pressure.")
-    parser.add_argument('--randomseed', help = 'Seed number for the first randomization. The random seed will increment by one for subsequent randomizations.', default=0, type=NonNegativeInt)
     parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
 
