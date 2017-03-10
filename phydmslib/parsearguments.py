@@ -8,10 +8,11 @@ import os
 import re
 import argparse
 import phydmslib
+import phydmslib.constants
 
 
 # allowed variants of YNGKP models
-yngkp_modelvariants = ['M0', 'M1', 'M2', 'M3', 'M7', 'M8']
+yngkp_modelvariants = ['M0', 'M5']
 
 class ArgumentParserNoArgHelp(argparse.ArgumentParser):
     """Like *argparse.ArgumentParser*, but prints help when no arguments."""
@@ -33,31 +34,31 @@ class ArgumentDefaultsRawDescriptionFormatter(argparse.ArgumentDefaultsHelpForma
 def NonNegativeInt(n):
     """If *n* is non-negative integer returns it, otherwise an error.
 
-    >>> print "%d" % NonNegativeInt('8')
+    >>> print("%d" % NonNegativeInt('8'))
     8
 
     >>> NonNegativeInt('8.1')
     Traceback (most recent call last):
        ...
-    ArgumentTypeError: 8.1 is not an integer
+    ValueError: 8.1 is not an integer
 
-    >>> print "%d" % NonNegativeInt('0')
+    >>> print("%d" % NonNegativeInt('0'))
     0
 
     >>> NonNegativeInt('-1')
     Traceback (most recent call last):
        ...
-    ArgumentTypeError: -1 is not non-negative
+    ValueError: -1 is not non-negative
 
     """
     if not isinstance(n, str):
-        raise argparse.ArgumentTypeError('%r is not a string' % n)
+        raise ValueError('%r is not a string' % n)
     try:
        n = int(n)
     except:
-        raise argparse.ArgumentTypeError('%s is not an integer' % n)
+        raise ValueError('%s is not an integer' % n)
     if n < 0:
-        raise argparse.ArgumentTypeError('%d is not non-negative' % n)
+        raise ValueError('%d is not non-negative' % n)
     else:
         return n
 
@@ -66,9 +67,20 @@ def IntGreaterThanZero(n):
     try:
         n = int(n)
     except:
-        raise argparse.ArgumentTypeError("%s is not an integer" % n)
+        raise ValueError("%s is not an integer" % n)
     if n <= 0:
-        raise argparser.ArgumentTypeError("%d is not > 0" % n)
+        raise ValueError("%d is not > 0" % n)
+    else:
+        return n
+
+def IntGreaterThanOne(n):
+    """If *n* is an integer > 1, returns it, otherwise an error."""
+    try:
+        n = int(n)
+    except:
+        raise ValueError("%s is not an integer" % n)
+    if n <= 1:
+        raise ValueError("%d is not > 1" % n)
     else:
         return n
 
@@ -81,16 +93,16 @@ def FloatGreaterThanEqualToZero(x):
     >>> print('%.1f' % FloatGreaterThanEqualToZero('-1.1'))
     Traceback (most recent call last):
        ...
-    ArgumentTypeError: -1.1 not float greater than or equal to zero
+    ValueError: -1.1 not float greater than or equal to zero
     """
     try:
         x = float(x)
     except:
-        raise argparse.ArgumentTypeError("%r not float greater than or equal to zero" % x)
+        raise ValueError("%r not float greater than or equal to zero" % x)
     if x >= 0:
         return x
     else:
-        raise argparse.ArgumentTypeError("%r not float greater than or equal to zero" % x)
+        raise ValueError("%r not float greater than or equal to zero" % x)
 
 
 def FloatGreaterThanOne(x):
@@ -99,7 +111,7 @@ def FloatGreaterThanOne(x):
     if x > 1:
         return x
     else:
-        raise argparse.ArgumentTypeError("%r not a float greater than one" % x)
+        raise ValueError("%r not a float greater than one" % x)
 
 
 def FloatGreaterThanZero(x):
@@ -107,24 +119,19 @@ def FloatGreaterThanZero(x):
 
     Designed based on this: http://stackoverflow.com/questions/12116685/how-can-i-require-my-python-scripts-argument-to-be-a-float-between-0-0-1-0-usin
 
-    >>> print "%.3f" % FloatGreaterThanZero('0.1')
+    >>> print("%.3f" % FloatGreaterThanZero('0.1'))
     0.100
 
     >>> FloatGreaterThanZero('0.0')
     Traceback (most recent call last):
         ...
-    ArgumentTypeError: 0.0 not a float greater than zero
-
-    >>> FloatGreaterThanZero('hi')
-    Traceback (most recent call last):
-        ...
-    ValueError: could not convert string to float: hi
+    ValueError: 0.0 not a float greater than zero
     """
     x = float(x)
     if x > 0:
         return x
     else:
-        raise argparse.ArgumentTypeError("%r not a float greater than zero" % x)
+        raise ValueError("%r not a float greater than zero" % x)
 
 
 def FloatBetweenZeroAndOne(x):
@@ -133,100 +140,58 @@ def FloatBetweenZeroAndOne(x):
     if 0 <= x <= 1:
         return x
     else:
-        raise argparse.ArgumentTypeError("{0} not a float between 0 and 1.".format(x))
+        raise ValueError("{0} not a float between 0 and 1.".format(x))
+
+
+def diffPrefsPrior(priorstring):
+    """Parses `priorstring` and returns `prior` tuple."""
+    assert isinstance(priorstring, str)
+    prior = priorstring.split(',')
+    if len(prior) == 3 and prior[0] == 'invquadratic':
+        [c1, c2] = [float(x) for x in prior[1 : ]]
+        assert c1 > 0 and c2 > 0, "C1 and C2 must be > 1 for invquadratic prior"
+        return ('invquadratic', c1, c2)
+    else:
+        raise ValueError("Invalid diffprefsprior: {0}".format(priorstring))
 
 
 def ExistingFile(fname):
     """If *fname* is name of an existing file return it, otherwise an error.
-    
+
     *fname* can also be the string 'None', in which case we return *None*."""
+    if os.path.isfile(fname):
+        return fname
+    else:
+        raise ValueError("%s must specify a valid file name" % fname)
+
+def ExistingFileOrNone(fname):
+    """Like `Existingfile`, but if `fname` is string "None" then return `None`."""
     if os.path.isfile(fname):
         return fname
     elif fname.lower() == 'none':
         return None
     else:
-        raise argparse.ArgumentTypeError("%s must specify a valid file name or 'None'" % fname)
-
-
-def TreeFile(fname):
-    """Returns *fname* if an existing file or *random* or *nj*, otherwise an error."""
-    if os.path.isfile(fname):
-        if fname.lower() in ['random', 'nj']:
-            raise argparse.ArgumentTypeError("Ambiguous meaning of tree since there is an existing file named %s" % fname)
-        else:
-            return fname
-    elif fname.lower() in ['random', 'nj']:
-        return fname.lower()
-    else:
-        raise argparse.ArgumentTypeError("Invalid value for tree: must be existing file, 'nj', or 'random'.")
-
-
-def YNGKPList(modellist):
-    """Returns list of YNGKP model variants if *modellist* is valid.
-
-    Removes *M0* if present.
-        
-    >>> YNGKPList("M0,M3,M7")
-    ['M3', 'M7']
-    """
-    models = [m for m in modellist.split(',') if m and m != 'M0'] # don't count M0 as always included
-    if not all([m in yngkp_modelvariants for m in models]):
-        raise argparse.ArgumentTypeError("YNGKP model list has invalid entries: {0}".format(modellist))
-    if len(models) != len(set(models)):
-        raise argparse.ArgumentTypeError("YNGKP model list has duplicated entries: {0}".format(modellist))
-    return models
+        raise ValueError("%s must specify a valid file name or 'None'" % fname)
 
 
 def ModelOption(model):
     """Returns *model* if a valid choice.
-    
+
     Returns the string if it specifies a ``YNGKP_`` model variant.
-    
+
     Returns *('ExpCM', prefsfile)* if it specifies an ``ExpCM_`` model.
     """
     yngkpmatch = re.compile('^YNGKP_M[{0}]$'.format(''.join([m[1 : ] for m in yngkp_modelvariants])))
     if yngkpmatch.search(model):
         return model
     elif len(model) > 6 and model[ : 6] == 'ExpCM_':
-        fname = model[6 : ] 
+        fname = model[6 : ]
         if os.path.isfile(fname):
             return ('ExpCM', fname)
         else:
-            raise argparse.ArgumentTypeError("ExpCM_ must be followed by the name of an existing file. You specified the following, which is not an existing file: %s" % fname)
+            raise ValueError("ExpCM_ must be followed by the name of an existing file. You specified the following, which is not an existing file: %s" % fname)
     else:
-        raise argparse.ArgumentTypeError("Invalid model")
-
-
-def PhyDMSAnalyzeSelectionParser():
-    """Returns an *argparse.ArgumentParser* for ``phydms_analyzeselection``."""
-    parser = ArgumentParserNoArgHelp(description="Visualizes distributions of per-site selection inferred with 'phydms'. Can also highlight information for a subset of sites. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('outprefix', help="Prefix for output files.")
-    parser.add_argument('selectionfiles', nargs='+', help="Per-site selection file(s) created by 'phydms' (i.e. '*_omegabysite.txt', '*_stringencybysite.txt', '*_diffprefsbysite.txt').", type=ExistingFile)
-    parser.add_argument('--names', nargs='+', help="Name(s) describing type of selection to go with each 'selectionfile'.")
-    parser.add_argument('--selectedsites', nargs='+', type=ExistingFile, help="File(s) listing selected sites to display as points. If you give one file, it applies to all 'selectionfiles'. Otherwise list a different file (or 'None') for each file in 'selectionfiles'. Column 1 is site number, which can be followed by # giving notes. Lines beginning with '#' are ignored.")
-    parser.set_defaults(labelselectedsites=False)
-    parser.add_argument('--labelselectedsites', action='store_true', dest='labelselectedsites', help="Do we use a unique labeled point on violin plots for each site in '--selectedsites'?")
-    parser.add_argument('--fdr', type=float, default=0.05, help="False discovery rate for 'omega' and 'stringency'. Benjamini-Hochberg FDR computed separately for values > and < 1.")
-    parser.add_argument('--maxlog10p', type=FloatGreaterThanZero, default=5, help="For 'omega' and 'stringency' violin plots, if log10 P-value has magnitude > this, instead plot as this. Also is y-limits for these plots.")
-    parser.set_defaults(groupbyname=False)
-    parser.add_argument('--groupbyname', action='store_true', dest='groupbyname', help="Group selections with same first word in name specified by '--names'. Grouped selections must have same sites specified by '--selectedsites'.")
-    parser.add_argument('--diffprefsline', help="Draw cutoff line on diffprefs plot: 'lowestpeak' indicates the lowest peak value for any selection file, otherwise specify a number between 0 and 1.")
-    parser.set_defaults(nolegend=False)
-    parser.add_argument('--nolegend', action='store_true', dest='nolegend', help="Don't place a legend even on plates with labeled selected sites.")
-    parser.set_defaults(dNdSlabel=False)
-    parser.add_argument('--dNdSlabel', action='store_true', dest='dNdSlabel', help="Label omega-by-site plots with 'dN/dS' rather than 'omega_r'.")
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
-    return parser
-
-
-def PhyDMSRenumberParser():
-    """Returns an *argparse.ArgumentParser* for ``phydms_renumber``."""
-    parser = ArgumentParserNoArgHelp(description="Renumber by-site output files from 'phydms'. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('renumberfile', type=ExistingFile, help="Column 1 lists current number for a site; column 2 gives new number. Put 'None' in column 2 if you want a site excluded from renumbered output. Lines beginning with '#' are ignored.")
-    parser.add_argument('outprefixes', help="Output prefixes for which we renumber files with appropriate suffixes. Use '*' as a wildcard character.", nargs='+')
-    parser.add_argument('--renumberedprefix', default='renumbered', help='Add this prefix followed by underscore to names of renumbered files.')
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
-    return parser
+        raise ValueError("Invalid model")
 
 
 def PhyDMSPrepAlignmentParser():
@@ -278,124 +243,194 @@ def PhyDMSPrepAlignmentParser():
     return parser
 
 
-def PhyDMSPlotSelectionParser():
-    """Returns an *argparse.ArgumentParser* for ``phydms_plotselection``."""
-    parser = ArgumentParserNoArgHelp(description="Visualization of site-specific selection inferred using 'phydms' with an 'ExpCM' model. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('diffprefsbysite', help="A '*_diffprefsbysite.txt' file created by 'phydms' specifying the differential preferences for each site.", type=ExistingFile)
-    parser.add_argument('plotfile', help='Name of created PDF file.')
-    parser.add_argument('--omegabysite', help="To overlay site-specific omega values, specify a '*_omegabysite.txt' file created by 'phydms'. Sites must match those in 'diffprefs'.", type=ExistingFile)
-    parser.add_argument('--stringencybysite', help="To overlay site-specific stringency (beta) values, specify a '*_stringencybysite.txt' file created by 'phydms'. Sites must match those in 'diffprefs'.", type=ExistingFile)
-    parser.add_argument('--nperline', type=IntGreaterThanZero, default=70, help="Number of sites per line in plot.")
-    parser.add_argument('--numberevery', type=IntGreaterThanZero, default=10, help="Number sites at this interval.")
-    parser.add_argument('--diffprefheight', type=FloatGreaterThanZero, default=1.0, help="Height of differential preferences logo stacks in each direction. If using '--updiffprefheight' then the height may be higher than this.")
-    parser.set_defaults(updiffprefheight=False)
-    parser.add_argument('--updiffprefheight', dest='updiffprefheight', action='store_true', help="Automatically increase '--diffprefheight' to make it exceed max differential preferences.")
-    parser.add_argument('--minP', type=FloatGreaterThanZero, default=1e-4, help="Minimum plotted P-value for omega and stringency by site.")
-    parser.add_argument('--colormap', type=str, default='jet', help='Colormap for amino-acid hydrophobicity. Must specify a valid ``pylab`` color map')
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
+def PhyDMSLogoPlotParser():
+    """Returns `argparse.ArgumentParser` for ``phydms_logoplot``."""
+    parser = ArgumentParserNoArgHelp(description=
+            "Make logo plot of preferences or differential preferences. "
+            "Uses weblogo (http://weblogo.threeplusone.com/). "
+            "{0} Version {1}. Full documentation at {2}".format(
+            phydmslib.__acknowledgments__, 
+            phydmslib.__version__, phydmslib.__url__), 
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--prefs', type=ExistingFile, help="File with "
+            "amino-acid preferences; same format as input to 'phydms'.")
+    group.add_argument('--diffprefs', type=ExistingFile, help="File with "
+            "differential preferences; in format output by 'phydms'.")
+    parser.add_argument('outfile', help='Name of created PDF logo plot.')
+    parser.add_argument('--stringency', type=FloatGreaterThanEqualToZero,
+            default=1, help="Stringency parameter to re-scale prefs.")
+    parser.add_argument('--nperline', type=IntGreaterThanZero, default=70, 
+            help="Number of sites per line.")
+    parser.add_argument('--numberevery', type=IntGreaterThanZero, default=10, 
+            help="Number sites at this interval.")
+    parser.add_argument('--mapmetric', default='kd', choices=['kd',
+            'mw', 'charge', 'functionalgroup'], help='Metric used to color '
+            'amino-acid letters. kd = Kyte-Doolittle hydrophobicity; '
+            'mw = molecular weight; functionalgroup = divide in 7 '
+            'groups; charge = charge at neutral pH.')
+    parser.add_argument('--colormap', type=str, default='jet', 
+            help="Colormap for amino-acids. Must specify a valid 'matplotlib' "
+            "color map. Only used when '--mapmetric' is 'kd' or 'mw'.")
+    parser.add_argument('--diffprefheight', type=FloatGreaterThanZero, 
+            default=1.0, help="Height of diffpref logo in each direction.")
+    parser.add_argument('--omegabysite', help="Overlay omega on "
+            "logo plot. Specify '*_omegabysite.txt' file from 'phydms'.",
+            type=ExistingFileOrNone)
+    parser.add_argument('--minP', type=FloatGreaterThanZero, default=1e-4, 
+            help="Min plotted P-value for '--omegabysite' overlay.")
+    parser.add_argument('-v', '--version', action='version', 
+            version='%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
 
 
 def PhyDMSComprehensiveParser():
     """Returns *argparse.ArgumentParser* for ``phdyms_comprehensive`` script."""
-    parser = ArgumentParserNoArgHelp(description="Comprehensive phylogenetic model comparison and detection of selection using deep mutational scanning data. This program runs 'phydms' to infer a tree topology, then compare substitution models, then detect selection at each site. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('outprefix', help='Prefix for output files.', type=str)
-    parser.add_argument('alignment', help='Existing FASTA file with aligned codon sequences.', type=ExistingFile)
-    parser.add_argument('prefsfiles', help='Existing files with site-specific amino-acid preferences.', type=ExistingFile, nargs='+')
-    parser.add_argument('--treetopology', help='Fix tree to this Newick topology.', default=None)
-    parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; -1 means all available.', type=int)
-    parser.set_defaults(noomegabysite=False)
-    parser.add_argument('--no-omegabysite', dest='noomegabysite', action='store_true', help="No fitting of site-specific omegas.")
-    parser.set_defaults(nostringencybysite=False)
-    parser.add_argument('--no-stringencybysite', dest='nostringencybysite', action='store_true', help="No fitting of site-specific stringency for ExpCM.")
-    parser.set_defaults(nodiffprefsbysite=False)
-    parser.add_argument('--no-diffprefsbysite', dest='nodiffprefsbysite', action='store_true', help="No fitting of differential preferences for ExpCM.")
+    parser = ArgumentParserNoArgHelp(description=("Comprehensive phylogenetic "
+            "model comparison and detection of selection informed by deep "
+            "mutational scanning data. This program runs 'phydms' repeatedly "
+            "to compare substitution models and detect selection. "
+            "{0} Version {1}. Full documentation at {2}").format(
+            phydmslib.__acknowledgments__, phydmslib.__version__,
+            phydmslib.__url__),
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('outprefix', help='Output file prefix.', type=str)
+    parser.add_argument('alignment', help='Existing FASTA file with aligned '
+            'codon sequences.', type=ExistingFile)
+    parser.add_argument('prefsfiles', help='Existing files with site-specific '
+            'amino-acid preferences.', type=ExistingFile, nargs='+')
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--raxml', help="Path to RAxML (e.g., 'raxml')")
+    group.add_argument('--tree', type=ExistingFile,
+             help="Existing Newick file giving input tree.")
+    parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; -1 '
+            'means all available.', type=int)
+    parser.add_argument('--brlen', choices=['scale', 'optimize'],
+            default='optimize', help=("How to handle branch lengths: "
+            "scale by single parameter or optimize each one"))
+    parser.set_defaults(omegabysite=False)
+    parser.add_argument('--omegabysite', dest='omegabysite',
+            action='store_true', help="Fit omega (dN/dS) for each site.")
+    parser.set_defaults(diffprefsbysite=False)
+    parser.add_argument('--diffprefsbysite', dest='diffprefsbysite',
+            action='store_true', help="Fit differential preferences for "
+            "each site.")
+    parser.set_defaults(gammaomega=False)
+    parser.add_argument('--gammaomega', dest='gammaomega', action=\
+            'store_true', help="Fit ExpCM with gamma distributed omega.")
     parser.set_defaults(noavgprefs=False)
-    parser.add_argument('--no-avgprefs', dest='noavgprefs', action='store_true', help="No fitting of models with preferences averaged across sites for ExpCM.")
-    parser.add_argument('--dateseqs', default='None', type=ExistingFile, help="See 'phydms' option of the same name.")
-    parser.set_defaults(gammarates=False)
-    parser.add_argument('--gammarates', dest='gammarates', action='store_true', help="See 'phydms' option of the same name.")
-    parser.add_argument('--avgrandcontrol', default='None', type=ExistingFile, help="Fit average and random controls only for ExpCM using this preference file. Overrides '--no-avgprefs' and '--randprefs'.")
-    parser.set_defaults(omegabysite_fixsyn=False)
-    parser.add_argument('--omegabysite_fixsyn', action='store_true', dest='omegabysite_fixsyn', help="See 'phydms' option of the same name.")
-    parser.set_defaults(useLog=False)
-    parser.add_argument('--useLog', action='store_true', dest='useLog', help="See 'phydms' option of the same name.")
-    parser.add_argument('--yngkp', default='M8', help="YNGKP models to use in addition to M0. Should be comma-separated list of models from the following: {0}".format(','.join([m for m in yngkp_modelvariants if m != 'M0'])), type=YNGKPList)
-    parser.add_argument('--ncats', default=6, help="Number of beta-distributed categories for YNGKP M7 and M8.", type=IntGreaterThanZero)
-    parser.add_argument('--diffprefconc', help="Parameters determining the concentration of the regularizing prior over the differential preferences for '--diffprefsbysite'. Defaults to value of the same param for 'phydms'.", type=FloatGreaterThanEqualToZero, nargs=2, metavar=('C1', 'C2'))
+    parser.add_argument('--no-avgprefs', dest='noavgprefs', action='store_true',
+            help="No fitting of models with preferences averaged across sites "
+            "for ExpCM.")
     parser.set_defaults(randprefs=False)
-    parser.add_argument('--randprefs', dest='randprefs', action='store_true', help="Include ExpCM models with randomized preferences.")
-    parser.set_defaults(fitF3X4=False)
-    parser.add_argument('--fitF3X4', dest='fitF3X4', action='store_true', help='Fit F3X4 frequencies for YNGKP; otherwise use empirical')
-    parser.set_defaults(use_existing=False)
-    parser.add_argument('--use_existing', action='store_true', dest='use_existing', help="Use existing 'phydms' output for a model if it exists. BE CAREFUL: no checks are performed to ensure calling options the same.")
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
+    parser.add_argument('--randprefs', dest='randprefs', action='store_true',
+            help="Include ExpCM models with randomized preferences.")
+    parser.add_argument('-v', '--version', action='version', version=
+            '%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
 
 
 def PhyDMSParser():
     """Returns *argparse.ArgumentParser* for ``phydms`` script."""
-    parser = ArgumentParserNoArgHelp(description='Phylogenetic inference using deep mutational scanning data. %s Version %s. Full documentation at %s' % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('alignment', help='Existing FASTA file with aligned codon sequences.', type=ExistingFile)
-    parser.add_argument('tree', help="Existing Newick tree file or 'random' or 'nj'.", type=TreeFile)
-    parser.add_argument('model', help="Codon substitution model: YNGKP_<m> where <m> is {0}; or ExpCM_<prefsfile>".format(', '.join(yngkp_modelvariants)), type=ModelOption)
-    parser.add_argument('outprefix', help='Prefix for output files.', type=str)
+    parser = ArgumentParserNoArgHelp(description=('Phylogenetic analysis '
+            'informed by deep mutational scanning data. {0} Version {1}. Full'
+            ' documentation at {2}').format(phydmslib.__acknowledgments__,
+            phydmslib.__version__, phydmslib.__url__),
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('alignment', type=ExistingFile,
+            help='Existing FASTA file with aligned codon sequences.')
+    parser.add_argument('tree', type=ExistingFile,
+            help="Existing Newick file giving input tree.")
+    parser.add_argument('model', type=ModelOption,
+            help=("Substitution model: ExpCM_<prefsfile> or YNGKP_<m> ("
+            "where <m> is {0}). For ExpCM, <prefsfile> has first "
+            "column labeled 'site' and others labeled by 1-letter "
+            "amino-acid code.").format(', '.join(yngkp_modelvariants)))
+    parser.add_argument('outprefix', help='Output file prefix.', type=str)
+    parser.add_argument('--brlen', choices=['scale', 'optimize'],
+            default='optimize', help=("How to handle branch lengths: "
+            "scale by single parameter or optimize each one"))
+    parser.set_defaults(gammaomega=False)
+    parser.add_argument('--gammaomega', action='store_true',
+            dest='gammaomega', help="Omega for ExpCM from gamma "
+            "distribution rather than single value. To achieve "
+            "same for YNGKP, use 'model' of YNGKP_M5.")
     parser.set_defaults(omegabysite=False)
-    parser.add_argument('--omegabysite', dest='omegabysite', action='store_true', help="Fit a different omega (dN/dS) for each site, similar to FEL.")
-    parser.set_defaults(stringencybysite=False)
-    parser.add_argument('--stringencybysite', dest='stringencybysite', action='store_true', help="Fit a different stringency parameter for each site, only for ExpCM.")
-    parser.set_defaults(diffprefsbysite=False)
-    parser.add_argument('--diffprefsbysite', dest='diffprefsbysite', action='store_true', help="Infer differential preferences for each site, only for ExpCM.")
-    parser.set_defaults(infertopology=False)
-    parser.add_argument('--infertopology', dest='infertopology', action='store_true', help="Infer topology starting from 'tree'; otherwise topology fixed to 'tree'. Requires YNGKP_M0 model.")
-    parser.add_argument('--fixationmodel', default='HalpernBruno', choices=['HalpernBruno', 'FracTolerated', 'gwF'], help='How to calculate the "fixation probabilities" from the preferences.')
-    parser.set_defaults(gammarates=False)
-    parser.add_argument('--gammarates', dest='gammarates', action='store_true', help="Draw the substitution rate from 4-category discrete gamma distribution with optimized shape parameter.")
-    parser.add_argument('--ncats', default=6, help="Number of beta-distributed categories for YNGKP M7 and M8.", type=IntGreaterThanZero)
-    parser.add_argument('--dateseqs', type=ExistingFile, help="Perform least-squares sequence dating. Specify file with column 1 = date, column 2 = sequence header; columns are space delimited.")
-    parser.add_argument('--ncpus', default=1, help='Use this many CPUs; -1 means all available.', type=int)
+    parser.add_argument('--omegabysite', dest='omegabysite',
+            action='store_true', help="Fit omega (dN/dS) for each site.")
     parser.set_defaults(omegabysite_fixsyn=False)
-    parser.add_argument('--omegabysite_fixsyn', dest='omegabysite_fixsyn', action='store_true', help="For '--omegabysite', assign all sites same synonymous rate rather than fitting a different one for each site.")
-    # comment out this option as the 'invquad' prior makes vastly more sense than 'dirichlet'
-    parser.set_defaults(diffprefsprior='invquad')
-    #parser.add_argument('--diffprefsprior', default='invquad', choices=['invquad', 'dirichlet'], help="Prior on diff preferences for '--diffprefsbysite'.")
+    parser.add_argument('--omegabysite_fixsyn', dest='omegabysite_fixsyn',
+            action='store_true', help="For '--omegabysite', assign all "
+            "sites same dS rather than fit for each site.")
+    parser.set_defaults(diffprefsbysite=False)
+    parser.add_argument('--diffprefsbysite', dest='diffprefsbysite',
+            action='store_true', help="Fit differential preferences "
+            "for each site.")
+    parser.add_argument('--diffprefsprior', default='invquadratic,150,0.5',
+            type=diffPrefsPrior, help="Regularizing prior for "
+            "'--diffprefsbysite': 'invquadratic,C1,C2' is prior in "
+            "Bloom, Biology Direct, 12:1.")
+    parser.set_defaults(fitphi=False)
+    parser.add_argument('--fitphi', action='store_true', dest='fitphi',
+            help='Fit ExpCM phi rather than setting so stationary '
+            'state matches alignment frequencies.')
     parser.set_defaults(randprefs=False)
-    parser.add_argument('--randprefs', dest='randprefs', action='store_true', help="Randomize preferences among sites for ExpCM.")
+    parser.add_argument('--randprefs', dest='randprefs', action='store_true',
+            help="Randomize preferences among sites for ExpCM.")
     parser.set_defaults(avgprefs=False)
-    parser.add_argument('--avgprefs', dest='avgprefs', action='store_true', help="Average preferences across sites for ExpCM.")
-    parser.set_defaults(fixbrlen=False)
-    parser.add_argument('--fixbrlen', dest='fixbrlen', action='store_true', help="Fix branch lengths to those of initial 'tree'. Consider using '--addrateparameter' too.")
-    parser.add_argument('--diffprefconc', help="Parameters determining the concentration of the regularizing prior over the differential preferences for '--diffprefsbysite'. Larger values favor smaller diff prefs.", type=FloatGreaterThanEqualToZero, nargs=2, metavar=('C1', 'C2'), default=[150, 0.5])
-    parser.add_argument('--divpressure', type=ExistingFile, help="Specify known diversifying pressure at sites: provide file with column 1 = position, column 2 = diversification pressure; columns are space delimited.")
-    parser.set_defaults(addrateparameter=False)
-    parser.add_argument('--addrateparameter', dest='addrateparameter', action='store_true', help="Add parameter scaling substitution rate. Only allowed with '--fixbrlen'.")
-    parser.set_defaults(fitF3X4=False)
-    parser.add_argument('--fitF3X4', dest='fitF3X4', action='store_true', help='Fit F3X4 frequencies for YNGKP; otherwise use empirical')
-    parser.add_argument('--minbrlen', default=1e-6, help='Min branch length for starting tree.', type=FloatGreaterThanZero)
+    parser.add_argument('--avgprefs', dest='avgprefs', action='store_true',
+            help="Average preferences across sites for ExpCM.")
+    parser.add_argument('--divpressure', type=ExistingFileOrNone,
+            help=("Known diversifying pressure at sites: file with column 1 "
+            "= position, column 2 = diversification pressure; columns space-, "
+            "tab-, or comma-delimited."))
+    parser.add_argument('--ncpus', default=1, type=int,
+            help='Use this many CPUs; -1 means all available.')
+    parser.add_argument('--fitprefsmethod', choices=[1, 2], default=2,
+            help='Implementation to we use when fitting prefs.', type=int)
+    parser.add_argument('--ncats', default=4, type=IntGreaterThanOne,
+            help='Number of categories for gamma-distributed omega.')
+    parser.add_argument('--minbrlen', type=FloatGreaterThanZero,
+            default=phydmslib.constants.ALMOST_ZERO,
+            help="Adjust all branch lengths in starting 'tree' to >= this.")
+    parser.add_argument('--minpref', default=0.002, type=FloatGreaterThanZero,
+            help="Adjust all preferences in ExpCM 'prefsfile' to >= this.")
     parser.add_argument('--seed', type=int, default=1, help="Random number seed.")
-    parser.set_defaults(no_optimize=False)
-    parser.add_argument('--no_optimize', dest='no_optimize', action='store_true', help="Don't optimize tree or model; use values in existing files from previous run with same 'outprefix'.")
-    parser.set_defaults(useLog=False)
-    parser.add_argument('--useLog', dest='useLog', action='store_true', help="Use logarithms in likelihood calculations.")
-    parser.add_argument('--debugsite', type=int, help="For debugging: fit site-specific selection to only this site.")
-    parser.set_defaults(recursion='S')
-    # comment out this option for now as the double recursion seems not to work properly
-    #parser.add_argument('--recursion', choices=['S', 'D'], default='S', help='Likelihood recursion for Bio++.')
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
+    parser.set_defaults(profile=False)
+    parser.add_argument('--profile', dest='profile', action='store_true',
+            help="Profile likelihood maximization, write pstats files. "
+            "For code-development purposes.")
+    parser.add_argument('-v', '--version', action='version', version=(
+            ('%(prog)s {version}'.format(version=phydmslib.__version__))))
     return parser
-    
-    
+
+
 def PhyDMSTestdivpressureParser():
-    """Returns *argparse.ArgumentParser* for ``phdyms_testdivpressure`` script."""
-    parser = ArgumentParserNoArgHelp(description="Test different models of diversifying pressure. This program runs 'phydms' and compares model log likelihoods with and without diversifying pressures. %s Version %s. Full documentation at %s" % (phydmslib.__acknowledgments__, phydmslib.__version__, phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    """Returns *argparse.ArgumentParser* for ``phdyms_testdivpressure``
+        script.
+    """
+    parser = ArgumentParserNoArgHelp(description="Test different models of "
+            "diversifying pressure. {0} Version {1}. Full documentation at {2}"\
+            .format(phydmslib.__acknowledgments__, phydmslib.__version__,\
+            phydmslib.__url__), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('outprefix', help='Prefix for output files.', type=str)
-    parser.add_argument('alignment', help='Existing FASTA file with aligned codon sequences.', type=ExistingFile)
-    parser.add_argument('prefsfile', help='Existing file with site-specific amino-acid preferences.', type=ExistingFile)
-    parser.add_argument('divpressure', help='List of existing files with diversifying pressure at each site', type=ExistingFile, nargs='+')
-    parser.add_argument('--treetopology', help='Fix tree to this Newick topology.', default=None)
-    parser.add_argument('--randomizations', help = 'Number diversifying pressure randomizations.', default=0, type=NonNegativeInt)
-    parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; -1 means all available.', type=int)
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s {version}'.format(version=phydmslib.__version__))
+    parser.add_argument('alignment', help='Existing FASTA file with aligned '
+            'codon sequences.', type=ExistingFile)
+    parser.add_argument('prefsfile', help='Existing file with site-specific'
+            ' amino-acid preferences.', type=ExistingFile)
+    parser.add_argument('divpressure', help='List of existing files with '
+            'diversifying pressure at each site', type=ExistingFile, nargs='+')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--tree', default=False, type=ExistingFile,
+             help="Existing Newick file giving input tree.")
+    group.add_argument('--raxml', help="Path to RAxML (http://sco.h-its.org/"
+            "exelixis/software.html).", default='raxml')
+    parser.add_argument('--randomizations', help = 'Number diversifying '
+            'pressure randomizations.', default=0, type=NonNegativeInt)
+    parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; '
+            '-1 means all available.', type=int)
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s '
+            '{version}'.format(version=phydmslib.__version__))
     return parser
 
 

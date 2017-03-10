@@ -1,6 +1,14 @@
 Changelog
 ===========
 
+2.0.dev0
+-------------
+* Compatible with either Python 2.7 or Python 3.4 or greater.
+
+* Completely re-write of the implementation the likelihood calculations. We eliminate the dependence on ``Bio++`` and instead use custom coded calculations without derivatives. 
+
+* All tree topology inference is eliminated, some options are removed, numerical values are expected to be slightly different, and speed should be greatly enhanced.
+
 1.3.dev0
 -----------
 * Added ``--divpressure`` option for analyzing diversifying pressure at sites.

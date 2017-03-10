@@ -5,7 +5,7 @@ import math
 
 
 def BenjaminiHochbergCorrection(pvals, fdr):
-    """Implements Benjamini-Hochberg procedure to control false discovery rate.
+    """Benjamini-Hochberg procedure to control false discovery rate.
 
     Calling arguments:
  
@@ -49,6 +49,8 @@ def BenjaminiHochbergCorrection(pvals, fdr):
             significantlabels.append(label)
 
     return (pcutoff, significantlabels)
+
+
 
 if __name__ == '__main__':
     import doctest

@@ -1,3 +1,0 @@
-Gamma.alpha = 0.686231
-kappa = 3.120828
-omega = 0.467138

@@ -10,247 +10,127 @@ import os
 import re
 import logging
 import random
-import tempfile
 import time
 import math
 import multiprocessing
+import scipy
 import scipy.stats
-import Bio.SeqRecord
+import statsmodels.sandbox.stats.multicomp
 import Bio.Phylo
-import Bio.Phylo.TreeConstruction
-import Bio.Seq
-import Bio.Alphabet
-import Bio.Alphabet.IUPAC
-import Bio.Align
-import dms_tools.file_io
-import dms_tools.utils
 import phydmslib
+from phydmslib.constants import *
 import phydmslib.file_io
 import phydmslib.parsearguments
-import phydmslib.pybpp
-import phydmslib.pylsd
-import phydmslib.diffpref
+import phydmslib.models
+import phydmslib.treelikelihood
 
 
-def FitDiffPrefsForSite(seqnames, iseqs, treefile, imodel, fixedmodelparams, recursion, stringencyscaledprefs, diffprefsprior, diffprefconc, icodon, useLog, ngammarates, ncats):
-    """Fits preferences for a specific site, to be run in multiprocessing pool."""
-    maxtries = 2 # number of different times we try with slightly different values if optimization fails initially
-    optmethods = ['SLSQP', 'TNC', 'L-BFGS-B'] # try optimization methods in this order
-    start = time.time()
-    initial_useLog = useLog
-    converged = randinitprefs = False
-    ntries = imethod = 0
-    convergencestring = ''
-    while (not converged) and (imethod < len(optmethods)):
-        ntries += 1
-        try:
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=fixedmodelparams, initializemodelparams={}, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=True, recursion=recursion, useLog=useLog, ngammarates=ngammarates, ncats=ncats) 
-            initial_ll = tl.LogLikelihood()
-            (prefs, iconvergencestring, converged) = phydmslib.diffpref.OptimizePrefs(tl, stringencyscaledprefs, site=1, prior=diffprefsprior, concentration=diffprefconc, randinitprefs=randinitprefs, optmethod=optmethods[imethod])
-            convergencestring += '\n' + iconvergencestring
-            tl.SetPreferences(prefs, 1)
-            new_ll = tl.LogLikelihood()
-        except RuntimeError as err:
-            converged = False
-            # catch and try again with different initial values
-            if ntries >= maxtries and imethod + 1 >= len(optmethods):
-                raise RuntimeError("Differential preference optimization failed for site {0}. Here is the full set of errors / attempts:\n{1}\n{2}".format(icodon, convergencestring, repr(err)))
-            else:
-                convergencestring += "\nRetrying optimization for site %d with different initial values for the %d time after catching this error: %s" % (icodon, ntries, repr(err))
-        randinitprefs = ntries
-        if (not converged) and ntries <= maxtries:
-            convergencestring += "\nRetrying optimization for site %d with different initial values for the %d time after convergence failed" % (icodon, ntries)
-        elif converged and (new_ll < initial_ll):
-            converged = False
-            convergencestring += '\nOptimization failed with new LnL of {0} that exceeds initial LnL of {1}'.format(new_ll, initial_ll)
-        if (not converged) and (ntries >= maxtries):
-            ntries = 0
-            randinitprefs = False
-            if initial_useLog == useLog:
-                useLog = not useLog
-                convergencestring += '\nSwitching to a value of useLog = {0} for site {1}'.format(useLog, icodon)
-            else:
-                useLog = initial_useLog
-                imethod += 1
-                if imethod < len(optmethods):
-                    convergencestring += "\nSwitching to optimization method %s for site %d due to failures with method %s" % (optmethods[imethod], icodon, optmethods[imethod - 1])
-    return (prefs, new_ll, initial_ll, convergencestring, converged, time.time() - start)
+def treelikForDiffPrefsBySite(site, tl, prefslist, prior, modeltype):
+    """Returns `TreeLikelihood` for fitting diffprefs for a site.
+
+    The returned value can be passed to `fitDiffPrefsBySite`."""
+    sitealignment = [(head, seq[3 * (site - 1) : 3 * site]) for
+            (head, seq) in tl.alignment]
+    gammaomegamodel = False
+    if isinstance(tl.model, phydmslib.models.GammaDistributedOmegaModel):
+        basemodel = tl.model.basemodel
+        assert type(basemodel) in [phydmslib.models.ExpCM, 
+                phydmslib.models.ExpCM_empirical_phi]
+        sitemodel = modeltype([prefslist[site - 1]],
+                prior, basemodel.kappa, basemodel.omega, basemodel.phi,
+                origbeta=basemodel.beta, freeparams=['zeta', 'omega'])
+        sitemodel = phydmslib.models.GammaDistributedOmegaModel(sitemodel,
+                tl.model.ncats, tl.model.alpha_omega, tl.model.beta_omega,
+                freeparams=[])
+    else:
+        assert type(tl.model) in [phydmslib.models.ExpCM, 
+                phydmslib.models.ExpCM_empirical_phi]
+        sitemodel = modeltype([prefslist[site - 1]],
+                prior, tl.model.kappa, tl.model.omega, tl.model.phi,
+                origbeta=tl.model.beta, freeparams=['zeta'])
+    assert sitemodel.freeparams == ['zeta']
+    treelik = phydmslib.treelikelihood.TreeLikelihood(
+            tl.tree, sitealignment, sitemodel,
+            branchScale=tl.model.branchScale)
+    return (site, treelik)
 
 
-def FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodelparams, stringencyparameter, recursion, diffprefsprior, diffprefconc, ncpus, logger, useLog, ngammarates, ncats, fixationmodel):
-    """Fits a different preference to each site in a multiprocessing pool."""
-    pool = multiprocessing.Pool(ncpus)
-    diffprefs = {}
-    poolresults = {}
-    stringencyscaledprefs = {}
-    for icodon in codons:
-        iseqs = [seq[3 * icodon  - 3 : 3 * icodon] for seq in seqs]
-        stringencyscaledprefs[icodon] = dict([(aa, pref**stringencyparameter) for (aa, pref) in aaprefs[icodon].items()])
-        prefsum = float(sum(stringencyscaledprefs[icodon].values()))
-        stringencyscaledprefs[icodon] = dict([(aa, pref / prefsum) for (aa, pref) in stringencyscaledprefs[icodon].items()])
-        imodel = ('ExpCM', {1:stringencyscaledprefs[icodon]}, None, fixationmodel)
-        poolresults[icodon] = pool.apply_async(FitDiffPrefsForSite, (seqnames, iseqs, treefile, imodel, fixedmodelparams, recursion, stringencyscaledprefs[icodon], diffprefsprior, diffprefconc, icodon, useLog, ngammarates, ncats))
-    completed = dict([(icodon, False) for icodon in codons])
-    while not all(completed.values()):
-        time.sleep(1)
-        for icodon in codons:
-            if poolresults[icodon].ready() and not completed[icodon]:
-                try:
-                    (iprefs, new_ll, initial_ll, convergencestring, converged, itime) = poolresults[icodon].get()
-                except:
-                    logger.error("Problem fitting diff prefs by site to site %d" % icodon)
-                    raise
-                idiffprefs = dict([(x, iprefs[x] - stringencyscaledprefs[icodon][x]) for x in iprefs.keys()])
-                rmsdiffpref = math.sqrt(sum([x**2 for x in idiffprefs.values()]) / float(len(idiffprefs.values())))
-                logger.info("For site %d, fit preferences to natural sequences in %.1f seconds. The increase in log likelihood was %.3g, and the RMS difference in preference is %.3f. Here are the differences in preferences:\n\t%s\n" % (icodon, itime, new_ll - initial_ll, rmsdiffpref, ', '.join(['%s = %.3f' % tup for tup in idiffprefs.items()])))
-                if not converged:
-                    raise RuntimeError("Diff pref optimization failed to converge for site %d. Here is the optimization message:\n%s" % (icodon, convergencestring))
-                assert (new_ll - initial_ll) > -0.5, "Log likelihood of %g with optimized prefs is substantially greater than initial log likelihood of %g for site %d. This indicates a problem with the optimization." % (new_ll, initial_ll, icodon)
-                diffprefs[str(icodon)] = idiffprefs
-                completed[icodon] = True
-    pool.terminate()
-    assert len(diffprefs) == len(codons)
-    return diffprefs
-
-
-
-def FitStringencyForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedstringencyvalue, treefile, recursion, useLog, ngammarates, ncats, numericaladjust=False):
-    """Fits stringency for a specific site, to be run in multiprocessing pool.
+def fitDiffPrefsBySite(argtup):
+    """Fits diffprefs for a site, use in a multiprocessing pool.
     
-    *numericaladjust* is used for a recursive call that slightly adjusts (rounds) the model parameters.
-    This a bit of a hack, but the rationale is as follows. Rarely, the fitting appears to fit strange
-    nonsensical values with very large stringency values that appear to be due to some numerical issue. 
-    In trying to reproduce this,
-    I found that even slightly adjusting the parameters makes it go away.
-    """
-    if numericaladjust:
-        ifixedmodelparams = dict([(param, float("%.5f" % value)) for (param, value) in fixedmodelparams.items()])
-        fixedstringencyvalue = float("%.5f" % fixedstringencyvalue)
-    iresults = {}
-    start = time.time()
-    for fitstringency in ['fitted', 'fixed']:
-        ifixedmodelparams = dict([(param, value) for (param, value) in fixedmodelparams.items()])
-        if fitstringency == 'fixed':
-            initializemodelparams = {}
-            ifixedmodelparams['stringencyparameter'] = fixedstringencyvalue
-        else:
-            initializemodelparams = {'stringencyparameter':fixedstringencyvalue}
-        tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, initializemodelparams=initializemodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=False, prefsasparams=False, recursion=recursion, useLog=useLog, ngammarates=ngammarates, ncats=ncats) 
-        tl.OptimizeLikelihood()
-        iresults["LnL_%s" % fitstringency] = tl.LogLikelihood()
-        if fitstringency == 'fitted':
-            iresults['stringency'] = tl.ModelParams(True)['stringencyparameter']
-            iresults['stringency_ratio'] = iresults['stringency'] / fixedstringencyvalue
-    iresults['dLnL'] = iresults['LnL_fitted'] - iresults['LnL_fixed']
-    if (not numericaladjust) and (abs(iresults['dLnL']) > 30 and (iresults['stringency_ratio'] > 5 or iresults['stringency_ratio'] < 0.2)):
-        # suspicious values, try fitting with a numerical adjust
-        return FitStringencyForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedstringencyvalue, treefile, recursion, useLog, ngammarates, ncats, numericaladjust=True)
-    iresults['P'] = scipy.stats.chi2.sf(2.0 * iresults['dLnL'], df=1)
-    return (iresults, time.time() - start)
-
-
-
-def FitStringencyBySitePool(codons, seqnames, seqs, aaprefs, fixedmodelparams, fixedstringencyvalue, treefile, recursion, ncpus, logger, useLog, ngammarates, ncats, fixationmodel):
-    """Fits a different stringency to each site in a multiprocessing pool."""
-    pool = multiprocessing.Pool(ncpus)
-    fitstringencyresults = {}
-    poolresults = {}
-    for icodon in codons:
-        iseqs = [seq[3 * icodon  - 3 : 3 * icodon] for seq in seqs]
-        imodel = ('ExpCM', {1:aaprefs[icodon]}, None, fixationmodel)
-        poolresults[icodon] = pool.apply_async(FitStringencyForSite, (seqnames, iseqs, imodel, fixedmodelparams, fixedstringencyvalue, treefile, recursion, useLog, ngammarates, ncats))
-    completed = dict([(icodon, False) for icodon in codons])
-    while not all(completed.values()):
-        time.sleep(1)
-        for icodon in codons:
-            if poolresults[icodon].ready() and not completed[icodon]:
-                try:
-                    (fitstringencyresults[icodon], itime) = poolresults[icodon].get()
-                except:
-                    logger.error("Problem fitting stringency by site to site %d" % icodon)
-                    raise
-                completed[icodon] = True
-                logger.info('For site %d, fitting a stringency ratio of %.2f (fitted value of %.2f versus gene value of %.2f) increases LnL by %.2f (P-value %.2g). Fitting took %.1f seconds.\n' % (icodon, fitstringencyresults[icodon]['stringency_ratio'], fitstringencyresults[icodon]['stringency'], fixedstringencyvalue, fitstringencyresults[icodon]['dLnL'], fitstringencyresults[icodon]['P'], itime))
-    pool.terminate()
-    assert len(fitstringencyresults) == len(codons)
-    return fitstringencyresults
-
-
-
-def FitOmegaForSite(seqnames, iseqs, imodel, fixedmodelparams, fixedomegavalue, treefile, recursion, omegabysite_fixsyn, useLog, ngammarates, ncats):
-    """Fits omega for a specific site, to be run in multiprocessing pool."""
-    iresults = {}
-    start = time.time()
-    for fitomega in ['fitted', 'fixed']:
-        ifixedmodelparams = dict([(param, value) for (param, value) in fixedmodelparams.items()])
-        if fitomega == 'fixed':
-            ifixedmodelparams['omega'] = fixedomegavalue
-            initializemodelparams = {}
-        else:
-            initializemodelparams = {'omega':fixedomegavalue}
-        tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, iseqs, treefile, imodel, infertopology=False, fixedmodelparams=ifixedmodelparams, initializemodelparams=initializemodelparams, oldlikelihoodmethod=False, fixbrlen=True, addrateparameter=(not omegabysite_fixsyn), prefsasparams=False, recursion=recursion, useLog=useLog, ngammarates=ngammarates, ncats=ncats) 
-        tl.OptimizeLikelihood()
-        iresults["LnL_%s" % fitomega] = tl.LogLikelihood()
-        if fitomega == 'fitted':
-            iresults['omega'] = tl.ModelParams(True)['omega']
-    iresults['dLnL'] = iresults['LnL_fitted'] - iresults['LnL_fixed']
-    iresults['P'] = scipy.stats.chi2.sf(2.0 * iresults['dLnL'], df=1)
-    return (iresults, time.time() - start)
-
-
-def FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams, fixedomegavalue, treefile, recursion, ncpus, logger, omegabysite_fixsyn, useLog, ngammarates, ncats, fixationmodel):
-    """Fit a different omega to each site in a multiprocessing pool running *ncpus*."""
-    pool = multiprocessing.Pool(ncpus)
-    fitomegaresults = {}
-    poolresults = {}
-    for icodon in codons:
-        if model[ : 7] == 'YNGKP_M':
-            imodel = 'YNGKP_M0_fitF3X4' # single omega for the site, M0 model
-        elif isinstance(model, tuple) and model[0] == 'ExpCM':
-            imodel = ('ExpCM', {1:aaprefs[icodon]}, None, fixationmodel)
-        else:
-            raise ValueError("Invalid model")
-        iseqs = [seq[3 * icodon  - 3 : 3 * icodon] for seq in seqs]
-        poolresults[icodon] = pool.apply_async(FitOmegaForSite, (seqnames, iseqs, imodel, fixedmodelparams, fixedomegavalue, treefile, recursion, omegabysite_fixsyn, useLog, ngammarates, ncats))
-    completed = dict([(icodon, False) for icodon in codons])
-    while not all(completed.values()):
-        time.sleep(1)
-        for icodon in codons:
-            if poolresults[icodon].ready() and not completed[icodon]:
-                try:
-                    (fitomegaresults[icodon], itime) = poolresults[icodon].get()
-                except:
-                    logger.error("Problem fitting omega by site to site %d" % icodon)
-                    raise
-                completed[icodon] = True
-                logger.info('For site %d, fitting omega to %.2f increases LnL by %.2f relative to fixing omega at %.2f (P-value %.2g). Fitting took %.1f seconds.\n' % (icodon, fitomegaresults[icodon]['omega'], fitomegaresults[icodon]['dLnL'], fixedomegavalue, fitomegaresults[icodon]['P'], itime))
-    pool.terminate()
-    assert len(fitomegaresults) == len(codons)
-    return fitomegaresults
+    `argtup` is return value of `treelikForDiffPrefsBySite`.
     
-def ReadDivPressure(fileName):
-    """Read in diversifying pressure file and return dictionary of sites their corresponding diversifying pressure."""
-    with open(fileName) as f:
-        lines = [line for line in f.readlines() if (not line.isspace()) and line[0] != '#']
-        divPressure = {}
-        for line in lines:
-            entries = line.split()
-            try:
-                assert len(entries) ==2
-                site = int(entries[0])
-                divValue = float(entries[1])
-            except:
-                raise ValueError("Not an integer followed by a float in line of {0}: \n{1}".format(fileName,line))
-            assert site not in divPressure, "Duplicate diversifying pressure specified for site {0}".format(site)
-            divPressure[site] = divValue
-    return divPressure
+    The return value is a tuple of half the absolute total diffpref,
+    then a tab-separated string describing the results for the site."""
+    (site, treelik) = argtup
+    maxresult = treelik.maximizeLikelihood(optimize_brlen=False)
+    diffprefs = treelik.model.pi[0] - treelik.model.origpi[0]
+    resultstr = [str(site)] + ['{0:.4f}'.format(diffprefs[a])
+            for a in range(N_AA)]
+    halfabssum = 0.5 * scipy.absolute(diffprefs).sum()
+    resultstr.append('{0:.4f}'.format(halfabssum))
+    return (halfabssum, '\t'.join(resultstr))
+
+
+def treeliksForOmegaBySite(site, tl, prefslist, fixsyn):
+    """Returns `TreeLikelihoods` for fitting omega for a site.
+
+    The returned value can be passed to `fitOmegaBySite`."""
+    if isinstance(tl.model, phydmslib.models.DistributionModel):
+        assert isinstance(tl.model, phydmslib.models.GammaDistributedOmegaModel)
+        modeltotype = tl.model.basemodel
+    else:
+        modeltotype = tl.model
+    sitealignment = [(head, seq[3 * (site - 1) : 3 * site]) for
+            (head, seq) in tl.alignment]
+    freeparams = [] if fixsyn else ['mu']
+    treeliks = {}
+    for (name, addparam) in [('fix', []), ('fit', ['omega'])]:
+        if isinstance(modeltotype, phydmslib.models.ExpCM):
+            assert len(prefslist) == tl.nsites
+            sitemodel = phydmslib.models.ExpCM([prefslist[site - 1]],
+                    kappa=tl.model.kappa, omega=1.0, beta=tl.model.beta,
+                    mu=1.0, phi=modeltotype.phi,
+                    freeparams=(freeparams + addparam))
+        elif isinstance(modeltotype, phydmslib.models.YNGKP_M0):
+            assert prefslist is None
+            sitemodel = phydmslib.models.YNGKP_M0(modeltotype.e_pw,
+                    1, kappa=tl.model.kappa, omega=1.0, mu=1.0,
+                    freeparams=(freeparams + addparam))
+        else:
+            raise ValueError("Invalid modeltotype {0}".format(modeltotype))
+        treeliks[name] = phydmslib.treelikelihood.TreeLikelihood(
+                tl.tree, sitealignment, sitemodel,
+                branchScale=tl.model.branchScale)
+    return (site, treeliks)
+
+
+def fitOmegaBySite(argtup):
+    """Fits omega for a site, for use in multiprocessing pool.
+
+    `argtup` is return value of `treeliksForOmegaBySite`.
+
+    Returns tuple of P-value, tab-separated line with site, omega, P, dLnL"""
+    (site, treeliks) = argtup
+    for name in ['fix', 'fit']:
+        if treeliks[name].model.freeparams: # can be no params if using fixsyn
+            result = treeliks[name].maximizeLikelihood(optimize_brlen=False)
+        if name == 'fit':
+            omega = treeliks[name].model.omega
+    dLnL = treeliks['fit'].loglik - treeliks['fix'].loglik
+    if dLnL < -0.01:
+        msg = '\nsite {0}'.format(site)
+        for name in ['fix', 'fit']:
+            msg += '\nloglik_{0} {1}'.format(name, treeliks[name].loglik)
+            msg += '\nmu_{0} {1}'.format(name, treeliks[name].model.mu)
+            msg += '\nomega_{0} {1}'.format(name, treeliks[name].model.omega)
+        raise RuntimeError("loglik higher for fit omega:{0}".format(msg))
+    p = scipy.stats.chi2.sf(2.0 * max(0, dLnL), df=1)
+    return (p, '{0}\t{1:.3f}\t{2:.3g}\t{3:.3f}'.format(site, omega, p, dLnL))
 
 
 def main():
     """Main body of script."""
-
-    # some regular expressions used later
-    yngkp_match = re.compile('^YNGKP_M(?P<modelvariant>\d+)$')
 
     # Parse command line arguments
     parser = phydmslib.parsearguments.PhyDMSParser()
@@ -265,22 +145,16 @@ def main():
                 os.remove(outdir)
             os.mkdir(outdir)
 
-    # name files, remove if they already exist
-    modelparamsfile = '%s_modelparams.txt' % args['outprefix']
-    loglikelihoodfile = '%s_loglikelihood.txt' % args['outprefix']
-    treefile = "%s_tree.newick" % args['outprefix']
-    omegafile = '%s_omegabysite.txt' % args['outprefix']
-    stringencyfile = '%s_stringencybysite.txt' % args['outprefix']
-    diffprefsfile = '%s_diffprefsbysite.txt' % args['outprefix']
-    sumabsdiffprefsfile = '%s_diffprefsbysite_sumabs.txt' % args['outprefix']
-    datedtreefile = '%s_datedtree.newick' % args['outprefix']
-    mrcadatefile = '%s_mrca_date.txt' % args['outprefix']
-    logfile = "%s.log" % args['outprefix']
-    if args['no_optimize']:
-        to_remove = [omegafile, stringencyfile, diffprefsfile, sumabsdiffprefsfile, datedtreefile, mrcadatefile, logfile]
-        assert os.path.abspath(args['tree']) == os.path.abspath(treefile), "When using --no_optimize, you must set 'tree' to the name of the file that would be expected to be created for this 'outprefix', which is %s in this case" % treefile
-    else:
-        to_remove = [modelparamsfile, loglikelihoodfile, treefile, omegafile, stringencyfile, diffprefsfile, sumabsdiffprefsfile, datedtreefile, mrcadatefile, logfile]
+    # output files, remove if they already exist
+    underscore = '' if args['outprefix'][-1] == '/' else '_'
+    logfile = '{0}{1}log.log'.format(args['outprefix'], underscore)
+    modelparamsfile = '{0}{1}modelparams.txt'.format(args['outprefix'], underscore)
+    loglikelihoodfile = '{0}{1}loglikelihood.txt'.format(args['outprefix'], underscore)
+    treefile = '{0}{1}tree.newick'.format(args['outprefix'], underscore)
+    omegafile = '{0}{1}omegabysite.txt'.format(args['outprefix'], underscore)
+    diffprefsfile = '{0}{1}diffprefsbysite.txt'.format(args['outprefix'], underscore)
+    to_remove = [modelparamsfile, loglikelihoodfile, treefile, omegafile, 
+            logfile, diffprefsfile]
     for f in to_remove:
         if os.path.isfile(f):
             os.remove(f)
@@ -288,8 +162,9 @@ def main():
     # Set up to log everything to logfile.
     logging.shutdown()
     logging.captureWarnings(True)
-    versionstring = phydmslib.file_io.Versions() 
-    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
+    versionstring = phydmslib.file_io.Versions()
+    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
+            level=logging.INFO)
     logger = logging.getLogger(prog)
     logfile_handler = logging.FileHandler(logfile)
     logger.addHandler(logfile_handler)
@@ -298,331 +173,299 @@ def main():
 
     # begin execution
     try:
-
         # print some basic information
-        logger.info('Beginning execution of %s in directory %s\n' % (prog, os.getcwd()))
-        logger.info('Progress is being logged to %s\n' % logfile)
-        logger.info("%s\n" % versionstring)
-        logger.info('Parsed the following command-line arguments:\n%s\n' % '\n'.join(['\t%s = %s' % tup for tup in args.iteritems()]))
-
-        logger.info('Seeding random number generator with %d\n' % args['seed'])
+        logger.info('Beginning execution of {0} in directory {1}\n'.format(
+                prog, os.getcwd()))
+        logger.info('Progress is being logged to {0}\n'.format(logfile))
+        logger.info("{0}\n".format(versionstring))
+        logger.info('Parsed the following arguments:\n{0}\n'.format(
+                '\n'.join(['\t{0} = {1}'.format(*tup) for tup in args.items()])))
+        logger.info('Random number seed: {0}\n'.format(args['seed']))
         random.seed(args['seed'])
 
-        # some checks on arguments
-        if args['tree'] == 'random' and not args['infertopology']:
-            raise ValueError("It does not make sense to use ``tree`` of *random* without also using ``--infertopology``")
-        if args['fixbrlen'] and args['infertopology']:
-            raise ValueError("It does not make sense to ``--fixbrlen`` with ``--infertopology``")
-        if args['addrateparameter'] and not args['fixbrlen']:
-            raise ValueError("It does not make sense to use --addrateparameter without also using --fixbrlen, as otherwise branch lengths are already scaled by rate.")
-
         # read alignment
-        logger.info('Reading alignment from %s' % args['alignment'])
-        alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'], checknewickvalid=True)
+        logger.info('Reading alignment from {0}'.format(args['alignment']))
+        alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'],
+                checknewickvalid=True)
+        logger.info(('Read {0} aligned sequences from {1}, each consisting '
+                'of {2} codons.\n').format(len(alignment), args['alignment'],
+                len(alignment[0][1]) // 3))
         seqnames = set([head for (head, seq) in alignment])
-        logger.info('Read %d aligned codon sequences from %s. Each sequence consists of %d codons.\n' % (len(alignment), args['alignment'], len(alignment[0][1]) // 3))
-
-        # read the dates
-        if args['dateseqs']:
-            dates = {}
-            with open(args['dateseqs']) as f:
-                for line in f:
-                    if line.isspace() or line[0] == '#':
-                        continue
-                    entries = line.strip().split(None, 1)
-                    if len(entries) != 2:
-                        raise IOError("Not two entries in {0}\nOffending line:\n{1}".format(args['dateseqs'], line))
-                    try:
-                        date = float(entries[0])
-                    except ValueError:
-                        raise IOError("Not a numerical date in first entrly of line in {0}\nOffending line:\n{1}".format(args['dateseqs'], line))
-                    assert entries[1] not in dates, "Duplicate sequence name {0} in {1}".format(entries[1], args['dateseqs'])
-                    dates[entries[1]] = date
-            if seqnames != set(dates.keys()):
-                raise ValueError(
-                    ("Failed to match all sequence names in {0} to headers in {1}\n" +
-                    "The following are in {0} but not {1}:\n{2}\n" +
-                    "The following are in {1} but not {0}:\n{3}\n").format(
-                        args['dateseqs'],
-                        args['alignment'],
-                        '\n'.join(set(dates.keys()) - seqnames),
-                        '\n'.join(seqnames - set(dates.keys()))
-                        ))
-
-        # process gamma rates
-        if args['gammarates']:
-            ngammarates = 4
-            logger.info("The substitution rate will be drawn from {0} gamma-distributed categories with the shape estimated by maximum likelihood.\n".format(ngammarates))
-        else:
-            ngammarates = 1
-            logger.info("There will be a single constant substitution rates.\n")
 
         # process the substitution model
+        yngkp_match = re.compile('^YNGKP_(?P<modelvariant>M\d+)$')
         if isinstance(args['model'], str) and yngkp_match.search(args['model']):
-            for argname in ['stringencybysite', 'diffprefsbysite', 'randprefs', 'avgprefs', 'divpressure']:
-                if args[argname]:
-                    raise ValueError("You can use '--%s' only with an ExpCM model" % argname)
+            for argname in ['randprefs', 'avgprefs', 'divpressure', 'diffprefsbysite']:
+                assert not args[argname], "'--{0}' incompatible with YNKGP".format(
+                            argname)
+            assert not args['gammaomega'], ("Can't use --gammaomega with YNGKP "
+                    "model; use 'model' of YNGKP_M5 to achieve the same result.")
             modelvariant = yngkp_match.search(args['model']).group('modelvariant')
-            if args['infertopology'] and int(modelvariant) != 0:
-                raise ValueError("You cannot use '--infertopology' with model %s" % args['model'])
-            logger.info('The codon substitution model with be the M%s version of YNGKP (Yang, Nielsen, Goldman, and Pederson. Genetics. 155:431-449).' % modelvariant)
-            if args['fitF3X4']:
-                logger.info('The codon equilibrium frequencies will be set by F3X4, optimizing the nine nucleotide frequencies by maximum likelihood.\n')
-                model = args['model'] + '_fitF3X4'
+            logger.info(('Codon substitution model with be {0} version '
+                    'of YNGKP (Yang, Nielsen, Goldman, & Pederson. Genetics. '
+                    '155:431-449).').format(modelvariant))
+            e_pw = scipy.ones((3,phydmslib.constants.N_NT), dtype='float')
+            for p in range(3):
+                for (w, nt) in phydmslib.constants.INDEX_TO_NT.items():
+                    e_pw[p][w] = sum([list(seq)[p::3].count(nt) for (head, seq)
+                            in alignment])
+            e_pw = e_pw / e_pw.sum(axis=1)[0]
+            nsites = int(len(alignment[0][1]) / 3)
+            model = phydmslib.models.YNGKP_M0(e_pw, nsites, freeparams=
+                    ['mu', 'omega', 'kappa'])
+            if modelvariant == 'M0':
+                pass
+            elif modelvariant == 'M5':
+                logger.info(('For this {0} model, omega will be drawn from '
+                        '{1} gamma-distributed categories.').format(
+                        args['model'], args['ncats']))
+                model = phydmslib.models.GammaDistributedOmegaModel(
+                        model, args['ncats'])
             else:
-                logger.info('The codon equilibrium frequencies will be set by F3X4, estimating the nine nucleotide frequencies empirically from the alignment frequencies.\n')
-                model = args['model'] + '_empF3X4'
-        elif isinstance(args['model'], tuple) and len(args['model']) == 2 and args['model'][0] == 'ExpCM':
-            assert not args['infertopology'], "You cannot use '--infertopology' with ExpCM"
-            assert not args['fitF3X4'], "You cannot use '--fitF3X4' with ExpCM"
-            prefsfilename = args['model'][1]
-            logger.info('The codon substitution model will be experimentally informed by the site-specific amino-acid preferences in %s' % prefsfilename)
-            logger.info('The fixation probabilities will be computed using the {0} method.'.format(args['fixationmodel']))
-            (sites, wts, pi_means, pi_95credint, h) = dms_tools.file_io.ReadPreferences(prefsfilename)
-            if len(sites) != len(alignment[0][1]) // 3:
-                raise ValueError("The number of amino-acid preferences in %s does not match the number of codon sites in the alignment" % prefsfilename)
-            if not all([r.isdigit() for r in sites]):
-                raise ValueError("All sites in preferences file must be integers")
-            sites = [int(r) for r in sites]
-            assert len(set(sites)) == len(sites), "There are non-unique sites in the preferences file"
-            if not (min(sites) == 1 and max(sites) - min(sites) == len(sites) - 1):
-                raise ValueError("Sites in preferences file must start at 1 and be consecutive")
-            if args['divpressure']:
-                for otherarg in ['stringencybysite', 'omegabysite', 'diffprefsbysite']:
-                    if args[otherarg]:
-                        raise ValueError("You cannot simultaneously use --divpressure and --{0}".format(otherarg))
-                divpressure = ReadDivPressure(args['divpressure'])
-                assert set(divpressure.keys()) == set(sites), "The site labels must be the same for diversifying pressure and preferences"
-                logger.info('Successfully read diversifying pressure from %s for all %s sites.',args['divpressure'], len(divpressure.keys()))
+                raise ValueError("Invalid variant {0} in {1}".format(
+                        modelvariant, args['model']))
+            prefslist = None
+        elif (isinstance(args['model'], tuple) and len(args['model']) == 2 and
+                args['model'][0] == 'ExpCM'):
+            prefsfile = args['model'][1]
+            logger.info(('The model will be an ExpCM informed by site-specific '
+                    'amino-acid preferences in {0}').format(prefsfile))
+            for (argname, desc) in [('avgprefs', 'averaged'),
+                    ('randprefs', 'randomized')]:
+                if args[argname]:
+                    logger.info('Preferences will be {0} across sites.'.format(desc))
+            prefs = phydmslib.file_io.readPrefs(prefsfile, minpref=args['minpref'],
+                    avgprefs=args['avgprefs'], randprefs=args['randprefs'],
+                    seed=args['seed'])
+            sites = sorted(prefs.keys())
+            prefslist = [prefs[r] for r in sites] # convert from dict to list
+            assert len(prefs) == len(alignment[0][1]) // 3, ("The number of "
+                    "preferences in {0} does not match the number of codon "
+                    "sites in the alignment").format(prefsfile)
+            logger.info(('Successfully read site-specific amino-acid preferences '
+                    'for all {0} sites.\n').format(len(prefs)))
+            freeparams = ['mu', 'kappa', 'omega', 'beta']
+            if args['fitphi']:
+                assert not args['divpressure'], (
+                        "Can't use --divpressure and --fitphi")
+                freeparams.append('eta')
+                logger.info('Nucleotide frequency parameters phi will '
+                        'be optimized by maximum likelihood.\n')
+                model = phydmslib.models.ExpCM(prefslist, freeparams=freeparams)
             else:
-                divpressure = None
-            pi_means = dms_tools.utils.RemoveStopFromPreferences(pi_means)
-            aas = pi_means['1'].keys()
-            if set(aas) != set(Bio.Alphabet.IUPAC.IUPACProtein.letters):
-                raise ValueError("Preferences are not specified for the 20 amino acids")
-            assert all([set(aas) == set(ipi.keys()) for ipi in pi_means.values()]), "Not same amino acid keys for all sites"
-            aaprefs = dict([(int(r), rprefs) for (r, rprefs) in pi_means.items()])
-            logger.info('Successfully read site-specific amino-acid preferences for all %d sites.\n' % len(aaprefs))
-            if args['randprefs']:
-                assert not args['avgprefs'], "Cannot use both '--randprefs' and '--avgprefs'"
-
-                logger.info("Now randomizing these amino-acid preferences among sites.\n")
-                rs = [r for r in aaprefs.keys()]
-                aaprefs = [rprefs for rprefs in aaprefs.values()]
-                random.shuffle(rs)
-                aaprefs = dict(zip(rs, aaprefs))
-            elif args['avgprefs']:
-                assert not args['randprefs'], "Cannot use both '--randprefs' and '--avgprefs'"
-                logger.info("Now averaging these amino-acid preferences across sites.\n")
-                avg_prefs = dict([(aa, 0.0) for aa in aas])
-                for rprefs in aaprefs.values():
-                    for aa in aas:
-                        avg_prefs[aa] += rprefs[aa]
-                for aa in aas:
-                    avg_prefs[aa] /= float(len(aaprefs))
-                for r in aaprefs.keys():
-                    aaprefs[r] = avg_prefs
-            model = ('ExpCM', aaprefs, divpressure, args['fixationmodel'])
+                g = scipy.ndarray(phydmslib.constants.N_NT, dtype='float')
+                for (w, nt) in phydmslib.constants.INDEX_TO_NT.items():
+                    g[w] = sum([seq.count(nt) for (head, seq) in alignment])
+                assert len(alignment) * len(prefs) * 3 == (g.sum() +
+                        sum([seq.count('-') for (head, seq) in alignment])), (
+                        "Alignment contains invalid nucleotide characters")
+                g /= g.sum()
+                logger.info('Nucleotide frequency parameters phi will be '
+                        'set so stationary state matches alignment '
+                        'nucleotide frequencies of {0}\n'.format(
+                        ', '.join(['{0} = {1:.3f}'.format(nt, g[w]) for
+                        (w, nt) in phydmslib.constants.INDEX_TO_NT.items()])))
+                if not args['divpressure']:
+                    model = phydmslib.models.ExpCM_empirical_phi(prefslist, g,
+                        freeparams=freeparams)
+                else:
+                    for otherarg in ['omegabysite', 'diffprefsbysite']:
+                        if otherarg in args and args[otherarg]:
+                            raise ValueError("Can't use --divpressure and "
+                                    "--{0}".format(otherarg))
+                    freeparams.append('omega2')
+                    divpressure = phydmslib.file_io.readDivPressure(
+                            args['divpressure'])
+                    assert set(prefs.keys()) == set(divpressure.keys()), (
+                            "The sites in {0} are different from {1}.".format(
+                            args['divpressure'], prefsfile))
+                    logger.info(('Read diversifying pressure from {0} '
+                            'for all sites.').format(args['divpressure']))
+                    divPressureSites = list(divpressure.keys())
+                    divpressure = scipy.array([divpressure[x] for x in
+                            sorted(divPressureSites)])
+                    model = phydmslib.models.ExpCM_empirical_phi_divpressure(
+                            prefslist, g, divpressure, freeparams=freeparams)
+            if args['gammaomega']:
+                logger.info(('Omega will be drawn from {0} gamma-distributed '
+                            'categories.\n').format(args['ncats']))
+                model = phydmslib.models.GammaDistributedOmegaModel(
+                        model, args['ncats'])
         else:
-            raise ValueError("Invalid model of %s" % args['model'])
+            raise ValueError("Invalid model of {0}".format(args['model']))
 
-        # read or create the tree
-        if args['tree'] == 'random':
-            assert not args['no_optimize'], "Cannot use --no_optimize with tree of 'random'"
-            logger.info("Creating a random initial tree.")
-            tree = Bio.Phylo.BaseTree.Tree.randomized(seqnames, branch_length=1.0)
-        elif args['tree'] == 'nj':
-            assert not args['no_optimize'], "Cannot use --no_optimize with tree of 'nj'"
-            logger.info('Creating an initial tree from nucleotide sequences by neighbor joining using a crude identity scoring matrix...')
-            msa = Bio.Align.MultipleSeqAlignment([Bio.SeqRecord.SeqRecord(Bio.Seq.Seq(seq, Bio.Alphabet.generic_dna), id=head) for (head, seq) in alignment])
-            calculator = Bio.Phylo.TreeConstruction.DistanceCalculator('identity')
-            tree = Bio.Phylo.TreeConstruction.DistanceTreeConstructor(calculator, 'nj').build_tree(msa)
-            logger.info("Finished creating a crude neighbor-joining initial tree.")
-        else:
-            logger.info("Reading tree from %s" % args['tree'])
-            tree = Bio.Phylo.read(args['tree'], 'newick')
+        # read tree
+        logger.info("Reading tree from {0}".format(args['tree']))
+        tree = Bio.Phylo.read(args['tree'], 'newick')
         tipnames = set([clade.name for clade in tree.get_terminals()])
-        if tipnames != seqnames:
-            raise ValueError("The sequence names in alignment do not match those in tree.\nSequences in alignment but NOT in tree:\n\t%s\nSequences in tree but NOT in alignment:\n\t%s" % ('\n\t'.join(seqnames - tipnames), '\n\t'.join(tipnames - seqnames)))
-        logger.info('This tree has %d tips nodes, matching the sequences in alignment.' % len([clade.name for clade in tree.get_terminals()]))
-        # next 4 lines necessary for biopython <= 1.66, which fails on trees with negative branch lengths
+        assert len(tipnames) == tree.count_terminals(), "non-unique tip names?"
+        assert tipnames == seqnames, ("Names in alignment do not match those in "
+                "tree.\nSequences in alignment but NOT in tree:\n\t{0}\n"
+                "Sequences in tree but NOT in alignment:\n\t{1}".format(
+                '\n\t'.join(seqnames - tipnames), '\n\t'.join(tipnames - seqnames)))
+        logger.info('Tree has {0} tips.'.format(len(tipnames)))
+        tree.root_at_midpoint()
+        assert tree.is_bifurcating(), "Tree is not bifurcating: cannot handle"
+        nadjusted = 0
         for node in tree.get_terminals() + tree.get_nonterminals():
-            if node != tree.root:
-                node.branch_length = max(0, node.branch_length)
-        # end of code necessary for tree parsing by biopython <= 1.66
-        newicktree = tree.format('newick').strip()
-        # remove internal node names because they cause problem in parsing tree later
-        for node in tree.get_nonterminals():
-            if node.name: # root node won't have name
-                toremove = ')' + node.name + ':'
-                assert toremove in newicktree, "Cannot find internal node %s in form %s in tree:\n%s" % (node.name, toremove, newicktree)
-                newicktree = newicktree.replace(toremove, '):')
-        seqnames = [head for (head, seq) in alignment]
-        seqs = [seq for (head, seq) in alignment]
+            if (node.branch_length == None) and (node == tree.root):
+                node.branch_length = args['minbrlen']
+            elif node.branch_length < args['minbrlen']:
+                nadjusted += 1
+                node.branch_length = args['minbrlen']
+        logger.info('Adjusted {0} branch lengths up to minbrlen {1}\n'.format(
+                nadjusted, args['minbrlen']))
 
-        # use old likelihood method for YNGPK models, new otherwise
-        if isinstance(model, str) and 'YNGKP' in model:
-            oldlikelihoodmethod = True
+        # set up tree likelihood
+        logger.info('Initializing TreeLikelihood..')
+        tl = phydmslib.treelikelihood.TreeLikelihood(tree, alignment, model)
+        logger.info('TreeLikelihood initialized.')
+
+        # maximize likelihood
+        logger.info('Maximizing log likelihood (initially {0:.2f}).'.format(
+                tl.loglik))
+        if args['brlen'] == 'scale':
+            optimize_brlen = False
+            logger.info("Branch lengths will be scaled but not optimized "
+                    "individually.")
+        elif args['brlen'] == 'optimize':
+            logger.info("Branch lengths will be optimized individually.")
+            optimize_brlen = True
         else:
-            oldlikelihoodmethod = False
-
-        # now optimize tree 
-        if args['no_optimize']:
-            require_files = [modelparamsfile, loglikelihoodfile, treefile]
-            logger.info("Because --no_optimize is being used, the tree and model parameters will not be optimized. Instead using the existing values from a previous optimization in the following files: %s\n" % ', '.join(require_files))
-            if not all([os.path.isfile(f) for f in require_files]):
-                raise ValueError("Cannot use --no_optimize' because cannot find all of the existing optimization files: %s" % ', '.join(require_files))
-            with open(loglikelihoodfile) as f:
-                old_ll = float(f.readlines()[0].split('=')[1])
-            with open(modelparamsfile) as f:
-                modelparams = dict([(line.split('=')[0].strip(), float(line.split('=')[1])) for line in f])
-            allmodelparams = modelparams
-            tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, treefile, model, args['infertopology'], fixedmodelparams=modelparams, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=True, addrateparameter=False, prefsasparams=False, recursion=args['recursion'], useLog=args['useLog'], ngammarates=ngammarates, ncats=args['ncats'])
-            assert not tl.ModelParams(True), "There are unspecified model parameters to be optimized for --no_optimize: %s" % str(tl.ModelParams(True))
-            if set(tl.ModelParams(False).keys()) != set(modelparams.keys()):
-                raise ValueError("The existing model params file %s does not have all of the expected parameters for this substitution model, so cannot use --no_optimize. Either the existing model parameters were created with a different model, or you used a YNGKP model without --fitF3X4 (this is currently incompatible with --no_optimize).")
-            if abs(tl.LogLikelihood() - old_ll) > 1:
-                raise ValueError("Incompatibility between old log likelihood %g and new one of %g" % (old_ll, tl.LogLikelihood()))
+            raise ValueError("Invalid brlen {0}".format(args['brlen']))
+        if args['profile']:
+            import cProfile
+            import pstats
+            pstatsfile = '{0}_pstats'.format(args['outprefix'])
+            logger.info('Maximizing with cProfile (probably slower).')
+            logger.info('Profile stats will be in to {0}'.format(pstatsfile))
+            maxresult = []
+            def wrapper(maxresult): # wrapper to get return value from cProfile
+                maxresult.append(tl.maximizeLikelihood(
+                        optimize_brlen=optimize_brlen))
+            cProfile.runctx('wrapper(maxresult)', globals(), locals(), pstatsfile)
+            maxresult = maxresult[0]
+            for psort in ['cumulative', 'tottime']:
+                fname = '{0}_{1}.txt'.format(pstatsfile, psort)
+                logger.info('Writing profile stats sorted by {0} to {1}'.format(
+                        psort, fname))
+                f = open(fname, 'w')
+                s = pstats.Stats(pstatsfile, stream=f)
+                s.strip_dirs()
+                s.sort_stats(psort)
+                s.print_stats()
+                f.close()
         else:
-            try:
-                (fd, temptreefile) = tempfile.mkstemp() # create temporary file to write tree for passing
-                with os.fdopen(fd, 'w') as f:
-                    f.write(newicktree)
-                logger.info('Adjusting all branch lengths to >= {0}.\n'.format(args['minbrlen']))
-                phydmslib.file_io.SetMinBrLen(temptreefile, temptreefile, args['minbrlen'])
-                logger.info('Creating Bio++ object to optimize likelihood...')
-                tl = phydmslib.pybpp.PyBppTreeLikelihood(seqnames, seqs, temptreefile, model, args['infertopology'], fixedmodelparams={}, initializemodelparams={}, oldlikelihoodmethod=oldlikelihoodmethod, fixbrlen=args['fixbrlen'], addrateparameter=args['addrateparameter'], prefsasparams=False, recursion=args['recursion'], useLog=args['useLog'], ngammarates=ngammarates, ncats=args['ncats'])
-            finally:
-                if os.path.isfile(temptreefile):
-                    os.remove(temptreefile)
-            logger.info('Created Bio++ object to optimize likelihood for the %d codon sites of the %d sequences.\n' % (tl.NSites(), tl.NSeqs()))
-            logger.info('The initial log likelihood is %g; now optimizing by maximum likelihood...' % tl.LogLikelihood())
-            tl.OptimizeLikelihood()
-            logger.info('Completed optimizing by maximum likelihood.')
-            logger.info("Here is the optimized log likelihood (also being written to %s): %g." % (loglikelihoodfile, tl.LogLikelihood()))
-            with open(loglikelihoodfile, 'w') as f:
-                f.write('log likelihood = %g' % tl.LogLikelihood())
-            modelparams = tl.ModelParams(True)
-            modelparamstextlist = ['%s = %.6f' % tup for tup in modelparams.items()]
-            modelparamstextlist.sort()
-            logger.info("Here are the optimized model parameters (also being written to %s):\n\t%s" % (modelparamsfile, '\n\t'.join(modelparamstextlist)))
-            with open(modelparamsfile, 'w') as f:
-                f.write('\n'.join(modelparamstextlist))
-            logger.info("Here is the optimized tree (also being written to %s):\n%s\n" % (treefile, tl.NewickTree()))
-            with open(treefile, 'w') as f:
-                f.write(tl.NewickTree())
-            allmodelparams = tl.ModelParams(False)
-        del tl
-
-        # list of all codons
-        codons = [icodon for icodon in range(1, len(seqs[0]) // 3 + 1)]
-
-        # do sequence dating 
-        if args['dateseqs']:
-            logger.info('Dating the sequences using least-squares dating with the dates in {0}.'.format(args['dateseqs']))
-            mrcadate = phydmslib.pylsd.RunLSD(treefile, dates, 3 * len(codons), datedtreefile)
-            logger.info('The dated tree is in {0}'.format(datedtreefile))
-            assert os.path.isfile(args['dateseqs']), "Failed to create dated tree file {0}".format(datedtreefile)
-            logger.info("The date of the most recent-common ancestor is {0}; writing to {1}".format(mrcadate, mrcadatefile))
-            with open(mrcadatefile, 'w') as f:
-                f.write("MRCA_date = {0}".format(mrcadate))
+            maxresult = tl.maximizeLikelihood(optimize_brlen=optimize_brlen)
+        logger.info('Maximization complete:\n\t{0}'.format(
+                maxresult.replace('\n', '\n\t')))
+        logger.info('Optimized log likelihood is {0:.2f}.'.format(tl.loglik))
+        logger.info('Writing log likelihood to {0}'.format(loglikelihoodfile))
+        with open(loglikelihoodfile, 'w') as f:
+            f.write('log likelihood = {0:.2f}'.format(tl.loglik))
+        params = '\n\t'.join(['{0} = {1:6g}'.format(p, pvalue) for (p, pvalue)
+                in sorted(tl.model.paramsReport.items())])
+        logger.info('Model parameters after optimization:\n\t{0}'.format(params))
+        logger.info('Writing model parameters to {0}'.format(modelparamsfile))
+        with open(modelparamsfile, 'w') as f:
+            f.write(params.replace('\t', ''))
+        logger.info('Writing the optimized tree to {0}\n'.format(treefile))
+        Bio.Phylo.write(tl.tree, treefile, 'newick')
 
         # get number of cpus for multiprocessing
         if args['ncpus'] == -1:
-            try:
-                args['ncpus'] = multiprocessing.cpu_count()
-            except:
-                raise RuntimeError("Problem trying to determine number of available CPUs. Please manually specify the number of desired CPUs with '--ncpus' and try again.")
-        logger.info("Using %d CPUs for the remaining computations.\n" % args['ncpus'])
-        assert args['ncpus'] >= 1, "Failed to specify a number of CPUs that exceeds one: %d." % args['ncpus']
-
-        # if debugging a site, specify on that site and print some information
-        if args['debugsite']:
-            assert args['debugsite'] in codons, "--debugsite specifies non-existent codon of %d. Actual codons range from %d to %d" % (args['debugsite'], codons[0], codons[-1])
-            codons = [args['debugsite']]
-            codoncounts = {}
-            for seq in seqs:
-                c = seq[(codons[0] - 1) * 3 : codons[0] * 3]
-                if c in codoncounts:
-                    codoncounts[c] += 1
-                else:
-                    codoncounts[c] = 1
-            logger.info("\nThe '--debugsite' option instructs us to perform the site-specific selection optimization only for site %d.\nHere are the codon counts for that site:\n\t%s" % (args['debugsite'], '\n\t'.join(['%s = %d' % tup for tup in codoncounts.items()])))
+            ncpus = multiprocessing.cpu_count()
+        else:
+            ncpus = args['ncpus']
+        assert ncpus >= 1, "{0} CPUs specified".format(ncpus)
 
         # optimize a different omega for each site
         if args['omegabysite']:
-            fixedomegavalue = 1.0 # null model fixes omega to this value
-            excludeparams = ['omega', 'p', 'q', 'omegas', 'p0', 'delta1', 'delta2', 'omega0', 'omega2', 'theta1', 'theta2'] # parameters related to omega, do not fix
-            fixedmodelparams = {}
-            for (param, value) in allmodelparams.items():
-                for excludeparam in excludeparams:
-                    if excludeparam == param:
-                        break
-                else:
-                    fixedmodelparams[param] = value
-            logger.info('Now optimizing a different omega for each site while keeping branch lengths and other model parameters fixed.')
+            logger.info("\nFitting a different omega to each site to "
+                    "detect diversifying selection.")
             if args['omegabysite_fixsyn']:
-                fixsyn_string = "Using '--omegabysite_fixsyn', so the synonymous rate is assumed equal across all sites. This means we compare fitting omega for a site to not fitting anything."
+                fixsynstr = 'Synonymous rate will be fixed across sites.'
             else:
-                fixsyn_string = "Not using '--omegabysite_fixsyn', so we fit a synonymous rate for each site. This means we compare fitting omega and a synonymous rate to fitting just a synonymous rate."
-            logger.info(fixsyn_string)
-            logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
-            logger.info('The remaining model parameters will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
-            if isinstance(model, str) and 'YNGKP' in model:
-                aaprefs = {}
-            fitomegaresults = FitOmegaBySitePool(codons, seqnames, seqs, aaprefs, model, fixedmodelparams, fixedomegavalue, treefile, args['recursion'], args['ncpus'], logger, args['omegabysite_fixsyn'], args['useLog'], ngammarates, args['ncats'], args['fixationmodel'])
-            fitomegaresults = [(d['P'], site, d['omega'], d['dLnL']) for (site, d) in fitomegaresults.items()]
-            fitomegaresults.sort()
-            logger.info('Now writing the full results of the omega-by-site analysis to %s\n' % omegafile)
+                fixsynstr = 'Will fit different synonymous rate for each site.'
+            logger.info(fixsynstr)
+            logger.info("Fitting with {0} CPUs...".format(ncpus))
+            # We use a multiprocessing pool if more than 1 CPU.
+            # To save memory, use pool sizes equal to number of CPUs
+            omegaresults = []
+            for firstsite in range(1, tl.nsites + 1, ncpus):
+                currentsites = range(firstsite, min(tl.nsites + 1, 
+                        firstsite + ncpus))
+                if ncpus > 1:
+                    pool = multiprocessing.Pool(ncpus)
+                    mapfunc = pool.imap
+                else:
+                    mapfunc = map
+                omegaresults += mapfunc(fitOmegaBySite, [treeliksForOmegaBySite(
+                        site, tl, prefslist, args['omegabysite_fixsyn']) for 
+                        site in currentsites])
+                if ncpus > 1:
+                    pool.close()
+                    pool.join()
+            omegaresults = sorted(omegaresults)
+            qvalues = statsmodels.sandbox.stats.multicomp.multipletests(
+                    scipy.array([tup[0] for tup in omegaresults]),
+                    method='fdr_bh')[1]
+            omegaresults = ['{0}\t{1:.3g}'.format(tup[1], q) for 
+                    (tup, q) in zip(omegaresults, qvalues)]
+            logger.info("Completed fitting the site-specific omega values.")
+            logger.info("Writing results to {0}\n".format(omegafile))
             with open(omegafile, 'w') as f:
-                f.write("# Omega fit to each site after fixing tree and and all other parameters.\n# %s\n# Fits compared to null model of omega = %.3f; P-values NOT corrected for multiple testing.\n#\n# site\tomega\tP\tdLnL\n%s" % (fixsyn_string, fixedomegavalue, '\n'.join(['%d\t%.3f\t%.3g\t%.3f' % (site, omega, p, lnl) for (p, site, omega, lnl) in fitomegaresults])))
-
-        # optimize a different stringency parameter for each site
-        if args['stringencybysite']:
-            assert isinstance(model, tuple) and model[0] == 'ExpCM', "stringencybysite only allowed for ExpCM"
-            fixedstringencyvalue = modelparams['stringencyparameter'] # null model fixes stringency to this value
-            fixedmodelparams = dict([(param, value) for (param, value) in allmodelparams.items() if param != 'stringencyparameter'])
-            logger.info('Now optimizing a different stringency parameter for each site while keeping branch lengths and other model parameters fixed. This will be compared to a null model where the stringency parameter is equal to the overall gene value of %.2f.' % fixedstringencyvalue)
-            logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
-            logger.info('The model parameters (other than the stringency parameter) will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
-            fitstringencyresults = FitStringencyBySitePool(codons, seqnames, seqs, aaprefs, fixedmodelparams, fixedstringencyvalue, treefile, args['recursion'], args['ncpus'], logger, args['useLog'], ngammarates, args['ncats'], args['fixationmodel'])
-            fitstringencyresults = [(d['P'], site, d['stringency_ratio'], d['dLnL'], d['LnL_fixed']) for (site, d) in fitstringencyresults.items()]
-            fitstringencyresults.sort()
-            logger.info('Now writing the full results of the stringency-by-site analysis to %s\n' % stringencyfile)
-            with open(stringencyfile, 'w') as f:
-                f.write("# Stringency fit to each site after fixing tree and and all other parameters.\n# Fits compared to null model of stringency = %.3f (the overall gene value).\n# P-values NOT corrected for multiple testing.\n# The stringency ratio is the ratio of the fitted value to the null (overall gene value).\n#\n# site\tstringency_ratio\tP\tdLnL\tLnL_fixed\n%s" % (fixedstringencyvalue, '\n'.join(['%d\t%.3f\t%.3g\t%.3f\t%.3f' % (site, stringencyratio, p, dlnl, lnlfixed) for (p, site, stringencyratio, dlnl, lnlfixed) in fitstringencyresults])))
+                f.write('# Omega fit to each site after fixing tree and '
+                        'all other parameters.\n# Fits compared to null model '
+                        'of omega = 1.\n# P-values NOT corrected for multiple '
+                        'testing, so consider Q-values too.\n# {0}\n#\n'
+                        'site\tomega\tP\tdLnL\tQ\n{1}'.format(fixsynstr,
+                        '\n'.join(omegaresults)))
 
         # optimize differential preferences for each site
         if args['diffprefsbysite']:
-            assert isinstance(model, tuple) and model[0] == 'ExpCM', "diffprefsbysite only allowed for ExpCM"
-            fixedmodelparams = dict([(param, value) for (param, value) in allmodelparams.items() if param != 'stringencyparameter'])
-            fixedmodelparams['stringencyparameter'] = 1.0
-            logger.info('Now estimating the difference between the preferences specified in %s and those that best describe the natural evolution. We optimize the preferences after regularizing them using a %s prior (concentrating parameters %s). The preferences in the file are first rescaled by the stringency parameter value of %.2f previously optimized for the entire sequence / tree, and the difference in preferences are relative to these rescaled preferences. After this rescaling, the stringency parameter is set to one. All other model parameters are fixed to their maximum likelihood values for the entire sequence / tree.' % (prefsfilename, args['diffprefsprior'], ', '.join(['C%d = %.2f' % (i + 1, args['diffprefconc'][i]) for i in range(len(args['diffprefconc']))]), modelparams['stringencyparameter']))
-            logger.info('The tree and branch lengths will be fixed to the values in %s' % treefile)
-            logger.info('The model parameters will be to fixed to the following:\n\t%s\n' % '\n\t'.join(['%s = %g' % tup for tup in fixedmodelparams.items()]))
-            sites = [str(icodon) for icodon in codons]
-            wts = dict([(isite, '?') for isite in sites])
-            diffprefs = FitDiffPrefsBySitePool(codons, seqnames, seqs, aaprefs, treefile, fixedmodelparams, modelparams['stringencyparameter'], args['recursion'], args['diffprefsprior'], args['diffprefconc'], args['ncpus'], logger, args['useLog'], ngammarates, args['ncats'], args['fixationmodel'])
-            logger.info('Writing the differences in preferences to %s' % diffprefsfile)
-            pr_deltapi = dict([(isite, None) for isite in sites]) # empty, as we have no data here
-            dms_tools.file_io.WriteDiffPrefs(diffprefsfile, sites, wts, diffprefs, pr_deltapi, pr_deltapi)
-            logger.info("Writing the absolute sum of the differential preferences to %s" % sumabsdiffprefsfile)
-            sumabs_sites = [(0.5 * sum([abs(x) for x in diffprefs[r].values()]), r) for r in sites]
-            sumabs_sites.sort()
-            sumabs_sites.reverse()
-            with open(sumabsdiffprefsfile, 'w') as f:
-                f.write('# The entries are half the absolute sum of the differential preferences for each site.\n' +
-                        '# This quantity can range from 0 to 1.\n' +
-                        '#\n' +
-                        '# SITE\tHALF_ABSOLUTE_SUM_DIFFPREFS\n') 
-                for (sumabs, site) in sumabs_sites:
-                    f.write('%s\t%g\n' % (site, sumabs))
+            logger.info("\nFitting differential preferences for each site to "
+                    "detect differential selection.")
+            modeltype = {1:phydmslib.models.ExpCM_fitprefs,
+                         2:phydmslib.models.ExpCM_fitprefs2}[
+                         args['fitprefsmethod']]
+            logger.info("For the fitting, using {0} implementation "
+                    "as specified by fitprefsmethod = {1}".format(
+                    modeltype.__name__, args['fitprefsmethod']))
+            logger.info("Fitting with {0} CPUs...".format(ncpus))
+            # We use a multiprocessing pool if more than 1 CPU.
+            # To save memory, use pool sizes equal to number of CPUs
+            diffprefresults = []
+            for firstsite in range(1, tl.nsites + 1, ncpus):
+                currentsites = range(firstsite, min(tl.nsites + 1, 
+                        firstsite + ncpus))
+                if ncpus > 1:
+                    pool = multiprocessing.Pool(ncpus)
+                    mapfunc = pool.imap
+                else:
+                    mapfunc = map
+                diffprefresults += mapfunc(fitDiffPrefsBySite, 
+                        [treelikForDiffPrefsBySite(site, tl, prefslist,
+                        args['diffprefsprior'], modeltype) for site in 
+                        currentsites])
+                if ncpus > 1:
+                    pool.close()
+                    pool.join()
+            logger.info("Completed fitting site-specific differential preferences.")
+            logger.info("Writing results to {0}\n".format(diffprefsfile))
+            with open(diffprefsfile, 'w') as f:
+                f.write('# Differential preferences fit to each site.\n' +
+                        '# Regularizing prior: {0}\n#\n'.format(args['diffprefsprior'])
+                        + 'site\t' + '\t'.join(['dpi_{0}'.format(INDEX_TO_AA[a])
+                        for a in range(N_AA)]) + '\thalf_sum_abs_dpi\n')
+                f.write('\n'.join([tup[1] for tup in sorted(diffprefresults, 
+                        reverse=True)]))
 
     except:
-        logger.exception('Terminating %s at %s with ERROR' % (prog, time.asctime()))    
+        logger.exception('Terminating {0} at {1} with ERROR'.format(prog, time.asctime()))
         raise
     else:
-        logger.info('Successful completion of %s' % prog)
+        logger.info('Successful completion of {0}'.format(prog))
     finally:
         logging.shutdown()
 
