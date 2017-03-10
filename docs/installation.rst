@@ -96,5 +96,13 @@ Other required software
 ------------------------------------------
 `phydms`_ requires some external `Python`_ packages. The up-to-date exact requirements are listed under ``install_requires`` in the ``setup.py`` file in the main directory of the `phydms source code`_. If you are installing with `pip`_, these external packages will automatically be installed. If you are installing from source, you may need to install these packages yourself. 
 
+Older versions (e.g., version 1.0)
+-----------------------------------
+The original version of `phydms`_ (version ``1.*``) used in `Bloom, Biology Direct, 12:1`_ had similar functionality, but an entirely different implementation that utilized `Bio++`_ for the likelihood calculations.
+The new version (version ``2.*``) has similar functionality, but is a completely new implementation and so may give slightly different results.
+
+The last stable version of the old implementation is ``1.3.0``. 
+The source code for that version is `available here <https://github.com/jbloomlab/phydms/tree/1.3.0>`_.
+The older implementations are also still on `PyPI`_.
 
 .. include:: weblinks.txt
