@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>the phydms program &#8212; phydms 1.3.0 documentation</title>
+    <title>the phydms program &mdash; phydms 2.0.dev0 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.3.0',
+        VERSION:     '2.0.dev0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,9 +24,9 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.3.0 documentation" href="index.html" />
+    <link rel="top" title="phydms 2.0.dev0 documentation" href="index.html" />
     <link rel="next" title="auxiliary programs" href="auxiliary_progs.html" />
-    <link rel="prev" title="Quick example" href="quick_example.html" /> 
+    <link rel="prev" title="how to use phydms" href="howtouse.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -42,9 +42,9 @@
           <a href="auxiliary_progs.html" title="auxiliary programs"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="quick_example.html" title="Quick example"
+          <a href="howtouse.html" title="how to use phydms"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.3.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.dev0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -67,11 +67,7 @@
 <li><a class="reference internal" href="#model-parameters" id="id7">Model parameters</a></li>
 <li><a class="reference internal" href="#tree-file" id="id8">Tree file</a></li>
 <li><a class="reference internal" href="#site-specific-omega-file" id="id9">Site-specific omega file</a></li>
-<li><a class="reference internal" href="#site-specific-stringency-file" id="id10">Site-specific stringency file</a></li>
-<li><a class="reference internal" href="#differential-preferences-file" id="id11">Differential preferences file</a></li>
-<li><a class="reference internal" href="#differential-preferences-absolute-sum-file" id="id12">Differential preferences absolute sum file</a></li>
-<li><a class="reference internal" href="#dated-tree-file" id="id13">Dated tree file</a></li>
-<li><a class="reference internal" href="#most-recent-common-ancestor-date-file" id="id14">Most-recent common ancestor date file</a></li>
+<li><a class="reference internal" href="#site-specific-differential-selection" id="id10">Site-specific differential selection</a></li>
 </ul>
 </li>
 </ul>
@@ -80,21 +76,18 @@
 </div>
 <div class="section" id="overview">
 <h2><a class="toc-backref" href="#id2">Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal"><span class="pre">phydms</span></code> can perform phylogenetic analyses with <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a> as well as with some standard non-site-specific substitution models (variants of the <em>YNGKP</em> models described in <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a>). In addition, <code class="docutils literal"><span class="pre">phydms</span></code> can be used to detect site-specific diversifying or differential selection using the <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>.</p>
-<p><code class="docutils literal"><span class="pre">phydms</span></code> is written in <a class="reference external" href="https://www.python.org">Python</a>, and uses the <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a> libraries to perform the core likelihood functions. See below for information on the <a class="reference internal" href="#command-line-usage">Command-line usage</a> and <a class="reference internal" href="#output-files">Output files</a>.</p>
+<p><code class="docutils literal"><span class="pre">phydms</span></code> can perform phylogenetic analyses with <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a> as well as with some standard non-site-specific substitution models (variants of the <em>YNGKP</em> models described in <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a>). In addition, <code class="docutils literal"><span class="pre">phydms</span></code> can be used to detect site-specific diversifying or differential selection using the <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a> as described in <a class="reference external" href="http://biologydirect.biomedcentral.com/articles/10.1186/s13062-016-0172-z">Bloom, Biology Direct, 12:1</a>.</p>
+<p>See below for information on the <a class="reference internal" href="#command-line-usage">Command-line usage</a> and <a class="reference internal" href="#output-files">Output files</a>.</p>
 </div>
 <div class="section" id="command-line-usage">
 <h2><a class="toc-backref" href="#id3">Command-line usage</a><a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
-<p>Phylogenetic inference using deep mutational scanning data. The &#8216;phydms&#8217; package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a>). Version 2.0.dev0. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">phydms</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">omegabysite</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">stringencybysite</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">diffprefsbysite</span><span class="p">]</span>
-              <span class="p">[</span><span class="o">--</span><span class="n">infertopology</span><span class="p">]</span>
-              <span class="p">[</span><span class="o">--</span><span class="n">fixationmodel</span> <span class="p">{</span><span class="n">HalpernBruno</span><span class="p">,</span><span class="n">FracTolerated</span><span class="p">,</span><span class="n">gwF</span><span class="p">}]</span>
-              <span class="p">[</span><span class="o">--</span><span class="n">gammarates</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ncats</span> <span class="n">NCATS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dateseqs</span> <span class="n">DATESEQS</span><span class="p">]</span>
-              <span class="p">[</span><span class="o">--</span><span class="n">ncpus</span> <span class="n">NCPUS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">omegabysite_fixsyn</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">randprefs</span><span class="p">]</span>
-              <span class="p">[</span><span class="o">--</span><span class="n">avgprefs</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fixbrlen</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">diffprefconc</span> <span class="n">C1</span> <span class="n">C2</span><span class="p">]</span>
-              <span class="p">[</span><span class="o">--</span><span class="n">divpressure</span> <span class="n">DIVPRESSURE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">addrateparameter</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fitF3X4</span><span class="p">]</span>
-              <span class="p">[</span><span class="o">--</span><span class="n">minbrlen</span> <span class="n">MINBRLEN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">seed</span> <span class="n">SEED</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">no_optimize</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">useLog</span><span class="p">]</span>
-              <span class="p">[</span><span class="o">--</span><span class="n">debugsite</span> <span class="n">DEBUGSITE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span>
+<p>Phylogenetic analysis informed by deep mutational scanning data. The &#8216;phydms&#8217; package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a>). Version 2.0.dev0. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">phydms</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">brlen</span> <span class="p">{</span><span class="n">scale</span><span class="p">,</span><span class="n">optimize</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">gammaomega</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">omegabysite</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">omegabysite_fixsyn</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">diffprefsbysite</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">diffprefsprior</span> <span class="n">DIFFPREFSPRIOR</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fitphi</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">randprefs</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">avgprefs</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">divpressure</span> <span class="n">DIVPRESSURE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ncpus</span> <span class="n">NCPUS</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">fitprefsmethod</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">ncats</span> <span class="n">NCATS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">minbrlen</span> <span class="n">MINBRLEN</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">minpref</span> <span class="n">MINPREF</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">seed</span> <span class="n">SEED</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">profile</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span>
               <span class="n">alignment</span> <span class="n">tree</span> <span class="n">model</span> <span class="n">outprefix</span>
 </pre></div>
 </div>
@@ -107,44 +100,61 @@
 <tr><td class="option-group">
 <kbd>alignment</kbd></td>
 <td><p class="first">Existing FASTA file with aligned codon sequences.</p>
-<p>This file should contain aligned DNA codon sequences. Stop codons are <strong>not</strong> allowed, except if a stop codon is the terminal character in all sequences, in which case they are automatically trimmed.</p>
+<p>Should contain aligned DNA codon sequences.
+Stop codons are <strong>not</strong> allowed, except if a stop codon is the terminal character in all sequences, in which case they are automatically trimmed.</p>
 <p>No checking is done to remove identical sequences, so you may want to remove such sequences yourself if there a lot of them.</p>
 <p class="last">The headers must be unique strings that do <strong>not</strong> contain any of the following: spaces, commas, colons, semicolons, parentheses, square brackets, and single or double quotes.</p>
 </td></tr>
 <tr><td class="option-group">
 <kbd>tree</kbd></td>
-<td><p class="first">Existing Newick tree file or &#8216;random&#8217; or &#8216;nj&#8217;.</p>
-<p>This argument specifies the fixed tree topology (if <strong>not</strong> using <code class="docutils literal"><span class="pre">--infertopology</span></code>) or an initial topology for further optimization. (if using <code class="docutils literal"><span class="pre">--infertopology</span></code>). The possibilities are:</p>
-<blockquote class="last">
-<div><ul class="simple">
-<li>Specify a Newick file giving an existing tree (tip names must match sequence headers in <code class="docutils literal"><span class="pre">alignment</span></code>). For instance, this might be a tree that you inferred using <a class="reference external" href="http://sourceforge.net/projects/codonphyml/">codonPhyML</a>.</li>
-<li>Use <em>nj</em> to build a neighbor-joining tree from the nucleotide sequences using a crude identity model to compute distances. Trees built using this option will not be very good, so you are suggested to use this option only to get an initial tree for further optimization via <code class="docutils literal"><span class="pre">--infertopology</span></code>.</li>
-<li>Use <em>random</em> for a randomly chosen starting tree. If you use this option, you must also use <code class="docutils literal"><span class="pre">--infertopology</span></code> since a random tree makes no sense otherwise.</li>
-</ul>
-</div></blockquote>
+<td><p class="first">Existing Newick file giving input tree.</p>
+<p class="last">Typically you infer this tree using a program such as <a class="reference external" href="http://sco.h-its.org/exelixis/web/software/raxml/index.html">RAxML</a> or <a class="reference external" href="http://sourceforge.net/projects/codonphyml/">codonPhyML</a>.
+The topology is fixed to that in <code class="docutils literal"><span class="pre">tree</span></code>. How the branch lengths are handled
+during optimization depends on <code class="docutils literal"><span class="pre">--brlen</span></code>.
+The branch lengths in <code class="docutils literal"><span class="pre">tree</span></code> are assumed to be in codon substitutions
+per site.</p>
 </td></tr>
 <tr><td class="option-group">
 <kbd>model</kbd></td>
-<td><p class="first">Codon substitution model: YNGKP_&lt;m&gt; where &lt;m&gt; is M0, M1, M2, M3, M7, M8; or ExpCM_&lt;prefsfile&gt;</p>
-<p><em>YNGKP_M&lt;n&gt;</em> is a codon model from <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a>. The <em>&lt;n&gt;</em> indicates the model variant. Codon frequencies are set by <em>F3X4</em> (the product of nucleotide frequency parameters at each of the three positions; see <code class="docutils literal"><span class="pre">--fitF3X4</span></code> for how these 9 parameters are set). The transition-transversion ratio <span class="math">\(\kappa\)</span> is optimized by maximum likelihood. The nonsynonymous-synonymous ratio <span class="math">\(\omega\)</span> is set differently depending on the variant:</p>
+<td><p class="first">Substitution model: ExpCM_&lt;prefsfile&gt; or YNGKP_&lt;m&gt; (where &lt;m&gt; is M0, M5). For ExpCM, &lt;prefsfile&gt; has first column labeled &#8216;site&#8217; and others labeled by 1-letter amino-acid code.</p>
+<p><em>YNGKP_&lt;m&gt;</em> is a <em>non-site-specific</em> Goldman-Yang style codon model from <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a>.
+The <em>&lt;m&gt;</em> indicates the model variant.
+Codon frequencies are set empirically using the <em>CF3X4</em> method described by <a class="reference external" href="http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0011230">Pond et al, PLoS One, 5:e11230</a> (this sets the codon frequencies to the the product of nucleotide frequency parameters at each of the three positions after correcting for stop codons).
+The transition-transversion ratio <span class="math">\(\kappa\)</span> is optimized by maximum likelihood.
+The nonsynonymous-synonymous ratio <span class="math">\(\omega\)</span> is optimized differently depending on the variant:</p>
 <blockquote>
 <div><ul class="simple">
-<li><em>YNGKP_M0</em> : a single <span class="math">\(\omega\)</span> is optimized by maximum likelihood (1 free parameter)</li>
-<li><em>YNGKP_M1</em> : an <span class="math">\(\omega &lt; 1\)</span> and an <span class="math">\(\omega = 1\)</span> with the weights optimized by maximum likelihood (two free parameters). This is actually the variant indicated as <em>M1a</em> in <a class="reference external" href="http://www.genetics.org/content/168/2/1041">Wong et al, Genetics, 168:1041-1051</a> rather than the original <em>M1</em> model in <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a>.</li>
-<li><em>YNGKP_M2</em> : an <span class="math">\(\omega &lt; 1\)</span>, and <span class="math">\(\omega = 1\)</span>, and an <span class="math">\(\omega &gt; 1\)</span> with the weights optimized by maximum likelihood (4 free parameters). This is actually the variant indicated as <em>M2a</em> in <a class="reference external" href="http://www.genetics.org/content/168/2/1041">Wong et al, Genetics, 168:1041-1051</a> rather than the original <em>M2</em> model in <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a>.</li>
-<li><em>YNGKP_M3</em> : three <span class="math">\(\omega\)</span> values and the weights (probabilities) of their categories optimized by maximum likelihood (5 free parameters).</li>
-<li><em>YNGKP_M7</em> : <code class="docutils literal"><span class="pre">--ncats</span></code> values of <span class="math">\(\omega\)</span> between zero and one drawn from a beta distribution with the two distribution parameters optimized by maximum likelihood (2 free parameters).</li>
-<li><em>YNGKP_M8</em> : <code class="docutils literal"><span class="pre">--ncats</span></code> values of <span class="math">\(\omega\)</span> between zero and one drawn from a beta distribution with the two distribution parameters optimized by maximum likelihood, plus another value of <span class="math">\(\omega &gt; 1\)</span> with the value and weight optimized by maximum likelihood (4 free parameters).</li>
+<li><em>YNGKP_M0</em> : a single <span class="math">\(\omega\)</span> is optimized by maximum likelihood.</li>
+<li><em>YNGKP_M5</em> : <span class="math">\(\omega\)</span> drawn from a gamma distribution with the two parameters optimized by maximum likelihood. The distribution has <code class="docutils literal"><span class="pre">--ncats</span></code> categories.</li>
 </ul>
 </div></blockquote>
-<p class="last"><em>ExpCM_&lt;prefsfile&gt;</em> is an <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a> with amino-acid preferences taken from the file <code class="docutils literal"><span class="pre">prefsfile</span></code>.
-The preferences file should be in the <a class="reference external" href="http://jbloomlab.github.io/dms_tools">dms_tools</a> <a class="reference external" href="http://jbloomlab.github.io/dms_tools/fileformats.html#preferences-file">preferences file format</a> for <strong>amino acids</strong> (any stop codon preferences if present are normalized away to zero). The preferences file must specify a preference for the amino acid encoded by every site in <code class="docutils literal"><span class="pre">alignment</span></code>, using sequential 1, 2, ... numbering.</p>
+<p><em>ExpCM_&lt;prefsfile&gt;</em> is an <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a> with amino-acid preferences taken from the file <code class="docutils literal"><span class="pre">prefsfile</span></code>.
+The preferences file must specify a preference for the amino acid encoded by every site in <code class="docutils literal"><span class="pre">alignment</span></code>, using sequential 1, 2, ... numbering.
+Any stop-codon preferences specified in the file are ignored.
+The preferences file can be in several formats:</p>
+<blockquote>
+<div><ul>
+<li><p class="first">A comma-, tab-, or space-delimited file with the first column giving
+the site and the rest giving the preference for each amino-acid:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">site</span> <span class="n">A</span> <span class="n">C</span> <span class="n">D</span> <span class="n">E</span> <span class="n">F</span> <span class="n">G</span> <span class="n">H</span> <span class="n">I</span> <span class="n">K</span> <span class="n">L</span> <span class="n">M</span> <span class="n">N</span> <span class="n">P</span> <span class="n">Q</span> <span class="n">R</span> <span class="n">S</span> <span class="n">T</span> <span class="n">V</span> <span class="n">W</span> <span class="n">Y</span>
+<span class="mi">1</span> <span class="mf">0.044</span>  <span class="mf">0.046</span> <span class="mf">0.048</span> <span class="mf">0.0461</span> <span class="mf">0.046</span> <span class="mf">0.0411</span> <span class="mf">0.052</span> <span class="mf">0.027</span> <span class="mf">0.046</span> <span class="mf">0.043</span> <span class="mf">0.172</span> <span class="mf">0.045</span> <span class="mf">0.045</span> <span class="mf">0.045</span> <span class="mf">0.044</span> <span class="mf">0.041</span> <span class="mf">0.037</span> <span class="mf">0.028</span> <span class="mf">0.046</span> <span class="mf">0.048</span>
+<span class="mi">2</span> <span class="mf">0.658</span> <span class="mf">0.006</span> <span class="mf">0.005</span> <span class="mf">0.029</span> <span class="mf">0.005</span> <span class="mf">0.019</span> <span class="mf">0.007</span> <span class="mf">0.004</span> <span class="mf">0.007</span> <span class="mf">0.001</span> <span class="mf">0.036</span> <span class="mf">0.005</span> <span class="mf">0.009</span> <span class="mf">0.003</span> <span class="mf">0.005</span> <span class="mf">0.014</span> <span class="mf">0.013</span> <span class="mf">0.148</span> <span class="mf">0.009</span> <span class="mf">0.005</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">The more complex <a class="reference external" href="http://jbloomlab.github.io/dms_tools">dms_tools</a> <a class="reference external" href="http://jbloomlab.github.io/dms_tools/fileformats.html#preferences-file">preferences file format</a></p>
+</li>
+</ul>
+</div></blockquote>
+<p class="last">Importantly, the amino-acid preferences must be obtained <strong>independently</strong> from the sequence
+alignment being analyzed. A deep mutational scanning experiment is an independent means
+of obtaining the preferences, but estimating them from the amino-acid frequencies in the alignment of homologs is not a valid approach as you are then estimating the preferences from the same sequences that you are subsequently analyzing.</p>
 </td></tr>
 <tr><td class="option-group">
 <kbd>outprefix</kbd></td>
-<td><p class="first">Prefix for output files.</p>
+<td><p class="first">Output file prefix.</p>
 <p>If this prefix contains a directory name, that directory is created if it does not already exist.</p>
-<p class="last">See <a class="reference internal" href="#output-files">Output files</a> for a description of the files created with this prefix. Any existing files with these names specified by <code class="docutils literal"><span class="pre">outprefix</span></code> are deleted at the start of the program&#8217;s execution.</p>
+<p class="last">See <a class="reference internal" href="#output-files">Output files</a> for a description of the files created with this prefix. Any existing files with these names are deleted at the start of the program&#8217;s execution.</p>
 </td></tr>
 </tbody>
 </table>
@@ -155,140 +165,126 @@ The preferences file should be in the <a class="reference external" href="http:/
 <col class="description" />
 <tbody valign="top">
 <tr><td class="option-group" colspan="2">
+<kbd><span class="option">--brlen=optimize</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td><p class="first">How to handle branch lengths: scale by single parameter or optimize each one</p>
+<p>The tree topology is fixed to that in <code class="docutils literal"><span class="pre">tree</span></code>.
+But there are several options for how the branch lengths are handled:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>scale</em>: fix the relative length of the branches to the values in <code class="docutils literal"><span class="pre">tree</span></code>, but scale them all by a single parameter <span class="math">\(\mu\)</span> that is optimized. This approach will be faster.</li>
+<li><em>optimize</em>: optimize all branch lengths as free parameters. This approach will be more accurate, but slower.</li>
+</ul>
+</div></blockquote>
+<p class="last">Possible choices: scale, optimize</p>
+</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--gammaomega=False</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td><p class="first">Omega for ExpCM from gamma distribution rather than single value. To achieve same for YNGKP, use &#8216;model&#8217; of YNGKP_M5.</p>
+<p>Use this option for a <cite>model</cite> of <em>ExpCM</em> if you want <span class="math">\(\omega\)</span> to be drawn from <code class="docutils literal"><span class="pre">--ncats</span></code> gamma-distributed categories, similar to a <em>YNGKP_M5</em> model.
+This option adds one extra free parameter, as we are now optimizing two parameters for the <span class="math">\(\omega\)</span> distribution. It will also increase run-time by about 5-fold if you use the default for <code class="docutils literal"><span class="pre">--ncats</span></code>.</p>
+<p class="last">You do <strong>not</strong> use this option with <em>YNGKP</em> models; for those, simply set <code class="docutils literal"><span class="pre">model</span></code> to <em>YNGKP_M5</em> to get gamma-distributed <span class="math">\(\omega\)</span>.</p>
+</td></tr>
+<tr><td class="option-group" colspan="2">
 <kbd><span class="option">--omegabysite=False</span></kbd></td>
 </tr>
-<tr><td>&nbsp;</td><td><p class="first">Fit a different omega (dN/dS) for each site, similar to FEL.</p>
+<tr><td>&nbsp;</td><td><p class="first">Fit omega (dN/dS) for each site.</p>
 <p class="last">If using a YNGKP model, then the <span class="math">\(\omega_r\)</span> value is nearly analogous that obtained using the <em>FEL</em> model described by <a class="reference external" href="http://mbe.oxfordjournals.org/content/22/5/1208.full">Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222</a>. If using and <em>ExpCM</em>, then <span class="math">\(\omega_r\)</span> has the meaning described in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>. Essentially, we fix all other model / tree parameters and then compare a model that fits a synonymous and nonsynonymous rate to each site to a null model that only fits a synonymous rate; there is evidence for <span class="math">\(\omega_r \ne 1\)</span> if fitting both nonsynonymous and synonymous rate gives sufficiently better likelihood than fitting synonymous rate alone. See also the <code class="docutils literal"><span class="pre">--omegabysite_fixsyn</span></code> option.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
-<kbd><span class="option">--stringencybysite=False</span></kbd></td>
+<kbd><span class="option">--omegabysite_fixsyn=False</span></kbd></td>
 </tr>
-<tr><td>&nbsp;</td><td><p class="first">Fit a different stringency parameter for each site, only for ExpCM.</p>
-<p class="last">The meaning of the <span class="math">\(\beta_r\)</span> values is described in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>.</p>
+<tr><td>&nbsp;</td><td><p class="first">For &#8216;&#8211;omegabysite&#8217;, assign all sites same dS rather than fit for each site.</p>
+<p class="last">This option is meaningful only if you are using <code class="docutils literal"><span class="pre">--omegabysite</span></code>. If you use this option, then we compare a model in which we fit a nonsynonymous rate to each site to a model in which we fit nothing. The synonymous rate is not fit, and so is assumed to be equal to the overall value fit for the tree. According to <a class="reference external" href="http://mbe.oxfordjournals.org/content/22/5/1208.full">Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222</a>, in some cases this can yield greater power if there is relatively limited data. However, it comes with the risk of giving spurious results if there is substantial variation in the synonymous substitution rate among sites.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">--diffprefsbysite=False</span></kbd></td>
 </tr>
-<tr><td>&nbsp;</td><td><p class="first">Infer differential preferences for each site, only for ExpCM.</p>
-<p class="last">The meaning of the <span class="math">\(\Delta\pi_{r,a}\)</span> values is described in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>.</p>
+<tr><td>&nbsp;</td><td><p class="first">Fit differential preferences for each site.</p>
+<p>This option can only be used with <em>ExpCM</em> models, <strong>not</strong> with <em>YNGKP</em> models.</p>
+<p>The fitting of site-specific differential selection is designed to identify sites that prefer different amino acids in the natural alignment than expected from the deep mutational scanning data.
+This approach is described in <a class="reference external" href="http://biologydirect.biomedcentral.com/articles/10.1186/s13062-016-0172-z">Bloom, Biology Direct, 12:1</a>.</p>
+<p class="last">The prior that is used is specified by <code class="docutils literal"><span class="pre">--diffprefsprior</span></code>.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
-<kbd><span class="option">--infertopology=False</span></kbd></td>
+<kbd><span class="option">--diffprefsprior=invquadratic,150,0.5</span></kbd></td>
 </tr>
-<tr><td>&nbsp;</td><td><p class="first">Infer topology starting from &#8216;tree&#8217;; otherwise topology fixed to &#8216;tree&#8217;. Requires YNGKP_M0 model.</p>
-<p class="last">Note that sometimes the topology inference appears to fail (or at least hang up for a very long time). In that case, you may want to infer the topology with another program such as <a class="reference external" href="http://sourceforge.net/projects/codonphyml/">codonPhyML</a> and then pass that topology via the <code class="docutils literal"><span class="pre">tree</span></code> argument rather than using <code class="docutils literal"><span class="pre">--infertopology</span></code>.</p>
-</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--fixationmodel=HalpernBruno</span></kbd></td>
-</tr>
-<tr><td>&nbsp;</td><td><p class="first">How to calculate the &#8220;fixation probabilities&#8221; from the preferences.</p>
-<p>The ExpCM relate the &#8220;fixation&#8221; probabilities of nonsynonymous mutations to the preferences for the wildtype and mutant amino acids. These relationships are found in the definition of the <span class="math">\(F_{r,xy}\)</span> terms in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>.</p>
-<p>This option allows you to specify different relationships between the preferences and fixation probabilities.</p>
-<p>The <em>HalpernBruno</em> method is based on that described by <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/9656490">Halpern and Bruno, Mol Biol Evol, 15:910-917</a>. In this formulation, the probability is <span class="math">\(\frac{\ln\left[\left(\pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta}\right]}{1 - \left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta}}\)</span>. This is the method used in the definition of <span class="math">\(F_{r,xy}\)</span> in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>.</p>
-<p>The <em>FracTolerated</em> method is that described in <a class="reference external" href="http://mbe.oxfordjournals.org/content/31/8/1956">Bloom, Mol Biol Evol, 31:1956-1978</a>. Essentially, it uses the Metropolis sampling criteria. The relationship described above for <em>HalpernBruno</em> is instead replaced by: <span class="math">\(\min\left(1, \left[\pi_{r,\operatorname{A}\left(y\right)}\right]^{\beta} / \left[\pi_{r,\operatorname{A}\left(x\right)}\right]^{\beta}\right)\)</span></p>
-<p>The <em>gwF</em> method is based on Goldman-Whelan generalized weighted frequencies method. For a description of this method, see <a class="reference external" href="http://mbe.oxfordjournals.org/content/19/11/1821.long">Goldman and Whelan, Mol Biol Evol, 19:1821-1831</a> and also <a class="reference external" href="http://bmcevolbiol.biomedcentral.com/articles/10.1186/1471-2148-5-21">Knudsen and Miyamoto, BMC Evol Biol, 5:21</a>. In this approach, the relatinship described above for <em>HalpernBruno</em> is instead replaced by <span class="math">\(\frac{\left[\frac{\left(\pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta}}{\sum_a \left(\pi_{r,a}\right)^{\beta}}\right]^{\left(1 - f_{gwF}\right)}}{\left[\frac{\left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta}}{\sum_a \left(\pi_{r,a}\right)^{\beta}}\right]^{f_{gwF}}}\)</span> where <span class="math">\(f_{gwF}\)</span> can range from zero to one. Note that this method introduces one additional parameter, <span class="math">\(f_{gwF}\)</span>, relative to the <em>HalpernBruno</em> and <em>FracTolerated</em> methods.</p>
-<p class="last">Possible choices: HalpernBruno, FracTolerated, gwF</p>
-</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--gammarates=False</span></kbd></td>
-</tr>
-<tr><td>&nbsp;</td><td><p class="first">Draw the substitution rate from 4-category discrete gamma distribution with optimized shape parameter.</p>
-<p class="last">Rather than a single substitution rate, the likelihood is a linear combination of those computed using four different rates drawn from a 4-category discrete gamma distribution. The shape parameter of this distribution is optimized by maixmum likelihood (the mean is fixed to one). This adds one parameter, and will increase the program&#8217;s runtime.</p>
+<tr><td>&nbsp;</td><td><p class="first">Regularizing prior for &#8216;&#8211;diffprefsbysite&#8217;: &#8216;invquadratic,C1,C2&#8217; is prior in Bloom, Biology Direct, 12:1.</p>
+<p>How do we regularize the differential preferences when using <code class="docutils literal"><span class="pre">--diffprefsbysite</span></code>?</p>
+<p class="last">To use the inverse-quadratic prior in <a class="reference external" href="http://biologydirect.biomedcentral.com/articles/10.1186/s13062-016-0172-z">Bloom, Biology Direct, 12:1</a>, specify
+the string <cite>invquadratic,C1,C2</cite> where <cite>C1</cite> and <cite>C2</cite> are numbers &gt; 0 that specify
+how concentrated the prior is.</p>
 </td></tr>
 <tr><td class="option-group">
-<kbd><span class="option">--ncats=6</span></kbd></td>
-<td>Number of beta-distributed categories for YNGKP M7 and M8.</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">--dateseqs</span></kbd></td>
-<td><p class="first">Perform least-squares sequence dating. Specify file with column 1 = date, column 2 = sequence header; columns are space delimited.</p>
-<p>This option specifies that we perform least-squares dating of the sequences. This may be useful if your sequences are sampled from different dates. The dating is performed using code from <a class="reference external" href="http://www.atgc-montpellier.fr/LSD/">LSD</a> (see <a class="reference external" href="https://dx.doi.org/10.1093/sysbio/syv068">To et al, Systematic Biology, 65:82-97</a>) which is embedded in <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a>.</p>
-<p>This option estimates the dates of all internal nodes and re-roots the tree. The branch lengths are adjusted in the process. Essentially, this option is equivalent to running <a class="reference external" href="http://www.atgc-montpellier.fr/LSD/">LSD</a> with:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">lsd</span> <span class="o">-</span><span class="n">i</span> <span class="n">intree</span> <span class="o">-</span><span class="n">d</span> <span class="n">dates</span> <span class="o">-</span><span class="n">v</span> <span class="o">-</span><span class="n">s</span> <span class="n">seqlength</span> <span class="o">-</span><span class="n">c</span> <span class="o">-</span><span class="n">r</span> <span class="k">as</span> <span class="o">-</span><span class="n">o</span> <span class="n">outtree</span>
-</pre></div>
-</div>
-<p>With these options, variance weights are calculated based on the sequence length, temporal constraints are applied, and all root positions are searched with constraints on all branches.</p>
-<p>The file specified by this argument should give the date for each sequence in <code class="docutils literal"><span class="pre">alignment</span></code>. The first column should be the numerical date, and the second column should give the header (exactly matching that in <code class="docutils literal"><span class="pre">alignment</span></code>). Empty line or lines beginning with <code class="docutils literal"><span class="pre">#</span></code> are ignored. For instance:</p>
-<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="c1">#DATE SEQUENCE</span>
-<span class="mf">1968.5</span> <span class="n">A</span><span class="o">/</span><span class="n">Aichi</span><span class="o">/</span><span class="mi">2</span><span class="o">/</span><span class="mi">1968</span> <span class="p">(</span><span class="n">H3N2</span><span class="p">)</span> <span class="n">NP</span>
-<span class="mf">1918.0</span> <span class="n">A</span><span class="o">/</span><span class="n">Brevig</span> <span class="n">Mission</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="mi">1919</span> <span class="p">(</span><span class="n">H1N1</span><span class="p">)</span> <span class="n">NP</span>
-<span class="mf">2006.5</span> <span class="n">A</span><span class="o">/</span><span class="n">Solomon</span> <span class="n">Islands</span><span class="o">/</span><span class="mi">3</span><span class="o">/</span><span class="mi">2006</span> <span class="p">(</span><span class="n">H1N1</span><span class="p">)</span> <span class="n">NP</span>
-</pre></div>
-</div>
-</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">--ncpus=1</span></kbd></td>
-<td>Use this many CPUs; -1 means all available.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--omegabysite_fixsyn=False</span></kbd></td>
-</tr>
-<tr><td>&nbsp;</td><td><p class="first">For &#8216;&#8211;omegabysite&#8217;, assign all sites same synonymous rate rather than fitting a different one for each site.</p>
-<p class="last">This option is meaningful only if you are using <code class="docutils literal"><span class="pre">--omegabysite</span></code>. If you use this option, then we compare a model in which we fit a nonsynonymous rate to each site to a model in which we fit nothing. The synonymous rate is not fit, and so is assumed to be equal to the overall value fit for the tree. According to <a class="reference external" href="http://mbe.oxfordjournals.org/content/22/5/1208.full">Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222</a>, in some cases this can yield greater power if there is relatively limited data. However, it comes with the risk of giving spurious results if there is substantial variation in the synonymous substitution rate among sites.</p>
+<kbd><span class="option">--fitphi=False</span></kbd></td>
+<td><p class="first">Fit ExpCM phi rather than setting so stationary state matches alignment frequencies.</p>
+<p class="last">This option is not typically recommended. It will typically lead to only very slight improvements in log likelihood at substantial computational cost.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">--randprefs=False</span></kbd></td>
 </tr>
 <tr><td>&nbsp;</td><td><p class="first">Randomize preferences among sites for ExpCM.</p>
-<p class="last">Only for <em>ExpCM</em> models. This option randomly reassigns the preferences among sites. This can be used as a control &#8211; randomizing the preferences should make them lose their efficacy for describing evolution.</p>
+<p class="last">Only for <em>ExpCM</em> models.
+This option randomly reassigns the preferences among sites.
+This can be used as a control: randomizing the preferences should make them lose their efficacy for describing evolution.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">--avgprefs=False</span></kbd></td>
 </tr>
 <tr><td>&nbsp;</td><td><p class="first">Average preferences across sites for ExpCM.</p>
-<p class="last">Only for <em>ExpCM</em> models. This option computes an average of each preference across sites (<span class="math">\(\pi_a = \frac{1}{L} \sum_r \pi_{r,a}\)</span> where <span class="math">\(r = 1, \ldots, L\)</span>), and then uses these average preferences for all sites. This can be used as a control, as it merges all the information in the preferences into a non-site-specific model.</p>
-</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--fixbrlen=False</span></kbd></td>
-</tr>
-<tr><td>&nbsp;</td><td>Fix branch lengths to those of initial &#8216;tree&#8217;. Consider using &#8216;&#8211;addrateparameter&#8217; too.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--diffprefconc=[150, 0.5]</span></kbd></td>
-</tr>
-<tr><td>&nbsp;</td><td><p class="first">Parameters determining the concentration of the regularizing prior over the differential preferences for &#8216;&#8211;diffprefsbysite&#8217;. Larger values favor smaller diff prefs.</p>
-<p class="last">This option specifies the parameters <span class="math">\(C_1\)</span> and <span class="math">\(C_2\)</span> that determine the concentration of the prior that regularizes the differential preferences inferred by <code class="docutils literal"><span class="pre">--diffprefsbysite</span></code>. Both these parameters must be &gt; 0; larger values favor smaller differential preferences. See <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a> for more information on the exact meaning of these parameters.</p>
+<p class="last">Only for <em>ExpCM</em> models.
+This option computes an average of each preference across sites (<span class="math">\(\pi_a = \frac{1}{L} \sum_r \pi_{r,a}\)</span> where <span class="math">\(r = 1, \ldots, L\)</span>), and then uses these average preferences for all sites.
+This can be used as a control, as it merges all the information in the preferences into a non-site-specific model.</p>
 </td></tr>
 <tr><td class="option-group">
 <kbd><span class="option">--divpressure</span></kbd></td>
-<td><p class="first">Specify known diversifying pressure: provide file with column 1 = site, column 2 = divpressure; columns are space delimited; must be a value for every site, with 0 indicating no divpressure.</p>
-<p class="last">Only for <em>ExpCM</em> models. This option specifies the name of the file with the predetermined diversifying pressure for each site, <span class="math">\(\delta_{r}\)</span>. <code class="docutils literal"><span class="pre">phydms</span></code> will fit <span class="math">\(\omega\)</span> and <span class="math">\(\omega_{2}\)</span> as described in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>.</p>
+<td><p class="first">Known diversifying pressure at sites: file with column 1 = position, column 2 = diversification pressure; columns space-, tab-, or comma-delimited.</p>
+<p>Only for <em>ExpCM</em> models. This option specifies the name of the file with the predetermined diversifying pressure for each site, <span class="math">\(\delta_{r}\)</span>. <code class="docutils literal"><span class="pre">phydms</span></code> will fit <span class="math">\(\omega\)</span> and <span class="math">\(\omega_{2}\)</span> as described in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>.</p>
+<p class="last">You can <strong>not</strong> use <code class="docutils literal"><span class="pre">--divpressure</span></code> and <code class="docutils literal"><span class="pre">--fitphi</span></code> simultaneously.</p>
+</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--ncpus=1</span></kbd></td>
+<td><p class="first">Use this many CPUs; -1 means all available.</p>
+<p class="last">Using multiples CPUs accelerates the by-site fitting (e.g., <code class="docutils literal"><span class="pre">--omegabysite</span></code>) as multiple sites can be analyzed at once.
+However, it does not accelerate the initial optimization of the model and tree, as this calculation is not currently parallelized.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
-<kbd><span class="option">--addrateparameter=False</span></kbd></td>
+<kbd><span class="option">--fitprefsmethod=2</span></kbd></td>
 </tr>
-<tr><td>&nbsp;</td><td><p class="first">Add parameter scaling substitution rate. Only allowed with &#8216;&#8211;fixbrlen&#8217;.</p>
-<p class="last">It only makes sense to use this parameter if you have fixed all branch lengths and then wish to fit a rate that effectively scales these branch lengths.</p>
+<tr><td>&nbsp;</td><td><p class="first">Implementation to we use when fitting prefs.</p>
+<p>As described in <a class="reference internal" href="implementation.html#implementation"><span class="std std-ref">Numerical implementation</span></a>, there are two different internal parameter representations that can be used when optimizing the preferences as free parameters.
+Both in principle should give the same result, but in practice one method might be more efficient than the other or work better in rare cases where the optimization runs into problems.</p>
+<p class="last">Possible choices: 1, 2</p>
 </td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--fitF3X4=False</span></kbd></td>
-</tr>
-<tr><td>&nbsp;</td><td><p class="first">Fit F3X4 frequencies for YNGKP; otherwise use empirical</p>
-<p class="last">Only meaningful if <code class="docutils literal"><span class="pre">model</span></code> is one of the <em>YNGKP</em> models. It specifies how the 9 nucleotide frequency parameters are determined. By default, they are set to the empirically observed values in the sequence alignment. If you use <code class="docutils literal"><span class="pre">--fitF3X4</span></code> then these 9 parameters are fit by maximum likelihood.</p>
+<tr><td class="option-group">
+<kbd><span class="option">--ncats=4</span></kbd></td>
+<td><p class="first">Number of categories for gamma-distributed omega.</p>
+<p class="last">Determines the number of categories when using <code class="docutils literal"><span class="pre">--gammaomega</span></code> and <cite>model</cite> of <em>YNGKP_M5</em>. More categories leads to longer run-time, values of 4-5 are usually adequate.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">--minbrlen=1e-06</span></kbd></td>
 </tr>
-<tr><td>&nbsp;</td><td><p class="first">Min branch length for starting tree.</p>
-<p class="last">Regardless of the method used to set <code class="docutils literal"><span class="pre">tree</span></code>, all branches with lengths less than this value will be set to this value in the initial starting tree. Branches can still end up with lengths less than this after subsequent optimization of this starting tree.</p>
+<tr><td>&nbsp;</td><td><p class="first">Adjust all branch lengths in starting &#8216;tree&#8217; to &gt;= this.</p>
+<p class="last">All branches with lengths less than this value will be set to this value in the initial starting tree.
+Branches can still end up with lengths less than this after subsequent optimization of this starting tree.</p>
+</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--minpref=0.002</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td><p class="first">Adjust all preferences in ExpCM &#8216;prefsfile&#8217; to &gt;= this.</p>
+<p class="last">Adjust all amino-acid preferences in the <em>ExpCM</em> <code class="docutils literal"><span class="pre">prefsfile</span></code> to be at least this large.
+If this number is too close to zero, you will get runtime errors.</p>
 </td></tr>
 <tr><td class="option-group">
 <kbd><span class="option">--seed=1</span></kbd></td>
 <td><p class="first">Random number seed.</p>
-<p class="last">The random number seed can influence the outcome when using a non-deterministic algorithm.</p>
+<p class="last">The random number seed affects the outcomes when there is randomization, as when using <code class="docutils literal"><span class="pre">--randprefs</span></code>.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
-<kbd><span class="option">--no_optimize=False</span></kbd></td>
+<kbd><span class="option">--profile=False</span></kbd></td>
 </tr>
-<tr><td>&nbsp;</td><td><p class="first">Don&#8217;t optimize tree or model; use values in existing files from previous run with same &#8216;outprefix&#8217;.</p>
-<p class="last">This argument is intended for the case when you want to use a per-site optimization (such as <code class="docutils literal"><span class="pre">--stringencybysite</span></code>, <code class="docutils literal"><span class="pre">--omegabysite</span></code>, or <code class="docutils literal"><span class="pre">--diffprefsbysite</span></code>) without re-optimizing the entire tree. It assumes that you have <strong>previously</strong> run <code class="docutils literal"><span class="pre">phydms</span></code> with the same <code class="docutils literal"><span class="pre">outprefix</span></code> on the same set of sequences, and have already generated the <code class="docutils literal"><span class="pre">_modelparams.txt</span></code>, <code class="docutils literal"><span class="pre">_tree.newick</span></code>, and <code class="docutils literal"><span class="pre">_loglikelihood.txt</span></code> output files. It then simply uses those files and proceeds to the per-site optimization. This option currently does <strong>not</strong> work for <em>YNGKP</em> models that don&#8217;t use <code class="docutils literal"><span class="pre">-fitF3X4</span></code>. When using this option, you should specify a <code class="docutils literal"><span class="pre">treefile</span></code> that is the one created by the previous run with <code class="docutils literal"><span class="pre">outprefix</span></code>.</p>
-</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">--useLog=False</span></kbd></td>
-<td><p class="first">Use logarithms in likelihood calculations.</p>
-<p>This option specifies that we have <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a> use logarithms in the likelihood calculations. According to the <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a> developers, this prevents likelihoods of zero (log likelihoods of negative infinity) on large trees, but comes at the cost of slowing down the computations.</p>
-<p class="last">Right now, even if <code class="docutils literal"><span class="pre">--useLog</span></code> is <strong>not</strong> used, <code class="docutils literal"><span class="pre">phydms</span></code> will automatically use logarithms if a specific problem is encountered while fitting site-specific differential preferences, but otherwise does not use them. Unless you have a good reason to do otherwise, keeping this setup (i.e. keeping <code class="docutils literal"><span class="pre">--useLog</span></code> at its default value of <em>False</em>) is probably the best choice.</p>
-</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">--debugsite</span></kbd></td>
-<td>For debugging: fit site-specific selection to only this site.</td></tr>
+<tr><td>&nbsp;</td><td>Profile likelihood maximization, write pstats files. For code-development purposes.</td></tr>
 <tr><td class="option-group">
 <kbd><span class="option">-v</span>, <span class="option">--version</span></kbd></td>
 <td>show program&#8217;s version number and exit</td></tr>
@@ -302,7 +298,7 @@ The preferences file should be in the <a class="reference external" href="http:/
 <p>Running <code class="docutils literal"><span class="pre">phydms</span></code> will create the following output files, all with the prefix specified by <code class="docutils literal"><span class="pre">outprefix</span></code>.</p>
 <div class="section" id="log-file">
 <h3><a class="toc-backref" href="#id5">Log file</a><a class="headerlink" href="#log-file" title="Permalink to this headline">¶</a></h3>
-<p>This is a text file with the suffix <code class="docutils literal"><span class="pre">.log</span></code> that records information about the program&#8217;s progress.</p>
+<p>This is a text file with the suffix <code class="docutils literal"><span class="pre">_log.log</span></code> that records information about the program&#8217;s progress.</p>
 </div>
 <div class="section" id="log-likelihood-file">
 <h3><a class="toc-backref" href="#id6">Log likelihood file</a><a class="headerlink" href="#log-likelihood-file" title="Permalink to this headline">¶</a></h3>
@@ -313,136 +309,84 @@ The preferences file should be in the <a class="reference external" href="http:/
 </div>
 <div class="section" id="model-parameters">
 <h3><a class="toc-backref" href="#id7">Model parameters</a><a class="headerlink" href="#model-parameters" title="Permalink to this headline">¶</a></h3>
-<p>This file has the suffix <code class="docutils literal"><span class="pre">_modelparams.txt</span></code>. It gives the value of all <strong>optimized</strong> model parameters (it does not give the value of non-optimized model parameters such as the codon frequencies under <em>F3X4</em>). Here is an example of the contents for an <em>ExpCM</em> model:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">123</span><span class="n">_Full</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="mf">0.411593</span>
-<span class="mi">123</span><span class="n">_Full</span><span class="o">.</span><span class="n">theta1</span> <span class="o">=</span> <span class="mf">0.626366</span>
-<span class="mi">123</span><span class="n">_Full</span><span class="o">.</span><span class="n">theta2</span> <span class="o">=</span> <span class="mf">0.524156</span>
-<span class="mi">123</span><span class="n">_K80</span><span class="o">.</span><span class="n">kappa</span> <span class="o">=</span> <span class="mf">6.19349</span>
-<span class="n">omega</span> <span class="o">=</span> <span class="mf">0.768227</span>
-<span class="n">stringencyparameter</span> <span class="o">=</span> <span class="mf">2.92</span>
+<p>This file has the suffix <code class="docutils literal"><span class="pre">_modelparams.txt</span></code>.</p>
+<p>Here is an example of the contents for an <em>ExpCM</em> model.
+It gives the values of the parameters described in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>; note that <span class="math">\(\mu\)</span> is <strong>not</strong> included as it is confounded with the branch lengths:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">beta</span> <span class="o">=</span> <span class="mf">2.99307</span>
+<span class="n">kappa</span> <span class="o">=</span> <span class="mf">6.31364</span>
+<span class="n">omega</span> <span class="o">=</span> <span class="mf">0.780782</span>
+<span class="n">phiA</span> <span class="o">=</span> <span class="mf">0.372278</span>
+<span class="n">phiC</span> <span class="o">=</span> <span class="mf">0.196416</span>
+<span class="n">phiG</span> <span class="o">=</span> <span class="mf">0.224367</span>
 </pre></div>
 </div>
-<p>These parameters correspond to those described in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a> as follows:</p>
-<blockquote>
-<div><ul class="simple">
-<li><em>stringencyparameter</em> is <span class="math">\(\beta\)</span></li>
-<li><em>omega</em> is <span class="math">\(\omega\)</span></li>
-<li><em>123_K80.kappa</em> is <span class="math">\(\kappa\)</span></li>
-<li><em>123_Full.theta</em>, <em>123_Full.theta1</em>, and <em>123_Full.theta2</em> define the values of the nucleotide frequences <span class="math">\(\phi_A\)</span>, <span class="math">\(\phi_C\)</span>, <span class="math">\(\phi_G\)</span>, and <span class="math">\(\phi_T\)</span>. The definitions are <span class="math">\(\phi_C + \phi_G = \rm{\textit{123_Full.theta}}\)</span>, <span class="math">\(\phi_A / \left(\phi_A + \phi_T\right) = \rm{\textit{123_Full.theta1}}\)</span>, and <span class="math">\(\phi_G / \left(\phi_G + \phi_C\right) = \rm{\textit{123_Full.theta2}}\)</span>.</li>
-</ul>
-</div></blockquote>
-<p>Here is an example of the contents for a <em>YNGKP_M8</em> model:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kappa</span> <span class="o">=</span> <span class="mf">3.355859</span>
-<span class="n">omegas</span> <span class="o">=</span> <span class="mf">3.172927</span>
-<span class="n">p</span> <span class="o">=</span> <span class="mf">0.000100</span>
-<span class="n">p0</span> <span class="o">=</span> <span class="mf">0.886637</span>
-<span class="n">q</span> <span class="o">=</span> <span class="mf">0.258658</span>
+<p>Here is an example of the contents for a <em>YNGKP_M0</em> model.
+In this file, <cite>phi0A</cite> is the corrected empirical frequency of <cite>A</cite> at the first codon site, <cite>phi0A</cite> is the frequency of <cite>A</cite> at the second codon site, etc.:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kappa</span> <span class="o">=</span> <span class="mf">5.78484</span>
+<span class="n">omega</span> <span class="o">=</span> <span class="mf">0.11308</span>
+<span class="n">phi0A</span> <span class="o">=</span> <span class="mf">0.340656</span>
+<span class="n">phi0C</span> <span class="o">=</span> <span class="mf">0.153395</span>
+<span class="n">phi0G</span> <span class="o">=</span> <span class="mf">0.308294</span>
+<span class="n">phi1A</span> <span class="o">=</span> <span class="mf">0.320503</span>
+<span class="n">phi1C</span> <span class="o">=</span> <span class="mf">0.206698</span>
+<span class="n">phi1G</span> <span class="o">=</span> <span class="mf">0.236844</span>
+<span class="n">phi2A</span> <span class="o">=</span> <span class="mf">0.331485</span>
+<span class="n">phi2C</span> <span class="o">=</span> <span class="mf">0.202991</span>
+<span class="n">phi2G</span> <span class="o">=</span> <span class="mf">0.243997</span>
 </pre></div>
 </div>
-<p>These parameters correspond to those described for the <em>M8</em> model by <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a> (three discrete categories of <span class="math">\(\omega\)</span>), with:</p>
-<blockquote>
-<div><ul class="simple">
-<li><em>kappa</em> being <span class="math">\(\kappa\)</span></li>
-<li><em>p0</em> being the weight assigned to the <span class="math">\(\omega &lt; 1\)</span> beta distributed values.</li>
-<li><em>p</em> and <em>q</em> being the shape parameters of the beta distribution.</li>
-<li><em>omegas</em> being the <span class="math">\(\omega\)</span> value of the category (weight <em>1 - p0</em>) with <span class="math">\(\omega &gt; 1\)</span>.</li>
-</ul>
-</div></blockquote>
+<p>If you use a model with a gamma-distributed <span class="math">\(\omega\)</span> (i.e., the <code class="docutils literal"><span class="pre">--gammarates</span></code> option for an <em>ExpCM</em>, or the <em>YNGKP_M5</em> model), then rather than having a single <span class="math">\(\omega\)</span> value, there are instead two parameters that determine the gamma distribution.
+These are the shape parameter <span class="math">\(\alpha_{\omega}\)</span> (denoted <em>alpha_omega</em>) and the inverse scale parameter <span class="math">\(\beta_{\omega}\)</span> (denoted by <em>beta_omega</em>).
+The mean and variance of the omega distribution are <span class="math">\(\alpha_{\omega}/ \beta_{\omega}\)</span> and <span class="math">\(\alpha_{\omega} / \left(\beta_{\omega}\right)^2\)</span>, respectively.
+To get the exact values, use the <a class="reference internal" href="api.html#api"><span class="std std-ref">phydmslib API</span></a> to call <code class="docutils literal"><span class="pre">phydmslib.models.DiscreteGamma(alpha_omega,</span> <span class="pre">beta_omega,</span> <span class="pre">ncats)</span></code> where <em>ncats</em> is the value set by <code class="docutils literal"><span class="pre">--ncats</span></code>. Here is an example of the model parameter file contents for an <em>ExpCM</em> with <code class="docutils literal"><span class="pre">--gammaomega</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">alpha_omega</span> <span class="o">=</span> <span class="mf">0.835183</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="mf">3.01549</span>
+<span class="n">beta_omega</span> <span class="o">=</span> <span class="mf">0.976053</span>
+<span class="n">kappa</span> <span class="o">=</span> <span class="mf">6.3424</span>
+<span class="n">phiA</span> <span class="o">=</span> <span class="mf">0.372475</span>
+<span class="n">phiC</span> <span class="o">=</span> <span class="mf">0.196471</span>
+<span class="n">phiG</span> <span class="o">=</span> <span class="mf">0.22418</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="tree-file">
 <h3><a class="toc-backref" href="#id8">Tree file</a><a class="headerlink" href="#tree-file" title="Permalink to this headline">¶</a></h3>
-<p>This file has the suffix <code class="docutils literal"><span class="pre">_tree.newick</span></code>, and gives the optimized tree in Newick format.</p>
+<p>This file has the suffix <code class="docutils literal"><span class="pre">_tree.newick</span></code>, and gives the optimized tree in Newick format.
+The branch lengths are in units of codon substitutions per site.</p>
 </div>
 <div class="section" id="site-specific-omega-file">
 <h3><a class="toc-backref" href="#id9">Site-specific omega file</a><a class="headerlink" href="#site-specific-omega-file" title="Permalink to this headline">¶</a></h3>
-<p>This file has the suffix <code class="docutils literal"><span class="pre">_omegabysite.txt</span></code>, and is created only if using the <code class="docutils literal"><span class="pre">--omegabysite</span></code> option. This file gives the <span class="math">\(\omega_r\)</span> values optimized for each site. In the case of a <em>YNGKP</em> model, these are site-specific dN/dS ratios that should be essentially analogous to those obtained under the <em>FEL</em> model described by <a class="reference external" href="http://mbe.oxfordjournals.org/content/22/5/1208.full">Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222</a>. In the case of an <em>ExpCM</em> model, these values indicate diversifying selection for nonsynonymous amino-acid change as described in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>.</p>
-<p>Here is an example of the first few lines of a file:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Omega fit to each site after fixing tree and and all other parameters.</span>
-<span class="c1"># Fits compared to null model of omega = 1.000; P-values NOT corrected for multiple testing.</span>
-<span class="c1">#</span>
-<span class="c1"># site  omega   P   dLnL</span>
-<span class="mi">472</span> <span class="mf">99.000</span>  <span class="mf">0.00199</span> <span class="mf">4.778</span>
-<span class="mi">284</span> <span class="mf">0.001</span>   <span class="mf">0.00434</span> <span class="mf">4.067</span>
-<span class="mi">319</span> <span class="mf">0.001</span>   <span class="mf">0.00723</span> <span class="mf">3.607</span>
-<span class="mi">20</span>  <span class="mf">99.000</span>  <span class="mf">0.00852</span> <span class="mf">3.460</span>
-<span class="mi">373</span> <span class="mf">99.000</span>  <span class="mf">0.00936</span> <span class="mf">3.376</span>
-<span class="mi">350</span> <span class="mf">0.001</span>   <span class="mf">0.0126</span>  <span class="mf">3.113</span>
-<span class="mi">465</span> <span class="mf">99.000</span>  <span class="mf">0.0149</span>  <span class="mf">2.966</span>
-<span class="mi">470</span> <span class="mf">99.000</span>  <span class="mf">0.0158</span>  <span class="mf">2.911</span>
-<span class="mi">289</span> <span class="mf">0.001</span>   <span class="mf">0.016</span>   <span class="mf">2.899</span>
-<span class="mi">396</span> <span class="mf">0.001</span>   <span class="mf">0.024</span>   <span class="mf">2.546</span>
-<span class="mi">129</span> <span class="mf">0.001</span>   <span class="mf">0.0253</span>  <span class="mf">2.501</span>
-<span class="mi">84</span>  <span class="mf">0.001</span>   <span class="mf">0.0279</span>  <span class="mf">2.418</span>
-<span class="mi">247</span> <span class="mf">0.001</span>   <span class="mf">0.029</span>   <span class="mf">2.383</span>
-<span class="mi">101</span> <span class="mf">8.381</span>   <span class="mf">0.0325</span>  <span class="mf">2.287</span>
+<p>This file has the suffix <code class="docutils literal"><span class="pre">_omegabysite.txt</span></code>, and is created only if using the <code class="docutils literal"><span class="pre">--omegabysite</span></code> option. This file gives the <span class="math">\(\omega_r\)</span> values optimized for each site. In the case of a <em>YNGKP</em> model, these are site-specific dN/dS ratios that should be essentially analogous to those obtained under the <em>FEL</em> model described by <a class="reference external" href="http://mbe.oxfordjournals.org/content/22/5/1208.full">Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222</a>. In the case of an <em>ExpCM</em> model, these values indicate diversifying selection for nonsynonymous amino-acid change as described in <a class="reference external" href="http://biologydirect.biomedcentral.com/articles/10.1186/s13062-016-0172-z">Bloom, Biology Direct, 12:1</a> (see also <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>).</p>
+<p>Here is an example of the first few lines of a file. The entries are tab separated:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">site</span>    <span class="n">omega</span>   <span class="n">P</span>   <span class="n">dLnL</span>    <span class="n">Q</span>
+<span class="mi">213</span> <span class="mf">0.000</span>   <span class="mf">0.000216</span>    <span class="mf">6.841</span>   <span class="mf">0.108</span>
+<span class="mi">55</span>  <span class="mf">0.000</span>   <span class="mf">0.000649</span>    <span class="mf">5.815</span>   <span class="mf">0.162</span>
+<span class="mi">354</span> <span class="mf">0.000</span>   <span class="mf">0.00166</span> <span class="mf">4.948</span>   <span class="mf">0.177</span>
+<span class="mi">298</span> <span class="mf">0.000</span>   <span class="mf">0.00181</span> <span class="mf">4.865</span>   <span class="mf">0.177</span>
 </pre></div>
 </div>
-<p>The columns should be self-explanatory, the <em>P</em>-values are for rejection of the null hypothesis that <span class="math">\(\omega_r = 1\)</span> (calculated using a <span class="math">\(\chi_1^2\)</span> test; no correction for multiple testing is included, so you need to do that yourself if necessary for your question). The sites are sorted in the file by <em>P</em>-value.</p>
+<p>The <em>P</em>-values are for rejection of the null hypothesis that <span class="math">\(\omega_r = 1\)</span> (calculated using a <span class="math">\(\chi_1^2\)</span> test).
+These <em>P</em>-values are <strong>not</strong> corrected for multiple hypothesis testing; so you should instead look at the <em>Q</em>-values, which give the false discovery rate if this site and all above it are considered to have <span class="math">\(\omega \ne 1\)</span>.
+The sites are sorted in the file by <em>P</em>-value.</p>
+<p>For this type of test, the quantity of interest is typically not so much the exact value of <span class="math">\(\omega_r\)</span>, but rather the <em>P</em>-value (or <em>Q</em>-value) that <span class="math">\(\omega_r \ne 1\)</span>.
+That <em>P</em>-value (or <em>Q</em>-value) is what indicates the credence that you should lend to the idea that a site is under diversifying selection if <span class="math">\(\omega_r &gt; 1\)</span>.</p>
 </div>
-<div class="section" id="site-specific-stringency-file">
-<h3><a class="toc-backref" href="#id10">Site-specific stringency file</a><a class="headerlink" href="#site-specific-stringency-file" title="Permalink to this headline">¶</a></h3>
-<p>This file has the suffix <code class="docutils literal"><span class="pre">_stringencybysite.txt</span></code>, and is created only if using and <em>ExpCM</em> with <code class="docutils literal"><span class="pre">--stringencybysite</span></code>. It gives the ratio <span class="math">\(\beta_r / \beta\)</span> described in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>; values of this ratio greater than one indicates increased stringency for the preferences, and values less than one indicate decreased stringency for the preferences. The <em>P</em>-values are for rejection of the null hypothesis that <span class="math">\(1 = \beta_r / \beta\)</span> (calculated using a <span class="math">\(\chi_1^2\)</span> test; no correction for multiple testing is included, so you need to do that yourself if necessary for your question). The sites are sorted in the file by <em>P</em>-value. Here is an example of the first few lines of a file:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Stringency fit to each site after fixing tree and and all other parameters.</span>
-<span class="c1"># Fits compared to null model of stringency = 2.920 (the overall gene value).</span>
-<span class="c1"># P-values NOT corrected for multiple testing.</span>
-<span class="c1"># The stringency ratio is the ratio of the fitted value to the null (overall gene value).</span>
-<span class="c1">#</span>
-<span class="c1"># site  stringency_ratio    P   dLnL</span>
-<span class="mi">375</span> <span class="mf">0.017</span>   <span class="mf">2.45e-05</span>    <span class="mf">8.903</span>
-<span class="mi">52</span>  <span class="mf">0.017</span>   <span class="mf">0.000249</span>    <span class="mf">6.709</span>
-<span class="mi">442</span> <span class="mf">0.079</span>   <span class="mf">0.00048</span> <span class="mf">6.097</span>
-<span class="mi">294</span> <span class="mf">0.017</span>   <span class="mf">0.00399</span> <span class="mf">4.145</span>
-<span class="mi">398</span> <span class="mf">0.095</span>   <span class="mf">0.00858</span> <span class="mf">3.454</span>
-<span class="mi">50</span>  <span class="mf">0.134</span>   <span class="mf">0.0103</span>  <span class="mf">3.291</span>
-<span class="mi">465</span> <span class="mf">0.334</span>   <span class="mf">0.0123</span>  <span class="mf">3.132</span>
-<span class="mi">351</span> <span class="mf">0.420</span>   <span class="mf">0.0125</span>  <span class="mf">3.121</span>
-<span class="mi">283</span> <span class="mf">0.017</span>   <span class="mf">0.0126</span>  <span class="mf">3.110</span>
-<span class="mi">344</span> <span class="mf">0.430</span>   <span class="mf">0.0287</span>  <span class="mf">2.392</span>
-<span class="mi">85</span>  <span class="mf">6.849</span>   <span class="mf">0.0338</span>  <span class="mf">2.253</span>
-<span class="mi">497</span> <span class="mf">0.195</span>   <span class="mf">0.0341</span>  <span class="mf">2.244</span>
+<div class="section" id="site-specific-differential-selection">
+<h3><a class="toc-backref" href="#id10">Site-specific differential selection</a><a class="headerlink" href="#site-specific-differential-selection" title="Permalink to this headline">¶</a></h3>
+<p>This file has the suffix <code class="docutils literal"><span class="pre">_diffprefsbysite.txt</span></code>, and is created only if using the <code class="docutils literal"><span class="pre">--diffprefsbysite</span></code> option to an <em>ExpCM</em>. These are the differential preferences (the <span class="math">\(\Delta\pi_{r,a}\)</span> values) described in <a class="reference external" href="http://biologydirect.biomedcentral.com/articles/10.1186/s13062-016-0172-z">Bloom, Biology Direct, 12:1</a> and <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>.</p>
+<p>Here is an example of the first few lines of a file. The entries are tab separated:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">site</span>    <span class="n">dpi_A</span>   <span class="n">dpi_C</span>   <span class="n">dpi_D</span>   <span class="n">dpi_E</span>   <span class="n">dpi_F</span>   <span class="n">dpi_G</span>   <span class="n">dpi_H</span>   <span class="n">dpi_I</span>   <span class="n">dpi_K</span>   <span class="n">dpi_L</span>   <span class="n">dpi_M</span>   <span class="n">dpi_N</span>   <span class="n">dpi_P</span>   <span class="n">dpi_Q</span>   <span class="n">dpi_R</span>   <span class="n">dpi_S</span>   <span class="n">dpi_T</span>   <span class="n">dpi_V</span>   <span class="n">dpi_W</span>   <span class="n">dpi_Y</span>   <span class="n">half_sum_abs_dpi</span>
+<span class="mi">375</span> <span class="o">-</span><span class="mf">0.0004</span> <span class="o">-</span><span class="mf">0.0040</span> <span class="mf">0.0995</span>  <span class="o">-</span><span class="mf">0.8408</span> <span class="o">-</span><span class="mf">0.0014</span> <span class="mf">0.4839</span>  <span class="o">-</span><span class="mf">0.0029</span> <span class="o">-</span><span class="mf">0.0003</span> <span class="o">-</span><span class="mf">0.0062</span> <span class="o">-</span><span class="mf">0.0333</span> <span class="o">-</span><span class="mf">0.0092</span> <span class="o">-</span><span class="mf">0.0039</span> <span class="o">-</span><span class="mf">0.0003</span> <span class="o">-</span><span class="mf">0.0340</span> <span class="o">-</span><span class="mf">0.0000</span> <span class="o">-</span><span class="mf">0.0036</span> <span class="o">-</span><span class="mf">0.0073</span> <span class="mf">0.3659</span>  <span class="o">-</span><span class="mf">0.0013</span> <span class="o">-</span><span class="mf">0.0003</span> <span class="mf">0.9492</span>
+<span class="mi">421</span> <span class="o">-</span><span class="mf">0.0107</span> <span class="o">-</span><span class="mf">0.0062</span> <span class="o">-</span><span class="mf">0.0092</span> <span class="mf">0.1521</span>  <span class="o">-</span><span class="mf">0.0009</span> <span class="o">-</span><span class="mf">0.0004</span> <span class="o">-</span><span class="mf">0.0078</span> <span class="o">-</span><span class="mf">0.0124</span> <span class="o">-</span><span class="mf">0.0003</span> <span class="o">-</span><span class="mf">0.0168</span> <span class="o">-</span><span class="mf">0.0036</span> <span class="o">-</span><span class="mf">0.0271</span> <span class="o">-</span><span class="mf">0.0000</span> <span class="o">-</span><span class="mf">0.0019</span> <span class="o">-</span><span class="mf">0.0060</span> <span class="o">-</span><span class="mf">0.0259</span> <span class="o">-</span><span class="mf">0.0022</span> <span class="o">-</span><span class="mf">0.0116</span> <span class="o">-</span><span class="mf">0.0003</span> <span class="o">-</span><span class="mf">0.0085</span> <span class="mf">0.1521</span>
+<span class="mi">283</span> <span class="o">-</span><span class="mf">0.0126</span> <span class="o">-</span><span class="mf">0.0124</span> <span class="o">-</span><span class="mf">0.0001</span> <span class="o">-</span><span class="mf">0.0031</span> <span class="o">-</span><span class="mf">0.0052</span> <span class="o">-</span><span class="mf">0.0129</span> <span class="o">-</span><span class="mf">0.0131</span> <span class="o">-</span><span class="mf">0.0047</span> <span class="o">-</span><span class="mf">0.0014</span> <span class="o">-</span><span class="mf">0.0085</span> <span class="o">-</span><span class="mf">0.0077</span> <span class="o">-</span><span class="mf">0.0012</span> <span class="mf">0.1502</span>  <span class="o">-</span><span class="mf">0.0123</span> <span class="o">-</span><span class="mf">0.0004</span> <span class="o">-</span><span class="mf">0.0237</span> <span class="o">-</span><span class="mf">0.0164</span> <span class="o">-</span><span class="mf">0.0089</span> <span class="o">-</span><span class="mf">0.0054</span> <span class="o">-</span><span class="mf">0.0000</span> <span class="mf">0.1502</span>
+<span class="mi">294</span> <span class="o">-</span><span class="mf">0.0078</span> <span class="o">-</span><span class="mf">0.0087</span> <span class="o">-</span><span class="mf">0.0112</span> <span class="mf">0.1458</span>  <span class="o">-</span><span class="mf">0.0084</span> <span class="o">-</span><span class="mf">0.0079</span> <span class="o">-</span><span class="mf">0.0098</span> <span class="o">-</span><span class="mf">0.0001</span> <span class="o">-</span><span class="mf">0.0064</span> <span class="o">-</span><span class="mf">0.0028</span> <span class="o">-</span><span class="mf">0.0079</span> <span class="o">-</span><span class="mf">0.0134</span> <span class="o">-</span><span class="mf">0.0000</span> <span class="o">-</span><span class="mf">0.0126</span> <span class="o">-</span><span class="mf">0.0104</span> <span class="o">-</span><span class="mf">0.0156</span> <span class="o">-</span><span class="mf">0.0110</span> <span class="o">-</span><span class="mf">0.0115</span> <span class="o">-</span><span class="mf">0.0001</span> <span class="o">-</span><span class="mf">0.0002</span> <span class="mf">0.1458</span>
+<span class="mi">127</span> <span class="o">-</span><span class="mf">0.0088</span> <span class="o">-</span><span class="mf">0.0006</span> <span class="o">-</span><span class="mf">0.0010</span> <span class="mf">0.1423</span>  <span class="o">-</span><span class="mf">0.0021</span> <span class="o">-</span><span class="mf">0.0179</span> <span class="o">-</span><span class="mf">0.0059</span> <span class="o">-</span><span class="mf">0.0096</span> <span class="o">-</span><span class="mf">0.0208</span> <span class="o">-</span><span class="mf">0.0100</span> <span class="o">-</span><span class="mf">0.0021</span> <span class="o">-</span><span class="mf">0.0095</span> <span class="o">-</span><span class="mf">0.0007</span> <span class="o">-</span><span class="mf">0.0066</span> <span class="o">-</span><span class="mf">0.0073</span> <span class="o">-</span><span class="mf">0.0114</span> <span class="o">-</span><span class="mf">0.0146</span> <span class="o">-</span><span class="mf">0.0075</span> <span class="o">-</span><span class="mf">0.0010</span> <span class="o">-</span><span class="mf">0.0049</span> <span class="mf">0.1423</span>
+<span class="mi">289</span> <span class="o">-</span><span class="mf">0.0079</span> <span class="o">-</span><span class="mf">0.0127</span> <span class="o">-</span><span class="mf">0.0005</span> <span class="o">-</span><span class="mf">0.0002</span> <span class="o">-</span><span class="mf">0.0228</span> <span class="o">-</span><span class="mf">0.0005</span> <span class="o">-</span><span class="mf">0.0154</span> <span class="o">-</span><span class="mf">0.0156</span> <span class="o">-</span><span class="mf">0.0033</span> <span class="o">-</span><span class="mf">0.0167</span> <span class="o">-</span><span class="mf">0.0113</span> <span class="o">-</span><span class="mf">0.0034</span> <span class="o">-</span><span class="mf">0.0004</span> <span class="o">-</span><span class="mf">0.0004</span> <span class="o">-</span><span class="mf">0.0094</span> <span class="o">-</span><span class="mf">0.0020</span> <span class="o">-</span><span class="mf">0.0028</span> <span class="o">-</span><span class="mf">0.0133</span> <span class="o">-</span><span class="mf">0.0006</span> <span class="mf">0.1391</span>  <span class="mf">0.1391</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="differential-preferences-file">
-<h3><a class="toc-backref" href="#id11">Differential preferences file</a><a class="headerlink" href="#differential-preferences-file" title="Permalink to this headline">¶</a></h3>
-<p>This file has the suffix <code class="docutils literal"><span class="pre">_diffprefsbysite.txt</span></code> and is created only if using <em>ExpCM</em> with <code class="docutils literal"><span class="pre">--diffprefsbysite</span></code>. It gives the <span class="math">\(\Delta\pi_{r,a}\)</span> values for all sites and amino acids. Positive values indicate unexpectedly strong natural selection for amino acid <span class="math">\(a\)</span> at site <span class="math">\(r\)</span>, and negative values indicate unexpectedly strong selection against <span class="math">\(a\)</span> at <span class="math">\(r\)</span>.</p>
-<p>The file is <a class="reference external" href="http://jbloomlab.github.io/dms_tools">dms_tools</a> <a class="reference external" href="http://jbloomlab.github.io/dms_tools/fileformats.html#differential-preferences-file">differential preferences file format</a>. Here is an example of the first few lines:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span># POSITION WT RMS_dPI dPI_A dPI_C dPI_D dPI_E dPI_F dPI_G dPI_H dPI_I dPI_K dPI_L dPI_M dPI_N dPI_P dPI_Q dPI_R dPI_S dPI_T dPI_V dPI_W dPI_Y
-1 ? 0.0054602 -0.00109088 -0.00056453 -0.00108891 -0.00125535 -0.000617395 -0.000825462 -0.00129802 -0.00107999 -0.00249272 -0.00202186 0.0236839 -0.00145916 -0.00101602 -0.00112551 -0.00222488 -0.00140373 -0.0018838 -0.000760446 -0.000350133 -0.00112508
-2 ? 0.000905382 -0.00365815 0.00010107 0.000118787 2.0868e-05 0.000105629 9.45005e-05 0.000101899 0.000182448 0.000111788 0.000119843 2.56786e-05 0.000107759 0.000111716 0.000107354 0.000119253 0.000107919 0.000269405 0.00165618 9.42552e-05 0.000101797
-3 ? 0.0117273 -0.00227315 -1.84925e-05 0.000103205 9.00981e-05 -0.0211034 -2.02e-05 -0.0042788 4.69967e-05 6.14462e-06 -0.00705743 7.46465e-06 -0.000664213 -0.00013711 -1.53571e-05 1.94615e-05 0.0462434 -0.00954078 1.79158e-05 -1.80775e-05 -0.00140763
-4 ? 0.0128513 4.58248e-05 4.48221e-05 0.000127339 -0.000289767 -0.0242064 0.000105165 -0.000221029 -0.000643845 -0.000194136 -0.00102868 -1.8996e-05 -0.00165434 -0.00107047 0.0487178 2.44348e-06 -0.0183293 2.89232e-05 0.000101645 -2.39308e-05 -0.00149314
-</pre></div>
-</div>
-<p>The column for <em>WT</em> identity is always <em>?</em> because the concept of a wildtype identity is not well-defined when analyzing naturally occuring sequences. The third column is the root-mean-square differential preference at that site, and the remaining columns are <span class="math">\(\Delta\pi_{r,a}\)</span> for each amino acid <span class="math">\(a\)</span> at that site.</p>
-</div>
-<div class="section" id="differential-preferences-absolute-sum-file">
-<h3><a class="toc-backref" href="#id12">Differential preferences absolute sum file</a><a class="headerlink" href="#differential-preferences-absolute-sum-file" title="Permalink to this headline">¶</a></h3>
-<p>This file has the suffix <code class="docutils literal"><span class="pre">_diffprefsbysite_sumabs.txt</span></code> and is created only if using <em>ExpCM</em> with <code class="docutils literal"><span class="pre">--diffprefsbysite.txt</span></code>. It gives <strong>half</strong> the absolute sum the differential preferences at each site, e.g. <span class="math">\(\frac{1}{2}\sum_a \left|\Delta\pi_{r,a}\right|\)</span>. These values are sorted from largest to smallest; the possible range of values is 0 to 1. Sites with large values have large differences in preferences between natural evolution and the deep mutational scanning.</p>
-<p>Here is an example of the first few lines:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># The entries are half the absolute sum of the differential preferences for each site.</span>
-<span class="c1"># This quantity can range from 0 to 1.</span>
-<span class="c1">#</span>
-<span class="c1"># SITE  HALF_ABSOLUTE_SUM_DIFFPREFS</span>
-<span class="mi">61</span>  <span class="mf">0.36143</span>
-<span class="mi">5</span>   <span class="mf">0.276541</span>
-<span class="mi">15</span>  <span class="mf">0.255797</span>
-<span class="mi">58</span>  <span class="mf">0.244982</span>
-<span class="mi">12</span>  <span class="mf">0.237037</span>
-<span class="mi">26</span>  <span class="mf">0.217145</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="dated-tree-file">
-<h3><a class="toc-backref" href="#id13">Dated tree file</a><a class="headerlink" href="#dated-tree-file" title="Permalink to this headline">¶</a></h3>
-<p>This file is created only if the <code class="docutils literal"><span class="pre">--dateseqs</span></code> option is being used. In that case, it is the tree after least-squares dating has been applied. The file has the suffix <code class="docutils literal"><span class="pre">_datedtree.newick</span></code>.</p>
-</div>
-<div class="section" id="most-recent-common-ancestor-date-file">
-<h3><a class="toc-backref" href="#id14">Most-recent common ancestor date file</a><a class="headerlink" href="#most-recent-common-ancestor-date-file" title="Permalink to this headline">¶</a></h3>
-<p>This file is created only if the <code class="docutils literal"><span class="pre">--dateseqs</span></code> option is being used. In that case, it is the time to most-recent common ancestor based on the dated tree. The file has the suffix <code class="docutils literal"><span class="pre">_mrca_date.txt</span></code>. Its contents are very simple, for instance:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">MRCA_date</span> <span class="o">=</span> <span class="mf">103.135</span>
-</pre></div>
-</div>
+<p>The first column gives the site numbers, subsequent columns give the differential preference (<span class="math">\(\Delta\pi_{r,a}\)</span>) for each amino acid.
+The last column gives the half absolute sum of the differential preferences, <span class="math">\(\sum_a |\Delta\pi_{r,a}|\)</span>, at each site. This quantity can range from zero to one.
+The sites are sorted with the highest half absolute sum differential preference first.</p>
 </div>
 </div>
 </div>
@@ -464,11 +408,7 @@ The preferences file should be in the <a class="reference external" href="http:/
 <li><a class="reference internal" href="#model-parameters">Model parameters</a></li>
 <li><a class="reference internal" href="#tree-file">Tree file</a></li>
 <li><a class="reference internal" href="#site-specific-omega-file">Site-specific omega file</a></li>
-<li><a class="reference internal" href="#site-specific-stringency-file">Site-specific stringency file</a></li>
-<li><a class="reference internal" href="#differential-preferences-file">Differential preferences file</a></li>
-<li><a class="reference internal" href="#differential-preferences-absolute-sum-file">Differential preferences absolute sum file</a></li>
-<li><a class="reference internal" href="#dated-tree-file">Dated tree file</a></li>
-<li><a class="reference internal" href="#most-recent-common-ancestor-date-file">Most-recent common ancestor date file</a></li>
+<li><a class="reference internal" href="#site-specific-differential-selection">Site-specific differential selection</a></li>
 </ul>
 </li>
 </ul>
@@ -476,8 +416,8 @@ The preferences file should be in the <a class="reference external" href="http:/
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="quick_example.html"
-                        title="previous chapter">Quick example</a></p>
+  <p class="topless"><a href="howtouse.html"
+                        title="previous chapter">how to use <code class="docutils literal"><span class="pre">phydms</span></code></a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="auxiliary_progs.html"
                         title="next chapter">auxiliary programs</a></p>
@@ -491,8 +431,8 @@ The preferences file should be in the <a class="reference external" href="http:/
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
@@ -515,14 +455,14 @@ The preferences file should be in the <a class="reference external" href="http:/
           <a href="auxiliary_progs.html" title="auxiliary programs"
              >next</a> |</li>
         <li class="right" >
-          <a href="quick_example.html" title="Quick example"
+          <a href="howtouse.html" title="how to use phydms"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.3.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.dev0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+        &copy; Copyright 2015, Jesse D. Bloom.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
     </div>
   </body>
 </html>

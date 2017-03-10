@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>the phydms_testdivpressure program &#8212; phydms 1.3.0 documentation</title>
+    <title>the phydms_testdivpressure program &mdash; phydms 2.0.dev0 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.3.0',
+        VERSION:     '2.0.dev0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,10 +24,10 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.3.0 documentation" href="index.html" />
+    <link rel="top" title="phydms 2.0.dev0 documentation" href="index.html" />
     <link rel="up" title="auxiliary programs" href="auxiliary_progs.html" />
     <link rel="next" title="Experimentally Informed Codon Models" href="ExpCM.html" />
-    <link rel="prev" title="the phydms_renumber program" href="phydms_renumber_prog.html" /> 
+    <link rel="prev" title="the phydms_logoplot program" href="phydms_logoplot.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -43,10 +43,10 @@
           <a href="ExpCM.html" title="Experimentally Informed Codon Models"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="phydms_renumber_prog.html" title="the phydms_renumber program"
+          <a href="phydms_logoplot.html" title="the phydms_logoplot program"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.3.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" accesskey="U">auxiliary programs</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.dev0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" accesskey="U">auxiliary programs</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -56,17 +56,17 @@
           <div class="body" role="main">
             
   <div class="section" id="the-phydms-testdivpressure-program">
-<span id="phydms-testdivpressure-prog"></span><h1><a class="toc-backref" href="#id2">the <code class="docutils literal"><span class="pre">phydms_testdivpressure</span></code> program</a><a class="headerlink" href="#the-phydms-testdivpressure-program" title="Permalink to this headline">¶</a></h1>
+<span id="phydms-testdivpressure-prog"></span><h1><a class="toc-backref" href="#id1">the <code class="docutils literal"><span class="pre">phydms_testdivpressure</span></code> program</a><a class="headerlink" href="#the-phydms-testdivpressure-program" title="Permalink to this headline">¶</a></h1>
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#the-phydms-testdivpressure-program" id="id2">the <code class="docutils literal"><span class="pre">phydms_testdivpressure</span></code> program</a><ul>
-<li><a class="reference internal" href="#overview" id="id3">Overview</a></li>
-<li><a class="reference internal" href="#command-line-usage" id="id4">Command-line usage</a></li>
-<li><a class="reference internal" href="#output-files" id="id5">Output files</a><ul>
-<li><a class="reference internal" href="#log-file" id="id6">Log file</a></li>
-<li><a class="reference internal" href="#model-comparison-file" id="id7">Model comparison file</a></li>
-<li><a class="reference internal" href="#phydms-output-for-each-model" id="id8"><code class="docutils literal"><span class="pre">phydms</span></code> output for each model</a></li>
+<li><a class="reference internal" href="#the-phydms-testdivpressure-program" id="id1">the <code class="docutils literal"><span class="pre">phydms_testdivpressure</span></code> program</a><ul>
+<li><a class="reference internal" href="#overview" id="id2">Overview</a></li>
+<li><a class="reference internal" href="#command-line-usage" id="id3">Command-line usage</a></li>
+<li><a class="reference internal" href="#output-files" id="id4">Output files</a><ul>
+<li><a class="reference internal" href="#log-file" id="id5">Log file</a></li>
+<li><a class="reference internal" href="#model-comparison-files" id="id6">Model comparison files</a></li>
+<li><a class="reference internal" href="#output-for-individual-models" id="id7">Output for individual models</a></li>
 </ul>
 </li>
 </ul>
@@ -74,23 +74,23 @@
 </ul>
 </div>
 <div class="section" id="overview">
-<h2><a class="toc-backref" href="#id3">Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id2">Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal"><span class="pre">phydms_testdivpressure</span></code> is a program that simplifies usage of <code class="docutils literal"><span class="pre">phydms</span></code> to compare different models of diversifying pressure.</p>
 <p>In its simplest usage, you provide <code class="docutils literal"><span class="pre">phydms_testdivpressure</span></code> with an alignment, a file giving site-specific amino-acid preferences, and a file giving site-specific diversifying pressures.
-The program first uses <code class="docutils literal"><span class="pre">phydms</span></code> to infer a tree under the <em>YNGKP_M0</em> model (starting from a crude neighbor-joining tree) and then optimizes the tree under the <em>ExpCM</em> (without any diversifying pressures specified).
-The program then fits an <em>ExpCM</em> augmented by each set of diversifying pressures to the optimized tree.
-Finally, it creates a summary that enables comparison among the models.</p>
-<p>For an additional control, <code class="docutils literal"><span class="pre">phydms_testdivpressure</span></code> can randomize the diversifying pressures and fit an <em>ExpCM</em> using these randomized diversifying pressures.</p>
-<p>If this program hangs up on the initial inference of the tree with <em>YNGKP_M0</em>, then infer a tree using another tree-building program such as <a class="reference external" href="http://sourceforge.net/projects/codonphyml/">codonPhyML</a> and pass that tree via the <code class="docutils literal"><span class="pre">--treetopology</span></code> option.</p>
+The program then first uses <code class="docutils literal"><span class="pre">RAxML</span></code> to infer a tree under the <em>GTRCAT</em> model.
+Alternatively, you can specify the tree using <code class="docutils literal"><span class="pre">--tree</span></code> flag.
+Then, each branch length of the tree is optimized with a control <em>ExpCM</em> without any diversifying pressures.
+This optimized tree&#8217;s branch lengths are then scaled with a single parameter under <em>ExpCM</em> for each of the site-specific diversifying pressures.
+For a control, <code class="docutils literal"><span class="pre">phydms_testdivpressure</span></code> will also optimize the tree with randomized diversifying pressures.
+It creates simple summary files that enable comparison among the models.</p>
 <p>See below for information on <a class="reference internal" href="#command-line-usage">Command-line usage</a> and <a class="reference internal" href="#output-files">Output files</a>.</p>
 </div>
 <div class="section" id="command-line-usage">
-<h2><a class="toc-backref" href="#id4">Command-line usage</a><a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
-<p>Test different models of diversifying pressure. This program runs &#8216;phydms&#8217; and compares model log likelihoods with and without diversifying pressures. The &#8216;phydms&#8217; package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a>). Version 2.0.dev0. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">phydms_testdivpressure</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">treetopology</span> <span class="n">TREETOPOLOGY</span><span class="p">]</span>
+<h2><a class="toc-backref" href="#id3">Command-line usage</a><a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
+<p>Test different models of diversifying pressure. The &#8216;phydms&#8217; package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a>). Version 2.0.dev0. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">phydms_testdivpressure</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">tree</span> <span class="n">TREE</span> <span class="o">|</span> <span class="o">--</span><span class="n">raxml</span> <span class="n">RAXML</span><span class="p">]</span>
                               <span class="p">[</span><span class="o">--</span><span class="n">randomizations</span> <span class="n">RANDOMIZATIONS</span><span class="p">]</span>
-                              <span class="p">[</span><span class="o">--</span><span class="n">ncpus</span> <span class="n">NCPUS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">optimizebrlen</span><span class="p">]</span>
-                              <span class="p">[</span><span class="o">--</span><span class="n">randomseed</span> <span class="n">RANDOMSEED</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span>
+                              <span class="p">[</span><span class="o">--</span><span class="n">ncpus</span> <span class="n">NCPUS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span>
                               <span class="n">outprefix</span> <span class="n">alignment</span> <span class="n">prefsfile</span> <span class="n">divpressure</span>
                               <span class="p">[</span><span class="n">divpressure</span> <span class="o">...</span><span class="p">]</span>
 </pre></div>
@@ -114,12 +114,15 @@ Finally, it creates a summary that enables comparison among the models.</p>
 <tr><td class="option-group">
 <kbd>prefsfile</kbd></td>
 <td><p class="first">Existing file with site-specific amino-acid preferences.</p>
-<p class="last">The format should be same as that described in the <code class="docutils literal"><span class="pre">phydms</span></code> documentation (see <a class="reference internal" href="phydms_prog.html#phydms-prog"><span class="std std-ref">the phydms program</span></a>).</p>
+<p class="last">Provide the name a file giving site-specific amino-acid preferences. This file should meet the same specifications described in the <code class="docutils literal"><span class="pre">phydms</span></code> documentation for the <em>prefsfile</em> that should accompany an <em>ExpCM</em> (see <a class="reference internal" href="phydms_prog.html#phydms-prog"><span class="std std-ref">the phydms program</span></a>).</p>
 </td></tr>
 <tr><td class="option-group">
 <kbd>divpressure</kbd></td>
-<td><p class="first">Existing file(s) with diversifying pressure at each site</p>
-<p class="last">The format should be the same as that described in the <code class="docutils literal"><span class="pre">phydms</span></code> documentation (see <a class="reference internal" href="phydms_prog.html#phydms-prog"><span class="std std-ref">the phydms program</span></a>).</p>
+<td><p class="first">List of existing files with diversifying pressure at each site</p>
+<p class="last">Provide the name of one or more files giving site-specific diversifying pressure values.
+The file must specify a diversifying pressure for every site in <code class="docutils literal"><span class="pre">alignment</span></code>, using sequential 1, 2, ... numbering.
+The diversifying pressure file can be in either a comma-, tab-, or space-deliminted file with the first column giving the site and the second column giving the diversifying pressure value.
+These diversifying pressures will be scaled to fall between 0 and 1. For more information on this scaling procedure see (see <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>)</p>
 </td></tr>
 </tbody>
 </table>
@@ -130,9 +133,14 @@ Finally, it creates a summary that enables comparison among the models.</p>
 <col class="description" />
 <tbody valign="top">
 <tr><td class="option-group">
-<kbd><span class="option">--treetopology</span></kbd></td>
-<td><p class="first">Fix tree to this Newick topology.</p>
-<p class="last">By default, <code class="docutils literal"><span class="pre">phydms_testdivpressure</span></code> uses <code class="docutils literal"><span class="pre">phydms</span></code> to infer a tree topology under the <em>YNGKP_M0</em> model starting from a crude neighbor-joining tree. If you want to instead fix the tree to some existing topology, use this argument and provide the name of a file giving a valid tree in Newick format.</p>
+<kbd><span class="option">--tree=False</span></kbd></td>
+<td><p class="first">Existing Newick file giving input tree.</p>
+<p class="last">If you want to instead fix the tree to some existing topology, use this argument and provide the name of a file giving a valid tree in Newick format. You cannot specify both <code class="docutils literal"><span class="pre">--tree</span></code> and <code class="docutils literal"><span class="pre">--raxml</span></code>.</p>
+</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--raxml=raxml</span></kbd></td>
+<td><p class="first">Path to RAxML (http://sco.h-its.org/exelixis/software.html).</p>
+<p class="last">By default, <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> uses <code class="docutils literal"><span class="pre">RAxML</span></code> to infer a tree topology under the <em>Jukes Cantor</em> model and the command <code class="docutils literal"><span class="pre">raxml</span></code>. Use this argument to specify a path to <code class="docutils literal"><span class="pre">RAxML</span></code> other than <code class="docutils literal"><span class="pre">raxml</span></code>.  The tree inferred by <code class="docutils literal"><span class="pre">RAxML</span></code> can be found in the same directory as the other output files.</p>
 </td></tr>
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">--randomizations=0</span></kbd></td>
@@ -143,17 +151,6 @@ Finally, it creates a summary that enables comparison among the models.</p>
 <tr><td class="option-group">
 <kbd><span class="option">--ncpus=-1</span></kbd></td>
 <td>Use this many CPUs; -1 means all available.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--optimizebrlen=False</span></kbd></td>
-</tr>
-<tr><td>&nbsp;</td><td><p class="first">Optimize tree branchlengths for each diversifying pressure.</p>
-<p class="last">By default, <code class="docutils literal"><span class="pre">phydms_testdivpressure</span></code> fixes the tree topology optimized under an <em>ExpCM</em> without diversifying pressure. Then for each analysis with diversifying pressure, it only re-scales all branch lengths by a single parameter (this is equivalent to passing the <code class="docutils literal"><span class="pre">--fixbrlen</span></code> and <code class="docutils literal"><span class="pre">--addrateparameter</span></code> to <code class="docutils literal"><span class="pre">phydms</span></code>). If instead you want to optimize all the branch lengths for each diversifing pressure analysis, use this argument.</p>
-</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">--randomseed=0</span></kbd></td>
-<td><p class="first">Seed number for the first randomization. The random seed will increment by one for subsequent randomizations.</p>
-<p class="last">This number specifies the first random seed used to randomized the diversifying pressure and the random seed number increments by one for each subsequent randomization.</p>
-</td></tr>
 <tr><td class="option-group">
 <kbd><span class="option">-v</span>, <span class="option">--version</span></kbd></td>
 <td>show program&#8217;s version number and exit</td></tr>
@@ -163,97 +160,32 @@ Finally, it creates a summary that enables comparison among the models.</p>
 </dl>
 </div>
 <div class="section" id="output-files">
-<h2><a class="toc-backref" href="#id5">Output files</a><a class="headerlink" href="#output-files" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id4">Output files</a><a class="headerlink" href="#output-files" title="Permalink to this headline">¶</a></h2>
 <p>Running <code class="docutils literal"><span class="pre">phydms_testdivpressure</span></code> will create the following output files, all with the prefix specified by <code class="docutils literal"><span class="pre">outprefix</span></code>.</p>
 <div class="section" id="log-file">
-<h3><a class="toc-backref" href="#id6">Log file</a><a class="headerlink" href="#log-file" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id5">Log file</a><a class="headerlink" href="#log-file" title="Permalink to this headline">¶</a></h3>
 <p>A file with the suffix <code class="docutils literal"><span class="pre">.log</span></code> will be created that summarizes the overall progress of <code class="docutils literal"><span class="pre">phydms_testdivpressure</span></code>. If <code class="docutils literal"><span class="pre">outprefix</span></code> is just a directory name, this file will be called <code class="docutils literal"><span class="pre">log.log</span></code>.</p>
 </div>
-<div class="section" id="model-comparison-file">
-<h3><a class="toc-backref" href="#id7">Model comparison file</a><a class="headerlink" href="#model-comparison-file" title="Permalink to this headline">¶</a></h3>
-<p>A file with the suffix <code class="docutils literal"><span class="pre">_modelcomparison.csv</span></code> (or just the name <code class="docutils literal"><span class="pre">modelcomparison.txt</span></code> if <code class="docutils literal"><span class="pre">outprefix</span></code> is just a directory name) will be created that summarizes the model fitting. Here is an example of the file that would be created if <code class="docutils literal"><span class="pre">phydms_testdivpressure</span></code> was passed a single <code class="docutils literal"><span class="pre">divpressure</span></code> with the name <code class="docutils literal"><span class="pre">divpressure1.txt</span></code> and <code class="docutils literal"><span class="pre">--randomizations</span></code> was set to one.</p>
-<table border="1" class="docutils" id="id1">
-<caption><span class="caption-text">modelcomparison.csv</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
-<colgroup>
-<col width="9%" />
-<col width="9%" />
-<col width="9%" />
-<col width="9%" />
-<col width="9%" />
-<col width="9%" />
-<col width="9%" />
-<col width="9%" />
-<col width="9%" />
-<col width="9%" />
-<col width="9%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Name</th>
-<th class="head">DiversifyingPressureName</th>
-<th class="head">DiversifyingPressureType</th>
-<th class="head">LogLikelihood</th>
-<th class="head">omega</th>
-<th class="head">omega2</th>
-<th class="head">kappa</th>
-<th class="head">beta</th>
-<th class="head">phiA</th>
-<th class="head">phiC</th>
-<th class="head">phiG</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>noDiversifyingpressure</td>
-<td>none</td>
-<td>none</td>
-<td>-7306.12</td>
-<td>0.709701</td>
-<td>N/A</td>
-<td>4.069475</td>
-<td>2.045563</td>
-<td>0.388787</td>
-<td>0.186856</td>
-<td>0.2175507</td>
-</tr>
-<tr class="row-odd"><td>divpressure1</td>
-<td>divpressure1</td>
-<td>true</td>
-<td>-7295.2</td>
-<td>0.576956</td>
-<td>1.027609</td>
-<td>4.097212</td>
-<td>2.031828</td>
-<td>0.387518</td>
-<td>0.187517</td>
-<td>0.217087</td>
-</tr>
-<tr class="row-even"><td>divpressure1_random_0</td>
-<td>divpressure1</td>
-<td>random</td>
-<td>-7305.14</td>
-<td>0.737622</td>
-<td>-0.241151</td>
-<td>4.073150</td>
-<td>2.044787</td>
-<td>0.388257</td>
-<td>0.187045</td>
-<td>0.2176979</td>
-</tr>
-</tbody>
-</table>
+<div class="section" id="model-comparison-files">
+<h3><a class="toc-backref" href="#id6">Model comparison files</a><a class="headerlink" href="#model-comparison-files" title="Permalink to this headline">¶</a></h3>
+<p>Two model comparison files will be created, one with the suffix <code class="docutils literal"><span class="pre">modelcomparison.csv</span></code> and one with the suffix <code class="docutils literal"><span class="pre">modelcomparison.md</span></code> to summarize the model fitting.
+The first summary file includes all of the parameters of each model.
+The second file summarizes the main results for the non-randomized models.</p>
 </div>
-<div class="section" id="phydms-output-for-each-model">
-<h3><a class="toc-backref" href="#id8"><code class="docutils literal"><span class="pre">phydms</span></code> output for each model</a><a class="headerlink" href="#phydms-output-for-each-model" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="output-for-individual-models">
+<h3><a class="toc-backref" href="#id7">Output for individual models</a><a class="headerlink" href="#output-for-individual-models" title="Permalink to this headline">¶</a></h3>
 <p>For each individual model, there will also be all of the expected <code class="docutils literal"><span class="pre">phydms</span></code> output files as described in <a class="reference internal" href="phydms_prog.html#phydms-prog"><span class="std std-ref">the phydms program</span></a>. These files will begin with the prefix specified by <code class="docutils literal"><span class="pre">outprefix</span></code>, which will be followed by a description of the model. For instance, if the command is:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">phydms_testdivpressure</span> <span class="n">my_directory</span><span class="o">/</span> <span class="n">alignment</span><span class="o">.</span><span class="n">fasta</span> <span class="n">prefs</span><span class="o">.</span><span class="n">txt</span> <span class="n">divpressure1</span><span class="o">.</span><span class="n">txt</span> <span class="n">divpressure2</span><span class="o">.</span><span class="n">txt</span> <span class="o">--</span><span class="n">randomizations</span> <span class="mi">1</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">phydms_testdivpressure</span> <span class="n">my_directory</span><span class="o">/</span> <span class="n">alignment</span><span class="o">.</span><span class="n">fasta</span> <span class="n">prefs</span><span class="o">.</span><span class="n">txt</span> <span class="n">divpressure1</span><span class="o">.</span><span class="n">txt</span><span class="p">,</span> <span class="n">divpressure2</span><span class="o">.</span><span class="n">txt</span> <span class="o">--</span><span class="n">randomizations</span> <span class="mi">1</span>
 </pre></div>
 </div>
 <p>then we expect output files with the following prefixes:</p>
 <blockquote>
 <div><ul class="simple">
-<li><code class="docutils literal"><span class="pre">my_directory/divpressure1*</span></code> : the <em>ExpCM</em> using the diversifying pressures in <code class="docutils literal"><span class="pre">divpressure1.txt</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">my_directory/divpressure1_random_0*</span></code> : the <em>ExpCM</em> using a randomized version of the diversifying pressures in <code class="docutils literal"><span class="pre">divpressure1.txt</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">my_directory/divpressure2*</span></code> : the <em>ExpCM</em> using the diversifying pressures in <code class="docutils literal"><span class="pre">divpressure2.txt</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">my_directory/divpressure2_random_0*</span></code> : the <em>ExpCM</em> using a randomized version of the diversifying pressures in <code class="docutils literal"><span class="pre">divpressure2.txt</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">my_directory/ExpCM_prefs_*</span></code> : the <em>ExpCM</em> without diversifying pressure.</li>
+<li><code class="docutils literal"><span class="pre">my_directory/ExpCM_prefs_divpressure1_True_*</span></code> : the <em>ExpCM</em> using the diversifying pressures in <code class="docutils literal"><span class="pre">divpressure1.txt</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">my_directory/ExpCM_prefs_divpressure1_Random_0*</span></code> : the <em>ExpCM</em> using a randomized version of the diversifying pressures in <code class="docutils literal"><span class="pre">divpressure1.txt</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">my_directory/ExpCM_prefs_divpressure2_True_*</span></code> : the <em>ExpCM</em> using the diversifying pressures in <code class="docutils literal"><span class="pre">divpressure2.txt</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">my_directory/ExpCM_prefs_divpressure2_Random_0*</span></code> : the <em>ExpCM</em> using a randomized version of the diversifying pressures in <code class="docutils literal"><span class="pre">divpressure2.txt</span></code>.</li>
 </ul>
 </div></blockquote>
 </div>
@@ -273,8 +205,8 @@ Finally, it creates a summary that enables comparison among the models.</p>
 <li><a class="reference internal" href="#command-line-usage">Command-line usage</a></li>
 <li><a class="reference internal" href="#output-files">Output files</a><ul>
 <li><a class="reference internal" href="#log-file">Log file</a></li>
-<li><a class="reference internal" href="#model-comparison-file">Model comparison file</a></li>
-<li><a class="reference internal" href="#phydms-output-for-each-model"><code class="docutils literal"><span class="pre">phydms</span></code> output for each model</a></li>
+<li><a class="reference internal" href="#model-comparison-files">Model comparison files</a></li>
+<li><a class="reference internal" href="#output-for-individual-models">Output for individual models</a></li>
 </ul>
 </li>
 </ul>
@@ -282,8 +214,8 @@ Finally, it creates a summary that enables comparison among the models.</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="phydms_renumber_prog.html"
-                        title="previous chapter">the <code class="docutils literal"><span class="pre">phydms_renumber</span></code> program</a></p>
+  <p class="topless"><a href="phydms_logoplot.html"
+                        title="previous chapter">the <code class="docutils literal"><span class="pre">phydms_logoplot</span></code> program</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="ExpCM.html"
                         title="next chapter"><strong>Exp</strong>erimentally Informed <strong>C</strong>odon <strong>M</strong>odels</a></p>
@@ -297,8 +229,8 @@ Finally, it creates a summary that enables comparison among the models.</p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
@@ -321,15 +253,15 @@ Finally, it creates a summary that enables comparison among the models.</p>
           <a href="ExpCM.html" title="Experimentally Informed Codon Models"
              >next</a> |</li>
         <li class="right" >
-          <a href="phydms_renumber_prog.html" title="the phydms_renumber program"
+          <a href="phydms_logoplot.html" title="the phydms_logoplot program"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.3.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" >auxiliary programs</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.dev0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" >auxiliary programs</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+        &copy; Copyright 2015, Jesse D. Bloom.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
     </div>
   </body>
 </html>

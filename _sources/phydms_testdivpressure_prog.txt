@@ -8,16 +8,15 @@ the ``phydms_testdivpressure`` program
 
 Overview
 ------------
-``phydms_testdivpressure`` is a program that simplifies usage of ``phydms`` to compare different models of diversifying pressure. 
+``phydms_testdivpressure`` is a program that simplifies usage of ``phydms`` to compare different models of diversifying pressure.
 
-In its simplest usage, you provide ``phydms_testdivpressure`` with an alignment, a file giving site-specific amino-acid preferences, and a file giving site-specific diversifying pressures. 
-The program first uses ``phydms`` to infer a tree under the *YNGKP_M0* model (starting from a crude neighbor-joining tree) and then optimizes the tree under the *ExpCM* (without any diversifying pressures specified).
-The program then fits an *ExpCM* augmented by each set of diversifying pressures to the optimized tree.
-Finally, it creates a summary that enables comparison among the models.
-
-For an additional control, ``phydms_testdivpressure`` can randomize the diversifying pressures and fit an *ExpCM* using these randomized diversifying pressures. 
-
-If this program hangs up on the initial inference of the tree with *YNGKP_M0*, then infer a tree using another tree-building program such as `codonPhyML`_ and pass that tree via the ``--treetopology`` option.
+In its simplest usage, you provide ``phydms_testdivpressure`` with an alignment, a file giving site-specific amino-acid preferences, and a file giving site-specific diversifying pressures.
+The program then first uses ``RAxML`` to infer a tree under the *GTRCAT* model.
+Alternatively, you can specify the tree using ``--tree`` flag.
+Then, each branch length of the tree is optimized with a control *ExpCM* without any diversifying pressures.
+This optimized tree's branch lengths are then scaled with a single parameter under *ExpCM* for each of the site-specific diversifying pressures.
+For a control, ``phydms_testdivpressure`` will also optimize the tree with randomized diversifying pressures.
+It creates simple summary files that enable comparison among the models.
 
 See below for information on `Command-line usage`_ and `Output files`_.
 
@@ -36,22 +35,22 @@ Command-line usage
     The alignment must meet the same specifications described in the ``phydms`` documentation for the argument of the same name (see :ref:`phydms_prog`).
 
    prefsfile
-    The format should be same as that described in the ``phydms`` documentation (see :ref:`phydms_prog`).
+    Provide the name a file giving site-specific amino-acid preferences. This file should meet the same specifications described in the ``phydms`` documentation for the *prefsfile* that should accompany an *ExpCM* (see :ref:`phydms_prog`).
 
    divpressure
-    The format should be the same as that described in the ``phydms`` documentation (see :ref:`phydms_prog`).
+    Provide the name of one or more files giving site-specific diversifying pressure values.
+    The file must specify a diversifying pressure for every site in ``alignment``, using sequential 1, 2, ... numbering.
+    The diversifying pressure file can be in either a comma-, tab-, or space-deliminted file with the first column giving the site and the second column giving the diversifying pressure value.
+    These diversifying pressures will be scaled to fall between 0 and 1. For more information on this scaling procedure see (see :ref:`ExpCM`)
 
-   \-\-treetopology
-    By default, ``phydms_testdivpressure`` uses ``phydms`` to infer a tree topology under the *YNGKP_M0* model starting from a crude neighbor-joining tree. If you want to instead fix the tree to some existing topology, use this argument and provide the name of a file giving a valid tree in Newick format.
+   \-\-raxml
+    By default, ``phydms_comprehensive`` uses ``RAxML`` to infer a tree topology under the *Jukes Cantor* model and the command ``raxml``. Use this argument to specify a path to ``RAxML`` other than ``raxml``.  The tree inferred by ``RAxML`` can be found in the same directory as the other output files.
+
+   \-\-tree
+    If you want to instead fix the tree to some existing topology, use this argument and provide the name of a file giving a valid tree in Newick format. You cannot specify both ``--tree`` and ``--raxml``.
 
    \-\-randomizations
     This number specifies the number of times the diversifying pressures are randomized. An adequate number of simulations will give an approximate p-value.
-    
-   \-\-optimizebrlen
-    By default, ``phydms_testdivpressure`` fixes the tree topology optimized under an *ExpCM* without diversifying pressure. Then for each analysis with diversifying pressure, it only re-scales all branch lengths by a single parameter (this is equivalent to passing the ``--fixbrlen`` and ``--addrateparameter`` to ``phydms``). If instead you want to optimize all the branch lengths for each diversifing pressure analysis, use this argument.
-
-   \-\-randomseed
-    This number specifies the first random seed used to randomized the diversifying pressure and the random seed number increments by one for each subsequent randomization.
 
 Output files
 --------------
@@ -61,36 +60,31 @@ Log file
 ++++++++++++
 A file with the suffix ``.log`` will be created that summarizes the overall progress of ``phydms_testdivpressure``. If ``outprefix`` is just a directory name, this file will be called ``log.log``.
 
-Model comparison file
+Model comparison files
 +++++++++++++++++++++++++
-A file with the suffix ``_modelcomparison.csv`` (or just the name ``modelcomparison.txt`` if ``outprefix`` is just a directory name) will be created that summarizes the model fitting. Here is an example of the file that would be created if ``phydms_testdivpressure`` was passed a single ``divpressure`` with the name ``divpressure1.txt`` and ``--randomizations`` was set to one.
+Two model comparison files will be created, one with the suffix ``modelcomparison.csv`` and one with the suffix ``modelcomparison.md`` to summarize the model fitting.
+The first summary file includes all of the parameters of each model.
+The second file summarizes the main results for the non-randomized models.
 
-
-.. csv-table:: modelcomparison.csv
-   :header: "Name","DiversifyingPressureName","DiversifyingPressureType","LogLikelihood","omega","omega2","kappa","beta","phiA","phiC","phiG"
-   :widths: 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10
-
-   "noDiversifyingpressure","none","none",-7306.12,0.709701,"N/A",4.069475,2.045563,0.388787,0.186856,0.2175507
-   "divpressure1","divpressure1","true",-7295.2,0.576956,1.027609,4.097212,2.031828,0.387518,0.187517,0.217087
-   "divpressure1_random_0","divpressure1","random",-7305.14,0.737622,-0.241151,4.073150,2.044787,0.388257,0.187045,0.2176979
-
-``phydms`` output for each model
+Output for individual models
 ++++++++++++++++++++++++++++++++++
 For each individual model, there will also be all of the expected ``phydms`` output files as described in :ref:`phydms_prog`. These files will begin with the prefix specified by ``outprefix``, which will be followed by a description of the model. For instance, if the command is::
 
-    phydms_testdivpressure my_directory/ alignment.fasta prefs.txt divpressure1.txt divpressure2.txt --randomizations 1
-    
+    phydms_testdivpressure my_directory/ alignment.fasta prefs.txt divpressure1.txt, divpressure2.txt --randomizations 1
+
 then we expect output files with the following prefixes:
 
-    * ``my_directory/divpressure1*`` : the *ExpCM* using the diversifying pressures in ``divpressure1.txt``.
+    * ``my_directory/ExpCM_prefs_*`` : the *ExpCM* without diversifying pressure.
 
-    * ``my_directory/divpressure1_random_0*`` : the *ExpCM* using a randomized version of the diversifying pressures in ``divpressure1.txt``.
+    * ``my_directory/ExpCM_prefs_divpressure1_True_*`` : the *ExpCM* using the diversifying pressures in ``divpressure1.txt``.
 
-    * ``my_directory/divpressure2*`` : the *ExpCM* using the diversifying pressures in ``divpressure2.txt``.
+    * ``my_directory/ExpCM_prefs_divpressure1_Random_0*`` : the *ExpCM* using a randomized version of the diversifying pressures in ``divpressure1.txt``.
 
-    * ``my_directory/divpressure2_random_0*`` : the *ExpCM* using a randomized version of the diversifying pressures in ``divpressure2.txt``.
+    * ``my_directory/ExpCM_prefs_divpressure2_True_*`` : the *ExpCM* using the diversifying pressures in ``divpressure2.txt``.
+
+    * ``my_directory/ExpCM_prefs_divpressure2_Random_0*`` : the *ExpCM* using a randomized version of the diversifying pressures in ``divpressure2.txt``.
+
 
 
 
 .. include:: weblinks.txt
-   

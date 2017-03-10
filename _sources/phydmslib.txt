@@ -4,10 +4,10 @@ phydmslib package
 Submodules
 ----------
 
-phydmslib.diffpref module
--------------------------
+phydmslib.constants module
+--------------------------
 
-.. automodule:: phydmslib.diffpref
+.. automodule:: phydmslib.constants
     :members:
     :undoc-members:
     :show-inheritance:
@@ -20,6 +20,22 @@ phydmslib.file_io module
     :undoc-members:
     :show-inheritance:
 
+phydmslib.models module
+-----------------------
+
+.. automodule:: phydmslib.models
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+phydmslib.numutils module
+-------------------------
+
+.. automodule:: phydmslib.numutils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 phydmslib.parsearguments module
 -------------------------------
 
@@ -28,26 +44,18 @@ phydmslib.parsearguments module
     :undoc-members:
     :show-inheritance:
 
-phydmslib.plot module
----------------------
+phydmslib.simulate module
+-------------------------
 
-.. automodule:: phydmslib.plot
+.. automodule:: phydmslib.simulate
     :members:
     :undoc-members:
     :show-inheritance:
 
-phydmslib.pybpp module
-----------------------
+phydmslib.treelikelihood module
+-------------------------------
 
-.. automodule:: phydmslib.pybpp
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-phydmslib.pylsd module
-----------------------
-
-.. automodule:: phydmslib.pylsd
+.. automodule:: phydmslib.treelikelihood
     :members:
     :undoc-members:
     :show-inheritance:
@@ -56,6 +64,14 @@ phydmslib.utils module
 ----------------------
 
 .. automodule:: phydmslib.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+phydmslib.weblogo module
+------------------------
+
+.. automodule:: phydmslib.weblogo
     :members:
     :undoc-members:
     :show-inheritance:

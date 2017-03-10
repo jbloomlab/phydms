@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>phydmslib package &#8212; phydms 1.3.0 documentation</title>
+    <title>phydmslib package &mdash; phydms 2.0.dev0 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.3.0',
+        VERSION:     '2.0.dev0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,10 +24,10 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.3.0 documentation" href="index.html" />
-    <link rel="up" title="The phydmslib API" href="api.html" />
+    <link rel="top" title="phydms 2.0.dev0 documentation" href="index.html" />
+    <link rel="up" title="phydmslib API" href="api.html" />
     <link rel="next" title="Acknowledgments and citations" href="acknowledgments.html" />
-    <link rel="prev" title="The phydmslib API" href="api.html" /> 
+    <link rel="prev" title="phydmslib API" href="api.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -43,10 +43,10 @@
           <a href="acknowledgments.html" title="Acknowledgments and citations"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="api.html" title="The phydmslib API"
+          <a href="api.html" title="phydmslib API"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.3.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="api.html" accesskey="U">The <code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.dev0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="api.html" accesskey="U"><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -60,199 +60,65 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-phydmslib.diffpref">
-<span id="phydmslib-diffpref-module"></span><h2>phydmslib.diffpref module<a class="headerlink" href="#module-phydmslib.diffpref" title="Permalink to this headline">¶</a></h2>
-<p>Module for computing difference in preferences by optimizing preferences with prior.</p>
-<dl class="class">
-<dt id="phydmslib.diffpref.DirichletPrefsPrior">
-<em class="property">class </em><code class="descclassname">phydmslib.diffpref.</code><code class="descname">DirichletPrefsPrior</code><span class="sig-paren">(</span><em>peakprefs</em>, <em>concentration</em>, <em>minvalue</em>, <em>tol=1e-06</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.diffpref.DirichletPrefsPrior" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Computes dirichlet prior over preferences.</p>
-<p>This object is instantiated like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">prefsprior</span> <span class="o">=</span> <span class="n">DirichletPrefsPrior</span><span class="p">(</span><span class="n">peakprefs</span><span class="p">,</span> <span class="n">concentration</span><span class="p">,</span> <span class="n">minvalue</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>where <em>peakprefs</em> is a dictionary of the preferences that specifies
-the peak of the prior, and <em>concentration</em> is a number &gt; 1 that
-specifies how &#8220;concentrated&#8221; the prior is (larger value means
-more concentrated). <em>minvalue</em> gives the minimum allowed value
-of the peak preferences for any character; it should be a small number
-but &gt; 0. Any preference in <em>peakprefs</em> that is less than <em>minvalue</em> 
-is adjusted up to be equal to <em>minvalue</em>. <em>tol</em> is the tolerance
-for having preferences not sum to one.</p>
-<p>The prior itself is a Dirichlet. It turns out that if a Dirichlet 
-is parameterized by a vector of values <span class="math">\(\alpha_i\)</span>, then
-the mode for element <span class="math">\(i\)</span> is <span class="math">\(\frac{\alpha_i - 1}{\sum_j \alpha_j - n}\)</span>
-where <span class="math">\(n\)</span> is the number of elements in the vector. Let <span class="math">\(C &gt; 1\)</span>
-denote the concentration parameter <em>concentration</em>. We can parameterize
-a Dirichlet so that it has the mode <span class="math">\(\pi_i\)</span> by choosing a parameter
-vector with elements
-<span class="math">\(\alpha_i = \left(C - 1\right) \times n \times \pi_i + 1\)</span>.</p>
-<p>To return the log prior probability of any given set of preferences
-contained in a dictionary <em>prefs</em>, simply use:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">prior</span> <span class="o">=</span> <span class="n">prefsprior</span><span class="o">.</span><span class="n">LogPrior</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Here is an example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">peakprefs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span><span class="mf">0.4</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span><span class="mf">0.3</span><span class="p">,</span> <span class="s1">&#39;G&#39;</span><span class="p">:</span><span class="mf">0.3</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">:</span><span class="mf">0.0</span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">concentration</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">minvalue</span> <span class="o">=</span> <span class="mf">1.0e-3</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">prefsprior</span> <span class="o">=</span> <span class="n">DirichletPrefsPrior</span><span class="p">(</span><span class="n">peakprefs</span><span class="p">,</span> <span class="n">concentration</span><span class="p">,</span> <span class="n">minvalue</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">prefs1</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span><span class="mf">0.39</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span><span class="mf">0.3</span><span class="p">,</span> <span class="s1">&#39;G&#39;</span><span class="p">:</span><span class="mf">0.3</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">:</span><span class="mf">0.01</span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">prefs2</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span><span class="mf">0.09</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span><span class="mf">0.3</span><span class="p">,</span> <span class="s1">&#39;G&#39;</span><span class="p">:</span><span class="mf">0.3</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">:</span><span class="mf">0.31</span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">prefsprior</span><span class="o">.</span><span class="n">LogPrior</span><span class="p">(</span><span class="n">prefs1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">prefsprior</span><span class="o">.</span><span class="n">LogPrior</span><span class="p">(</span><span class="n">prefs2</span><span class="p">)</span>
-<span class="go">True</span>
-</pre></div>
-</div>
-<dl class="method">
-<dt id="phydmslib.diffpref.DirichletPrefsPrior.LogPrior">
-<code class="descname">LogPrior</code><span class="sig-paren">(</span><em>prefs</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.diffpref.DirichletPrefsPrior.LogPrior" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return prior probability of <em>prefs</em> (which is in dictionary format).</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="phydmslib.diffpref.InvQuadPrefsPrior">
-<em class="property">class </em><code class="descclassname">phydmslib.diffpref.</code><code class="descname">InvQuadPrefsPrior</code><span class="sig-paren">(</span><em>peakprefs</em>, <em>cparams</em>, <em>tol=1e-06</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.diffpref.InvQuadPrefsPrior" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Computes inverse quadratic prior over preferences.</p>
-<p>This object is instantiated like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">prefsprior</span> <span class="o">=</span> <span class="n">InvQuadPrefsPrior</span><span class="p">(</span><span class="n">peakprefs</span><span class="p">,</span> <span class="n">cparams</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>where <em>peakprefs</em> is a dictionary of the preferences that specifies
-the peak of the prior, and <em>cparams</em> is the tuple
-<em>(c1, c2)</em> of numbers &gt;= 0
-that specify how &#8220;concentrated&#8221; the prior is (larger value means
-more concentrated around <em>peakprefs</em>).</p>
-<p><em>tol</em> is the tolerance
-for having preferences not sum to one.</p>
-<p>The prior is defined as follows. Given some new vector with elements
-<span class="math">\(\hat{\pi}_{r,a}\)</span> and initial (<em>peakprefs</em>) values
-of <span class="math">\(\pi_{r,a}\)</span>, the log prior probability is
-<span class="math">\(\log\left[\Pr\left(\left\{\hat{\pi}_{r,a}\right\} \mid \left\{\pi_{r,a}\right\}, \beta\right)\right] = - C_2 \sum_a \log\left(1 + C_1 \times \left(\hat{\pi}_{r,a} - \left(\pi_{r,a}\right)^{\beta}\right)^2\right)\)</span>.</p>
-<p>To return the log prior probability of any given set of preferences
-contained in a dictionary <em>prefs</em>, simply use:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">prior</span> <span class="o">=</span> <span class="n">prefsprior</span><span class="o">.</span><span class="n">LogPrior</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="method">
-<dt id="phydmslib.diffpref.InvQuadPrefsPrior.LogPrior">
-<code class="descname">LogPrior</code><span class="sig-paren">(</span><em>prefs</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.diffpref.InvQuadPrefsPrior.LogPrior" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return prior probability of <em>prefs</em> (which is in dictionary format).</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="function">
-<dt id="phydmslib.diffpref.OptimizePrefs">
-<code class="descclassname">phydmslib.diffpref.</code><code class="descname">OptimizePrefs</code><span class="sig-paren">(</span><em>tl</em>, <em>prefs</em>, <em>site</em>, <em>prior</em>, <em>concentration</em>, <em>minvalue=0.0001</em>, <em>noprior=False</em>, <em>nologl=False</em>, <em>randinitprefs=False</em>, <em>optmethod='SLSQP'</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.diffpref.OptimizePrefs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Optimize preferences along with a prior constraint.</p>
-<p><em>tl</em> is a <em>phydmslib.pybpp.PyBppTreeLikelihood</em> object that has
-an experimentally defined codon model for site <em>site</em>. Generally,
-all parameters should alread be at their desired values
-except the preferences, which are sampled by MCMC.</p>
-<p><em>prefs</em> gives the initial estimates for the preferences that is
-used to center the prior over the inferred preferences. 
-<em>prefs[x]</em> should gives the estimate for the preference for 
-character <em>x</em> at site <em>site</em> (<em>prefs</em> holds preferences just
-for this one site).</p>
-<p><em>site</em> is an integer giving the site in <em>tl</em> for which we
-performing MCMC.</p>
-<p><em>prior</em> is the type of prior used over the preferences. Must be
-one of the following string:</p>
-<blockquote>
-<div><ul class="simple">
-<li><em>invquad</em> : the prior described in the documentation
-for <em>InvQuadPrefsPrior</em>.</li>
-<li><em>dirichlet</em> : the prior described in the documentation 
-for <em>DirichletPrefsPrior</em>.</li>
-</ul>
-</div></blockquote>
-<p><em>concentration</em> is how strongly we concentrate the prior.
-Larger values lead to priors more strongly peaked on the initial
-value of <em>site</em>. Should be a value appropriate for passing to 
-<em>InvQuadPrefsPrior</em> (if using <em>prior</em> of <em>invquad</em>) or to
-<em>DirichletPrefsPrior</em> (if using <em>prior</em> of <em>dirichlet</em>).</p>
-<p><em>minvalue</em> is a lower bound on the minimum valued allowed for the
-peak prior estimate for any preference and for any preference. 
-is <em>dirichlet</em>.</p>
-<p><em>noprior</em> and <em>nologl</em> are for debugging only; the indicate that we don&#8217;t
-include the prior or the likelihood in the optimization.</p>
-<p><em>randinitprefs</em> specify that we seed the optimization at random preferences
-chosen from the seed <em>randinitprefs</em>, which should be an integer. Otherwise
-if <em>False</em>, we seed optimization at <em>prefs</em>.</p>
-<p><em>optmethod</em> is the <em>scipy.optimize.minimize</em> method to use. Should be one that
-accepts bounds (constrained minimization).</p>
-<p>The return value is <em>(optimizedprefs, optstring, converged)</em>.
-<em>optimizedprefs</em> is in the same format as <em>prefs</em> and gives
-the optimized preferences. <em>optstring</em> describes the convergence
-results, and <em>converged</em> is <em>True</em> if the optimization converged.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="phydmslib.diffpref.PrefsToVec">
-<em class="property">class </em><code class="descclassname">phydmslib.diffpref.</code><code class="descname">PrefsToVec</code><span class="sig-paren">(</span><em>initprefs</em>, <em>tol=1e-06</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.diffpref.PrefsToVec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Converts dictionary of preferences to vector of values between 0 and 1.</p>
-<p>The preferences are most easily stored as a dictionary keyed by character
-with values that sum to one. However, for optimization it is helpful to
-re-represent these as a vector of numbers constrained to have values
-between 0 and 1 (inclusive).</p>
-<p>Specifically, let the preferences for the different sites by
-<span class="math">\(\pi_i\)</span> where <span class="math">\(1 = \sum_i \pi_i\)</span> and 
-<span class="math">\(0 \le i \lt n\)</span>. Let <span class="math">\(x_i\)</span> be the vector element
-for <span class="math">\(i \lt n - 1\)</span>. We define 
-<span class="math">\(\pi_i = x_i \prod_{j \lt i} \left(1 - x_j\right)\)</span>
-for <span class="math">\(i \lt n - 1\)</span>, and 
-<span class="math">\(\pi_{n-1} = 1 - \sum_{j = 0}^{n - 2} \pi_j\)</span>.
-This implies a definition for <span class="math">\(x_i\)</span> of
-<span class="math">\(x_i = \pi_i / \left(1 - \sum_{j \lt i} \pi_j\right)\)</span></p>
-<p>To set up an object, initialize with:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">prefstovec</span> <span class="o">=</span> <span class="n">PrefsToVec</span><span class="p">(</span><span class="n">initprefs</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>where <em>initprefs</em> is some initial set of preferences as a dictionary
-keyed by all characters. The value of <em>initprefs</em> is used to sort
-the indices in the vector (they always go from largest to smallest
-element, which might help avoid numerical underflow for last values).</p>
-<p>To subsequently convert dictionaries of preferences vectors, use:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">vec</span> <span class="o">=</span> <span class="n">prefstovec</span><span class="o">.</span><span class="n">Vector</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>and to convert back:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">prefs</span> <span class="o">=</span> <span class="n">prefstovec</span><span class="o">.</span><span class="n">Prefs</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Here is an example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">initprefs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span><span class="mf">0.45</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span><span class="mf">0.25</span><span class="p">,</span> <span class="s1">&#39;G&#39;</span><span class="p">:</span><span class="mf">0.21</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">:</span><span class="mf">0.09</span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">prefstovec</span> <span class="o">=</span> <span class="n">PrefsToVec</span><span class="p">(</span><span class="n">initprefs</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">prefs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span><span class="mf">0.4</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span><span class="mf">0.3</span><span class="p">,</span> <span class="s1">&#39;G&#39;</span><span class="p">:</span><span class="mf">0.2</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">:</span><span class="mf">0.1</span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">vec</span> <span class="o">=</span> <span class="n">prefstovec</span><span class="o">.</span><span class="n">Vector</span><span class="p">(</span><span class="n">prefs</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">numpy</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">2.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">]))</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">prefs2</span> <span class="o">=</span> <span class="n">prefstovec</span><span class="o">.</span><span class="n">Prefs</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">all</span><span class="p">([</span><span class="nb">abs</span><span class="p">(</span><span class="n">prefs</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">-</span> <span class="n">prefs2</span><span class="p">[</span><span class="n">x</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mf">1.e-5</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">prefs</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
-<span class="go">True</span>
-</pre></div>
-</div>
-<dl class="method">
-<dt id="phydmslib.diffpref.PrefsToVec.Prefs">
-<code class="descname">Prefs</code><span class="sig-paren">(</span><em>vec</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.diffpref.PrefsToVec.Prefs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts vector to prefs dictionary.</p>
-<p>All values are adjusted to be at least equal to the <em>tol</em>
-used when initializing this object.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="phydmslib.diffpref.PrefsToVec.Vector">
-<code class="descname">Vector</code><span class="sig-paren">(</span><em>prefs</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.diffpref.PrefsToVec.Vector" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts prefs dictionary to vector.</p>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="module-phydmslib.constants">
+<span id="phydmslib-constants-module"></span><h2>phydmslib.constants module<a class="headerlink" href="#module-phydmslib.constants" title="Permalink to this headline">¶</a></h2>
+<p>Defines constants and nucleotide / amino acid / codon indices.</p>
+<dl class="docutils">
+<dt>Constants defined:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>ALMOST_ZERO</cite> (float)</dt>
+<dd>a small number used to check for quantities close to zero</dd>
+<dt><cite>N_NT</cite> (int)</dt>
+<dd>number of nucleotides</dd>
+<dt><cite>N_AA</cite> (int)</dt>
+<dd>number of amino acids</dd>
+<dt><cite>N_CODON</cite> (int)</dt>
+<dd>number of codons</dd>
+<dt><cite>N_STOP</cite> (int)</dt>
+<dd>number of stop codons</dd>
+<dt><cite>NT_TO_INDEX</cite> (dict)</dt>
+<dd>mapping of one-letter nucleotides to integer indices</dd>
+<dt><cite>INDEX_TO_NT</cite> (dict)</dt>
+<dd>inverse of <cite>NT_TO_INDEX</cite></dd>
+<dt><cite>AA_TO_INDEX</cite> (dict)</dt>
+<dd>mapping of one-letter amino acids to integer indices</dd>
+<dt><cite>INDEX_TO_AA</cite> (dict)</dt>
+<dd>inverse of <cite>AA_TO_INDEX</cite></dd>
+<dt><cite>CODON_TO_INDEX</cite> (dict):</dt>
+<dd>mapping of non-stop codons to integer indices</dd>
+<dt><cite>INDEX_TO_CODON</cite> (dict)</dt>
+<dd>inverse of <cite>CODON_TO_INDEX</cite></dd>
+<dt><cite>CODON_TO_AA</cite> (<cite>numpy.ndarray</cite> of int, length <cite>N_CODON</cite>)</dt>
+<dd>Element <cite>x</cite> gives index for amino acid encoded by <cite>x</cite>.</dd>
+<dt><cite>PURINES</cite> (<cite>frozenset</cite>)</dt>
+<dd>Set of one-letter nucleotides for purines</dd>
+<dt><cite>PYRIMIDINES</cite> (<cite>frozenset</cite>)</dt>
+<dd>Set of one-letter nucleotides for pyrimidines</dd>
+<dt><cite>CODON_TRANSITION</cite> (<cite>numpy.ndarray</cite> of bools, shape <cite>(N_CODON, NCODON)</cite>)</dt>
+<dd>Element <cite>[x][y]</cite> is <cite>True</cite> iff <cite>x</cite> and <cite>y</cite> differ by 1 transition.</dd>
+<dt><cite>CODON_SINGLEMUT</cite> (<cite>numpy.ndarray</cite> of bools, shape (<cite>N_CODON, N_CODON)</cite>)</dt>
+<dd>Element <cite>[x][y]</cite> is <cite>True</cite> iff <cite>x</cite> and <cite>y</cite> differ by 1 nt mutation.</dd>
+<dt><cite>CODON_NT_MUT</cite> (<cite>numpy.ndarray</cite> of bools, shape <cite>(N_NT, N_CODON, N_CODON)</cite>)</dt>
+<dd>Element <cite>[w][x][y]</cite> is <cite>True</cite> iff <cite>x</cite> converts to <cite>y</cite> by single
+nucleotide mutation <cite>w</cite>.</dd>
+<dt><cite>CODON_NT</cite> (<cite>numpy.ndarray</cite> of bools, shape <cite>(3, N_NT, N_CODON)</cite>)</dt>
+<dd>Element <cite>[j][w][x]</cite> is <cite>True</cite> iff nt <cite>j</cite> of codon <cite>x</cite> is <cite>w</cite>.</dd>
+<dt><cite>CODON_NT_INDEX</cite> (<cite>numpy.ndarray</cite> of int, shape <cite>(3, N_CODON)</cite>)</dt>
+<dd>Element <cite>[j][x]</cite> gives index of nt at position <cite>j</cite> of codon <cite>x</cite>.</dd>
+<dt><cite>CODON_NONSYN</cite> (<cite>numpy.ndarray</cite> of bools, shape <cite>(N_CODON, N_CODON)</cite>)</dt>
+<dd>Element <cite>[x][y]</cite> is <cite>True</cite> iff mutating  <cite>x</cite> to <cite>y</cite> is nonsynonymous</dd>
+<dt><cite>CODON_NT_COUNT</cite> (<cite>numpy.ndarray</cite> of int, shape <cite>(N_NT, N_CODON)</cite>)</dt>
+<dd>Element <cite>[w][x]</cite> gives the number of occurrences of nucleotide
+<cite>w</cite> in codon <cite>x</cite>.</dd>
+<dt><cite>STOP_CODON_TO_NT_INDICES</cite> (<cite>numpy.ndarray</cite> of float, shape <cite>(N_STOP, 3, N_NT)</cite>)</dt>
+<dd>Element <cite>[x][p][w]</cite> is 1.0 if codon position <cite>p</cite> is nucleotide <cite>w</cite>
+in stop codon <cite>x</cite> and 0.0 otherwise.</dd>
+<dt><cite>STOP_POSITIONS</cite> (<cite>numpy.ndarray</cite> of float, shape <cite>(3, N_NT)</cite>)</dt>
+<dd>Element <cite>[p][w]</cite> is -1.0 if any stop codon has nucleotide <cite>w</cite> in
+codon position <cite>p</cite> and 1.0 otherwise</dd>
+</dl>
+</dd>
+</dl>
 </div>
 <div class="section" id="module-phydmslib.file_io">
 <span id="phydmslib-file-io-module"></span><h2>phydmslib.file_io module<a class="headerlink" href="#module-phydmslib.file_io" title="Permalink to this headline">¶</a></h2>
@@ -263,8 +129,8 @@ used when initializing this object.</p>
 <dd><p>Reads codon alignment from file.</p>
 <p><em>fastafile</em> is the name of an existing FASTA file.</p>
 <p><em>checknewickvalid</em> : if <em>True</em>, we require that names are unique and do
-<strong>not</strong> contain spaces, commas, colons, semicolons, parentheses, square brackets,
-or single or double quotation marks.
+<strong>not</strong> contain spaces, commas, colons, semicolons, parentheses, square 
+brackets, or single or double quotation marks.
 If any of these disallowed characters are present, raises an Exception.</p>
 <p>Reads the alignment from the <em>fastafile</em> and returns the aligned
 sequences as a list of 2-tuple of strings <em>(header, sequence)</em>
@@ -273,79 +139,46 @@ where <em>sequence</em> is upper case.</p>
 this terminal codon is trimmed. Raises an exception if the sequences
 are not aligned codon sequences that are free of stop codons (with
 the exception of a shared terminal stop) and free of ambiguous nucleotides.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="phydmslib.file_io.ReadOmegaBySite">
-<code class="descclassname">phydmslib.file_io.</code><code class="descname">ReadOmegaBySite</code><span class="sig-paren">(</span><em>infile</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.ReadOmegaBySite" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads <code class="docutils literal"><span class="pre">*_omegabysite.txt</span></code> files created by <code class="docutils literal"><span class="pre">phydms</span></code>.</p>
-<p><em>infile</em> can be either a readable file-like object (assumed to be
-at its start) or a string giving the name of an existing file.</p>
-<p>The returned value is a dictionary <em>omegabysite</em> keyed by string
-site number with element <em>omegabysite[site]</em> being a dictionary keyed
-by the three string keys <em>omega</em>, <em>P</em>, and <em>dLnL</em> each specifying
-the value for that property.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">u&quot;# site omega P dLnL</span><span class="se">\n</span><span class="s2">1 2.73 0.0012 4.6</span><span class="se">\n</span><span class="s2">2 0.03 0.09 1.2</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<p>Read aligned sequences in this example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seqs</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;seq1&#39;</span><span class="p">,</span> <span class="s1">&#39;ATGGAA&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;seq2&#39;</span><span class="p">,</span> <span class="s1">&#39;ATGAAA&#39;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">u&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;&gt;</span><span class="si">{0}</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">omegabysite</span> <span class="o">=</span> <span class="n">ReadOmegaBySite</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">set</span><span class="p">(</span><span class="n">omegabysite</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">])</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;2.73&#39;</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">omegabysite</span><span class="p">[</span><span class="s1">&#39;1&#39;</span><span class="p">][</span><span class="s1">&#39;omega&#39;</span><span class="p">]</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;0.0012&#39;</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="si">%.4f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">omegabysite</span><span class="p">[</span><span class="s1">&#39;1&#39;</span><span class="p">][</span><span class="s1">&#39;P&#39;</span><span class="p">]</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;4.6&#39;</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="si">%.1f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">omegabysite</span><span class="p">[</span><span class="s1">&#39;1&#39;</span><span class="p">][</span><span class="s1">&#39;dLnL&#39;</span><span class="p">]</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;0.03&#39;</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">omegabysite</span><span class="p">[</span><span class="s1">&#39;2&#39;</span><span class="p">][</span><span class="s1">&#39;omega&#39;</span><span class="p">]</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;0.09&#39;</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">omegabysite</span><span class="p">[</span><span class="s1">&#39;2&#39;</span><span class="p">][</span><span class="s1">&#39;P&#39;</span><span class="p">]</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;1.2&#39;</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="si">%.1f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">omegabysite</span><span class="p">[</span><span class="s1">&#39;2&#39;</span><span class="p">][</span><span class="s1">&#39;dLnL&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">ReadCodonAlignment</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seqs</span> <span class="o">==</span> <span class="n">a</span>
 <span class="go">True</span>
 </pre></div>
 </div>
-</dd></dl>
-
-<dl class="function">
-<dt id="phydmslib.file_io.ReadStringencyBySite">
-<code class="descclassname">phydmslib.file_io.</code><code class="descname">ReadStringencyBySite</code><span class="sig-paren">(</span><em>infile</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.ReadStringencyBySite" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads <code class="docutils literal"><span class="pre">*_stringencybsite.txt</span></code> files created by <code class="docutils literal"><span class="pre">phydms</span></code>.</p>
-<p><em>infile</em> can be either a readable file-like boject (assumed to be
-at its start) or a string giving the name of an existing file.</p>
-<p>The returned value is a dictionary <em>stringencybysite</em> keyed by string
-site number with element <em>stringencybysite[site]</em> being a dictionary keyed
-by the three string keys <em>stringency</em>, <em>P</em>, and <em>dLnL</em> each
-specifying the value for that property.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">u&quot;# site stringency_ratio P dLnL</span><span class="se">\n</span><span class="s2">1 0.017 2.45e-05 8.9</span><span class="se">\n</span><span class="s2">2 0.079 0.0005 6.1</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<p>Trim stop codons from all sequences in this example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seqs</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;seq1&#39;</span><span class="p">,</span> <span class="s1">&#39;ATGTAA&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;seq2&#39;</span><span class="p">,</span> <span class="s1">&#39;ATGTGA&#39;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">u&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;&gt;</span><span class="si">{0}</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">stringencybysite</span> <span class="o">=</span> <span class="n">ReadStringencyBySite</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">set</span><span class="p">(</span><span class="n">stringencybysite</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">])</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;0.017&#39;</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">stringencybysite</span><span class="p">[</span><span class="s1">&#39;1&#39;</span><span class="p">][</span><span class="s1">&#39;stringency&#39;</span><span class="p">]</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;0.0000245&#39;</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="si">%.7f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">stringencybysite</span><span class="p">[</span><span class="s1">&#39;1&#39;</span><span class="p">][</span><span class="s1">&#39;P&#39;</span><span class="p">]</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;8.9&#39;</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="si">%.1f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">stringencybysite</span><span class="p">[</span><span class="s1">&#39;1&#39;</span><span class="p">][</span><span class="s1">&#39;dLnL&#39;</span><span class="p">]</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;0.079&#39;</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">stringencybysite</span><span class="p">[</span><span class="s1">&#39;2&#39;</span><span class="p">][</span><span class="s1">&#39;stringency&#39;</span><span class="p">]</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;0.0005&#39;</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="si">%.4f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">stringencybysite</span><span class="p">[</span><span class="s1">&#39;2&#39;</span><span class="p">][</span><span class="s1">&#39;P&#39;</span><span class="p">]</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;6.1&#39;</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="si">%.1f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">stringencybysite</span><span class="p">[</span><span class="s1">&#39;2&#39;</span><span class="p">][</span><span class="s1">&#39;dLnL&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">ReadCodonAlignment</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[(</span><span class="n">head</span><span class="p">,</span> <span class="n">seq</span><span class="p">[</span> <span class="p">:</span> <span class="o">-</span><span class="mi">3</span><span class="p">])</span> <span class="k">for</span> <span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="n">seq</span><span class="p">)</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]</span> <span class="o">==</span> <span class="n">a</span>
 <span class="go">True</span>
 </pre></div>
 </div>
-</dd></dl>
-
-<dl class="function">
-<dt id="phydmslib.file_io.SetMinBrLen">
-<code class="descclassname">phydmslib.file_io.</code><code class="descname">SetMinBrLen</code><span class="sig-paren">(</span><em>intree</em>, <em>outtree</em>, <em>minbrlen</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.SetMinBrLen" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets all branch lengths to be &gt;= a value.</p>
-<p>Reads tree from <em>intree</em> newick file, adjusts all
-branch lengths to be &gt;= <em>minbrlen</em>, then writes to
-<em>outtree</em>.</p>
+<p>Read sequences with gap:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seqs</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;seq1&#39;</span><span class="p">,</span> <span class="s1">&#39;ATG---&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;seq2&#39;</span><span class="p">,</span> <span class="s1">&#39;ATGAGA&#39;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">u&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;&gt;</span><span class="si">{0}</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">ReadCodonAlignment</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[(</span><span class="n">head</span><span class="p">,</span> <span class="n">seq</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="n">seq</span><span class="p">)</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]</span> <span class="o">==</span> <span class="n">a</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Premature stop codon gives error:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seqs</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;seq1&#39;</span><span class="p">,</span> <span class="s1">&#39;TGAATG&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;seq2&#39;</span><span class="p">,</span> <span class="s1">&#39;ATGAGA&#39;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">u&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;&gt;</span><span class="si">{0}</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">ReadCodonAlignment</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> 
+<span class="gt">Traceback (most recent call last):</span>
+<span class="gr">ValueError</span>:
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="function">
@@ -354,6 +187,1288 @@ branch lengths to be &gt;= <em>minbrlen</em>, then writes to
 <dd><p>Returns a string with version information.</p>
 <p>You would call this function if you want a string giving detailed information
 on the version of <code class="docutils literal"><span class="pre">phydms</span></code> and the associated packages that it uses.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="phydmslib.file_io.readDivPressure">
+<code class="descclassname">phydmslib.file_io.</code><code class="descname">readDivPressure</code><span class="sig-paren">(</span><em>fileName</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.readDivPressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads in diversifying pressures from some file.</p>
+<p>Scale diversifying pressure values so absolute value of the max value is 1,
+unless all values are zero.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>fileName</cite> (string or readable file-like object)</dt>
+<dd>File holding diversifying pressure values. Can be
+comma-, space-, or tab-separated file. The first column
+is the site (consecutively numbered, sites starting
+with one) and the second column is the diversifying pressure values.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>divPressure</cite> (dict keyed by ints)</dt>
+<dd><cite>divPressure[r][v]</cite> is the diversifying pressure value of site <cite>r</cite>.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="phydmslib.file_io.readPrefs">
+<code class="descclassname">phydmslib.file_io.</code><code class="descname">readPrefs</code><span class="sig-paren">(</span><em>prefsfile</em>, <em>minpref=0</em>, <em>avgprefs=False</em>, <em>randprefs=False</em>, <em>seed=1</em>, <em>sites_as_strings=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.readPrefs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read preferences from file with some error checking.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>prefsfile</cite> (string or readable file-like object)</dt>
+<dd>File holding amino-acid preferences. Can be
+comma-, space-, or tab-separated file with column
+headers of <cite>site</cite> and then all one-letter amino-acid
+codes, or can be in the more complex format written
+<cite>dms_tools</cite>. Must be prefs for consecutively numbered
+sites starting at 1. Stop codon prefs can be present
+(stop codons are indicated by <code class="docutils literal"><span class="pre">*</span></code>); if so they are
+removed and prefs re-normalized to sum to 1.</dd>
+<dt><cite>minpref</cite> (float &gt;= 0)</dt>
+<dd>Adjust all preferences to be &gt;= this number.</dd>
+<dt><cite>avgprefs</cite>, <cite>randprefs</cite> (bool)</dt>
+<dd>Mutually exclusive options specifying to average or
+randomize prefs across sites.</dd>
+<dt><cite>seed</cite> (int)</dt>
+<dd>Seed used to sort random number generator for <cite>randprefs</cite>.</dd>
+<dt><cite>sites_as_strings</cite> (bool)</dt>
+<dd>By default, the site numers are coerced to integers.
+If this option is <cite>True</cite>, then they are kept as strings.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>prefs</cite> (dict)</dt>
+<dd><cite>prefs[r][a]</cite> is the preference of site <cite>r</cite> for amino-acid <cite>a</cite>.
+<cite>r</cite> is an <cite>int</cite> unless <cite>sites_as_strings=True</cite>.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="phydmslib.file_io.readPrefs_dms_tools_format">
+<code class="descclassname">phydmslib.file_io.</code><code class="descname">readPrefs_dms_tools_format</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.readPrefs_dms_tools_format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the amino-acid preferences written by <cite>dms_tools</cite>.</p>
+<p>This is an exact copy of the same code from 
+<cite>dms_tools.file_io.ReadPreferences</cite>. It is copied because
+<cite>dms_tools</cite> is currently only compatible with <cite>python2</cite>, and
+we needed something that also works with <cite>python3</cite>.</p>
+<p><em>f</em> is the name of an existing file or a readable file-like object.
+It should be in the format written by <cite>dms_tools</cite>.</p>
+<p>The return value is the tuple: <em>(sites, wts, pi_means, pi_95credint, h)</em>
+where <em>sites</em>, <em>wts</em>, <em>pi_means</em>, and <em>pi_95credint</em> will all
+have the same values used to write the file with <em>WritePreferences</em>,
+and <em>h</em> is a dictionary with <em>h[r]</em> giving the site entropy (log base
+2) for each <em>r</em> in <em>sites</em>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-phydmslib.models">
+<span id="phydmslib-models-module"></span><h2>phydmslib.models module<a class="headerlink" href="#module-phydmslib.models" title="Permalink to this headline">¶</a></h2>
+<p>Substitution models.</p>
+<p>All models defined here are subclasses of abstract base class <cite>Model</cite>.</p>
+<p>Nucleotides, amino acids, and codons are indexed by integers 0, 1, ...
+using the indexing schemes defined in <cite>phydmslib.constants</cite>.</p>
+<dl class="function">
+<dt id="phydmslib.models.DiscreteGamma">
+<code class="descclassname">phydmslib.models.</code><code class="descname">DiscreteGamma</code><span class="sig-paren">(</span><em>alpha</em>, <em>beta</em>, <em>ncats</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.DiscreteGamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns category means for discretized gamma distribution.</p>
+<p>The distribution is evenly divided into categories, and the
+mean of each category is returned.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>alpha</cite> (<cite>float</cite> &gt; 0)</dt>
+<dd>Shape parameter of gamma distribution.</dd>
+<dt><cite>beta</cite> (<cite>float</cite> &gt; 0)</dt>
+<dd>Inverse scale parameter of gamma distribution.</dd>
+<dt><cite>ncats</cite> (<cite>int</cite> &gt; 1)</dt>
+<dd>Number of categories in discretized gamma distribution.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>catmeans</cite> (<cite>scipy.ndarray</cite> of <cite>float</cite>, shape <cite>(ncats,)</cite>)</dt>
+<dd><cite>catmeans[k]</cite> is the mean of category <cite>k</cite> where 
+<cite>0 &lt;= k &lt; ncats</cite>.</dd>
+</dl>
+</dd>
+</dl>
+<p>Check that we get values in Figure 1 of Yang, J Mol Evol, 39:306-314
+&gt;&gt;&gt; catmeans = DiscreteGamma(0.5, 0.5, 4)
+&gt;&gt;&gt; scipy.allclose(catmeans, scipy.array([0.0334, 0.2519, 0.8203, 2.8944]), atol=1e-4)
+True</p>
+<p>Make sure we get expected mean of alpha / beta
+&gt;&gt;&gt; alpha = 0.6
+&gt;&gt;&gt; beta = 0.8
+&gt;&gt;&gt; ncats = 6
+&gt;&gt;&gt; catmeans = DiscreteGamma(alpha, beta, ncats)
+&gt;&gt;&gt; scipy.allclose(catmeans.sum() / ncats, alpha / beta)
+True</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="phydmslib.models.DistributionModel">
+<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">DistributionModel</code><a class="headerlink" href="#phydmslib.models.DistributionModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#phydmslib.models.Model" title="phydmslib.models.Model"><code class="xref py py-class docutils literal"><span class="pre">phydmslib.models.Model</span></code></a></p>
+<p>Substitution model with a parameter drawn from distribution.</p>
+<p>This abstract base class defines required methods / attributes
+of substitution models one parameter (<cite>distributedparam</cite>) drawn 
+from a distribution. An example is that <cite>omega</cite> might be
+drawn from a gamma distribution.</p>
+<p>It requires that the parameter drawn from the distribution does
+<strong>not</strong> affect the stationary state and only alters the matrix
+exponentials <cite>M</cite> and <cite>dM</cite> relative to a <cite>Model</cite> where the
+distributed parameter has a single value. In other words, it
+allows mixtures over the transition probabilities but <strong>not</strong>
+over the stationary state.</p>
+<dl class="method">
+<dt id="phydmslib.models.DistributionModel.M">
+<code class="descname">M</code><span class="sig-paren">(</span><em>k</em>, <em>t</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.DistributionModel.M" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matrix exponential <cite>M(mu * t) = exp(mu * t * P)</cite> for category <cite>k</cite>.</p>
+<p>Similar to definition for <cite>Model</cite> abstract base class except
+also specifies for which category <cite>k</cite> we are returning the 
+matrix exponential. <cite>k</cite> is an <cite>int</cite> with <cite>0 &lt;= k &lt; ncats</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.DistributionModel.basemodel">
+<code class="descname">basemodel</code><a class="headerlink" href="#phydmslib.models.DistributionModel.basemodel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base model over which this model is distributed.</p>
+<p>A <cite>DistributionModel</cite> is a base model with some property
+drawn from a distribution. This gives such a base model. 
+Parameters of this base model that are <strong>not</strong> distributed
+among sites will be current, but the distributed parameter
+will not.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.DistributionModel.catweights">
+<code class="descname">catweights</code><a class="headerlink" href="#phydmslib.models.DistributionModel.catweights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Weight assigned to each category.</p>
+<p>Is a <cite>numpy.ndarray</cite> of <cite>float</cite> of shape <cite>(ncats,)</cite> where each
+entry is &gt; 0 and the entries sum to one. <cite>catweights[k]</cite> is
+the weight assigned to category <cite>k</cite> where <cite>0 &lt;= k &lt; ncats</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.DistributionModel.dM">
+<code class="descname">dM</code><span class="sig-paren">(</span><em>k</em>, <em>t</em>, <em>param</em>, <em>Mkt</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.DistributionModel.dM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derivative of <cite>M(k, t)</cite> with respect to <cite>param</cite>.</p>
+<p>Similar to definiton for <cite>Model</cite> abstract base class
+except also specifies for which category <cite>k</cite> we are
+returning the derivative. <cite>k</cite> is an <cite>int</cite> with
+<cite>0 &lt;= k &lt; ncats</cite>.</p>
+<p>Also, <cite>param</cite> can be any string in <cite>freeparams</cite> <strong>except</strong>
+those in <cite>distributionparams</cite>, and can also be <cite>distributedparam</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.DistributionModel.d_distributionparams">
+<code class="descname">d_distributionparams</code><a class="headerlink" href="#phydmslib.models.DistributionModel.d_distributionparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derivatives of <cite>distributedparam</cite> with respect to <cite>distributionparams</cite>.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>d_distributionparams</cite> (<cite>dict</cite> keyed by params in <cite>distributionparams</cite>)</dt>
+<dd><cite>d_distribution[param]</cite> is a <cite>numpy.ndarray</cite> of <cite>float</cite> of
+shape <cite>(ncats,)</cite>, with <cite>d_distributionparam[param][k]</cite> giving
+the derivative of the <cite>distributedparam</cite> for category <cite>k</cite>
+with respect to <cite>param</cite> where <cite>param</cite> is in <cite>distributionparams</cite>.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.DistributionModel.distributedparam">
+<code class="descname">distributedparam</code><a class="headerlink" href="#phydmslib.models.DistributionModel.distributedparam" title="Permalink to this definition">¶</a></dt>
+<dd><p>String giving name of parameter drawn from the distribution.</p>
+<p>This parameter must be in <cite>freeparams</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.DistributionModel.distributionparams">
+<code class="descname">distributionparams</code><a class="headerlink" href="#phydmslib.models.DistributionModel.distributionparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of params giving shape of distribution for <cite>distributedparam</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.DistributionModel.ncats">
+<code class="descname">ncats</code><a class="headerlink" href="#phydmslib.models.DistributionModel.ncats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of categories for distributed parameter.</p>
+<p>Is an <cite>int</cite> &gt; 1.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="phydmslib.models.ExpCM">
+<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">ExpCM</code><span class="sig-paren">(</span><em>prefs, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, phi=array([ 0.25,  0.25,  0.25,  0.25]), freeparams=['kappa', 'omega', 'beta', 'mu', 'eta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#phydmslib.models.Model" title="phydmslib.models.Model"><code class="xref py py-class docutils literal"><span class="pre">phydmslib.models.Model</span></code></a></p>
+<p>Experimentally informed codon models (ExpCM) for a gene.</p>
+<p>See <cite>__init__</cite> method for how to initialize an <cite>ExpCM</cite>.</p>
+<p>Attributes should <strong>only</strong> be updated via the <cite>updateParams</cite>
+method, do <strong>not</strong> set attributes directly.</p>
+<dl class="docutils">
+<dt>Attributes (see also those inherited from <cite>Model</cite>):</dt>
+<dd><dl class="first last docutils">
+<dt><cite>pi</cite> (<cite>numpy.ndarray</cite> of floats, shape <cite>(nsites, N_AA)</cite>)</dt>
+<dd><cite>pi[r][a]</cite> is preference of site <cite>r</cite> for amino-acid <cite>a</cite>.</dd>
+<dt><cite>kappa</cite> (float &gt; 0)</dt>
+<dd>Transition-transversion ratio.</dd>
+<dt><cite>omega</cite> (float &gt; 0)</dt>
+<dd>Nonsynonymous to synonymous substitution ratio.</dd>
+<dt><cite>beta</cite> (float &gt; 0)</dt>
+<dd>Stringency parameter re-scaling amino-acid preferences.</dd>
+<dt><cite>phi</cite> (<cite>numpy.ndarray</cite> of floats, length <cite>N_NT</cite>)</dt>
+<dd>Nucleotide frequency params summing to one, is
+computed from <cite>eta</cite>. We use <cite>eta</cite> rather than <cite>phi</cite>
+as the free parameter during optimization.</dd>
+<dt><cite>eta</cite> (<cite>numpy.ndarray</cite> of floats, length <cite>N_NT - 1</cite>)</dt>
+<dd>Transformation of the nucleotide frequency params in <cite>phi</cite>;
+all entries are &gt; 0 and &lt; 1. We use <cite>eta</cite> rather than <cite>phi</cite>
+as the free parameter during optimization.</dd>
+<dt><cite>Prxy</cite> (<cite>numpy.ndarray</cite> of floats, shape <cite>(nsites, N_CODON, N_CODON)</cite></dt>
+<dd><cite>Prxy[r][x][y]</cite> is substitution rate from codon <cite>x</cite> to <cite>y</cite> at <cite>r</cite>.
+Diagonal elements make rows sum to zero for each <cite>Prxy[r]</cite>.</dd>
+<dt><cite>prx</cite> (<cite>numpy.ndarray</cite> of floats, shape <cite>(nsites, N_CODON)</cite></dt>
+<dd><cite>prx[r][x]</cite> is stationary state of <cite>Prxy</cite> for codon <cite>x</cite> at <cite>r</cite>.
+This attribute is equivalent to <cite>stationarystate</cite>.</dd>
+<dt><cite>Qxy</cite> (<cite>numpy.ndarray</cite> of floats, shape <cite>(N_CODON, N_CODON)</cite></dt>
+<dd><cite>Qxy[x][y]</cite> is mutation rate from <cite>x</cite> to <cite>y</cite>, diagonal undefined.</dd>
+<dt><cite>Frxy</cite> (<cite>numpy.ndarray</cite> of floats, shape <cite>(nsites, N_CODON, N_CODON)</cite></dt>
+<dd><cite>Frxy[r][x][y]</cite> fixation prob from <cite>x</cite> to <cite>y</cite>, diagonal
+undefined for each <cite>Frxy[r]</cite>.</dd>
+<dt><cite>Frxy_no_omega</cite> </dt>
+<dd>Like <cite>Frxy</cite> but <strong>not</strong> multiplied by <cite>omega</cite> for non-synonymous
+mutations</dd>
+<dt><cite>pi_codon</cite> (<cite>numpy.ndarray</cite> of floats, shape <cite>(nsites, N_CODON)</cite>)</dt>
+<dd><cite>pi_codon[r][x]</cite> is preference of site <cite>r</cite> for amino acid
+encoded by codon <cite>x</cite>.</dd>
+<dt><cite>ln_pi_codon</cite> (<cite>numpy.ndarray</cite> floats, shape <cite>(nsites, N_CODON)</cite>)</dt>
+<dd>Natural logarithm of <cite>pi_codon</cite>.</dd>
+<dt><cite>piAx_piAy</cite> (<cite>numpy.ndarray</cite> floats, shape <cite>(nsites, N_CODON, N_CODON)</cite>)</dt>
+<dd><cite>piAx_piAy[r][x][y]</cite> is ratio of preference for amino acid
+encoded by codon <cite>x</cite> divided by pref for that encoded by <cite>y</cite>.</dd>
+<dt><cite>piAx_piAy_beta</cite> (<cite>numpy.ndarray</cite> floats, shape <cite>(nsites, N_CODON, N_CODON)</cite>)</dt>
+<dd>Equal to <cite>piAx_piAy</cite> raised to the power of <cite>beta</cite>.</dd>
+<dt><cite>ln_piAx_piAy_beta (`numpy.ndarray</cite> of floats)</dt>
+<dd>Natural logarithm of <cite>piAx_piAy_beta</cite>.</dd>
+<dt><cite>dPrxy</cite> (dict)</dt>
+<dd>Keyed by each string in <cite>freeparams</cite>, each value is <cite>numpy.ndarray</cite>
+of floats giving derivative of <cite>Prxy</cite> with respect to that parameter.
+The shape of each array <cite>(nsites, N_CODON, N_CODON)</cite> except for
+<em>eta</em>, for which it is <cite>(N_NT - 1, nsites, N_CODON, N_CODON)</cite> with
+the first index ranging over each element in <cite>eta</cite>.</dd>
+<dt><cite>dprx</cite> (dict)</dt>
+<dd>Keyed by strings in <cite>freeparams</cite>, each value is <cite>numpy.ndarray</cite>
+of floats giving derivative of <cite>prx</cite> with respect to that param,
+or 0 if if <cite>prx</cite> does not depend on parameter. The shape of each
+array is <cite>(nsites, N_CODON)</cite> except for <em>eta</em>, for which it is
+<cite>(N_NT - 1, nsites, N_CODON)</cite> with the first index ranging over
+each element in <cite>eta</cite>. Equivalent to <cite>dstationarystate[param]</cite>.</dd>
+<dt><cite>D</cite> (<cite>numpy.ndarray</cite> floats, shape <cite>(nsites, N_CODON)</cite>)</dt>
+<dd>Element <cite>r</cite> is diagonal of <span class="math">\(\mathbf{D_r}\)</span> diagonal matrix,
+<span class="math">\(\mathbf{P_r} = \mathbf{A_r}^{-1} \mathbf{D_r} \mathbf{A_r}\)</span></dd>
+<dt><cite>A</cite> (<cite>numpy.ndarray</cite> floats, shape <cite>(nsites, N_CODON, N_CODON)</cite>)</dt>
+<dd>Element r is <span class="math">\(\mathbf{A_r}\)</span> matrix.</dd>
+<dt><cite>Ainv</cite> (<cite>numpy.ndarray</cite> floats, shape <cite>(nsites, N_CODON, N_CODON)</cite>)</dt>
+<dd>Element r is <span class="math">\(\mathbf{A_r}^{-1}\)</span> matrix.</dd>
+<dt><cite>B</cite> (dict)</dt>
+<dd>Keyed by strings in <cite>freeparams</cite>, each value is <cite>numpy.ndarray</cite>
+of floats giving <cite>B</cite> matrix for that parameter. The shape
+is <cite>(nsites, N_CODON, N_CODON)</cite> except for <em>eta</em>, for which
+it is <cite>(N_NT - 1, nsites, N_CODON, N_CODON)</cite> with the first
+index ranging over each element in <cite>eta</cite>.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="phydmslib.models.ExpCM.ALLOWEDPARAMS">
+<code class="descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'beta', 'eta', 'mu']</em><a class="headerlink" href="#phydmslib.models.ExpCM.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.ExpCM.M">
+<code class="descname">M</code><span class="sig-paren">(</span><em>t</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.M" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for method in <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.ExpCM.PARAMLIMITS">
+<code class="descname">PARAMLIMITS</code><a class="headerlink" href="#phydmslib.models.ExpCM.PARAMLIMITS" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.ExpCM.PARAMTYPES">
+<code class="descname">PARAMTYPES</code><em class="property"> = {'phi': (&lt;type 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;type 'float'&gt;, 'mu': &lt;type 'float'&gt;, 'beta': &lt;type 'float'&gt;, 'eta': (&lt;type 'numpy.ndarray'&gt;, (3,)), 'pi': &lt;type 'float'&gt;, 'omega': &lt;type 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.ExpCM.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>prefs, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, phi=array([ 0.25,  0.25,  0.25,  0.25]), freeparams=['kappa', 'omega', 'beta', 'mu', 'eta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize an <cite>ExpCM</cite> object.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>prefs</cite> (list)</dt>
+<dd>List of dicts giving amino-acid preferences for
+each site. Each dict keyed by amino acid letter
+codes, value is pref &gt; 0 and &lt; 1. Must sum to 1
+at each site.</dd>
+<dt><cite>kappa</cite>, <cite>omega</cite>, <cite>beta</cite>, <cite>mu</cite>, <cite>phi</cite></dt>
+<dd>Model params described in main class doc string.</dd>
+<dt><cite>freeparams</cite> (list of strings)</dt>
+<dd>Specifies free parameters.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.ExpCM.branchScale">
+<code class="descname">branchScale</code><a class="headerlink" href="#phydmslib.models.ExpCM.branchScale" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.ExpCM.dM">
+<code class="descname">dM</code><span class="sig-paren">(</span><em>t</em>, <em>param</em>, <em>Mt</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.dM" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for method in <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.ExpCM.dlogprior">
+<code class="descname">dlogprior</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.dlogprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zero for all <cite>param</cite>, as no prior defined over this model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.ExpCM.dstationarystate">
+<code class="descname">dstationarystate</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.dstationarystate" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.ExpCM.freeparams">
+<code class="descname">freeparams</code><a class="headerlink" href="#phydmslib.models.ExpCM.freeparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.ExpCM.logprior">
+<code class="descname">logprior</code><a class="headerlink" href="#phydmslib.models.ExpCM.logprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is zero, as no prior is defined over this model.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.ExpCM.mu">
+<code class="descname">mu</code><a class="headerlink" href="#phydmslib.models.ExpCM.mu" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.ExpCM.nsites">
+<code class="descname">nsites</code><a class="headerlink" href="#phydmslib.models.ExpCM.nsites" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.ExpCM.paramsReport">
+<code class="descname">paramsReport</code><a class="headerlink" href="#phydmslib.models.ExpCM.paramsReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.ExpCM.stationarystate">
+<code class="descname">stationarystate</code><a class="headerlink" href="#phydmslib.models.ExpCM.stationarystate" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.ExpCM.updateParams">
+<code class="descname">updateParams</code><span class="sig-paren">(</span><em>newvalues</em>, <em>update_all=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.updateParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="phydmslib.models.ExpCM_empirical_phi">
+<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">ExpCM_empirical_phi</code><span class="sig-paren">(</span><em>prefs, g, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, freeparams=['kappa', 'omega', 'beta', 'mu']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#phydmslib.models.ExpCM" title="phydmslib.models.ExpCM"><code class="xref py py-class docutils literal"><span class="pre">phydmslib.models.ExpCM</span></code></a></p>
+<p>An <cite>ExpCM</cite> with <cite>phi</cite> calculated empirically from nucleotide frequencies.</p>
+<p>See <cite>__init__</cite> method for how to initialize an <cite>ExpCM_empirical_phi</cite>.</p>
+<p>The difference between and <cite>ExpCM</cite> and an <cite>ExpCM_empirical_phi</cite> is that
+the nucleotide frequency parameters <cite>phi</cite> are now calculated empirically
+from their observed frequences (denoted <cite>g</cite>) in the codon alignment such
+that the stationary state gives the empirically observed nucleotide
+frequencies.</p>
+<p>So compared to an <cite>ExpCM</cite>, <cite>eta</cite> (the transformation of <cite>phi</cite>) is no
+longer a free parameter, but is computed as a function of other
+model attributes.</p>
+<dl class="docutils">
+<dt>Has all the attributes of an <cite>ExpCM</cite> plus the following:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>g</cite> (<cite>numpy.ndarray</cite> of float, length <cite>N_NT</cite>)</dt>
+<dd>Empirical nucleotide frequencies in alignment, with
+<cite>g[m]</cite> being frequency of nucleotide <cite>m</cite>. Must sum
+to one.</dd>
+<dt><cite>dphi_dbeta</cite> (<cite>numpy.ndarray</cite> of float, length <cite>N_NT</cite>)</dt>
+<dd>Derivative of <cite>phi</cite> with respect to <cite>beta</cite>.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="phydmslib.models.ExpCM_empirical_phi.ALLOWEDPARAMS">
+<code class="descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'beta', 'mu']</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.ExpCM_empirical_phi.PARAMTYPES">
+<code class="descname">PARAMTYPES</code><em class="property"> = {'phi': (&lt;type 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;type 'float'&gt;, 'g': (&lt;type 'numpy.ndarray'&gt;, (4,)), 'mu': &lt;type 'float'&gt;, 'beta': &lt;type 'float'&gt;, 'eta': (&lt;type 'numpy.ndarray'&gt;, (3,)), 'pi': &lt;type 'float'&gt;, 'omega': &lt;type 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.ExpCM_empirical_phi.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>prefs, g, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, freeparams=['kappa', 'omega', 'beta', 'mu']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize an <cite>ExpCM_empirical_phi</cite> object.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>prefs</cite>, <cite>kappa</cite>, <cite>omega</cite>, <cite>beta</cite>, <cite>mu</cite>, <cite>freeparams</cite></dt>
+<dd>Same meaning as for an <cite>ExpCM</cite></dd>
+<dt><cite>g</cite></dt>
+<dd>Has the meaning described in the main class doc string.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="phydmslib.models.ExpCM_empirical_phi_divpressure">
+<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">ExpCM_empirical_phi_divpressure</code><span class="sig-paren">(</span><em>prefs, g, divPressureValues, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, omega2=0.0, freeparams=['kappa', 'omega', 'beta', 'mu', 'omega2']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#phydmslib.models.ExpCM_empirical_phi" title="phydmslib.models.ExpCM_empirical_phi"><code class="xref py py-class docutils literal"><span class="pre">phydmslib.models.ExpCM_empirical_phi</span></code></a></p>
+<p><cite>ExpCM</cite> with empirical <cite>phi</cite> and <em>a priori</em> diversifying pressure at sites.</p>
+<p>See <cite>__init__</cite> method for how to initialize.</p>
+<p>Difference between <cite>ExpCM_empirical_phi</cite> and <cite>ExpCM_empirical_phi_divpressure</cite>
+is that <cite>omega</cite> is replaced by <cite>omega * (1 + omega2 * deltar)</cite> where
+<cite>deltar</cite> is the expectation of diversifying pressure at site <cite>r</cite>.</p>
+<p>The rate of non-synonymous to synonymous change is proportional to the
+expectation of diversifying pressure.</p>
+<dl class="docutils">
+<dt>Has all the attributes of an <cite>ExpCM_empirical_phi</cite> plus the following:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>omega2</cite> (float)</dt>
+<dd>Part of the expression which replaces <cite>omega</cite>.</dd>
+<dt><cite>divPressureValues</cite> (<cite>scipy.array</cite> of length <cite>nsites</cite>)</dt>
+<dd>Array of <cite>deltar</cite> values in site order.
+The maximum absolute value of the array should be between 0 and 1.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="phydmslib.models.ExpCM_empirical_phi_divpressure.ALLOWEDPARAMS">
+<code class="descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'beta', 'mu', 'omega2']</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES">
+<code class="descname">PARAMTYPES</code><em class="property"> = {'phi': (&lt;type 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;type 'float'&gt;, 'g': (&lt;type 'numpy.ndarray'&gt;, (4,)), 'mu': &lt;type 'float'&gt;, 'beta': &lt;type 'float'&gt;, 'eta': (&lt;type 'numpy.ndarray'&gt;, (3,)), 'pi': &lt;type 'float'&gt;, 'omega': &lt;type 'float'&gt;, 'omega2': &lt;type 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.ExpCM_empirical_phi_divpressure.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>prefs, g, divPressureValues, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, omega2=0.0, freeparams=['kappa', 'omega', 'beta', 'mu', 'omega2']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize an <cite>ExpCM_empirical_phi_divpressure</cite> object.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>prefs</cite>, <cite>kappa</cite>, <cite>omega</cite>, <cite>beta</cite>, <cite>mu</cite>, <cite>g</cite>, <cite>freeparams</cite></dt>
+<dd>Same meaning as for an <cite>ExpCM_empirical_phi</cite></dd>
+<dt><cite>divPressureValues</cite>, <cite>omega2</cite></dt>
+<dd>Meaning described in the main class doc string.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="phydmslib.models.ExpCM_fitprefs">
+<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">ExpCM_fitprefs</code><span class="sig-paren">(</span><em>prefs, prior, kappa, omega, phi, mu=1.0, origbeta=1.0, freeparams=['zeta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#phydmslib.models.ExpCM" title="phydmslib.models.ExpCM"><code class="xref py py-class docutils literal"><span class="pre">phydmslib.models.ExpCM</span></code></a></p>
+<p>An <cite>ExpCM</cite> with the preferences <cite>pi</cite> as free parameters.</p>
+<p>The difference between <cite>ExpCM</cite> and <cite>ExpCM_fitprefs</cite> is that the
+amino-acid preferences <cite>pi</cite> are optimized for the latter. There
+can also be a regularizing prior on these preferences.</p>
+<p>The way this class is currently implemented, it will be inefficient
+if there is more than one site. The recommended usage is to optimize
+across-site parameters with fixed preferences, then optimize preferences
+for each site individually with this class after fixing across-site 
+parameters. You currently can <em>not</em> initialize with more than one
+site.</p>
+<p>See <cite>__init__</cite> method for how to initialize an <cite>ExpCM_fitprefs</cite>.</p>
+<dl class="docutils">
+<dt>Has all the attributes of an <cite>ExpCM</cite>, plus:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>zeta</cite> (<cite>numpy.ndarray</cite> of float, shape <cite>(nsites * (N_AA - 1))</cite>)</dt>
+<dd>Transformation of the preferences <cite>pi</cite>; all entries are
+&gt; 0 and &lt; 1. We use <cite>zeta</cite> rather than <cite>pi</cite> as the free
+parameter during optimization. The entry
+<cite>zeta.reshape(nsites, N_AA - 1)[r][i]</cite> is value <cite>i</cite>
+for site <cite>r</cite> (<cite>0 &lt;= r &lt; nsites</cite>) where <cite>0 &lt;= i &lt; N_AA - 1</cite>.</dd>
+<dt><cite>dPrxy</cite> (dict)</dt>
+<dd>Like for <cite>ExpCM</cite>, but also contains entry keyed by &#8216;zeta&#8217; of
+of shape <cite>(nsites * (N_AA - 1), nsites, N_CODON, N_CODON)</cite>
+where the first index ranges over the elements in <cite>zeta</cite>.</dd>
+<dt><cite>tildeFrxy</cite> (<cite>numpy.ndarray</cite> of <cite>float</cite>, shape <cite>(nsites, N_CODON, N_CODON)</cite>)</dt>
+<dd>Contains quantities used in calculating derivative of 
+<cite>dPrxy</cite> with respect to <cite>zeta</cite>.</dd>
+<dt><cite>origpi</cite> (<cite>numpy.ndarray</cite> of float, shape <cite>(nsites, N_AA)</cite>)</dt>
+<dd><cite>origpi[r][a]</cite> is the original preference for amino-acid
+<cite>a</cite> at site <cite>r</cite> as given by the calling parameter <cite>prefs</cite>
+and re-scaled by <cite>origbeta</cite>. This value is <strong>not</strong> updated
+as <cite>zeta</cite> and <cite>pi</cite> are optimized, and is rather used to
+keep track of where the optimization starts. Set to one
+if you have not already optimized a stringency parameter
+prior to initializing this class.</dd>
+<dt><cite>prior</cite> (<cite>None</cite> or a tuple)</dt>
+<dd>Specifies the regularizing prior over the preferences.
+This prior is centered on the preferences in <cite>origpi</cite>.
+A value of <cite>None</cite> indicates no regularizing prior.
+A tuple of <cite>(&#8216;invquadratic&#8217;, c1, c2)</cite> is the inverse
+quadratic prior described in Bloom, <em>Biology Direct</em>, 12:1.</dd>
+</dl>
+</dd>
+</dl>
+<p><cite>beta</cite> (the stringency parameter) is <strong>not</strong> a free parameter,
+and is instead fixed to 1. This is because it does not make sense
+to optimize a stringency parameter if you are also optimizing the 
+preferences as they are confounded.</p>
+<dl class="attribute">
+<dt id="phydmslib.models.ExpCM_fitprefs.ALLOWEDPARAMS">
+<code class="descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'eta', 'mu', 'zeta']</em><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.ExpCM_fitprefs.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>prefs, prior, kappa, omega, phi, mu=1.0, origbeta=1.0, freeparams=['zeta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize an <cite>ExpCM_fitprefs</cite> object.</p>
+<p>The calling parameters have the meaning described in the main class doc
+string. The default values have changed consistent with recommended 
+usage of this class: that you have already estimated
+the across-site parameters (<cite>kappa</cite>, <cite>omega</cite>, <cite>mu</cite>, <cite>phi</cite>) and so
+are specifying fixed values for those. You are then just optimizing the
+preferences in their variable-transformed form <cite>zeta</cite> from the initial
+values in <cite>prefs</cite> scaled by <cite>origbeta</cite>. The meaning of <cite>origbeta</cite>
+is described in the main class doc string.</p>
+<dl class="docutils">
+<dt>Additional arguments:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>origbeta</cite> (<cite>float</cite>)</dt>
+<dd>The preferences in <cite>prefs</cite> are re-scaled by <cite>origbeta</cite> and
+used as the initial value and stored in <cite>origpi</cite>. <cite>origbeta</cite> 
+might differ from 1 if you already optimized <cite>prefs</cite> using
+a fixed-preference <cite>ExpCM</cite> prior to initializing this model.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.ExpCM_fitprefs.dlogprior">
+<code class="descname">dlogprior</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.dlogprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Value of derivative of prior depends on value of <cite>prior</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.ExpCM_fitprefs.logprior">
+<code class="descname">logprior</code><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.logprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Value of log prior depends on value of <cite>prior</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.ExpCM_fitprefs.param">
+<code class="descname">param</code><em class="property"> = 'mu'</em><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.param" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="phydmslib.models.ExpCM_fitprefs2">
+<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">ExpCM_fitprefs2</code><span class="sig-paren">(</span><em>prefs, prior, kappa, omega, phi, mu=1.0, origbeta=1.0, freeparams=['zeta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#phydmslib.models.ExpCM_fitprefs" title="phydmslib.models.ExpCM_fitprefs"><code class="xref py py-class docutils literal"><span class="pre">phydmslib.models.ExpCM_fitprefs</span></code></a></p>
+<p>An <cite>ExpCM</cite> with the preferences <cite>pi</cite> as free parameters.</p>
+<p>This class differs from <cite>ExpCM_fitprefs</cite> in the way that
+it internally handles the transformation from the preferences
+<cite>pi</cite> to the optimization variables <cite>zeta</cite>. All other attributes
+are the same as for an <cite>ExpCM_fitprefs</cite>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="phydmslib.models.GammaDistributedOmegaModel">
+<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">GammaDistributedOmegaModel</code><span class="sig-paren">(</span><em>model, ncats, alpha_omega=1.0, beta_omega=2.0, freeparams=['alpha_omega', 'beta_omega']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#phydmslib.models.DistributionModel" title="phydmslib.models.DistributionModel"><code class="xref py py-class docutils literal"><span class="pre">phydmslib.models.DistributionModel</span></code></a></p>
+<p>Implements gamma distribution over <cite>omega</cite> for a model.</p>
+<p>This model can be used to take a simple substitution model that
+directly subclasses <cite>Model</cite> and implement a gamma distribution
+over its <cite>omega</cite> parameter. For instance, if this is done for
+the <cite>YNGKP_M0</cite> model, it yields a M5 variant of the YNGKP model.</p>
+<p>The <cite>omega</cite> parameter is drawn from <cite>ncats</cite> categories, with
+the values being at the mean of each of these categories and
+equal weight assigned to each category.</p>
+<p>This means that rather than optimizing <cite>omega</cite> directly,
+we optimize the shape and inverse-scale parameters
+of its gamma distribution.</p>
+<p>See <cite>__init__</cite> method for how to initialize a 
+<cite>GammaDistributedOmegaModel</cite>.</p>
+<p>Attributes should <strong>only</strong> be updated via the <cite>updateParams</cite>
+method; do <strong>not</strong> set attributes directly.</p>
+<dl class="docutils">
+<dt>Attributes (see also those inherited from <cite>DistributionModel</cite>):</dt>
+<dd><dl class="first last docutils">
+<dt><cite>alpha_omega</cite> (<cite>float</cite> &gt; 0)</dt>
+<dd>Gamma distribution shape parameter.</dd>
+<dt><cite>beta_omega</cite> (<cite>float</cite> &gt; 0)</dt>
+<dd>Gamma distribution inverse-scale parameter</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.M">
+<code class="descname">M</code><span class="sig-paren">(</span><em>k</em>, <em>t</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.M" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>DistributionModel</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.PARAMLIMITS">
+<code class="descname">PARAMLIMITS</code><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.PARAMLIMITS" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.PARAMTYPES">
+<code class="descname">PARAMTYPES</code><em class="property"> = {'beta_omega': &lt;type 'float'&gt;, 'alpha_omega': &lt;type 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>model, ncats, alpha_omega=1.0, beta_omega=2.0, freeparams=['alpha_omega', 'beta_omega']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a <cite>GammaDistributedOmegaModel</cite>.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>model</cite> (<cite>Model</cite>)</dt>
+<dd>A substitution model with <cite>distributedparam</cite> as a free parameter
+that does <strong>not</strong> have any other property drawn from
+a distribution. Any other parameter that is in <cite>freeparams</cite>
+of this model will also be an optimized parameter.</dd>
+<dt><cite>ncats</cite>, <cite>alpha_omega</cite>, <cite>beta_omega</cite></dt>
+<dd>Meaning described in main class doc string.</dd>
+<dt><cite>freeparams</cite></dt>
+<dd>The free parameters will be these <strong>plus</strong> anything
+in <cite>model.freeparams</cite> other than <cite>distributedparam</cite>.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.basemodel">
+<code class="descname">basemodel</code><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.basemodel" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>DistributionModel</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.branchScale">
+<code class="descname">branchScale</code><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.branchScale" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.catweights">
+<code class="descname">catweights</code><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.catweights" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>DistributionModel</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.dM">
+<code class="descname">dM</code><span class="sig-paren">(</span><em>k</em>, <em>t</em>, <em>param</em>, <em>Mkt</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.dM" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>DistributionModel</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.d_distributionparams">
+<code class="descname">d_distributionparams</code><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.d_distributionparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>DistributionModel</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.distributedparam">
+<code class="descname">distributedparam</code><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.distributedparam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns name of the distributed parameter, which is <cite>omega</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.distributionparams">
+<code class="descname">distributionparams</code><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.distributionparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns list of params defining distribution of <cite>distributedparam</cite>.</p>
+<p>This list is <cite>[&#8216;alpha_omega&#8217;, &#8216;beta_omega&#8217;]</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.dlogprior">
+<code class="descname">dlogprior</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.dlogprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equal to value of <cite>basemodel.dlogprior</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.dstationarystate">
+<code class="descname">dstationarystate</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.dstationarystate" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.freeparams">
+<code class="descname">freeparams</code><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.freeparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.logprior">
+<code class="descname">logprior</code><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.logprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equal to value of <cite>basemodel.logprior</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.mu">
+<code class="descname">mu</code><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.mu" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.ncats">
+<code class="descname">ncats</code><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.ncats" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>DistributionModel</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.nsites">
+<code class="descname">nsites</code><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.nsites" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.paramsReport">
+<code class="descname">paramsReport</code><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.paramsReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.stationarystate">
+<code class="descname">stationarystate</code><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.stationarystate" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.updateParams">
+<code class="descname">updateParams</code><span class="sig-paren">(</span><em>newvalues</em>, <em>update_all=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.updateParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="phydmslib.models.Model">
+<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">Model</code><a class="headerlink" href="#phydmslib.models.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Substitution model abstract base class.</p>
+<p>Specifies required methods / attributes of substitution models.</p>
+<dl class="method">
+<dt id="phydmslib.models.Model.M">
+<code class="descname">M</code><span class="sig-paren">(</span><em>t</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.M" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matrix exponential <cite>M(mu * t) = exp(mu * t * P)</cite>.</p>
+<p>If we are considering branch to tip node, you can use
+<cite>tips</cite> and <cite>gaps</cite> to get only the column needed for
+likelihood calculation. This is computationally cheaper.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>t</cite> (float &gt; 0)</dt>
+<dd>The branch length.</dd>
+<dt><cite>tips</cite> (<cite>None</cite> or <cite>numpy.ndarray</cite> of <cite>int</cite>, length <cite>nsites</cite>)</dt>
+<dd>If <cite>None</cite>, return the full matrix exponential.
+Otherwise, should be an array with element <cite>r</cite>
+giving the codon at tip node <cite>r</cite> (just put 0
+if codon is a gap and see <cite>gaps</cite> below).</dd>
+<dt><cite>gaps</cite> (<cite>None</cite> or <cite>numpy.ndarray</cite> of <cite>int</cite>)</dt>
+<dd>Only meaningful if using <cite>tips</cite>. In this case,
+array should list <cite>r</cite> for all sites where tip
+node codon is a gap. <cite>None</cite> is equivalent to
+no gaps (also can be empty array).</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>M</cite> (<cite>numpy.ndarray</cite> of floats)</dt>
+<dd><dl class="first last docutils">
+<dt>If not using <cite>tips</cite>, shape is <cite>(nsites, N_CODON, N_CODON)</cite></dt>
+<dd>with <cite>M(t)[r][x][y]</cite> probability <cite>r</cite> changes from <cite>x</cite>
+to <cite>y</cite> in time <cite>t</cite>.</dd>
+<dt>If using <cite>tips</cite>, shape is <cite>(nsites, N_CODON)</cite> with</dt>
+<dd><cite>M(t)[r][x] probability r changes from `x</cite> to <cite>tips[r]</cite>
+in time <cite>t</cite>. If <cite>r</cite> is in <cite>gap</cite>, then <cite>M(t)[r][x]</cite> is
+one.</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.Model.PARAMLIMITS">
+<code class="descname">PARAMLIMITS</code><a class="headerlink" href="#phydmslib.models.Model.PARAMLIMITS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict of tuples giving lower and upper allowed param values.</p>
+<p>For each <cite>param</cite> in <cite>freeparams</cite>, <cite>PARAMLIMITS[param]</cite>
+is a 2-tuple of floats giving upper and lower allowed
+values of <cite>param</cite> (or of each element in <cite>param</cite> if
+<cite>param</cite> is an array).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.Model.branchScale">
+<code class="descname">branchScale</code><a class="headerlink" href="#phydmslib.models.Model.branchScale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factor to scale branch lengths to substitutions per site.</p>
+<p>When we use a branch length of <cite>t = 1</cite>, how many substitutions
+per site do we expect averaged over all sites? This method
+returns that number. So to scale branch lengths to units of
+substitution per site, multiply by this number.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.Model.dM">
+<code class="descname">dM</code><span class="sig-paren">(</span><em>t</em>, <em>param</em>, <em>Mt</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.dM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derivative of <cite>M(t)</cite> with respect to <cite>param</cite>.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>t</cite> (float &gt; 0)</dt>
+<dd>The branch length.</dd>
+<dt><cite>param</cite> (string in <cite>freeparams</cite> or the string <cite>&#8216;t&#8217;</cite>)</dt>
+<dd>Differentiate with respect to this model parameter, 
+or with respect to branch length if <cite>&#8216;t&#8217;</cite>.</dd>
+<dt><cite>Mt</cite> (<cite>numpy.ndarray</cite>.)</dt>
+<dd>The current value of <cite>M(t, tips, gaps)</cite>. Typically this
+has already been pre-computed which is why it is passed
+here to avoid computing again. Otherwise pass
+<cite>None</cite> and it will be re-computed.</dd>
+<dt><cite>tips</cite> and <cite>gaps</cite></dt>
+<dd>Same meaning as for <cite>M</cite>.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>dM_param</cite> (<cite>numpy.ndarray</cite> floats)</dt>
+<dd>If <cite>param</cite> is a float, then <cite>dM_param[r][x][y]</cite>
+is derivative of <cite>M(t)[r][x][y]</cite> with respect to
+<cite>param</cite>. If <cite>param</cite> is an array, then
+<cite>dM_param[i][r][x][y]</cite> is derivative of <cite>M(t)[r][x][y]</cite>
+with respect to <cite>param[i]</cite>. If using <cite>tips</cite>, then
+<cite>dM_param[r]</cite> or <cite>dM_params[i][r]</cite> is only a
+single array providing the derivative of
+<cite>M(t, tips, gaps)[r]</cite> with respect to <cite>param</cite> or
+<cite>param[i]</cite>.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.Model.dlogprior">
+<code class="descname">dlogprior</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.dlogprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derivative of <cite>logprior</cite> with respect to <cite>param</cite>.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><cite>param</cite> (string in <cite>freeparams</cite>)</dd>
+<dt>Returns:</dt>
+<dd>Derivative of <cite>logprior</cite> with respect to <cite>param</cite>,
+or 0 if there is no prior defined over this model.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.Model.dstationarystate">
+<code class="descname">dstationarystate</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.dstationarystate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derivative of <cite>stationarystate</cite> with respect to <cite>param</cite>.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><cite>param</cite> (string in <cite>freeparams</cite>)</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>dstationarystate</cite> (<cite>numpy.ndarray</cite> of floats or zero)</dt>
+<dd>If <cite>param</cite> is a float, then <cite>dstationarystate[r][x]</cite>
+is derivative of <cite>stationarystate[r][x]</cite> with respect
+to <cite>param</cite>. If <cite>param</cite> is an array, then
+<cite>dstationarystate[i][r][x]</cite> is derivative of
+<cite>stationarystate[r][x]</cite> with respect to <cite>param[i]</cite>.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.Model.freeparams">
+<code class="descname">freeparams</code><a class="headerlink" href="#phydmslib.models.Model.freeparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model parameters to be optimized (a list of strings).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.Model.logprior">
+<code class="descname">logprior</code><a class="headerlink" href="#phydmslib.models.Model.logprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log prior over current model.</p>
+<p>Is a float giving log prior over current model, or
+0 if there is no prior defined over this model.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.Model.mu">
+<code class="descname">mu</code><a class="headerlink" href="#phydmslib.models.Model.mu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mutation rate, scales branch lengths in <cite>M</cite> and <cite>dM</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.Model.nsites">
+<code class="descname">nsites</code><a class="headerlink" href="#phydmslib.models.Model.nsites" title="Permalink to this definition">¶</a></dt>
+<dd><p>An <cite>int</cite> giving the number of codon sites.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.Model.paramsReport">
+<code class="descname">paramsReport</code><a class="headerlink" href="#phydmslib.models.Model.paramsReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reports current values of independent model parameters.</p>
+<p>Returns a dictionary keyed by parameter name with value being the 
+parameter value. Does <strong>not</strong> include <cite>mu</cite> as this is confounded
+with branch lengths.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.Model.stationarystate">
+<code class="descname">stationarystate</code><a class="headerlink" href="#phydmslib.models.Model.stationarystate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stationary state of substitution model.</p>
+<p>A <cite>numpy.ndarray</cite> of floats, shape <cite>(nsites, N_CODON)</cite>.
+Element <cite>stationarystate[r][x]</cite> is the stationary
+state probability of codon <cite>x</cite> at site <cite>r</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.Model.updateParams">
+<code class="descname">updateParams</code><span class="sig-paren">(</span><em>newvalues</em>, <em>update_all=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.updateParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update model params.</p>
+<p>This method is the <strong>only</strong> acceptable way to update
+model parameters; other dependent model parameters are
+automatically updated as needed if you use this method.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>newvalues</cite> (dict)</dt>
+<dd>Can be keyed by any parameter in <cite>freeparams</cite>.</dd>
+<dt><cite>update_all</cite> (bool)</dt>
+<dd>If <cite>True</cite>, update all dependent attributes using
+current values of model parameters.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="phydmslib.models.YNGKP_M0">
+<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">YNGKP_M0</code><span class="sig-paren">(</span><em>e_pw, nsites, kappa=2.0, omega=0.5, mu=1.0, freeparams=['kappa', 'omega', 'mu']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#phydmslib.models.Model" title="phydmslib.models.Model"><code class="xref py py-class docutils literal"><span class="pre">phydmslib.models.Model</span></code></a></p>
+<p>YNGKP_M0 model from Yang et al, 2000.</p>
+<p>See <cite>__init__</cite> method for how to initialize an <cite>YNGKP_M0</cite>.</p>
+<p>Attributes should <strong>only</strong> be updated via the <cite>updateParams</cite>
+method, do <strong>not</strong> set attributes directly.</p>
+<dl class="docutils">
+<dt>Attributes (see also those inherited from <cite>Model</cite>):</dt>
+<dd><dl class="first last docutils">
+<dt><cite>kappa</cite> (float &gt; 0)</dt>
+<dd>Transition-transversion ratio.</dd>
+<dt><cite>omega</cite> (float &gt; 0)</dt>
+<dd>Nonsynonymous to synonymous substitution ratio.</dd>
+<dt><cite>Pxy</cite> (<cite>numpy.ndarray</cite> of floats, shape <cite>(1, CODON, N_CODON)</cite></dt>
+<dd><cite>Pxy[0][x][y]</cite> is substitution rate from codon <cite>x</cite> to <cite>y</cite>.
+Diagonal elements make rows sum to zero.</dd>
+<dt><cite>Pxy_no_omega</cite></dt>
+<dd>Like <cite>Pxy</cite> but <strong>not</strong> multiplied by <cite>omega</cite> for nonsynonymous
+mutations.</dd>
+<dt><cite>dPxy</cite> (dict)</dt>
+<dd>Keyed by each string in <cite>freeparams</cite>, each value is <cite>numpy.ndarray</cite>
+of floats giving derivative of <cite>Pxy</cite> with respect to that parameter.
+The shape of each array <cite>(1, N_CODON, N_CODON)</cite>.</dd>
+<dt><cite>e_pw</cite> (scipy.ndarray, shape <cite>(3, N_NT)</cite>)</dt>
+<dd>The empirical nucleotide frequencies for each position in a codon
+measured from the alignment. <cite>e_pw[p][w]</cite> give the frequency of
+nucleotide <cite>w</cite> at codon position <cite>p</cite>.</dd>
+<dt><cite>Phi_x</cite> (scipy.ndarray, shape <cite>(N_CODON,)</cite>)</dt>
+<dd>The codon frequencies calculated from the <cite>phi</cite> frequencies.
+<cite>Phi_x[x]</cite> = phi[0][x0] * phi[1][x1] * phi[2][x2]</dd>
+<dt><cite>phi</cite> (scipy.ndarray, shape <cite>(3, N_NT)</cite>)</dt>
+<dd>The model nucleotide frequencies for each position in a codon
+computed using the <cite>CF3X4</cite> estimator. <cite>phi[p][w]</cite> is the model
+frequency of nucleotide <cite>w</cite> at codon position <cite>p</cite>.</dd>
+</dl>
+</dd>
+</dl>
+<p>Unlike the <cite>ExpCM</cite>, <cite>YNGKP_M0</cite> does not have site-specific calculations.
+In order to maintain consistency, most attributes, such as <cite>Pxy</cite> and <cite>dPxy</cite>
+do have a single &#8220;site&#8221; dimension which is carried through the calculations.
+When <cite>M</cite> and <cite>dM</cite> are returned, the single site matrix is repeated so the
+final dimensions of <cite>M</cite> and <cite>dM</cite> are match those in the docs for the <cite>Models</cite>
+abstract base class.</p>
+<p>The model nucleotide frequences, <cite>phi</cite> are computed using the
+empirical nucleotide frequencies <cite>e_pw</cite> and the <cite>Corrected F3X4</cite>
+estimator (Pond et al, 2010). Unlike the traditional <cite>MG3X4</cite> or <cite>GY3X4</cite>,
+this estimator takes into account stop codon nucleotide frequencies.
+The codon frequencies, <cite>Phi_x</cite> are computed from the <cite>phi</cite> values.</p>
+<dl class="attribute">
+<dt id="phydmslib.models.YNGKP_M0.ALLOWEDPARAMS">
+<code class="descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'mu']</em><a class="headerlink" href="#phydmslib.models.YNGKP_M0.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.YNGKP_M0.M">
+<code class="descname">M</code><span class="sig-paren">(</span><em>t</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.M" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for method in <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.YNGKP_M0.PARAMLIMITS">
+<code class="descname">PARAMLIMITS</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.PARAMLIMITS" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.YNGKP_M0.PARAMTYPES">
+<code class="descname">PARAMTYPES</code><em class="property"> = {'mu': &lt;type 'float'&gt;, 'omega': &lt;type 'float'&gt;, 'e_pw': (&lt;type 'numpy.ndarray'&gt;, (3, 4)), 'kappa': &lt;type 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.YNGKP_M0.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.YNGKP_M0.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>e_pw, nsites, kappa=2.0, omega=0.5, mu=1.0, freeparams=['kappa', 'omega', 'mu']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize an <cite>YNGKP_M0</cite> object.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>kappa</cite>, <cite>omega</cite>, <cite>mu</cite>,</dt>
+<dd>Model params described in main class doc string.</dd>
+<dt><cite>freeparams</cite> (list of strings)</dt>
+<dd>Specifies free parameters.</dd>
+<dt><cite>e_pw</cite>, <cite>nsites</cite></dt>
+<dd>Meaning described in the main class doc string.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.YNGKP_M0.branchScale">
+<code class="descname">branchScale</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.branchScale" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.YNGKP_M0.dM">
+<code class="descname">dM</code><span class="sig-paren">(</span><em>t</em>, <em>param</em>, <em>Mt</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.dM" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for method in <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.YNGKP_M0.dlogprior">
+<code class="descname">dlogprior</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.dlogprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zero for all <cite>param</cite>, as no prior defined over this model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.YNGKP_M0.dstationarystate">
+<code class="descname">dstationarystate</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.dstationarystate" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.YNGKP_M0.freeparams">
+<code class="descname">freeparams</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.freeparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.YNGKP_M0.logprior">
+<code class="descname">logprior</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.logprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is zero, as no prior is defined over this model.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.YNGKP_M0.mu">
+<code class="descname">mu</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.mu" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.YNGKP_M0.nsites">
+<code class="descname">nsites</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.nsites" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.YNGKP_M0.paramsReport">
+<code class="descname">paramsReport</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.paramsReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.models.YNGKP_M0.stationarystate">
+<code class="descname">stationarystate</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.stationarystate" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.models.YNGKP_M0.updateParams">
+<code class="descname">updateParams</code><span class="sig-paren">(</span><em>newvalues</em>, <em>update_all=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.updateParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-phydmslib.numutils">
+<span id="phydmslib-numutils-module"></span><h2>phydmslib.numutils module<a class="headerlink" href="#module-phydmslib.numutils" title="Permalink to this headline">¶</a></h2>
+<p>Numerical routines for <code class="docutils literal"><span class="pre">phydmslib</span></code>.</p>
+<dl class="function">
+<dt id="phydmslib.numutils.broadcastGetCols">
+<code class="descclassname">phydmslib.numutils.</code><code class="descname">broadcastGetCols</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.numutils.broadcastGetCols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get specified columns from <cite>ndarray</cite> of square <cite>ndarrays</cite>.</p>
+<p>This functions uses fast <cite>numpy</cite> broadcasting to get the
+columns from a long array of arrays.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>m</cite> (<cite>numpy.ndarray</cite>, shape <cite>(r, n, n)</cite></dt>
+<dd>Array of matrices from which we get the columns</dd>
+<dt><cite>cols</cite> (<cite>numpy.ndarray</cite>, type <cite>int</cite>, length <cite>r</cite>)</dt>
+<dd>All entries should be &gt;= 0 and &lt; <cite>n</cite>.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>mcols</cite> (<cite>numpy.ndarray</cite>, shape <cite>(r, n)</cite>)</dt>
+<dd><cite>mcols[r]</cite> is equal to <cite>mcols[r][cols[r]]</cite></dd>
+</dl>
+</dd>
+</dl>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">n</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cols</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expected</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">][:,</span> <span class="n">cols</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scipy</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">broadcastGetCols</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">cols</span><span class="p">))</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="phydmslib.numutils.broadcastMatrixMultiply">
+<code class="descclassname">phydmslib.numutils.</code><code class="descname">broadcastMatrixMultiply</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.numutils.broadcastMatrixMultiply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Broadcast square matrix multiplication using <cite>blas</cite> for speed.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>a</cite> (<cite>numpy.ndarray</cite>, shape <cite>(r, n, n)</cite>)</dt>
+<dd>First matrix.</dd>
+<dt><cite>b</cite> (<cite>numpy.ndarray</cite>, shape <cite>(r, n, n)</cite>)</dt>
+<dd>Second matrix.</dd>
+<dt><cite>alpha</cite> (<cite>float</cite>)</dt>
+<dd>Multiply each entry in product by this (same meaning
+as for BLAS <cite>dgemm</cite>).</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>ab</cite> (<cite>numpy.ndarray</cite>, shape <cite>(r, n, n)</cite>)</dt>
+<dd><cite>ab[r]</cite> is the matrix product of <cite>a[r]</cite>
+with <cite>b[r]</cite>.</dd>
+</dl>
+</dd>
+</dl>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">n</span> <span class="o">*</span> <span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">n</span> <span class="o">*</span> <span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ab</span> <span class="o">=</span> <span class="n">broadcastMatrixMultiply</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expected</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scipy</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">ab</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="phydmslib.numutils.broadcastMatrixVectorMultiply">
+<code class="descclassname">phydmslib.numutils.</code><code class="descname">broadcastMatrixVectorMultiply</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.numutils.broadcastMatrixVectorMultiply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Broadcast matrix vector multiplication using <cite>blas</cite> for speed.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>m</cite> (<cite>numpy.ndarray</cite>, shape <cite>(d1, d2, d2)</cite>)</dt>
+<dd>Array of square matrices to multiply.</dd>
+<dt><cite>v</cite> (<cite>numpy.ndarray</cite>, shape <cite>(d1, d2)</cite>)</dt>
+<dd>Array of vectors to multiply.</dd>
+<dt><cite>alpha</cite> (<cite>float</cite>)</dt>
+<dd>Multiply each entry in product by this (same meaning
+as for BLAS <cite>dgemv</cite>).</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>mv</cite> (<cite>numpy.ndarray</cite>, shape <cite>(d1, d2)</cite>)</dt>
+<dd><cite>mv[r]</cite> is the matrix-vector product of <cite>m[r]</cite> with
+<cite>v[r]</cite> for 0 &lt;= <cite>r</cite> &lt;= <cite>d1</cite>.</dd>
+</dl>
+</dd>
+</dl>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">array</span><span class="p">([[[</span><span class="mf">1.</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">6</span><span class="p">]]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mv</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+<span class="gp">... </span>  <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+<span class="gp">... </span>     <span class="n">mvrx</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">... </span>     <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+<span class="gp">... </span>       <span class="n">mvrx</span> <span class="o">+=</span> <span class="n">m</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">y</span><span class="p">]</span>
+<span class="gp">... </span>     <span class="n">mv</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">mvrx</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mv2</span> <span class="o">=</span> <span class="n">broadcastMatrixVectorMultiply</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mv</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">mv2</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scipy</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">mv</span><span class="p">,</span> <span class="n">mv2</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </div>
@@ -387,6 +1502,12 @@ on the version of <code class="docutils literal"><span class="pre">phydms</span>
 <code class="descclassname">phydmslib.parsearguments.</code><code class="descname">ExistingFile</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ExistingFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>If <em>fname</em> is name of an existing file return it, otherwise an error.</p>
 <p><em>fname</em> can also be the string &#8216;None&#8217;, in which case we return <em>None</em>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="phydmslib.parsearguments.ExistingFileOrNone">
+<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">ExistingFileOrNone</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ExistingFileOrNone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like <cite>Existingfile</cite>, but if <cite>fname</cite> is string &#8220;None&#8221; then return <cite>None</cite>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -435,6 +1556,12 @@ on the version of <code class="docutils literal"><span class="pre">phydms</span>
 </dd></dl>
 
 <dl class="function">
+<dt id="phydmslib.parsearguments.IntGreaterThanOne">
+<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">IntGreaterThanOne</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.IntGreaterThanOne" title="Permalink to this definition">¶</a></dt>
+<dd><p>If <em>n</em> is an integer &gt; 1, returns it, otherwise an error.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="phydmslib.parsearguments.IntGreaterThanZero">
 <code class="descclassname">phydmslib.parsearguments.</code><code class="descname">IntGreaterThanZero</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.IntGreaterThanZero" title="Permalink to this definition">¶</a></dt>
 <dd><p>If <em>n</em> is an integer &gt; 0, returns it, otherwise an error.</p>
@@ -475,15 +1602,15 @@ on the version of <code class="docutils literal"><span class="pre">phydms</span>
 </dd></dl>
 
 <dl class="function">
-<dt id="phydmslib.parsearguments.PhyDMSAnalyzeSelectionParser">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">PhyDMSAnalyzeSelectionParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSAnalyzeSelectionParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns an <em>argparse.ArgumentParser</em> for <code class="docutils literal"><span class="pre">phydms_analyzeselection</span></code>.</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="phydmslib.parsearguments.PhyDMSComprehensiveParser">
 <code class="descclassname">phydmslib.parsearguments.</code><code class="descname">PhyDMSComprehensiveParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSComprehensiveParser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <em>argparse.ArgumentParser</em> for <code class="docutils literal"><span class="pre">phdyms_comprehensive</span></code> script.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="phydmslib.parsearguments.PhyDMSLogoPlotParser">
+<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">PhyDMSLogoPlotParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSLogoPlotParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <cite>argparse.ArgumentParser</cite> for <code class="docutils literal"><span class="pre">phydms_logoplot</span></code>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -493,139 +1620,342 @@ on the version of <code class="docutils literal"><span class="pre">phydms</span>
 </dd></dl>
 
 <dl class="function">
-<dt id="phydmslib.parsearguments.PhyDMSPlotSelectionParser">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">PhyDMSPlotSelectionParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSPlotSelectionParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns an <em>argparse.ArgumentParser</em> for <code class="docutils literal"><span class="pre">phydms_plotselection</span></code>.</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="phydmslib.parsearguments.PhyDMSPrepAlignmentParser">
 <code class="descclassname">phydmslib.parsearguments.</code><code class="descname">PhyDMSPrepAlignmentParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSPrepAlignmentParser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <em>argparse.ArgumentParser</em> for <code class="docutils literal"><span class="pre">phydms_prepalignment</span></code>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="phydmslib.parsearguments.PhyDMSRenumberParser">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">PhyDMSRenumberParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSRenumberParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns an <em>argparse.ArgumentParser</em> for <code class="docutils literal"><span class="pre">phydms_renumber</span></code>.</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="phydmslib.parsearguments.PhyDMSTestdivpressureParser">
 <code class="descclassname">phydmslib.parsearguments.</code><code class="descname">PhyDMSTestdivpressureParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSTestdivpressureParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns <em>argparse.ArgumentParser</em> for <code class="docutils literal"><span class="pre">phdyms_testdivpressure</span></code> script.</p>
+<dd><p>Returns <em>argparse.ArgumentParser</em> for <code class="docutils literal"><span class="pre">phdyms_testdivpressure</span></code>
+script.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="phydmslib.parsearguments.TreeFile">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">TreeFile</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.TreeFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns <em>fname</em> if an existing file or <em>random</em> or <em>nj</em>, otherwise an error.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="phydmslib.parsearguments.YNGKPList">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">YNGKPList</code><span class="sig-paren">(</span><em>modellist</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.YNGKPList" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns list of YNGKP model variants if <em>modellist</em> is valid.</p>
-<p>Removes <em>M0</em> if present.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">YNGKPList</span><span class="p">(</span><span class="s2">&quot;M0,M3,M7&quot;</span><span class="p">)</span>
-<span class="go">[&#39;M3&#39;, &#39;M7&#39;]</span>
-</pre></div>
-</div>
+<dt id="phydmslib.parsearguments.diffPrefsPrior">
+<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">diffPrefsPrior</code><span class="sig-paren">(</span><em>priorstring</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.diffPrefsPrior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses <cite>priorstring</cite> and returns <cite>prior</cite> tuple.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-phydmslib.plot">
-<span id="phydmslib-plot-module"></span><h2>phydmslib.plot module<a class="headerlink" href="#module-phydmslib.plot" title="Permalink to this headline">¶</a></h2>
-<p>Module for plotting.</p>
+<div class="section" id="module-phydmslib.simulate">
+<span id="phydmslib-simulate-module"></span><h2>phydmslib.simulate module<a class="headerlink" href="#module-phydmslib.simulate" title="Permalink to this headline">¶</a></h2>
+<p>Functions for performing simulations, mostly using <code class="docutils literal"><span class="pre">pyvolve</span></code>.</p>
+<p>Written by Jesse Bloom.</p>
 <dl class="function">
-<dt id="phydmslib.plot.PlotSignificantOmega">
-<code class="descclassname">phydmslib.plot.</code><code class="descname">PlotSignificantOmega</code><span class="sig-paren">(</span><em>plotfile</em>, <em>models</em>, <em>ngt</em>, <em>nlt</em>, <em>nsites</em>, <em>fdr</em>, <em>usetex=True</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.plot.PlotSignificantOmega" title="Permalink to this definition">¶</a></dt>
-<dd><p>Makes a PDF slopegraph of the number of sites with significant omega.</p>
-<p><em>plotfile</em> : name of created PDF.</p>
-<p><em>models</em> : list of model names as strings</p>
-<p><em>ngt</em> : list of same length as <em>models</em> giving number of sites with
-<em>omega</em> &gt; 1.</p>
-<p><em>nlt</em> : list of same length as <em>models</em> giving number of sites with
-<em>omega</em> &lt; 1.</p>
-<p><em>nsites</em> : total number of sites (used for y-axis label).</p>
-<p><em>fdr</em> : false discovery rate (used for y-axis label).</p>
-<p><em>usetex</em> : use LaTex formatting of strings?</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="phydmslib.plot.SelectionViolinPlot">
-<code class="descclassname">phydmslib.plot.</code><code class="descname">SelectionViolinPlot</code><span class="sig-paren">(</span><em>plotfile</em>, <em>ylabel</em>, <em>models</em>, <em>yvalues</em>, <em>symmetrizey</em>, <em>hlines=None</em>, <em>points=None</em>, <em>pointmarkercolor='or'</em>, <em>usetex=True</em>, <em>legends=False</em>, <em>fixymin=None</em>, <em>fixymax=None</em>, <em>modelgroups=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.plot.SelectionViolinPlot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates violin plot showing distribution of selection and significant sites.</p>
-<p>Calling arguments:</p>
-<p><em>plotfile</em> : name of PDF plot to create.</p>
-<p><em>ylabel</em> : ylabel for the plot.</p>
-<p><em>models</em> : list of models for which we create violin plots.</p>
-<p><em>yvalues</em> : list of the same length as <em>models</em>, each entry is a list
-of the Y-values (such as P-values).</p>
-<p><em>symmetrizey</em> : make y-axis symmetric around zero?</p>
-<p><em>hlines</em> : if not <em>None</em>, list of the same length as <em>models</em> with each entry
-a list giving y-value for where we draw horizontal lines for that <em>model</em>. 
-Alternatively, can be a single number &#8211; in that case, we draw a horizontal
-line across the whole plot at that number.</p>
-<p><em>points</em> : if not <em>None</em>, list of the same length as <em>models</em> with each entry
-a list giving the y-value for points to be placed for that <em>model</em>.</p>
-<p><em>pointmarkercolor</em> : specifies marker and color of points in <em>points</em>. 
-Should either a length-two string giving marker and color for all points
-(such as <em>or</em> for circles, red) or a list of lists of the same length
-as <em>points</em> with each entry specifying the marker and color for that point.</p>
-<p><em>usetex</em> : use LaTex formatting of strings?</p>
-<p><em>legends</em> : Create legend(s) with names of points specified by <em>pointmarkercolor</em>?
-If it is not <em>False</em> or <em>None</em>, then <em>legends</em> should be a list. Each entry
-should be a 3-tuple <em>(markercolors, names, title)</em>. In this tuple,
-<em>markercolors</em> and <em>names</em> are lists of the same
-length, with <em>markercolors</em> being a list of marker / color (e.g. <em>or</em>
-for circles, red) and <em>names</em> being a list of the string corresponding
-to each marker / color; <em>title</em> is the title for the legend.</p>
-<p><em>fixymin</em> : if not <em>None</em>, the y-minimum is fixed to this value.</p>
-<p><em>fixymax</em> : if not <em>None</em>, the y-maximum is fixed to this value.</p>
-<p><em>modelgroups</em> : do we &#8220;group&#8221; models on the x-axis? If so, set this to a list
-of the same length as <em>models</em> with each entry being the group to which
-that model is assigned. For instance, if <em>models</em> is 
-<em>[&#8216;ExpCM&#8217;, &#8216;YNGKP&#8217;, &#8216;ExpCM&#8217;, &#8216;YNGKP&#8217;]</em>,
-then <em>modelgroups</em> might be <em>[&#8216;HA&#8217;, &#8216;HA&#8217;, &#8216;NP&#8217;, &#8216;NP&#8217;]</em>. In this case,
-the two groups are indicated with a line and a label on the x-axis.
-Models in the same group must be consecutive. If any entry is <em>None</em>,
-the corresponding model is not assigned a group.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="phydmslib.plot.SmartJitter">
-<code class="descclassname">phydmslib.plot.</code><code class="descname">SmartJitter</code><span class="sig-paren">(</span><em>ys</em>, <em>yspace</em>, <em>xspace</em>, <em>xcenter</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.plot.SmartJitter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Smartly horizontally spaces points with assigned y-values to decrease overlap.</p>
-<p>Divides y-axis into bins, in each bin spaces points horizontally with the largest
-y-value point in the center and lower y-value points spreading out horizontally.</p>
-<p><em>ys</em> is a list of y-coordinates of the points.</p>
-<p><em>yspace</em> is the spacing between y-axis bins.</p>
-<p><em>xspace</em> is the spacing between points in the same bin on the x-axis.</p>
-<p><em>xcenter</em> is the center for the y-axis.</p>
-<p>The return value is <em>(smart_xs, smart_ys)</em>, which is a list with the
-x and y values of the spaced points.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="phydmslib.plot.SplitText">
-<code class="descclassname">phydmslib.plot.</code><code class="descname">SplitText</code><span class="sig-paren">(</span><em>text</em>, <em>maxchars</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.plot.SplitText" title="Permalink to this definition">¶</a></dt>
-<dd><p>Splits text by word and then breaks long words.</p>
-<p><em>text</em> is the text to split, <em>maxchars</em> is the max characters
-per line. First splits every word onto a new line, then 
-splits long words.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">SplitText</span><span class="p">(</span><span class="s1">&#39;lactamase ExpCM&#39;</span><span class="p">,</span> <span class="n">maxchars</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="go">&#39;lact-\namase\nExpCM&#39;</span>
-</pre></div>
-</div>
+<dt id="phydmslib.simulate.pyvolvePartitions">
+<code class="descclassname">phydmslib.simulate.</code><code class="descname">pyvolvePartitions</code><span class="sig-paren">(</span><em>model</em>, <em>divselection=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.simulate.pyvolvePartitions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of <cite>pyvolve</cite> partitions for <cite>model</cite>.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>model</cite> (<cite>phydmslib.models.Models</cite> object)</dt>
+<dd>The model used for the simulations. Currently only
+certain <cite>Models</cite> are supported (e.g., <cite>YNGKP</cite>,
+<cite>ExpCM</cite>)</dd>
+<dt><cite>divselection</cite> (<cite>None</cite> or 2-tuple <cite>(divomega, divsites)</cite>)</dt>
+<dd>Set this option if you want to simulate a subset of sites
+as under diversifying selection (e.g., an <cite>omega</cite> different
+than that used by <cite>model</cite>. In this case, <cite>divomega</cite> is
+the omega for this subset of sites, and <cite>divsites</cite> is a list
+of the sites in 1, 2, ... numbering.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>partitions</cite> (<cite>list</cite> of <cite>pyvolve.Partition</cite> objects)</dt>
+<dd>Can be fed into <cite>pyvolve.Evolver</cite> to simulate evolution.</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
-<div class="section" id="phydmslib-pybpp-module">
-<h2>phydmslib.pybpp module<a class="headerlink" href="#phydmslib-pybpp-module" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="phydmslib-pylsd-module">
-<h2>phydmslib.pylsd module<a class="headerlink" href="#phydmslib-pylsd-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-phydmslib.treelikelihood">
+<span id="phydmslib-treelikelihood-module"></span><h2>phydmslib.treelikelihood module<a class="headerlink" href="#module-phydmslib.treelikelihood" title="Permalink to this headline">¶</a></h2>
+<p>Tree likelihoods.</p>
+<p>Nucleotides, amino acids, and codons are indexed by integers 0, 1, ...
+using the indexing schemes defined in <cite>phydmslib.constants</cite>.</p>
+<dl class="class">
+<dt id="phydmslib.treelikelihood.TreeLikelihood">
+<em class="property">class </em><code class="descclassname">phydmslib.treelikelihood.</code><code class="descname">TreeLikelihood</code><span class="sig-paren">(</span><em>tree</em>, <em>alignment</em>, <em>model</em>, <em>underflowfreq=5</em>, <em>dparamscurrent=True</em>, <em>dtcurrent=False</em>, <em>branchScale=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Uses alignment, model, and tree to calculate likelihoods.</p>
+<p>See <cite>__init__</cite> for how to initialize a <cite>TreeLikelihood</cite>.</p>
+<p>Most commonly, you will initiate a tree likelihood object, and
+then maximize it using the <cite>maximizeLikelihood</cite> method.</p>
+<p>A <cite>TreeLikelihood</cite> object is designed to only work for a fixed
+tree topology. In the internal workings, this fixed topology is
+transformed into the node indexing scheme defined by <cite>name_to_nodeindex</cite>.</p>
+<p>After initialization, most attributes should <strong>not</strong> be changed directly.
+They should only be altered via the <cite>updateParams</cite> method or
+by altering the <cite>paramsarray</cite> property. Both of these methods
+of updating attributes correctly update all of the dependent
+properties; setting other attributes directly does not.</p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>tree</cite> (instance of <cite>Bio.Phylo.BaseTree.Tree</cite> derived class)</dt>
+<dd>Phylogenetic tree. Branch lengths are in units of codon
+substitutions per site for the current <cite>model</cite>.</dd>
+<dt><cite>model</cite> (instance of <cite>phydmslib.models.Model</cite> derived class)</dt>
+<dd>Specifies the substitution model for <cite>nsites</cite> codon sites.
+This can either be a simple <cite>Model</cite> or a <cite>DistributionModel</cite>.
+Note that if a non-zero prior is defined by <cite>model</cite>, this
+is included in <cite>loglik</cite> and <cite>dloglik</cite>.</dd>
+<dt><cite>alignment</cite> (list of 2-tuples of strings, <cite>(head, seq)</cite>)</dt>
+<dd>Aligned protein-coding codon sequences. Headers match
+tip names in <cite>tree</cite>; sequences contain <cite>nsites</cite> codons.</dd>
+<dt><cite>paramsarray</cite> (<cite>numpy.ndarray</cite> of floats, 1-dimensional)</dt>
+<dd>An array of the model free parameters. You can directly
+assign to <cite>paramsarray</cite>, and the correct parameters will
+be internally updated vi <cite>updateParams</cite>. 
+<cite>paramsarray</cite> is actually a property rather than an attribute.</dd>
+<dt><cite>paramsarraybounds</cite> (<cite>tuple</cite> of 2-tuples)</dt>
+<dd><cite>paramsarraybounds[i]</cite> is the 2-tuple <cite>(minbound, maxbound)</cite>
+for parameter <cite>paramsarray[i]</cite>. Set <cite>minbound</cite> or <cite>maxbound</cite>
+are <cite>None</cite> if there is no lower or upper bound.</dd>
+<dt><cite>loglik</cite> (<cite>float</cite>)</dt>
+<dd>Current log likelihood. Also includes <cite>model.logprior</cite>
+if this is non-zero.</dd>
+<dt><cite>siteloglik</cite> (<cite>numpy.ndarray</cite> of floats, length <cite>nsites</cite>)</dt>
+<dd><cite>siteloglik[r]</cite> is current log likelihood at site <cite>r</cite>.</dd>
+<dt><cite>dparamscurrent</cite> (<cite>bool</cite>)</dt>
+<dd>Do we keep the derivatives of the likelihood with
+respect to model parameters current? Doing so
+involves computational costs, so only set to <cite>True</cite>
+if using these derivatives. Currently, only one of
+<cite>dparamscurrent</cite> and <cite>dtcurrent</cite> can be <cite>True</cite> simultaneously,
+as we optimize parameters and branch lengths separately.</dd>
+<dt><cite>dtcurrent</cite> (<cite>bool</cite>)</dt>
+<dd>Do we keep the derivatives of the likelihood with
+respect to branch lengths current? Doing so
+involves computational costs, so only set to <cite>True</cite>
+if using these derivatives.</dd>
+<dt><cite>dloglik</cite> (<cite>dict</cite>)</dt>
+<dd>For each <cite>param</cite> in <cite>model.freeparams</cite>, <cite>dloglik[param]</cite>
+is the derivative of <cite>loglik</cite> with respect to <cite>param</cite>.
+Only accessible if <cite>dparamscurrent</cite> is <cite>True</cite>. Also
+includes <cite>model.dlogprior</cite> if this is non-zero.</dd>
+<dt><cite>dloglikarray</cite> (<cite>numpy.ndarray</cite> of floats, 1-dimensional)</dt>
+<dd><cite>dloglikarray[i]</cite> is the derivative of <cite>loglik</cite> with respect
+to the parameter represented in <cite>paramsarray[i]</cite>. This is
+the same information as in <cite>dloglik</cite>, but in a different
+representation. Only accessible if <cite>dparamscurrent</cite> is <cite>True</cite>.</dd>
+<dt><cite>dloglik_dt</cite> (<cite>numpy.ndarray</cite> of floats, shape <cite>(nnodes - 1,)</cite>.</dt>
+<dd><cite>dloglik_dt</cite> is the derivative of <cite>loglik</cite> with respect
+to the branch lengths <cite>t</cite>.</dd>
+<dt><cite>nsites</cite> (int)</dt>
+<dd>Number of codon sites.</dd>
+<dt><cite>nseqs</cite> (int)</dt>
+<dd>Number of sequences in <cite>alignment</cite>, and tip nodes in <cite>tree</cite>.</dd>
+<dt><cite>nnodes</cite> (int)</dt>
+<dd>Total number of nodes in <cite>tree</cite>, counting tip and internal.
+Node are indexed 0, 1, ..., <cite>nnodes - 1</cite>. This indexing is done
+such that the descendants of node <cite>n</cite> always have indices &lt; <cite>n</cite>,
+and so that the tips are the first <cite>ntips</cite> indices and the 
+internals are the last <cite>ninternal</cite> indices.</dd>
+<dt><cite>ninternal</cite> (int)</dt>
+<dd>Total number of internal nodes in <cite>tree</cite>.</dd>
+<dt><cite>ntips</cite> (int)</dt>
+<dd>Total number of tip nodes in <cite>tree</cite>.</dd>
+<dt><cite>tips</cite> (<cite>numpy.ndarray</cite> of <cite>int</cite>, shape <cite>(ntips, nsites)</cite>)</dt>
+<dd><cite>tips[n][r]</cite> is the index of the codon at site <cite>r</cite>
+for tip node <cite>n</cite> (0 &lt;= <cite>n</cite> &lt; <cite>ntips</cite>). If <cite>tips[n][r]</cite> is 
+a gap, then <cite>tips[n][r]</cite> is 0 and <cite>r</cite> is in <cite>gaps[n]</cite>.</dd>
+<dt><cite>gaps</cite> (<cite>numpy.array</cite>, length <cite>ntips</cite>, entries <cite>numpy.array</cite> of <cite>int</cite>)</dt>
+<dd><cite>gaps[n]</cite> is an array containing all sites where the codon is
+a gap for tip node <cite>n</cite> (0 &lt;= <cite>n</cite> &lt; <cite>ntips</cite>).</dd>
+<dt><cite>name_to_nodeindex</cite> (<cite>dict</cite>)</dt>
+<dd>For each sequence name (these are headers in <cite>alignment</cite>, 
+tip names in <cite>tree</cite>), <cite>name_to_nodeindex[name]</cite> is the <cite>int</cite>
+index of that <cite>node</cite> in the internal indexing scheme.</dd>
+<dt><cite>rdescend</cite> and <cite>ldescend</cite> (lists of <cite>int</cite> of length <cite>ninternal</cite>)</dt>
+<dd>For each internal node <cite>n</cite>, <cite>rdescend[n - ntips]</cite>
+is its right descendant and <cite>ldescend[n - ntips]</cite> is its left 
+descendant.</dd>
+<dt><cite>descendants</cite> (<cite>list</cite> of <cite>list</cite>)</dt>
+<dd>For each node <cite>n</cite>, <cite>descendants[n]</cite> is a list of all nodes
+that are direct or indirect descendants of <cite>n</cite>.</dd>
+<dt><cite>t</cite> (<cite>numpy.ndarray</cite> of <cite>float</cite>, shape <cite>(nnodes - 1,)</cite>)</dt>
+<dd><cite>t[n]</cite> is the branch length leading node <cite>n</cite>. The branch leading
+to the root node (which has index <cite>nnodes - 1</cite>) is undefined
+and not used, which is why <cite>t</cite> is of length <cite>nnodes - 1</cite> rather
+than <cite>nnodes</cite>.</dd>
+<dt><cite>L</cite> (<cite>dict</cite>)</dt>
+<dd><cite>L[n]</cite> is a <cite>numpy.ndarray</cite> of <cite>float</cite> of shape <cite>(nsites, N_CODON)</cite>.
+for each node <cite>n</cite>. <cite>L[n][r][x] is the partial condition likelihood
+of codon `x</cite> at site <cite>r</cite> at node <cite>n</cite>. Note that these
+must be corrected by adding <cite>underflowlogscale</cite>.
+If <cite>model</cite> is a <cite>DistributionModel</cite>, then <cite>L[n]</cite> is instead
+of shape <cite>(model.ncats, nsites, N_CODON)</cite> with the
+first index ranging over the model categories.
+Entries in <cite>L</cite> are only defined and saved for nodes as needed
+in order to save memory.</dd>
+<dt><cite>dL</cite> (<cite>dict</cite> keyed by strings)</dt>
+<dd>For each free model parameter <cite>param</cite> and node <cite>n</cite>,
+<cite>dL[param][n]</cite> is derivative of <cite>L[n]</cite> with respect to <cite>param</cite>.
+Only guaranteed to be valid if <cite>dparamscurrent</cite> is <cite>True</cite>,
+and entries are only defined and saved for nodes as needed
+in order to save memory.</dd>
+<dt><cite>dL_dt</cite> (<cite>dict</cite> of <cite>dict</cite>)</dt>
+<dd><cite>dL_dt[n][n2]</cite> is the derivative of <cite>L[n2]</cite> with respect to
+branch length <cite>t[n]</cite> where <cite>0 &lt;= n &lt; nnodes - 1</cite>.</dd>
+<dt><cite>underflowfreq</cite> (<cite>int</cite> &gt;= 1)</dt>
+<dd>The frequency with which we rescale likelihoods to avoid
+numerical underflow</dd>
+<dt><cite>underflowlogscale</cite> (<cite>numpy.ndarray</cite> of <cite>float</cite>, shape <cite>(nsites,)</cite>)</dt>
+<dd>Corrections that must be added to <cite>L</cite> at the root node to
+get actual likelihoods when underflow correction is being
+performed.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>tree</em>, <em>alignment</em>, <em>model</em>, <em>underflowfreq=5</em>, <em>dparamscurrent=True</em>, <em>dtcurrent=False</em>, <em>branchScale=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a <cite>TreeLikelihood</cite> object.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>tree</cite>, <cite>alignment</cite>, <cite>model</cite>, <cite>underflowfreq</cite></dt>
+<dd>Attributes of same name described in class doc string.
+Note that we make copies of <cite>tree</cite>, <cite>model</cite>, and
+<cite>alignment</cite>&#8216; so the calling objects are not modified 
+during optimization.</dd>
+<dt><cite>dparamscurrent</cite>, <cite>dtcurrent</cite></dt>
+<dd>Current values of these flags indicating which
+derivatives to compute.</dd>
+<dt><cite>branchScale</cite> (<cite>None</cite> or float &gt; 0)</dt>
+<dd>The branch lengths in the input tree are assumed
+to be in units of substitutions per site with
+the scaling defined by <cite>model.branchScale</cite>. If
+the scaling should instead be defined by some 
+other value of <cite>branchScale</cite>, indicate by
+setting to that value rather than <cite>None</cite>. This
+is useful if tree was inferred on models across
+many sites but you are now just analyzing an
+individual one. Note that this option applies
+only to the input tree, not the output one.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.dloglik">
+<code class="descname">dloglik</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dloglik" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>dloglik[param]</cite> is derivative of <cite>loglik</cite> by <cite>param</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.dloglik_dt">
+<code class="descname">dloglik_dt</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dloglik_dt" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>dloglik_dt</cite> is derivative of <cite>loglik</cite> with respect to <cite>t</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.dloglikarray">
+<code class="descname">dloglikarray</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dloglikarray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derivative of <cite>loglik</cite> with respect to <cite>paramsarray</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.dparamscurrent">
+<code class="descname">dparamscurrent</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dparamscurrent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Are derivatives with respect to model parameters current?</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.dtcurrent">
+<code class="descname">dtcurrent</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dtcurrent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Are derivatives with respect to branch lengths current?</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.maximizeLikelihood">
+<code class="descname">maximizeLikelihood</code><span class="sig-paren">(</span><em>optimize_brlen=False</em>, <em>approx_grad=False</em>, <em>logliktol=0.01</em>, <em>nparamsretry=1</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.maximizeLikelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximize the log likelihood.</p>
+<p>Maximizes log likelihood with respect to model parameters
+and potentially branch lengths depending on <cite>optimize_brlen</cite>.
+If optimizing the branch lengths, iterates between optimizing
+the model parameters and branch lengths.</p>
+<p>Uses the L-BFGS-B method implemented in <cite>scipy.optimize</cite>.</p>
+<p>There is no return variable, but after call object attributes
+will correspond to maximimum likelihood values.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>optimize_brlen</cite> (bool)</dt>
+<dd>Do we optimize branch lengths?</dd>
+<dt><cite>approx_grad</cite> (bool)</dt>
+<dd>If <cite>True</cite>, then we numerically approximate the gradient
+rather than using the analytical values.</dd>
+<dt><cite>logliktol</cite> (float)</dt>
+<dd>When using <cite>optimize_brlen</cite>, keep iterating between
+optimization of parameters and branch lengths until
+change in log likelihood is less than <cite>logliktol</cite>.</dd>
+<dt><cite>nparamsretry</cite> (int &gt;= 0)</dt>
+<dd>Number of times to retry parameter optimization from 
+different initial values if it fails the first time.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>A string giving a summary of the maximization.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.paramsarray">
+<code class="descname">paramsarray</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.paramsarray" title="Permalink to this definition">¶</a></dt>
+<dd><p>All free model parameters as 1-dimensional <cite>numpy.ndarray</cite>.</p>
+<p>You are allowed to update model parameters by direct
+assignment of this property.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.paramsarraybounds">
+<code class="descname">paramsarraybounds</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.paramsarraybounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bounds for parameters in <cite>paramsarray</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.t">
+<code class="descname">t</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.t" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets array of branch lengths.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.tree">
+<code class="descname">tree</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tree with branch lengths in codon substitutions per site.</p>
+<p>The tree is a <cite>Bio.Phylo.BaseTree.Tree</cite> object.</p>
+<p>This is the current tree after whatever optimizations have
+been performed so far.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.updateParams">
+<code class="descname">updateParams</code><span class="sig-paren">(</span><em>newvalues</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.updateParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update model parameters and re-compute likelihoods.</p>
+<p>This method is the <strong>only</strong> acceptable way to update model
+parameters. The likelihood is re-computed as needed
+by this method.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt><cite>newvalues</cite> (dict)</dt>
+<dd>A dictionary keyed by param name and with value as new
+value to set. Each parameter name must either be a
+valid model parameter (in <cite>model.freeparams</cite>).</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-phydmslib.utils">
 <span id="phydmslib-utils-module"></span><h2>phydmslib.utils module<a class="headerlink" href="#module-phydmslib.utils" title="Permalink to this headline">¶</a></h2>
@@ -633,7 +1963,7 @@ splits long words.</p>
 <dl class="function">
 <dt id="phydmslib.utils.BenjaminiHochbergCorrection">
 <code class="descclassname">phydmslib.utils.</code><code class="descname">BenjaminiHochbergCorrection</code><span class="sig-paren">(</span><em>pvals</em>, <em>fdr</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.utils.BenjaminiHochbergCorrection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Implements Benjamini-Hochberg procedure to control false discovery rate.</p>
+<dd><p>Benjamini-Hochberg procedure to control false discovery rate.</p>
 <p>Calling arguments:</p>
 <p><em>pvals</em> : a list of tuples of <em>(label, p)</em>  where <em>label</em> is some label assigned
 to each data point, and <em>p</em> is the corresponding <em>P-value</em>.</p>
@@ -645,6 +1975,220 @@ significant sites, <em>pcutoff</em> is returned as the maximum P-value that woul
 have made a single point significant.</p>
 </dd></dl>
 
+</div>
+<div class="section" id="module-phydmslib.weblogo">
+<span id="phydmslib-weblogo-module"></span><h2>phydmslib.weblogo module<a class="headerlink" href="#module-phydmslib.weblogo" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="weblogo-module">
+<h3><code class="docutils literal"><span class="pre">weblogo</span></code> module<a class="headerlink" href="#weblogo-module" title="Permalink to this headline">¶</a></h3>
+<p>Module for making sequence logos with the <em>weblogolib</em> package distributed with
+<code class="docutils literal"><span class="pre">weblogo</span></code>  This module interfaces with the <em>weblogolib</em> API,
+and so is only known to work with <em>weblogolib</em> version 3.4 and 3.5.</p>
+<p>Written by Jesse Bloom and Mike Doud</p>
+<dl class="function">
+<dt id="phydmslib.weblogo.ChargeColorMapping">
+<code class="descclassname">phydmslib.weblogo.</code><code class="descname">ChargeColorMapping</code><span class="sig-paren">(</span><em>maptype='jet'</em>, <em>reverse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.ChargeColorMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps amino-acid charge at neutral pH to colors. 
+Currently does not use the keyword arguments for <em>maptype</em>
+or <em>reverse</em> but accepts these arguments to be consistent
+with KyteDoolittleColorMapping and MWColorMapping for now.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="phydmslib.weblogo.FunctionalGroupColorMapping">
+<code class="descclassname">phydmslib.weblogo.</code><code class="descname">FunctionalGroupColorMapping</code><span class="sig-paren">(</span><em>maptype='jet'</em>, <em>reverse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.FunctionalGroupColorMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps amino-acid functional groups to colors.
+Currently does not use the keyword arguments for <em>maptype</em>
+or <em>reverse</em> but accepts these arguments to be consistent
+with the other mapping functions, which all get called with 
+these arguments.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="phydmslib.weblogo.KyteDoolittleColorMapping">
+<code class="descclassname">phydmslib.weblogo.</code><code class="descname">KyteDoolittleColorMapping</code><span class="sig-paren">(</span><em>maptype='jet'</em>, <em>reverse=True</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.KyteDoolittleColorMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps amino-acid hydrophobicities to colors.</p>
+<p>Uses the Kyte-Doolittle hydrophobicity scale defined by:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">J</span><span class="o">.</span> <span class="n">Kyte</span> <span class="o">&amp;</span> <span class="n">R</span><span class="o">.</span> <span class="n">F</span><span class="o">.</span> <span class="n">Doolittle</span><span class="p">:</span> 
+<span class="s2">&quot;A simple method for displaying the hydropathic character of a protein.&quot;</span> 
+<span class="n">J</span> <span class="n">Mol</span> <span class="n">Biol</span><span class="p">,</span> <span class="mi">157</span><span class="p">,</span> <span class="mi">105</span><span class="o">-</span><span class="mi">132</span>
+</pre></div>
+</div>
+<p>More positive values indicate higher hydrophobicity, while more negative values
+indicate lower hydrophobicity.</p>
+<p>The returned variable is the 3-tuple <em>(cmap, mapping_d, mapper)</em>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>cmap</em> is a <code class="docutils literal"><span class="pre">pylab</span></code> <em>LinearSegmentedColorMap</em> object.</li>
+<li><em>mapping_d</em> is a dictionary keyed by the one-letter amino-acid
+codes. The values are the colors in CSS2 format (e.g. #FF0000
+for red) for that amino acid. The value for a stop codon 
+(denoted by a <code class="docutils literal"><span class="pre">*</span></code> character) is black (#000000).</li>
+<li><em>mapper</em> is the actual <em>pylab.cm.ScalarMappable</em> object.</li>
+</ul>
+</div></blockquote>
+<p>The optional calling argument <em>maptype</em> should specify a valid <code class="docutils literal"><span class="pre">pylab</span></code> color map.</p>
+<p>The optional calling argument <em>reverse</em> specifies that we set up the color
+map so that the most hydrophobic residue comes first (in the Kyte-Doolittle
+scale the most hydrophobic comes last as it has the largest value). This option
+is <em>True</em> by default as it seems more intuitive to have charged residues red
+and hydrophobic ones blue.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="phydmslib.weblogo.LogoOverlay">
+<code class="descclassname">phydmslib.weblogo.</code><code class="descname">LogoOverlay</code><span class="sig-paren">(</span><em>sites</em>, <em>overlayfile</em>, <em>overlay</em>, <em>nperline</em>, <em>sitewidth</em>, <em>rmargin</em>, <em>logoheight</em>, <em>barheight</em>, <em>barspacing</em>, <em>fix_limits={}</em>, <em>fixlongname=False</em>, <em>overlay_cmap=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.LogoOverlay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes overlay for <em>LogoPlot</em>.</p>
+<p>This function creates colored bars overlay bars showing up to two
+properties.
+The trick of this function is to create the bars the right
+size so they align when they overlay the logo plot.</p>
+<p>CALLING VARIABLES:</p>
+<ul class="simple">
+<li><em>sites</em> : same as the variable of this name used by <em>LogoPlot</em>.</li>
+<li><em>overlayfile</em> is a string giving the name of created PDF file containing
+the overlay. It must end in the extension <code class="docutils literal"><span class="pre">.pdf</span></code>.</li>
+<li><em>overlay</em> : same as the variable of this name used by <em>LogoPlot</em>.</li>
+<li><em>nperline</em> : same as the variable of this name used by <em>LogoPlot</em>.</li>
+<li><em>sitewidth</em> is the width of each site in points.</li>
+<li><em>rmargin</em> is the right margin in points.</li>
+<li><em>logoheight</em> is the total height of each logo row in points.</li>
+<li><em>barheight</em> is the total height of each bar in points.</li>
+<li><em>barspacing</em> is the vertical spacing between bars in points.</li>
+<li><em>fix_limits</em> has the same meaning of the variable of this name used by <em>LogoPlot</em>.</li>
+<li><em>fixlongname</em> has the same meaning of the variable of this name used by <em>LogoPlot</em>.</li>
+<li><em>overlay_cmap</em> has the same meaning of the variable of this name used by <em>LogoPlot</em>.</li>
+</ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="phydmslib.weblogo.LogoPlot">
+<code class="descclassname">phydmslib.weblogo.</code><code class="descname">LogoPlot</code><span class="sig-paren">(</span><em>sites</em>, <em>datatype</em>, <em>data</em>, <em>plotfile</em>, <em>nperline</em>, <em>numberevery=10</em>, <em>allowunsorted=False</em>, <em>ydatamax=1.01</em>, <em>overlay=None</em>, <em>fix_limits={}</em>, <em>fixlongname=False</em>, <em>overlay_cmap=None</em>, <em>ylimits=None</em>, <em>relativestackheight=1</em>, <em>custom_cmap='jet'</em>, <em>map_metric='kd'</em>, <em>noseparator=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.LogoPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a sequence logo showing amino-acid or nucleotide preferences.</p>
+<p>The heights of each letter is equal to the preference of
+that site for that amino acid or nucleotide.</p>
+<p>Note that stop codons may or may not be included in the logo
+depending on whether they are present in <em>pi_d</em>.</p>
+<p>CALLING VARIABLES:</p>
+<ul>
+<li><p class="first"><em>sites</em> is a list of all of the sites that are being included
+in the logo, as strings. They must be in natural sort or an error
+will be raised <strong>unless</strong> <em>allowunsorted</em> is <em>True</em>. The sites
+in the plot are ordered in the same arrangement
+listed in <em>sites</em>. These should be <strong>strings</strong>, not integers.</p>
+</li>
+<li><p class="first"><em>datatype</em> should be one of the following strings:</p>
+<blockquote>
+<div><ul class="simple">
+<li>&#8216;prefs&#8217; for preferences</li>
+<li>&#8216;diffprefs&#8217; for differential preferences</li>
+<li>&#8216;diffsel&#8217; for differential selection</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><em>data</em> is a dictionary that has a key for every entry in
+<em>sites</em>. For every site <em>r</em> in <em>sites</em>, <em>sites[r][x]</em>
+is the value for character <em>x</em>. 
+Preferences must sum to one; differential preferences to zero.
+All sites must have the same set of characters. The characters
+must be the set of nucleotides or amino acids with or without
+stop codons.</p>
+</li>
+<li><p class="first"><em>plotfile</em> is a string giving the name of the created PDF file 
+of the logo plot.
+It must end in the extension <code class="docutils literal"><span class="pre">.pdf</span></code>.</p>
+</li>
+<li><p class="first"><em>nperline</em> is the number of sites per line. Often 40 to 80 are good values.</p>
+</li>
+<li><p class="first"><em>numberevery</em> is specifies how frequently we put labels for the sites on
+x-axis.</p>
+</li>
+<li><p class="first"><em>allowunsorted</em> : if <em>True</em> then we allow the entries in <em>sites</em> to 
+<strong>not</strong> be sorted. This means that the logo plot will <strong>not</strong> have
+sites in sorted order.</p>
+</li>
+<li><p class="first"><em>ydatamax</em> : meaningful only if <em>datatype</em> is &#8216;diffprefs&#8217;. In this case, it gives
+the maximum that the logo stacks extend in the positive and negative directions.
+Cannot be smaller than the maximum extent of the differential preferences.</p>
+</li>
+<li><p class="first"><em>ylimits</em>: is <strong>mandatory</strong> if <em>datatype</em> is &#8216;diffsel&#8217;, and meaningless 
+otherwise. It is <em>(ymin, ymax)</em> where <em>ymax &gt; 0 &gt; ymin</em>, and gives extent 
+of the data in the positive and negative directions. Must encompass the 
+actual maximum and minimum of the data.</p>
+</li>
+<li><p class="first"><em>overlay</em> : this argument allows you to make overlay bars that indicated
+other properties for the sites. By default, this option is <em>None</em>, meaning that
+no overlay is created. If you set it to something else, it must be a list
+giving either one or two properties. Each property is a tuple:
+<em>(prop_d, shortname, longname)</em> where:</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><em>prop_d</em> is a dictionary keyed by site numbers that are in <em>sites</em>.
+For each <em>r</em> in <em>sites</em>, <em>prop_d[r]</em> gives the value of the property,
+or if there is no entry in <em>prop_d</em> for <em>r</em>, then the property
+is undefined and is colored white. Properties can either be:</p>
+<blockquote>
+<div><ul class="simple">
+<li>continuous: in this case, all of the values should be numbers.</li>
+<li>discrete : in this case, all of the values should be strings.
+While in practice, if you have more than a few discrete
+categories (different strings), the plot will be a mess.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><em>shortname</em> : short name for the property; will not format well
+if more than 4 or 5 characters.</p>
+</li>
+<li><p class="first"><em>longname</em> : longer name for property used on axes label. Can be the
+same as <em>shortname</em> if you don&#8217;t need a different long name.</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><em>fix_limits</em> is only meaningful if <em>overlay</em> is being used. In this case, for any
+<em>shortname</em> in <em>overlay</em> that also keys an entry in <em>fix_limits</em>, we use
+<em>fix_limits[shortname]</em> to set the limits for <em>shortname</em>. Specifically,
+<em>fix_limits[shortname]</em> should be the 2-tuple <em>(ticks, ticknames)</em>. <em>ticks</em>
+should be a list of tick locations (numbers) and <em>ticknames</em> should be a list of
+the corresponding tick label for that tick.</p>
+</li>
+<li><p class="first">If <em>fixlongname</em> is <em>True</em>, then we use the <em>longname</em> in <em>overlay</em> exactly as written;
+otherwise we add a parenthesis indicating the <em>shortname</em> for which this <em>longname</em>
+stands.</p>
+</li>
+<li><p class="first"><em>overlay_cmap</em> can be the name of a valid <em>matplotlib.colors.Colormap</em>, such as the
+string <em>jet</em> or <em>bwr</em>. Otherwise, it can be <em>None</em> and a (hopefully) good choice will 
+be made for you.</p>
+</li>
+<li><p class="first"><em>custom_cmap</em> can be the name of a valid <em>matplotlib.colors.Colormap</em> which will be
+used to color amino-acid one-letter codes in the logoplot by the <em>map_metric</em> when
+either &#8216;kd&#8217; or &#8216;mw&#8217; is used as <em>map_metric</em>.</p>
+</li>
+<li><p class="first"><em>relativestackheight</em> indicates how high the letter stack is relative to
+the default. The default is multiplied by this number, so make it &gt; 1
+for a higher letter stack.</p>
+</li>
+<li><p class="first"><em>map_metric</em> specifies the amino-acid property metric used to map colors to amino-acid
+letters. Valid options are &#8216;kd&#8217; (Kyte-Doolittle hydrophobicity scale, default), &#8216;mw&#8217; 
+(molecular weight), &#8216;functionalgroup&#8217; (functional groups: small, nucleophilic, hydrophobic,
+aromatic, basic, acidic, and amide), and &#8216;charge&#8217; (charge at neutral pH). If &#8216;charge&#8217; is used, then the
+argument for <em>custom_cmap</em> will no longer be meaningful, since &#8216;charge&#8217; uses its own 
+blue/black/red colormapping. Similarly, &#8216;functionalgroup&#8217; uses its own colormapping.</p>
+</li>
+<li><p class="first"><em>noseparator</em> is only meaningful if <em>datatype</em> is &#8216;diffsel&#8217; or &#8216;diffprefs&#8217;.
+If it set to <em>True</em>, then we do <strong>not</strong> print a black horizontal line to
+separate positive and negative values.</p>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="phydmslib.weblogo.MWColorMapping">
+<code class="descclassname">phydmslib.weblogo.</code><code class="descname">MWColorMapping</code><span class="sig-paren">(</span><em>maptype='jet'</em>, <em>reverse=True</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.MWColorMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps amino-acid molecular weights to colors. Otherwise, this
+function is identical to <em>KyteDoolittleColorMapping</em></p>
+</dd></dl>
+
+</div>
 </div>
 <div class="section" id="module-phydmslib">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-phydmslib" title="Permalink to this headline">¶</a></h2>
@@ -662,13 +2206,18 @@ have made a single point significant.</p>
   <ul>
 <li><a class="reference internal" href="#">phydmslib package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-phydmslib.diffpref">phydmslib.diffpref module</a></li>
+<li><a class="reference internal" href="#module-phydmslib.constants">phydmslib.constants module</a></li>
 <li><a class="reference internal" href="#module-phydmslib.file_io">phydmslib.file_io module</a></li>
+<li><a class="reference internal" href="#module-phydmslib.models">phydmslib.models module</a></li>
+<li><a class="reference internal" href="#module-phydmslib.numutils">phydmslib.numutils module</a></li>
 <li><a class="reference internal" href="#module-phydmslib.parsearguments">phydmslib.parsearguments module</a></li>
-<li><a class="reference internal" href="#module-phydmslib.plot">phydmslib.plot module</a></li>
-<li><a class="reference internal" href="#phydmslib-pybpp-module">phydmslib.pybpp module</a></li>
-<li><a class="reference internal" href="#phydmslib-pylsd-module">phydmslib.pylsd module</a></li>
+<li><a class="reference internal" href="#module-phydmslib.simulate">phydmslib.simulate module</a></li>
+<li><a class="reference internal" href="#module-phydmslib.treelikelihood">phydmslib.treelikelihood module</a></li>
 <li><a class="reference internal" href="#module-phydmslib.utils">phydmslib.utils module</a></li>
+<li><a class="reference internal" href="#module-phydmslib.weblogo">phydmslib.weblogo module</a><ul>
+<li><a class="reference internal" href="#weblogo-module"><code class="docutils literal"><span class="pre">weblogo</span></code> module</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-phydmslib">Module contents</a></li>
 </ul>
 </li>
@@ -676,7 +2225,7 @@ have made a single point significant.</p>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="api.html"
-                        title="previous chapter">The <code class="docutils literal"><span class="pre">phydmslib</span></code> API</a></p>
+                        title="previous chapter"><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="acknowledgments.html"
                         title="next chapter">Acknowledgments and citations</a></p>
@@ -690,8 +2239,8 @@ have made a single point significant.</p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
@@ -714,15 +2263,15 @@ have made a single point significant.</p>
           <a href="acknowledgments.html" title="Acknowledgments and citations"
              >next</a> |</li>
         <li class="right" >
-          <a href="api.html" title="The phydmslib API"
+          <a href="api.html" title="phydmslib API"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.3.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="api.html" >The <code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.dev0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="api.html" ><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+        &copy; Copyright 2015, Jesse D. Bloom.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
     </div>
   </body>
 </html>

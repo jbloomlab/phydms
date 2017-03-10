@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Documentation for phydms &#8212; phydms 1.3.0 documentation</title>
+    <title>Documentation for phydms &mdash; phydms 2.0.dev0 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.3.0',
+        VERSION:     '2.0.dev0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.3.0 documentation" href="#" />
+    <link rel="top" title="phydms 2.0.dev0 documentation" href="#" />
     <link rel="next" title="Installation" href="installation.html" /> 
   </head>
   <body role="document">
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="installation.html" title="Installation"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">phydms 1.3.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">phydms 2.0.dev0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -52,22 +52,23 @@
   <div class="section" id="documentation-for-phydms">
 <h1>Documentation for <code class="docutils literal"><span class="pre">phydms</span></code><a class="headerlink" href="#documentation-for-phydms" title="Permalink to this headline">¶</a></h1>
 <p><a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> is a software package for <strong>phy</strong>logenetic analyses using <strong>d</strong>eep <strong>m</strong>utational <strong>s</strong>canning data to inform the substitution models.</p>
-<p><a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> can use <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a> to describe the evolution of protein-coding genes for phylogenetic inference and the detection of biologically interesting selection.</p>
-<p><a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> is written in <a class="reference external" href="https://www.python.org">Python</a> by <a class="reference external" href="http://labs.fhcrc.org/bloom">Jesse Bloom</a>. The heavy lifting of the phylogenetic likelihood calculations is performed using the <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a> libraries (thanks to <a class="reference external" href="http://kimura.univ-montp2.fr/jdutheil/CMS/index.php/">Julien Dutheil</a> and <a class="reference external" href="https://lbbe.univ-lyon1.fr/-Gueguen-Laurent-.html">Laurent Gueguen</a> for making these wonderful libraries available).</p>
+<p><a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> can use <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a> to describe the evolution of protein-coding genes for phylogenetic analyses and the detection of sites of biologically interesting selection.</p>
+<p><a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> is written in <a class="reference external" href="https://www.python.org">Python</a> by <a class="reference external" href="http://labs.fhcrc.org/bloom">Bloom lab</a> (see the <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">full list of contributors</a>).</p>
 <p><a class="reference internal" href="installation.html#installation"><span class="std std-ref">Installation</span></a> of <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> will install <a class="reference internal" href="phydms_prog.html#phydms-prog"><span class="std std-ref">the phydms program</span></a>, which performs the phylogenetic analyses. It also installs <a class="reference internal" href="auxiliary_progs.html#auxiliary-progs"><span class="std std-ref">auxiliary programs</span></a> that facilitate model comparisons and visualization of the results. All of these programs are installed as command-line executables.</p>
-<p>The <a class="reference external" href="https://github.com/jbloomlab/phydms">phydms source code</a> is freely available under a <a class="reference external" href="http://www.gnu.org/copyleft/gpl.html">GPLv3</a> license (source code for <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a> and <a class="reference external" href="http://www.atgc-montpellier.fr/LSD/">LSD</a> is packaged into the <a class="reference external" href="https://github.com/jbloomlab/phydms">phydms source code</a>; these codes bases are themselves under a <a class="reference external" href="https://www.gnu.org/licenses/license-list.html#GPLCompatibleLicenses">GPL-compatible</a> <a class="reference external" href="http://www.cecill.info/licences.en.html">CeCILL</a> license and a <a class="reference external" href="http://www.gnu.org/copyleft/gpl.html">GPLv3</a> license, respectively).</p>
-<p>However, you will have an easier time getting all the dependencies correct if you install <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> from <a class="reference external" href="https://pypi.python.org/pypi">PyPI</a> using <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a> as described in the <a class="reference internal" href="installation.html#installation"><span class="std std-ref">Installation</span></a> instructions rather than installing from the source code.</p>
+<p>See <a class="reference internal" href="howtouse.html#howtouse"><span class="std std-ref">how to use phydms</span></a> for examples of how to use <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a>.</p>
+<p>The <a class="reference external" href="https://github.com/jbloomlab/phydms">phydms source code</a> is freely available under a <a class="reference external" href="http://www.gnu.org/copyleft/gpl.html">GPLv3</a> license.</p>
 <p>If you use <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a>, please cite the references in <a class="reference internal" href="acknowledgments.html#acknowledgments"><span class="std std-ref">Acknowledgments and citations</span></a>.</p>
 <div class="section" id="contents">
 <h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quick_example.html">Quick example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="howtouse.html">how to use <code class="docutils literal"><span class="pre">phydms</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="phydms_prog.html">the <code class="docutils literal"><span class="pre">phydms</span></code> program</a></li>
 <li class="toctree-l1"><a class="reference internal" href="auxiliary_progs.html">auxiliary programs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ExpCM.html"><strong>Exp</strong>erimentally Informed <strong>C</strong>odon <strong>M</strong>odels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">The <code class="docutils literal"><span class="pre">phydmslib</span></code> API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation.html">Numerical implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html"><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">Acknowledgments and citations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="indices_and_tables.html">Indices and tables</a></li>
 </ul>
@@ -102,8 +103,8 @@
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
@@ -125,12 +126,12 @@
         <li class="right" >
           <a href="installation.html" title="Installation"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">phydms 1.3.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">phydms 2.0.dev0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+        &copy; Copyright 2015, Jesse D. Bloom.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
     </div>
   </body>
 </html>

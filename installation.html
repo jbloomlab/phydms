@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Installation &#8212; phydms 1.3.0 documentation</title>
+    <title>Installation &mdash; phydms 2.0.dev0 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.3.0',
+        VERSION:     '2.0.dev0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,8 +24,8 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.3.0 documentation" href="index.html" />
-    <link rel="next" title="Quick example" href="quick_example.html" />
+    <link rel="top" title="phydms 2.0.dev0 documentation" href="index.html" />
+    <link rel="next" title="how to use phydms" href="howtouse.html" />
     <link rel="prev" title="Documentation for phydms" href="index.html" /> 
   </head>
   <body role="document">
@@ -39,12 +39,12 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="quick_example.html" title="Quick example"
+          <a href="howtouse.html" title="how to use phydms"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Documentation for phydms"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.3.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.dev0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -61,54 +61,44 @@
 <li><a class="reference internal" href="#installation" id="id2">Installation</a><ul>
 <li><a class="reference internal" href="#minimal-requirements" id="id3">Minimal requirements</a></li>
 <li><a class="reference internal" href="#quick-installation" id="id4">Quick installation</a></li>
-<li><a class="reference internal" href="#installing-locally-versus-globally" id="id5">Installing locally versus globally</a><ul>
-<li><a class="reference internal" href="#install-globally" id="id6">Install globally</a></li>
-<li><a class="reference internal" href="#install-locally" id="id7">Install locally</a></li>
+<li><a class="reference internal" href="#where-to-install-phydms-with-pip" id="id5">Where to install phydms with <code class="docutils literal"><span class="pre">pip</span></code></a><ul>
+<li><a class="reference internal" href="#install-via-the-user-option-to-pip" id="id6">Install via the <code class="docutils literal"><span class="pre">--user</span></code> option to <code class="docutils literal"><span class="pre">pip</span></code></a></li>
+<li><a class="reference internal" href="#install-into-a-virtual-environment" id="id7">Install into a virtual environment</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#more-details-on-installing-with-pip" id="id8">More details on installing with <code class="docutils literal"><span class="pre">pip</span></code></a><ul>
-<li><a class="reference internal" href="#first-make-sure-pip-is-installed" id="id9">First, make sure <code class="docutils literal"><span class="pre">pip</span></code> is installed</a></li>
-<li><a class="reference internal" href="#next-use-pip-to-install-phydms" id="id10">Next, use <code class="docutils literal"><span class="pre">pip</span></code> to install <code class="docutils literal"><span class="pre">phydms</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#upgrading-your-phydms-version-with-pip" id="id11">Upgrading your <code class="docutils literal"><span class="pre">phydms</span></code> version with <code class="docutils literal"><span class="pre">pip</span></code></a></li>
-<li><a class="reference internal" href="#install-phydms-from-source-code" id="id12">Install <code class="docutils literal"><span class="pre">phydms</span></code> from source code</a></li>
-<li><a class="reference internal" href="#other-required-software" id="id13">Other required software</a></li>
-<li><a class="reference internal" href="#what-about-bio" id="id14">What about <code class="docutils literal"><span class="pre">Bio++</span></code>?</a></li>
+<li><a class="reference internal" href="#upgrading-your-phydms-version-with-pip" id="id8">Upgrading your <code class="docutils literal"><span class="pre">phydms</span></code> version with <code class="docutils literal"><span class="pre">pip</span></code></a></li>
+<li><a class="reference internal" href="#install-phydms-from-source-code" id="id9">Install <code class="docutils literal"><span class="pre">phydms</span></code> from source code</a></li>
+<li><a class="reference internal" href="#other-required-software" id="id10">Other required software</a></li>
+<li><a class="reference internal" href="#older-versions-e-g-version-1-0" id="id11">Older versions (e.g., version 1.0)</a></li>
 </ul>
 </li>
 </ul>
 </div>
 <div class="section" id="minimal-requirements">
 <h2><a class="toc-backref" href="#id3">Minimal requirements</a><a class="headerlink" href="#minimal-requirements" title="Permalink to this headline">¶</a></h2>
-<p>Installing <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> requires <a class="reference external" href="https://www.python.org">Python</a> version 2.7, the <a class="reference external" href="https://www.python.org">Python</a> package management system <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a>, and a <code class="docutils literal"><span class="pre">g++</span></code>/<code class="docutils literal"><span class="pre">c++</span></code> compiler. These instructions assume you are using a reasonably modern Linux operating system, although it may also be possible to install <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> on Mac OS X (this has not been carefully checked). If you have all of this, any other dependencies should be automatically installed if you follow the <a class="reference internal" href="#quick-installation">Quick installation</a> instructions.</p>
+<p><a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> is written in <a class="reference external" href="https://www.python.org">Python</a>. You can run it either under <code class="docutils literal"><span class="pre">python2</span></code> (if you have version 2.7 or higher) or <code class="docutils literal"><span class="pre">python3</span></code> (if you have version 3.4 or higher).</p>
+<p>Straightforward installation requires the <a class="reference external" href="https://www.python.org">Python</a> package management system <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a> and a <code class="docutils literal"><span class="pre">C</span></code> compiler such a <code class="docutils literal"><span class="pre">gcc</span></code> (there are some <code class="docutils literal"><span class="pre">cython</span></code> extensions).</p>
+<p><a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> has been tested on relatively recent versions of Linux and Mac OS X.</p>
 </div>
 <div class="section" id="quick-installation">
 <h2><a class="toc-backref" href="#id4">Quick installation</a><a class="headerlink" href="#quick-installation" title="Permalink to this headline">¶</a></h2>
-<p>If you have the <a class="reference internal" href="#minimal-requirements">Minimal requirements</a>, you should be able to install <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> by simply typing:</p>
+<p>If you have the <a class="reference internal" href="#minimal-requirements">Minimal requirements</a>, you can install <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> by simply typing:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">phydms</span> <span class="o">--</span><span class="n">user</span>
 </pre></div>
 </div>
-<p>or:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">phydms</span>
-</pre></div>
+<p>This assumes that the local installation directory is in your current path. See below for more details.</p>
 </div>
-<p>depending on whether you are <a class="reference internal" href="#installing-locally-versus-globally">Installing locally versus globally</a>.</p>
-<p>Note that installation will take a little while (maybe 5-15 minutes) as all of the <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a> source code included with <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> must be compiled.</p>
-</div>
-<div class="section" id="installing-locally-versus-globally">
-<h2><a class="toc-backref" href="#id5">Installing locally versus globally</a><a class="headerlink" href="#installing-locally-versus-globally" title="Permalink to this headline">¶</a></h2>
-<p>You need to figure out whether you want to install <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> globally or locally.</p>
-<div class="section" id="install-globally">
-<h3><a class="toc-backref" href="#id6">Install globally</a><a class="headerlink" href="#install-globally" title="Permalink to this headline">¶</a></h3>
-<p>If you are the administrator (super-user) for your computer, then you can install programs globally. In that case, you will typically need to run the install commands prefaced with <code class="docutils literal"><span class="pre">sudo</span></code>, and will be asked for your password.</p>
-</div>
-<div class="section" id="install-locally">
-<h3><a class="toc-backref" href="#id7">Install locally</a><a class="headerlink" href="#install-locally" title="Permalink to this headline">¶</a></h3>
-<p>If you are using a shared computing cluster, then you are probably not the administrator. In that case, you need to install <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> locally in a directory that you own. The <a class="reference external" href="https://www.python.org/dev/peps/pep-0370/">Python convention for local installation</a> is to install in <code class="docutils literal"><span class="pre">~/.local/</span></code> by adding the option <code class="docutils literal"><span class="pre">--user</span></code> to installation commands.</p>
+<div class="section" id="where-to-install-phydms-with-pip">
+<h2>Where to install <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> with <code class="docutils literal"><span class="pre">pip</span></code><a class="headerlink" href="#where-to-install-phydms-with-pip" title="Permalink to this headline">¶</a></h2>
+<p>You need to figure out where you want to install <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a>.
+Using <code class="docutils literal"><span class="pre">sudo</span></code> to install globally <a class="reference external" href="http://stackoverflow.com/questions/21055859/what-are-the-risks-of-running-sudo-pip/21056000#21056000">is not recommended for Python packages in general</a>.</p>
+<p>We suggest that you use one of the following two options:</p>
+<div class="section" id="install-via-the-user-option-to-pip">
+<h3><a class="toc-backref" href="#id6">Install via the <code class="docutils literal"><span class="pre">--user</span></code> option to <code class="docutils literal"><span class="pre">pip</span></code></a><a class="headerlink" href="#install-via-the-user-option-to-pip" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference external" href="https://www.python.org/dev/peps/pep-0370/">Python convention for local installation</a> is to install locally using the <code class="docutils literal"><span class="pre">--user</span></code> option to <code class="docutils literal"><span class="pre">pip</span></code>. This option installs into <code class="docutils literal"><span class="pre">~/.local/</span></code> for Linux, or into <code class="docutils literal"><span class="pre">$HOME/.local/lib/Python/x.y/</span></code> (where <code class="docutils literal"><span class="pre">x.y</span></code> is the <a class="reference external" href="https://www.python.org">Python</a> version, such as <code class="docutils literal"><span class="pre">3.5</span></code>) for Mac OS X.</p>
 <p>For locally installed programs to be accessible, you need to add <code class="docutils literal"><span class="pre">~/.local/bin/</span></code> to the <code class="docutils literal"><span class="pre">PATH</span></code> variable, and <code class="docutils literal"><span class="pre">~/.local/lib/</span></code> to the <code class="docutils literal"><span class="pre">PYTHONPATH</span></code> variable. If you are using the <a class="reference external" href="http://www.gnu.org/software/bash/">bash shell</a>, you would do this by adding the following lines to your <code class="docutils literal"><span class="pre">~/.bashrc</span></code> file:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>PATH=$HOME/.local/bin/:$PATH
-export PYTHONPATH=$HOME/.local/lib/python2.7:$PATH
+export PYTHONPATH=$HOME/.local/lib/python3.5/:$PATH
 </pre></div>
 </div>
 <p>You then want to make sure that your <code class="docutils literal"><span class="pre">~/.bash_profile</span></code> simply sources your <code class="docutils literal"><span class="pre">~/.bashrc</span></code> file as <a class="reference external" href="http://www.joshstaiger.org/archives/2005/07/bash_profile_vs.html">described here</a> by making <code class="docutils literal"><span class="pre">~/.bash_profile</span></code> consist of the following:</p>
@@ -117,19 +107,16 @@ export PYTHONPATH=$HOME/.local/lib/python2.7:$PATH
 <span class="n">fi</span>
 </pre></div>
 </div>
+<p>Once the paths are set up as described above, simply install with:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">user</span>
+</pre></div>
 </div>
-</div>
-<div class="section" id="more-details-on-installing-with-pip">
-<h2><a class="toc-backref" href="#id8">More details on installing with <code class="docutils literal"><span class="pre">pip</span></code></a><a class="headerlink" href="#more-details-on-installing-with-pip" title="Permalink to this headline">¶</a></h2>
-<p>The advantage of using <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a> is that it will automatically take care of installing the <a class="reference internal" href="#other-required-software">Other required software</a>. Here are some more details of installing with <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a> if the <a class="reference internal" href="#quick-installation">Quick installation</a> fails.</p>
-<div class="section" id="first-make-sure-pip-is-installed">
-<h3><a class="toc-backref" href="#id9">First, make sure <code class="docutils literal"><span class="pre">pip</span></code> is installed</a><a class="headerlink" href="#first-make-sure-pip-is-installed" title="Permalink to this headline">¶</a></h3>
-<p>Check if you have <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a> installed. You can do this by typing:</p>
+<p>If this fails, check if you have <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a> installed. You can do this by typing:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="o">-</span><span class="n">h</span>
 </pre></div>
 </div>
-<p>If you get the help message for <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a>, then <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a> is installed and you can move to the next step. If you instead get an error message such as <code class="docutils literal"><span class="pre">-bash:</span> <span class="pre">pip:</span> <span class="pre">command</span> <span class="pre">not</span> <span class="pre">found</span></code> then you need to install <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a>.</p>
-<p>If you have <code class="docutils literal"><span class="pre">easy_install</span></code>, then you can install <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a> globally with:</p>
+<p>If you instead get an error message such as <code class="docutils literal"><span class="pre">-bash:</span> <span class="pre">pip:</span> <span class="pre">command</span> <span class="pre">not</span> <span class="pre">found</span></code> then you need to install <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a>.
+If you have <code class="docutils literal"><span class="pre">easy_install</span></code>, then you can install <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a> globally with:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">easy_install</span> <span class="n">pip</span>
 </pre></div>
 </div>
@@ -139,32 +126,22 @@ export PYTHONPATH=$HOME/.local/lib/python2.7:$PATH
 </div>
 <p>If those commands also fail (i.e. you don&#8217;t have <code class="docutils literal"><span class="pre">easy_install</span></code> either), then install <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a> by following the <a class="reference external" href="https://pip.pypa.io/en/latest/installing.html">instructions here</a>.</p>
 </div>
-<div class="section" id="next-use-pip-to-install-phydms">
-<h3><a class="toc-backref" href="#id10">Next, use <code class="docutils literal"><span class="pre">pip</span></code> to install <code class="docutils literal"><span class="pre">phydms</span></code></a><a class="headerlink" href="#next-use-pip-to-install-phydms" title="Permalink to this headline">¶</a></h3>
-<p>Once <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a> is installed, you can do a local installation with:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">phydms</span> <span class="o">--</span><span class="n">user</span>
-</pre></div>
-</div>
-<p>or a global installation with:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">phydms</span>
-</pre></div>
-</div>
+<div class="section" id="install-into-a-virtual-environment">
+<h3><a class="toc-backref" href="#id7">Install into a virtual environment</a><a class="headerlink" href="#install-into-a-virtual-environment" title="Permalink to this headline">¶</a></h3>
+<p>The other good approach is to use <code class="docutils literal"><span class="pre">pip</span></code> to install into a virtual environment.
+The use of virtual environments <a class="reference external" href="http://stackoverflow.com/questions/21055859/what-are-the-risks-of-running-sudo-pip/21056000#21056000">is described here</a>. Once you have created a virtual environment as in these instructions, you can just install with <code class="docutils literal"><span class="pre">pip</span></code> dropping the <code class="docutils literal"><span class="pre">--user</span></code> command.</p>
 </div>
 </div>
 <div class="section" id="upgrading-your-phydms-version-with-pip">
-<h2><a class="toc-backref" href="#id11">Upgrading your <code class="docutils literal"><span class="pre">phydms</span></code> version with <code class="docutils literal"><span class="pre">pip</span></code></a><a class="headerlink" href="#upgrading-your-phydms-version-with-pip" title="Permalink to this headline">¶</a></h2>
-<p>If you have previously installed <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> but are not sure that you have the latest version, you can upgrade using <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a>. To do this for a local installation, use:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">phydms</span> <span class="o">--</span><span class="n">user</span> <span class="o">--</span><span class="n">upgrade</span>
-</pre></div>
-</div>
-<p>or globally:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">phydms</span> <span class="o">--</span><span class="n">upgrade</span>
+<h2><a class="toc-backref" href="#id8">Upgrading your <code class="docutils literal"><span class="pre">phydms</span></code> version with <code class="docutils literal"><span class="pre">pip</span></code></a><a class="headerlink" href="#upgrading-your-phydms-version-with-pip" title="Permalink to this headline">¶</a></h2>
+<p>If you have previously installed <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> but are not sure that you have the latest version, you can upgrade using <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">phydms</span> <span class="o">--</span><span class="n">upgrade</span> <span class="o">--</span><span class="n">user</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="install-phydms-from-source-code">
-<h2><a class="toc-backref" href="#id12">Install <code class="docutils literal"><span class="pre">phydms</span></code> from source code</a><a class="headerlink" href="#install-phydms-from-source-code" title="Permalink to this headline">¶</a></h2>
-<p>You can also install from the <a class="reference external" href="https://github.com/jbloomlab/phydms">phydms source code</a> on GitHub. Again, if you are simply using <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> (and not developing it), you are strongly suggested to <strong>not</strong> do a source installation and instead use <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a>.</p>
+<h2><a class="toc-backref" href="#id9">Install <code class="docutils literal"><span class="pre">phydms</span></code> from source code</a><a class="headerlink" href="#install-phydms-from-source-code" title="Permalink to this headline">¶</a></h2>
+<p>You can also install from the <a class="reference external" href="https://github.com/jbloomlab/phydms">phydms source code</a> on GitHub. (However, if you are simply using <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> and not developing it, you are suggested to instead use <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a>.)</p>
 <p>To install from source, first make sure that you have the <a class="reference internal" href="#other-required-software">Other required software</a>.</p>
 <p>Then download or clone the <a class="reference external" href="https://github.com/jbloomlab/phydms">phydms source code</a> from GitHub.
 After unpacking the main <code class="docutils literal"><span class="pre">phydms</span></code> directory that contains this source, install locally with:</p>
@@ -172,49 +149,23 @@ After unpacking the main <code class="docutils literal"><span class="pre">phydms
 <span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span> <span class="o">--</span><span class="n">user</span>
 </pre></div>
 </div>
-<p>or globally with:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">phydms</span>
-<span class="n">sudo</span> <span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
-</pre></div>
-</div>
 <p>If you want to install from source but want <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a> to process the dependencies, you can install locally with:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">phydms</span>
 <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span> <span class="o">--</span><span class="n">user</span>
 </pre></div>
 </div>
-<p>or globally with:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">phydms</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>
-</pre></div>
-</div>
 </div>
 <div class="section" id="other-required-software">
-<h2><a class="toc-backref" href="#id13">Other required software</a><a class="headerlink" href="#other-required-software" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> requires <a class="reference external" href="https://www.python.org">Python</a> 2.7 and a <code class="docutils literal"><span class="pre">g++</span></code>/<code class="docutils literal"><span class="pre">c++</span></code> compiler.</p>
-<p>In addition it requires some external <a class="reference external" href="https://www.python.org">Python</a> packages. The up-to-date exact requirements are listed in the <code class="docutils literal"><span class="pre">setup.py</span></code> file in the main directory of the <a class="reference external" href="https://github.com/jbloomlab/phydms">phydms source code</a>. If you are installing with <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a>, these external packages will automatically be installed. If you are installing from source, you will need to install these packages yourself. As of the writing of this documentation, these packages are:</p>
-<blockquote>
-<div><ul class="simple">
-<li><a class="reference external" href="http://biopython.org/wiki/Main_Page">Biopython</a> is used for sequence and tree manipulations; you need at least version 1.65</li>
-<li><a class="reference external" href="http://cython.org/">cython</a> is used to build the <code class="docutils literal"><span class="pre">c++</span></code> extensions. You need at least version 0.21.</li>
-<li><a class="reference external" href="http://jbloomlab.github.io/dms_tools">dms_tools</a> is used for some file input / output operations, as well as to create the plots created by <code class="docutils literal"><span class="pre">phydms_plotselection</span></code>. <a class="reference external" href="http://jbloomlab.github.io/dms_tools">dms_tools</a> itself has dependencies that include <a class="reference external" href="https://code.google.com/p/weblogo/">weblogo</a> and <a class="reference external" href="http://matplotlib.org/">matplotlib</a>, but these should automatically be installed if you are using <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a> to <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> (or <a class="reference external" href="http://jbloomlab.github.io/dms_tools">dms_tools</a>). You need <a class="reference external" href="http://jbloomlab.github.io/dms_tools">dms_tools</a> version at least 1.1.5.</li>
-<li><a class="reference external" href="http://www.scipy.org/">scipy</a> is used for optimization and some statistical / mathematical operations. You need at least version 0.16.</li>
-<li><a class="reference external" href="http://matplotlib.org/">matplotlib</a> is used for plotting. You need at least version 1.3.</li>
-</ul>
-</div></blockquote>
+<h2><a class="toc-backref" href="#id10">Other required software</a><a class="headerlink" href="#other-required-software" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> requires some external <a class="reference external" href="https://www.python.org">Python</a> packages. The up-to-date exact requirements are listed under <code class="docutils literal"><span class="pre">install_requires</span></code> in the <code class="docutils literal"><span class="pre">setup.py</span></code> file in the main directory of the <a class="reference external" href="https://github.com/jbloomlab/phydms">phydms source code</a>. If you are installing with <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a>, these external packages will automatically be installed. If you are installing from source, you may need to install these packages yourself.</p>
 </div>
-<div class="section" id="what-about-bio">
-<h2><a class="toc-backref" href="#id14">What about <code class="docutils literal"><span class="pre">Bio++</span></code>?</a><a class="headerlink" href="#what-about-bio" title="Permalink to this headline">¶</a></h2>
-<p>Most of the actual calculations performed by <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> use the <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a> libraries, which are themselves written in <code class="docutils literal"><span class="pre">c++</span></code>. Manual installation of <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a> and subsequent linking to the installation of <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> is somewhat complicated, so the relevant portions of the <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a> source code are simply included in the <a class="reference external" href="https://github.com/jbloomlab/phydms">phydms source code</a> (in <code class="docutils literal"><span class="pre">phydms/phydmslib/Bpp/</span></code> you will find <code class="docutils literal"><span class="pre">bpp-core</span></code>, <code class="docutils literal"><span class="pre">bpp-seq</span></code>, and <code class="docutils literal"><span class="pre">bpp-phyl</span></code>). When you install <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> using <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a> (or using <code class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">install</span></code>), <a class="reference external" href="http://cython.org/">cython</a> compiles this <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a> source code in a form that is usable by <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a>. The requirement for compiling <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a> is why it takes a little while to install <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a>.</p>
-<p>If you are developing <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a>, you might get tired of constantly re-compiling all of <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a>. Or if you are testing new developments in <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a>, you might want to link <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> to a separate installation of <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a>.</p>
-<p>If you are installing from source code, the <code class="docutils literal"><span class="pre">setup.py</span></code> script includes an option that should allow you to instead dynamically link to pre-compiled <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a> libraries. To do this, you need to first install the correct versions of <code class="docutils literal"><span class="pre">bpp-core</span></code>, <code class="docutils literal"><span class="pre">bpp-seq</span></code>, and <code class="docutils literal"><span class="pre">bpp-phyl</span></code> to the expected (standard) location for global or local installation. Then run:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span> <span class="o">--</span><span class="n">user</span> <span class="o">--</span><span class="n">dynamically</span><span class="o">-</span><span class="n">link</span><span class="o">-</span><span class="n">bpp</span>
-</pre></div>
-</div>
-<p>or:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span> <span class="o">--</span><span class="n">dynamically</span><span class="o">-</span><span class="n">link</span><span class="o">-</span><span class="n">bpp</span>
-</pre></div>
-</div>
-<p>depending on whether you are <a class="reference internal" href="#installing-locally-versus-globally">Installing locally versus globally</a>. The <code class="docutils literal"><span class="pre">--dynamically-link-bpp</span></code> option tells <code class="docutils literal"><span class="pre">setup.py</span></code> to instead link to these pre-installed <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a> libraries. If this isn&#8217;t working (e.g. you don&#8217;t have the <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a> libraries in the location expected by <code class="docutils literal"><span class="pre">setup.py</span></code>), you will have to delve into the <code class="docutils literal"><span class="pre">setup.py</span></code> file yourself to figure out what is going wrong.</p>
+<div class="section" id="older-versions-e-g-version-1-0">
+<h2><a class="toc-backref" href="#id11">Older versions (e.g., version 1.0)</a><a class="headerlink" href="#older-versions-e-g-version-1-0" title="Permalink to this headline">¶</a></h2>
+<p>The original version of <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> (version <code class="docutils literal"><span class="pre">1.*</span></code>) used in <a class="reference external" href="http://biologydirect.biomedcentral.com/articles/10.1186/s13062-016-0172-z">Bloom, Biology Direct, 12:1</a> had similar functionality, but an entirely different implementation that utilized <a class="reference external" href="http://biopp.univ-montp2.fr/wiki/index.php/Main_Page">Bio++</a> for the likelihood calculations.
+The new version (version <code class="docutils literal"><span class="pre">2.*</span></code>) has similar functionality, but is a completely new implementation and so may give slightly different results.</p>
+<p>The last stable version of the old implementation is <code class="docutils literal"><span class="pre">1.3.0</span></code>.
+The source code for that version is <a class="reference external" href="https://github.com/jbloomlab/phydms/tree/1.3.0">available here</a>.
+The older implementations are also still on <a class="reference external" href="https://pypi.python.org/pypi">PyPI</a>.</p>
 </div>
 </div>
 
@@ -229,20 +180,15 @@ After unpacking the main <code class="docutils literal"><span class="pre">phydms
 <li><a class="reference internal" href="#">Installation</a><ul>
 <li><a class="reference internal" href="#minimal-requirements">Minimal requirements</a></li>
 <li><a class="reference internal" href="#quick-installation">Quick installation</a></li>
-<li><a class="reference internal" href="#installing-locally-versus-globally">Installing locally versus globally</a><ul>
-<li><a class="reference internal" href="#install-globally">Install globally</a></li>
-<li><a class="reference internal" href="#install-locally">Install locally</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#more-details-on-installing-with-pip">More details on installing with <code class="docutils literal"><span class="pre">pip</span></code></a><ul>
-<li><a class="reference internal" href="#first-make-sure-pip-is-installed">First, make sure <code class="docutils literal"><span class="pre">pip</span></code> is installed</a></li>
-<li><a class="reference internal" href="#next-use-pip-to-install-phydms">Next, use <code class="docutils literal"><span class="pre">pip</span></code> to install <code class="docutils literal"><span class="pre">phydms</span></code></a></li>
+<li><a class="reference internal" href="#where-to-install-phydms-with-pip">Where to install phydms with <code class="docutils literal"><span class="pre">pip</span></code></a><ul>
+<li><a class="reference internal" href="#install-via-the-user-option-to-pip">Install via the <code class="docutils literal"><span class="pre">--user</span></code> option to <code class="docutils literal"><span class="pre">pip</span></code></a></li>
+<li><a class="reference internal" href="#install-into-a-virtual-environment">Install into a virtual environment</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#upgrading-your-phydms-version-with-pip">Upgrading your <code class="docutils literal"><span class="pre">phydms</span></code> version with <code class="docutils literal"><span class="pre">pip</span></code></a></li>
 <li><a class="reference internal" href="#install-phydms-from-source-code">Install <code class="docutils literal"><span class="pre">phydms</span></code> from source code</a></li>
 <li><a class="reference internal" href="#other-required-software">Other required software</a></li>
-<li><a class="reference internal" href="#what-about-bio">What about <code class="docutils literal"><span class="pre">Bio++</span></code>?</a></li>
+<li><a class="reference internal" href="#older-versions-e-g-version-1-0">Older versions (e.g., version 1.0)</a></li>
 </ul>
 </li>
 </ul>
@@ -251,8 +197,8 @@ After unpacking the main <code class="docutils literal"><span class="pre">phydms
   <p class="topless"><a href="index.html"
                         title="previous chapter">Documentation for <code class="docutils literal"><span class="pre">phydms</span></code></a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="quick_example.html"
-                        title="next chapter">Quick example</a></p>
+  <p class="topless"><a href="howtouse.html"
+                        title="next chapter">how to use <code class="docutils literal"><span class="pre">phydms</span></code></a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -263,8 +209,8 @@ After unpacking the main <code class="docutils literal"><span class="pre">phydms
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
@@ -284,17 +230,17 @@ After unpacking the main <code class="docutils literal"><span class="pre">phydms
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="quick_example.html" title="Quick example"
+          <a href="howtouse.html" title="how to use phydms"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Documentation for phydms"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.3.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.dev0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+        &copy; Copyright 2015, Jesse D. Bloom.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
     </div>
   </body>
 </html>

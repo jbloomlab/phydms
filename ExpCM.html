@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Experimentally Informed Codon Models &#8212; phydms 1.3.0 documentation</title>
+    <title>Experimentally Informed Codon Models &mdash; phydms 2.0.dev0 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.3.0',
+        VERSION:     '2.0.dev0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,8 +24,8 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 1.3.0 documentation" href="index.html" />
-    <link rel="next" title="The phydmslib API" href="api.html" />
+    <link rel="top" title="phydms 2.0.dev0 documentation" href="index.html" />
+    <link rel="next" title="Numerical implementation" href="implementation.html" />
     <link rel="prev" title="the phydms_testdivpressure program" href="phydms_testdivpressure_prog.html" /> 
   </head>
   <body role="document">
@@ -39,12 +39,12 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="api.html" title="The phydmslib API"
+          <a href="implementation.html" title="Numerical implementation"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="phydms_testdivpressure_prog.html" title="the phydms_testdivpressure program"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.3.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.dev0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -61,10 +61,11 @@
 <li><a class="reference internal" href="#experimentally-informed-codon-models" id="id1"><strong>Exp</strong>erimentally Informed <strong>C</strong>odon <strong>M</strong>odels</a><ul>
 <li><a class="reference internal" href="#overview" id="id2">Overview</a></li>
 <li><a class="reference internal" href="#the-expcm-substitution-model" id="id3">The <em>ExpCM</em> substitution model</a></li>
-<li><a class="reference internal" href="#identifying-diversifying-selection-via-site-specific-values" id="id4">Identifying diversifying selection via site-specific <span class="math">\(\omega_r\)</span> values</a></li>
-<li><a class="reference internal" href="#identifying-differential-selection-via-site-specific-values" id="id5">Identifying differential selection via site-specific <span class="math">\(\beta_r\)</span> values</a></li>
-<li><a class="reference internal" href="#identifying-differentially-selected-amino-acids-by-fitting-preferences-for-each-site" id="id6">Identifying differentially selected amino acids by fitting preferences for each site</a></li>
-<li><a class="reference internal" href="#specifiying-diversifying-pressure-at-sites" id="id7">Specifiying diversifying pressure at sites</a></li>
+<li><a class="reference internal" href="#empirical-nucleotide-frequencies" id="id4">Empirical nucleotide frequencies</a></li>
+<li><a class="reference internal" href="#gamma-distributed" id="id5">Gamma-distributed <span class="math">\(\omega\)</span></a></li>
+<li><a class="reference internal" href="#identifying-diversifying-selection-via-site-specific-values" id="id6">Identifying diversifying selection via site-specific <span class="math">\(\omega_r\)</span> values</a></li>
+<li><a class="reference internal" href="#identifying-differentially-selected-amino-acids-by-fitting-preferences-for-each-site" id="id7">Identifying differentially selected amino acids by fitting preferences for each site</a></li>
+<li><a class="reference internal" href="#specifiying-diversifying-pressure-at-sites" id="id8">Specifiying diversifying pressure at sites</a></li>
 </ul>
 </li>
 </ul>
@@ -72,17 +73,24 @@
 <div class="section" id="overview">
 <h2><a class="toc-backref" href="#id2">Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
 <p><strong>Exp</strong>erimentally Informed <strong>C</strong>odon <strong>M</strong>odels (<em>ExpCM</em>) describe the evolution of protein-coding genes in terms of their site-specific amino-acid preferences. These models improve on conventional non-site-specific phylogenetic substitution models because they account for the different constraints at different sites of the protein encoded by the gene.</p>
-<p>Specifically, for each gene, we assume that we know the preference <span class="math">\(\pi_{r,a}\)</span> of site <span class="math">\(r\)</span> for each amino-acid <span class="math">\(a\)</span> (we constrain <span class="math">\(1 = \sum_a \pi_{r,a}\)</span>). Typically, these preferences might be measured in deep mutational scanning experiments. For a description of how the preferences can be inferred from experimental data, see <a class="reference external" href="http://www.biomedcentral.com/1471-2105/16/168">Bloom, BMC Bioinformatics, 16:168</a>.</p>
-<p>Key references on <em>ExpCM</em> are as follows:</p>
+<p>Specifically, for each gene, we assume that we know the preference <span class="math">\(\pi_{r,a}\)</span> of site <span class="math">\(r\)</span> for each amino-acid <span class="math">\(a\)</span> (we constrain <span class="math">\(1 = \sum_a \pi_{r,a}\)</span>).
+Typically, these preferences might be measured in deep mutational scanning experiments.
+The preferences represent the effect of each amino-acid mutation at each site, normalized to sum to one.
+They can therefore be obtained by simply re-normalizing deep mutational scanning enrichment ratios to sum to one at each site.
+For a more involved description of how the preferences can be inferred from deep mutational scanning experimental data, see <a class="reference external" href="http://www.biomedcentral.com/1471-2105/16/168">Bloom, BMC Bioinformatics, 16:168</a>.
+Importantly, these amino-acid preferences must be obtained <strong>independently</strong> from the sequence
+alignment being analyzed. A deep mutational scanning experiment is an independent means
+of obtaining the preferences, but estimating them from the amino-acid frequencies in the alilnment of homologs is <strong>not</strong> a valid approach as you are then estimating the preferences from the same sequences that you are subsequently analyzing.</p>
+<p>The <em>ExpCM</em> used here are the ones defined in:</p>
 <blockquote>
 <div><ul class="simple">
-<li><a class="reference external" href="http://dx.doi.org/10.1101/037689">Bloom, bioRxiv, DOI 10.1101/037689</a></li>
-<li><a class="reference external" href="http://mbe.oxfordjournals.org/content/31/8/1956">Bloom, Mol Biol Evol, 31:1956-1978</a></li>
-<li><a class="reference external" href="http://mbe.oxfordjournals.org/content/31/10/2753">Bloom, Mol Biol Evol, 31:2753-2769</a></li>
+<li><a class="reference external" href="http://biologydirect.biomedcentral.com/articles/10.1186/s13062-016-0172-z">Bloom, Biology Direct, 12:1</a></li>
 </ul>
 </div></blockquote>
+<p>See also <a class="reference external" href="http://mbe.oxfordjournals.org/content/31/8/1956">Bloom, Mol Biol Evol, 31:1956-1978</a> and
+<a class="reference external" href="http://mbe.oxfordjournals.org/content/31/10/2753">Bloom, Mol Biol Evol, 31:2753-2769</a> for more discussion of models of this type.</p>
 <p>These experimentally informed site-specific substitution models closely parallel those used in studies that infer the site-specific information from natural sequences; see <a class="reference external" href="http://www.pnas.org/content/107/10/4629.full">Rodrigue and Lartillot, PNAS, 107:4629-4634</a>. For a more general discussion of models of this form, see <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/9656490">Halpern and Bruno, Mol Biol Evol, 15:910-917</a> and <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/25195318">McCandlish and Stoltzfus, Quarterly Review of Biology, 89:225-252</a>.</p>
-<p>The <em>ExpCM</em> implemented by <code class="docutils literal"><span class="pre">phydms</span></code> are similar but not completely identical to those in aforementioned publications. The <em>ExpCM</em> in <code class="docutils literal"><span class="pre">phydms</span></code> has the following components:</p>
+<p>Specifically, the <em>ExpCM</em> implemented by <code class="docutils literal"><span class="pre">phydms</span></code> have the following components:</p>
 <blockquote>
 <div><ul class="simple">
 <li>A reversible model of nucleotide substitution that is assumed to be constant across sites.</li>
@@ -128,10 +136,40 @@ The <span class="math">\(\omega\)</span> parameter is not a ratio of nonsynonymo
 <p>Finally, <a class="reference external" href="http://mbe.oxfordjournals.org/content/31/10/2753">Bloom, Mol Biol Evol, 31:2753-2769</a> shows that given these stationary states, the overall model defined by <a href="#equation-Prxy">(1)</a> is reversible and has stationary state</p>
 <div class="math">
 \[p_{r,x} = \frac{f_{r,x} \times q_x}{\sum_y f_y \times q_y} = \frac{\left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta} \times q_x}{\sum_y \left(\pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta} \times q_y}.\]</div>
-<p>Therefore, assuming that the preferences <span class="math">\(\pi_{r,a}\)</span> are known <em>a priori</em> for all amino acids <span class="math">\(a\)</span> at all sites <span class="math">\(r\)</span> (e.g. the preferences have been measured in a deep mutational scanning experiment), the substitution model is completely defined by giving values to the following six parameters: <span class="math">\(\omega\)</span>, <span class="math">\(\beta\)</span>, <span class="math">\(\kappa\)</span>, <span class="math">\(\phi_A\)</span>, <span class="math">\(\phi_C\)</span>, and <span class="math">\(\phi_G\)</span>. When fitting and <em>ExpCM</em> for a gene phylogeny, <code class="docutils literal"><span class="pre">phydms</span></code> assumes that these six parameters are constant across all sites, and optimizes their values by maximum likelihood.</p>
+<p>Therefore, assuming that the preferences <span class="math">\(\pi_{r,a}\)</span> are known <em>a priori</em> for all amino acids <span class="math">\(a\)</span> at all sites <span class="math">\(r\)</span> (e.g. the preferences have been measured in a deep mutational scanning experiment), the substitution model is completely defined by giving values to the following six parameters: <span class="math">\(\omega\)</span>, <span class="math">\(\beta\)</span>, <span class="math">\(\kappa\)</span>, <span class="math">\(\phi_A\)</span>, <span class="math">\(\phi_C\)</span>, and <span class="math">\(\phi_G\)</span>. When fitting an <em>ExpCM</em> for a gene phylogeny, <code class="docutils literal"><span class="pre">phydms</span></code> assumes that these six parameters are constant across all sites, and optimizes their values by maximum likelihood.</p>
+</div>
+<div class="section" id="empirical-nucleotide-frequencies">
+<h2><a class="toc-backref" href="#id4">Empirical nucleotide frequencies</a><a class="headerlink" href="#empirical-nucleotide-frequencies" title="Permalink to this headline">¶</a></h2>
+<p>The foregoing model has three free parameters (<span class="math">\(\phi_A\)</span>, <span class="math">\(\phi_C\)</span>, and <span class="math">\(\phi_G\)</span>) that are related to the nucleotide frequencies and are independent of the site-specific constraints.
+Classically, many substitution models determine the values of these nucleotide frequency parameters by setting them equal to the empirically observed nucleotide frequencies in the alignment rather than fitting them by maximum likelihood.
+This procedure is computationally faster.</p>
+<p>However, the the <em>ExpCM</em> described above, this cannot be done in such a simple fashion.
+The reason is that the <span class="math">\(\phi_w\)</span> parameters give the expected frequence of nucleotide <span class="math">\(w\)</span> for purely mutation-driven evolution &#8211; but in reality, the observed nucleotide frequencies are also affected by selection on the amino acid usage.
+That this is really the case in evolution is easily observed by noting that for many genes, the nucleotide frequencies differ greatly among the first, second, and especially third codon position.
+These differences are unlikely to be driven by mutation (which is probably indifferent to the reading frame in which a nucleotide falls), and is instead driven by the fact that selection on the amino-acid usage favors certain nucleotides at some codon positions since that is the only way to encode some amino acids.</p>
+<p>However, we can still empirically estimate the <span class="math">\(\phi_w\)</span> parameters from the alignment frequencies by taking the amino-acid level constraint into account.
+Specifically, let <span class="math">\(g_w\)</span> denote the empirically observed frequency of nucleotide <span class="math">\(w\)</span> in the alignment, noting that <span class="math">\(1 = \sum_w g_w\)</span>.
+Let <span class="math">\(\hat{\phi}_w\)</span> be the value of <span class="math">\(\phi_w\)</span> that yields a stationary state of the substitution model where nucleotide <span class="math">\(w\)</span> is at frequency <span class="math">\(g_w\)</span>.
+The value of <span class="math">\(\hat{\phi}_w\)</span> must then satisfy:</p>
+<div class="math">
+\[\begin{split}g_w &amp; = &amp;
+   \frac{1}{L} \sum_r \sum_x \frac{1}{3} N_w\left(x\right) p_{r,x} \\
+      &amp; = &amp;
+         \frac{1}{3L} \sum_r \frac{\sum_x N_w\left(x\right) f_{r,x} \prod_{k=0}^2 \hat{\phi}_{x_k}}{\sum_y f_{r,y} \prod_{k=0}^2 \hat{\phi}_{y_k}}.\end{split}\]</div>
+<p>There are three independent <span class="math">\(g_w\)</span> values and three independent <span class="math">\(\phi_w\)</span> values (since <span class="math">\(1 = \sum_w g_w = \sum_w \hat{\phi}_w\)</span>, so we have three equations and three unknowns.
+These equations can be solved numerically for <span class="math">\(\hat{\phi}_w\)</span>, and these empirical estimates can be used in the place of estimating <span class="math">\(\phi_w\)</span> by maximum likelihood.
+Such a procedure speeds the numerical optimization by reducing the number of free parameters that must be optimized.</p>
+</div>
+<div class="section" id="gamma-distributed">
+<h2><a class="toc-backref" href="#id5">Gamma-distributed <span class="math">\(\omega\)</span></a><a class="headerlink" href="#gamma-distributed" title="Permalink to this headline">¶</a></h2>
+<p>In codon substitution models, it is common to allow <span class="math">\(\omega\)</span> to be drawn from several discrete gamma-distributed categories.
+For instance, this is what is done for the <em>M5</em> variant of the <em>YNGKP</em> models described by <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a>.
+This can also be done for <em>ExpCM</em> by using the <code class="docutils literal"><span class="pre">--gammaomega</span></code> option.
+In this case, <span class="math">\(\omega\)</span> is drawn from <code class="docutils literal"><span class="pre">--ncats</span></code> categories placed at the means of a discretized gamma distribution with shape parameter <span class="math">\(\alpha_{\omega}\)</span> and inverse scale parameter <span class="math">\(\beta_{\omega}\)</span>.
+Note that the mean <span class="math">\(\omega\)</span> value is then <span class="math">\(\alpha_{\omega} / \beta_{\omega}\)</span>.</p>
 </div>
 <div class="section" id="identifying-diversifying-selection-via-site-specific-values">
-<h2><a class="toc-backref" href="#id4">Identifying diversifying selection via site-specific <span class="math">\(\omega_r\)</span> values</a><a class="headerlink" href="#identifying-diversifying-selection-via-site-specific-values" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id6">Identifying diversifying selection via site-specific <span class="math">\(\omega_r\)</span> values</a><a class="headerlink" href="#identifying-diversifying-selection-via-site-specific-values" title="Permalink to this headline">¶</a></h2>
 <p>One type of interesting selection is <em>diversifying selection</em>, where there is continual pressure for amino-acid change. Such selection might be expected to occur at sites that are targeted by adaptive immunity or subjected to some other form of selection which constantly favors changes in the protein sequence. At such sites, we expect that the relative rate of nonsynonymous substitutions will be higher than suggested by the site-specific preferences <span class="math">\(\pi_{r,a}\)</span> due to this diversifying selection.</p>
 <p>To detect diversifying selection at specific sites within the framework of the <em>ExpCM</em> implemented in <code class="docutils literal"><span class="pre">phydms</span></code>, we use an approach that is highly analogous the <em>FEL</em> (<strong>f</strong>ixed <strong>e</strong>ffects <strong>l</strong>ikelihood) method described by <a class="reference external" href="http://mbe.oxfordjournals.org/content/22/5/1208.full">Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222</a>. Essentially, the tree topology, branch lengths, and all shared model parameters are fixed to their maximum-likelihood values optimized over the entire gene sequence. Then for each site <span class="math">\(r\)</span>, we fit a site-specific ratio of the rate of synonymous versus nonsynonymous substitutions while holding all holding all the other tree and model parameters constant. Effectively, this is fitting a different <span class="math">\(\omega_r\)</span> for each site, and so this analysis is indicated as <code class="docutils literal"><span class="pre">--omegabysite</span></code> in the <code class="docutils literal"><span class="pre">phydms</span></code> options.</p>
 <p>Specifically, after fixing all of the other parameters as described above, for each site <span class="math">\(r\)</span> we re-define Equation <a href="#equation-Frxy">(3)</a> as</p>
@@ -146,26 +184,12 @@ The <span class="math">\(\omega\)</span> parameter is not a ratio of nonsynonymo
 <p>The null hypothesis is that <span class="math">\(\omega_r = 1\)</span>. We compute a P-value for rejection of this null hypothesis using a <span class="math">\(\chi_1^2\)</span> test to compare the likelihood obtained when fitting both <span class="math">\(\mu_r\)</span> and <span class="math">\(\omega_r\)</span> to that obtained when fitting only <span class="math">\(\mu_r\)</span> and fixing <span class="math">\(\omega_r = 1\)</span>. See <a class="reference external" href="http://mbe.oxfordjournals.org/content/22/5/1208.full">Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222</a> for a justification for using a <span class="math">\(\chi_1^2\)</span> test for this type of analysis. Note that the P-values reported by <code class="docutils literal"><span class="pre">phydms</span></code> are <strong>not</strong> adjusted for multiple testing, so you will want to make such an adjustment if you are testng the hypothesis that any site has <span class="math">\(\omega_r \ne 1\)</span>. Note also that in many cases, the fitted value of <span class="math">\(\omega_r\)</span> will either be very small (e.g. close to zero) or very large (e.g. close to <span class="math">\(\infty\)</span>) &#8211; in general, it is more informative to look for sites with small P-values and then simply look to see if <span class="math">\(\omega\)</span> is &gt; or &lt; 1.</p>
 <p>Significant support for a value of <span class="math">\(\omega_r &gt; 1\)</span> can be taken as evidence for diversifying selection beyond that expected given the constraints encapsulated in the site-specific amino-acid preferences. Significant support for a value of <span class="math">\(\omega_r &lt; 1\)</span> can be taken as evidence for selection against amino-acid change beyond that expected given the constraints encapsulated in the site-specific amino-acid preferences. Note, however, that if the site-specific preferences don&#8217;t accurately describe the real constraints, you might get <span class="math">\(\omega_r \ne 1\)</span> simply because of this fact &#8211; so you will want to examine if sites might be subject to selection that is better described by modulating the stringency parameter <span class="math">\(\beta\)</span> or by invoking differential preferences, as described below.</p>
 </div>
-<div class="section" id="identifying-differential-selection-via-site-specific-values">
-<h2><a class="toc-backref" href="#id5">Identifying differential selection via site-specific <span class="math">\(\beta_r\)</span> values</a><a class="headerlink" href="#identifying-differential-selection-via-site-specific-values" title="Permalink to this headline">¶</a></h2>
-<p>Another type of interesting selection is when natural evolution prefers different amino acids than suggested by the <span class="math">\(\pi_{r,a}\)</span> values. This type of differential selection suggests discordant selection pressures between natural evolution and the process used to obtain the <span class="math">\(\pi_{r,a}\)</span> values.</p>
-<p>One way to test for differential selection is to fit a different stringency parameter <span class="math">\(\beta_r\)</span> for each site <span class="math">\(r\)</span> after fixing the tree / branches and all other model parameters to their maximum-likelihood values obtained for the entire tree. Specifically, after fixing all of these other parameters, for each site <span class="math">\(r\)</span> we re-define Equation <a href="#equation-Frxy">(3)</a> as</p>
-<div class="math" id="equation-Frxy_stringencybysite">
-<span class="eqno">(5)</span>\[\begin{split}F_{r,xy} =
-\begin{cases}
-1 &amp; \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
-\omega &amp; \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
-\omega \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta_r} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta_r}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta_r} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta_r}\right)} &amp; \mbox{otherwise.}
-\end{cases}\end{split}\]</div>
-<p>and then fit a value for <span class="math">\(\beta_r\)</span>. We compare the likelihood using this fitted value of <span class="math">\(\beta_r\)</span> to that obtained when using the value <span class="math">\(\beta\)</span> obtained by fitting a single <span class="math">\(\beta\)</span> over the entire gene, and compute the ratio <span class="math">\(\beta_r / \beta\)</span>. The null hypothesis is that <span class="math">\(\beta_r / \beta = 1\)</span>. We compute a P-value for rejection of this null hypothesis using a <span class="math">\(\chi_1^2\)</span> test; note that the P-values reported by <code class="docutils literal"><span class="pre">phydms</span></code> are <strong>not</strong> adjusted for multiple-hypothesis testing, so you will want to make such an adjustment if testing the hypothesis that any site has <span class="math">\(\beta_r / \beta \ne 1\)</span>. This analysis can be performed using <code class="docutils literal"><span class="pre">phydms</span></code> with the <code class="docutils literal"><span class="pre">--stringencybysite</span></code> option. Note that <code class="docutils literal"><span class="pre">phydms</span></code> reports the ratio <span class="math">\(\beta_r / \beta\)</span>, <strong>not</strong> the value of <span class="math">\(\beta_r\)</span> itself.</p>
-<p>Significant support for <span class="math">\(\beta_r / \beta &lt; 1\)</span> indicates that preferences don&#8217;t actual describe the constraints on the gene&#8217;s evolution accurately. Unfortunately, the ratio alone does not tell which particular amino acids are more or less disfavored by natural evolution, but a ratio &lt; 1 does indicate that flatter preferences (more uniform across amino acids) do describe the evolution of the site better than the preferences encapsulated in the <span class="math">\(\pi_{r,a}\)</span> values. A value of <span class="math">\(\beta_r / \beta &gt; 1\)</span> indicates that natural selection favors the amino acids with high <span class="math">\(\pi_{r,a}\)</span>, but that at the specific site <span class="math">\(r\)</span> this preference is more stringent than for the typical site in the gene (i.e. the preferences point in the direction of actual selection, but actual selection is more stringent at this site than suggested by the preferences).</p>
-</div>
 <div class="section" id="identifying-differentially-selected-amino-acids-by-fitting-preferences-for-each-site">
-<h2><a class="toc-backref" href="#id6">Identifying differentially selected amino acids by fitting preferences for each site</a><a class="headerlink" href="#identifying-differentially-selected-amino-acids-by-fitting-preferences-for-each-site" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id7">Identifying differentially selected amino acids by fitting preferences for each site</a><a class="headerlink" href="#identifying-differentially-selected-amino-acids-by-fitting-preferences-for-each-site" title="Permalink to this headline">¶</a></h2>
 <p>A more complete approach is to examine each site to see the extent to which the preferences for each amino acid in nature differ from those encapsulated in the <span class="math">\(\pi_{r,a}\)</span> values. The advantage of this approach is that it can identify any form of differential selection (the approach in the previous section works best when the selection in nature is more uniform across amino acids than the <span class="math">\(\pi_{r,a}\)</span> values), and also that it can pinpoint specific amino acids that are favored or disfavored in natural evolution by an unexpected amount. The disadvantage is that <code class="docutils literal"><span class="pre">phydms</span></code> does not currently implement a good way to statistically test the significance of this type of differential selection, so although you can visualize and assess the selection it&#8217;s hard to say that any given differential selection is significant at some specific P-value threshold.</p>
 <p>To identify differential selection, we first fix the tree / branch lengths and all parameters of the substitution model at their maximum-likelihood values obtained across the whole tree. We then define a new set of 20 preferences for each site <span class="math">\(r\)</span> that we will denote as <span class="math">\(\hat{\pi}_{r,a}\)</span> (note that these only represent 19 parameters, as <span class="math">\(1 = \sum_a \hat{\pi}_{r,a}\)</span>. We then redefine Equation <a href="#equation-Frxy">(3)</a> replacing the <span class="math">\(\left(\pi_{r,a}\right)^{\beta}\)</span> values with the <span class="math">\(\hat{\pi}_{r,a}\)</span> values as</p>
 <div class="math" id="equation-Frxy_diffprefs">
-<span class="eqno">(6)</span>\[\begin{split} F_{r,xy} =
+<span class="eqno">(5)</span>\[\begin{split} F_{r,xy} =
  \begin{cases}
  1 &amp; \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
  \omega &amp; \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\hat{\pi}_{r,\mathcal{A}\left(x\right)} = \hat{\pi}_{r,\mathcal{A}\left(y\right)}$} \\
@@ -174,41 +198,41 @@ The <span class="math">\(\omega\)</span> parameter is not a ratio of nonsynonymo
 <p>Simply fitting the model defined above with these 19 <span class="math">\(\hat{\pi}_{r,a}\)</span> values will probably overfit the data since we are including 19 new parameters. We therefore regularize the parameters by defining a prior that favors <span class="math">\(\hat{\pi}_{r,a} = \left(\pi_{r,a}\right)^{\beta}\)</span>.</p>
 <p>Although a Dirichlet prior peaked on the preferences might seem attractive, it performs poorly in practice because the <em>maximum a posteriori</em> is very different for small preferences depending on their exact magnitude &#8211; for instance, under a Dirichlet prior we will have very different costs of increasing the differential preference by 0.1 depending on whether the <em>a priori</em> peak estimate is <span class="math">\(10^{-3}\)</span> or <span class="math">\(10^{-4}\)</span>. This is undesirable, so instead we use a prior based on the product of inverse-quadratics.</p>
 <div class="math" id="equation-Pr_pi_invquad">
-<span class="eqno">(7)</span>\[\Pr\left(\left\{\hat{\pi}_{r,a}\right\} \mid \left\{\pi_{r,a}\right\}, \beta\right) = \prod_a \left(\frac{1}{1 + C_1 \times \left(\hat{\pi}_{r,a} - \frac{\left(\pi_{r,a}\right)^{\beta}}{\sum_{a'} \left(\pi_{r,a'}\right)^{\beta}}\right)^2}\right)^{C_2}\]</div>
+<span class="eqno">(6)</span>\[\Pr\left(\left\{\hat{\pi}_{r,a}\right\} \mid \left\{\pi_{r,a}\right\}, \beta\right) = \prod_a \left(\frac{1}{1 + C_1 \times \left(\hat{\pi}_{r,a} - \frac{\left(\pi_{r,a}\right)^{\beta}}{\sum_{a'} \left(\pi_{r,a'}\right)^{\beta}}\right)^2}\right)^{C_2}\]</div>
 <p>or equivalently</p>
 <div class="math" id="equation-log_Pr_pi_invquad">
-<span class="eqno">(8)</span>\[\log\left[\Pr\left(\left\{\hat{\pi}_{r,a}\right\} \mid \left\{\pi_{r,a}\right\}, \beta\right)\right] = - C_2 \sum_a \log\left(1 + C_1 \times \left(\hat{\pi}_{r,a} - \frac{\left(\pi_{r,a}\right)^{\beta}}{\sum_{a'} \left(\pi_{r,a'}\right)^{\beta}}\right)^2\right)\]</div>
+<span class="eqno">(7)</span>\[\log\left[\Pr\left(\left\{\hat{\pi}_{r,a}\right\} \mid \left\{\pi_{r,a}\right\}, \beta\right)\right] = - C_2 \sum_a \log\left(1 + C_1 \times \left(\hat{\pi}_{r,a} - \frac{\left(\pi_{r,a}\right)^{\beta}}{\sum_{a'} \left(\pi_{r,a'}\right)^{\beta}}\right)^2\right)\]</div>
 <p>where <span class="math">\(C_1\)</span> and <span class="math">\(C_2\)</span> are concentration parameters specified via the <code class="docutils literal"><span class="pre">--diffprefconc</span></code> option. Larger values of these favor <span class="math">\(\hat{\pi}_{r,a}\)</span> values that more closely match the <span class="math">\(\left(\pi_{r,a}\right)^{\beta}\)</span> values (and so favor smaller values of <span class="math">\(\Delta\pi_{r,a} = \hat{\pi}_{r,a} - \frac{\left(\pi_{r,a}\right)^{\beta}}{\sum_{a'} \left(\pi_{r,a'}\right)^{\beta}}\)</span>).</p>
 <p>The <code class="docutils literal"><span class="pre">phydms</span></code> program has reasonable defaults for these concentration parameters, but you can fine tune them with <code class="docutils literal"><span class="pre">--diffprefconc</span></code>.</p>
-<p>Here is a plot of the log prior (Equation <a href="#equation-log_Pr_pi_invquad">(8)</a>) as a function of <span class="math">\(C_1\)</span> and <span class="math">\(C_2\)</span>.</p>
+<p>Here is a plot of the log prior (Equation <a href="#equation-log_Pr_pi_invquad">(7)</a>) as a function of <span class="math">\(C_1\)</span> and <span class="math">\(C_2\)</span>.</p>
 <a class="reference internal image-reference" href="_images/diffprefs_prior_plot.png"><img alt="_images/diffprefs_prior_plot.png" class="align-center" src="_images/diffprefs_prior_plot.png" style="width: 60%;" /></a>
 <p>As the plot makes clear, this prior has the desirable feature of penalizing small differential preferences proportionally more than larger ones, which is good if we think that most sites have no differential selection but some have a lot.</p>
-<p>To obtain the <span class="math">\(\hat{\pi}_{r,a}\)</span> values, the <code class="docutils literal"><span class="pre">--diffprefsbysite</span></code> option to <code class="docutils literal"><span class="pre">phydms</span></code> jointly optimizes the product of the prior in Equation <a href="#equation-Pr_pi_invquad">(7)</a> and the likelihood (with fixed tree / branches and other model parameters) using Equation <a href="#equation-Frxy_diffprefs">(6)</a>. In effect, this is the <em>maximum a posteriori</em> estimate of the <span class="math">\(\hat{\pi}_{r,a}\)</span> given the prior defined by Equation <a href="#equation-Pr_pi_invquad">(7)</a>.</p>
+<p>To obtain the <span class="math">\(\hat{\pi}_{r,a}\)</span> values, the <code class="docutils literal"><span class="pre">--diffprefsbysite</span></code> option to <code class="docutils literal"><span class="pre">phydms</span></code> jointly optimizes the product of the prior in Equation <a href="#equation-Pr_pi_invquad">(6)</a> and the likelihood (with fixed tree / branches and other model parameters) using Equation <a href="#equation-Frxy_diffprefs">(5)</a>. In effect, this is the <em>maximum a posteriori</em> estimate of the <span class="math">\(\hat{\pi}_{r,a}\)</span> given the prior defined by Equation <a href="#equation-Pr_pi_invquad">(6)</a>.</p>
 <p>One might wonder why <code class="docutils literal"><span class="pre">phydms</span></code> takes the <em>maximum a posteriori</em> estimates rather than defining a prior with <span class="math">\(\left(\pi_{r,a}\right)^{\beta}\)</span> as the <em>mean</em> rather than the <em>mode</em>, and then sampling from the posterior to obtain the posterior mean estimates. In fact, this procedure would probably be better, but MCMC sampling of the posterior is much more computationally intensive than the <em>maximum a posteriori</em> approach.</p>
 <p>The actual values reported by <code class="docutils literal"><span class="pre">phydms</span></code> are the <em>differential preferences</em>, defined as</p>
 <div class="math" id="equation-diffpref">
-<span class="eqno">(9)</span>\[\Delta\pi_{r,a} = \hat{\pi}_{r,a} - \frac{\left(\pi_{r,a}\right)^{\beta}}{\sum_{a'} \left(\pi_{r,a'}\right)^{\beta}}.\]</div>
+<span class="eqno">(8)</span>\[\Delta\pi_{r,a} = \hat{\pi}_{r,a} - \frac{\left(\pi_{r,a}\right)^{\beta}}{\sum_{a'} \left(\pi_{r,a'}\right)^{\beta}}.\]</div>
 <p>So a differential preference of <span class="math">\(\Delta\pi_{r,a} &gt; 0\)</span> suggests that natural evolution favors amino-acid <span class="math">\(a\)</span> at site <span class="math">\(r\)</span> more than suggested by the preferences, and a value &lt; 0 suggests that natural evolution disfavors this amino acid. One way to summarize the total difference in preferences is the root-mean-square of the differential preferences at a site, defined as</p>
 <div class="math" id="equation-rms_diffpref">
-<span class="eqno">(10)</span>\[RMS_{\Delta\pi_{r,a}} = \sqrt{\frac{1}{N_a} \sum_a \left(\Delta\pi_{r,a}\right)^2}.\]</div>
+<span class="eqno">(9)</span>\[RMS_{\Delta\pi_{r,a}} = \sqrt{\frac{1}{N_a} \sum_a \left(\Delta\pi_{r,a}\right)^2}.\]</div>
 <p>Another way to summarize the total difference in preferences is the half the absolute sum of the differential preferences, value:</p>
 <div class="math" id="equation-abs_sum_diffpref">
-<span class="eqno">(11)</span>\[\frac{1}{2} \sum_a \left|\Delta\pi_{r,a}\right|\]</div>
+<span class="eqno">(10)</span>\[\frac{1}{2} \sum_a \left|\Delta\pi_{r,a}\right|\]</div>
 <p>The theoretical maximum of this quantity is one.</p>
 <p>Unfortunately, <code class="docutils literal"><span class="pre">phydms</span></code> does not currently include any method for statistically testing (e.g. P-values) the hypothesis that any given <span class="math">\(\Delta\pi_{r,a}\)</span> is not equal to zero. So instead, you will have to keep in mind that these values are regularized (and so do not typically become substantially non-zero without some reasonable statistical evidence), and then manually inspect them for interesting trends.</p>
 </div>
 <div class="section" id="specifiying-diversifying-pressure-at-sites">
-<h2><a class="toc-backref" href="#id7">Specifiying diversifying pressure at sites</a><a class="headerlink" href="#specifiying-diversifying-pressure-at-sites" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id8">Specifiying diversifying pressure at sites</a><a class="headerlink" href="#specifiying-diversifying-pressure-at-sites" title="Permalink to this headline">¶</a></h2>
 <p>In some cases, it might be possible to specify <em>a priori</em> expections for the diversifying pressure at each site. For instance, viruses benefit from amino-acid change in sites targeted by the immune system and, consequently, these sites have a higher rate of amino-acid substitution than expected given their level of inherent functional constraint. We can incorporate our expectations for diversifying pressure  at specific sites into the selection terms <span class="math">\(F_{r,xy}\)</span>.</p>
 <p>Let <span class="math">\(\delta_{r}\)</span> be the pre-determined diversifying pressure for amino-acid change at site <span class="math">\(r\)</span> in the protein. A large positive value of <span class="math">\(\delta_r\)</span> corresponds to high pressure for amino-acid diversification, and negative value corresponds to expected pressure against amino-acid diversification beyond that captured in the amino-acid preferences.  We then replace <span class="math">\(\omega\)</span> in Equation <a href="#equation-Frxy">(3)</a> with the expression <span class="math">\(\omega\times\left(1+\omega_{2}\times\delta_{r}\right)\)</span>, resulting in selection terms:</p>
 <div class="math" id="equation-Frxy_divpressure">
-<span class="eqno">(12)</span>\[\begin{split}F_{r,xy} =
+<span class="eqno">(11)</span>\[\begin{split}F_{r,xy} =
 \begin{cases}
 1 &amp; \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
 \omega\times\left(1+\omega_{2}\times\delta_{r}\right) &amp; \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
 \omega\times\left(1+\omega_{2}\times\delta_{r}\right) \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} &amp; \mbox{otherwise.}
 \end{cases}\end{split}\]</div>
-<p>Whereas before <span class="math">\(\omega\)</span> reflected the elevation of non-synonymous substitution rate (averaged across the entire gene) beyond that expected given the amino-acid preferences, now <span class="math">\(\omega\)</span> reflects a gene-wide rate of elevated non-synonymous substitution after taking into account the expected sites of diversifying pressure (as represented by <span class="math">\(\delta_r\)</span>) weighted by <span class="math">\(\omega_{2}\times\delta_{r}\)</span>. These new selection terms in equation Equation <a href="#equation-Frxy_divpressure">(12)</a> are identical the selection terms in Equation <a href="#equation-Frxy">(3)</a> when <span class="math">\(\omega_{2} = 0\)</span>.</p>
+<p>Whereas before <span class="math">\(\omega\)</span> reflected the elevation of non-synonymous substitutin rate (averaged across the entire gene) beyond that expected given the amino-acid preferences, now <span class="math">\(\omega\)</span> reflects a gene-wide rate of elevated non-synonymous substitution after taking into account the expected sites of diversifying pressure (as represented by <span class="math">\(\delta_r\)</span>) weighted by <span class="math">\(\omega_{2}\times\delta_{r}\)</span>. These new selection terms in equation Equation <a href="#equation-Frxy_divpressure">(11)</a> are identical the selection terms in Equation <a href="#equation-Frxy">(3)</a> when <span class="math">\(\omega_{2} = 0\)</span>.</p>
 <p>To ensure a positive value of <span class="math">\(\omega\times\left(1+\omega_{2}\times\delta_{r}\right)\)</span> with <span class="math">\(-\infty&lt;\delta_{r}&lt;\infty\)</span>, <span class="math">\(\omega\)</span> and <span class="math">\(\omega_{2}\)</span> are constrained in the following ways:</p>
 <p><span class="math">\(\omega&gt;0\)</span></p>
 <p><span class="math">\(\begin{cases}
@@ -216,7 +240,7 @@ The <span class="math">\(\omega\)</span> parameter is not a ratio of nonsynonymo
 -\infty&lt;\omega_{2}&lt;\frac{-1}{\min_r\delta_r} &amp; \text{when }\max_r\delta_r&lt;0\\
 \frac{-1}{\max_r\delta_r}&lt;\omega_{2}&lt;\frac{-1}{\min_r\delta_r} &amp; \text{otherwise}\\
 \end{cases}\)</span></p>
-<p>This results in a total of seven free parameters: <span class="math">\(\omega\)</span>, <span class="math">\(\omega_{2}\)</span>, <span class="math">\(\beta\)</span>, <span class="math">\(\kappa\)</span>, <span class="math">\(\phi_A\)</span>, <span class="math">\(\phi_C\)</span>, and <span class="math">\(\phi_G\)</span>, an increase of one from the model with <span class="math">\(F_{r,xy}\)</span> defined by Equation <a href="#equation-Frxy">(3)</a>. A likelihood ratio test can therefore by used to test if adding the pre-determined site-specific diversifying pressure represented by the <span class="math">\(\delta_r\)</span> values actually improves the description of the gene&#8217;s evolution.</p>
+<p>This results in a total of seven free parameters: <span class="math">\(\omega\)</span>, <span class="math">\(\omega_{2}\)</span>, <span class="math">\(\beta\)</span>, <span class="math">\(\kappa\)</span>, <span class="math">\(\phi_A\)</span>, <span class="math">\(\phi_C\)</span>, and <span class="math">\(\phi_G\)</span>, an increase of one from the model with <span class="math">\(F_{r,xy}\)</span> defined by Equation <a href="#equation-Frxy">(3)</a>. A likelihood ratio test can therefore by used to test if adding the specified site-specific diversifying pressure represented by the <span class="math">\(\delta_r\)</span> values actually improves the description of the gene&#8217;s evolution.</p>
 </div>
 </div>
 
@@ -231,8 +255,9 @@ The <span class="math">\(\omega\)</span> parameter is not a ratio of nonsynonymo
 <li><a class="reference internal" href="#"><strong>Exp</strong>erimentally Informed <strong>C</strong>odon <strong>M</strong>odels</a><ul>
 <li><a class="reference internal" href="#overview">Overview</a></li>
 <li><a class="reference internal" href="#the-expcm-substitution-model">The <em>ExpCM</em> substitution model</a></li>
+<li><a class="reference internal" href="#empirical-nucleotide-frequencies">Empirical nucleotide frequencies</a></li>
+<li><a class="reference internal" href="#gamma-distributed">Gamma-distributed <span class="math">\(\omega\)</span></a></li>
 <li><a class="reference internal" href="#identifying-diversifying-selection-via-site-specific-values">Identifying diversifying selection via site-specific <span class="math">\(\omega_r\)</span> values</a></li>
-<li><a class="reference internal" href="#identifying-differential-selection-via-site-specific-values">Identifying differential selection via site-specific <span class="math">\(\beta_r\)</span> values</a></li>
 <li><a class="reference internal" href="#identifying-differentially-selected-amino-acids-by-fitting-preferences-for-each-site">Identifying differentially selected amino acids by fitting preferences for each site</a></li>
 <li><a class="reference internal" href="#specifiying-diversifying-pressure-at-sites">Specifiying diversifying pressure at sites</a></li>
 </ul>
@@ -243,8 +268,8 @@ The <span class="math">\(\omega\)</span> parameter is not a ratio of nonsynonymo
   <p class="topless"><a href="phydms_testdivpressure_prog.html"
                         title="previous chapter">the <code class="docutils literal"><span class="pre">phydms_testdivpressure</span></code> program</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="api.html"
-                        title="next chapter">The <code class="docutils literal"><span class="pre">phydmslib</span></code> API</a></p>
+  <p class="topless"><a href="implementation.html"
+                        title="next chapter">Numerical implementation</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -255,8 +280,8 @@ The <span class="math">\(\omega\)</span> parameter is not a ratio of nonsynonymo
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
@@ -276,17 +301,17 @@ The <span class="math">\(\omega\)</span> parameter is not a ratio of nonsynonymo
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="api.html" title="The phydmslib API"
+          <a href="implementation.html" title="Numerical implementation"
              >next</a> |</li>
         <li class="right" >
           <a href="phydms_testdivpressure_prog.html" title="the phydms_testdivpressure program"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 1.3.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.dev0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+        &copy; Copyright 2015, Jesse D. Bloom.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
     </div>
   </body>
 </html>
