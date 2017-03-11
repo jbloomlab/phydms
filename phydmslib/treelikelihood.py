@@ -381,7 +381,7 @@ class TreeLikelihood(object):
             return -self.dloglik_dt
 
         if approx_grad:
-            dfunc = False
+            paramsdfunc = False
             tdfunc = False
             self.dtcurrent = False
             self.dparamscurrent = False

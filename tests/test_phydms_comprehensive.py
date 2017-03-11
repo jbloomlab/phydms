@@ -8,6 +8,7 @@ Written by Jesse Bloom and Sarah Hilton.
 
 import os
 import unittest
+import multiprocessing
 import subprocess
 import scipy
 import pandas
@@ -26,9 +27,11 @@ class test_phydms_comprehensive(unittest.TestCase):
             self.assertTrue(os.path.isfile(f), "Can't find file {0}".format(f))
         outprefix = './NP_test_results/'
 
+        ncpus = min(20, multiprocessing.cpu_count())
+
         subprocess.check_call(['phydms_comprehensive', outprefix, alignment,
                 prefs, "--tree", tree, "--omegabysite", '--brlen', 'scale',
-                '--diffprefsbysite'])
+                '--diffprefsbysite', '--ncpus', str(ncpus)])
 
         expectedresults = './expected_NP_test_results/'
 

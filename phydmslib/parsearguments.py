@@ -400,6 +400,9 @@ def PhyDMSParser():
     parser.add_argument('--profile', dest='profile', action='store_true',
             help="Profile likelihood maximization, write pstats files. "
             "For code-development purposes.")
+    parser.set_defaults(nograd=False)
+    parser.add_argument('--nograd', dest='nograd', action='store_true',
+            help="Do not use gradients for likelihood maximization.")
     parser.add_argument('-v', '--version', action='version', version=(
             ('%(prog)s {version}'.format(version=phydmslib.__version__))))
     return parser
