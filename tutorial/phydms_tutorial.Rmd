@@ -35,24 +35,21 @@ phydms_comprehensive -h
 ```   
 
 ##Input Files{#inputFiles}
-All of the input files described below can be found in `phydms/tutorial/example_data` with the prefix `betaLactamase`    
-
-```{r betaLac files, engine='bash', comment=NA, error=TRUE}
-ls example_data/betaLactamase*
-```   
+This example uses the following files: [`betaLactamase_enrichmentScores.csv`](example_data/betaLactamase_enrichmentScores.csv), [`betaLactamase_prefs.csv`](example_data/betaLactamase_prefs.csv), and [`betaLactamase_alignment.fasta`](example_data/betaLactamase_alignment.fasta).
 
 ###Amino-acid preferences{#prefs}
 Often data from deep mutational scanning experiments is reported as the enrichment of a given amino-acid compared to the wild-type amino-acid. 
-Here is a snippet of the log enrichment scores for $\beta$-lactamase from the file [betaLactamase_enrichmentScores.csv](example_data/betaLactamase_enrichmentScores.csv) in `example_data` and the full dataset visualized as a heatmap.
+Here is a snippet of the log enrichment scores for $\beta$-lactamase from the file [betaLactamase_enrichmentScores.csv](example_data/betaLactamase_enrichmentScores.csv) ([Stiffler *et al*, 2015 `Supplemental File 1`](http://www.sciencedirect.com/science/article/pii/S0092867415000781)) and the full dataset visualized as a heatmap.
+
 ```{r enrichment scores heatmap, comment=NA, warning=FALSE}
 library(ggplot2)
 df = read.csv("example_data/betaLactamase_enrichmentScores.csv")
-head(df,20)
+head(df,6)
 p <- ggplot(df, aes(Site, AminoAcid)) + geom_tile(aes(fill = Trial_1_AmpConc_2500),colour = "white") + scale_fill_gradient(low = "white",high = "steelblue")
 p
 ```     
 
-[`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) uses *amino-acid preferences* rather than *enrichment scores*. We can transform these enrichment scores to amino-acid preferences by normalizing the values for each site. Below is the first few sites and amino-acids of the resulting [preferences](example_data/betaLactamase_prefs.csv). Notice that the numbering has changed from above. In [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) a site is numbered in relation to the first site in the preferences rather than to the start codon.   
+[`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) uses *amino-acid preferences* rather than *enrichment scores*. We can transform these log enrichment scores to amino-acid preferences by normalizing the exponentiation of the scores for each site. Below are the first few sites and amino-acids of the resulting [preferences](example_data/betaLactamase_prefs.csv). Notice that the numbering has changed from above. In [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) a site is numbered in relation to the first site in the preferences rather than to the start codon.   
 
 ```{r enrichment scores to preferences, engine="python", comment=NA}
 import pandas as pd
@@ -64,19 +61,24 @@ df.fillna(1, inplace = True)
 df = df.div(df.sum(axis=1), axis=0)
 df.insert(0, "site", range(1,len(df)+1))
 df.to_csv("example_data/betaLactamase_prefs.csv", index = False)
-print df.iloc[:,:9].head(20).to_string(index = False)
+print df.iloc[:,:9].head(6).to_string(index = False)
 ```   
 
-```{r bacLactamase logoplot, engine="bash", comment=NA, error=TRUE, echo=FALSE}
-phydms_logoplot logoplots/betaLactamase_prefs.pdf --prefs example_data/betaLactamase_prefs.csv
+We can visualize the preferences as a logoplot using [phydms_logoplot](http://jbloomlab.github.io/phydms/phydms_logoplot.html):  
+```{r bacLactamase logoplot, engine="bash", comment=NA, error=TRUE, include=FALSE}
+phydms_logoplot logoplots/betaLactamase_prefs.pdf --prefs example_data/betaLactamase_prefs.csv --mapmetric functionalgroup --colormap mapmetric
 ```
 
-We can visualize the preferences as a [logoplot](logoplots/betaLactamase_prefs.pdf) using [phydms_logoplot](http://jbloomlab.github.io/phydms/phydms_logoplot.html)
+```{r bacLactamase logoplot convert, engine="bash", comment=NA, error=TRUE, include=FALSE}
+convert -density 134 -trim logoplots/betaLactamase_prefs.pdf +append logoplots/betaLactamase_prefs.png
+```
+
+![](logoplots/betaLactamase_prefs.png)
 
 For more information on the preference file formats, please see the [full `phydms` documentation](http://jbloomlab.github.io/phydms/phydms_prog.html). 
 
 ###Sequences{#seqs}
-We will use the [alignment](example_data/betaLactamase_alignment.fasta) of $\beta$-lactamase sequences found in the `example_data` directory. It is important to note there is exactly the same number of preferences as sites in the alignment. 
+We will use an [alignment](example_data/betaLactamase_alignment.fasta) of $\beta$-lactamase sequences. It is important to note there is exactly the same number of preferences as sites in the alignment. 
 ```{r alignment, engine="python", comment=NA, echo = FALSE}   
 import pandas as pd
 from Bio import SeqIO
@@ -90,16 +92,22 @@ print "Each sequence is %s amino-acids long"%str(len(sequences[0].seq)/3)
 print "Preferences read from: %s"%prefFileName
 print "There are preferences measured for %s sites"%len(pd.read_csv(prefFileName))
 ```  
+
 You can use the [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) auxiliary program [`phydms_prepalignment`](http://jbloomlab.github.io/phydms/phydms_prepalignment.html) to filter your sequences and prepare an alignment for [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html).  
 
 ###`phydms_comprehensive`{#phydms_comprehensiveCommand}
 We can now run [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) by specifying our output prefix (in this case a directory called `betaLactamase`), our [preferences](#prefs), and our [alignment](#seqs). The output below is the [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run log.  
 
-```{r phydms_comprehensive run, engine='bash', comment=NA, error=TRUE}
-phydms_comprehensive betaLactamase/ example_data/betaLactamase_alignment.fasta example_data/betaLactamase_prefs.csv --raxml raxml
 ```
+phydms_comprehensive betaLactamase/ example_data/betaLactamase_alignment.fasta example_data/betaLactamase_prefs.csv --raxml raxml
+``` 
 
-##Output files
+<!-- ```{r phydms_comprehensive run, engine='bash', comment=NA, error=TRUE} -->
+<!-- phydms_comprehensive betaLactamase/ example_data/betaLactamase_alignment.fasta example_data/betaLactamase_prefs.csv --raxml raxml -->
+<!-- ``` -->
+
+##Output files{#outputFiles}
+
 [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) produces both the standard [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) output files for each model and a summary file. Please see the [full documentation](http://jbloomlab.github.io/phydms/phydms.html) for more information on the standard output files. 
 
 ```{r phydms_comprehensive output files, engine='bash', comment=NA, error=TRUE}
@@ -107,6 +115,7 @@ ls betaLactamase/*
 ```   
 
 ##Interpretation of `phydms_comprehensive` results{#interpretation}
+
 To compare the *ExpCM* with $\beta$-lactamase deep mutational scanning data to the *YNGKP* family we can look at the summary file [`modelcomparison.md`](betaLactamase/modelcomparison.md).   
 
 
@@ -118,78 +127,86 @@ To compare the *ExpCM* with $\beta$-lactamase deep mutational scanning data to t
 | YNGKP_M0                           | 819.26   | -2996.79      | 11      | kappa=2.39, omega=0.28                        |
 
 
-**First, we can see that the *ExpCM* has the lowest log-likelihood of all four of the models.** It significantly outperforms (evaluated by the $\Delta$AIC) the non-site-specific *YNGKP* models. It also outperforms the *ExpCM* control where the preferences are averaged across the sites.
+**First, we can see the *ExpCM* has the largest log-likelihood of all four of the models.** It significantly outperforms (evaluated by the $\Delta$AIC) the non-site-specific *YNGKP* models. It also outperforms the *ExpCM* control where the preferences are averaged across the sites.
 **These comparisons are evidence that the *ExpCM* model informed by the deep mutational scanning results describes the natural evolution of $\beta$-lactamase better than traditional, non-site-specific models.**
 
-We can also evaluate the amino-acid preferences is by the value of the *ExpCM* stringency parameter, $\beta$. $\beta$ is a way to gauge how well the selection in the lab compares to selection in nature. When $\beta$ is fit to be greater than $1$ it means the selection in lab was not as strong as selection in nature. The converse is true when $\beta$ is less than $1$. In the $\beta$-lactamase example, $\beta$ is fit to be $1.36$. **Since this number is close to $1$, we can conclude that not only is the *ExpCM* with amino-acid preferences a better description of natural sequence evolution than non-site specific models but that the selection pressures exerted in lab closely match the selection pressures in nature.**
+```{r stringency example logoplot, engine="bash", comment=NA, error=TRUE, echo=FALSE, include=FALSE}
+phydms_logoplot logoplots/betaLactamase_prefs_beta1.pdf --prefs logoplots/example_data/betaLactamase_prefs_short.csv --mapmetric functionalgroup --colormap mapmetric
+phydms_logoplot logoplots/betaLactamase_prefs_beta0.pdf --prefs logoplots/example_data/betaLactamase_prefs_short.csv  --stringency 0 --mapmetric functionalgroup --colormap mapmetric
+phydms_logoplot logoplots/betaLactamase_prefs_beta3.pdf --prefs logoplots/example_data/betaLactamase_prefs_short.csv  --stringency 3 --mapmetric functionalgroup --colormap mapmetric
+```
+
+```{r HA stringency example logoplot convert, engine="bash", comment=NA, error=TRUE, echo=FALSE, include=FALSE}
+convert -density 134 -trim logoplots/betaLactamase_prefs_beta1.pdf +append logoplots/betaLactamase_prefs_beta1.png
+convert -density 134 -trim logoplots/betaLactamase_prefs_beta0.pdf +append logoplots/betaLactamase_prefs_beta0.png
+convert -density 134 -trim logoplots/betaLactamase_prefs_beta3.pdf +append logoplots/betaLactamase_prefs_beta3.png
+```  
+We can also evaluate the amino-acid preferences is by the value of the *ExpCM* stringency parameter, $\beta$. $\beta$ is a way to gauge how well the selection in the lab compares to selection in nature. When $\beta$ is fit to be greater than $1$ it means the selection in nature prefers the same amino-acids but with a greater stringency. The converse is true when $\beta$ is less than $1$. When our preferences are re-scaled with a $\beta>1$, we see the strongly preferred amino-acids "grow" while the weakly preferred amino-acids "shrink".  
+
+![Above is a snippet of the $\beta$-lactamase preferences without scaling by $\beta$](logoplots/betaLactamase_prefs_beta1.png)  
+
+![Above is a snippet of the $\beta$-lactamase preferences scaled by $\beta = 3$](logoplots/betaLactamase_prefs_beta3.png)  
+
+When $\beta=0$, the heights become uniform and the *ExpCM* loses all of its site-specific information.  
+![Above is a snippet of the $\beta$-lactamase preferences scaled by $\beta = 0$](logoplots/betaLactamase_prefs_beta0.png)  
+
+In the $\beta$-lactamase example, $\beta$ is fit to be $1.36$. **Since this number is close to $1$, we can conclude that not only is the *ExpCM* with amino-acid preferences a better description of natural sequence evolution than non-site specific models but that natural evolution prefers the same amino acids that are preferred in the experiment, but with slightly greater stringency.**
 
 Please see the [full documentation](http://jbloomlab.github.io/phydms/index.html) if you would like to learn more about the [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) program and its other options. 
  
 #Comparing two `DMS` datasets for the same protein
-If you perform a deep mutational scanning experiment multiple times under slightly different experimental conditions, you may want to compare how well each dataset explains natural sequence variation. These experimental differences could be in how the variant libraries were generated, how the selection pressure was exerted, etc. We can use [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) to compare *ExpCM* models with two or more different sets of preferences to both the *YNGKP* family of models and to each other. 
+If you perform a deep mutational scanning experiment multiple times under slightly different experimental conditions, you may want to compare how well each dataset explains natural sequence variation. These experimental differences could be in how the variant libraries were generated, how the selection pressure was exerted, etc. We can use [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) to compare *ExpCM* models with two or more different sets of preferences to both the *YNGKP* family of models and to each other.
 
-For this [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) analysis, you will multiple sets of [amino-acid preferences](#prefsHA) for the same protein from your deep mutational scanning experiments and a codon-level sequence [alignment](#seqsHA) of your gene. [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) will then   
+For this [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) analysis, you will multiple sets of [amino-acid preferences](#prefsHA) for the same protein from your deep mutational scanning experiments and a codon-level sequence [alignment](#seqsHA) of your gene. [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) will then
 
-• infer a tree using [`RAxML`](http://sco.h-its.org/exelixis/software.html)  
-• run [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) with the *YNGKP_M0*, the *YNKGP_M5* and the *ExpCM* (with and without averaged preferences) for each set of preferences    
-• summarize the results  
+• infer a tree using [`RAxML`](http://sco.h-its.org/exelixis/software.html)   
+• run [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) with the *YNGKP_M0*, the *YNKGP_M5* and the *ExpCM* (with and without averaged preferences) for each set of preferences   
+• summarize the results   
 
-See the [full documentation](http://jbloomlab.github.io/phydms/index.html) for specifics on these models or the [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) program. 
+See the [full documentation](http://jbloomlab.github.io/phydms/index.html) for specifics on these models or the [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) program.
 
-We are going to walk through an example of [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) and compare *ExpCM*s with amino-acid preferences for the influenza virus protein hemagglutinin described in (1) [Thyagarajan and Bloom, 2014](http://research.fhcrc.org/content/dam/stripe/bloom/labfiles/publications/ThyagarajanAndBloom2014.pdf), (2) [Doud and Bloom, 2016](http://www.mdpi.com/1999-4915/8/6/155), and (3) the average of these two deep-mutational scanning datasets. 
+We are going to walk through an example of [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) and compare *ExpCM*s with amino-acid preferences for the influenza virus protein hemagglutinin described in [Thyagarajan and Bloom, 2014](http://research.fhcrc.org/content/dam/stripe/bloom/labfiles/publications/ThyagarajanAndBloom2014.pdf) and [Doud and Bloom, 2016](http://www.mdpi.com/1999-4915/8/6/155).
 
-##`phydms_comprehensive` command-line usage  
+##`phydms_comprehensive` command-line usage
 
-Here is the full list of requirements and options for [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html). Below is a discussion of the [input files](#inputFilesHA), running the [`phydms_comprehensive` command](#phydms_comprehensiveCommandHA), and [interpretation of the results](#interpretationHA).  
+Here is the full list of requirements and options for [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html). Below is a discussion of the [input files](#inputFilesHA), running the [`phydms_comprehensive` command](#phydms_comprehensiveCommandHA), and [interpretation of the results](#interpretationHA).
 
 ```{r phydms_comprehensive HA help, engine='bash', comment=NA, error=TRUE}
 phydms_comprehensive -h
-```   
-
-##Input Files{#inputFilesHA}  
-All of the input files described below can be found in `phydms/tutorial/example_data` with the prefix `HA`    
-
-```{r HA files, engine='bash', comment=NA, error=TRUE}
-ls example_data/HA*
-```   
-
-###Amino-acid preferences{#prefsHA}
-The HA amino-acid preferences from [Thyagarajan and Bloom, 2014](http://research.fhcrc.org/content/dam/stripe/bloom/labfiles/publications/ThyagarajanAndBloom2014.pdf) and  [Doud and Bloom, 2016](http://www.mdpi.com/1999-4915/8/6/155) were measured using two different library construction strategies. (Please see [Thyagarajan and Bloom, 2014](http://research.fhcrc.org/content/dam/stripe/bloom/labfiles/publications/ThyagarajanAndBloom2014.pdf) and  [Doud and Bloom, 2016](http://www.mdpi.com/1999-4915/8/6/155) for more information on the reverse-genetics strategy and the helper virus strategy respectively). We would like to know if one set of preferences significantly changes the behavior of the *ExpCM* compared to the other set or the average of the two sets.  
-
-All three sets of preferences, [`HA_prefs_Thyagarajan.csv`](example_data/HA_prefs_Thyagarajan.csv), [`HA_prefs_Doud.csv`](example_data/HA_prefs_Doud.csv), and [`HA_prefs_avg.csv`](example_data/HA_prefs_avg.csv), can be found in the directory `example_data`. 
-
-```{r prefs HA, engine="python", comment=NA}
-import pandas as pd
-
-print "Here are the preferences for HA_prefs_Thyagarajan: "
-HA_prefs_Thyagarajan = pd.read_csv("example_data/HA_prefs_Thyagarajan.csv")
-print HA_prefs_Thyagarajan.iloc[:,:9].head(20).to_string(index = False)
-print "Here are the preferences for HA_prefs_Doud: "
-HA_prefs_Doud = pd.read_csv("example_data/HA_prefs_Doud.csv")
-print HA_prefs_Doud.iloc[:,:9].head(20).to_string(index = False)
-print "Here are the preferences for HA_prefs_avg: "
-HA_prefs_avg = pd.Panel({n: df for n, df in enumerate([HA_prefs_Thyagarajan, HA_prefs_Doud])}).mean(axis=0)
-print HA_prefs_avg.iloc[:,:9].head(20).to_string(index = False)
-HA_prefs_avg.to_csv("example_data/HA_prefs_avg.csv", index=False)
-``` 
-
-As we would expect, the preferences measured from the two experiments are similar but not identical. Please note that the preferences in a [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) analysis must be sequentially numbered starting with $1$. 
-
-```{r HA logoplot, engine="bash", comment=NA, error=TRUE, echo=FALSE}
-phydms_logoplot logoplots/HA_prefs_Thyagarajan.pdf --prefs example_data/HA_prefs_Thyagarajan.csv
-phydms_logoplot logoplots/HA_prefs_Doud.pdf --prefs example_data/HA_prefs_Doud.csv
-phydms_logoplot logoplots/HA_prefs_avg.pdf --prefs example_data/HA_prefs_avg.csv
 ```
 
-We can visualize each set of preferences as a logoplot ([HA_prefs_Thyagarajan](logoplots/HA_prefs_Thyagarajan.pdf), [HA_prefs_Doud](logoplots/HA_prefs_Doud.pdf), and [HA_prefs_avg](logoplots/HA_prefs_avg.pdf)) using [phydms_logoplot](http://jbloomlab.github.io/phydms/phydms_logoplot.html)
+##Input Files{#inputFilesHA}
+This example uses the following files: [`HA_prefs_Thyagarajan.csv`](example_data/HA_prefs_Thyagarajan.csv), [`HA_prefs_Doud.csv`](example_data/HA_prefs_Doud.csv), and [`HA_alignment.fasta`](example_data/HA_alignment.fasta).
 
-For more information on how to change *enrichment scores* to *amino-acid preferences*, please see the [Comparing your `DMS` data to natural sequence evolution](#prefs) section of this tutorial. 
-For more information on the preference file formats, please see the [full `phydms` documentation](http://jbloomlab.github.io/phydms/phydms_prog.html). 
+###Amino-acid preferences{#prefsHA}
+
+The HA amino-acid preferences from [Thyagarajan and Bloom, 2014](http://research.fhcrc.org/content/dam/stripe/bloom/labfiles/publications/ThyagarajanAndBloom2014.pdf) and  [Doud and Bloom, 2016](http://www.mdpi.com/1999-4915/8/6/155) were measured using two different library construction strategies. (Please see [Thyagarajan and Bloom, 2014](http://research.fhcrc.org/content/dam/stripe/bloom/labfiles/publications/ThyagarajanAndBloom2014.pdf) and  [Doud and Bloom, 2016](http://www.mdpi.com/1999-4915/8/6/155) for more information on the reverse-genetics strategy and the helper virus strategy respectively). We would like to know if one set of preferences significantly changes the behavior of the *ExpCM* compared to the other set or the average of the two sets.
+
+We can compare the amino-acid preference measurements found in [`HA_prefs_Thyagarajan.csv`](example_data/HA_prefs_Thyagarajan.csv) and [`HA_prefs_Doud.csv`](example_data/HA_prefs_Doud.csv) using [`phydms_logoplots`](http://jbloomlab.github.io/phydms/phydms_logoplot.html):
+
+```{r HA logoplot, engine="bash", comment=NA, error=TRUE, echo=FALSE, include=FALSE}
+phydms_logoplot logoplots/HA_prefs_Thyagarajan.pdf --prefs logoplots/example_data/HA_prefs_Thyagarajan_short.csv --mapmetric functionalgroup --colormap mapmetric
+phydms_logoplot logoplots/HA_prefs_Doud.pdf --prefs logoplots/example_data/HA_prefs_Doud_short.csv --mapmetric functionalgroup --colormap mapmetric
+```
+
+```{r HA logoplot convert, engine="bash", comment=NA, error=TRUE, echo=FALSE, include=FALSE}
+convert -density 134 -trim logoplots/HA_prefs_Thyagarajan.pdf +append logoplots/HA_prefs_Thyagarajan.png
+convert -density 134 -trim logoplots/HA_prefs_Doud.pdf +append logoplots/HA_prefs_Doud.png
+```
+
+![HA_prefs_Thyagarajan](logoplots/HA_prefs_Thyagarajan.png)
+
+![HA_prefs_Doud](logoplots/HA_prefs_Doud.png)
+
+As we would expect, the preferences measured from the two experiments are similar but not identical.
+
+For more information on how to change *enrichment scores* to *amino-acid preferences*, please see the [Comparing your `DMS` data to natural sequence evolution](#prefs) section of this tutorial.
+For more information on the preference file formats, please see the [full `phydms` documentation](http://jbloomlab.github.io/phydms/phydms_prog.html) or an example in the [Comparing your `DMS` data to natural sequence evolution](#prefs) section of this tutorial.
 
 ###Sequences{#seqsHA}
-We will use the [alignment](#example_data/HA_alignment.fasta) of HA sequences found in the `example_data` directory. It is important to note there is exactly the same number of preferences in each preference file as sites in the alignment.   
+We will use an [alignment](#example_data/HA_alignment.fasta) of HA sequences. It is important to note there is exactly the same number of preferences in each preference file as sites in the alignment.
 
-```{r alignment AH, engine="python", comment=NA, echo = FALSE}   
+```{r alignment AH, engine="python", comment=NA, echo = FALSE}
 import pandas as pd
 from Bio import SeqIO
 import glob
@@ -203,21 +220,22 @@ print
 for prefFileName in glob.glob("example_data/HA_prefs_*"):
   print "Preferences read from: %s"%prefFileName
   print "There are preferences measured for %s sites"%len(pd.read_csv(prefFileName))
-```  
-You can use the [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) auxiliary program [`phydms_prepalignment`](http://jbloomlab.github.io/phydms/phydms_prepalignment.html) to filter your sequences and prepare an alignment for [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html).  
-
-###`phydms_comprehensive`{#phydms_comprehensiveCommandHA}
-We can now run [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) by specifying our output prefix (in this case a directory called `HA`), our [preferences](#prefsHA), and our [alignment](#seqsHA). The output below is the [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run log.  
-
-```{r phydms_comprehensive HA run, engine='bash', comment=NA, error=TRUE}
-phydms_comprehensive HA/ example_data/HA_alignment.fasta example_data/HA_prefs_Thyagarajan.csv example_data/HA_prefs_Doud.csv example_data/HA_prefs_avg.csv --raxml raxml
 ```
 
+You can use the [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) auxiliary program [`phydms_prepalignment`](http://jbloomlab.github.io/phydms/phydms_prepalignment.html) to filter your sequences and prepare an alignment for [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html).
+
+###`phydms_comprehensive`{#phydms_comprehensiveCommandHA}
+We can now run [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) by specifying our output prefix (in this case a directory called `HA`), our [preferences](#prefsHA), and our [alignment](#seqsHA). The output below is the [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run log.
+
+```
+phydms_comprehensive HA/ example_data/HA_alignment.fasta example_data/HA_prefs_Thyagarajan.csv example_data/HA_prefs_Doud.csv --raxml raxml
+```
+<!-- ```{r phydms_comprehensive HA run, engine='bash', comment=NA, error=TRUE} -->
+<!-- phydms_comprehensive HA/ example_data/HA_alignment.fasta example_data/HA_prefs_Thyagarajan.csv example_data/HA_prefs_Doud.csv --raxml raxml -->
+<!-- ``` -->
+
 ##Output files
-[`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) produces both the standard [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) output files for each model and a summary file. Please see the [full `phydms` documentation](http://jbloomlab.github.io/phydms/phydms.html) for more information on the standard output files. 
-```{r phydms_comprehensive output files HA, engine='bash', comment=NA, error=TRUE}
-ls HA/*
-```   
+[`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) produces both the standard [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) output files for each model and a summary file. See the the [Comparing your `DMS` data to natural sequence evolution](#outputFiles) section of the tutorial for an example and [full `phydms` documentation](http://jbloomlab.github.io/phydms/phydms.html) for more information on the standard output files.
 
 ##Interpretation of `phydms_comprehensive` results{#interpretationHA}
 
@@ -225,54 +243,46 @@ To compare the *ExpCM* with the different preferences, we can look at the summar
 
 | Model                               | deltaAIC | LogLikelihood | nParams | ParamValues                                   |
 |-------------------------------------|----------|---------------|---------|-----------------------------------------------|
-| ExpCM_HA_prefs_Doud                 | 0.00     | -4803.26      | 6       | beta=2.19, kappa=5.03, omega=0.58             |
-| ExpCM_HA_prefs_avg                  | 64.66    | -4835.59      | 6       | beta=1.99, kappa=4.98, omega=0.57             |
-| ExpCM_HA_prefs_Thyagarajan          | 192.96   | -4899.74      | 6       | beta=1.72, kappa=4.94, omega=0.55             |
-| averaged_ExpCM_HA_prefs_Doud        | 2243.68  | -5925.10      | 6       | beta=0.48, kappa=5.37, omega=0.22             |
-| averaged_ExpCM_HA_prefs_avg         | 2245.34  | -5925.93      | 6       | beta=0.39, kappa=5.36, omega=0.22             |
-| averaged_ExpCM_HA_prefs_Thyagarajan | 2246.64  | -5926.58      | 6       | beta=0.31, kappa=5.37, omega=0.22             |
-| YNGKP_M5                            | 2262.28  | -5928.40      | 12      | alpha_omega=0.30, beta_omega=1.42, kappa=4.68 |
-| YNGKP_M0                            | 2368.42  | -5982.47      | 11      | kappa=4.61, omega=0.20                        |
+| ExpCM_HA_prefs_Doud                 | 0.00     | -4877.65      | 6       | beta=2.11, kappa=5.14, omega=0.52             |
+| ExpCM_HA_prefs_Thyagarajan          | 44.18    | -4899.74      | 6       | beta=1.72, kappa=4.94, omega=0.55             |
+| averaged_ExpCM_HA_prefs_Doud        | 2090.58  | -5922.94      | 6       | beta=0.68, kappa=5.36, omega=0.22             |
+| averaged_ExpCM_HA_prefs_Thyagarajan | 2097.86  | -5926.58      | 6       | beta=0.31, kappa=5.36, omega=0.22             |
+| YNGKP_M5                            | 2113.50  | -5928.40      | 12      | alpha_omega=0.30, beta_omega=1.42, kappa=4.68 |
+| YNGKP_M0                            | 2219.64  | -5982.47      | 11      | kappa=4.61, omega=0.20                        |
 
 
-First, we can see that the *ExpCM* models all have a significantly lower (evaluated by the $\Delta$AIC) log-likelihood than the *ExpCM* with averaged preferences. These, in turn, have a significantly lower log-likelihood than the *YNGKP* family.  Second, we can see there are also differences in the log-likelihood between the *ExpCM* models with the different preferences. **The *ExpCM* with the preferences from [Doud and Bloom, 2016](http://www.mdpi.com/1999-4915/8/6/155) has the lowest log-likelihood followed by *ExpCM* with the averaged preferences and then *ExpCM* with the [Thyagarajan and Bloom, 2014](http://research.fhcrc.org/content/dam/stripe/bloom/labfiles/publications/ThyagarajanAndBloom2014.pdf) preferences.** 
+First, we can see that both *ExpCM* models all have significantly larger (evaluated by the $\Delta$AIC) log-likelihoods than the two *ExpCM* with averaged preferences. These, in turn, have significantly larger log-likelihoods than the *YNGKP* family.  **Second, we can see the *ExpCM* with the preferences from [Doud and Bloom, 2016](http://www.mdpi.com/1999-4915/8/6/155) has a larger log-likelihood than then *ExpCM* with the [Thyagarajan and Bloom, 2014](http://research.fhcrc.org/content/dam/stripe/bloom/labfiles/publications/ThyagarajanAndBloom2014.pdf) preferences.**
 
-These comparisons are evidence that the *ExpCM* with the [Doud and Bloom, 2016](http://www.mdpi.com/1999-4915/8/6/155) preferences is a better description of natural sequence evolution than the *ExpCM* with the [Thyagarajan and Bloom, 2014](http://research.fhcrc.org/content/dam/stripe/bloom/labfiles/publications/ThyagarajanAndBloom2014.pdf) preferences, or either one of the non-site-specific models. 
+These comparisons are evidence that the *ExpCM* with the [Doud and Bloom, 2016](http://www.mdpi.com/1999-4915/8/6/155) preferences is a better description of natural sequence evolution than the *ExpCM* with the [Thyagarajan and Bloom, 2014](http://research.fhcrc.org/content/dam/stripe/bloom/labfiles/publications/ThyagarajanAndBloom2014.pdf) preferences or either one of the non-site-specific models.
 
-Please see the [full documentation](http://jbloomlab.github.io/phydms/index.html) if you would like to learn more about the [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) program and its other options. 
+Please see the [full documentation](http://jbloomlab.github.io/phydms/index.html) if you would like to learn more about the [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) program and its other options.
 
 
 #Detecting Diversifying Selection{#diversifyingSelection}
 
-A deep mutational scanning experiment measures the amino-acid preferences of a given protein for a given selection pressure. However, it is not expected that the selection in lab faithfully describes the selection a protein faces in nature. We can use [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) and the flag `--omegabysite` to identify sites which deviate from the *ExpCM* model via an unexpectedly high or low rate of amino-acid substitution.  That is, we will be able to differentiate between sites which are under *diversifying selection*, a high rate, and sites which are under a selective constraint not measured in lab, a low rate. This is in contrast to [differential selection](#differentialSelection), which selects for unexpected amino-acid substitutions rather than unexpected rates. 
+A deep mutational scanning experiment measures the amino-acid preferences of a given protein for a given selection pressure. However, it is not expected that the selection in lab faithfully describes the selection a protein faces in nature. We can use [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) and the flag `--omegabysite` to identify sites which deviate from the *ExpCM* model via an unexpectedly high or low rate of amino-acid substitution.  That is, we will be able to differentiate between sites which are under *diversifying selection*, a high rate, and sites which are under a selective constraint not measured in lab, a low rate. This is in contrast to [differential selection](#differentialSelection), which selects for unexpected amino-acid substitutions rather than unexpected rates.
 
-For more information on the exact procedure, please see the [full documentation](http://jbloomlab.github.io/phydms/phydms_prog.html) or [Bloom, 2017](http://research.fhcrc.org/content/dam/stripe/bloom/labfiles/publications/Bloom2017.pdf).    
-This procedure is analogous to the [FEL method](http://www.datamonkey.org/help/fel.php) described by [Pond and Frost, 2005](https://academic.oup.com/bioinformatics/article/21/5/676/220389/HyPhy-hypothesis-testing-using-phylogenies). 
+For more information on the exact procedure, please see the [full documentation](http://jbloomlab.github.io/phydms/phydms_prog.html) or [Bloom, 2017](http://research.fhcrc.org/content/dam/stripe/bloom/labfiles/publications/Bloom2017.pdf).
+This procedure is analogous to the [FEL method](http://www.datamonkey.org/help/fel.php) described by [Pond and Frost, 2005](https://academic.oup.com/bioinformatics/article/21/5/676/220389/HyPhy-hypothesis-testing-using-phylogenies).
 
-We are going to walk through an example of [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) to detect sites under diversifying selection in influenza virus protein hemagglutinin using an average of the preferences measured by [Thyagarajan and Bloom, 2014](http://research.fhcrc.org/content/dam/stripe/bloom/labfiles/publications/ThyagarajanAndBloom2014.pdf) and [Doud and Bloom, 2016](http://www.mdpi.com/1999-4915/8/6/155) and in $\beta$-lactamase using the preferences measured by [Stiffler *et al*, 2015](http://www.sciencedirect.com/science/article/pii/S0092867415000781). 
+We are going to walk through an example of [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) to detect sites under diversifying selection in influenza virus protein hemagglutinin using the preferences measured [Doud and Bloom, 2016](http://www.mdpi.com/1999-4915/8/6/155) and in $\beta$-lactamase using the preferences measured by [Stiffler *et al*, 2015](http://www.sciencedirect.com/science/article/pii/S0092867415000781).
 
 ##`phydms_comprehensive` command-line usage
-Here is the full list of requirements and options for [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html). To detect diversifying pressure, we are going to include the optional flag `--omegabysite`. Below is a discussion of the [input files](#inputFilesAll), running the [`phydms_comprehensive` command](#phydms_comprehensiveCommandAll), and [interpretation of the results](#interpretationAll).  
+Here is the full list of requirements and options for [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html). To detect diversifying pressure, we are going to include the optional flag `--omegabysite`. Below is a discussion of the [input files](#inputFilesAll), running the [`phydms_comprehensive` command](#phydms_comprehensiveCommandAll), and [interpretation of the results](#interpretationAll).
 
 ```{r phydms_comprehensive omegabysite help, engine='bash', comment=NA, error=TRUE}
 phydms_comprehensive -h
-```   
+```
 
 ##Input Files{#inputFilesAll}
-All of the input files described below can be found in `phydms/tutorial/example_data`. 
+A full discussion of the amino-acid preferences and sequences for [$\beta$-lacatamse](#inputFiles) and [HA](#inputFilesHA) can be found in the earlier sections of this tutorial. Briefly,
 
-```{r all files, engine='bash', comment=NA, error=TRUE}
-ls example_data/*
-```   
-
-A full discussion of the amino-acid preferences and sequences for [$\beta$-lacatamse](#inputFiles) and [HA](#inputFilesHA) can be found in the earlier sections of this tutorial. Briefly, 
-
-```{r all files summary, engine="python", comment=NA, echo = FALSE}   
+```{r all files summary, engine="python", comment=NA, echo = FALSE}
 import pandas as pd
 from Bio import SeqIO
 
-proteins = {"BetaLactamase":["example_data/betaLactamase_alignment.fasta", "example_data/betaLactamase_prefs.csv"], "HA":["example_data/HA_alignment.fasta", "example_data/HA_prefs_avg.csv"]}
-for protein in proteins.keys(): 
+proteins = {"BetaLactamase":["example_data/betaLactamase_alignment.fasta", "example_data/betaLactamase_prefs.csv"], "HA":["example_data/HA_alignment.fasta", "example_data/HA_prefs_Doud.csv"]}
+for protein in proteins.keys():
   seqFileName = proteins[protein][0]
   prefFileName = proteins[protein][1]
   sequences = list(SeqIO.parse(open(seqFileName),'fasta'))
@@ -284,82 +294,74 @@ for protein in proteins.keys():
   print "Preferences read from: %s"%prefFileName
   print "There are preferences measured for %s sites"%len(pd.read_csv(prefFileName))
   print
-```  
+```
 
 ###`phydms_comprehensive`{#phydms_comprehensiveCommandAll}
-We can now run [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) by specifying our output prefix (in this case a directory called `HA_omegabysite` or `betaLactmase_omegabysite`), our [preferences](#inputFilesAll), our [alignment](#inputFilesAll) and the flag `--omegabysite`. Each alignment requires its own [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run. The output below is the [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run log for both HA and $\beta$-lactamase.  
-  
-```{r diversifying selection HA, engine='bash', comment=NA, error=TRUE}
-phydms_comprehensive HA_omegabysite/ example_data/HA_alignment.fasta example_data/HA_prefs_Thyagarajan.csv example_data/HA_prefs_Doud.csv example_data/HA_prefs_avg.csv --raxml raxml --omegabysite
+We can now run [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) by specifying our output prefix (in this case a directory called `HA_omegabysite` or `betaLactmase_omegabysite`), our [preferences](#inputFilesAll), our [alignment](#inputFilesAll) and the flag `--omegabysite`. Each alignment requires its own [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run. The output below is the [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run log for both HA and $\beta$-lactamase.
+
+```
+phydms_comprehensive HA_omegabysite/ example_data/HA_alignment.fasta example_data/HA_prefs_Doud.csv --raxml raxml --omegabysite
 
 phydms_comprehensive betaLactamase_omegabysite/ example_data/betaLactamase_alignment.fasta example_data/betaLactamase_prefs.csv --raxml raxml --omegabysite
 ```
 
+<!-- ```{r diversifying selection HA, engine='bash', comment=NA, error=TRUE} -->
+<!-- phydms_comprehensive HA_omegabysite/ example_data/HA_alignment.fasta example_data/HA_prefs_Doud.csv --raxml raxml --omegabysite -->
+
+<!-- phydms_comprehensive betaLactamase_omegabysite/ example_data/betaLactamase_alignment.fasta example_data/betaLactamase_prefs.csv --raxml raxml --omegabysite -->
+<!-- ``` -->
+
 ##Output files
-[`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) produces both the standard [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) output files for each model and a summary file. Please see the [full `phydms` documentation](http://jbloomlab.github.io/phydms/phydms.html) for more information on the standard output files. 
-```{r phydms_comprehensive output files all, engine='bash', comment=NA, error=TRUE}
-ls HA_omegabysite/*
-ls betaLactamase_omegabysite/*
-```   
+[`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) produces both the standard [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) output files for each model and a summary file. See the [Comparing your `DMS` data to natural sequence evolution](#outputFiles) section of the tutorial for an example and the [full `phydms` documentation](http://jbloomlab.github.io/phydms/phydms.html) for more information on the standard output files.  
 
 ##Interpretation of `phydms_comprehensive` results{#interpretationAll}
 
-To detect sites under diversifying selection, we can look at the summary files with the suffix `_omegabysite.txt`. First, we will look at the results from the HA run. 
+To detect sites under diversifying selection, we can look at the summary files with the suffix `_omegabysite.txt`. First, we will look at the results from the HA run.
 
-[HA_omegabysite/ExpCM_HA_prefs_avg_omegabysite.txt](HA_omegabysite/ExpCM_HA_prefs_avg_omegabysite.txt) lists the site, the fitted $\omega$ value, the p-value for the hypothesis $H_0: \omega = 1$, the dLnL, and the Q-value (false discovery rate). The sites are sorted by the p-value which means the sites with the strongest evidence for deviations from the *ExpCM* will be at the top of the file. 
+[HA_omegabysite/ExpCM_HA_prefs_Doud_omegabysite.txt](HA_omegabysite/ExpCM_HA_prefs_Doud_omegabysite.txt) lists the site, the fitted $\omega$ value, the p-value for the hypothesis $H_0: \omega = 1$, the dLnL, and the Q-value, which controls for multiple comparisons via the false discovery rate. The sites are sorted by the p-value which means the sites with the strongest evidence for deviations from the *ExpCM* will be at the top of the file.
 
 ```{r phydms_comprehensive HA omegabysite head, engine='bash', comment=NA, error=TRUE}
-head -n 20 HA_omegabysite/ExpCM_HA_prefs_avg_omegabysite.txt
-```    
-and sites with the weakest evidence for deviation from the *ExpCM* will be at the bottom of the file.  
+head -n 20 HA_omegabysite/ExpCM_HA_prefs_Doud_omegabysite.txt
+```
+and sites with the weakest evidence for deviation from the *ExpCM* will be at the bottom of the file.
 ```{r phydms_comprehensive HA omegabysite tail, engine='bash', comment=NA, error=TRUE}
-tail -n 20 HA_omegabysite/ExpCM_HA_prefs_avg_omegabysite.txt
-```    
+tail -n 20 HA_omegabysite/ExpCM_HA_prefs_Doud_omegabysite.txt
+```
 
 You will notice that the sites with strong evidence have a fitted $\omega$ that is either very large ($100$) or very small ($0$) while the sites with weak evidence have a fitted $\omega$ close to $1$.
-
-<!-- ```{r HA omega, engine="bash", comment=NA, error=TRUE, echo=FALSE} -->
-<!-- phydms_logoplot logoplots/HA_prefs_avg_omegabysite.pdf --prefs example_data/HA_prefs_avg.csv --omegabysite HA_omegabysite/ExpCM_HA_prefs_avg_omegabysite.txt -->
-<!-- ``` -->
-<!-- We can map these fitted $\omega$ values onto a [logoplot](logoplots/HA_prefs_avg_omegabysite.pdf) using [`phydms_logoplot`]() -->
 
 Here are the sites in $\beta$-lactamase with the strongest evidence for deviations from the *ExpCM*
 ```{r phydms_comprehensive beta omegabysite head, engine='bash', comment=NA, error=TRUE}
 head -n 20 betaLactamase_omegabysite/ExpCM_betaLactamase_prefs_omegabysite.txt
-```   
+```
 
-We can see in both examples there is a small subset of sites which deviate from the assumptions of evolution described by the *ExpCM* model and the deep mutational scanning experiments.  
+We can see in both examples there is a small subset of sites which deviate from the assumptions of evolution described by the *ExpCM* model and the deep mutational scanning experiments.
 
 #Detecting Differential Selection{#differentialSelection}
 
-A deep mutational scanning experiment measures the amino-acid preferences of a given protein for a given selection pressure. However, it is not expected that the selection in lab faithfully describes the selection a protein faces in nature.  We can use [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) and the flag `--diffprefsbysite` to identify sites which deviate from the *ExpCM* model via *differential selection*.  In contrast to [diversifying selection](#diversifyingSelection), differential selection leads to unexpected amino-acid substitutions rather than unexpected rates. 
+A deep mutational scanning experiment measures the amino-acid preferences of a given protein for a given selection pressure. However, it is not expected that the selection in lab faithfully describes the selection a protein faces in nature.  We can use [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) and the flag `--diffprefsbysite` to identify sites which deviate from the *ExpCM* model via *differential selection*.  In contrast to [diversifying selection](#diversifyingSelection), differential selection leads to unexpected amino-acid substitutions rather than unexpected rates.
 
-For more information on the exact procedure, please see the [full documentation](http://jbloomlab.github.io/phydms/phydms_prog.html) or [Bloom, 2017](http://research.fhcrc.org/content/dam/stripe/bloom/labfiles/publications/Bloom2017.pdf).    
+For more information on the exact procedure, please see the [full documentation](http://jbloomlab.github.io/phydms/phydms_prog.html) or [Bloom, 2017](http://research.fhcrc.org/content/dam/stripe/bloom/labfiles/publications/Bloom2017.pdf).
 
-We are going to walk through an example of [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) to detect sites under differential selection in influenza virus protein hemagglutinin using an average of the preferences measured by [Thyagarajan and Bloom, 2014](http://research.fhcrc.org/content/dam/stripe/bloom/labfiles/publications/ThyagarajanAndBloom2014.pdf) and [Doud and Bloom, 2016](http://www.mdpi.com/1999-4915/8/6/155) and in $\beta$-lactamase using the preferences measured by [Stiffler *et al*, 2015](http://www.sciencedirect.com/science/article/pii/S0092867415000781). 
+We are going to walk through an example of [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) to detect sites under differential selection in influenza virus protein hemagglutinin using the preferences measured [Doud and Bloom, 2016](http://www.mdpi.com/1999-4915/8/6/155) and in $\beta$-lactamase using the preferences measured by [Stiffler *et al*, 2015](http://www.sciencedirect.com/science/article/pii/S0092867415000781).
 
 ##`phydms_comprehensive` command-line usage
-Here is the full list of requirements and options for [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html). To detect diversifying pressure, we are going to include the optional flag `--diffprefsbysite`. Below is a discussion of the [input files](#inputFilesdiff), running the [`phydms_comprehensive` command](#phydms_comprehensiveCommanddiff), and [interpretation of the results](#interpretationdiff).  
+Here is the full list of requirements and options for [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html). To detect diversifying pressure, we are going to include the optional flag `--diffprefsbysite`. Below is a discussion of the [input files](#inputFilesdiff), running the [`phydms_comprehensive` command](#phydms_comprehensiveCommanddiff), and [interpretation of the results](#interpretationdiff).
 
 ```{r phydms_comprehensive diff help, engine='bash', comment=NA, error=TRUE}
 phydms_comprehensive -h
-```   
+```
 
 ##Input Files{#inputFilesdiff}
-All of the input files described below can be found in `phydms/tutorial/example_data`. 
 
-```{r all files diff, engine='bash', comment=NA, error=TRUE}
-ls example_data/*
-```   
+A full discussion of the amino-acid preferences and sequences for [$\beta$-lacatamse](#inputFiles) and [HA](#inputFilesHA) can be found in the earlier sections of this tutorial. Briefly,
 
-A full discussion of the amino-acid preferences and sequences for [$\beta$-lacatamse](#inputFiles) and [HA](#inputFilesHA) can be found in the earlier sections of this tutorial. Briefly, 
-
-```{r all files summary diff, engine="python", comment=NA, echo = FALSE}   
+```{r all files summary diff, engine="python", comment=NA, echo = FALSE}
 import pandas as pd
 from Bio import SeqIO
 
-proteins = {"BetaLactamase":["example_data/betaLactamase_alignment.fasta", "example_data/betaLactamase_prefs.csv"], "HA":["example_data/HA_alignment.fasta", "example_data/HA_prefs_avg.csv"]}
-for protein in proteins.keys(): 
+proteins = {"BetaLactamase":["example_data/betaLactamase_alignment.fasta", "example_data/betaLactamase_prefs.csv"], "HA":["example_data/HA_alignment.fasta", "example_data/HA_prefs_Doud.csv"]}
+for protein in proteins.keys():
   seqFileName = proteins[protein][0]
   prefFileName = proteins[protein][1]
   sequences = list(SeqIO.parse(open(seqFileName),'fasta'))
@@ -371,49 +373,63 @@ for protein in proteins.keys():
   print "Preferences read from: %s"%prefFileName
   print "There are preferences measured for %s sites"%len(pd.read_csv(prefFileName))
   print
-```  
+```
 
 ###`phydms_comprehensive`{#phydms_comprehensiveCommanddiff}
-We can now run [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) by specifying our output prefix (in this case a directory called `HA_diffprefs` or `betaLactmase_diffprefs`), our [preferences](#inputFilesdiff), our [alignment](#inputFilesdiff) and the flag `--diffprefsbysite`. Each alignment requires its own [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run. The output below is the [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run log for both HA and $\beta$-lactamase.  
+We can now run [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) by specifying our output prefix (in this case a directory called `HA_diffprefs` or `betaLactmase_diffprefs`), our [preferences](#inputFilesdiff), our [alignment](#inputFilesdiff) and the flag `--diffprefsbysite`. Each alignment requires its own [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run. The output below is the [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run log for both HA and $\beta$-lactamase.
 
-```{r diff selection HA, engine='bash', comment=NA, error=TRUE}
-phydms_comprehensive HA_diffprefs/ example_data/HA_alignment.fasta example_data/HA_prefs_Thyagarajan.csv example_data/HA_prefs_Doud.csv example_data/HA_prefs_avg.csv --raxml raxml --diffprefsbysite
+```
+phydms_comprehensive HA_diffprefs/ example_data/HA_alignment.fasta example_data/HA_prefs_Doud.csv --raxml raxml --diffprefsbysite
 
 phydms_comprehensive betaLactamase_diffprefs/ example_data/betaLactamase_alignment.fasta example_data/betaLactamase_prefs.csv --raxml raxml --diffprefsbysite
 ```
 
+<!-- ```{r diff selection HA, engine='bash', comment=NA, error=TRUE} -->
+<!-- phydms_comprehensive HA_diffprefs/ example_data/HA_alignment.fasta example_data/HA_prefs_Doud.csv --raxml raxml --diffprefsbysite -->
+
+<!-- phydms_comprehensive betaLactamase_diffprefs/ example_data/betaLactamase_alignment.fasta example_data/betaLactamase_prefs.csv --raxml raxml --diffprefsbysite -->
+<!-- ``` -->
+
 ##Output files
-[`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) produces both the standard [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) output files for each model and a summary file. Please see the [full `phydms` documentation](http://jbloomlab.github.io/phydms/phydms.html) for more information on the standard output files.   
-```{r phydms_comprehensive output files diff, engine='bash', comment=NA, error=TRUE}
-ls HA_diffprefs/*
-ls betaLactamase_diffprefs/*
-```   
+[`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) produces both the standard [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) output files for each model and a summary file. See the [Comparing your `DMS` data to natural sequence evolution](#outputFiles) section of the tutorial for an example and the [full `phydms` documentation](http://jbloomlab.github.io/phydms/phydms.html) for more information on the standard output files.  
 
 ##Interpretation of `phydms_comprehensive` results{#interpretationdiff}
-To detect sites under differential selection, we can look at the summary files with the suffix `diffprefsbysite.txt`.  First, we will look at the results from the HA run. 
+To detect sites under differential selection, we can look at the summary files with the suffix `diffprefsbysite.txt`.  First, we will look at the results from the HA run.
 
-[HA_omegabysite/ExpCM_HA_prefs_avg_omegabysite.txt](HA_omegabysite/ExpCM_HA_prefs_avg_omegabysite.txt) lists the site, the differential preference for each amino-acid, and half absolute sum of the differential preferences for that site. A large differential preference value means that substitutions to that amino-acid were seen at that site in the alignment *more* often than expected given the *ExpCM* and the measured amino-acid preferences. The last column can be used as a summary of differential selelction strength for a given site. Larger values indicate the site is being strongly differentially selected.
+[HA_diffprefs/ExpCM_HA_prefs_Doud_diffprefbysite.txt](HA_diffprefs/ExpCM_HA_prefs_Doud_diffprefbysite.txt) lists the site, the differential preference for each amino-acid, and half absolute sum of the differential preferences for that site. A large differential preference value means that substitutions to that amino-acid were seen at that site in the alignment *more* often than expected given the *ExpCM* and the measured amino-acid preferences. The last column can be used as a summary of differential selection strength for a given site. Larger values indicate the site is being strongly deferentially selected.
 
-Here are the sites (and a subset of the differential preferences) in HA with the strongest evidence for differential selection 
+Here are the sites (and a subset of the differential preferences) in HA with the strongest evidence for differential selection
 
 ```{r phydms_comprehensive HA diff head, engine='python', comment=NA, error=TRUE}
 import pandas as pd
-df = pd.read_csv("HA_diffprefs/ExpCM_HA_prefs_avg_diffprefsbysite.txt", sep='\t', skiprows=(0,1,2))
-print df.iloc[:,range(9) + [-1]].head(20).to_string(index = False)
-```    
+df = pd.read_csv("HA_diffprefs/ExpCM_HA_prefs_Doud_diffprefsbysite.txt", sep='\t', skiprows=(0,1,2))
+print df.iloc[:,range(9) + [-1]].head(6).to_string(index = False)
+```
 
-and sites with the weakest evidence   
+and sites with the weakest evidence
 ```{r phydms_comprehensive HA diff tail, engine='python', comment=NA, error=TRUE}
 import pandas as pd
-df = pd.read_csv("HA_diffprefs/ExpCM_HA_prefs_avg_diffprefsbysite.txt", sep='\t', skiprows=(0,1,2))
-print df.iloc[:,range(9) + [-1]].tail(20).to_string(index = False)
-```    
+df = pd.read_csv("HA_diffprefs/ExpCM_HA_prefs_Doud_diffprefsbysite.txt", sep='\t', skiprows=(0,1,2))
+print df.iloc[:,range(9) + [-1]].tail(6).to_string(index = False)
+```
 
 Here are the sites in $\beta$-lactamase with the strongest evidence for differential selection
 ```{r phydms_comprehensive beta diff head, engine='python', comment=NA, error=TRUE}
 import pandas as pd
-df = pd.read_csv("HA_diffprefs/ExpCM_HA_prefs_avg_diffprefsbysite.txt", sep='\t', skiprows=(0,1,2))
-print df.iloc[:,range(9) + [-1]].head(20).to_string(index = False)
-```   
+df = pd.read_csv("betaLactamase_diffprefs/ExpCM_betaLactamase_prefs_diffprefsbysite.txt", sep='\t', skiprows=(0,1,2))
+print df.iloc[:,range(9) + [-1]].head(6).to_string(index = False)
+```
 
-We can see in both examples there is a small subset of sites which appear to be under differential selection. 
+We visualize the $\beta$-lactamase differential preferences for each site using [`phydms_logoplot`](http://jbloomlab.github.io/phydms/phydms_logoplot.html)  
+
+```{r diff example logoplot, engine="bash", comment=NA, error=TRUE, include=FALSE}
+phydms_logoplot logoplots/betaLactamase_prefs_diff.pdf --mapmetric functionalgroup --colormap mapmetric --diffprefs betaLactamase_diffprefs/ExpCM_betaLactamase_prefs_diffprefsbysite.txt
+```
+
+```{r diff stringency example logoplot convert, engine="bash", comment=NA, error=TRUE, echo=FALSE, include=FALSE}
+convert -density 134 -trim logoplots/betaLactamase_prefs_diff.pdf +append logoplots/betaLactamase_prefs_diff.png
+```  
+
+![](logoplots/betaLactamase_prefs_diff.png)  
+
+We can see in both the HA and the $\beta$-lactamase example, there are a small subset of sites which appear to be under differential selection.
