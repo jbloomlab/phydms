@@ -104,6 +104,6 @@ setup(
             'scripts/phydms_comprehensive',
             'scripts/phydms_prepalignment',
             'scripts/phydms_logoplot',
-            'scripts/phydms_testdivpressure',
+            #'scripts/phydms_testdivpressure',
             ],
 )
