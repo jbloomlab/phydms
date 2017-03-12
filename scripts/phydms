@@ -25,7 +25,8 @@ import phydmslib.models
 import phydmslib.treelikelihood
 
 
-def treelikForDiffPrefsBySite(site, tl, prefslist, prior, modeltype):
+def treelikForDiffPrefsBySite(site, tl, prefslist, prior, modeltype,
+        nograd):
     """Returns `TreeLikelihood` for fitting diffprefs for a site.
 
     The returned value can be passed to `fitDiffPrefsBySite`."""
@@ -52,7 +53,7 @@ def treelikForDiffPrefsBySite(site, tl, prefslist, prior, modeltype):
     treelik = phydmslib.treelikelihood.TreeLikelihood(
             tl.tree, sitealignment, sitemodel,
             branchScale=tl.model.branchScale)
-    return (site, treelik)
+    return (site, treelik, nograd)
 
 
 def fitDiffPrefsBySite(argtup):
@@ -62,8 +63,9 @@ def fitDiffPrefsBySite(argtup):
     
     The return value is a tuple of half the absolute total diffpref,
     then a tab-separated string describing the results for the site."""
-    (site, treelik) = argtup
-    maxresult = treelik.maximizeLikelihood(optimize_brlen=False)
+    (site, treelik, nograd) = argtup
+    maxresult = treelik.maximizeLikelihood(optimize_brlen=False, 
+            approx_grad=nograd)
     diffprefs = treelik.model.pi[0] - treelik.model.origpi[0]
     resultstr = [str(site)] + ['{0:.4f}'.format(diffprefs[a])
             for a in range(N_AA)]
@@ -72,7 +74,7 @@ def fitDiffPrefsBySite(argtup):
     return (halfabssum, '\t'.join(resultstr))
 
 
-def treeliksForOmegaBySite(site, tl, prefslist, fixsyn):
+def treeliksForOmegaBySite(site, tl, prefslist, fixsyn, nograd):
     """Returns `TreeLikelihoods` for fitting omega for a site.
 
     The returned value can be passed to `fitOmegaBySite`."""
@@ -102,7 +104,7 @@ def treeliksForOmegaBySite(site, tl, prefslist, fixsyn):
         treeliks[name] = phydmslib.treelikelihood.TreeLikelihood(
                 tl.tree, sitealignment, sitemodel,
                 branchScale=tl.model.branchScale)
-    return (site, treeliks)
+    return (site, treeliks, nograd)
 
 
 def fitOmegaBySite(argtup):
@@ -111,10 +113,11 @@ def fitOmegaBySite(argtup):
     `argtup` is return value of `treeliksForOmegaBySite`.
 
     Returns tuple of P-value, tab-separated line with site, omega, P, dLnL"""
-    (site, treeliks) = argtup
+    (site, treeliks, nograd) = argtup
     for name in ['fix', 'fit']:
         if treeliks[name].model.freeparams: # can be no params if using fixsyn
-            result = treeliks[name].maximizeLikelihood(optimize_brlen=False)
+            result = treeliks[name].maximizeLikelihood(optimize_brlen=False,
+                    approx_grad=nograd)
         if name == 'fit':
             omega = treeliks[name].model.omega
     dLnL = treeliks['fit'].loglik - treeliks['fix'].loglik
@@ -342,7 +345,8 @@ def main():
             maxresult = []
             def wrapper(maxresult): # wrapper to get return value from cProfile
                 maxresult.append(tl.maximizeLikelihood(
-                        optimize_brlen=optimize_brlen))
+                        optimize_brlen=optimize_brlen, 
+                        approx_grad=args['nograd']))
             cProfile.runctx('wrapper(maxresult)', globals(), locals(), pstatsfile)
             maxresult = maxresult[0]
             for psort in ['cumulative', 'tottime']:
@@ -356,7 +360,8 @@ def main():
                 s.print_stats()
                 f.close()
         else:
-            maxresult = tl.maximizeLikelihood(optimize_brlen=optimize_brlen)
+            maxresult = tl.maximizeLikelihood(optimize_brlen=optimize_brlen,
+                    approx_grad=args['nograd'])
         logger.info('Maximization complete:\n\t{0}'.format(
                 maxresult.replace('\n', '\n\t')))
         logger.info('Optimized log likelihood is {0:.2f}.'.format(tl.loglik))
@@ -401,8 +406,8 @@ def main():
                 else:
                     mapfunc = map
                 omegaresults += mapfunc(fitOmegaBySite, [treeliksForOmegaBySite(
-                        site, tl, prefslist, args['omegabysite_fixsyn']) for 
-                        site in currentsites])
+                        site, tl, prefslist, args['omegabysite_fixsyn'],
+                        args['nograd']) for site in currentsites])
                 if ncpus > 1:
                     pool.close()
                     pool.join()
@@ -446,8 +451,8 @@ def main():
                     mapfunc = map
                 diffprefresults += mapfunc(fitDiffPrefsBySite, 
                         [treelikForDiffPrefsBySite(site, tl, prefslist,
-                        args['diffprefsprior'], modeltype) for site in 
-                        currentsites])
+                        args['diffprefsprior'], modeltype, args['nograd']) 
+                        for site in currentsites])
                 if ncpus > 1:
                     pool.close()
                     pool.join()
