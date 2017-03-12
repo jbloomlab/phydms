@@ -98,13 +98,9 @@ You can use the [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) a
 ###`phydms_comprehensive`{#phydms_comprehensiveCommand}
 We can now run [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) by specifying our output prefix (in this case a directory called `betaLactamase`), our [preferences](#prefs), and our [alignment](#seqs). The output below is the [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run log.  
 
-```
+```{r phydms_comprehensive run, engine='bash', comment=NA, error=TRUE}
 phydms_comprehensive betaLactamase/ example_data/betaLactamase_alignment.fasta example_data/betaLactamase_prefs.csv --raxml raxml
-``` 
-
-<!-- ```{r phydms_comprehensive run, engine='bash', comment=NA, error=TRUE} -->
-<!-- phydms_comprehensive betaLactamase/ example_data/betaLactamase_alignment.fasta example_data/betaLactamase_prefs.csv --raxml raxml -->
-<!-- ``` -->
+```
 
 ##Output files{#outputFiles}
 
@@ -225,14 +221,12 @@ for prefFileName in glob.glob("example_data/HA_prefs_*"):
 You can use the [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) auxiliary program [`phydms_prepalignment`](http://jbloomlab.github.io/phydms/phydms_prepalignment.html) to filter your sequences and prepare an alignment for [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html).
 
 ###`phydms_comprehensive`{#phydms_comprehensiveCommandHA}
-We can now run [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) by specifying our output prefix (in this case a directory called `HA`), our [preferences](#prefsHA), and our [alignment](#seqsHA). The output below is the [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run log.
+We can now run [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) by specifying our output prefix (in this case a directory called `HA`), our [preferences](#prefsHA), and our [alignment](#seqsHA).
 
-```
+
+```{r phydms_comprehensive HA run, engine='bash', comment=NA, error=TRUE, results="hide"}
 phydms_comprehensive HA/ example_data/HA_alignment.fasta example_data/HA_prefs_Thyagarajan.csv example_data/HA_prefs_Doud.csv --raxml raxml
 ```
-<!-- ```{r phydms_comprehensive HA run, engine='bash', comment=NA, error=TRUE} -->
-<!-- phydms_comprehensive HA/ example_data/HA_alignment.fasta example_data/HA_prefs_Thyagarajan.csv example_data/HA_prefs_Doud.csv --raxml raxml -->
-<!-- ``` -->
 
 ##Output files
 [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) produces both the standard [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) output files for each model and a summary file. See the the [Comparing your `DMS` data to natural sequence evolution](#outputFiles) section of the tutorial for an example and [full `phydms` documentation](http://jbloomlab.github.io/phydms/phydms.html) for more information on the standard output files.
@@ -297,45 +291,40 @@ for protein in proteins.keys():
 ```
 
 ###`phydms_comprehensive`{#phydms_comprehensiveCommandAll}
-We can now run [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) by specifying our output prefix (in this case a directory called `HA_omegabysite` or `betaLactmase_omegabysite`), our [preferences](#inputFilesAll), our [alignment](#inputFilesAll) and the flag `--omegabysite`. Each alignment requires its own [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run. The output below is the [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run log for both HA and $\beta$-lactamase.
+We can now run [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) by specifying our output prefix (in this case a directory called `HA_omegabysite` or `betaLactmase_omegabysite`), our [preferences](#inputFilesAll), our [alignment](#inputFilesAll) and the flag `--omegabysite`. Each alignment requires its own [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run. 
 
-```
+
+```{r diversifying selection HA, engine='bash', comment=NA, error=TRUE, results="hide"}
 phydms_comprehensive HA_omegabysite/ example_data/HA_alignment.fasta example_data/HA_prefs_Doud.csv --raxml raxml --omegabysite
 
 phydms_comprehensive betaLactamase_omegabysite/ example_data/betaLactamase_alignment.fasta example_data/betaLactamase_prefs.csv --raxml raxml --omegabysite
 ```
-
-<!-- ```{r diversifying selection HA, engine='bash', comment=NA, error=TRUE} -->
-<!-- phydms_comprehensive HA_omegabysite/ example_data/HA_alignment.fasta example_data/HA_prefs_Doud.csv --raxml raxml --omegabysite -->
-
-<!-- phydms_comprehensive betaLactamase_omegabysite/ example_data/betaLactamase_alignment.fasta example_data/betaLactamase_prefs.csv --raxml raxml --omegabysite -->
-<!-- ``` -->
 
 ##Output files
 [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) produces both the standard [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) output files for each model and a summary file. See the [Comparing your `DMS` data to natural sequence evolution](#outputFiles) section of the tutorial for an example and the [full `phydms` documentation](http://jbloomlab.github.io/phydms/phydms.html) for more information on the standard output files.  
 
 ##Interpretation of `phydms_comprehensive` results{#interpretationAll}
 
-To detect sites under diversifying selection, we can look at the summary files with the suffix `_omegabysite.txt`. First, we will look at the results from the HA run.
+To detect sites under diversifying selection, we can look at the summary files with the suffix `_omegabysite.txt`. First, we will look at the results from the HA analysis.
 
-[HA_omegabysite/ExpCM_HA_prefs_Doud_omegabysite.txt](HA_omegabysite/ExpCM_HA_prefs_Doud_omegabysite.txt) lists the site, the fitted $\omega$ value, the p-value for the hypothesis $H_0: \omega = 1$, the dLnL, and the Q-value, which controls for multiple comparisons via the false discovery rate. The sites are sorted by the p-value which means the sites with the strongest evidence for deviations from the *ExpCM* will be at the top of the file.
+[HA_omegabysite/ExpCM_HA_prefs_Doud_omegabysite.txt](HA_omegabysite/ExpCM_HA_prefs_Doud_omegabysite.txt) lists the site, the fitted $\omega_r$ value, the p-value for the hypothesis $H_0: \omega_r = 1$, the dLnL (difference in log-likelihood between *ExpCM* with $\omega_r = 1$ and the *ExpCM* with the fitted $\omega_r$ value), and the Q-value, which controls for multiple comparisons via the false discovery rate. The sites are sorted by the p-value which means the sites with the strongest evidence for deviations from $\omega_r = 1$ will be at the top of the file.
 
 ```{r phydms_comprehensive HA omegabysite head, engine='bash', comment=NA, error=TRUE}
 head -n 20 HA_omegabysite/ExpCM_HA_prefs_Doud_omegabysite.txt
 ```
-and sites with the weakest evidence for deviation from the *ExpCM* will be at the bottom of the file.
+and sites with the weakest evidence for deviation from $\omega_r = 1$ will be at the bottom of the file.
 ```{r phydms_comprehensive HA omegabysite tail, engine='bash', comment=NA, error=TRUE}
 tail -n 20 HA_omegabysite/ExpCM_HA_prefs_Doud_omegabysite.txt
 ```
 
-You will notice that the sites with strong evidence have a fitted $\omega$ that is either very large ($100$) or very small ($0$) while the sites with weak evidence have a fitted $\omega$ close to $1$.
+You will notice that the sites with strong evidence have a fitted $\omega_r$ that is either very large ($100$) or very small ($0$) while the sites with weak evidence have a fitted $\omega_r$ close to $1$.
 
-Here are the sites in $\beta$-lactamase with the strongest evidence for deviations from the *ExpCM*
+Here are the sites in $\beta$-lactamase with the strongest evidence for deviations from $\omega_r = 1$
 ```{r phydms_comprehensive beta omegabysite head, engine='bash', comment=NA, error=TRUE}
 head -n 20 betaLactamase_omegabysite/ExpCM_betaLactamase_prefs_omegabysite.txt
 ```
 
-We can see in both examples there is a small subset of sites which deviate from the assumptions of evolution described by the *ExpCM* model and the deep mutational scanning experiments.
+We can see in both examples there is a small subset of sites which deviate display a faster ($\omega_r>1$) or slower ($\omega_r <1$) than expected rate of amino-acid substitutions. 
 
 #Detecting Differential Selection{#differentialSelection}
 
@@ -376,27 +365,21 @@ for protein in proteins.keys():
 ```
 
 ###`phydms_comprehensive`{#phydms_comprehensiveCommanddiff}
-We can now run [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) by specifying our output prefix (in this case a directory called `HA_diffprefs` or `betaLactmase_diffprefs`), our [preferences](#inputFilesdiff), our [alignment](#inputFilesdiff) and the flag `--diffprefsbysite`. Each alignment requires its own [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run. The output below is the [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run log for both HA and $\beta$-lactamase.
+We can now run [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) by specifying our output prefix (in this case a directory called `HA_diffprefs` or `betaLactmase_diffprefs`), our [preferences](#inputFilesdiff), our [alignment](#inputFilesdiff) and the flag `--diffprefsbysite`. Each alignment requires its own [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) run. 
 
-```
+```{r diff selection HA, engine='bash', comment=NA, error=TRUE, results="hide"}
 phydms_comprehensive HA_diffprefs/ example_data/HA_alignment.fasta example_data/HA_prefs_Doud.csv --raxml raxml --diffprefsbysite
 
 phydms_comprehensive betaLactamase_diffprefs/ example_data/betaLactamase_alignment.fasta example_data/betaLactamase_prefs.csv --raxml raxml --diffprefsbysite
 ```
 
-<!-- ```{r diff selection HA, engine='bash', comment=NA, error=TRUE} -->
-<!-- phydms_comprehensive HA_diffprefs/ example_data/HA_alignment.fasta example_data/HA_prefs_Doud.csv --raxml raxml --diffprefsbysite -->
-
-<!-- phydms_comprehensive betaLactamase_diffprefs/ example_data/betaLactamase_alignment.fasta example_data/betaLactamase_prefs.csv --raxml raxml --diffprefsbysite -->
-<!-- ``` -->
-
 ##Output files
 [`phydms_comprehensive`](http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html) produces both the standard [`phydms`](http://jbloomlab.github.io/phydms/phydms_prog.html) output files for each model and a summary file. See the [Comparing your `DMS` data to natural sequence evolution](#outputFiles) section of the tutorial for an example and the [full `phydms` documentation](http://jbloomlab.github.io/phydms/phydms.html) for more information on the standard output files.  
 
 ##Interpretation of `phydms_comprehensive` results{#interpretationdiff}
-To detect sites under differential selection, we can look at the summary files with the suffix `diffprefsbysite.txt`.  First, we will look at the results from the HA run.
+To detect sites under differential selection, we can look at the summary files with the suffix `diffprefsbysite.txt`.  First, we will look at the results from the HA analysis.
 
-[HA_diffprefs/ExpCM_HA_prefs_Doud_diffprefbysite.txt](HA_diffprefs/ExpCM_HA_prefs_Doud_diffprefbysite.txt) lists the site, the differential preference for each amino-acid, and half absolute sum of the differential preferences for that site. A large differential preference value means that substitutions to that amino-acid were seen at that site in the alignment *more* often than expected given the *ExpCM* and the measured amino-acid preferences. The last column can be used as a summary of differential selection strength for a given site. Larger values indicate the site is being strongly deferentially selected.
+[HA_diffprefs/ExpCM_HA_prefs_Doud_diffprefbysite.txt](HA_diffprefs/ExpCM_HA_prefs_Doud_diffprefsbysite.txt) lists the site, the differential preference for each amino-acid, and half absolute sum of the differential preferences for that site. A large differential preference value means that substitutions to that amino-acid were seen at that site in the alignment *more* often than expected given the *ExpCM* and the measured amino-acid preferences. The last column can be used as a summary of differential selection strength for a given site. Larger values indicate the site is being strongly deferentially selected.
 
 Here are the sites (and a subset of the differential preferences) in HA with the strongest evidence for differential selection
 
@@ -422,7 +405,7 @@ print df.iloc[:,range(9) + [-1]].head(6).to_string(index = False)
 
 We visualize the $\beta$-lactamase differential preferences for each site using [`phydms_logoplot`](http://jbloomlab.github.io/phydms/phydms_logoplot.html)  
 
-```{r diff example logoplot, engine="bash", comment=NA, error=TRUE, include=FALSE}
+```{r diff example logoplot, engine="bash", comment=NA, error=TRUE, results="hide"}
 phydms_logoplot logoplots/betaLactamase_prefs_diff.pdf --mapmetric functionalgroup --colormap mapmetric --diffprefs betaLactamase_diffprefs/ExpCM_betaLactamase_prefs_diffprefsbysite.txt
 ```
 
