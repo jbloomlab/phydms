@@ -1,7 +1,7 @@
 Changelog
 ===========
 
-2.0.dev0
+2.0.0
 -------------
 * Compatible with either Python 2.7 or Python 3.4 or greater.
 
