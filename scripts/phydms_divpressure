@@ -152,7 +152,7 @@ def main():
     on either the tree specfied by the user or the tree inferred under the
     *GTRCAT* with `RAxML`. The `ExpCM` with diversifying pressures are run with
     this optimized tree and the branch lengths are scaled but not individually
-    optimized. 
+    optimized.
     """
 
     # Parse command line arguments
@@ -176,6 +176,7 @@ def main():
         logfile = "{0}.log".format(args['outprefix'])
         args['outprefix'] = '{0}_'.format(args['outprefix'])
     modelcomparisonfile = '{0}modelcomparison.txt'.format(args['outprefix'])
+    raxmlStandardOutputFile = '{0}ramxl_output.txt'.format(args['outprefix'])
 
     #Set up to log everything to logfile.
         # Set up to log everything to logfile.
@@ -224,7 +225,7 @@ def main():
             for key in args.keys()])))
 
     #setup models
-    filesuffixlist = ['.log', '_tree.newick', '_loglikelihood.txt',
+    filesuffixlist = ['_log.log', '_tree.newick', '_loglikelihood.txt',
             '_modelparams.txt']
     filesuffixes = {} # keyed by model, values are list of suffixes
     models = {}
@@ -304,18 +305,19 @@ def main():
                     .format('\n'.join(['\t{0}'.format(fname) for
                     fname in raxmlOutputFiles])))
 
-         # run RAxmL
+            # run RAxmL
             raxmlCMD = [args['raxml'], '-s', args['alignment'], '-n',
                     raxmlOutputName, '-m', 'GTRCAT', '-p1', '-T', '2']
-            subprocess.check_call(raxmlCMD)
+            with open(raxmlStandardOutputFile, 'w') as f:
+                subprocess.check_call(raxmlCMD, stdout = f)
 
-         # move RAxML tree to output directory and remove all other files
-            for  raxmlFile in glob.glob("RAxML_*{0}".format(raxmlOutputName)):
+            # move RAxML tree to output directory and remove all other files
+            for raxmlFile in glob.glob("RAxML_*{0}".format(raxmlOutputName)):
                 if "bestTree" in raxmlFile:
-                    os.rename(raxmlFile, args["outprefix"] + raxmlFile)
-                    args["tree"] = args["outprefix"] + raxmlFile
-                    logger.info("RAxML inferred tree, {0}, is in {1}."
-                            .format(raxmlFile, args["outprefix"]))
+                    args["tree"] = args["outprefix"] + 'RAxML_tree.newick'
+                    os.rename(raxmlFile, args['tree'])
+                    logger.info("RAxML inferred tree is now named {0}".format(
+                            args['tree']))
                 else:
                     os.remove(raxmlFile)
         except OSError:
@@ -380,7 +382,11 @@ def main():
                 outprefix] + additionalcmds + ["--brlen", "optimize"]
         logger.info('Starting analysis. Optimizing the branch lengths. The command is: %s\n' % (' '.join(cmds)))
         outprefixes[noDivPressure] = outprefix
-        subprocess.check_call(cmds)
+        subprocessOutput = '{0}subprocess_output.txt'.format(args['outprefix'])
+        with open(subprocessOutput, 'w') as f:
+            subprocess.check_call(cmds, stdout = f)
+        if os.path.isfile(subprocessOutput):
+            os.remove(subprocessOutput)
         for fname in [outprefixes[noDivPressure] + suffix for suffix
                 in filesuffixes[noDivPressure]]:
             if not os.path.isfile(fname):
@@ -439,7 +445,13 @@ def main():
                 raise RuntimeError("Cannot find expected output file {0}"
                         .format(fname))
         createModelComparisonFile(models, args["outprefix"])
-
+        for fname in outfiles:
+            if os.path.isfile(fname):
+                os.remove(fname)
+        if args["randomizations"]:
+            for f in glob.glob(args["outprefix"] + "randomizedFiles/*"):
+                os.remove(f)
+            os.rmdir(args["outprefix"] + "randomizedFiles/")
 
     except:
         logger.exception('Terminating {0} at {1} with ERROR'
@@ -455,3 +467,6 @@ def main():
 
 if __name__ == '__main__':
     main() # run the script
+
+#make the test script
+#figure out why the logging prints twice
