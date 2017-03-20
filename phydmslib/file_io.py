@@ -32,7 +32,7 @@ def Versions():
             '\tPython version: %s' % sys.version.replace('\n', ' '),
             '\tphydms version: %s' % phydmslib.__version__,
             ]
-    for modname in ['Bio', 'cython', 'numpy', 'scipy', 'matplotlib', 
+    for modname in ['Bio', 'cython', 'numpy', 'scipy', 'matplotlib',
             'natsort', 'sympy', 'six', 'pandas', 'pyvolve', 'statsmodels',
             'weblogolib', 'PyPDF2']:
         try:
@@ -45,14 +45,14 @@ def Versions():
 
 def ReadCodonAlignment(fastafile, checknewickvalid):
     """Reads codon alignment from file.
-    
+
     *fastafile* is the name of an existing FASTA file.
 
     *checknewickvalid* : if *True*, we require that names are unique and do
-    **not** contain spaces, commas, colons, semicolons, parentheses, square 
+    **not** contain spaces, commas, colons, semicolons, parentheses, square
     brackets, or single or double quotation marks.
     If any of these disallowed characters are present, raises an Exception.
-    
+
     Reads the alignment from the *fastafile* and returns the aligned
     sequences as a list of 2-tuple of strings *(header, sequence)*
     where *sequence* is upper case.
@@ -104,7 +104,7 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
     """
     codonmatch = re.compile('^[ATCG]{3}$')
     gapmatch = re.compile('^-+^')
-    seqs = [(seq.description.strip(), str(seq.seq).upper()) for seq 
+    seqs = [(seq.description.strip(), str(seq.seq).upper()) for seq
             in Bio.SeqIO.parse(fastafile, 'fasta')]
     assert seqs, "{0} failed to specify any sequences".format(fastafile)
 
@@ -168,7 +168,7 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
     return seqs
 
 
-def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False, 
+def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
         seed=1, sites_as_strings=False):
     """Read preferences from file with some error checking.
 
@@ -255,13 +255,15 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
         assert aas == set(rprefs.keys()), ("prefsfile {0} does not include "
                 "all amino acids at site {1}").format(prefsfile, r)
         prefs[r] = rprefs
+        rsum = float(sum(rprefs.values()))
+        prefs[r] = dict([(aa, pi / rsum) for (aa, pi) in rprefs.items()])
 
     # Iteratively adjust until all prefs exceed minpref after re-scaling.
     for r in list(prefs.keys()):
         rprefs = prefs[r]
         iterations = 0
         while any([pi < minpref for pi in rprefs.values()]):
-            rprefs = dict([(aa, max(1.1 * minpref, 
+            rprefs = dict([(aa, max(1.1 * minpref,
                     pi)) for (aa, pi) in rprefs.items()])
             newsum = float(sum(rprefs.values()))
             rprefs = dict([(aa, pi / newsum) for (aa, pi) in rprefs.items()])
@@ -291,8 +293,8 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
 
 def readPrefs_dms_tools_format(f):
     """Reads the amino-acid preferences written by `dms_tools`.
-    
-    This is an exact copy of the same code from 
+
+    This is an exact copy of the same code from
     `dms_tools.file_io.ReadPreferences`. It is copied because
     `dms_tools` is currently only compatible with `python2`, and
     we needed something that also works with `python3`.
@@ -359,7 +361,7 @@ def readPrefs_dms_tools_format(f):
             if pi_95credint != None:
                 pi_95credint[r] = dict([(x, (float(entries[3 + len(characters) + i].split(',')[0]), float(entries[3 + len(characters) + i].split(',')[1]))) for (i, x) in enumerate(characters)])
     return (sites, wts, pi_means, pi_95credint, h)
-    
+
 def readDivPressure(fileName):
     """Reads in diversifying pressures from some file.
 
