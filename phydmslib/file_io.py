@@ -243,20 +243,13 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
         rprefs = prefs[r]
         assert sum(rprefs.values()) - 1 <= 0.01, (
             "Prefs in prefsfile {0} don't sum to one".format(prefsfile))
-        rsum = float(sum(rprefs.values()))
-        prefs[r] = dict([(aa, pi / rsum) for (aa, pi) in rprefs.items()])
-    assert set(sites) == set(prefs.keys())
-
-    # make sure there is a pref for every amino acid and remove any for stops
-    for r in list(prefs.keys()):
-        rprefs = prefs[r]
         if '*' in rprefs:
             del rprefs['*']
         assert aas == set(rprefs.keys()), ("prefsfile {0} does not include "
                 "all amino acids at site {1}").format(prefsfile, r)
-        prefs[r] = rprefs
         rsum = float(sum(rprefs.values()))
         prefs[r] = dict([(aa, pi / rsum) for (aa, pi) in rprefs.items()])
+    assert set(sites) == set(prefs.keys())
 
     # Iteratively adjust until all prefs exceed minpref after re-scaling.
     for r in list(prefs.keys()):
