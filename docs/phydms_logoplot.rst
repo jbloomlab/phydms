@@ -8,7 +8,7 @@ the ``phydms_logoplot`` program
 
 Overview
 ------------
-``phydms_logoplot`` is a program that can be used to visualized amino-acid preferences or differential preferences using logo plots. 
+``phydms_logoplot`` is a program that can be used to visualized amino-acid preferences or differential preferences using logo plots.
 It relies on `weblogo`_ to render the actual plots.
 
 Running ``phydms_logoplot`` with the ``--prefs`` option allows you to visualize amino-acid preferences, which you can also re-scale by the stringency parameter (:math:`\beta`) inferred by ``phydms`` using the ``--stringency`` option.
@@ -33,12 +33,12 @@ Command-line usage
     Increasing this number makes for wider and shorter plots, decreasing it makes for thinner and taller plots.
 
    \-\-diffprefheight
-    When using ``--diffprefs``, the logo stacks will have this height in both the positive and negative direction. You will get an error if the height of a logo stack exceeds this value. Note that the maximum possible differential preference logo stack height is 1 if the preferences are completely different between the natural evolution and those provided in the site-specific amino-acid preferences file. 
+    When using ``--diffprefs``, the logo stacks will have this height in both the positive and negative direction. You will get an error if the height of a logo stack exceeds this value. Note that the maximum possible differential preference logo stack height is 1 if the preferences are completely different between the natural evolution and those provided in the site-specific amino-acid preferences file.
 
 
 Output plot
 --------------
-``phydms_logoplot`` prints some basic information to the screen. 
+``phydms_logoplot`` prints some basic information to the screen.
 But its primary output is a PDF plot that visualizes the preferences or differential preferences.
 
 Plotting preferences
@@ -48,7 +48,7 @@ This can either be used to visualize the preferences that you are using as input
 
 You can do this with a command like this::
 
-    phydms_logoplot --prefs prefsfile.tsv prefs_logoplot.pdf --stringency 2.99 --nperline 72 --mapmetric charge
+    phydms_logoplot --prefs prefsfile.tsv prefs --stringency 2.99 --nperline 72 --mapmetric charge
 
 Here is the resulting plot:
 
@@ -63,12 +63,12 @@ Note that we have set ``--mapmetric`` to color amino acids by charge. They can a
 
 Overlaying omega values for each site
 +++++++++++++++++++++++++++++++++++++++
-One use of ``phydms`` is to identify diversifying selection via the ``--omegabysite`` values. 
+One use of ``phydms`` is to identify diversifying selection via the ``--omegabysite`` values.
 You may want to overlay these data onto the logoplots of either preferences or differential preferences.
 
 Here we overlay the diversifying selection the same preferences logo plot shown above::
 
-    phydms_logoplot --prefs prefsfile.tsv omegaoverlay_logoplot.pdf --stringency 2.99 --nperline 72 --mapmetric kd --omegabysite omegabysite.txt
+    phydms_logoplot --prefs prefsfile.tsv omegaoverlay.pdf --stringency 2.99 --nperline 72 --mapmetric kd --omegabysite omegabysite.txt
 
 where ``omegabysite.txt`` is the file produced by ``phydms``. The created plot looks like this:
 
@@ -85,12 +85,12 @@ Note also that we have used a different ``--mapmetric``, this time coloring amin
 Plotting differential preferences
 ++++++++++++++++++++++++++++++++++
 Using the ``--diffprefs`` option plots the differential amino-acid preferences that can be inferred by ``phydms`` using ``--diffprefsbysite``.
-For each site, there is a logo stack with the height of each amino-acid single-letter code proportional to the differential preference :math:`\Delta\pi_{r,a}`. 
+For each site, there is a logo stack with the height of each amino-acid single-letter code proportional to the differential preference :math:`\Delta\pi_{r,a}`.
 The y-scale is determined by ``--diffprefheight``; note that the maximum possible height in each direction is one if the amino-acid preferences are completely shifted.
 
 Here is an example::
 
-    phydms_logoplot --diffprefs diffprefsbysite.txt diffprefs_logplot.pdf --nperline 72
+    phydms_logoplot --diffprefs diffprefsbysite.txt diffprefs --nperline 72
 
 .. image:: diffprefs_logoplot.pdf
    :width: 95%
@@ -100,4 +100,3 @@ Here is an example::
 
 
 .. include:: weblinks.txt
-   

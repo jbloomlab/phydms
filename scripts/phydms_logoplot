@@ -35,21 +35,37 @@ def main():
             '\n'.join(['\t%s = %s' % tup for tup in args.items()])))
 
     # check on outfile we will create
-    assert os.path.splitext(args['outfile'])[1].lower() == '.pdf', (
-            "outfile {0} does not end in '.pdf'".format(args['outfile']))
-    assert (not os.path.dirname(args['outfile'])) or (os.path.isdir(
-            os.path.dirname(args['outfile']))), ("outfile {0} includes "
-            "non-existent directory".format(args['outfile']))
-    if os.path.isfile(args['outfile']):
-        print("Removing existing outfile of {0}\n".format(args['outfile']))
-        os.remove(args['outfile'])
+    # assert os.path.splitext(args['outfile'])[1].lower() == '.pdf', (
+    #         "outfile {0} does not end in '.pdf'".format(args['outfile']))
+    # assert (not os.path.dirname(args['outfile'])) or (os.path.isdir(
+    #         os.path.dirname(args['outfile']))), ("outfile {0} includes "
+    #         "non-existent directory".format(args['outfile']))
+    # if os.path.isfile(args['outfile']):
+    #     print("Removing existing outfile of {0}\n".format(args['outfile']))
+    #     os.remove(args['outfile'])
+    # outdir = os.path.dirname(args['outfile'])
+
+    # create output directory if needed
+    outdir = os.path.dirname(args['outprefix'])
+    if outdir:
+        if not os.path.isdir(outdir):
+            if os.path.isfile(outdir):
+                os.remove(outdir)
+            os.mkdir(outdir)
+
+    # output files, remove if they already exist
+    underscore = '' if args['outprefix'][-1] == '/' else '_'
+    logoplotFile = '{0}{1}logoplot.pdf'.format(args['outprefix'], underscore)
+    if os.path.isfile(logoplotFile):
+        os.remove(logoplotFile)
+
 
     aas = AA_TO_INDEX.keys()
 
     if args['prefs']:
         datatype = 'prefs'
         print("Reading preferences from {0}".format(args['prefs']))
-        prefs = phydmslib.file_io.readPrefs(args['prefs'], 
+        prefs = phydmslib.file_io.readPrefs(args['prefs'],
                 sites_as_strings=True)
         sites = natsort.natsorted(prefs.keys())
         print("Read preferences for {0} sites.".format(len(sites)))
@@ -61,13 +77,13 @@ def main():
                 prefsum = sum([prefs[r][a] for a in aas])
                 prefs[r] = dict([(a, prefs[r][a] / prefsum) for a in aas])
         data = prefs
-        ydatamax = None 
+        ydatamax = None
 
     elif args['diffprefs']:
         datatype = 'diffprefs'
         print("Reading differential preferences from {0}".format(
                 args['diffprefs']))
-        diffprefs = pandas.read_csv(args['diffprefs'], sep='\t', 
+        diffprefs = pandas.read_csv(args['diffprefs'], sep='\t',
                 comment='#')
         sites = natsort.natsorted(map(str, diffprefs['site'].values))
         print("Read differential preferences for {0} sites.".format(len(sites)))
@@ -112,7 +128,7 @@ def main():
             else:
                 prop_d[r] = -max(math.log10(args['minP']), math.log10(p))
         overlay = [(prop_d, shortname, longname)]
-        ticklocs = [itick for itick in range(int(math.log10(args['minP'])), 
+        ticklocs = [itick for itick in range(int(math.log10(args['minP'])),
                 1 - int(math.log10(args['minP'])))]
         ticknames = [-abs(itick) for itick in ticklocs]
         fix_limits[shortname] = (ticklocs, ticknames)
@@ -120,12 +136,12 @@ def main():
         overlay = None
 
     # make plot
-    print("\nNow making plot {0}...".format(args['outfile']))
+    print("\nNow making plot {0}...".format(logoplotFile))
     phydmslib.weblogo.LogoPlot(
                 sites=sites,
                 datatype=datatype,
                 data=data,
-                plotfile=args['outfile'],
+                plotfile=logoplotFile,
                 nperline=min(len(sites), args['nperline']),
                 numberevery=args['numberevery'],
                 allowunsorted=True,
@@ -137,8 +153,8 @@ def main():
                 custom_cmap=args['colormap'],
                 map_metric=args['mapmetric'],
             )
-    assert os.path.isfile(args['outfile']), "Failed to create plot" 
-    print("Created plot {0}".format(args['outfile']))
+    assert os.path.isfile(logoplotFile), "Failed to create plot"
+    print("Created plot {0}".format(logoplotFile))
 
     print('\nSuccessful completion of %s' % prog)
 

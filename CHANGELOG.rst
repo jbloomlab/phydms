@@ -4,12 +4,13 @@ Changelog
 2.0.dev1
 ---------
 * Handle stop codons in preferences
+* In ``phydms_logoplot``, changed the naming scheme of output files and the default color scheme.
 
 2.0.0
 -------------
 * Compatible with either Python 2.7 or Python 3.4 or greater.
 
-* Completely re-write of the implementation the likelihood calculations. We eliminate the dependence on ``Bio++`` and instead use custom coded calculations without derivatives. 
+* Completely re-write of the implementation the likelihood calculations. We eliminate the dependence on ``Bio++`` and instead use custom coded calculations without derivatives.
 
 * All tree topology inference is eliminated, some options are removed, numerical values are expected to be slightly different, and speed should be greatly enhanced.
 
