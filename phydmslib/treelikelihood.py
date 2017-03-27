@@ -151,7 +151,7 @@ class TreeLikelihood(object):
             performed.
     """
 
-    def __init__(self, tree, alignment, model, underflowfreq=5, 
+    def __init__(self, tree, alignment, model, underflowfreq=3, 
             dparamscurrent=True, dtcurrent=False, branchScale=None):
         """Initialize a `TreeLikelihood` object.
 
@@ -663,6 +663,7 @@ class TreeLikelihood(object):
             self.underflowlogscale.fill(0.0)
             self._computePartialLikelihoods()
             sitelik = scipy.zeros(self.nsites, dtype='float')
+            assert (self.L[rootnode] >= 0).all(), str(self.L[rootnode])
             for k in self._catindices:
                 sitelik += scipy.sum(self.model.stationarystate *
                         self.L[rootnode][k], axis=1) * catweights[k]

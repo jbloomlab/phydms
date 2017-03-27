@@ -5,6 +5,10 @@ Changelog
 ---------
 * Handle stop codons in preferences
 
+* Change default color scheme for logoplots
+
+* Some minor tweaks to reduce underflow
+
 2.0.0
 -------------
 * Compatible with either Python 2.7 or Python 3.4 or greater.
