@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Numerical implementation &mdash; phydms 2.0.0 documentation</title>
+    <title>Numerical implementation &mdash; phydms 2.0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2.0.0',
+        VERSION:     '2.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 2.0.0 documentation" href="index.html" />
+    <link rel="top" title="phydms 2.0.1 documentation" href="index.html" />
     <link rel="next" title="phydmslib API" href="api.html" />
     <link rel="prev" title="Experimentally Informed Codon Models" href="ExpCM.html" /> 
   </head>
@@ -44,7 +44,7 @@
         <li class="right" >
           <a href="ExpCM.html" title="Experimentally Informed Codon Models"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -237,7 +237,7 @@ We want to empirically set <span class="math">\(\phi_w\)</span> to some value <s
 &amp; = &amp;
 \frac{1}{3L} \sum_r \frac{\sum_x N_w\left(x\right) f_{r,x} \prod_{k=0}^2 \hat{\phi}_{x_k}}{\sum_y f_{r,y} \prod_{k=0}^2 \hat{\phi}_{y_k}} \\\end{split}\]</div>
 <p>where <span class="math">\(N_w\left(x\right) = \sum_{k=0}^2 \delta_{x_k, w}\)</span> is the number of occurrence of nucleotide <span class="math">\(w\)</span> in codon <span class="math">\(x\)</span>, <span class="math">\(r\)</span> ranges over all codon sites in the gene, <span class="math">\(x\)</span> ranges over all codons, and <span class="math">\(k\)</span> ranges over the first three nucleotides.</p>
-<p>There are three independent <span class="math">\(g_w\)</span> values and three independent <span class="math">\(\hat{\phi}_w\)</span> values (since <span class="math">\(1 = \sum_w g_w \sum_w = \hat{\phi}_w\)</span>), so we have three equations and three unknowns.
+<p>There are three independent <span class="math">\(g_w\)</span> values and three independent <span class="math">\(\hat{\phi}_w\)</span> values (since <span class="math">\(1 = \sum_w g_w = \sum_w \hat{\phi}_w\)</span>), so we have three equations and three unknowns.
 We could not solve the set of three equations analytically for the <span class="math">\(\hat{\phi}_w\)</span> values, so instead we use a non-linear equation solver to determine their values.</p>
 <p>When using empirical nucleotide frequencies, we no longer need to calculate any derivatives with respect to <span class="math">\(\eta_i\)</span> as we no longer have the <span class="math">\(\eta_i\)</span> free parameters.</p>
 <p>However, now the value of <span class="math">\(\phi_w = \hat{\phi}_w\)</span> depends on <span class="math">\(\beta\)</span> via the <span class="math">\(f_{r,x}\)</span> parameters in Equation <a href="#equation-phihat">(19)</a>.
@@ -839,7 +839,7 @@ This is somewhat simpler for each individual branch length, since each individua
         <li class="right" >
           <a href="ExpCM.html" title="Experimentally Informed Codon Models"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>phydmslib package &mdash; phydms 2.0.0 documentation</title>
+    <title>phydmslib package &mdash; phydms 2.0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2.0.0',
+        VERSION:     '2.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 2.0.0 documentation" href="index.html" />
+    <link rel="top" title="phydms 2.0.1 documentation" href="index.html" />
     <link rel="up" title="phydmslib API" href="api.html" />
     <link rel="next" title="Acknowledgments and citations" href="acknowledgments.html" />
     <link rel="prev" title="phydmslib API" href="api.html" /> 
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="api.html" title="phydmslib API"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.0 documentation</a> &raquo;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="api.html" accesskey="U"><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &raquo;</li> 
       </ul>
     </div>  
@@ -129,7 +129,7 @@ codon position <cite>p</cite> and 1.0 otherwise</dd>
 <dd><p>Reads codon alignment from file.</p>
 <p><em>fastafile</em> is the name of an existing FASTA file.</p>
 <p><em>checknewickvalid</em> : if <em>True</em>, we require that names are unique and do
-<strong>not</strong> contain spaces, commas, colons, semicolons, parentheses, square 
+<strong>not</strong> contain spaces, commas, colons, semicolons, parentheses, square
 brackets, or single or double quotation marks.
 If any of these disallowed characters are present, raises an Exception.</p>
 <p>Reads the alignment from the <em>fastafile</em> and returns the aligned
@@ -142,7 +142,7 @@ the exception of a shared terminal stop) and free of ambiguous nucleotides.</p>
 <p>Read aligned sequences in this example:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seqs</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;seq1&#39;</span><span class="p">,</span> <span class="s1">&#39;ATGGAA&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;seq2&#39;</span><span class="p">,</span> <span class="s1">&#39;ATGAAA&#39;</span><span class="p">)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">u&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;&gt;</span><span class="si">{0}</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;&gt;</span><span class="si">{0}</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">ReadCodonAlignment</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">seqs</span> <span class="o">==</span> <span class="n">a</span>
@@ -152,7 +152,7 @@ the exception of a shared terminal stop) and free of ambiguous nucleotides.</p>
 <p>Trim stop codons from all sequences in this example:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seqs</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;seq1&#39;</span><span class="p">,</span> <span class="s1">&#39;ATGTAA&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;seq2&#39;</span><span class="p">,</span> <span class="s1">&#39;ATGTGA&#39;</span><span class="p">)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">u&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;&gt;</span><span class="si">{0}</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;&gt;</span><span class="si">{0}</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">ReadCodonAlignment</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="p">[(</span><span class="n">head</span><span class="p">,</span> <span class="n">seq</span><span class="p">[</span> <span class="p">:</span> <span class="o">-</span><span class="mi">3</span><span class="p">])</span> <span class="k">for</span> <span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="n">seq</span><span class="p">)</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]</span> <span class="o">==</span> <span class="n">a</span>
@@ -162,7 +162,7 @@ the exception of a shared terminal stop) and free of ambiguous nucleotides.</p>
 <p>Read sequences with gap:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seqs</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;seq1&#39;</span><span class="p">,</span> <span class="s1">&#39;ATG---&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;seq2&#39;</span><span class="p">,</span> <span class="s1">&#39;ATGAGA&#39;</span><span class="p">)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">u&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;&gt;</span><span class="si">{0}</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;&gt;</span><span class="si">{0}</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">ReadCodonAlignment</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="p">[(</span><span class="n">head</span><span class="p">,</span> <span class="n">seq</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="n">seq</span><span class="p">)</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]</span> <span class="o">==</span> <span class="n">a</span>
@@ -172,7 +172,7 @@ the exception of a shared terminal stop) and free of ambiguous nucleotides.</p>
 <p>Premature stop codon gives error:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seqs</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;seq1&#39;</span><span class="p">,</span> <span class="s1">&#39;TGAATG&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;seq2&#39;</span><span class="p">,</span> <span class="s1">&#39;ATGAGA&#39;</span><span class="p">)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">u&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;&gt;</span><span class="si">{0}</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;&gt;</span><span class="si">{0}</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">ReadCodonAlignment</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> 
 <span class="gt">Traceback (most recent call last):</span>
@@ -256,7 +256,7 @@ If this option is <cite>True</cite>, then they are kept as strings.</dd>
 <dt id="phydmslib.file_io.readPrefs_dms_tools_format">
 <code class="descclassname">phydmslib.file_io.</code><code class="descname">readPrefs_dms_tools_format</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.readPrefs_dms_tools_format" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads the amino-acid preferences written by <cite>dms_tools</cite>.</p>
-<p>This is an exact copy of the same code from 
+<p>This is an exact copy of the same code from
 <cite>dms_tools.file_io.ReadPreferences</cite>. It is copied because
 <cite>dms_tools</cite> is currently only compatible with <cite>python2</cite>, and
 we needed something that also works with <cite>python3</cite>.</p>
@@ -1679,7 +1679,7 @@ of the sites in 1, 2, ... numbering.</dd>
 using the indexing schemes defined in <cite>phydmslib.constants</cite>.</p>
 <dl class="class">
 <dt id="phydmslib.treelikelihood.TreeLikelihood">
-<em class="property">class </em><code class="descclassname">phydmslib.treelikelihood.</code><code class="descname">TreeLikelihood</code><span class="sig-paren">(</span><em>tree</em>, <em>alignment</em>, <em>model</em>, <em>underflowfreq=5</em>, <em>dparamscurrent=True</em>, <em>dtcurrent=False</em>, <em>branchScale=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">phydmslib.treelikelihood.</code><code class="descname">TreeLikelihood</code><span class="sig-paren">(</span><em>tree</em>, <em>alignment</em>, <em>model</em>, <em>underflowfreq=3</em>, <em>dparamscurrent=True</em>, <em>dtcurrent=False</em>, <em>branchScale=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Uses alignment, model, and tree to calculate likelihoods.</p>
 <p>See <cite>__init__</cite> for how to initialize a <cite>TreeLikelihood</cite>.</p>
@@ -1814,7 +1814,7 @@ performed.</dd>
 </dl>
 <dl class="method">
 <dt id="phydmslib.treelikelihood.TreeLikelihood.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>tree</em>, <em>alignment</em>, <em>model</em>, <em>underflowfreq=5</em>, <em>dparamscurrent=True</em>, <em>dtcurrent=False</em>, <em>branchScale=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>tree</em>, <em>alignment</em>, <em>model</em>, <em>underflowfreq=3</em>, <em>dparamscurrent=True</em>, <em>dtcurrent=False</em>, <em>branchScale=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a <cite>TreeLikelihood</cite> object.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -2265,7 +2265,7 @@ function is identical to <em>KyteDoolittleColorMapping</em></p>
         <li class="right" >
           <a href="api.html" title="phydmslib API"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.0 documentation</a> &raquo;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="api.html" ><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &raquo;</li> 
       </ul>
     </div>
