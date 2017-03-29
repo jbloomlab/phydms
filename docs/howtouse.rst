@@ -11,12 +11,14 @@ Overview
 The idea behind ``phydms`` is that deep mutational scanning data can inform quantitative models of protein evolution.
 These models can be used to compare selection measured in the lab to that in natural evolution.
 
-For detailes, see the following references:
+For extensive background, see the following references:
 
    1. `Bloom, Mol Biol Evol, 31:1956-1978`_ introduces the idea of using deep mutational scanning to build quantitative phylogenetic substitution models.
       `Bloom, Mol Biol Evol, 31:2753-2769`_ makes several extensions to this idea.
 
    2. `Bloom, Biology Direct, 12:1`_ describes methods to test whether sites are evolving differently in nature than expected from the deep mutational scanning.
+
+   3. `Hilton, Doud, and Bloom, bioRxiv, 2017`_ describes the ``phydms`` software package.
 
 
 How to get deep mutational scanning data into a usable form 

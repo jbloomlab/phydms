@@ -1,13 +1,15 @@
 Changelog
 ===========
 
-2.0.dev1
+2.0.1
 ---------
 * Handle stop codons in preferences
 
 * Change default color scheme for logoplots
 
 * Some minor tweaks to reduce underflow
+
+* Some minor doc updates
 
 2.0.0
 -------------
