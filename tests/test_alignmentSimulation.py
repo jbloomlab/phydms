@@ -23,7 +23,7 @@ import pyvolve
 
 
 
-class test_branchScale_ExpCM(unittest.TestCase):
+class test_simulateAlignment_ExpCM(unittest.TestCase):
     """Tests `simulateAlignment` of `simulate.py` module."""
 
     # use approach here to run multiple tests:
@@ -123,8 +123,8 @@ class test_branchScale_ExpCM(unittest.TestCase):
                 os.remove(f)
 
 
-class test_branchScale_YNGKP_M0(test_branchScale_ExpCM):
-    """Tests `branchScale` of `YNGKP_M0` model."""
+class test_simulateAlignment_YNGKP_M0(test_simulateAlignment_ExpCM):
+    """Tests `simulateAlignment` of `YNGKP_M0` model."""
     MODEL = phydmslib.models.YNGKP_M0
 
 
