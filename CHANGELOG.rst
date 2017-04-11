@@ -1,5 +1,8 @@
 Changelog
 ===========
+2.0.dev2
+---------
+* Added ``simulateAlignment`` to ``simulate.py``
 
 2.0.1
 ---------
@@ -15,7 +18,7 @@ Changelog
 -------------
 * Compatible with either Python 2.7 or Python 3.4 or greater.
 
-* Completely re-write of the implementation the likelihood calculations. We eliminate the dependence on ``Bio++`` and instead use custom coded calculations without derivatives. 
+* Completely re-write of the implementation the likelihood calculations. We eliminate the dependence on ``Bio++`` and instead use custom coded calculations without derivatives.
 
 * All tree topology inference is eliminated, some options are removed, numerical values are expected to be slightly different, and speed should be greatly enhanced.
 

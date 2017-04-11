@@ -1,6 +1,6 @@
 """Functions for performing simulations, mostly using ``pyvolve``.
 
-Written by Jesse Bloom.
+Written by Jesse Bloom and Sarah Hilton.
 """
 
 import os
@@ -89,6 +89,46 @@ def pyvolvePartitions(model, divselection=None):
 
     return partitions
 
+def simulateAlignment(model, tree, alignmentPrefix):
+    """
+    Simulate an alignment given a model and tree (units = subs/site)
+
+    Args:
+        `model` (`phydmslib.models.Models` object)
+            The model used for the simulations. Currently only
+            Models` are supported (e.g., `YNGKP`,
+            `ExpCM`)
+        `treeFile` (file name)
+            The tree used to simulate the sequences. The branch lengths should
+            be in substitutions/site, which is the default units for all
+            `phydms` outputs.
+        `alignmentPrefix`
+            Prefix for the files created by `pyvolve`.
+    """
+
+    #Transform the branch lengths by dividing by the model `branchScale`
+    temptree = "_scaletree.newick"
+    tree = Bio.Phylo.read(tree, 'newick')
+    tree.root_at_midpoint()
+    for node in tree.get_terminals() + tree.get_nonterminals():
+        if (node.branch_length == None) and (node == tree.root):
+            node.branch_length = 1e-06
+        else:
+            node.branch_length /= model.branchScale
+    Bio.Phylo.write(tree, temptree, 'newick')
+    pyvovle_tree = pyvolve.read_tree(file="_temp.tree")
+    os.remove(temptree)
+
+
+    #Make the `pyvovle` partition
+    partitions = pyvolvePartitions(model)
+
+    #Simulate the alignment
+    alignment = '{0}_simulatedalignment.fasta'.format(alignmentPrefix)
+    info = '{0}_temp_info.txt'.format(alignmentPrefix)
+    rates = '{0}_temp_ratefile.txt'.format(alignmentPrefix)
+    evolver = pyvolve.Evolver(partitions=partitions, tree=pyvovle_tree)
+    evolver(seqfile=alignment, infofile=info, ratefile=rates)
 
 
 if __name__ == '__main__':
