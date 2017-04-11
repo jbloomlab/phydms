@@ -86,14 +86,12 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         # check and see if the simulated alignment has the expected number of
         # subs exists
         alignment = '{0}_simulatedalignment.fasta'.format(alignmentPrefix)
-        info = '{0}_temp_info.txt'.format(alignmentPrefix)
-        rates = '{0}_temp_ratefile.txt'.format(alignmentPrefix)
         nsubs = 0 # subs in simulated seqs (estimate from Hamming distance)
         treedist = 0.0 # distance inferred by `TreeLikelihood`
         a = [(s.description, str(s.seq)) for s in Bio.SeqIO.parse(
                 alignment, 'fasta')]
         assert len(a[0][1]) == len(a[1][1]) == nsites * 3
-        for f in [alignment, info, rates]:
+        for f in [alignment]:
             if os.path.isfile(f):
                 os.remove(f)
         for r in range(nsites):

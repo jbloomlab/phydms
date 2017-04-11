@@ -10,6 +10,7 @@ import math
 import phydmslib.models
 from phydmslib.constants import *
 import pyvolve
+from tempfile import mkstemp
 
 
 def pyvolvePartitions(model, divselection=None):
@@ -89,7 +90,7 @@ def pyvolvePartitions(model, divselection=None):
 
     return partitions
 
-def simulateAlignment(model, tree, alignmentPrefix):
+def simulateAlignment(model, treeFile, alignmentPrefix):
     """
     Simulate an alignment given a model and tree (units = subs/site)
 
@@ -107,17 +108,18 @@ def simulateAlignment(model, tree, alignmentPrefix):
     """
 
     #Transform the branch lengths by dividing by the model `branchScale`
-    temptree = "_scaletree.newick"
-    tree = Bio.Phylo.read(tree, 'newick')
+    tree = Bio.Phylo.read(treeFile, 'newick')
     tree.root_at_midpoint()
     for node in tree.get_terminals() + tree.get_nonterminals():
         if (node.branch_length == None) and (node == tree.root):
             node.branch_length = 1e-06
         else:
             node.branch_length /= model.branchScale
-    Bio.Phylo.write(tree, temptree, 'newick')
-    pyvovle_tree = pyvolve.read_tree(file="_temp.tree")
-    os.remove(temptree)
+    fd, temp_path = mkstemp()
+    Bio.Phylo.write(tree, temp_path, 'newick')
+    os.close(fd)
+    pyvovle_tree = pyvolve.read_tree(file=treeFile)
+    os.remove(temp_path)
 
 
     #Make the `pyvovle` partition
@@ -125,10 +127,13 @@ def simulateAlignment(model, tree, alignmentPrefix):
 
     #Simulate the alignment
     alignment = '{0}_simulatedalignment.fasta'.format(alignmentPrefix)
-    info = '{0}_temp_info.txt'.format(alignmentPrefix)
-    rates = '{0}_temp_ratefile.txt'.format(alignmentPrefix)
+    info = '_temp_{0}info.txt'.format(alignmentPrefix)
+    rates = '_temp_{0}_ratefile.txt'.format(alignmentPrefix)
     evolver = pyvolve.Evolver(partitions=partitions, tree=pyvovle_tree)
     evolver(seqfile=alignment, infofile=info, ratefile=rates)
+    for f in [rates,info]:
+        if os.path.isfile(f):
+            os.remove(f)
 
 
 if __name__ == '__main__':
