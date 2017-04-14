@@ -77,7 +77,7 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
             f.write(newicktree)
 
         # simulate the alignment
-        phydmslib.simulate.simulateAlignment(model,temptree, alignmentPrefix)
+        phydmslib.simulate.simulateAlignment(model, temptree, alignmentPrefix)
 
         # read in the test tree and remove the file
         biotree = Bio.Phylo.read(temptree, 'newick')
