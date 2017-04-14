@@ -105,7 +105,6 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
 
         # We expect nsubs = branchScale * t, but build in some tolerance
         # with rtol since we simulated finite number of sites.
-        print(nsubs, model.branchScale * t, treedist)
         self.assertTrue(scipy.allclose(nsubs, model.branchScale * t, rtol=0.2),
                 ("Simulated subs per site of {0} is not close "
                 "to expected value of {1} (branchScale = {2}, t = {3})").format(
