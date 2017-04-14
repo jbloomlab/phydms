@@ -4,6 +4,8 @@ Changelog
 ---------
 * Added ``simulateAlignment`` to ``simulate.py``
 
+* Added ``--initparams`` option to ``phydms``
+
 2.0.1
 ---------
 * Handle stop codons in preferences

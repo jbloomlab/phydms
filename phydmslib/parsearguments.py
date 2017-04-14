@@ -156,9 +156,7 @@ def diffPrefsPrior(priorstring):
 
 
 def ExistingFile(fname):
-    """If *fname* is name of an existing file return it, otherwise an error.
-
-    *fname* can also be the string 'None', in which case we return *None*."""
+    """If *fname* is name of an existing file return it, otherwise an error."""
     if os.path.isfile(fname):
         return fname
     else:
@@ -396,6 +394,9 @@ def PhyDMSParser():
     parser.add_argument('--minpref', default=0.002, type=FloatGreaterThanZero,
             help="Adjust all preferences in ExpCM 'prefsfile' to >= this.")
     parser.add_argument('--seed', type=int, default=1, help="Random number seed.")
+    parser.add_argument('--initparams', type=ExistingFile, help="Initialize "
+            "model params from this file, which should be format of "
+            "'*_modelparams.txt' file created by 'phydms' with this model.")
     parser.set_defaults(profile=False)
     parser.add_argument('--profile', dest='profile', action='store_true',
             help="Profile likelihood maximization, write pstats files. "
