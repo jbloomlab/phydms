@@ -10,6 +10,7 @@ import math
 import phydmslib.models
 from phydmslib.constants import *
 import pyvolve
+from tempfile import mkstemp
 
 
 def pyvolvePartitions(model, divselection=None):
@@ -89,46 +90,56 @@ def pyvolvePartitions(model, divselection=None):
 
     return partitions
 
-def simulateAlignment(model, tree, alignmentPrefix):
+def simulateAlignment(model, treeFile, alignmentPrefix):
     """
-    Simulate an alignment given a model and tree (units = subs/site)
+    Simulate an alignment given a model and tree (units = subs/site).
+
+    Simulations done using `pyvolve`.
 
     Args:
         `model` (`phydmslib.models.Models` object)
-            The model used for the simulations. Currently only
-            Models` are supported (e.g., `YNGKP`,
-            `ExpCM`)
-        `treeFile` (file name)
-            The tree used to simulate the sequences. The branch lengths should
-            be in substitutions/site, which is the default units for all
-            `phydms` outputs.
+            The model used for the simulations. Only
+            models that can be passed to `pyvolve.Partitions`
+            are supported.
+        `treeFile` (str)
+            Name of newick file used to simulate the sequences. 
+            The branch lengths should be in substitutions per site,
+            which is the default units for all `phydms` outputs.
         `alignmentPrefix`
             Prefix for the files created by `pyvolve`.
+
+    The result of this function is a simulated FASTA alignment
+    file with the name having the prefix giving by `alignmentPrefix`
+    and the suffix `'_simulatedalignment.fasta'`.
     """
 
     #Transform the branch lengths by dividing by the model `branchScale`
-    temptree = "_scaletree.newick"
-    tree = Bio.Phylo.read(tree, 'newick')
+    tree = Bio.Phylo.read(treeFile, 'newick')
     tree.root_at_midpoint()
     for node in tree.get_terminals() + tree.get_nonterminals():
         if (node.branch_length == None) and (node == tree.root):
             node.branch_length = 1e-06
         else:
             node.branch_length /= model.branchScale
-    Bio.Phylo.write(tree, temptree, 'newick')
-    pyvovle_tree = pyvolve.read_tree(file="_temp.tree")
-    os.remove(temptree)
+    fd, temp_path = mkstemp()
+    Bio.Phylo.write(tree, temp_path, 'newick')
+    os.close(fd)
+    pyvolve_tree = pyvolve.read_tree(file=treeFile)
+    os.remove(temp_path)
 
-
-    #Make the `pyvovle` partition
+    #Make the `pyvolve` partition
     partitions = pyvolvePartitions(model)
 
     #Simulate the alignment
     alignment = '{0}_simulatedalignment.fasta'.format(alignmentPrefix)
-    info = '{0}_temp_info.txt'.format(alignmentPrefix)
-    rates = '{0}_temp_ratefile.txt'.format(alignmentPrefix)
-    evolver = pyvolve.Evolver(partitions=partitions, tree=pyvovle_tree)
+    info = '_temp_{0}info.txt'.format(alignmentPrefix)
+    rates = '_temp_{0}_ratefile.txt'.format(alignmentPrefix)
+    evolver = pyvolve.Evolver(partitions=partitions, tree=pyvolve_tree)
     evolver(seqfile=alignment, infofile=info, ratefile=rates)
+    for f in [rates,info]:
+        if os.path.isfile(f):
+            os.remove(f)
+    assert os.path.isfile(alignment)
 
 
 if __name__ == '__main__':

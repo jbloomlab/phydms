@@ -39,7 +39,7 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         alignmentPrefix = "test"
 
         # define model
-        nsites = 50
+        nsites = 1000
         prefs = []
         minpref = 0.01
         for r in range(nsites):
@@ -86,14 +86,12 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         # check and see if the simulated alignment has the expected number of
         # subs exists
         alignment = '{0}_simulatedalignment.fasta'.format(alignmentPrefix)
-        info = '{0}_temp_info.txt'.format(alignmentPrefix)
-        rates = '{0}_temp_ratefile.txt'.format(alignmentPrefix)
         nsubs = 0 # subs in simulated seqs (estimate from Hamming distance)
         treedist = 0.0 # distance inferred by `TreeLikelihood`
         a = [(s.description, str(s.seq)) for s in Bio.SeqIO.parse(
                 alignment, 'fasta')]
         assert len(a[0][1]) == len(a[1][1]) == nsites * 3
-        for f in [alignment, info, rates]:
+        for f in [alignment]:
             if os.path.isfile(f):
                 os.remove(f)
         for r in range(nsites):
@@ -105,9 +103,9 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         tl.maximizeLikelihood()
         treedist += sum([n.branch_length for n in tl.tree.get_terminals()])
 
-
         # We expect nsubs = branchScale * t, but build in some tolerance
         # with rtol since we simulated finite number of sites.
+        print(nsubs, model.branchScale * t, treedist)
         self.assertTrue(scipy.allclose(nsubs, model.branchScale * t, rtol=0.2),
                 ("Simulated subs per site of {0} is not close "
                 "to expected value of {1} (branchScale = {2}, t = {3})").format(
