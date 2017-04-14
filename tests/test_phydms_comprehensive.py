@@ -57,7 +57,7 @@ class test_phydms_comprehensive(unittest.TestCase):
                         comment='#', sep='\t')
                 omegas[name] = omegas[name].sort_values(by='site', axis=0)
             self.assertTrue(scipy.allclose(omegas['actual']['P'].values,
-                    omegas['expected']['P'].values, atol=0.01, rtol=0.01))
+                    omegas['expected']['P'].values, atol=0.01, rtol=0.03))
             sigsites = omegas['expected'][omegas['expected']['P'] < 0.05]['site'].values
             sigomegas = {}
             for (name, df) in omegas.items():

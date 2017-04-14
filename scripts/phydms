@@ -114,12 +114,14 @@ def fitOmegaBySite(argtup):
 
     Returns tuple of P-value, tab-separated line with site, omega, P, dLnL"""
     (site, treeliks, nograd) = argtup
-    for name in ['fix', 'fit']:
-        if treeliks[name].model.freeparams: # can be no params if using fixsyn
-            result = treeliks[name].maximizeLikelihood(optimize_brlen=False,
-                    approx_grad=nograd)
-        if name == 'fit':
-            omega = treeliks[name].model.omega
+    if treeliks['fix'].model.freeparams: # can be no params if using fixsyn
+        result = treeliks['fix'].maximizeLikelihood(optimize_brlen=False,
+                approx_grad=nograd)
+    # starting fit from mu of fix should ensure things don't get worse
+    treeliks['fit'].updateParams({'mu':treeliks['fix'].model.mu})
+    result = treeliks['fit'].maximizeLikelihood(optimize_brlen=False,
+            approx_grad=nograd)
+    omega = treeliks['fit'].model.omega
     dLnL = treeliks['fit'].loglik - treeliks['fix'].loglik
     if dLnL < -0.01:
         msg = '\nsite {0}'.format(site)
@@ -296,6 +298,21 @@ def main():
                         model, args['ncats'])
         else:
             raise ValueError("Invalid model of {0}".format(args['model']))
+        if args['initparams']:
+            print("Initializing model parameters from {0}".format(
+                    args['initparams']))
+            with open(args['initparams']) as f:
+                paramvalues = {}
+                for line in f:
+                    (param, value) = line.split('=')
+                    param = param.strip()
+                    if param in model.freeparams:
+                        paramvalues[param.strip()] = float(value)
+            assert paramvalues, "No values to initialize."
+            print("Initializing the following values:\n\t{0}\n".format(
+                    '\n\t'.join(['{0} = {1:.5f}'.format(param, value) for
+                    (param, value) in sorted(paramvalues.items())])))
+            model.updateParams(paramvalues)
 
         # read tree
         logger.info("Reading tree from {0}".format(args['tree']))

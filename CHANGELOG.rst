@@ -4,6 +4,10 @@ Changelog
 ---------
 * Added ``simulateAlignment`` to ``simulate.py``
 
+* Added ``--initparams`` option to ``phydms``
+
+* Modified ``--omegabysite`` fitting to reduce (hopefully eliminate) rare errors
+
 2.0.1
 ---------
 * Handle stop codons in preferences
