@@ -359,9 +359,4 @@ def main():
 
 
 if __name__ == '__main__':
-    if hasattr(multiprocessing, 'set_start_method'):
-        # If using python >= 3.4, this will reduce memory usage, as described:
-        # http://stackoverflow.com/questions/42584525/python-multiprocessing-debugging-oserror-errno-12-cannot-allocate-memory
-        # http://stackoverflow.com/questions/25477470/how-can-i-restrict-the-scope-of-a-multiprocessing-process
-        multiprocessing.set_start_method('forkserver')
     main() # run the script
