@@ -1,8 +1,9 @@
 Changelog
 ===========
-2.0.dev2
+
+2.0.2
 ---------
-* Added ``simulateAlignment`` to ``simulate.py``
+* Added new simulation capabilities to `phydmslib.simulate`
 
 * Added ``--initparams`` option to ``phydms``
 
