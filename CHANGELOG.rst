@@ -1,7 +1,7 @@
 Changelog
 ===========
 
-2.0.dev3
+2.0.3
 ---------
 * Changes to reduce problems with convergence in ``--diffprefsbysite``
 
