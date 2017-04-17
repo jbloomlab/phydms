@@ -9,6 +9,7 @@ import sys
 import math
 import copy
 import warnings
+warnings.simplefilter('always')
 import scipy
 import scipy.optimize
 import Bio.Phylo
@@ -396,6 +397,7 @@ class TreeLikelihood(object):
                 self.dtcurrent = False
                 self.dparamscurrent = True
             nparamstry = 0
+            origparamsarray = self.paramsarray.copy()
             paramsconverged = False
             while not paramsconverged:
                 result = scipy.optimize.minimize(paramsfunc, self.paramsarray,
@@ -415,25 +417,27 @@ class TreeLikelihood(object):
                         resultmessage = ('loglik increased during param optimization '
                                 'from {0} to {1}'.format(oldloglik, self.loglik))
                     nparamstry += 1
-                    failmsg = ("Optimization failure {0}\n{1}\n{2}\n{3}".format(
-                            nparamstry, resultmessage, '\n'.join([
-                            '{0} = {1}'.format(tup[0], tup[1]) for tup in 
-                            sorted(self.model.paramsReport.items())]), 
-                            '\n'.join(summary)))
+                    failmsg = ("Optimization failure {0}\n{1}\n{2}".format(
+                            nparamstry, resultmessage, '\n'.join(summary)))
                     if nparamstry > nparamsretry:
                         raise RuntimeError(failmsg)
                     else:
                         warnings.warn(failmsg + '\n\n' + 
                                 "Re-trying with different initial params.")
                         scipy.random.seed(nparamstry)
-                        newparams = scipy.random.uniform(0.6, 0.9,
-                                self.paramsarray.shape) * self.paramsarray
-                        assert newparams.ndim == 1
-                        for j in range(len(newparams)):
-                            while newparams[j] <= self.paramsarraybounds[j][0]:
-                                newparams[j] *= 1.1
-                                assert newparams[j] < self.paramsarraybounds[j][1]
-                        self.paramsarray = newparams
+                        # seed new values at geometric mean of original value, max
+                        # bound, min bound, and random number between max and min
+                        minarray = scipy.array([self.paramsarraybounds[j][0] for
+                                j in range(len(self.paramsarray))])
+                        maxarray = scipy.array([self.paramsarraybounds[j][1] for
+                                j in range(len(self.paramsarray))])
+                        randarray = scipy.random.uniform(minarray, maxarray)
+                        newarray = (minarray * maxarray * randarray * 
+                                origparamsarray)**(1 / 4.) # geometric mean
+                        assert newarray.shape == self.paramsarray.shape
+                        assert (newarray > minarray).all() 
+                        assert (newarray < maxarray).all()
+                        self.paramsarray = newarray
             i += 1
             assert oldloglik - self.loglik <= logliktol
             if self.loglik - oldloglik >= logliktol:

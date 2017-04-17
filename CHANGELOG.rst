@@ -1,6 +1,10 @@
 Changelog
 ===========
 
+2.0.dev3
+---------
+* Changes to reduce problems with convergence in ``--diffprefsbysite``
+
 2.0.2
 ---------
 * Added new simulation capabilities to `phydmslib.simulate`

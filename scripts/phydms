@@ -13,6 +13,8 @@ import random
 import time
 import math
 import multiprocessing
+import warnings
+warnings.simplefilter('always')
 import scipy
 import scipy.stats
 import statsmodels.sandbox.stats.multicomp
@@ -26,34 +28,37 @@ import phydmslib.treelikelihood
 
 
 def treelikForDiffPrefsBySite(site, tl, prefslist, prior, modeltype,
-        nograd):
+        othermodeltype, nograd):
     """Returns `TreeLikelihood` for fitting diffprefs for a site.
 
     The returned value can be passed to `fitDiffPrefsBySite`."""
     sitealignment = [(head, seq[3 * (site - 1) : 3 * site]) for
             (head, seq) in tl.alignment]
     gammaomegamodel = False
-    if isinstance(tl.model, phydmslib.models.GammaDistributedOmegaModel):
-        basemodel = tl.model.basemodel
-        assert type(basemodel) in [phydmslib.models.ExpCM, 
-                phydmslib.models.ExpCM_empirical_phi]
-        sitemodel = modeltype([prefslist[site - 1]],
-                prior, basemodel.kappa, basemodel.omega, basemodel.phi,
-                origbeta=basemodel.beta, freeparams=['zeta', 'omega'])
-        sitemodel = phydmslib.models.GammaDistributedOmegaModel(sitemodel,
-                tl.model.ncats, tl.model.alpha_omega, tl.model.beta_omega,
-                freeparams=[])
-    else:
-        assert type(tl.model) in [phydmslib.models.ExpCM, 
-                phydmslib.models.ExpCM_empirical_phi]
-        sitemodel = modeltype([prefslist[site - 1]],
-                prior, tl.model.kappa, tl.model.omega, tl.model.phi,
-                origbeta=tl.model.beta, freeparams=['zeta'])
-    assert sitemodel.freeparams == ['zeta']
-    treelik = phydmslib.treelikelihood.TreeLikelihood(
-            tl.tree, sitealignment, sitemodel,
-            branchScale=tl.model.branchScale)
-    return (site, treelik, nograd)
+    treeliks = {}
+    for (mtype, mname) in [(modeltype, 'primary'), 
+            (othermodeltype, 'secondary')]:
+        if isinstance(tl.model, phydmslib.models.GammaDistributedOmegaModel):
+            basemodel = tl.model.basemodel
+            assert type(basemodel) in [phydmslib.models.ExpCM, 
+                    phydmslib.models.ExpCM_empirical_phi]
+            sitemodel = mtype([prefslist[site - 1]],
+                    prior, basemodel.kappa, basemodel.omega, basemodel.phi,
+                    origbeta=basemodel.beta, freeparams=['zeta', 'omega'])
+            sitemodel = phydmslib.models.GammaDistributedOmegaModel(sitemodel,
+                    tl.model.ncats, tl.model.alpha_omega, tl.model.beta_omega,
+                    freeparams=[])
+        else:
+            assert type(tl.model) in [phydmslib.models.ExpCM, 
+                    phydmslib.models.ExpCM_empirical_phi]
+            sitemodel = mtype([prefslist[site - 1]],
+                    prior, tl.model.kappa, tl.model.omega, tl.model.phi,
+                    origbeta=tl.model.beta, freeparams=['zeta'])
+        assert sitemodel.freeparams == ['zeta']
+        treeliks[mname] = phydmslib.treelikelihood.TreeLikelihood(
+                tl.tree, sitealignment, sitemodel,
+                branchScale=tl.model.branchScale)
+    return (site, treeliks, nograd)
 
 
 def fitDiffPrefsBySite(argtup):
@@ -63,9 +68,18 @@ def fitDiffPrefsBySite(argtup):
     
     The return value is a tuple of half the absolute total diffpref,
     then a tab-separated string describing the results for the site."""
-    (site, treelik, nograd) = argtup
-    maxresult = treelik.maximizeLikelihood(optimize_brlen=False, 
-            approx_grad=nograd)
+    (site, treeliks, nograd) = argtup
+    try:
+        treelik = treeliks['primary']
+        maxresult = treelik.maximizeLikelihood(optimize_brlen=False, 
+                approx_grad=nograd)
+    except RuntimeError as err:
+        warnings.warn("Optimization failed with primary model; "
+                      "trying secondary model.\n"
+                      "Error message:\n{0}".format(str(err)))
+        treelik = treeliks['secondary']
+        maxresult = treelik.maximizeLikelihood(optimize_brlen=False, 
+                approx_grad=nograd)
     diffprefs = treelik.model.pi[0] - treelik.model.origpi[0]
     resultstr = [str(site)] + ['{0:.4f}'.format(diffprefs[a])
             for a in range(N_AA)]
@@ -171,8 +185,10 @@ def main():
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
             level=logging.INFO)
     logger = logging.getLogger(prog)
+    warning_logger = logging.getLogger("py.warnings")
     logfile_handler = logging.FileHandler(logfile)
     logger.addHandler(logfile_handler)
+    warning_logger.addHandler(logfile_handler)
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     logfile_handler.setFormatter(formatter)
 
@@ -448,9 +464,14 @@ def main():
         if args['diffprefsbysite']:
             logger.info("\nFitting differential preferences for each site to "
                     "detect differential selection.")
-            modeltype = {1:phydmslib.models.ExpCM_fitprefs,
-                         2:phydmslib.models.ExpCM_fitprefs2}[
-                         args['fitprefsmethod']]
+            if args['fitprefsmethod'] == 1:
+                modeltype = phydmslib.models.ExpCM_fitprefs
+                othermodeltype = phydmslib.models.ExpCM_fitprefs2
+            elif args['fitprefsmethod'] == 2:
+                modeltype = phydmslib.models.ExpCM_fitprefs2
+                othermodeltype = phydmslib.models.ExpCM_fitprefs
+            else:
+                raise ValueError("Invalid fitprefsmethod")
             logger.info("For the fitting, using {0} implementation "
                     "as specified by fitprefsmethod = {1}".format(
                     modeltype.__name__, args['fitprefsmethod']))
@@ -468,8 +489,8 @@ def main():
                     mapfunc = map
                 diffprefresults += mapfunc(fitDiffPrefsBySite, 
                         [treelikForDiffPrefsBySite(site, tl, prefslist,
-                        args['diffprefsprior'], modeltype, args['nograd']) 
-                        for site in currentsites])
+                        args['diffprefsprior'], modeltype, othermodeltype,
+                        args['nograd']) for site in currentsites])
                 if ncpus > 1:
                     pool.close()
                     pool.join()

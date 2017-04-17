@@ -13,6 +13,7 @@ import functools
 import six
 import abc
 import warnings
+warnings.simplefilter('always')
 import scipy
 import scipy.misc
 import scipy.optimize
