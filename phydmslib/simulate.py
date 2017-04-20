@@ -102,7 +102,7 @@ def simulateAlignment(model, treeFile, alignmentPrefix):
             models that can be passed to `pyvolve.Partitions`
             are supported.
         `treeFile` (str)
-            Name of newick file used to simulate the sequences. 
+            Name of newick file used to simulate the sequences.
             The branch lengths should be in substitutions per site,
             which is the default units for all `phydms` outputs.
         `alignmentPrefix`
@@ -136,7 +136,7 @@ def simulateAlignment(model, treeFile, alignmentPrefix):
     rates = '_temp_{0}_ratefile.txt'.format(alignmentPrefix)
     evolver = pyvolve.Evolver(partitions=partitions, tree=pyvolve_tree)
     evolver(seqfile=alignment, infofile=info, ratefile=rates)
-    for f in [rates,info]:
+    for f in [rates,info, "custom_matrix_frequencies.txt"]:
         if os.path.isfile(f):
             os.remove(f)
     assert os.path.isfile(alignment)
