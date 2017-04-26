@@ -86,8 +86,8 @@ class test_simulateAlignmentRandomSeed_ExpCM(unittest.TestCase):
                 alignments[counter][s.id] = str(s.seq)
         # check they are the same
         for key in alignments[counter].keys():
-            assert alignments[counter][key] == alignments[counter - 1][key]
-        #
+            self.assertTrue(alignments[counter][key] == alignments[counter - 1][key])
+
         # alignments with different seed numbers should be different
         # make an alignment with a different seed number
         seed += 1
@@ -98,7 +98,7 @@ class test_simulateAlignmentRandomSeed_ExpCM(unittest.TestCase):
             alignments[counter][s.id] = str(s.seq)
         # check they are different
         for key in alignments[counter].keys():
-            assert alignments[counter][key] != alignments[counter - 1][key]
+            self.assertFalse(alignments[counter][key] == alignments[counter - 1][key])
 
 
         # general clean-up
