@@ -11,6 +11,7 @@ import phydmslib.models
 from phydmslib.constants import *
 import pyvolve
 from tempfile import mkstemp
+import random
 
 
 def pyvolvePartitions(model, divselection=None):
@@ -90,7 +91,7 @@ def pyvolvePartitions(model, divselection=None):
 
     return partitions
 
-def simulateAlignment(model, treeFile, alignmentPrefix):
+def simulateAlignment(model, treeFile, alignmentPrefix, randomSeed=False):
     """
     Simulate an alignment given a model and tree (units = subs/site).
 
@@ -112,7 +113,10 @@ def simulateAlignment(model, treeFile, alignmentPrefix):
     file with the name having the prefix giving by `alignmentPrefix`
     and the suffix `'_simulatedalignment.fasta'`.
     """
-
+    if randomSeed == False:
+        pass
+    else:
+        random.seed(randomSeed)
     #Transform the branch lengths by dividing by the model `branchScale`
     tree = Bio.Phylo.read(treeFile, 'newick')
     tree.root_at_midpoint()
