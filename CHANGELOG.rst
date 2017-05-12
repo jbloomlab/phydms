@@ -4,7 +4,7 @@ Changelog
 ---------
 * Minor tweaks to `phydmslib.simulate`
 
-* Fixed minor bug in likelihood optimization
+* Fixed rare bug in likelihood optimization that caused nothing to be optimized
 
 2.0.3
 ---------
