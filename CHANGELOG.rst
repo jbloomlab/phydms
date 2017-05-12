@@ -4,6 +4,8 @@ Changelog
 ---------
 * Minor tweaks to `phydmslib.simulate`
 
+* Fixed minor bug in likelihood optimization
+
 2.0.3
 ---------
 * Changes to reduce problems with convergence in ``--diffprefsbysite``

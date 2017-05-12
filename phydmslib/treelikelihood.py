@@ -389,6 +389,7 @@ class TreeLikelihood(object):
 
         oldloglik = self.loglik
         converged = False
+        firstbrlenpass = True
         options = {'ftol':1.0e-7} # optimization options
         summary = []
         i = 1
@@ -440,7 +441,8 @@ class TreeLikelihood(object):
                         self.paramsarray = newarray
             i += 1
             assert oldloglik - self.loglik <= logliktol
-            if self.loglik - oldloglik >= logliktol:
+            if (self.loglik - oldloglik >= logliktol) or firstbrlenpass:
+                firstbrlenpass = False
                 oldloglik = self.loglik
                 if optimize_brlen:
                     if not approx_grad:
