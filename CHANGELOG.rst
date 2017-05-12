@@ -1,6 +1,6 @@
 Changelog
 ===========
-2.0.dev4
+2.0.4
 ---------
 * Minor tweaks to `phydmslib.simulate`
 
