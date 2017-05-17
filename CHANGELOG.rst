@@ -1,7 +1,7 @@
 Changelog
 ===========
 
-2.0.dev5
+2.0.5
 ---------
 * Added ``--opt_details`` argument to ``phydms``
 
