@@ -5,6 +5,8 @@ Changelog
 ---------
 * Added ``--opt_details`` argument to ``phydms``
 
+* Tweak to likelihood optimization convergence tests
+
 2.0.4
 ---------
 * Minor tweaks to `phydmslib.simulate`

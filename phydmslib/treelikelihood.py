@@ -428,11 +428,17 @@ class TreeLikelihood(object):
                 summary.append(msg)
                 if result.success and (not (oldloglik - self.loglik > logliktol)):
                     paramsconverged = True
+                    jacmax = scipy.absolute(result.jac).max()
+                    if jacmax > 1000:
+                        raise RuntimeError("Optimizer reports convergence, "
+                                "but max element in Jacobian is {0}\n"
+                                "Summary of optimization:\n{1}".format(
+                                jacmax, summary))
                 else:
                     if not result.success:
                         resultmessage = result.message
                     else:
-                        resultmessage = ('loglik increased during param optimization '
+                        resultmessage = ('loglik increased in param optimization '
                                 'from {0} to {1}'.format(oldloglik, self.loglik))
                     nparamstry += 1
                     failmsg = ("Optimization failure {0}\n{1}\n{2}".format(
@@ -443,7 +449,7 @@ class TreeLikelihood(object):
                         warnings.warn(failmsg + '\n\n' + 
                                 "Re-trying with different initial params.")
                         scipy.random.seed(nparamstry)
-                        # seed new values at geometric mean of original value, max
+                        # seed at geometric mean of original value, max
                         # bound, min bound, and random number between max and min
                         minarray = scipy.array([self.paramsarraybounds[j][0] for
                                 j in range(len(self.paramsarray))])
@@ -489,13 +495,6 @@ class TreeLikelihood(object):
                     converged = True
             else:
                 converged = True
-
-        jacmax = scipy.absolute(result.jac).max()
-        if jacmax > 1000:
-            raise RuntimeError(("Even though optimizer reports convergence, "
-                    "the maximum element in the Jacobian is too large: {0}\n"
-                    "Here is the summary from the optimization:\n{1}").format(
-                    jacmax, summary))
 
         return '\n'.join(summary)
 
