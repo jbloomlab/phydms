@@ -15,6 +15,9 @@ import phydmslib.file_io
 import phydmslib.models
 import phydmslib.simulate
 from phydmslib.constants import *
+import matplotlib
+matplotlib.use('pdf')
+import matplotlib.pyplot as plt
 import pyvolve
 
 
@@ -91,12 +94,14 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
             for (method2, prefs2) in sorted(prefsbymethod.items())[i + 1 : ]:
                 total2 = prefs2['total'].values
                 (r, p) = scipy.stats.pearsonr(total1, total2)
-                self.assertTrue(r > 0.99, "Correlation between fitprefsmethod")
-                #import matplotlib.pyplot as plt
-                #plt.scatter(total1, total2)
-                #plt.xlabel('fitprefsmethod{0}'.format(method1))
-                #plt.ylabel('fitprefsmethod{0}'.format(method2))
-                #plt.show()
+                plt.scatter(total1, total2)
+                plt.xlabel('fitprefsmethod{0}'.format(method1))
+                plt.ylabel('fitprefsmethod{0}'.format(method2))
+                plotfile = os.path.join(self.outdir, '{0}_vs_{1}.pdf'.format(
+                        method1, method2))
+                plt.savefig(plotfile)
+                self.assertTrue(r > 0.98, "Low correlation between "
+                        "fitprefsmethods: {0}\nSee {1}".format(r, plotfile))
 
 
 

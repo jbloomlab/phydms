@@ -61,8 +61,8 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
         self.assertTrue((divpressureomegas['omega'].values > 2).all(),
                 "Not all divpressure sites have omega > 2:\n{0}".format(
                 divpressureomegas))
-        self.assertTrue((divpressureomegas['P'].values < 0.05).all(),
-                "Not all divpressure sites have P < 0.05:\n{0}".format(
+        self.assertTrue((divpressureomegas['P'].values < 0.08).all(),
+                "Not all divpressure sites have P < 0.08:\n{0}".format(
                 divpressureomegas))
         nspurious = len(omegas[(omegas['omega'] > 2) & (omegas['P'] < 0.05)
                 & (~omegas['site'].isin(divpressuresites))])
