@@ -324,7 +324,8 @@ class TreeLikelihood(object):
         self._updateInternals()
 
     def maximizeLikelihood(self, optimize_brlen=False,
-            approx_grad=False, logliktol=1.0e-2, nparamsretry=1):
+            approx_grad=False, logliktol=1.0e-2, nparamsretry=1,
+            printfunc=None):
         """Maximize the log likelihood.
 
         Maximizes log likelihood with respect to model parameters
@@ -350,6 +351,11 @@ class TreeLikelihood(object):
             `nparamsretry` (int >= 0)
                 Number of times to retry parameter optimization from 
                 different initial values if it fails the first time.
+            `printfunc` (`None` or a function)
+                If not `None`, then we print using `printfunc` the
+                detailed results of the optimization at each step.
+                For instance, `printfunc` might be `sys.stderr.write`
+                or `logger.info`.
 
         Returns:
             A string giving a summary of the maximization.
@@ -387,6 +393,16 @@ class TreeLikelihood(object):
             self.dtcurrent = False
             self.dparamscurrent = False
 
+        def _printResult(opttype, result, i, old, new):
+            """Print summary of optimization result."""
+            if printfunc is not None:
+                printfunc('Step {0}, optimized {1}.\n'
+                          'Likelihood went from {2} to {3}.\n'
+                          'Max magnitude in Jacobian is {4}.\n'
+                          'Full optimization result:\n{5}\n'.format(
+                          i, opttype, old, new, 
+                          scipy.absolute(result.jac).max(), result))
+
         oldloglik = self.loglik
         converged = False
         firstbrlenpass = True
@@ -404,6 +420,7 @@ class TreeLikelihood(object):
                 result = scipy.optimize.minimize(paramsfunc, self.paramsarray,
                         method='L-BFGS-B', jac=paramsdfunc,
                         bounds=self.paramsarraybounds, options=options)
+                _printResult('params', result, i, oldloglik, self.loglik)
                 msg = ('Step {0}: optimized parameters, loglik went from '
                         '{1:.2f} to {2:.2f} ({3} iterations, {4} function '
                         'evals)'.format(i, oldloglik, self.loglik, result.nit,
@@ -451,6 +468,7 @@ class TreeLikelihood(object):
                     result = scipy.optimize.minimize(tfunc, self.t,
                             method='L-BFGS-B', jac=tdfunc, options=options,
                             bounds=[(ALMOST_ZERO, None)] * len(self.t))
+                    _printResult('branches', result, i, oldloglik, self.loglik)
                     summary.append('Step {0}: optimized branches, loglik '
                             'went from {1:.2f} to {2:.2f} ({3} iterations, '
                             '{4} function evals)'.format(i, oldloglik,

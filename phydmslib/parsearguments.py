@@ -401,6 +401,9 @@ def PhyDMSParser():
     parser.add_argument('--profile', dest='profile', action='store_true',
             help="Profile likelihood maximization, write pstats files. "
             "For code-development purposes.")
+    parser.set_defaults(opt_details=False)
+    parser.add_argument('--opt_details', dest='opt_details', 
+            action='store_true', help='Print details about optimization')
     parser.set_defaults(nograd=False)
     parser.add_argument('--nograd', dest='nograd', action='store_true',
             help="Do not use gradients for likelihood maximization.")

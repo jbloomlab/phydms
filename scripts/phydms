@@ -358,6 +358,9 @@ def main():
         logger.info('TreeLikelihood initialized.')
 
         # maximize likelihood
+        printfunc = None
+        if args['opt_details']:
+            printfunc = logger.info
         logger.info('Maximizing log likelihood (initially {0:.2f}).'.format(
                 tl.loglik))
         if args['brlen'] == 'scale':
@@ -379,7 +382,8 @@ def main():
             def wrapper(maxresult): # wrapper to get return value from cProfile
                 maxresult.append(tl.maximizeLikelihood(
                         optimize_brlen=optimize_brlen, 
-                        approx_grad=args['nograd']))
+                        approx_grad=args['nograd'], 
+                        printfunc=printfunc))
             cProfile.runctx('wrapper(maxresult)', globals(), locals(), pstatsfile)
             maxresult = maxresult[0]
             for psort in ['cumulative', 'tottime']:
@@ -394,7 +398,7 @@ def main():
                 f.close()
         else:
             maxresult = tl.maximizeLikelihood(optimize_brlen=optimize_brlen,
-                    approx_grad=args['nograd'])
+                    approx_grad=args['nograd'], printfunc=printfunc)
         logger.info('Maximization complete:\n\t{0}'.format(
                 maxresult.replace('\n', '\n\t')))
         logger.info('Optimized log likelihood is {0:.2f}.'.format(tl.loglik))

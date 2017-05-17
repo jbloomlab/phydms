@@ -1,5 +1,10 @@
 Changelog
 ===========
+
+2.0.dev5
+---------
+* Added ``--opt_details`` argument to ``phydms``
+
 2.0.4
 ---------
 * Minor tweaks to `phydmslib.simulate`
