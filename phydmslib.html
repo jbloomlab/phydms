@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>phydmslib package &mdash; phydms 2.0.4 documentation</title>
+    <title>phydmslib package &mdash; phydms 2.0.5 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2.0.4',
+        VERSION:     '2.0.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 2.0.4 documentation" href="index.html" />
+    <link rel="top" title="phydms 2.0.5 documentation" href="index.html" />
     <link rel="up" title="phydmslib API" href="api.html" />
     <link rel="next" title="Acknowledgments and citations" href="acknowledgments.html" />
     <link rel="prev" title="phydmslib API" href="api.html" /> 
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="api.html" title="phydmslib API"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.4 documentation</a> &raquo;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.5 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="api.html" accesskey="U"><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &raquo;</li> 
       </ul>
     </div>  
@@ -1900,7 +1900,7 @@ only to the input tree, not the output one.</dd>
 
 <dl class="method">
 <dt id="phydmslib.treelikelihood.TreeLikelihood.maximizeLikelihood">
-<code class="descname">maximizeLikelihood</code><span class="sig-paren">(</span><em>optimize_brlen=False</em>, <em>approx_grad=False</em>, <em>logliktol=0.01</em>, <em>nparamsretry=1</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.maximizeLikelihood" title="Permalink to this definition">¶</a></dt>
+<code class="descname">maximizeLikelihood</code><span class="sig-paren">(</span><em>optimize_brlen=False</em>, <em>approx_grad=False</em>, <em>logliktol=0.01</em>, <em>nparamsretry=1</em>, <em>printfunc=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.maximizeLikelihood" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximize the log likelihood.</p>
 <p>Maximizes log likelihood with respect to model parameters
 and potentially branch lengths depending on <cite>optimize_brlen</cite>.
@@ -1924,6 +1924,11 @@ change in log likelihood is less than <cite>logliktol</cite>.</dd>
 <dt><cite>nparamsretry</cite> (int &gt;= 0)</dt>
 <dd>Number of times to retry parameter optimization from 
 different initial values if it fails the first time.</dd>
+<dt><cite>printfunc</cite> (<cite>None</cite> or a function)</dt>
+<dd>If not <cite>None</cite>, then we print using <cite>printfunc</cite> the
+detailed results of the optimization at each step.
+For instance, <cite>printfunc</cite> might be <cite>sys.stderr.write</cite>
+or <cite>logger.info</cite>.</dd>
 </dl>
 </dd>
 <dt>Returns:</dt>
@@ -2290,7 +2295,7 @@ function is identical to <em>KyteDoolittleColorMapping</em></p>
         <li class="right" >
           <a href="api.html" title="phydmslib API"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.4 documentation</a> &raquo;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.5 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="api.html" ><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &raquo;</li> 
       </ul>
     </div>
