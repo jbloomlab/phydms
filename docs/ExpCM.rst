@@ -60,7 +60,7 @@ The mutation rate terms :math:`Q_{xy}` are given by what is essentially a `HKY85
    :label: Qxy
 
    Q_{xy} = \begin{cases} 
-            0 & \mbox{if $x$ and $y$ differ by more than on nucleotide,} \\
+            0 & \mbox{if $x$ and $y$ differ by more than one nucleotide,} \\
             \phi_w & \mbox{if $x$ can be converted to $y$ by a transversion of a nucleotide to $w$,} \\
             \kappa \times \phi_w & \mbox{if $x$ can be converted to $y$ by a transition of a nucleotide to $w$.} \\
             \end{cases}
