@@ -23,12 +23,12 @@ import pyvolve
 
 
 
-class test_simulateAlignment_ExpCM(unittest.TestCase):
+class test_simulateAlignment_ExpCM_divselection(unittest.TestCase):
     """Tests `simulateAlignment` of `simulate.py` module."""
 
     # use approach here to run multiple tests:
     # http://stackoverflow.com/questions/17260469/instantiate-python-unittest-testcase-with-arguments
-    MODEL = phydmslib.models.ExpCM_empirical_phi
+    MODEL = phydmslib.models.ExpCM_empirical_phi_divpressure
 
     def test_simulateAlignment(self):
         """Simulate evolution, ensure scaled branches match number of subs."""
@@ -51,24 +51,15 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         omega = 0.4
         beta = 1.5
         mu = 0.3
-        if self.MODEL == phydmslib.models.ExpCM:
-            phi = scipy.random.dirichlet([7] * N_NT)
-            model = phydmslib.models.ExpCM(prefs, kappa=kappa, omega=omega,
-                    beta=beta, mu=mu, phi=phi, freeparams=['mu'])
-        elif self.MODEL == phydmslib.models.ExpCM_empirical_phi:
+        omega2 = 1.2
+        deltar = scipy.array([1 if x in random.sample(range(nsites), 20) else 0 for x in range(nsites)])
+        if self.MODEL == phydmslib.models.ExpCM_empirical_phi_divpressure:
             g = scipy.random.dirichlet([7] * N_NT)
-            model = phydmslib.models.ExpCM_empirical_phi(prefs, g,
+            model = phydmslib.models.ExpCM_empirical_phi_divpressure(prefs, g, deltar,
                     kappa=kappa, omega=omega, beta=beta, mu=mu,
-                    freeparams=['mu'])
-        elif self.MODEL == phydmslib.models.YNGKP_M0:
-            e_pw = scipy.asarray([scipy.random.dirichlet([7] * N_NT) for i
-                    in range(3)])
-            model = phydmslib.models.YNGKP_M0(e_pw, nsites)
+                    freeparams=['mu'], omega2=omega2)
         else:
             raise ValueError("Invalid MODEL: {0}".format(type(self.MODEL)))
-
-        # define divselection
-        divselection = (100, [5,10,20])
 
         # make a test tree
         # tree is two sequences separated by a single branch
@@ -121,11 +112,6 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         for f in ['custom_matrix_frequencies.txt']:
             if os.path.isfile(f):
                 os.remove(f)
-
-
-class test_simulateAlignment_YNGKP_M0(test_simulateAlignment_ExpCM):
-    """Tests `simulateAlignment` of `YNGKP_M0` model."""
-    MODEL = phydmslib.models.YNGKP_M0
 
 
 if __name__ == '__main__':

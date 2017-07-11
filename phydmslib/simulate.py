@@ -59,12 +59,14 @@ def pyvolvePartitions(model, divselection=None):
                     (xaa, yaa) = (codon_dict[x], codon_dict[y])
                     fxy = 1.0
                     if xaa != yaa:
-                        if r + 1 in divsites:
+                        if type(model) == phydmslib.models.ExpCM_empirical_phi_divpressure:
+                            fxy *= model.omega * (1 + model.omega2 * model.deltar[r])
+                        elif r + 1 in divsites:
                             fxy *= divomega
                         else:
                             fxy *= model.omega
                     if type(model) in [phydmslib.models.ExpCM,
-                            phydmslib.models.ExpCM_empirical_phi]:
+                            phydmslib.models.ExpCM_empirical_phi, phydmslib.models.ExpCM_empirical_phi_divpressure]:
                         qxy *= model.phi[NT_TO_INDEX[ynt]]
                         pix = model.pi[r][AA_TO_INDEX[xaa]]**model.beta
                         piy = model.pi[r][AA_TO_INDEX[yaa]]**model.beta
