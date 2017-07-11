@@ -67,9 +67,6 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         else:
             raise ValueError("Invalid MODEL: {0}".format(type(self.MODEL)))
 
-        # define divselection
-        divselection = (100, [5,10,20])
-
         # make a test tree
         # tree is two sequences separated by a single branch
         t = 0.04 / model.branchScale

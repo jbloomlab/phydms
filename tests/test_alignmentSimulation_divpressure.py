@@ -1,6 +1,7 @@
 """Tests alignment simulation.
 
-Makes sure we can correctly simulate an alignment given a model and a tree.
+Makes sure we can correctly simulate an alignment given an `ExpCM` with
+divpressure and a tree.
 
 Written by Sarah Hilton and Jesse Bloom.
 """

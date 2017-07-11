@@ -1,6 +1,10 @@
 Changelog
 ===========
 
+2.0.dev6
+---------
+* Added ``ExpCM`` with ``divpressure`` to ``simulate.py``.
+
 2.0.5
 ---------
 * Added ``--opt_details`` argument to ``phydms``
