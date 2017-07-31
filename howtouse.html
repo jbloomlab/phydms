@@ -1,34 +1,33 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>how to use phydms &mdash; phydms 2.0.5 documentation</title>
-    
+    <title>how to use phydms &#8212; phydms 2.0.dev6 documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2.0.5',
+        VERSION:     '2.0.dev6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 2.0.5 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="the phydms program" href="phydms_prog.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -44,7 +43,7 @@
         <li class="right" >
           <a href="installation.html" title="Installation"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.5 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.dev6 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -54,20 +53,20 @@
           <div class="body" role="main">
             
   <div class="section" id="how-to-use-phydms">
-<span id="howtouse"></span><h1><a class="toc-backref" href="#id1">how to use <code class="docutils literal"><span class="pre">phydms</span></code></a><a class="headerlink" href="#how-to-use-phydms" title="Permalink to this headline">¶</a></h1>
+<span id="howtouse"></span><h1><a class="toc-backref" href="#id2">how to use <code class="docutils literal"><span class="pre">phydms</span></code></a><a class="headerlink" href="#how-to-use-phydms" title="Permalink to this headline">¶</a></h1>
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#how-to-use-phydms" id="id1">how to use <code class="docutils literal"><span class="pre">phydms</span></code></a><ul>
-<li><a class="reference internal" href="#overview" id="id2">Overview</a></li>
-<li><a class="reference internal" href="#how-to-get-deep-mutational-scanning-data-into-a-usable-form" id="id3">How to get deep mutational scanning data into a usable form</a></li>
-<li><a class="reference internal" href="#tutorial" id="id4">Tutorial</a></li>
+<li><a class="reference internal" href="#how-to-use-phydms" id="id2">how to use <code class="docutils literal"><span class="pre">phydms</span></code></a><ul>
+<li><a class="reference internal" href="#overview" id="id3">Overview</a></li>
+<li><a class="reference internal" href="#how-to-get-deep-mutational-scanning-data-into-a-usable-form" id="id4">How to get deep mutational scanning data into a usable form</a></li>
+<li><a class="reference internal" href="#id1" id="id5">Tutorial</a></li>
 </ul>
 </li>
 </ul>
 </div>
 <div class="section" id="overview">
-<h2><a class="toc-backref" href="#id2">Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id3">Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
 <p>The idea behind <code class="docutils literal"><span class="pre">phydms</span></code> is that deep mutational scanning data can inform quantitative models of protein evolution.
 These models can be used to compare selection measured in the lab to that in natural evolution.</p>
 <p>For extensive background, see the following references:</p>
@@ -76,30 +75,30 @@ These models can be used to compare selection measured in the lab to that in nat
 <li><a class="reference external" href="http://mbe.oxfordjournals.org/content/31/8/1956">Bloom, Mol Biol Evol, 31:1956-1978</a> introduces the idea of using deep mutational scanning to build quantitative phylogenetic substitution models.
 <a class="reference external" href="http://mbe.oxfordjournals.org/content/31/10/2753">Bloom, Mol Biol Evol, 31:2753-2769</a> makes several extensions to this idea.</li>
 <li><a class="reference external" href="http://biologydirect.biomedcentral.com/articles/10.1186/s13062-016-0172-z">Bloom, Biology Direct, 12:1</a> describes methods to test whether sites are evolving differently in nature than expected from the deep mutational scanning.</li>
-<li><a class="reference external" href="http://biorxiv.org/content/early/2017/03/29/121830">Hilton, Doud, and Bloom, bioRxiv, 2017</a> describes the <code class="docutils literal"><span class="pre">phydms</span></code> software package.</li>
+<li><a class="reference external" href="https://peerj.com/articles/3657/">Hilton, Doud, and Bloom, PeerJ, 2017</a> describes the <code class="docutils literal"><span class="pre">phydms</span></code> software package.</li>
 </ol>
 </div></blockquote>
 </div>
 <div class="section" id="how-to-get-deep-mutational-scanning-data-into-a-usable-form">
-<h2><a class="toc-backref" href="#id3">How to get deep mutational scanning data into a usable form</a><a class="headerlink" href="#how-to-get-deep-mutational-scanning-data-into-a-usable-form" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id4">How to get deep mutational scanning data into a usable form</a><a class="headerlink" href="#how-to-get-deep-mutational-scanning-data-into-a-usable-form" title="Permalink to this headline">¶</a></h2>
 <p>The <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a> used by <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> incorporate deep mutational scanning data in the form of amino-acid preferences.
 Each residue has a preference for each amino-acid, and these preferences sum to one for each residue.</p>
 <p>Your deep mutational scanning data may or may not already be in this form.
 For instance, <a class="reference external" href="http://jbloomlab.github.io/dms_tools">dms_tools</a> directly output amino-acid preferences.
 But many other methods of analyzing deep mutational scanning data give enrichment ratios or functional scores.
 It is easy to convert these scores or enrichment ratios into amino-acid preferences: just normalize the enrichment ratios to sum to one at each site.
-See the <a class="reference internal" href="#tutorial">Tutorial</a> for details.</p>
+See the <a class="reference external" href="http://htmlpreview.github.io/?https://github.com/jbloomlab/phydms/blob/master/tutorial/phydms_tutorial.html">Tutorial</a> for details.</p>
 <p>If you are missing data for some mutations, you have to interpolate them somehow.
 If you are only missing a few mutations, a reasonable approach is to estimate their effect as equal to the average for all other mutations.
-You can&#8217;t simply leave some estimates out &#8211; any mutation can happen in evolution, so an evolutionary model has to include an estimate for each mutation&#8217;s effects.</p>
+You can’t simply leave some estimates out – any mutation can happen in evolution, so an evolutionary model has to include an estimate for each mutation’s effects.</p>
 <p>You can <strong>not</strong> simply estimate amino-acid preferences as the frequencies in a natural sequence alignment and use them in <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a>.
 That approach is circular: the preferences need to come from data independent of the natural sequences.
 A deep mutational scanning experiment is independent, a natural alignment is probably not.
 If you want to try to get the preferences out of the alignment, consider Bayesian approaches like the ones <a class="reference external" href="https://academic.oup.com/mbe/article/34/1/204/2656188/Detecting-Adaptation-in-Protein-Coding-Genes-Using">here</a> <a class="reference external" href="https://academic.oup.com/bioinformatics/article/30/7/1020/234902/Site-heterogeneous-mutation-selection-models">or here</a>; these
-Bayesian approaches <a class="reference external" href="http://bayesiancook.blogspot.com/2014/01/the-myth-of-over-parameterization.html">don&#8217;t have the same problem with overfitting</a>, although they are vastly more computationally expensive and have other shortcomings.</p>
+Bayesian approaches <a class="reference external" href="http://bayesiancook.blogspot.com/2014/01/the-myth-of-over-parameterization.html">don’t have the same problem with overfitting</a>, although they are vastly more computationally expensive and have other shortcomings.</p>
 </div>
-<div class="section" id="tutorial">
-<h2><a class="toc-backref" href="#id4">Tutorial</a><a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h2><a class="toc-backref" href="#id5">Tutorial</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <p>The best way to learn to use <a class="reference external" href="http://jbloomlab.github.io/phydms">phydms</a> is to look at the tutorials.
 <a class="reference external" href="http://htmlpreview.github.io/?https://github.com/jbloomlab/phydms/blob/master/tutorial/phydms_tutorial.html">You can access the tutorials by clicking here</a>.</p>
 </div>
@@ -116,7 +115,7 @@ Bayesian approaches <a class="reference external" href="http://bayesiancook.blog
 <li><a class="reference internal" href="#">how to use <code class="docutils literal"><span class="pre">phydms</span></code></a><ul>
 <li><a class="reference internal" href="#overview">Overview</a></li>
 <li><a class="reference internal" href="#how-to-get-deep-mutational-scanning-data-into-a-usable-form">How to get deep mutational scanning data into a usable form</a></li>
-<li><a class="reference internal" href="#tutorial">Tutorial</a></li>
+<li><a class="reference internal" href="#id1">Tutorial</a></li>
 </ul>
 </li>
 </ul>
@@ -130,15 +129,15 @@ Bayesian approaches <a class="reference external" href="http://bayesiancook.blog
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/howtouse.txt"
+      <li><a href="_sources/howtouse.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
@@ -163,12 +162,12 @@ Bayesian approaches <a class="reference external" href="http://bayesiancook.blog
         <li class="right" >
           <a href="installation.html" title="Installation"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.5 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.dev6 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
+        &#169; Copyright 2015, Jesse D. Bloom.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

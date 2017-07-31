@@ -1,35 +1,33 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>phydmslib package &mdash; phydms 2.0.5 documentation</title>
-    
+    <title>phydmslib package &#8212; phydms 2.0.dev6 documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2.0.5',
+        VERSION:     '2.0.dev6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 2.0.5 documentation" href="index.html" />
-    <link rel="up" title="phydmslib API" href="api.html" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Acknowledgments and citations" href="acknowledgments.html" />
     <link rel="prev" title="phydmslib API" href="api.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -45,8 +43,8 @@
         <li class="right" >
           <a href="api.html" title="phydmslib API"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.5 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="api.html" accesskey="U"><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.dev6 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="api.html" accesskey="U"><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -274,7 +272,7 @@ and <em>h</em> is a dictionary with <em>h[r]</em> giving the site entropy (log b
 <span id="phydmslib-models-module"></span><h2>phydmslib.models module<a class="headerlink" href="#module-phydmslib.models" title="Permalink to this headline">¶</a></h2>
 <p>Substitution models.</p>
 <p>All models defined here are subclasses of abstract base class <cite>Model</cite>.</p>
-<p>Nucleotides, amino acids, and codons are indexed by integers 0, 1, ...
+<p>Nucleotides, amino acids, and codons are indexed by integers 0, 1, …
 using the indexing schemes defined in <cite>phydmslib.constants</cite>.</p>
 <dl class="function">
 <dt id="phydmslib.models.DiscreteGamma">
@@ -510,7 +508,7 @@ index ranging over each element in <cite>eta</cite>.</dd>
 
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'phi': (&lt;type 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;type 'float'&gt;, 'mu': &lt;type 'float'&gt;, 'beta': &lt;type 'float'&gt;, 'eta': (&lt;type 'numpy.ndarray'&gt;, (3,)), 'pi': &lt;type 'float'&gt;, 'omega': &lt;type 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PARAMTYPES</code><em class="property"> = {'pi': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'beta': &lt;class 'float'&gt;, 'kappa': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -635,7 +633,7 @@ to one.</dd>
 
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM_empirical_phi.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'phi': (&lt;type 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;type 'float'&gt;, 'g': (&lt;type 'numpy.ndarray'&gt;, (4,)), 'mu': &lt;type 'float'&gt;, 'beta': &lt;type 'float'&gt;, 'eta': (&lt;type 'numpy.ndarray'&gt;, (3,)), 'pi': &lt;type 'float'&gt;, 'omega': &lt;type 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PARAMTYPES</code><em class="property"> = {'pi': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'beta': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;, 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -685,7 +683,7 @@ The maximum absolute value of the array should be between 0 and 1.</dd>
 
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'phi': (&lt;type 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;type 'float'&gt;, 'g': (&lt;type 'numpy.ndarray'&gt;, (4,)), 'mu': &lt;type 'float'&gt;, 'beta': &lt;type 'float'&gt;, 'eta': (&lt;type 'numpy.ndarray'&gt;, (3,)), 'pi': &lt;type 'float'&gt;, 'omega': &lt;type 'float'&gt;, 'omega2': &lt;type 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PARAMTYPES</code><em class="property"> = {'pi': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'beta': &lt;class 'float'&gt;, 'omega2': &lt;class 'float'&gt;, 'kappa': &lt;class 'float'&gt;, 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'omega': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -731,7 +729,7 @@ parameter during optimization. The entry
 <cite>zeta.reshape(nsites, N_AA - 1)[r][i]</cite> is value <cite>i</cite>
 for site <cite>r</cite> (<cite>0 &lt;= r &lt; nsites</cite>) where <cite>0 &lt;= i &lt; N_AA - 1</cite>.</dd>
 <dt><cite>dPrxy</cite> (dict)</dt>
-<dd>Like for <cite>ExpCM</cite>, but also contains entry keyed by &#8216;zeta&#8217; of
+<dd>Like for <cite>ExpCM</cite>, but also contains entry keyed by ‘zeta’ of
 of shape <cite>(nsites * (N_AA - 1), nsites, N_CODON, N_CODON)</cite>
 where the first index ranges over the elements in <cite>zeta</cite>.</dd>
 <dt><cite>tildeFrxy</cite> (<cite>numpy.ndarray</cite> of <cite>float</cite>, shape <cite>(nsites, N_CODON, N_CODON)</cite>)</dt>
@@ -749,7 +747,7 @@ prior to initializing this class.</dd>
 <dd>Specifies the regularizing prior over the preferences.
 This prior is centered on the preferences in <cite>origpi</cite>.
 A value of <cite>None</cite> indicates no regularizing prior.
-A tuple of <cite>(&#8216;invquadratic&#8217;, c1, c2)</cite> is the inverse
+A tuple of <cite>(‘invquadratic’, c1, c2)</cite> is the inverse
 quadratic prior described in Bloom, <em>Biology Direct</em>, 12:1.</dd>
 </dl>
 </dd>
@@ -799,11 +797,6 @@ a fixed-preference <cite>ExpCM</cite> prior to initializing this model.</dd>
 <code class="descname">logprior</code><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.logprior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Value of log prior depends on value of <cite>prior</cite>.</p>
 </dd></dl>
-
-<dl class="attribute">
-<dt id="phydmslib.models.ExpCM_fitprefs.param">
-<code class="descname">param</code><em class="property"> = 'mu'</em><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.param" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
@@ -861,7 +854,7 @@ method; do <strong>not</strong> set attributes directly.</p>
 
 <dl class="attribute">
 <dt id="phydmslib.models.GammaDistributedOmegaModel.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'beta_omega': &lt;type 'float'&gt;, 'alpha_omega': &lt;type 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PARAMTYPES</code><em class="property"> = {'alpha_omega': &lt;class 'float'&gt;, 'beta_omega': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -926,7 +919,7 @@ in <cite>model.freeparams</cite> other than <cite>distributedparam</cite>.</dd>
 <dt id="phydmslib.models.GammaDistributedOmegaModel.distributionparams">
 <code class="descname">distributionparams</code><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.distributionparams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns list of params defining distribution of <cite>distributedparam</cite>.</p>
-<p>This list is <cite>[&#8216;alpha_omega&#8217;, &#8216;beta_omega&#8217;]</cite>.</p>
+<p>This list is <cite>[‘alpha_omega’, ‘beta_omega’]</cite>.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1068,9 +1061,9 @@ substitution per site, multiply by this number.</p>
 <dd><dl class="first last docutils">
 <dt><cite>t</cite> (float &gt; 0)</dt>
 <dd>The branch length.</dd>
-<dt><cite>param</cite> (string in <cite>freeparams</cite> or the string <cite>&#8216;t&#8217;</cite>)</dt>
+<dt><cite>param</cite> (string in <cite>freeparams</cite> or the string <cite>‘t’</cite>)</dt>
 <dd>Differentiate with respect to this model parameter, 
-or with respect to branch length if <cite>&#8216;t&#8217;</cite>.</dd>
+or with respect to branch length if <cite>‘t’</cite>.</dd>
 <dt><cite>Mt</cite> (<cite>numpy.ndarray</cite>.)</dt>
 <dd>The current value of <cite>M(t, tips, gaps)</cite>. Typically this
 has already been pre-computed which is why it is passed
@@ -1237,7 +1230,7 @@ frequency of nucleotide <cite>w</cite> at codon position <cite>p</cite>.</dd>
 </dl>
 <p>Unlike the <cite>ExpCM</cite>, <cite>YNGKP_M0</cite> does not have site-specific calculations.
 In order to maintain consistency, most attributes, such as <cite>Pxy</cite> and <cite>dPxy</cite>
-do have a single &#8220;site&#8221; dimension which is carried through the calculations.
+do have a single “site” dimension which is carried through the calculations.
 When <cite>M</cite> and <cite>dM</cite> are returned, the single site matrix is repeated so the
 final dimensions of <cite>M</cite> and <cite>dM</cite> are match those in the docs for the <cite>Models</cite>
 abstract base class.</p>
@@ -1265,7 +1258,7 @@ The codon frequencies, <cite>Phi_x</cite> are computed from the <cite>phi</cite>
 
 <dl class="attribute">
 <dt id="phydmslib.models.YNGKP_M0.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'mu': &lt;type 'float'&gt;, 'omega': &lt;type 'float'&gt;, 'e_pw': (&lt;type 'numpy.ndarray'&gt;, (3, 4)), 'kappa': &lt;type 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.YNGKP_M0.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PARAMTYPES</code><em class="property"> = {'e_pw': (&lt;class 'numpy.ndarray'&gt;, (3, 4)), 'mu': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;, 'kappa': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.YNGKP_M0.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1486,7 +1479,7 @@ as for BLAS <cite>dgemv</cite>).</dd>
 
 <dl class="class">
 <dt id="phydmslib.parsearguments.ArgumentParserNoArgHelp">
-<em class="property">class </em><code class="descclassname">phydmslib.parsearguments.</code><code class="descname">ArgumentParserNoArgHelp</code><span class="sig-paren">(</span><em>prog=None</em>, <em>usage=None</em>, <em>description=None</em>, <em>epilog=None</em>, <em>version=None</em>, <em>parents=[]</em>, <em>formatter_class=&lt;class 'argparse.HelpFormatter'&gt;</em>, <em>prefix_chars='-'</em>, <em>fromfile_prefix_chars=None</em>, <em>argument_default=None</em>, <em>conflict_handler='error'</em>, <em>add_help=True</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ArgumentParserNoArgHelp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">phydmslib.parsearguments.</code><code class="descname">ArgumentParserNoArgHelp</code><span class="sig-paren">(</span><em>prog=None</em>, <em>usage=None</em>, <em>description=None</em>, <em>epilog=None</em>, <em>parents=[]</em>, <em>formatter_class=&lt;class 'argparse.HelpFormatter'&gt;</em>, <em>prefix_chars='-'</em>, <em>fromfile_prefix_chars=None</em>, <em>argument_default=None</em>, <em>conflict_handler='error'</em>, <em>add_help=True</em>, <em>allow_abbrev=True</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ArgumentParserNoArgHelp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argparse.ArgumentParser</span></code></p>
 <p>Like <em>argparse.ArgumentParser</em>, but prints help when no arguments.</p>
 <dl class="method">
@@ -1506,7 +1499,7 @@ as for BLAS <cite>dgemv</cite>).</dd>
 <dl class="function">
 <dt id="phydmslib.parsearguments.ExistingFileOrNone">
 <code class="descclassname">phydmslib.parsearguments.</code><code class="descname">ExistingFileOrNone</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ExistingFileOrNone" title="Permalink to this definition">¶</a></dt>
-<dd><p>Like <cite>Existingfile</cite>, but if <cite>fname</cite> is string &#8220;None&#8221; then return <cite>None</cite>.</p>
+<dd><p>Like <cite>Existingfile</cite>, but if <cite>fname</cite> is string “None” then return <cite>None</cite>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -1571,7 +1564,7 @@ as for BLAS <cite>dgemv</cite>).</dd>
 <code class="descclassname">phydmslib.parsearguments.</code><code class="descname">ModelOption</code><span class="sig-paren">(</span><em>model</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ModelOption" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <em>model</em> if a valid choice.</p>
 <p>Returns the string if it specifies a <code class="docutils literal"><span class="pre">YNGKP_</span></code> model variant.</p>
-<p>Returns <em>(&#8216;ExpCM&#8217;, prefsfile)</em> if it specifies an <code class="docutils literal"><span class="pre">ExpCM_</span></code> model.</p>
+<p>Returns <em>(‘ExpCM’, prefsfile)</em> if it specifies an <code class="docutils literal"><span class="pre">ExpCM_</span></code> model.</p>
 </dd></dl>
 
 <dl class="function">
@@ -1658,7 +1651,7 @@ certain <cite>Models</cite> are supported (e.g., <cite>YNGKP</cite>,
 as under diversifying selection (e.g., an <cite>omega</cite> different
 than that used by <cite>model</cite>. In this case, <cite>divomega</cite> is
 the omega for this subset of sites, and <cite>divsites</cite> is a list
-of the sites in 1, 2, ... numbering.</dd>
+of the sites in 1, 2, … numbering.</dd>
 </dl>
 </dd>
 <dt>Returns:</dt>
@@ -1693,14 +1686,14 @@ which is the default units for all <cite>phydms</cite> outputs.</dd>
 </dl>
 <p>The result of this function is a simulated FASTA alignment
 file with the name having the prefix giving by <cite>alignmentPrefix</cite>
-and the suffix <cite>&#8216;_simulatedalignment.fasta&#8217;</cite>.</p>
+and the suffix <cite>‘_simulatedalignment.fasta’</cite>.</p>
 </dd></dl>
 
 </div>
 <div class="section" id="module-phydmslib.treelikelihood">
 <span id="phydmslib-treelikelihood-module"></span><h2>phydmslib.treelikelihood module<a class="headerlink" href="#module-phydmslib.treelikelihood" title="Permalink to this headline">¶</a></h2>
 <p>Tree likelihoods.</p>
-<p>Nucleotides, amino acids, and codons are indexed by integers 0, 1, ...
+<p>Nucleotides, amino acids, and codons are indexed by integers 0, 1, …
 using the indexing schemes defined in <cite>phydmslib.constants</cite>.</p>
 <dl class="class">
 <dt id="phydmslib.treelikelihood.TreeLikelihood">
@@ -1777,7 +1770,7 @@ to the branch lengths <cite>t</cite>.</dd>
 <dd>Number of sequences in <cite>alignment</cite>, and tip nodes in <cite>tree</cite>.</dd>
 <dt><cite>nnodes</cite> (int)</dt>
 <dd>Total number of nodes in <cite>tree</cite>, counting tip and internal.
-Node are indexed 0, 1, ..., <cite>nnodes - 1</cite>. This indexing is done
+Node are indexed 0, 1, …, <cite>nnodes - 1</cite>. This indexing is done
 such that the descendants of node <cite>n</cite> always have indices &lt; <cite>n</cite>,
 and so that the tips are the first <cite>ntips</cite> indices and the 
 internals are the last <cite>ninternal</cite> indices.</dd>
@@ -1847,7 +1840,7 @@ performed.</dd>
 <dt><cite>tree</cite>, <cite>alignment</cite>, <cite>model</cite>, <cite>underflowfreq</cite></dt>
 <dd>Attributes of same name described in class doc string.
 Note that we make copies of <cite>tree</cite>, <cite>model</cite>, and
-<cite>alignment</cite>&#8216; so the calling objects are not modified 
+<cite>alignment</cite>’ so the calling objects are not modified 
 during optimization.</dd>
 <dt><cite>dparamscurrent</cite>, <cite>dtcurrent</cite></dt>
 <dd>Current values of these flags indicating which
@@ -2109,9 +2102,9 @@ listed in <em>sites</em>. These should be <strong>strings</strong>, not integers
 <li><p class="first"><em>datatype</em> should be one of the following strings:</p>
 <blockquote>
 <div><ul class="simple">
-<li>&#8216;prefs&#8217; for preferences</li>
-<li>&#8216;diffprefs&#8217; for differential preferences</li>
-<li>&#8216;diffsel&#8217; for differential selection</li>
+<li>‘prefs’ for preferences</li>
+<li>‘diffprefs’ for differential preferences</li>
+<li>‘diffsel’ for differential selection</li>
 </ul>
 </div></blockquote>
 </li>
@@ -2136,11 +2129,11 @@ x-axis.</p>
 <strong>not</strong> be sorted. This means that the logo plot will <strong>not</strong> have
 sites in sorted order.</p>
 </li>
-<li><p class="first"><em>ydatamax</em> : meaningful only if <em>datatype</em> is &#8216;diffprefs&#8217;. In this case, it gives
+<li><p class="first"><em>ydatamax</em> : meaningful only if <em>datatype</em> is ‘diffprefs’. In this case, it gives
 the maximum that the logo stacks extend in the positive and negative directions.
 Cannot be smaller than the maximum extent of the differential preferences.</p>
 </li>
-<li><p class="first"><em>ylimits</em>: is <strong>mandatory</strong> if <em>datatype</em> is &#8216;diffsel&#8217;, and meaningless 
+<li><p class="first"><em>ylimits</em>: is <strong>mandatory</strong> if <em>datatype</em> is ‘diffsel’, and meaningless 
 otherwise. It is <em>(ymin, ymax)</em> where <em>ymax &gt; 0 &gt; ymin</em>, and gives extent 
 of the data in the positive and negative directions. Must encompass the 
 actual maximum and minimum of the data.</p>
@@ -2169,7 +2162,7 @@ categories (different strings), the plot will be a mess.</li>
 if more than 4 or 5 characters.</p>
 </li>
 <li><p class="first"><em>longname</em> : longer name for property used on axes label. Can be the
-same as <em>shortname</em> if you don&#8217;t need a different long name.</p>
+same as <em>shortname</em> if you don’t need a different long name.</p>
 </li>
 </ul>
 </div></blockquote>
@@ -2191,20 +2184,20 @@ be made for you.</p>
 </li>
 <li><p class="first"><em>custom_cmap</em> can be the name of a valid <em>matplotlib.colors.Colormap</em> which will be
 used to color amino-acid one-letter codes in the logoplot by the <em>map_metric</em> when
-either &#8216;kd&#8217; or &#8216;mw&#8217; is used as <em>map_metric</em>.</p>
+either ‘kd’ or ‘mw’ is used as <em>map_metric</em>.</p>
 </li>
 <li><p class="first"><em>relativestackheight</em> indicates how high the letter stack is relative to
 the default. The default is multiplied by this number, so make it &gt; 1
 for a higher letter stack.</p>
 </li>
 <li><p class="first"><em>map_metric</em> specifies the amino-acid property metric used to map colors to amino-acid
-letters. Valid options are &#8216;kd&#8217; (Kyte-Doolittle hydrophobicity scale, default), &#8216;mw&#8217; 
-(molecular weight), &#8216;functionalgroup&#8217; (functional groups: small, nucleophilic, hydrophobic,
-aromatic, basic, acidic, and amide), and &#8216;charge&#8217; (charge at neutral pH). If &#8216;charge&#8217; is used, then the
-argument for <em>custom_cmap</em> will no longer be meaningful, since &#8216;charge&#8217; uses its own 
-blue/black/red colormapping. Similarly, &#8216;functionalgroup&#8217; uses its own colormapping.</p>
+letters. Valid options are ‘kd’ (Kyte-Doolittle hydrophobicity scale, default), ‘mw’ 
+(molecular weight), ‘functionalgroup’ (functional groups: small, nucleophilic, hydrophobic,
+aromatic, basic, acidic, and amide), and ‘charge’ (charge at neutral pH). If ‘charge’ is used, then the
+argument for <em>custom_cmap</em> will no longer be meaningful, since ‘charge’ uses its own 
+blue/black/red colormapping. Similarly, ‘functionalgroup’ uses its own colormapping.</p>
 </li>
-<li><p class="first"><em>noseparator</em> is only meaningful if <em>datatype</em> is &#8216;diffsel&#8217; or &#8216;diffprefs&#8217;.
+<li><p class="first"><em>noseparator</em> is only meaningful if <em>datatype</em> is ‘diffsel’ or ‘diffprefs’.
 If it set to <em>True</em>, then we do <strong>not</strong> print a black horizontal line to
 separate positive and negative values.</p>
 </li>
@@ -2262,15 +2255,15 @@ function is identical to <em>KyteDoolittleColorMapping</em></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/phydmslib.txt"
+      <li><a href="_sources/phydmslib.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
@@ -2295,13 +2288,13 @@ function is identical to <em>KyteDoolittleColorMapping</em></p>
         <li class="right" >
           <a href="api.html" title="phydmslib API"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.5 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="api.html" ><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.dev6 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="api.html" ><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
+        &#169; Copyright 2015, Jesse D. Bloom.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

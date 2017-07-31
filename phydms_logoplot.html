@@ -1,35 +1,33 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>the phydms_logoplot program &mdash; phydms 2.0.5 documentation</title>
-    
+    <title>the phydms_logoplot program &#8212; phydms 2.0.dev6 documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2.0.5',
+        VERSION:     '2.0.dev6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="phydms 2.0.5 documentation" href="index.html" />
-    <link rel="up" title="auxiliary programs" href="auxiliary_progs.html" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Experimentally Informed Codon Models" href="ExpCM.html" />
     <link rel="prev" title="the phydms_prepalignment program" href="phydms_prepalignment.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -45,8 +43,8 @@
         <li class="right" >
           <a href="phydms_prepalignment.html" title="the phydms_prepalignment program"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.5 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" accesskey="U">auxiliary programs</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.dev6 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" accesskey="U">auxiliary programs</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -62,11 +60,15 @@
 <ul class="simple">
 <li><a class="reference internal" href="#the-phydms-logoplot-program" id="id1">the <code class="docutils literal"><span class="pre">phydms_logoplot</span></code> program</a><ul>
 <li><a class="reference internal" href="#overview" id="id2">Overview</a></li>
-<li><a class="reference internal" href="#command-line-usage" id="id3">Command-line usage</a></li>
-<li><a class="reference internal" href="#output-plot" id="id4">Output plot</a><ul>
-<li><a class="reference internal" href="#plotting-preferences" id="id5">Plotting preferences</a></li>
-<li><a class="reference internal" href="#overlaying-omega-values-for-each-site" id="id6">Overlaying omega values for each site</a></li>
-<li><a class="reference internal" href="#plotting-differential-preferences" id="id7">Plotting differential preferences</a></li>
+<li><a class="reference internal" href="#command-line-usage" id="id3">Command-line usage</a><ul>
+<li><a class="reference internal" href="#Positional Arguments" id="id4">Positional Arguments</a></li>
+<li><a class="reference internal" href="#Named Arguments" id="id5">Named Arguments</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#output-plot" id="id6">Output plot</a><ul>
+<li><a class="reference internal" href="#plotting-preferences" id="id7">Plotting preferences</a></li>
+<li><a class="reference internal" href="#overlaying-omega-values-for-each-site" id="id8">Overlaying omega values for each site</a></li>
+<li><a class="reference internal" href="#plotting-differential-preferences" id="id9">Plotting differential preferences</a></li>
 </ul>
 </li>
 </ul>
@@ -84,7 +86,7 @@ It relies on <a class="reference external" href="https://code.google.com/p/weblo
 </div>
 <div class="section" id="command-line-usage">
 <h2><a class="toc-backref" href="#id3">Command-line usage</a><a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
-<p>Make logo plot of preferences or differential preferences. Uses weblogo (<a class="reference external" href="http://weblogo.threeplusone.com/">http://weblogo.threeplusone.com/</a>). The &#8216;phydms&#8217; package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a>). Version 2.0.5. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
+<p>Make logo plot of preferences or differential preferences. Uses weblogo (<a class="reference external" href="http://weblogo.threeplusone.com/">http://weblogo.threeplusone.com/</a>). The ‘phydms’ package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a>). Version 2.0.5. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">phydms_logoplot</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">(</span><span class="o">--</span><span class="n">prefs</span> <span class="n">PREFS</span> <span class="o">|</span> <span class="o">--</span><span class="n">diffprefs</span> <span class="n">DIFFPREFS</span><span class="p">)</span>
                        <span class="p">[</span><span class="o">--</span><span class="n">stringency</span> <span class="n">STRINGENCY</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">nperline</span> <span class="n">NPERLINE</span><span class="p">]</span>
                        <span class="p">[</span><span class="o">--</span><span class="n">numberevery</span> <span class="n">NUMBEREVERY</span><span class="p">]</span>
@@ -94,9 +96,9 @@ It relies on <a class="reference external" href="https://code.google.com/p/weblo
                        <span class="n">outfile</span>
 </pre></div>
 </div>
-<dl class="docutils">
-<dt>Positional arguments:</dt>
-<dd><table class="first last docutils option-list" frame="void" rules="none">
+<div class="section" id="Positional Arguments">
+<h3><a class="toc-backref" href="#id4">Positional Arguments</a><a class="headerlink" href="#Positional Arguments" title="Permalink to this headline">¶</a></h3>
+<table class="docutils option-list" frame="void" rules="none">
 <col class="option" />
 <col class="description" />
 <tbody valign="top">
@@ -105,68 +107,75 @@ It relies on <a class="reference external" href="https://code.google.com/p/weblo
 <td>Name of created PDF logo plot.</td></tr>
 </tbody>
 </table>
-</dd>
-<dt>Options:</dt>
-<dd><table class="first last docutils option-list" frame="void" rules="none">
+</div>
+<div class="section" id="Named Arguments">
+<h3><a class="toc-backref" href="#id5">Named Arguments</a><a class="headerlink" href="#Named Arguments" title="Permalink to this headline">¶</a></h3>
+<table class="docutils option-list" frame="void" rules="none">
 <col class="option" />
 <col class="description" />
 <tbody valign="top">
 <tr><td class="option-group">
-<kbd><span class="option">--prefs</span></kbd></td>
-<td>File with amino-acid preferences; same format as input to &#8216;phydms&#8217;.</td></tr>
+<kbd>--prefs</kbd></td>
+<td>File with amino-acid preferences; same format as input to ‘phydms’.</td></tr>
 <tr><td class="option-group">
-<kbd><span class="option">--diffprefs</span></kbd></td>
-<td>File with differential preferences; in format output by &#8216;phydms&#8217;.</td></tr>
+<kbd>--diffprefs</kbd></td>
+<td>File with differential preferences; in format output by ‘phydms’.</td></tr>
 <tr><td class="option-group">
-<kbd><span class="option">--stringency=1</span></kbd></td>
+<kbd>--stringency</kbd></td>
 <td><p class="first">Stringency parameter to re-scale prefs.</p>
-<p class="last">Running <code class="docutils literal"><span class="pre">phydms</span></code> with an <em>ExpCM</em> infers a stringency parameter, <span class="math">\(\beta\)</span>. If you want your plotted preferences to be re-scaled by this stringency parameter, specify it here. A value of 1 corresponds to no re-scaling.</p>
+<p>Default: 1</p>
+<p class="last">Running phydms with an ExpCM infers a stringency parameter, . If you want your plotted preferences to be re-scaled by this stringency parameter, specify it here. A value of 1 corresponds to no re-scaling.</p>
 </td></tr>
 <tr><td class="option-group">
-<kbd><span class="option">--nperline=70</span></kbd></td>
+<kbd>--nperline</kbd></td>
 <td><p class="first">Number of sites per line.</p>
+<p>Default: 70</p>
 <p class="last">Increasing this number makes for wider and shorter plots, decreasing it makes for thinner and taller plots.</p>
 </td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--numberevery=10</span></kbd></td>
-</tr>
-<tr><td>&nbsp;</td><td>Number sites at this interval.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--mapmetric=functionalgroup</span></kbd></td>
-</tr>
-<tr><td>&nbsp;</td><td><p class="first">Metric used to color amino-acid letters. kd = Kyte-Doolittle hydrophobicity; mw = molecular weight; functionalgroup = divide in 7 groups; charge = charge at neutral pH.</p>
-<p class="last">Possible choices: kd, mw, charge, functionalgroup</p>
-</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--colormap=mapmetric</span></kbd></td>
-</tr>
-<tr><td>&nbsp;</td><td>Colormap for amino-acids. Must specify a valid &#8216;matplotlib&#8217; color map. Only used when &#8216;&#8211;mapmetric&#8217; is &#8216;kd&#8217; or &#8216;mw&#8217;.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--diffprefheight=1.0</span></kbd></td>
-</tr>
-<tr><td>&nbsp;</td><td><p class="first">Height of diffpref logo in each direction.</p>
-<p class="last">When using <code class="docutils literal"><span class="pre">--diffprefs</span></code>, the logo stacks will have this height in both the positive and negative direction. You will get an error if the height of a logo stack exceeds this value. Note that the maximum possible differential preference logo stack height is 1 if the preferences are completely different between the natural evolution and those provided in the site-specific amino-acid preferences file.</p>
+<tr><td class="option-group">
+<kbd>--numberevery</kbd></td>
+<td><p class="first">Number sites at this interval.</p>
+<p class="last">Default: 10</p>
 </td></tr>
 <tr><td class="option-group">
-<kbd><span class="option">--omegabysite</span></kbd></td>
-<td>Overlay omega on logo plot. Specify &#8216;*_omegabysite.txt&#8217; file from &#8216;phydms&#8217;.</td></tr>
+<kbd>--mapmetric</kbd></td>
+<td><p class="first">Possible choices: kd, mw, charge, functionalgroup</p>
+<p>Metric used to color amino-acid letters. kd = Kyte-Doolittle hydrophobicity; mw = molecular weight; functionalgroup = divide in 7 groups; charge = charge at neutral pH.</p>
+<p class="last">Default: “functionalgroup”</p>
+</td></tr>
 <tr><td class="option-group">
-<kbd><span class="option">--minP=0.0001</span></kbd></td>
-<td>Min plotted P-value for &#8216;&#8211;omegabysite&#8217; overlay.</td></tr>
+<kbd>--colormap</kbd></td>
+<td><p class="first">Colormap for amino-acids. Must specify a valid ‘matplotlib’ color map. Only used when ‘–mapmetric’ is ‘kd’ or ‘mw’.</p>
+<p class="last">Default: “mapmetric”</p>
+</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd>--diffprefheight</kbd></td>
+</tr>
+<tr><td>&#160;</td><td><p class="first">Height of diffpref logo in each direction.</p>
+<p>Default: 1.0</p>
+<p class="last">When using –diffprefs, the logo stacks will have this height in both the positive and negative direction. You will get an error if the height of a logo stack exceeds this value. Note that the maximum possible differential preference logo stack height is 1 if the preferences are completely different between the natural evolution and those provided in the site-specific amino-acid preferences file.</p>
+</td></tr>
 <tr><td class="option-group">
-<kbd><span class="option">-v</span>, <span class="option">--version</span></kbd></td>
-<td>show program&#8217;s version number and exit</td></tr>
+<kbd>--omegabysite</kbd></td>
+<td>Overlay omega on logo plot. Specify ‘<a href="#id1"><span class="problematic" id="id2">*</span></a>_omegabysite.txt’ file from ‘phydms’.</td></tr>
+<tr><td class="option-group">
+<kbd>--minP</kbd></td>
+<td><p class="first">Min plotted P-value for ‘–omegabysite’ overlay.</p>
+<p class="last">Default: 0.0001</p>
+</td></tr>
+<tr><td class="option-group">
+<kbd>-v, --version</kbd></td>
+<td>show program’s version number and exit</td></tr>
 </tbody>
 </table>
-</dd>
-</dl>
+</div>
 </div>
 <div class="section" id="output-plot">
-<h2><a class="toc-backref" href="#id4">Output plot</a><a class="headerlink" href="#output-plot" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id6">Output plot</a><a class="headerlink" href="#output-plot" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal"><span class="pre">phydms_logoplot</span></code> prints some basic information to the screen.
 But its primary output is a PDF plot that visualizes the preferences or differential preferences.</p>
 <div class="section" id="plotting-preferences">
-<h3><a class="toc-backref" href="#id5">Plotting preferences</a><a class="headerlink" href="#plotting-preferences" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id7">Plotting preferences</a><a class="headerlink" href="#plotting-preferences" title="Permalink to this headline">¶</a></h3>
 <p>Using the <code class="docutils literal"><span class="pre">--prefs</span></code> option plots amino-acid preferences.
 This can either be used to visualize the preferences that you are using as input to <code class="docutils literal"><span class="pre">phydms</span></code>, or to visualize how these preferences look after being re-scaled by the stringency parameter (<span class="math">\(\beta\)</span>) inferred by <code class="docutils literal"><span class="pre">phydms</span></code>.</p>
 <p>You can do this with a command like this:</p>
@@ -179,7 +188,7 @@ This can either be used to visualize the preferences that you are using as input
 <p>Note that we have set <code class="docutils literal"><span class="pre">--mapmetric</span></code> to color amino acids by charge. They can also be colored using other schemes.</p>
 </div>
 <div class="section" id="overlaying-omega-values-for-each-site">
-<h3><a class="toc-backref" href="#id6">Overlaying omega values for each site</a><a class="headerlink" href="#overlaying-omega-values-for-each-site" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id8">Overlaying omega values for each site</a><a class="headerlink" href="#overlaying-omega-values-for-each-site" title="Permalink to this headline">¶</a></h3>
 <p>One use of <code class="docutils literal"><span class="pre">phydms</span></code> is to identify diversifying selection via the <code class="docutils literal"><span class="pre">--omegabysite</span></code> values.
 You may want to overlay these data onto the logoplots of either preferences or differential preferences.</p>
 <p>Here we overlay the diversifying selection the same preferences logo plot shown above:</p>
@@ -193,7 +202,7 @@ These <em>P</em>-values are <strong>not</strong> corrected for multiple testing 
 <p>Note also that we have used a different <code class="docutils literal"><span class="pre">--mapmetric</span></code>, this time coloring amino acids by hydrophobicity on the Kyte-Doolittle scale.</p>
 </div>
 <div class="section" id="plotting-differential-preferences">
-<h3><a class="toc-backref" href="#id7">Plotting differential preferences</a><a class="headerlink" href="#plotting-differential-preferences" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id9">Plotting differential preferences</a><a class="headerlink" href="#plotting-differential-preferences" title="Permalink to this headline">¶</a></h3>
 <p>Using the <code class="docutils literal"><span class="pre">--diffprefs</span></code> option plots the differential amino-acid preferences that can be inferred by <code class="docutils literal"><span class="pre">phydms</span></code> using <code class="docutils literal"><span class="pre">--diffprefsbysite</span></code>.
 For each site, there is a logo stack with the height of each amino-acid single-letter code proportional to the differential preference <span class="math">\(\Delta\pi_{r,a}\)</span>.
 The y-scale is determined by <code class="docutils literal"><span class="pre">--diffprefheight</span></code>; note that the maximum possible height in each direction is one if the amino-acid preferences are completely shifted.</p>
@@ -216,7 +225,11 @@ The y-scale is determined by <code class="docutils literal"><span class="pre">--
   <ul>
 <li><a class="reference internal" href="#">the <code class="docutils literal"><span class="pre">phydms_logoplot</span></code> program</a><ul>
 <li><a class="reference internal" href="#overview">Overview</a></li>
-<li><a class="reference internal" href="#command-line-usage">Command-line usage</a></li>
+<li><a class="reference internal" href="#command-line-usage">Command-line usage</a><ul>
+<li><a class="reference internal" href="#Positional Arguments">Positional Arguments</a></li>
+<li><a class="reference internal" href="#Named Arguments">Named Arguments</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#output-plot">Output plot</a><ul>
 <li><a class="reference internal" href="#plotting-preferences">Plotting preferences</a></li>
 <li><a class="reference internal" href="#overlaying-omega-values-for-each-site">Overlaying omega values for each site</a></li>
@@ -236,15 +249,15 @@ The y-scale is determined by <code class="docutils literal"><span class="pre">--
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/phydms_logoplot.txt"
+      <li><a href="_sources/phydms_logoplot.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
@@ -269,13 +282,13 @@ The y-scale is determined by <code class="docutils literal"><span class="pre">--
         <li class="right" >
           <a href="phydms_prepalignment.html" title="the phydms_prepalignment program"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.5 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" >auxiliary programs</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.dev6 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="auxiliary_progs.html" >auxiliary programs</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
+        &#169; Copyright 2015, Jesse D. Bloom.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

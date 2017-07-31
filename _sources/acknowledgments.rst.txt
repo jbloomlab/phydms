@@ -10,11 +10,11 @@ Acknowledgments
 
 Citations
 ------------
-The current citation for `phydms`_ is:
-
-   * `Bloom, Biology Direct, 12:1`_
+The current citation for `phydms`_ is `Hilton, Doud, and Bloom, PeerJ, 2017`_. **Please cite this paper if you use phydms!**
 
 The following references are also relevant to the *ExpCM* implemented by `phydms`_:
+
+    * `Bloom, Biology Direct, 12:1`_
 
     * `Bloom, Mol Biol Evol, 31:1956-1978`_
 
