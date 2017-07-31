@@ -5,6 +5,8 @@ Changelog
 ---------
 * Added ``ExpCM`` with ``divpressure`` to ``simulate.py``.
 
+* Updated citation
+
 2.0.5
 ---------
 * Added ``--opt_details`` argument to ``phydms``

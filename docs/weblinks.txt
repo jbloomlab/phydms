@@ -13,8 +13,8 @@
 .. _`MCMC`: http://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo
 .. _`weblogo`: https://code.google.com/p/weblogo/
 .. _`reference for weblogo`: http://genome.cshlp.org/content/14/6/1188
-.. _`Jesse Bloom`: http://labs.fhcrc.org/bloom
-.. _`Bloom lab`: http://labs.fhcrc.org/bloom
+.. _`Jesse Bloom`: https://research.fhcrc.org/bloom/en.html
+.. _`Bloom lab`: https://research.fhcrc.org/bloom/en.html
 .. _`GPL-compatible`: https://www.gnu.org/licenses/license-list.html#GPLCompatibleLicenses
 .. _`pip`: https://pypi.python.org/pypi/pip
 .. _`Python convention for local installation`: https://www.python.org/dev/peps/pep-0370/
@@ -66,4 +66,4 @@
 .. _`Spielman and Wilke, PLoS One, 10:e0139047`: http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0139047
 .. _`Pond et al, PLoS One, 5:e11230`: http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0011230
 .. _`Yang, J Mol Evol, 39:306-314`: https://www.ncbi.nlm.nih.gov/pubmed/7932792
-.. _`Hilton, Doud, and Bloom, bioRxiv, 2017`: http://biorxiv.org/content/early/2017/03/29/121830
+.. _`Hilton, Doud, and Bloom, PeerJ, 2017`: https://peerj.com/articles/3657/

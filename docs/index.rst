@@ -14,7 +14,7 @@ Documentation for ``phydms``
 
 :ref:`installation` of `phydms`_ will install :ref:`phydms_prog`, which performs the phylogenetic analyses. It also installs :ref:`auxiliary_progs` that facilitate model comparisons and visualization of the results. All of these programs are installed as command-line executables.
 
-See :ref:`howtouse` for examples of how to use `phydms`_.
+See :ref:`howtouse` for more details and a `tutorial <http://htmlpreview.github.io/?https://github.com/jbloomlab/phydms/blob/master/tutorial/phydms_tutorial.html>`_ on how to use `phydms`_.
 
 The `phydms source code`_ is freely available under a `GPLv3`_ license.
 

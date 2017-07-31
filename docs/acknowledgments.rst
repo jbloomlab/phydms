@@ -10,7 +10,7 @@ Acknowledgments
 
 Citations
 ------------
-The current citation for `phydms`_ is `Hilton, Doud, and Bloom, bioRxiv, 2017`_.
+The current citation for `phydms`_ is `Hilton, Doud, and Bloom, PeerJ, 2017`_. **Please cite this paper if you use phydms!**
 
 The following references are also relevant to the *ExpCM* implemented by `phydms`_:
 

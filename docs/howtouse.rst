@@ -18,7 +18,7 @@ For extensive background, see the following references:
 
    2. `Bloom, Biology Direct, 12:1`_ describes methods to test whether sites are evolving differently in nature than expected from the deep mutational scanning.
 
-   3. `Hilton, Doud, and Bloom, bioRxiv, 2017`_ describes the ``phydms`` software package.
+   3. `Hilton, Doud, and Bloom, PeerJ, 2017`_ describes the ``phydms`` software package.
 
 
 How to get deep mutational scanning data into a usable form 
@@ -30,7 +30,7 @@ Your deep mutational scanning data may or may not already be in this form.
 For instance, `dms_tools`_ directly output amino-acid preferences.
 But many other methods of analyzing deep mutational scanning data give enrichment ratios or functional scores.
 It is easy to convert these scores or enrichment ratios into amino-acid preferences: just normalize the enrichment ratios to sum to one at each site.
-See the `Tutorial`_ for details.
+See the `Tutorial <http://htmlpreview.github.io/?https://github.com/jbloomlab/phydms/blob/master/tutorial/phydms_tutorial.html>`_ for details.
 
 If you are missing data for some mutations, you have to interpolate them somehow.
 If you are only missing a few mutations, a reasonable approach is to estimate their effect as equal to the average for all other mutations.
