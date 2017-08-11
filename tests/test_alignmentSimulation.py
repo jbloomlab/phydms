@@ -72,7 +72,6 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         # the units are in sub/site
         t = 0.04
         newicktree = '(tip1:{0},tip2:{0});'.format(t / 2.0)
-        pyvolvetree = pyvolve.read_tree(tree=newicktree)
         temptree = '_temp.tree'
         with open(temptree, 'w') as f:
             f.write(newicktree)
@@ -107,7 +106,7 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         tl.maximizeLikelihood()
         treedist += sum([n.branch_length for n in tl.tree.get_terminals()])
 
-        # We expect nsubs = branchScale * t, but build in some tolerance
+        # We expect nsubs = t, but build in some tolerance
         # with rtol since we simulated finite number of sites.
         self.assertTrue(scipy.allclose(nsubs, t, rtol=0.2),
                 ("Simulated subs per site of {0} is not close "
