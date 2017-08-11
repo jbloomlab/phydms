@@ -69,7 +69,8 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
 
         # make a test tree
         # tree is two sequences separated by a single branch
-        t = 0.04 / model.branchScale
+        # the units are in sub/site
+        t = 0.04
         newicktree = '(tip1:{0},tip2:{0});'.format(t / 2.0)
         pyvolvetree = pyvolve.read_tree(tree=newicktree)
         temptree = '_temp.tree'
@@ -79,9 +80,12 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         # simulate the alignment
         phydmslib.simulate.simulateAlignment(model, temptree, alignmentPrefix)
 
-        # read in the test tree and remove the file
+        # read in the test tree, re-scale the branch lengths, and remove the file
         biotree = Bio.Phylo.read(temptree, 'newick')
         os.remove(temptree)
+        for node in biotree.get_terminals() + biotree.get_nonterminals():
+            if node.branch_length:
+                node.branch_length /= model.branchScale
 
         # check and see if the simulated alignment has the expected number of
         # subs exists
@@ -105,10 +109,10 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
 
         # We expect nsubs = branchScale * t, but build in some tolerance
         # with rtol since we simulated finite number of sites.
-        self.assertTrue(scipy.allclose(nsubs, model.branchScale * t, rtol=0.2),
+        self.assertTrue(scipy.allclose(nsubs, t, rtol=0.2),
                 ("Simulated subs per site of {0} is not close "
                 "to expected value of {1} (branchScale = {2}, t = {3})").format(
-                nsubs, t * model.branchScale, model.branchScale, t))
+                nsubs, t, model.branchScale, t))
         self.assertTrue(scipy.allclose(treedist, nsubs, rtol=0.2), (
                 "Simulated subs per site of {0} is not close to inferred "
                 "branch length of {1}").format(nsubs, treedist))

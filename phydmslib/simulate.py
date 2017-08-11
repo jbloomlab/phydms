@@ -119,9 +119,9 @@ def simulateAlignment(model, treeFile, alignmentPrefix, randomSeed=False):
         pass
     else:
         random.seed(randomSeed)
+        
     #Transform the branch lengths by dividing by the model `branchScale`
     tree = Bio.Phylo.read(treeFile, 'newick')
-    tree.root_at_midpoint()
     for node in tree.get_terminals() + tree.get_nonterminals():
         if (node.branch_length == None) and (node == tree.root):
             node.branch_length = 1e-06
@@ -130,8 +130,9 @@ def simulateAlignment(model, treeFile, alignmentPrefix, randomSeed=False):
     fd, temp_path = mkstemp()
     Bio.Phylo.write(tree, temp_path, 'newick')
     os.close(fd)
-    pyvolve_tree = pyvolve.read_tree(file=treeFile)
+    pyvolve_tree = pyvolve.read_tree(file=temp_path)
     os.remove(temp_path)
+
 
     #Make the `pyvolve` partition
     partitions = pyvolvePartitions(model)

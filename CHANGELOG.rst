@@ -7,6 +7,8 @@ Changelog
 
 * Updated citation
 
+* Fixed bug in ``simulate.py`` that caused incorrect branch length scalings
+
 2.0.5
 ---------
 * Added ``--opt_details`` argument to ``phydms``
