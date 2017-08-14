@@ -9,6 +9,10 @@ Changelog
 
 * Fixed bug in ``simulate.py`` that caused incorrect branch length scalings
 
+* Change installation recommendations
+
+* Fixed installation of ``cython`` extensions.
+
 2.0.5
 ---------
 * Added ``--opt_details`` argument to ``phydms``

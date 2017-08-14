@@ -60,12 +60,11 @@ class lazy_cythonize(list):
 def extensions():
     """Returns list of `cython` extensions for `lazy_cythonize`."""
     from Cython.Build import cythonize
-    ext = []
-    for pyxfile in glob.glob('phydmslib/*.pyx'):
-        ext.append(Extension(
-                os.path.splitext(pyxfile)[0], sources=[pyxfile],
-                include_dirs=[scipy.get_include()],
-                extra_compile_args=['-Wno-unused-function']))
+    ext = [
+            Extension('phydmslib.numutils', ['phydmslib/numutils.pyx'],
+                    include_dirs=[scipy.get_include()],
+                    extra_compile_args=['-Wno-unused-function']),
+          ]      
     return cythonize(ext)
 
 # main setup command
