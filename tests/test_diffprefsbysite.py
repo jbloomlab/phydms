@@ -28,10 +28,13 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
     def setUp(self):
         random.seed(1)
         scipy.random.seed(1)
-        self.tree = './NP_data/NP_tree.newick'
-        self.alignment = './NP_data/NP_alignment.fasta'
-        self.prefs = './NP_data/NP_prefs.tsv'
-        self.nsites = len(phydmslib.file_io.ReadCodonAlignment(self.alignment, 
+        self.tree = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                './NP_data/NP_tree.newick'))
+        self.alignment = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                './NP_data/NP_alignment.fasta'))
+        self.prefs = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                './NP_data/NP_prefs.tsv'))
+        self.nsites = len(phydmslib.file_io.ReadCodonAlignment(self.alignment,
                 True)[0][1]) // 3
         prefs = phydmslib.file_io.readPrefs(self.prefs, minpref=0.005)
         aas = [INDEX_TO_AA[a] for a in range(N_AA)]
@@ -60,7 +63,7 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
         random.seed(1)
         scipy.random.seed(1)
         partitions = phydmslib.simulate.pyvolvePartitions(self.model)
-        evolver = pyvolve.Evolver(partitions=partitions, 
+        evolver = pyvolve.Evolver(partitions=partitions,
                 tree=pyvolve.read_tree(file=self.tree))
         simulateprefix = os.path.join(self.outdir, self.modelname)
         simulatedalignment = simulateprefix + '_simulatedalignment.fasta'
@@ -73,13 +76,13 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
             outprefix = simulateprefix + '_fitprefsmethod{0}'.format(
                     fitprefsmethod)
             subprocess.check_call(['phydms', simulatedalignment, self.tree,
-                    self.modelarg, outprefix, '--diffprefsbysite', 
+                    self.modelarg, outprefix, '--diffprefsbysite',
                     '--brlen', 'scale', '--ncpus', '-1', '--diffprefsprior',
                     'invquadratic,150,0.5'] + self.gammaomega_arg +
                     ['--fitprefsmethod', fitprefsmethod])
             diffprefsbysitefile = outprefix + '_diffprefsbysite.txt'
             aas = ['dpi_{0}'.format(INDEX_TO_AA[a]) for a in range(N_AA)]
-            diffprefs = pandas.read_csv(diffprefsbysitefile, sep='\t', 
+            diffprefs = pandas.read_csv(diffprefsbysitefile, sep='\t',
                     comment='#')
             diffprefs['total'] = diffprefs[aas].abs().sum(axis=1)
             for (site, a) in self.targetaas.items():

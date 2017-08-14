@@ -14,8 +14,9 @@ class test_readPrefs(unittest.TestCase):
 
     def setUp(self):
         self.divPressuredir = './divpressure_tests/'
-        self.divPressurefiles = ['{0}divpressure{1}'.format(self.divPressuredir, suffix) for
-                suffix in ['.csv', '.tsv', '.txt']]
+        self.divPressurefiles = [os.path.abspath(os.path.join(os.path.dirname
+                (__file__), './divpressure_tests/divpressure{0}'.format(suffix)))
+                for suffix in ['.csv', '.tsv', '.txt']]
         self.assertTrue(all(map(os.path.isfile, self.divPressurefiles)), "Cannot "
                 "find divpressure needed for test.")
 

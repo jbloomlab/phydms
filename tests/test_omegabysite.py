@@ -20,10 +20,13 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
     """Tests ``--omegabysite`` to ``phydms`` for `ExpCM`."""
 
     def setUp(self):
-        self.tree = './NP_data/NP_tree.newick'
-        self.alignment = './NP_data/NP_alignment.fasta'
-        self.prefs = './NP_data/NP_prefs.tsv'
-        self.nsites = len(phydmslib.file_io.ReadCodonAlignment(self.alignment, 
+        self.tree = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                './NP_data/NP_tree.newick'))
+        self.alignment = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                './NP_data/NP_alignment.fasta'))
+        self.prefs = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                './NP_data/NP_prefs.tsv'))
+        self.nsites = len(phydmslib.file_io.ReadCodonAlignment(self.alignment,
                 True)[0][1]) // 3
         self.initializeModel()
         self.outdir = './omegabysite_test_results/'
@@ -44,7 +47,7 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
         divpressuresites = random.sample(range(self.nsites), 5)
         partitions = phydmslib.simulate.pyvolvePartitions(self.model,
                 (200.0, divpressuresites))
-        evolver = pyvolve.Evolver(partitions=partitions, 
+        evolver = pyvolve.Evolver(partitions=partitions,
                 tree=pyvolve.read_tree(file=self.tree))
         simulateprefix = os.path.join(self.outdir, self.modelname)
         simulatedalignment = simulateprefix + '_simulatedalignment.fasta'
@@ -52,7 +55,7 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
         rates = simulateprefix + '_temp_ratefile.txt'
         evolver(seqfile=simulatedalignment, infofile=info, ratefile=rates)
         subprocess.check_call(['phydms', simulatedalignment, self.tree,
-                self.modelarg, simulateprefix, '--omegabysite', 
+                self.modelarg, simulateprefix, '--omegabysite',
                 '--brlen', 'scale'])
         omegabysitefile = simulateprefix + '_omegabysite.txt'
         omegas = pandas.read_csv(omegabysitefile, sep='\t', comment='#')
