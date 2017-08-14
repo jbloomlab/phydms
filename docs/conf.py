@@ -67,7 +67,8 @@ copyright = u'2015, Jesse D. Bloom'
 #
 # The short X.Y version.
 # Read in the version from file
-versionfile = '../phydmslib/_metadata.py'
+versionfile = os.path.abspath(os.path.join(
+        os.path.dirname(__file__), '../phydmslib/_metadata.py'))
 with open(versionfile) as f:
     versiontext = f.read()
 versionstring = re.search("__version__ = ['\"]([^'\"]+)['\"]", versiontext)

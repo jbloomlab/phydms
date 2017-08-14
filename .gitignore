@@ -1,3 +1,7 @@
+.*
+!.gitignore
+/*.png
+custom_matrix_frequencies.txt
 *.pyc
 *.pyo
 *.so
