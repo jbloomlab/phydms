@@ -6,6 +6,7 @@ cache: pip
 install:
   - pip install -r test_requirements.txt
   - pip install -e .
+  - travis_wait 60 mvn install
 script: 
   - pytest
 branches:
