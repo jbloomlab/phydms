@@ -1,6 +1,9 @@
 ========================
 ``phydms``
 ========================
+.. image:: https://travis-ci.org/jbloomlab/phydms.svg?branch=master
+    :target: https://travis-ci.org/jbloomlab/phydms.svg?branch=master
+
 ``phydms`` enables **phy**\logenetic analyses using **d**\eep **m**\utational **s**\canning data to inform the substitution models. It implements **Exp**\erimentally informed **c**\odon **m**\odels (*ExpCM*) for phylogenetic inference and the detection of biologically interesting selection.
 
 ``phydms`` is written by the `Bloom lab`_ (see https://github.com/jbloomlab/phydms/contributors for a full list of contributors).
