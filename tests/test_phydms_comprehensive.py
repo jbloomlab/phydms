@@ -19,13 +19,18 @@ class test_phydms_comprehensive(unittest.TestCase):
 
     def test_NP(self):
         """Tests command-line ``phydms_comprehensive`` on NP data."""
-        npdir = './NP_data/'
-        prefs = '{0}/NP_prefs.tsv'.format(npdir)
-        alignment = '{0}/NP_alignment.fasta'.format(npdir)
-        tree = '{0}/NP_tree.newick'.format(npdir)
+        tree = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                './NP_data/NP_tree.newick'))
+        alignment = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                './NP_data/NP_alignment.fasta'))
+        prefs = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                './NP_data/NP_prefs.tsv'))
         for f in [prefs, alignment]:
             self.assertTrue(os.path.isfile(f), "Can't find file {0}".format(f))
-        outprefix = './NP_test_results/'
+        outprefix = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                './NP_test_results/'))
+        if outprefix[-1] != "/":
+            outprefix = "{0}/".format(outprefix)
 
         ncpus = min(20, multiprocessing.cpu_count())
 
@@ -33,7 +38,8 @@ class test_phydms_comprehensive(unittest.TestCase):
                 prefs, "--tree", tree, "--omegabysite", '--brlen', 'scale',
                 '--diffprefsbysite', '--ncpus', str(ncpus)])
 
-        expectedresults = './expected_NP_test_results/'
+        expectedresults = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                './expected_NP_test_results/'))
 
         models = ['ExpCM_NP_prefs', 'averaged_ExpCM_NP_prefs', 'YNGKP_M0',
                 'YNGKP_M5']
@@ -43,7 +49,9 @@ class test_phydms_comprehensive(unittest.TestCase):
             for (name, prefix) in [('expected', expectedresults), ('actual', outprefix)]:
                 values[name] = {}
                 for suffix in ['_loglikelihood.txt', '_modelparams.txt']:
-                    with open(prefix + model + suffix) as f:
+                    fname = os.path.abspath(os.path.join(prefix,
+                            './{0}{1}'.format(model, suffix)))
+                    with open(fname) as f:
                         for line in f:
                             (x, y) = line.split('=')
                             values[name][x.strip()] = float(y)
@@ -53,7 +61,9 @@ class test_phydms_comprehensive(unittest.TestCase):
 
             omegas = {}
             for (name, prefix) in [('expected', expectedresults), ('actual', outprefix)]:
-                omegas[name] = pandas.read_csv(prefix + model + '_omegabysite.txt', 
+                fname = os.path.abspath(os.path.join(prefix,
+                        './{0}{1}'.format(model, '_omegabysite.txt')))
+                omegas[name] = pandas.read_csv(fname,
                         comment='#', sep='\t')
                 omegas[name] = omegas[name].sort_values(by='site', axis=0)
             self.assertTrue(scipy.allclose(omegas['actual']['P'].values,
@@ -71,9 +81,11 @@ class test_phydms_comprehensive(unittest.TestCase):
                 largesites = {}
                 smallsites = {}
                 for (name, prefix) in [('expected', expectedresults), ('actual', outprefix)]:
-                    diffprefs[name] = pandas.read_csv(prefix + model + '_diffprefsbysite.txt',
+                    fname = os.path.abspath(os.path.join(prefix,
+                            './{0}{1}'.format(model, '_diffprefsbysite.txt')))
+                    diffprefs[name] = pandas.read_csv(fname,
                         comment='#', sep='\t')
-                    # factor builds in a margin in expected versus actual 
+                    # factor builds in a margin in expected versus actual
                     factor = {'actual':1, 'expected':1.5}[name]
                     largesites[name] = set(diffprefs[name][diffprefs[name][
                             'half_sum_abs_dpi'] > largecutoff * factor]['site'].values)

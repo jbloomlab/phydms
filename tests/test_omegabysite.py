@@ -29,7 +29,8 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
         self.nsites = len(phydmslib.file_io.ReadCodonAlignment(self.alignment,
                 True)[0][1]) // 3
         self.initializeModel()
-        self.outdir = './omegabysite_test_results/'
+        self.outdir = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                './omegabysite_test_results/'))
         if not os.path.isdir(self.outdir):
             os.mkdir(self.outdir)
 
@@ -70,6 +71,10 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
         nspurious = len(omegas[(omegas['omega'] > 2) & (omegas['P'] < 0.05)
                 & (~omegas['site'].isin(divpressuresites))])
         self.assertTrue(nspurious <= 1, "{0} spurious sites".format(nspurious))
+
+        for f in ["custom_matrix_frequencies.txt"]:
+            if os.path.isfile(f):
+                os.remove(f)
 
 
 class test_OmegaBySiteYNGKP(test_OmegaBySiteExpCM):

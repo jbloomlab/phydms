@@ -48,7 +48,8 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
             rprefs[AA_TO_INDEX[self.targetaas[r]]] = hipref
             prefs[r - 1] = dict(zip(aas, rprefs))
         self.model = phydmslib.models.ExpCM(prefs, beta=1.5)
-        self.outdir = './diffprefsbysite_test_results/'
+        self.outdir = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                './diffprefsbysite_test_results/'))
         if self.gammaomega_arg:
             self.modelname = 'ExpCM_gammaomega'
         else:
@@ -105,6 +106,10 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
                 plt.savefig(plotfile)
                 self.assertTrue(r > 0.98, "Low correlation between "
                         "fitprefsmethods: {0}\nSee {1}".format(r, plotfile))
+
+        for f in ["custom_matrix_frequencies.txt"]:
+            if os.path.isfile(f):
+                os.remove(f)
 
 
 

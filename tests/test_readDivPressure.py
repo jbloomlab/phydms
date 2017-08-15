@@ -13,7 +13,6 @@ import phydmslib.file_io
 class test_readPrefs(unittest.TestCase):
 
     def setUp(self):
-        self.divPressuredir = './divpressure_tests/'
         self.divPressurefiles = [os.path.abspath(os.path.join(os.path.dirname
                 (__file__), './divpressure_tests/divpressure{0}'.format(suffix)))
                 for suffix in ['.csv', '.tsv', '.txt']]

@@ -12,9 +12,9 @@ import phydmslib.file_io
 class test_readPrefs(unittest.TestCase):
 
     def setUp(self):
-        self.prefsdir = './NP_data/'
-        self.prefsfiles = ['{0}NP_prefs{1}'.format(self.prefsdir, suffix) for
-                suffix in ['.csv', '.tsv', '-dms_tools_format.txt']]
+        self.prefsfiles = [os.path.abspath(os.path.join(os.path.dirname
+                (__file__), './NP_data/NP_prefs{0}'.format(suffix)))
+                for suffix in ['.csv', '.tsv', '-dms_tools_format.txt']]
         self.assertTrue(all(map(os.path.isfile, self.prefsfiles)), "Cannot "
                 "find prefsfiles needed for test.")
 
@@ -50,7 +50,7 @@ class test_readPrefs(unittest.TestCase):
                 firstsiteprefs = numpy.array([prefs[r][aa] for aa in aas])
             else:
                 siteprefs = numpy.array([prefs[r][aa] for aa in aas])
-                self.assertTrue(numpy.allclose(firstsiteprefs, siteprefs), 
+                self.assertTrue(numpy.allclose(firstsiteprefs, siteprefs),
                         "Prefs not same for all sites wth avgprefs")
 
     def test_minPrefs(self):

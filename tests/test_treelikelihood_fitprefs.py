@@ -42,12 +42,13 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
         self.kappa = 3.0
         self.omega = 3.0
         self.phi = scipy.random.dirichlet([5] * N_NT)
-        self.model = self.MODEL(self.prefs, 
+        self.model = self.MODEL(self.prefs,
                 prior=None, kappa=self.kappa, omega=self.omega, phi=self.phi)
-        self.realmodel = phydmslib.models.ExpCM(self.realprefs, 
+        self.realmodel = phydmslib.models.ExpCM(self.realprefs,
                 kappa=self.kappa, omega=self.omega, mu=10.0, phi=self.phi)
 
-        treefile = 'NP_data/NP_tree.newick'
+        treefile = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                './NP_data/NP_tree.newick'))
         self.tree = Bio.Phylo.read(treefile, 'newick')
         self.tree.root_at_midpoint()
 
@@ -63,7 +64,7 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
         assert len(self.alignment[0][1]) == nsites * 3
         for f in [alignmentfile, info, rates]:
             os.remove(f)
-        self.codoncounts = dict([(r, dict([(INDEX_TO_CODON[c], 0) 
+        self.codoncounts = dict([(r, dict([(INDEX_TO_CODON[c], 0)
                 for c in range(N_CODON)])) for r in range(nsites)])
         self.aacounts = dict([(r, dict([(a, 0) for a in range(N_AA)]))
                 for r in range(nsites)])
@@ -118,15 +119,15 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
         for seed in range(3):
             scipy.random.seed(seed)
             if self.MODEL == phydmslib.models.ExpCM_fitprefs:
-                tl.paramsarray = scipy.random.uniform(0.1, 0.99, 
+                tl.paramsarray = scipy.random.uniform(0.1, 0.99,
                         len(tl.paramsarray))
             elif self.MODEL == phydmslib.models.ExpCM_fitprefs2:
-                tl.paramsarray = scipy.random.uniform(0.5, 5.0, 
+                tl.paramsarray = scipy.random.uniform(0.5, 5.0,
                         len(tl.paramsarray))
             else:
                 raise ValueError("Unrecognized MODEL: {0}".format(self.MODEL))
             if firstloglik:
-                self.assertFalse(scipy.allclose(firstloglik, tl.loglik, 
+                self.assertFalse(scipy.allclose(firstloglik, tl.loglik,
                         atol=0.02), "loglik matches even with random pi")
             maxresult = tl.maximizeLikelihood()
             if firstloglik:
