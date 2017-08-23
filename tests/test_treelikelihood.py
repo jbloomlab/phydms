@@ -33,7 +33,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         random.seed(1)
         scipy.random.seed(1)
 
-        # define tree 
+        # define tree
         self.newick = ('((node1:0.2,node2:0.3)node4:0.3,node3:0.5)node5:0.04;')
         tempfile = '_temp.tree'
         with open(tempfile, 'w') as f:
@@ -103,8 +103,11 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
 
         if self.DISTRIBUTIONMODEL is None:
             pass
-        elif (self.DISTRIBUTIONMODEL == 
+        elif (self.DISTRIBUTIONMODEL ==
                 phydmslib.models.GammaDistributedOmegaModel):
+            self.model = self.DISTRIBUTIONMODEL(self.model, ncats=4)
+        elif (self.DISTRIBUTIONMODEL ==
+                phydmslib.models.GammaDistributedBetaModel):
             self.model = self.DISTRIBUTIONMODEL(self.model, ncats=4)
         else:
             raise ValueError("Invalid DISTRIBUTIONMODEL: {0}".format(
@@ -112,7 +115,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
 
     def test_Initialize(self):
         """Test that initializes properly."""
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model)
         self.assertTrue(tl.nsites == self.nsites)
         self.assertTrue(tl.nseqs == self.nseqs)
@@ -131,7 +134,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         modelparams = self.getModelParams(seed=1)
         model = copy.deepcopy(self.model)
         model.updateParams(modelparams)
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, model)
         logl = tl.loglik
         paramsarray = tl.paramsarray
@@ -161,7 +164,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         for mu in mus:
             model = copy.deepcopy(self.model)
             model.updateParams({'mu':mu})
-            tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+            tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                     self.alignment, model)
             # Here we are doing the multiplication hand-coded for the
             # tree defined in `setUp`. This calculation would be wrong
@@ -196,7 +199,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
 
     def test_LikelihoodDerivativesModelParams(self):
         """Test derivatives of with respect to model params."""
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model)
 
         for itest in range(2):
@@ -225,7 +228,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         """Tests maximization likelihood.
 
         Make sure it gives the same value for several starting points."""
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model)
 
         logliks = []
@@ -238,7 +241,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             self.assertTrue(tl.loglik > startloglik, "no loglik increase: "
                     "start = {0}, end = {1}".format(startloglik, tl.loglik))
             for (otherloglik, otherparams) in zip(logliks, paramsarrays):
-                self.assertTrue(scipy.allclose(tl.loglik, otherloglik, 
+                self.assertTrue(scipy.allclose(tl.loglik, otherloglik,
                         atol=1e-3, rtol=1e-3),
                         "Large difference in loglik: {0} vs {1}".format(
                         otherloglik, tl.loglik))
@@ -290,6 +293,18 @@ class test_TreeLikelihood_ExpCM_empirical_phi_gamma_omega(
     """Tests for `ExpCM_empirical_phi` with gamma omega."""
     MODEL = phydmslib.models.ExpCM_empirical_phi
     DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedOmegaModel
+
+class test_TreeLikelihood_ExpCM_empirical_phi_gamma_beta(
+        test_TreeLikelihood_ExpCM):
+    """Tests for `ExpCM_empirical_phi` with gamma beta."""
+    MODEL = phydmslib.models.ExpCM_empirical_phi
+    DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedBetaModel
+
+class test_TreeLikelihood_ExpCM_gamma_beta(
+        test_TreeLikelihood_ExpCM):
+    """Tests for `ExpCM` with gamma beta."""
+    MODEL = phydmslib.models.ExpCM
+    DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedBetaModel
 
 
 if __name__ == '__main__':

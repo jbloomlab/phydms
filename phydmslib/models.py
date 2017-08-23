@@ -2157,7 +2157,6 @@ class GammaDistributedOmegaModel(DistributionModel):
     def branchScale(self):
         """See docs for `Model` abstract base class."""
         bscales = [m.branchScale for m in self._models]
-        assert all([bscales[i] < bscales[i + 1] for i in range(self.ncats - 1)])
         return (self.catweights * bscales).sum()
 
 
@@ -2265,6 +2264,75 @@ def DiscreteGamma(alpha, beta, ncats):
             catmeans.sum() / ncats, alpha, beta, alpha / beta)
     return catmeans
 
+class GammaDistributedBetaModel(GammaDistributedOmegaModel):
+    """Implements gamma distribution over `beta` for a model.
+
+    The difference between `GammaDistributedBetaModl` and
+    `GammaDistributedOmegaModel` is that the gamma distribution will now be
+    implemented over the `beta` parameter **not** the `omega` parameter.
+
+    See `__init__` method for how to initialize a
+    `GammaDistributedBetaModel`.
+
+    Attributes should **only** be updated via the `updateParams`
+    method; do **not** set attributes directly.
+
+    Attributes (see also those inherited from `DistributionModel`):
+        `alpha_omega` (`float` > 0)
+            Gamma distribution shape parameter.
+        `beta_omega` (`float` > 0)
+            Gamma distribution inverse-scale parameter
+    """
+
+    @property
+    def distributedparam(self):
+        """Returns name of the distributed parameter, which is `beta`."""
+        return 'beta'
+
+    def updateParams(self, newvalues, update_all=False):
+        """See docs for `Model` abstract base class."""
+        assert all(map(lambda x: x in self.freeparams, newvalues.keys())),\
+                "Invalid entry in newvalues: {0}\nfreeparams: {1}".format(
+                ', '.join(newvalues.keys()), ', '.join(self.freeparams))
+
+        newvalues_list = [{} for k in range(self.ncats)]
+
+        if update_all or any([param in self.distributionparams for param
+                in newvalues.keys()]):
+            self._d_distributionparams = {}
+            for param in self.distributionparams:
+                if param in newvalues:
+                    _checkParam(param, newvalues[param], self.PARAMLIMITS,
+                            self.PARAMTYPES)
+                    setattr(self, param, copy.copy(newvalues[param]))
+            self._betas = DiscreteGamma(self.alpha_omega, self.beta_omega,
+                    self.ncats)
+            for (k, beta) in enumerate(self._betas):
+                newvalues_list[k][self.distributedparam] = beta
+        for name in self.freeparams:
+            if name not in self.distributionparams:
+                if name in newvalues:
+                    value = newvalues[name]
+                    _checkParam(name, value, self.PARAMLIMITS, self.PARAMTYPES)
+                    setattr(self, name, copy.copy(value))
+                    for k in range(self.ncats):
+                        newvalues_list[k][name] = value
+                elif update_all:
+                    for k in range(self.ncats):
+                        newvalues_list[k][name] = getattr(self, name)
+
+        assert len(newvalues_list) == len(self._models) == self.ncats
+        for (k, newvalues_k) in enumerate(newvalues_list):
+            self._models[k].updateParams(newvalues_k)
+
+        # check to make sure all models have same parameter values
+        for param in self.freeparams:
+            if param not in self.distributionparams:
+                pvalue = getattr(self, param)
+                assert all([scipy.allclose(pvalue, getattr(model, param))
+                        for model in self._models]), ("{0}\n{1}".format(
+                        pvalue, '\n'.join([str(getattr(model, param))
+                        for model in self._models])))
 
 if __name__ == '__main__':
     import doctest
