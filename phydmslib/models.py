@@ -82,7 +82,7 @@ class Model(six.with_metaclass(abc.ABCMeta)):
     def paramsReport(self):
         """Reports current values of independent model parameters.
 
-        Returns a dictionary keyed by parameter name with value being the 
+        Returns a dictionary keyed by parameter name with value being the
         parameter value. Does **not** include `mu` as this is confounded
         with branch lengths.
         """
@@ -141,7 +141,7 @@ class Model(six.with_metaclass(abc.ABCMeta)):
             `t` (float > 0)
                 The branch length.
             `param` (string in `freeparams` or the string `'t'`)
-                Differentiate with respect to this model parameter, 
+                Differentiate with respect to this model parameter,
                 or with respect to branch length if `'t'`.
             `Mt` (`numpy.ndarray`.)
                 The current value of `M(t, tips, gaps)`. Typically this
@@ -246,7 +246,7 @@ class ExpCM(Model):
         `Frxy` (`numpy.ndarray` of floats, shape `(nsites, N_CODON, N_CODON)`
             `Frxy[r][x][y]` fixation prob from `x` to `y`, diagonal
             undefined for each `Frxy[r]`.
-        `Frxy_no_omega` 
+        `Frxy_no_omega`
             Like `Frxy` but **not** multiplied by `omega` for non-synonymous
             mutations
         `pi_codon` (`numpy.ndarray` of floats, shape `(nsites, N_CODON)`)
@@ -384,7 +384,7 @@ class ExpCM(Model):
         self.prx = scipy.zeros((self.nsites, N_CODON), dtype='float')
         self.Qxy = scipy.zeros((N_CODON, N_CODON), dtype='float')
         self.Frxy = scipy.ones((self.nsites, N_CODON, N_CODON), dtype='float')
-        self.Frxy_no_omega = scipy.ones((self.nsites, N_CODON, N_CODON), 
+        self.Frxy_no_omega = scipy.ones((self.nsites, N_CODON, N_CODON),
                 dtype='float')
         self.D = scipy.zeros((self.nsites, N_CODON), dtype='float')
         self.A = scipy.zeros((self.nsites, N_CODON, N_CODON), dtype='float')
@@ -448,7 +448,7 @@ class ExpCM(Model):
             elif isinstance(pvalue, scipy.ndarray) and pvalue.shape == (N_NT,):
                 for w in range(N_NT - 1):
                     report['{0}{1}'.format(param, INDEX_TO_NT[w])] = pvalue[w]
-            elif isinstance(pvalue, scipy.ndarray) and (pvalue.shape == 
+            elif isinstance(pvalue, scipy.ndarray) and (pvalue.shape ==
                     (self.nsites, N_AA)):
                 for r in range(self.nsites):
                     for a in range(N_AA):
@@ -666,10 +666,10 @@ class ExpCM(Model):
 
     def _update_pi_vars(self):
         """Update variables that depend on `pi`.
-        
+
         These are `pi_codon`, `ln_pi_codon`, `piAx_piAy`, `piAx_piAy_beta`,
         `ln_piAx_piAy_beta`.
-        
+
         Update using current `pi` and `beta`."""
         with scipy.errstate(divide='raise', under='raise', over='raise',
                 invalid='raise'):
@@ -689,7 +689,7 @@ class ExpCM(Model):
                         invalid='ignore'):
             scipy.copyto(self.Frxy_no_omega, -self.ln_piAx_piAy_beta
                     / (1 - self.piAx_piAy_beta), where=scipy.logical_and(
-                    CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta) > 
+                    CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta) >
                     ALMOST_ZERO))
         scipy.copyto(self.Frxy, self.Frxy_no_omega * self.omega, where=CODON_NONSYN)
 
@@ -741,8 +741,8 @@ class ExpCM(Model):
             with scipy.errstate(divide='raise', under='raise', over='raise',
                     invalid='ignore'):
                 scipy.copyto(self.dPrxy['beta'], self.Prxy *
-                        (1 / self.beta + (self.piAx_piAy_beta * 
-                        (self.ln_piAx_piAy_beta / self.beta) / 
+                        (1 / self.beta + (self.piAx_piAy_beta *
+                        (self.ln_piAx_piAy_beta / self.beta) /
                         (1 - self.piAx_piAy_beta))), where=CODON_NONSYN)
             scipy.copyto(self.dPrxy['beta'], self.Prxy/self.beta *
                     (1 - self.piAx_piAy_beta), where=scipy.logical_and(
@@ -809,7 +809,7 @@ class ExpCM_fitprefs(ExpCM):
     The way this class is currently implemented, it will be inefficient
     if there is more than one site. The recommended usage is to optimize
     across-site parameters with fixed preferences, then optimize preferences
-    for each site individually with this class after fixing across-site 
+    for each site individually with this class after fixing across-site
     parameters. You currently can *not* initialize with more than one
     site.
 
@@ -827,7 +827,7 @@ class ExpCM_fitprefs(ExpCM):
             of shape `(nsites * (N_AA - 1), nsites, N_CODON, N_CODON)`
             where the first index ranges over the elements in `zeta`.
         `tildeFrxy` (`numpy.ndarray` of `float`, shape `(nsites, N_CODON, N_CODON)`)
-            Contains quantities used in calculating derivative of 
+            Contains quantities used in calculating derivative of
             `dPrxy` with respect to `zeta`.
         `origpi` (`numpy.ndarray` of float, shape `(nsites, N_AA)`)
             `origpi[r][a]` is the original preference for amino-acid
@@ -846,7 +846,7 @@ class ExpCM_fitprefs(ExpCM):
 
     `beta` (the stringency parameter) is **not** a free parameter,
     and is instead fixed to 1. This is because it does not make sense
-    to optimize a stringency parameter if you are also optimizing the 
+    to optimize a stringency parameter if you are also optimizing the
     preferences as they are confounded.
     """
 
@@ -861,9 +861,9 @@ class ExpCM_fitprefs(ExpCM):
     def __init__(self, prefs, prior, kappa, omega, phi, mu=1.0, origbeta=1.0,
             freeparams=['zeta']):
         """Initialize an `ExpCM_fitprefs` object.
-        
+
         The calling parameters have the meaning described in the main class doc
-        string. The default values have changed consistent with recommended 
+        string. The default values have changed consistent with recommended
         usage of this class: that you have already estimated
         the across-site parameters (`kappa`, `omega`, `mu`, `phi`) and so
         are specifying fixed values for those. You are then just optimizing the
@@ -874,7 +874,7 @@ class ExpCM_fitprefs(ExpCM):
         Additional arguments:
             `origbeta` (`float`)
                 The preferences in `prefs` are re-scaled by `origbeta` and
-                used as the initial value and stored in `origpi`. `origbeta` 
+                used as the initial value and stored in `origpi`. `origbeta`
                 might differ from 1 if you already optimized `prefs` using
                 a fixed-preference `ExpCM` prior to initializing this model.
         """
@@ -926,10 +926,10 @@ class ExpCM_fitprefs(ExpCM):
 
     def _update_pi_vars(self):
         """Update variables that depend on `pi` from `zeta`.
-        
+
         The updated variables are: `pi`, `pi_codon`, `ln_pi_codon`, `piAx_piAy`,
         `piAx_piAy_beta`, `ln_piAx_piAy_beta`, and `_logprior`.
-        
+
         If `zeta` is undefined (as it will be on the first call), then create
         `zeta` and `origpi` from `pi` and `origbeta`."""
         minpi = self.PARAMLIMITS['pi'][0]
@@ -1057,10 +1057,10 @@ class ExpCM_fitprefs2(ExpCM_fitprefs):
 
     def _update_pi_vars(self):
         """Update variables that depend on `pi` from `zeta`.
-        
+
         The updated variables are: `pi`, `pi_codon`, `ln_pi_codon`, `piAx_piAy`,
         `piAx_piAy_beta`, `ln_piAx_piAy_beta`, and `_logprior`.
-        
+
         If `zeta` is undefined (as it will be on the first call), then create
         `zeta` and `origpi` from `pi` and `origbeta`."""
         minpi = self.PARAMLIMITS['pi'][0]
@@ -1075,7 +1075,7 @@ class ExpCM_fitprefs2(ExpCM_fitprefs):
             self.pi = self.origpi.copy()
             self.zeta = scipy.ndarray(self.nsites * (N_AA - 1), dtype='float')
             for r in range(self.nsites):
-                self.zeta.reshape(self.nsites, N_AA - 1)[r] = (self.pi[r][ : -1] 
+                self.zeta.reshape(self.nsites, N_AA - 1)[r] = (self.pi[r][ : -1]
                         / self.pi[r][-1])
             (minzeta, maxzeta) = self.PARAMLIMITS['zeta']
             self.zeta[self.zeta < minzeta] = minzeta
@@ -1100,9 +1100,9 @@ class ExpCM_fitprefs2(ExpCM_fitprefs):
                 invalid='ignore'):
             scipy.copyto(self.tildeFrxy, self.omega * self.beta *
                     (self.piAx_piAy_beta * (self.ln_piAx_piAy_beta - 1)
-                    + 1) / (1 - self.piAx_piAy_beta)**2, 
+                    + 1) / (1 - self.piAx_piAy_beta)**2,
                     where=CODON_NONSYN)
-        scipy.copyto(self.tildeFrxy, self.omega * self.beta / 2.0, 
+        scipy.copyto(self.tildeFrxy, self.omega * self.beta / 2.0,
                 where=scipy.logical_and(CODON_NONSYN, scipy.fabs(1 -
                 self.piAx_piAy_beta) < ALMOST_ZERO))
 
@@ -1143,7 +1143,7 @@ class ExpCM_fitprefs2(ExpCM_fitprefs):
                 for i in range(N_AA - 1):
                     zetari = self.zeta[j]
                     self.dPrxy['zeta'][j][r] = tildeFrxyQxy[r] * (
-                            ((i == self._aa_for_y).astype('float') - 
+                            ((i == self._aa_for_y).astype('float') -
                             (i == self._aa_for_x).astype('float')) / zetari)
                     j += 1
             for j in range(self.dPrxy['zeta'].shape[0]):
@@ -1159,7 +1159,7 @@ class ExpCM_fitprefs2(ExpCM_fitprefs):
                 for i in range(N_AA - 1):
                     zetari = self.zeta[j]
                     self.dprx['zeta'][j][r] = (self.prx[r] / zetari) * (
-                            (CODON_TO_AA == i).astype('float') - 
+                            (CODON_TO_AA == i).astype('float') -
                             ((CODON_TO_AA == i).astype('float') * self.prx[r]).sum())
                     j += 1
 
@@ -1369,9 +1369,9 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
                     CODON_NONSYN, scipy.fabs(1 - self.piAx_piAy_beta) >
                     ALMOST_ZERO))
         for r in range(self.nsites):
-            scipy.copyto(self.Frxy_no_omega[r], self.Frxy_no_omega[r] * 
+            scipy.copyto(self.Frxy_no_omega[r], self.Frxy_no_omega[r] *
                     (1 + self.omega2 * self.deltar[r]), where=CODON_NONSYN)
-        scipy.copyto(self.Frxy, self.Frxy_no_omega * self.omega, 
+        scipy.copyto(self.Frxy, self.Frxy_no_omega * self.omega,
                 where=CODON_NONSYN)
 
 
@@ -1517,7 +1517,7 @@ class YNGKP_M0(Model):
     def stationarystate(self):
         """See docs for `Model` abstract base class."""
         #repeat the single state by the number sites
-        return scipy.tile(self.Phi_x, (self.nsites, 1)) 
+        return scipy.tile(self.Phi_x, (self.nsites, 1))
 
     def dstationarystate(self, param):
         """See docs for `Model` abstract base class."""
@@ -1644,7 +1644,7 @@ class YNGKP_M0(Model):
                 self._cached[('expD', t)] = scipy.exp(self.D * self.mu * t)
             expD = self._cached[('expD', t)]
             # swap axes to broadcast multiply D as diagonal matrix
-            temp = scipy.ascontiguousarray((self.A.swapaxes(0, 1) 
+            temp = scipy.ascontiguousarray((self.A.swapaxes(0, 1)
                     * expD).swapaxes(1, 0), dtype=float)
             M = broadcastMatrixMultiply(temp, self.Ainv)
             assert M.min() > -1e-3, "Overly negative M: {0}".format(M.min())
@@ -1674,12 +1674,12 @@ class YNGKP_M0(Model):
             else:
                 alpha = self.mu
             if tips is None:
-                dM_param = scipy.tile(broadcastMatrixMultiply(self.Pxy, 
-                        scipy.tile(Mt[0], (1, 1, 1)), alpha=alpha), 
+                dM_param = scipy.tile(broadcastMatrixMultiply(self.Pxy,
+                        scipy.tile(Mt[0], (1, 1, 1)), alpha=alpha),
                         (self.nsites, 1, 1))
             else:
                 #Pxy is tiled over the number of sites
-                dM_param = broadcastMatrixVectorMultiply(scipy.tile(self.Pxy[0], 
+                dM_param = broadcastMatrixVectorMultiply(scipy.tile(self.Pxy[0],
                         (self.nsites, 1, 1)), Mt, alpha=alpha)
                 if gaps is not None:
                     dM_param[gaps] = scipy.zeros(N_CODON, dtype='float')
@@ -1733,7 +1733,7 @@ class YNGKP_M0(Model):
 
     def _update_Pxy(self):
         """Update `Pxy` using current `omega`, `kappa`, and `Phi_x`."""
-        scipy.copyto(self.Pxy_no_omega, self.Phi_x.transpose(), 
+        scipy.copyto(self.Pxy_no_omega, self.Phi_x.transpose(),
                 where=CODON_SINGLEMUT)
         self.Pxy_no_omega[0][CODON_TRANSITION] *= self.kappa
         self.Pxy = self.Pxy_no_omega.copy()
@@ -1781,24 +1781,17 @@ class DistributionModel(six.with_metaclass(abc.ABCMeta, Model)):
     """Substitution model with a parameter drawn from distribution.
 
     This abstract base class defines required methods / attributes
-    of substitution models one parameter (`distributedparam`) drawn 
+    of substitution models *one* parameter (`distributedparam`) drawn
     from a distribution. An example is that `omega` might be
     drawn from a gamma distribution.
-
-    It requires that the parameter drawn from the distribution does
-    **not** affect the stationary state and only alters the matrix
-    exponentials `M` and `dM` relative to a `Model` where the
-    distributed parameter has a single value. In other words, it
-    allows mixtures over the transition probabilities but **not**
-    over the stationary state.
     """
 
     @abc.abstractproperty
     def basemodel(self):
         """Base model over which this model is distributed.
-        
+
         A `DistributionModel` is a base model with some property
-        drawn from a distribution. This gives such a base model. 
+        drawn from a distribution. This gives such a base model.
         Parameters of this base model that are **not** distributed
         among sites will be current, but the distributed parameter
         will not."""
@@ -1807,7 +1800,7 @@ class DistributionModel(six.with_metaclass(abc.ABCMeta, Model)):
     @abc.abstractproperty
     def distributedparam(self):
         """String giving name of parameter drawn from the distribution.
-        
+
         This parameter must be in `freeparams`."""
         pass
 
@@ -1847,12 +1840,40 @@ class DistributionModel(six.with_metaclass(abc.ABCMeta, Model)):
         """
         pass
 
+    @abc.abstractproperty
+    def stationarystate(self):
+        """Stationary state of substitution model.
+
+        A `numpy.ndarray` of floats, shape `(k, nsites, N_CODON)`.
+        Element `stationarystate[k][r][x]` is the stationary
+        state probability of codon `x` at site `r` for category `k`.
+        """
+        pass
+
+    @abc.abstractmethod
+    def dstationarystate(self, param):
+        """Derivative of `stationarystate` with respect to `param` for category `k`.
+
+            Args:
+                `param` (string in `freeparams`)
+
+            Returns:
+                `dstationarystate` (`numpy.ndarray` of floats or zero)
+                    If `param` is a float, then `dstationarystate[k][r][x]`
+                    is derivative of `stationarystate[k][r][x]` with respect
+                    to `param` for category `k`. If `param` is an array, then
+                    `dstationarystate[k][i][r][x]` is derivative of
+                    `stationarystate[k][r][x]` with respect to `param[i]` for
+                    category `k`.
+        """
+        pass
+
     @abc.abstractmethod
     def M(self, k, t, tips=None, gaps=None):
         """Matrix exponential `M(mu * t) = exp(mu * t * P)` for category `k`.
 
         Similar to definition for `Model` abstract base class except
-        also specifies for which category `k` we are returning the 
+        also specifies for which category `k` we are returning the
         matrix exponential. `k` is an `int` with `0 <= k < ncats`.
         """
         pass
@@ -1874,7 +1895,7 @@ class DistributionModel(six.with_metaclass(abc.ABCMeta, Model)):
 
 class GammaDistributedOmegaModel(DistributionModel):
     """Implements gamma distribution over `omega` for a model.
-    
+
     This model can be used to take a simple substitution model that
     directly subclasses `Model` and implement a gamma distribution
     over its `omega` parameter. For instance, if this is done for
@@ -1887,8 +1908,8 @@ class GammaDistributedOmegaModel(DistributionModel):
     This means that rather than optimizing `omega` directly,
     we optimize the shape and inverse-scale parameters
     of its gamma distribution.
-   
-    See `__init__` method for how to initialize a 
+
+    See `__init__` method for how to initialize a
     `GammaDistributedOmegaModel`.
 
     Attributes should **only** be updated via the `updateParams`
@@ -1955,7 +1976,7 @@ class GammaDistributedOmegaModel(DistributionModel):
                 The free parameters will be these **plus** anything
                 in `model.freeparams` other than `distributedparam`.
         """
-        assert isinstance(model, Model) 
+        assert isinstance(model, Model)
         assert not isinstance(model, DistributionModel)
         assert self.distributedparam in model.freeparams
 
@@ -2011,7 +2032,7 @@ class GammaDistributedOmegaModel(DistributionModel):
                 dparam = scipy.misc.derivative(f, pvalue, dx, n=1, order=5)
                 assert dparam.shape == (self.ncats,)
                 for stepchange in [0.5, 2]: # make sure robust to step size
-                    dparam2 = scipy.misc.derivative(f, pvalue, stepchange * dx, 
+                    dparam2 = scipy.misc.derivative(f, pvalue, stepchange * dx,
                             n=1, order=5)
                     assert scipy.allclose(dparam, dparam2, atol=1e-5, rtol=1e-4), (
                             "Numerical derivative of {0} at {1} "
@@ -2026,18 +2047,18 @@ class GammaDistributedOmegaModel(DistributionModel):
         assert all(map(lambda x: x in self.freeparams, newvalues.keys())),\
                 "Invalid entry in newvalues: {0}\nfreeparams: {1}".format(
                 ', '.join(newvalues.keys()), ', '.join(self.freeparams))
-       
-        newvalues_list = [{} for k in range(self.ncats)] 
+
+        newvalues_list = [{} for k in range(self.ncats)]
 
         if update_all or any([param in self.distributionparams for param
                 in newvalues.keys()]):
             self._d_distributionparams = {}
             for param in self.distributionparams:
                 if param in newvalues:
-                    _checkParam(param, newvalues[param], self.PARAMLIMITS, 
+                    _checkParam(param, newvalues[param], self.PARAMLIMITS,
                             self.PARAMTYPES)
                     setattr(self, param, copy.copy(newvalues[param]))
-            self._omegas = DiscreteGamma(self.alpha_omega, self.beta_omega, 
+            self._omegas = DiscreteGamma(self.alpha_omega, self.beta_omega,
                     self.ncats)
             for (k, omega) in enumerate(self._omegas):
                 newvalues_list[k][self.distributedparam] = omega
@@ -2095,14 +2116,14 @@ class GammaDistributedOmegaModel(DistributionModel):
         """See docs for `DistributionModel` abstract base class."""
         return self._catweights
 
-    @property 
+    @property
     def nsites(self):
         """See docs for `Model` abstract base class."""
         return self._nsites
 
-    @property 
+    @property
     def mu(self):
-        """See docs for `Model` abstract base class."""    
+        """See docs for `Model` abstract base class."""
         mu = self._models[0].mu
         assert all([mu == model.mu for model in self._models])
         return mu
@@ -2113,13 +2134,10 @@ class GammaDistributedOmegaModel(DistributionModel):
         for k in range(self.ncats):
             self._models[k].updateParams({'mu':value})
 
-    @property
-    def stationarystate(self):
+    def stationarystate(self,k):
         """See docs for `Model` abstract base class."""
-        ss = self._models[0].stationarystate
-        assert all([scipy.allclose(ss, model.stationarystate) for model 
-                in self._models])
-        return ss
+        assert 0 <= k < self.ncats
+        return self._models[k].stationarystate
 
     def dstationarystate(self, param):
         """See docs for `Model` abstract base class."""
@@ -2206,7 +2224,7 @@ def DiscreteGamma(alpha, beta, ncats):
 
     Returns:
         `catmeans` (`scipy.ndarray` of `float`, shape `(ncats,)`)
-            `catmeans[k]` is the mean of category `k` where 
+            `catmeans[k]` is the mean of category `k` where
             `0 <= k < ncats`.
 
     Check that we get values in Figure 1 of Yang, J Mol Evol, 39:306-314
@@ -2240,13 +2258,13 @@ def DiscreteGamma(alpha, beta, ncats):
             upper = float('inf')
             gammainc_upper = 1.0
         else:
-            upper = scipy.stats.gamma.ppf((k + 1) / float(ncats), alpha, 
+            upper = scipy.stats.gamma.ppf((k + 1) / float(ncats), alpha,
                     scale=scale)
             gammainc_upper = scipy.special.gammainc(alpha + 1, upper * beta)
         catmeans[k] = alpha * ncats * (gammainc_upper - gammainc_lower) / beta
     assert scipy.allclose(catmeans.sum() / ncats, alpha / beta), (
             "catmeans is {0}, mean of catmeans is {1}, expected mean "
-            "alpha / beta = {2} / {3} = {4}").format(catmeans, 
+            "alpha / beta = {2} / {3} = {4}").format(catmeans,
             catmeans.sum() / ncats, alpha, beta, alpha / beta)
     return catmeans
 
