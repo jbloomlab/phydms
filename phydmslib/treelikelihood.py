@@ -715,7 +715,7 @@ class TreeLikelihood(object):
                     dsiteloglik = 0
                     for k in self._catindices:
                         dsiteloglik += (scipy.sum(
-                                self._dstationarystate(k,param) *
+                                self._dstationarystate(k, name) *
                                 self.L[rootnode][k] + self.dL[name][rootnode][k] *
                                 self._stationarystate(k), axis=-1) *
                                 weighted_dk[k])
@@ -763,7 +763,7 @@ class TreeLikelihood(object):
     def _dstationarystate(self, k, param):
         """Returns the dstationarystate ."""
         if self._distributionmodel:
-            return self.model.dstationarystate(k,param)
+            return self.model.dstationarystate(k, param)
         else:
             return self.model.dstationarystate(param)
 

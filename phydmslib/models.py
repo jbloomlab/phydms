@@ -1781,8 +1781,8 @@ class DistributionModel(six.with_metaclass(abc.ABCMeta, Model)):
     """Substitution model with a parameter drawn from distribution.
 
     This abstract base class defines required methods / attributes
-    of substitution models *one* parameter (`distributedparam`) drawn
-    from a distribution. An example is that `omega` might be
+    of substitution models with *one* parameter (`distributedparam`) 
+    drawn from a distribution. An example is that `omega` might be
     drawn from a gamma distribution.
     """
 
@@ -1840,9 +1840,13 @@ class DistributionModel(six.with_metaclass(abc.ABCMeta, Model)):
         """
         pass
 
-    @abc.abstractproperty
-    def stationarystate(self):
+    @abc.abstractmethod
+    def stationarystate(self, k):
         """Stationary state of substitution model.
+
+        Args:
+            `k` (int)
+                Category for which we are computing stationary state.
 
         A `numpy.ndarray` of floats, shape `(k, nsites, N_CODON)`.
         Element `stationarystate[k][r][x]` is the stationary
@@ -1851,20 +1855,23 @@ class DistributionModel(six.with_metaclass(abc.ABCMeta, Model)):
         pass
 
     @abc.abstractmethod
-    def dstationarystate(self, param):
+    def dstationarystate(self, k, param):
         """Derivative of `stationarystate` with respect to `param` for category `k`.
 
-            Args:
-                `param` (string in `freeparams`)
+        Args:
+            `k` (int)
+                Category for which we are computing stationary state.
+            `param` (string)
+                A string in `freeparams` or `distributedparam`
 
-            Returns:
-                `dstationarystate` (`numpy.ndarray` of floats or zero)
-                    If `param` is a float, then `dstationarystate[k][r][x]`
-                    is derivative of `stationarystate[k][r][x]` with respect
-                    to `param` for category `k`. If `param` is an array, then
-                    `dstationarystate[k][i][r][x]` is derivative of
-                    `stationarystate[k][r][x]` with respect to `param[i]` for
-                    category `k`.
+        Returns:
+            `dstationarystate` (`numpy.ndarray` of floats or zero)
+                If `param` is a float, then `dstationarystate[k][r][x]`
+                is derivative of `stationarystate[k][r][x]` with respect
+                to `param` for category `k`. If `param` is an array, then
+                `dstationarystate[k][i][r][x]` is derivative of
+                `stationarystate[k][r][x]` with respect to `param[i]` for
+                category `k`.
         """
         pass
 
@@ -2134,19 +2141,17 @@ class GammaDistributedOmegaModel(DistributionModel):
         for k in range(self.ncats):
             self._models[k].updateParams({'mu':value})
 
-    def stationarystate(self,k):
+    def stationarystate(self, k):
         """See docs for `Model` abstract base class."""
         assert 0 <= k < self.ncats
         return self._models[k].stationarystate
 
     def dstationarystate(self, k, param):
         """See docs for `Model` abstract base class."""
-        if param in self.distributionparams:
-            return 0.0
-        else:
-            assert param in self.freeparams or param in self.distributedparam
-            ds = self._models[k].dstationarystate(param)
-            return ds
+        assert param in not in self.distributionparams:
+        assert param in self.freeparams or param == self.distributedparam
+        ds = self._models[k].dstationarystate(param)
+        return ds
 
     @property
     def branchScale(self):
