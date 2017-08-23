@@ -2139,21 +2139,13 @@ class GammaDistributedOmegaModel(DistributionModel):
         assert 0 <= k < self.ncats
         return self._models[k].stationarystate
 
-    def dstationarystate(self, param):
+    def dstationarystate(self, k, param):
         """See docs for `Model` abstract base class."""
-        if param == self.distributedparam or param in self.distributionparams:
-            for m in self._models:
-                ds = m.dstationarystate(self.distributedparam)
-                if isinstance(ds, float):
-                    assert ds == 0
-                else:
-                    assert (0 == ds).all()
+        if param in self.distributionparams:
             return 0.0
         else:
-            assert param in self.freeparams
-            ds = self._models[0].dstationarystate(param)
-            assert all([scipy.allclose(ds, m.dstationarystate(param)) for
-                    m in self._models])
+            assert param in self.freeparams or param in self.distributedparam
+            ds = self._models[k].dstationarystate(param)
             return ds
 
     @property
