@@ -1781,7 +1781,7 @@ class DistributionModel(six.with_metaclass(abc.ABCMeta, Model)):
     """Substitution model with a parameter drawn from distribution.
 
     This abstract base class defines required methods / attributes
-    of substitution models with *one* parameter (`distributedparam`) 
+    of substitution models with *one* parameter (`distributedparam`)
     drawn from a distribution. An example is that `omega` might be
     drawn from a gamma distribution.
     """
@@ -2148,7 +2148,7 @@ class GammaDistributedOmegaModel(DistributionModel):
 
     def dstationarystate(self, k, param):
         """See docs for `Model` abstract base class."""
-        assert param in not in self.distributionparams:
+        assert param not in self.distributionparams
         assert param in self.freeparams or param == self.distributedparam
         ds = self._models[k].dstationarystate(param)
         return ds
