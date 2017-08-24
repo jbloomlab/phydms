@@ -2289,6 +2289,16 @@ class GammaDistributedBetaModel(GammaDistributedOmegaModel):
         """Returns name of the distributed parameter, which is `beta`."""
         return 'beta'
 
+    @property
+    def paramsReport(self):
+        """See docs for `Model` abstract base class."""
+        report = self._models[0].paramsReport
+        del report[self.distributedparam]
+        for param in self.distributionparams:
+            new_name = "_".join([param.split("_")[0], "beta"])
+            report[param] = getattr(self, param)
+        return report
+
     def __init__(self, model, ncats, alpha_omega=1.0, beta_omega=2.0,
             freeparams=['alpha_omega', 'beta_omega']):
         """Initialize a `GammaDistributedOmegaModel`.
