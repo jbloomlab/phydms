@@ -246,7 +246,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
                         "Large difference in loglik: {0} vs {1}".format(
                         otherloglik, tl.loglik))
                 self.assertTrue(scipy.allclose(tl.paramsarray, otherparams,
-                        atol=1e-3, rtol=1e-2),
+                        atol=1e-2, rtol=1e-1),
                         "Large difference in paramsarray: {0} vs {1}, {2}".format(
                         otherparams, tl.paramsarray, self.model))
             logliks.append(tl.loglik)
