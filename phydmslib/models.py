@@ -2289,6 +2289,51 @@ class GammaDistributedBetaModel(GammaDistributedOmegaModel):
         """Returns name of the distributed parameter, which is `beta`."""
         return 'beta'
 
+    def __init__(self, model, ncats, alpha_omega=1.0, beta_omega=2.0,
+            freeparams=['alpha_omega', 'beta_omega']):
+        """Initialize a `GammaDistributedOmegaModel`.
+
+        Args:
+            `model` (`Model`)
+                A substitution model with `distributedparam` as a free parameter
+                that does **not** have any other property drawn from
+                a distribution. Any other parameter that is in `freeparams`
+                of this model will also be an optimized parameter.
+            `ncats`, `alpha_omega`, `beta_omega`
+                Meaning described in main class doc string.
+            `freeparams`
+                The free parameters will be these **plus** anything
+                in `model.freeparams` other than `distributedparam`.
+        """
+        assert isinstance(model, Model)
+        assert not isinstance(model, DistributionModel)
+        assert self.distributedparam in model.freeparams
+
+        self._nsites = model.nsites
+
+        assert isinstance(ncats, int) and ncats >= 2
+        self._ncats = ncats
+        self._catweights = scipy.ones(self._ncats, dtype='float') / self._ncats
+
+        self.alpha_omega = alpha_omega
+        self.beta_omega = beta_omega
+        self._models = [] # holds array of models for each category
+        for k in range(self.ncats):
+            self._models.append(copy.deepcopy(model))
+            self._models[k].PARAMLIMITS["beta"] = (1.0e-5, 100.0) # hacky way to change the parameter limits
+
+        self._freeparams = copy.copy(freeparams)
+        for param in model.freeparams:
+            if param != self.distributedparam:
+                self._freeparams.append(param)
+                self._PARAMLIMITS[param] = model.PARAMLIMITS[param]
+                self.PARAMTYPES[param] = model.PARAMTYPES[param]
+                pvalue = getattr(model, param)
+                _checkParam(param, pvalue, self.PARAMLIMITS, self.PARAMTYPES)
+                setattr(self, param, copy.copy(getattr(model, param)))
+
+        self.updateParams({}, update_all=True)
+
     def updateParams(self, newvalues, update_all=False):
         """See docs for `Model` abstract base class."""
         assert all(map(lambda x: x in self.freeparams, newvalues.keys())),\
