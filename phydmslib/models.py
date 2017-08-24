@@ -294,7 +294,7 @@ class ExpCM(Model):
     _REPORTPARAMS = ['kappa', 'omega', 'beta', 'phi']
     _PARAMLIMITS = {'kappa':(0.01, 100.0),
                    'omega':(1.0e-5, 100.0),
-                   'beta':(0.01, 10.0),
+                   'beta':(1.0e-5, 100.0),
                    'eta':(0.01, 0.99),
                    'phi':(0.001, 0.999),
                    'pi':(ALMOST_ZERO, 1),
@@ -2298,51 +2298,6 @@ class GammaDistributedBetaModel(GammaDistributedOmegaModel):
             new_name = "_".join([param.split("_")[0], "beta"])
             report[param] = getattr(self, param)
         return report
-
-    def __init__(self, model, ncats, alpha_omega=1.0, beta_omega=2.0,
-            freeparams=['alpha_omega', 'beta_omega']):
-        """Initialize a `GammaDistributedOmegaModel`.
-
-        Args:
-            `model` (`Model`)
-                A substitution model with `distributedparam` as a free parameter
-                that does **not** have any other property drawn from
-                a distribution. Any other parameter that is in `freeparams`
-                of this model will also be an optimized parameter.
-            `ncats`, `alpha_omega`, `beta_omega`
-                Meaning described in main class doc string.
-            `freeparams`
-                The free parameters will be these **plus** anything
-                in `model.freeparams` other than `distributedparam`.
-        """
-        assert isinstance(model, Model)
-        assert not isinstance(model, DistributionModel)
-        assert self.distributedparam in model.freeparams
-
-        self._nsites = model.nsites
-
-        assert isinstance(ncats, int) and ncats >= 2
-        self._ncats = ncats
-        self._catweights = scipy.ones(self._ncats, dtype='float') / self._ncats
-
-        self.alpha_omega = alpha_omega
-        self.beta_omega = beta_omega
-        self._models = [] # holds array of models for each category
-        for k in range(self.ncats):
-            self._models.append(copy.deepcopy(model))
-            self._models[k].PARAMLIMITS["beta"] = (1.0e-5, 100.0) # hacky way to change the parameter limits
-
-        self._freeparams = copy.copy(freeparams)
-        for param in model.freeparams:
-            if param != self.distributedparam:
-                self._freeparams.append(param)
-                self._PARAMLIMITS[param] = model.PARAMLIMITS[param]
-                self.PARAMTYPES[param] = model.PARAMTYPES[param]
-                pvalue = getattr(model, param)
-                _checkParam(param, pvalue, self.PARAMLIMITS, self.PARAMTYPES)
-                setattr(self, param, copy.copy(getattr(model, param)))
-
-        self.updateParams({}, update_all=True)
 
     def updateParams(self, newvalues, update_all=False):
         """See docs for `Model` abstract base class."""
