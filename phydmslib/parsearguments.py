@@ -353,6 +353,10 @@ def PhyDMSParser():
             dest='gammaomega', help="Omega for ExpCM from gamma "
             "distribution rather than single value. To achieve "
             "same for YNGKP, use 'model' of YNGKP_M5.")
+    parser.set_defaults(gammabeta=False)
+    parser.add_argument('--gammabeta', action='store_true',
+            dest='gammabeta', help="Beta for ExpCM from gamma "
+            "distribution rather than single value.")
     parser.set_defaults(omegabysite=False)
     parser.add_argument('--omegabysite', dest='omegabysite',
             action='store_true', help="Fit omega (dN/dS) for each site.")
@@ -387,7 +391,7 @@ def PhyDMSParser():
     parser.add_argument('--fitprefsmethod', choices=[1, 2], default=2,
             help='Implementation to we use when fitting prefs.', type=int)
     parser.add_argument('--ncats', default=4, type=IntGreaterThanOne,
-            help='Number of categories for gamma-distributed omega.')
+            help='Number of categories for gamma-distribution.')
     parser.add_argument('--minbrlen', type=FloatGreaterThanZero,
             default=phydmslib.constants.ALMOST_ZERO,
             help="Adjust all branch lengths in starting 'tree' to >= this.")
@@ -402,7 +406,7 @@ def PhyDMSParser():
             help="Profile likelihood maximization, write pstats files. "
             "For code-development purposes.")
     parser.set_defaults(opt_details=False)
-    parser.add_argument('--opt_details', dest='opt_details', 
+    parser.add_argument('--opt_details', dest='opt_details',
             action='store_true', help='Print details about optimization')
     parser.set_defaults(nograd=False)
     parser.add_argument('--nograd', dest='nograd', action='store_true',

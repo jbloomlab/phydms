@@ -733,7 +733,7 @@ class TreeLikelihood(object):
                         assert k == slice(None)
                         dLnrootk_dt = dLnroot_dt
                     self._dloglik_dt += catweights[k] * scipy.sum(
-                            self.model.stationarystate *
+                            self._stationarystate(k) *
                             dLnrootk_dt, axis=-1)
                 self._dloglik_dt /= sitelik
                 self._dloglik_dt = scipy.sum(self._dloglik_dt, axis=-1)

@@ -36,11 +36,11 @@ def treelikForDiffPrefsBySite(site, tl, prefslist, prior, modeltype,
             (head, seq) in tl.alignment]
     gammaomegamodel = False
     treeliks = {}
-    for (mtype, mname) in [(modeltype, 'primary'), 
+    for (mtype, mname) in [(modeltype, 'primary'),
             (othermodeltype, 'secondary')]:
         if isinstance(tl.model, phydmslib.models.GammaDistributedOmegaModel):
             basemodel = tl.model.basemodel
-            assert type(basemodel) in [phydmslib.models.ExpCM, 
+            assert type(basemodel) in [phydmslib.models.ExpCM,
                     phydmslib.models.ExpCM_empirical_phi]
             sitemodel = mtype([prefslist[site - 1]],
                     prior, basemodel.kappa, basemodel.omega, basemodel.phi,
@@ -49,7 +49,7 @@ def treelikForDiffPrefsBySite(site, tl, prefslist, prior, modeltype,
                     tl.model.ncats, tl.model.alpha_omega, tl.model.beta_omega,
                     freeparams=[])
         else:
-            assert type(tl.model) in [phydmslib.models.ExpCM, 
+            assert type(tl.model) in [phydmslib.models.ExpCM,
                     phydmslib.models.ExpCM_empirical_phi]
             sitemodel = mtype([prefslist[site - 1]],
                     prior, tl.model.kappa, tl.model.omega, tl.model.phi,
@@ -63,22 +63,22 @@ def treelikForDiffPrefsBySite(site, tl, prefslist, prior, modeltype,
 
 def fitDiffPrefsBySite(argtup):
     """Fits diffprefs for a site, use in a multiprocessing pool.
-    
+
     `argtup` is return value of `treelikForDiffPrefsBySite`.
-    
+
     The return value is a tuple of half the absolute total diffpref,
     then a tab-separated string describing the results for the site."""
     (site, treeliks, nograd) = argtup
     try:
         treelik = treeliks['primary']
-        maxresult = treelik.maximizeLikelihood(optimize_brlen=False, 
+        maxresult = treelik.maximizeLikelihood(optimize_brlen=False,
                 approx_grad=nograd)
     except RuntimeError as err:
         warnings.warn("Optimization failed with primary model; "
                       "trying secondary model.\n"
                       "Error message:\n{0}".format(str(err)))
         treelik = treeliks['secondary']
-        maxresult = treelik.maximizeLikelihood(optimize_brlen=False, 
+        maxresult = treelik.maximizeLikelihood(optimize_brlen=False,
                 approx_grad=nograd)
     diffprefs = treelik.model.pi[0] - treelik.model.origpi[0]
     resultstr = [str(site)] + ['{0:.4f}'.format(diffprefs[a])
@@ -172,7 +172,7 @@ def main():
     treefile = '{0}{1}tree.newick'.format(args['outprefix'], underscore)
     omegafile = '{0}{1}omegabysite.txt'.format(args['outprefix'], underscore)
     diffprefsfile = '{0}{1}diffprefsbysite.txt'.format(args['outprefix'], underscore)
-    to_remove = [modelparamsfile, loglikelihoodfile, treefile, omegafile, 
+    to_remove = [modelparamsfile, loglikelihoodfile, treefile, omegafile,
             logfile, diffprefsfile]
     for f in to_remove:
         if os.path.isfile(f):
@@ -221,6 +221,8 @@ def main():
                             argname)
             assert not args['gammaomega'], ("Can't use --gammaomega with YNGKP "
                     "model; use 'model' of YNGKP_M5 to achieve the same result.")
+            assert not args['gammabeta'], ("Can't use --gammabeta with YNGKP "
+                    "model.")
             modelvariant = yngkp_match.search(args['model']).group('modelvariant')
             logger.info(('Codon substitution model with be {0} version '
                     'of YNGKP (Yang, Nielsen, Goldman, & Pederson. Genetics. '
@@ -290,7 +292,8 @@ def main():
                     model = phydmslib.models.ExpCM_empirical_phi(prefslist, g,
                         freeparams=freeparams)
                 else:
-                    for otherarg in ['omegabysite', 'diffprefsbysite']:
+                    for otherarg in ['omegabysite', 'diffprefsbysite',
+                            'gammomega', 'gammabeta']:
                         if otherarg in args and args[otherarg]:
                             raise ValueError("Can't use --divpressure and "
                                     "--{0}".format(otherarg))
@@ -308,9 +311,18 @@ def main():
                     model = phydmslib.models.ExpCM_empirical_phi_divpressure(
                             prefslist, g, divpressure, freeparams=freeparams)
             if args['gammaomega']:
+                assert not args['gammabeta'], ("Can't use --gammabeta with"
+                        "--gammomega")
                 logger.info(('Omega will be drawn from {0} gamma-distributed '
                             'categories.\n').format(args['ncats']))
                 model = phydmslib.models.GammaDistributedOmegaModel(
+                        model, args['ncats'])
+            if args['gammabeta']:
+                assert not args['gammaomega'], ("Can't use --gammabeta with"
+                        "--gammomega")
+                logger.info(('Beta will be drawn from {0} gamma-distributed '
+                            'categories.\n').format(args['ncats']))
+                model = phydmslib.models.GammaDistributedBetaModel(
                         model, args['ncats'])
         else:
             raise ValueError("Invalid model of {0}".format(args['model']))
@@ -381,8 +393,8 @@ def main():
             maxresult = []
             def wrapper(maxresult): # wrapper to get return value from cProfile
                 maxresult.append(tl.maximizeLikelihood(
-                        optimize_brlen=optimize_brlen, 
-                        approx_grad=args['nograd'], 
+                        optimize_brlen=optimize_brlen,
+                        approx_grad=args['nograd'],
                         printfunc=printfunc))
             cProfile.runctx('wrapper(maxresult)', globals(), locals(), pstatsfile)
             maxresult = maxresult[0]
@@ -435,7 +447,7 @@ def main():
             # To save memory, use pool sizes equal to number of CPUs
             omegaresults = []
             for firstsite in range(1, tl.nsites + 1, ncpus):
-                currentsites = range(firstsite, min(tl.nsites + 1, 
+                currentsites = range(firstsite, min(tl.nsites + 1,
                         firstsite + ncpus))
                 if ncpus > 1:
                     pool = multiprocessing.Pool(ncpus)
@@ -452,7 +464,7 @@ def main():
             qvalues = statsmodels.sandbox.stats.multicomp.multipletests(
                     scipy.array([tup[0] for tup in omegaresults]),
                     method='fdr_bh')[1]
-            omegaresults = ['{0}\t{1:.3g}'.format(tup[1], q) for 
+            omegaresults = ['{0}\t{1:.3g}'.format(tup[1], q) for
                     (tup, q) in zip(omegaresults, qvalues)]
             logger.info("Completed fitting the site-specific omega values.")
             logger.info("Writing results to {0}\n".format(omegafile))
@@ -484,14 +496,14 @@ def main():
             # To save memory, use pool sizes equal to number of CPUs
             diffprefresults = []
             for firstsite in range(1, tl.nsites + 1, ncpus):
-                currentsites = range(firstsite, min(tl.nsites + 1, 
+                currentsites = range(firstsite, min(tl.nsites + 1,
                         firstsite + ncpus))
                 if ncpus > 1:
                     pool = multiprocessing.Pool(ncpus)
                     mapfunc = pool.imap
                 else:
                     mapfunc = map
-                diffprefresults += mapfunc(fitDiffPrefsBySite, 
+                diffprefresults += mapfunc(fitDiffPrefsBySite,
                         [treelikForDiffPrefsBySite(site, tl, prefslist,
                         args['diffprefsprior'], modeltype, othermodeltype,
                         args['nograd']) for site in currentsites])
@@ -505,7 +517,7 @@ def main():
                         '# Regularizing prior: {0}\n#\n'.format(args['diffprefsprior'])
                         + 'site\t' + '\t'.join(['dpi_{0}'.format(INDEX_TO_AA[a])
                         for a in range(N_AA)]) + '\thalf_sum_abs_dpi\n')
-                f.write('\n'.join([tup[1] for tup in sorted(diffprefresults, 
+                f.write('\n'.join([tup[1] for tup in sorted(diffprefresults,
                         reverse=True)]))
 
     except:
