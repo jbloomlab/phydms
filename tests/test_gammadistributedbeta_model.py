@@ -1,6 +1,6 @@
-"""Tests `phydmslib.models.GammaDistributedOmegaModel` class.
+"""Tests `phydmslib.models.GammaDistributedBetaModel` class.
 
-Written by Jesse Bloom.
+Written by Jesse Bloom and Sarah Hilton.
 """
 
 
@@ -13,28 +13,30 @@ from phydmslib.constants import *
 import phydmslib.models
 
 
-class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
-    """Test gamma distributed omega for `ExpCM`."""
+class test_GammaDistributedBeta_ExpCM(unittest.TestCase):
+    """Test gamma distributed beta for `ExpCM`."""
 
     # use approach here to run multiple tests:
     # http://stackoverflow.com/questions/17260469/instantiate-python-unittest-testcase-with-arguments
     BASEMODEL = phydmslib.models.ExpCM
 
-    def test_GammaDistributedOmega(self):
+    def test_GammaDistributedBeta(self):
         """Initialize, test values, update, test again."""
 
         random.seed(1)
         scipy.random.seed(1)
         nsites = 10
 
+        # create preference set
+        prefs = []
+        minpref = 0.01
+        for r in range(nsites):
+            rprefs = scipy.random.dirichlet([0.5] * N_AA)
+            rprefs[rprefs < minpref] = minpref
+            rprefs /= rprefs.sum()
+            prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
+
         if self.BASEMODEL == phydmslib.models.ExpCM:
-            prefs = []
-            minpref = 0.01
-            for r in range(nsites):
-                rprefs = scipy.random.dirichlet([0.5] * N_AA)
-                rprefs[rprefs < minpref] = minpref
-                rprefs /= rprefs.sum()
-                prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
             paramvalues = {
                     'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
                     'omega':0.7,
@@ -47,16 +49,18 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
                     "{0} vs {1}".format(set(paramvalues.keys()),
                     set(basemodel.freeparams)))
             basemodel.updateParams(paramvalues)
-        elif self.BASEMODEL == phydmslib.models.YNGKP_M0:
-            e_pw = scipy.random.uniform(0.4, 0.6, size=(3, N_NT))
-            e_pw = e_pw / e_pw.sum(axis=1, keepdims=True)
-            basemodel = self.BASEMODEL(e_pw, nsites)
+        elif self.BASEMODEL == phydmslib.models.ExpCM_empirical_phi:
+            g = scipy.random.dirichlet([3] * N_NT)
             paramvalues = {
-                        'kappa':2.5,
-                        'omega':0.7,
-                        'mu':0.5,
-                        }
-            assert set(paramvalues.keys()) == set(basemodel.freeparams)
+                    'omega':0.7,
+                    'kappa':2.5,
+                    'beta':1.2,
+                    'mu':0.5,
+                    }
+            basemodel = self.BASEMODEL(prefs, g)
+            assert set(paramvalues.keys()) == set(basemodel.freeparams), (
+                    "{0} vs {1}".format(set(paramvalues.keys()),
+                    set(basemodel.freeparams)))
             basemodel.updateParams(paramvalues)
         else:
             raise ValueError("Invalid BASEMODEL: {0}".format(self.BASEMODEL))
@@ -64,9 +68,9 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
             prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
 
         ncats = 4
-        gammamodel = phydmslib.models.GammaDistributedOmegaModel(basemodel,
+        gammamodel = phydmslib.models.GammaDistributedBetaModel(basemodel,
                 ncats)
-        self.assertTrue(scipy.allclose(scipy.array([m.omega for m in
+        self.assertTrue(scipy.allclose(scipy.array([m.beta for m in
                 gammamodel._models]), phydmslib.models.DiscreteGamma(
                 gammamodel.alpha_lambda, gammamodel.beta_lambda,
                 gammamodel.ncats)))
@@ -87,7 +91,7 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
                     newvalues[param] = scipy.random.uniform(
                             low, high, paramlength)
             gammamodel.updateParams(newvalues)
-            self.assertTrue(scipy.allclose(scipy.array([m.omega for m in
+            self.assertTrue(scipy.allclose(scipy.array([m.beta for m in
                     gammamodel._models]), phydmslib.models.DiscreteGamma(
                     gammamodel.alpha_lambda, gammamodel.beta_lambda,
                     gammamodel.ncats)))
@@ -100,8 +104,9 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
                                 getattr(m, param)) for m in
                                 gammamodel._models]))
 
-            self.assertTrue(gammamodel._models[0].branchScale <
-                    gammamodel.branchScale <
+            # This is the opposite test of gammaomega
+            self.assertTrue(gammamodel._models[0].branchScale >
+                    gammamodel.branchScale >
                     gammamodel._models[-1].branchScale)
 
             t = 0.15
@@ -139,14 +144,25 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
                         "distributionparams = {1}:\n{2}".format(
                         param, gammamodel.distributionparams, diffs)))
 
+            # Check the stationary state and deriviative of the stationary state
+            # Stationary states should be different for each `k`
+            self.assertFalse(all([scipy.allclose(gammamodel.stationarystate(i),
+                    gammamodel.stationarystate(j)) for i in
+                    range(gammamodel.ncats) for j in range(i+1, gammamodel.ncats)]))
+            # The derviative of the stationary states should be different with
+            # respect to beta for each `k`
+            self.assertFalse(all([scipy.allclose(gammamodel.dstationarystate(i, "beta"),
+                    gammamodel.dstationarystate(j, "beta")) for i in
+                    range(gammamodel.ncats) for j in range(i+1, gammamodel.ncats)]))
 
 
-class test_GammaDistributedOmega_YNGKP_M0(test_GammaDistributedOmega_ExpCM):
-    """Test gamma distributed omega for `YNGKP_M0` (this is `YNGKP_M5`)."""
+
+class test_GammaDistributedBeta_ExpCM_empirical_phi(test_GammaDistributedBeta_ExpCM):
+    """Test gamma distributed beta for `ExpCM_empirical_phi`."""
 
     # use approach here to run multiple tests:
     # http://stackoverflow.com/questions/17260469/instantiate-python-unittest-testcase-with-arguments
-    BASEMODEL = phydmslib.models.YNGKP_M0
+    BASEMODEL = phydmslib.models.ExpCM_empirical_phi
 
 if __name__ == '__main__':
     runner = unittest.TextTestRunner()

@@ -294,7 +294,7 @@ class ExpCM(Model):
     _REPORTPARAMS = ['kappa', 'omega', 'beta', 'phi']
     _PARAMLIMITS = {'kappa':(0.01, 100.0),
                    'omega':(1.0e-5, 100.0),
-                   'beta':(1.0e-5, 100.0),
+                   'beta':(1.0e-5, 10),
                    'eta':(0.01, 0.99),
                    'phi':(0.001, 0.999),
                    'pi':(ALMOST_ZERO, 1),
@@ -1900,24 +1900,25 @@ class DistributionModel(six.with_metaclass(abc.ABCMeta, Model)):
         pass
 
 
-class GammaDistributedOmegaModel(DistributionModel):
-    """Implements gamma distribution over `omega` for a model.
+class GammaDistributedModel(DistributionModel):
+    """Implements gamma distribution over some parameter `lambda` for a model.
 
     This model can be used to take a simple substitution model that
     directly subclasses `Model` and implement a gamma distribution
-    over its `omega` parameter. For instance, if this is done for
-    the `YNGKP_M0` model, it yields a M5 variant of the YNGKP model.
+    over *one* parameter `lambda`. For instance, if this is done for
+    the `YNGKP_M0` model parameter `omega`, it yields a M5 variant of
+    the YNGKP model.
 
-    The `omega` parameter is drawn from `ncats` categories, with
+    The `lambda` parameter is drawn from `ncats` categories, with
     the values being at the mean of each of these categories and
     equal weight assigned to each category.
 
-    This means that rather than optimizing `omega` directly,
+    This means that rather than optimizing `lambda` directly,
     we optimize the shape and inverse-scale parameters
     of its gamma distribution.
 
     See `__init__` method for how to initialize a
-    `GammaDistributedOmegaModel`.
+    `GammaDistributedModel`.
 
     Attributes should **only** be updated via the `updateParams`
     method; do **not** set attributes directly.
@@ -1927,13 +1928,15 @@ class GammaDistributedOmegaModel(DistributionModel):
             Gamma distribution shape parameter.
         `beta_omega` (`float` > 0)
             Gamma distribution inverse-scale parameter
+        `lambda_param`
+            The paramter which the gamma distirubtion is implemented over.
     """
 
-    _PARAMLIMITS = {'alpha_omega':(0.3, 10),
-                    'beta_omega':(0.3, 10),
+    _PARAMLIMITS = {'alpha_lambda':(0.3, 10),
+                    'beta_lambda':(0.3, 10),
                    }
-    PARAMTYPES = {'alpha_omega':float,
-                  'beta_omega':float,
+    PARAMTYPES = {'alpha_lambda':float,
+                  'beta_lambda':float,
                  }
 
 
@@ -1957,19 +1960,19 @@ class GammaDistributedOmegaModel(DistributionModel):
 
     @property
     def distributedparam(self):
-        """Returns name of the distributed parameter, which is `omega`."""
-        return 'omega'
+        """Returns name of the distributed parameter. """
+        return self._lambda_param
 
     @property
     def distributionparams(self):
         """Returns list of params defining distribution of `distributedparam`.
 
-        This list is `['alpha_omega', 'beta_omega']`."""
-        return ['alpha_omega', 'beta_omega']
+        This list is `['alpha_lambda', 'beta_lambda']`."""
+        return ['alpha_lambda', 'beta_lambda']
 
-    def __init__(self, model, ncats, alpha_omega=1.0, beta_omega=2.0,
-            freeparams=['alpha_omega', 'beta_omega']):
-        """Initialize a `GammaDistributedOmegaModel`.
+    def __init__(self, model, lambda_param, ncats, alpha_lambda=1.0, beta_lambda=2.0,
+            freeparams=['alpha_lambda', 'beta_lambda']):
+        """Initialize a `GammaDistributedModel`.
 
         Args:
             `model` (`Model`)
@@ -1977,7 +1980,7 @@ class GammaDistributedOmegaModel(DistributionModel):
                 that does **not** have any other property drawn from
                 a distribution. Any other parameter that is in `freeparams`
                 of this model will also be an optimized parameter.
-            `ncats`, `alpha_omega`, `beta_omega`
+            `ncats`, `lambda_param`, `alpha_omega`, `beta_omega`
                 Meaning described in main class doc string.
             `freeparams`
                 The free parameters will be these **plus** anything
@@ -1985,16 +1988,18 @@ class GammaDistributedOmegaModel(DistributionModel):
         """
         assert isinstance(model, Model)
         assert not isinstance(model, DistributionModel)
-        assert self.distributedparam in model.freeparams
+        assert isinstance(lambda_param, str)
 
         self._nsites = model.nsites
+        self._lambda_param = lambda_param
+        assert self.distributedparam in model.freeparams
 
         assert isinstance(ncats, int) and ncats >= 2
         self._ncats = ncats
         self._catweights = scipy.ones(self._ncats, dtype='float') / self._ncats
 
-        self.alpha_omega = alpha_omega
-        self.beta_omega = beta_omega
+        self.alpha_lambda = alpha_lambda
+        self.beta_lambda = beta_lambda
         self._models = [] # holds array of models for each category
         for k in range(self.ncats):
             self._models.append(copy.deepcopy(model))
@@ -2030,11 +2035,11 @@ class GammaDistributedOmegaModel(DistributionModel):
         if not self._d_distributionparams:
             dx = 1.0e-3
             def f_alpha(alpha):
-                return DiscreteGamma(alpha, self.beta_omega, self.ncats)
+                return DiscreteGamma(alpha, self.beta_lambda, self.ncats)
             def f_beta(beta):
-                return DiscreteGamma(self.alpha_omega, beta, self.ncats)
-            assert set(self.distributionparams) == {'alpha_omega', 'beta_omega'}
-            for (param, f) in [('alpha_omega', f_alpha), ('beta_omega', f_beta)]:
+                return DiscreteGamma(self.alpha_lambda, beta, self.ncats)
+            assert set(self.distributionparams) == {'alpha_lambda', 'beta_lambda'}
+            for (param, f) in [('alpha_lambda', f_alpha), ('beta_lambda', f_beta)]:
                 pvalue = getattr(self, param)
                 dparam = scipy.misc.derivative(f, pvalue, dx, n=1, order=5)
                 assert dparam.shape == (self.ncats,)
@@ -2065,10 +2070,10 @@ class GammaDistributedOmegaModel(DistributionModel):
                     _checkParam(param, newvalues[param], self.PARAMLIMITS,
                             self.PARAMTYPES)
                     setattr(self, param, copy.copy(newvalues[param]))
-            self._omegas = DiscreteGamma(self.alpha_omega, self.beta_omega,
+            self._lambdas = DiscreteGamma(self.alpha_lambda, self.beta_lambda,
                     self.ncats)
-            for (k, omega) in enumerate(self._omegas):
-                newvalues_list[k][self.distributedparam] = omega
+            for (k, l) in enumerate(self._lambdas):
+                newvalues_list[k][self.distributedparam] = l
         for name in self.freeparams:
             if name not in self.distributionparams:
                 if name in newvalues:
@@ -2100,7 +2105,8 @@ class GammaDistributedOmegaModel(DistributionModel):
         report = self._models[0].paramsReport
         del report[self.distributedparam]
         for param in self.distributionparams:
-            report[param] = getattr(self, param)
+            new_name = "_".join([param.split("_")[0], self.distributedparam])
+            report[new_name] = getattr(self, param)
         return report
 
     @property
@@ -2264,12 +2270,39 @@ def DiscreteGamma(alpha, beta, ncats):
             catmeans.sum() / ncats, alpha, beta, alpha / beta)
     return catmeans
 
-class GammaDistributedBetaModel(GammaDistributedOmegaModel):
-    """Implements gamma distribution over `beta` for a model.
+class GammaDistributedOmegaModel(GammaDistributedModel):
+    """Implements gamma distribution over `omega` for a model.
 
-    The difference between `GammaDistributedBetaModl` and
-    `GammaDistributedOmegaModel` is that the gamma distribution will now be
-    implemented over the `beta` parameter **not** the `omega` parameter.
+    This model can be used to implement a gamma distribution over a
+    `Models``omega` parameter. For instance, if this is done for the
+    `YNGKP_M0` model, it yields a M5 variant of the YNGKP model.
+
+    See `__init__` method for how to initialize a
+    `GammaDistributedOmegaModel`.
+
+    Attributes should **only** be updated via the `updateParams`
+    method; do **not** set attributes directly.
+
+    Attributes are inherited from `GammaDistributedModel`.
+    """
+
+    def __init__(self, model, ncats, alpha_lambda=1.0, beta_lambda=2.0,
+        freeparams=['alpha_lambda', 'beta_lambda']):
+        """Initialize an `GammaDistributedModel` object.
+
+        The `lambda_param` is set to "omega".
+
+        Args:
+            `model` `ncats`,`alpha_lambda`, `beta_lambda`, `freeparams`
+                Meaning described in main class doc string for
+                `GammaDistributedModel`.
+        """
+        super(GammaDistributedOmegaModel, self).__init__(model, "omega",
+                ncats, alpha_lambda=1.0, beta_lambda=2.0,
+                freeparams=['alpha_lambda', 'beta_lambda'])
+
+class GammaDistributedBetaModel(GammaDistributedModel):
+    """Implements gamma distribution over `beta` for a model.
 
     See `__init__` method for how to initialize a
     `GammaDistributedBetaModel`.
@@ -2277,72 +2310,24 @@ class GammaDistributedBetaModel(GammaDistributedOmegaModel):
     Attributes should **only** be updated via the `updateParams`
     method; do **not** set attributes directly.
 
-    Attributes (see also those inherited from `DistributionModel`):
-        `alpha_omega` (`float` > 0)
-            Gamma distribution shape parameter.
-        `beta_omega` (`float` > 0)
-            Gamma distribution inverse-scale parameter
+    Attributes are inherited from `GammaDistributedModel`.
     """
 
-    @property
-    def distributedparam(self):
-        """Returns name of the distributed parameter, which is `beta`."""
-        return 'beta'
+    def __init__(self, model, ncats, alpha_lambda=1.0, beta_lambda=2.0,
+        freeparams=['alpha_lambda', 'beta_lambda']):
+        """Initialize an `GammaDistributedModel` object.
 
-    @property
-    def paramsReport(self):
-        """See docs for `Model` abstract base class."""
-        report = self._models[0].paramsReport
-        del report[self.distributedparam]
-        for param in self.distributionparams:
-            new_name = "_".join([param.split("_")[0], "beta"])
-            report[param] = getattr(self, param)
-        return report
+        The `lambda_param` is set to "beta".
 
-    def updateParams(self, newvalues, update_all=False):
-        """See docs for `Model` abstract base class."""
-        assert all(map(lambda x: x in self.freeparams, newvalues.keys())),\
-                "Invalid entry in newvalues: {0}\nfreeparams: {1}".format(
-                ', '.join(newvalues.keys()), ', '.join(self.freeparams))
+        Args:
+            `model` `ncats`,`alpha_lambda`, `beta_lambda`, `freeparams`
+                Meaning described in main class doc string for
+                `GammaDistributedModel`.
+        """
+        super(GammaDistributedBetaModel, self).__init__(model, "beta",
+                ncats, alpha_lambda=1.0, beta_lambda=2.0,
+                freeparams=['alpha_lambda', 'beta_lambda'])
 
-        newvalues_list = [{} for k in range(self.ncats)]
-
-        if update_all or any([param in self.distributionparams for param
-                in newvalues.keys()]):
-            self._d_distributionparams = {}
-            for param in self.distributionparams:
-                if param in newvalues:
-                    _checkParam(param, newvalues[param], self.PARAMLIMITS,
-                            self.PARAMTYPES)
-                    setattr(self, param, copy.copy(newvalues[param]))
-            self._betas = DiscreteGamma(self.alpha_omega, self.beta_omega,
-                    self.ncats)
-            for (k, beta) in enumerate(self._betas):
-                newvalues_list[k][self.distributedparam] = beta
-        for name in self.freeparams:
-            if name not in self.distributionparams:
-                if name in newvalues:
-                    value = newvalues[name]
-                    _checkParam(name, value, self.PARAMLIMITS, self.PARAMTYPES)
-                    setattr(self, name, copy.copy(value))
-                    for k in range(self.ncats):
-                        newvalues_list[k][name] = value
-                elif update_all:
-                    for k in range(self.ncats):
-                        newvalues_list[k][name] = getattr(self, name)
-
-        assert len(newvalues_list) == len(self._models) == self.ncats
-        for (k, newvalues_k) in enumerate(newvalues_list):
-            self._models[k].updateParams(newvalues_k)
-
-        # check to make sure all models have same parameter values
-        for param in self.freeparams:
-            if param not in self.distributionparams:
-                pvalue = getattr(self, param)
-                assert all([scipy.allclose(pvalue, getattr(model, param))
-                        for model in self._models]), ("{0}\n{1}".format(
-                        pvalue, '\n'.join([str(getattr(model, param))
-                        for model in self._models])))
 
 if __name__ == '__main__':
     import doctest
