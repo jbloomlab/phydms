@@ -922,7 +922,7 @@ In a single unit of time, the probability that if site :math:`r` is initially :m
 
 Therefore, if we optimize the branch lengths :math:`t_b` and the model parameters in :math:`P_{r,xy}`, and then at the end re-scale the branch lengths to :math:`t_b' = t_b \times \frac{-\mu}{L} \sum_{r=1}^L \sum_x p_{r,x} P_{r,xx}` then the re-scaled branch lengths :math:`t_b` are in units of substitutions per sites. Therefore, for input and output to ``phydms``, we assume that input branch lengths are already in units of substitutions per site, and scale them from :math:`t_b'` to :math:`t_b`. Optimization is performed on :math:`t_b`, and then for output we re-scale the optimized branch lengths from :math:`t_b` to :math:`t_b'`.
 
-Models with a gamma-distributed model paramter
+Models with a gamma-distributed model parameter
 ---------------------------------------------
 The models described above fit a single value to each model parameter.
 We can also fit a distribution of values across sites for one model parameter :math:`\lambda`.
@@ -981,7 +981,7 @@ The derivatives :math:`\frac{\partial \lambda_k}{\partial \alpha_{\lambda}}` and
 
 Derivatives with respect to branch lengths
 --------------------------------------------
-The section above describes how to compute the derivatives with respect to paramters (e.g., model parameters) that affect all parts of the tree.
+The section above describes how to compute the derivatives with respect to parameters (e.g., model parameters) that affect all parts of the tree.
 In many cases, we may want to optimize individual branch lengths rather than the overall mutation rate :math:`\mu`.
 In this case, we need to compute the derivatives with respect to the branch lengths.
 This is somewhat simpler for each individual branch length, since each individual branch length only affects part of the tree.

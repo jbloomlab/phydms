@@ -97,11 +97,11 @@ Command-line usage
    \-\-diffprefsbysite
     This option can only be used with *ExpCM* models, **not** with *YNGKP* models.
 
-    The fitting of site-specific differential selection is designed to identify sites that prefer different amino acids in the natural alignment than expected from the deep mutational scanning data. 
+    The fitting of site-specific differential selection is designed to identify sites that prefer different amino acids in the natural alignment than expected from the deep mutational scanning data.
     This approach is described in `Bloom, Biology Direct, 12:1`_.
 
     The prior that is used is specified by ``--diffprefsprior``.
-  
+
    \-\-diffprefsprior
     How do we regularize the differential preferences when using ``--diffprefsbysite``?
 
@@ -187,8 +187,8 @@ In this file, `phi0A` is the corrected empirical frequency of `A` at the first c
     phi2C = 0.202991
     phi2G = 0.243997
 
-If you use a model with a gamma-distributed :math:`\omega` (i.e., the ``--gammarates`` option for an *ExpCM*, or the *YNGKP_M5* model), then rather than having a single :math:`\omega` value, there are instead two parameters that determine the gamma distribution.
-These are the shape parameter :math:`\alpha_{\omega}` (denoted *alpha_omega*) and the inverse scale parameter :math:`\beta_{\omega}` (denoted by *beta_omega*).
+If you use a model with a gamma-distributed :math:`\omega` (i.e., the ``--gammarates`` option for an *ExpCM*, or the *YNGKP_M5* model) or :math:`\beta`, rather than have a single value for the parameter, there are instead two parameters that determine the gamma distribution.
+For a gamma-distributed :math:`\omega`, these are the shape parameter :math:`\alpha_{\omega}` (denoted *alpha_omega*) and the inverse scale parameter :math:`\beta_{\omega}` (denoted by *beta_omega*).
 The mean and variance of the omega distribution are :math:`\alpha_{\omega}/ \beta_{\omega}` and :math:`\alpha_{\omega} / \left(\beta_{\omega}\right)^2`, respectively.
 To get the exact values, use the :ref:`api` to call ``phydmslib.models.DiscreteGamma(alpha_omega, beta_omega, ncats)`` where *ncats* is the value set by ``--ncats``. Here is an example of the model parameter file contents for an *ExpCM* with ``--gammaomega``::
 
@@ -200,6 +200,7 @@ To get the exact values, use the :ref:`api` to call ``phydmslib.models.DiscreteG
     phiC = 0.196471
     phiG = 0.22418
 
+The shape and scale parameters for gamma-distributed :math:`\beta` are :math:`\alpha_{\beta}` and :math:`\beta_{\beta}`, respectively. 
 
 Tree file
 ++++++++++++
@@ -218,8 +219,8 @@ Here is an example of the first few lines of a file. The entries are tab separat
     354 0.000   0.00166 4.948   0.177
     298 0.000   0.00181 4.865   0.177
 
-The *P*-values are for rejection of the null hypothesis that :math:`\omega_r = 1` (calculated using a :math:`\chi_1^2` test). 
-These *P*-values are **not** corrected for multiple hypothesis testing; so you should instead look at the *Q*-values, which give the false discovery rate if this site and all above it are considered to have :math:`\omega \ne 1`. 
+The *P*-values are for rejection of the null hypothesis that :math:`\omega_r = 1` (calculated using a :math:`\chi_1^2` test).
+These *P*-values are **not** corrected for multiple hypothesis testing; so you should instead look at the *Q*-values, which give the false discovery rate if this site and all above it are considered to have :math:`\omega \ne 1`.
 The sites are sorted in the file by *P*-value.
 
 For this type of test, the quantity of interest is typically not so much the exact value of :math:`\omega_r`, but rather the *P*-value (or *Q*-value) that :math:`\omega_r \ne 1`.

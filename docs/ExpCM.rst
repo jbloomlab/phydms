@@ -11,11 +11,11 @@ Overview
 -------------
 **Exp**\erimentally Informed **C**\odon **M**\odels (*ExpCM*) describe the evolution of protein-coding genes in terms of their site-specific amino-acid preferences. These models improve on conventional non-site-specific phylogenetic substitution models because they account for the different constraints at different sites of the protein encoded by the gene.
 
-Specifically, for each gene, we assume that we know the preference :math:`\pi_{r,a}` of site :math:`r` for each amino-acid :math:`a` (we constrain :math:`1 = \sum_a \pi_{r,a}`). 
-Typically, these preferences might be measured in deep mutational scanning experiments. 
+Specifically, for each gene, we assume that we know the preference :math:`\pi_{r,a}` of site :math:`r` for each amino-acid :math:`a` (we constrain :math:`1 = \sum_a \pi_{r,a}`).
+Typically, these preferences might be measured in deep mutational scanning experiments.
 The preferences represent the effect of each amino-acid mutation at each site, normalized to sum to one.
 They can therefore be obtained by simply re-normalizing deep mutational scanning enrichment ratios to sum to one at each site.
-For a more involved description of how the preferences can be inferred from deep mutational scanning experimental data, see `Bloom, BMC Bioinformatics, 16:168`_. 
+For a more involved description of how the preferences can be inferred from deep mutational scanning experimental data, see `Bloom, BMC Bioinformatics, 16:168`_.
 Importantly, these amino-acid preferences must be obtained **independently** from the sequence
 alignment being analyzed. A deep mutational scanning experiment is an independent means
 of obtaining the preferences, but estimating them from the amino-acid frequencies in the alilnment of homologs is **not** a valid approach as you are then estimating the preferences from the same sequences that you are subsequently analyzing.
@@ -24,7 +24,7 @@ The *ExpCM* used here are the ones defined in:
 
     * `Bloom, Biology Direct, 12:1`_
 
-See also `Bloom, Mol Biol Evol, 31:1956-1978`_ and 
+See also `Bloom, Mol Biol Evol, 31:1956-1978`_ and
 `Bloom, Mol Biol Evol, 31:2753-2769`_ for more discussion of models of this type.
 
 These experimentally informed site-specific substitution models closely parallel those used in studies that infer the site-specific information from natural sequences; see `Rodrigue and Lartillot, PNAS, 107:4629-4634`_. For a more general discussion of models of this form, see `Halpern and Bruno, Mol Biol Evol, 15:910-917`_ and `McCandlish and Stoltzfus, Quarterly Review of Biology, 89:225-252`_.
@@ -49,8 +49,8 @@ The substitution model is in mutation-selection form. The rate of substitution :
 .. math::
    :label: Prxy
 
-   P_{r,xy} = 
-   Q_{xy} \times F_{r,xy} 
+   P_{r,xy} =
+   Q_{xy} \times F_{r,xy}
 
 where :math:`Q_{xy}` is the rate of mutation from *x* to *y* and :math:`F_{r,xy}` represents the selection on this mutation. Note that the mutation terms are identical across sites, but the selection terms are site-specific.
 
@@ -59,7 +59,7 @@ The mutation rate terms :math:`Q_{xy}` are given by what is essentially a `HKY85
 .. math::
    :label: Qxy
 
-   Q_{xy} = \begin{cases} 
+   Q_{xy} = \begin{cases}
             0 & \mbox{if $x$ and $y$ differ by more than one nucleotide,} \\
             \phi_w & \mbox{if $x$ can be converted to $y$ by a transversion of a nucleotide to $w$,} \\
             \kappa \times \phi_w & \mbox{if $x$ can be converted to $y$ by a transition of a nucleotide to $w$.} \\
@@ -70,7 +70,7 @@ The selection terms :math:`F_{r,xy}` are defined in terms of the site-specific a
 .. math::
    :label: Frxy
 
-   F_{r,xy} = 
+   F_{r,xy} =
    \begin{cases}
    1 & \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
    \omega & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
@@ -80,7 +80,7 @@ The selection terms :math:`F_{r,xy}` are defined in terms of the site-specific a
 Equation :eq:`Frxy` differs from that described in `Bloom, Mol Biol Evol, 31:2753-2769`_ only by the addition of the :math:`\omega` parameter that differentiates nonsynonymous and synonymoust mutations; the equation in that reference was in turn based on the one originally derived by `Halpern and Bruno, Mol Biol Evol, 15:910-917`_ (although note that the Halpern and Bruno equation contains a key typographical error in the denominator). The *stringency parameter* :math:`\beta` has a value of greater than one if natural selection favors high-preference amino acids with greater stringency than suggested by the :math:`\pi_{r,a}` values, and has a value of less than one if natural selection favors high-preference amino acids with less stringency than suggested by the :math:`\pi_{r,a}` values.
 The :math:`\omega` parameter is not a ratio of nonsynonymous to synonymous mutations, but rather their relative rates after accounting for the differing preferences among sites.
 
-The stationary state of the model defined by the mutation terms alone is trivially observed to be 
+The stationary state of the model defined by the mutation terms alone is trivially observed to be
 
 .. math::
    q_x = \phi_{x_1} \times \phi_{x_2} \times \phi_{x_3}
@@ -104,37 +104,43 @@ Therefore, assuming that the preferences :math:`\pi_{r,a}` are known *a priori* 
 Empirical nucleotide frequencies
 ----------------------------------
 The foregoing model has three free parameters (:math:`\phi_A`, :math:`\phi_C`, and :math:`\phi_G`) that are related to the nucleotide frequencies and are independent of the site-specific constraints.
-Classically, many substitution models determine the values of these nucleotide frequency parameters by setting them equal to the empirically observed nucleotide frequencies in the alignment rather than fitting them by maximum likelihood. 
+Classically, many substitution models determine the values of these nucleotide frequency parameters by setting them equal to the empirically observed nucleotide frequencies in the alignment rather than fitting them by maximum likelihood.
 This procedure is computationally faster.
 
-However, the the *ExpCM* described above, this cannot be done in such a simple fashion. 
+However, the the *ExpCM* described above, this cannot be done in such a simple fashion.
 The reason is that the :math:`\phi_w` parameters give the expected frequence of nucleotide :math:`w` for purely mutation-driven evolution -- but in reality, the observed nucleotide frequencies are also affected by selection on the amino acid usage.
 That this is really the case in evolution is easily observed by noting that for many genes, the nucleotide frequencies differ greatly among the first, second, and especially third codon position.
 These differences are unlikely to be driven by mutation (which is probably indifferent to the reading frame in which a nucleotide falls), and is instead driven by the fact that selection on the amino-acid usage favors certain nucleotides at some codon positions since that is the only way to encode some amino acids.
 
 However, we can still empirically estimate the :math:`\phi_w` parameters from the alignment frequencies by taking the amino-acid level constraint into account.
 Specifically, let :math:`g_w` denote the empirically observed frequency of nucleotide :math:`w` in the alignment, noting that :math:`1 = \sum_w g_w`.
-Let :math:`\hat{\phi}_w` be the value of :math:`\phi_w` that yields a stationary state of the substitution model where nucleotide :math:`w` is at frequency :math:`g_w`. 
+Let :math:`\hat{\phi}_w` be the value of :math:`\phi_w` that yields a stationary state of the substitution model where nucleotide :math:`w` is at frequency :math:`g_w`.
 The value of :math:`\hat{\phi}_w` must then satisfy:
 
 .. math::
 
-   g_w & = & 
-      \frac{1}{L} \sum_r \sum_x \frac{1}{3} N_w\left(x\right) p_{r,x} \\ 
-         & = & 
+   g_w & = &
+      \frac{1}{L} \sum_r \sum_x \frac{1}{3} N_w\left(x\right) p_{r,x} \\
+         & = &
             \frac{1}{3L} \sum_r \frac{\sum_x N_w\left(x\right) f_{r,x} \prod_{k=0}^2 \hat{\phi}_{x_k}}{\sum_y f_{r,y} \prod_{k=0}^2 \hat{\phi}_{y_k}}.
 
-There are three independent :math:`g_w` values and three independent :math:`\phi_w` values (since :math:`1 = \sum_w g_w = \sum_w \hat{\phi}_w`, so we have three equations and three unknowns. 
+There are three independent :math:`g_w` values and three independent :math:`\phi_w` values (since :math:`1 = \sum_w g_w = \sum_w \hat{\phi}_w`, so we have three equations and three unknowns.
 These equations can be solved numerically for :math:`\hat{\phi}_w`, and these empirical estimates can be used in the place of estimating :math:`\phi_w` by maximum likelihood.
 Such a procedure speeds the numerical optimization by reducing the number of free parameters that must be optimized.
 
 Gamma-distributed :math:`\omega`
 ----------------------------------
-In codon substitution models, it is common to allow :math:`\omega` to be drawn from several discrete gamma-distributed categories. 
-For instance, this is what is done for the *M5* variant of the *YNGKP* models described by `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_. 
+In codon substitution models, it is common to allow :math:`\omega` to be drawn from several discrete gamma-distributed categories.
+For instance, this is what is done for the *M5* variant of the *YNGKP* models described by `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_.
 This can also be done for *ExpCM* by using the ``--gammaomega`` option.
-In this case, :math:`\omega` is drawn from ``--ncats`` categories placed at the means of a discretized gamma distribution with shape parameter :math:`\alpha_{\omega}` and inverse scale parameter :math:`\beta_{\omega}`. 
+In this case, :math:`\omega` is drawn from ``--ncats`` categories placed at the means of a discretized gamma distribution with shape parameter :math:`\alpha_{\omega}` and inverse scale parameter :math:`\beta_{\omega}`.
 Note that the mean :math:`\omega` value is then :math:`\alpha_{\omega} / \beta_{\omega}`.
+
+Gamma-distributed :math:`\beta`
+----------------------------------
+We can also allow the *ExpCM* :math:`\beta` parameter to be drawn from gamma-distributed categories using the ``--gammabeta`` option.
+In this case, :math:`\beta` is drawn from ``--ncats`` categories placed at the means of a discretized gamma distribution with shape parameter :math:`\alpha_{\beta}` and inverse scale parameter :math:`\beta_{\beta}`.
+Note that the mean :math:`\beta` value is then :math:`\alpha_{\beta} / \beta_{\beta}`.
 
 Identifying diversifying selection via site-specific :math:`\omega_r` values
 ------------------------------------------------------------------------------
@@ -147,7 +153,7 @@ Specifically, after fixing all of the other parameters as described above, for e
 .. math::
    :label: Frxy_omegabysite
 
-   F_{r,xy} = 
+   F_{r,xy} =
    \begin{cases}
    \mu_r & \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
    \mu_r \times \omega_r & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
@@ -169,14 +175,14 @@ To identify differential selection, we first fix the tree / branch lengths and a
 .. math::
    :label: Frxy_diffprefs
 
-    F_{r,xy} = 
+    F_{r,xy} =
     \begin{cases}
     1 & \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
     \omega & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\hat{\pi}_{r,\mathcal{A}\left(x\right)} = \hat{\pi}_{r,\mathcal{A}\left(y\right)}$} \\
     \omega \times \frac{\ln\left(\hat{\pi}_{r,\mathcal{A}\left(y\right)} / \hat{\pi}_{r,\mathcal{A}\left(x\right)}\right)}{1 - \left(\hat{\pi}_{r,\mathcal{A}\left(x\right)} / \hat{\pi}_{r,\mathcal{A}\left(y\right)}\right)} & \mbox{otherwise.}.
     \end{cases}
 
-Simply fitting the model defined above with these 19 :math:`\hat{\pi}_{r,a}` values will probably overfit the data since we are including 19 new parameters. We therefore regularize the parameters by defining a prior that favors :math:`\hat{\pi}_{r,a} = \left(\pi_{r,a}\right)^{\beta}`. 
+Simply fitting the model defined above with these 19 :math:`\hat{\pi}_{r,a}` values will probably overfit the data since we are including 19 new parameters. We therefore regularize the parameters by defining a prior that favors :math:`\hat{\pi}_{r,a} = \left(\pi_{r,a}\right)^{\beta}`.
 
 Although a Dirichlet prior peaked on the preferences might seem attractive, it performs poorly in practice because the *maximum a posteriori* is very different for small preferences depending on their exact magnitude -- for instance, under a Dirichlet prior we will have very different costs of increasing the differential preference by 0.1 depending on whether the *a priori* peak estimate is :math:`10^{-3}` or :math:`10^{-4}`. This is undesirable, so instead we use a prior based on the product of inverse-quadratics.
 
@@ -189,10 +195,10 @@ or equivalently
 
 .. math::
    :label: log_Pr_pi_invquad
-    
+
    \log\left[\Pr\left(\left\{\hat{\pi}_{r,a}\right\} \mid \left\{\pi_{r,a}\right\}, \beta\right)\right] = - C_2 \sum_a \log\left(1 + C_1 \times \left(\hat{\pi}_{r,a} - \frac{\left(\pi_{r,a}\right)^{\beta}}{\sum_{a'} \left(\pi_{r,a'}\right)^{\beta}}\right)^2\right)
 
-where :math:`C_1` and :math:`C_2` are concentration parameters specified via the ``--diffprefconc`` option. Larger values of these favor :math:`\hat{\pi}_{r,a}` values that more closely match the :math:`\left(\pi_{r,a}\right)^{\beta}` values (and so favor smaller values of :math:`\Delta\pi_{r,a} = \hat{\pi}_{r,a} - \frac{\left(\pi_{r,a}\right)^{\beta}}{\sum_{a'} \left(\pi_{r,a'}\right)^{\beta}}`). 
+where :math:`C_1` and :math:`C_2` are concentration parameters specified via the ``--diffprefconc`` option. Larger values of these favor :math:`\hat{\pi}_{r,a}` values that more closely match the :math:`\left(\pi_{r,a}\right)^{\beta}` values (and so favor smaller values of :math:`\Delta\pi_{r,a} = \hat{\pi}_{r,a} - \frac{\left(\pi_{r,a}\right)^{\beta}}{\sum_{a'} \left(\pi_{r,a'}\right)^{\beta}}`).
 
 The ``phydms`` program has reasonable defaults for these concentration parameters, but you can fine tune them with ``--diffprefconc``.
 
@@ -202,7 +208,7 @@ Here is a plot of the log prior (Equation :eq:`log_Pr_pi_invquad`) as a function
    :align: center
    :width: 60%
 
-As the plot makes clear, this prior has the desirable feature of penalizing small differential preferences proportionally more than larger ones, which is good if we think that most sites have no differential selection but some have a lot. 
+As the plot makes clear, this prior has the desirable feature of penalizing small differential preferences proportionally more than larger ones, which is good if we think that most sites have no differential selection but some have a lot.
 
 To obtain the :math:`\hat{\pi}_{r,a}` values, the ``--diffprefsbysite`` option to ``phydms`` jointly optimizes the product of the prior in Equation :eq:`Pr_pi_invquad` and the likelihood (with fixed tree / branches and other model parameters) using Equation :eq:`Frxy_diffprefs`. In effect, this is the *maximum a posteriori* estimate of the :math:`\hat{\pi}_{r,a}` given the prior defined by Equation :eq:`Pr_pi_invquad`.
 
@@ -237,18 +243,18 @@ Specifiying diversifying pressure at sites
 ----------------------------------------------
 In some cases, it might be possible to specify *a priori* expections for the diversifying pressure at each site. For instance, viruses benefit from amino-acid change in sites targeted by the immune system and, consequently, these sites have a higher rate of amino-acid substitution than expected given their level of inherent functional constraint. We can incorporate our expectations for diversifying pressure  at specific sites into the selection terms :math:`F_{r,xy}`.
 
-Let :math:`\delta_{r}` be the pre-determined diversifying pressure for amino-acid change at site :math:`r` in the protein. A large positive value of :math:`\delta_r` corresponds to high pressure for amino-acid diversification, and negative value corresponds to expected pressure against amino-acid diversification beyond that captured in the amino-acid preferences.  We then replace :math:`\omega` in Equation :eq:`Frxy` with the expression :math:`\omega\times\left(1+\omega_{2}\times\delta_{r}\right)`, resulting in selection terms: 
+Let :math:`\delta_{r}` be the pre-determined diversifying pressure for amino-acid change at site :math:`r` in the protein. A large positive value of :math:`\delta_r` corresponds to high pressure for amino-acid diversification, and negative value corresponds to expected pressure against amino-acid diversification beyond that captured in the amino-acid preferences.  We then replace :math:`\omega` in Equation :eq:`Frxy` with the expression :math:`\omega\times\left(1+\omega_{2}\times\delta_{r}\right)`, resulting in selection terms:
 
 .. math::
    :label: Frxy_divpressure
 
-   F_{r,xy} = 
+   F_{r,xy} =
    \begin{cases}
    1 & \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
    \omega\times\left(1+\omega_{2}\times\delta_{r}\right) & \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
    \omega\times\left(1+\omega_{2}\times\delta_{r}\right) \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} & \mbox{otherwise.}
    \end{cases}
-   
+
 Whereas before :math:`\omega` reflected the elevation of non-synonymous substitutin rate (averaged across the entire gene) beyond that expected given the amino-acid preferences, now :math:`\omega` reflects a gene-wide rate of elevated non-synonymous substitution after taking into account the expected sites of diversifying pressure (as represented by :math:`\delta_r`) weighted by :math:`\omega_{2}\times\delta_{r}`. These new selection terms in equation Equation :eq:`Frxy_divpressure` are identical the selection terms in Equation :eq:`Frxy` when :math:`\omega_{2} = 0`.
 
 To ensure a positive value of :math:`\omega\times\left(1+\omega_{2}\times\delta_{r}\right)` with :math:`-\infty<\delta_{r}<\infty`, :math:`\omega` and :math:`\omega_{2}` are constrained in the following ways:
