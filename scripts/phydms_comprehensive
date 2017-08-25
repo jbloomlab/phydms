@@ -165,6 +165,11 @@ def main():
             models[gammaomegamodelname] = ('ExpCM_{0}'.format(prefsfile),
                     additionalcmds + ['--gammaomega'])
             filesuffixes[gammaomegamodelname] = filesuffixlist
+        if args["gammabeta"]:
+            gammabetamodelname = '{0}_gammabeta'.format(modelname)
+            models[gammabetamodelname] = ('ExpCM_{0}'.format(prefsfile),
+                    additionalcmds + ['--gammabeta'])
+            filesuffixes[gammabetamodelname] = filesuffixlist
         if not args['noavgprefs']:
             avgmodelname = 'averaged_{0}'.format(modelname)
             models[avgmodelname] = ('ExpCM_{0}'.format(prefsfile),
@@ -176,6 +181,12 @@ def main():
                         additionalcmds + ['--gammaomega'] \
                         + ['--avgprefs'], 0)
                 filesuffixes[avgmodelname] = filesuffixlist
+            if args["gammabeta"]:
+                avgmodelname = 'averaged_{0}_gammabeta'.format(modelname)
+                models[avgmodelname] = ('ExpCM_{0}'.format(prefsfile),
+                        additionalcmds + ['--gammabeta'] \
+                        + ['--avgprefs'], 0)
+                filesuffixes[avgmodelname] = filesuffixlist
         if args['randprefs']:
             randmodelname = 'randomized_{0}'.format(modelname)
             models[randmodelname] = ('ExpCM_{0}'.format(prefsfile),
@@ -185,6 +196,12 @@ def main():
                 randmodelname = 'randomized_{0}_gammaomega'.format(modelname)
                 models[randmodelname] = ('ExpCM_{0}'.format(prefsfile),
                         additionalcmds + ['--gammaomega'] \
+                        + ['--randprefs'], 0)
+                filesuffixes[randmodelname] = filesuffixlist
+            if args["gammabeta"]:
+                randmodelname = 'randomized_{0}_gammabeta'.format(modelname)
+                models[randmodelname] = ('ExpCM_{0}'.format(prefsfile),
+                        additionalcmds + ['--gammabeta'] \
                         + ['--randprefs'], 0)
                 filesuffixes[randmodelname] = filesuffixlist
 

@@ -316,6 +316,9 @@ def PhyDMSComprehensiveParser():
     parser.set_defaults(gammaomega=False)
     parser.add_argument('--gammaomega', dest='gammaomega', action=\
             'store_true', help="Fit ExpCM with gamma distributed omega.")
+    parser.set_defaults(gammabeta=False)
+    parser.add_argument('--gammabeta', dest='gammabeta', action=\
+            'store_true', help="Fit ExpCM with gamma distributed beta.")
     parser.set_defaults(noavgprefs=False)
     parser.add_argument('--no-avgprefs', dest='noavgprefs', action='store_true',
             help="No fitting of models with preferences averaged across sites "
