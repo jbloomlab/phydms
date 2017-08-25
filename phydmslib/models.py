@@ -317,13 +317,12 @@ class ExpCM(Model):
     @PARAMLIMITS.setter
     def PARAMLIMITS(self, value):
         """Set new `PARAMLIMITS` dictionary."""
+        assert set(value.keys()) == set(self.PARAMLIMITS.keys())
         for param in value.keys():
             assert value[param][0] < value[param][1], "The new \
                     minimum value for {0}, {1}, is equal to or \
                     larger than the new maximum value, {2}"\
-                    .format(value[param][0], param, value[param][1])
-        if value != self.PARAMLIMITS:
-            self._cached = {}
+                    .format(param, value[param][0], value[param][1])
         self._PARAMLIMITS = value
 
 
