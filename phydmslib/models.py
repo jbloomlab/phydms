@@ -294,7 +294,7 @@ class ExpCM(Model):
     _REPORTPARAMS = ['kappa', 'omega', 'beta', 'phi']
     _PARAMLIMITS = {'kappa':(0.01, 100.0),
                    'omega':(1.0e-5, 100.0),
-                   'beta':(1.0e-5, 100),
+                   'beta':(1.0e-5, 10),
                    'eta':(0.01, 0.99),
                    'phi':(0.001, 0.999),
                    'pi':(ALMOST_ZERO, 1),
@@ -313,6 +313,19 @@ class ExpCM(Model):
     def PARAMLIMITS(self):
         """See docs for `Model` abstract base class."""
         return self._PARAMLIMITS
+
+    @PARAMLIMITS.setter
+    def PARAMLIMITS(self, value):
+        """Set new `PARAMLIMITS` dictionary."""
+        for param in value.keys():
+            assert value[param][0] < value[param][1], "The new \
+                    minimum value for {0}, {1}, is equal to or \
+                    larger than the new maximum value, {2}"\
+                    .format(value[param][0], param, value[param][1])
+        if value != self.PARAMLIMITS:
+            self._cached = {}
+        self._PARAMLIMITS = value
+
 
     def __init__(self, prefs, kappa=2.0, omega=0.5, beta=1.0, mu=1.0,
             phi=scipy.ones(N_NT) / N_NT,
@@ -705,10 +718,10 @@ class ExpCM(Model):
             pr_neghalf = self.prx[r]**-0.5
             #symm_pr = scipy.dot(scipy.diag(pr_half), scipy.dot(self.Prxy[r], scipy.diag(pr_neghalf)))
             symm_pr = (pr_half * (self.Prxy[r] * pr_neghalf).transpose()).transpose()
-            #assert scipy.allclose(symm_pr, symm_pr.transpose())
+            # assert scipy.allclose(symm_pr, symm_pr.transpose())
             (evals, evecs) = scipy.linalg.eigh(symm_pr)
-            #assert scipy.allclose(scipy.linalg.inv(evecs), evecs.transpose())
-            #assert scipy.allclose(symm_pr, scipy.dot(evecs, scipy.dot(scipy.diag(evals), evecs.transpose())))
+            # assert scipy.allclose(scipy.linalg.inv(evecs), evecs.transpose())
+            # assert scipy.allclose(symm_pr, scipy.dot(evecs, scipy.dot(scipy.diag(evals), evecs.transpose())))
             self.D[r] = evals
             self.Ainv[r] = evecs.transpose() * pr_half
             self.A[r] = (pr_neghalf * evecs.transpose()).transpose()
@@ -2324,9 +2337,24 @@ class GammaDistributedBetaModel(GammaDistributedModel):
                 Meaning described in main class doc string for
                 `GammaDistributedModel`.
         """
+
+        # set new limits so the maximum value of `beta` is equal to or
+        # greater than the maximum `beta` inferred from the gamma distribution
+        # with the constrained `alpha_beta` and `beta_beta` parameters
+        new_max_beta = DiscreteGamma(self.PARAMLIMITS["alpha_lambda"][1],\
+                self.PARAMLIMITS["beta_lambda"][0], ncats)[-1]
+        new_limits = model.PARAMLIMITS
+        new_limits["beta"] = (new_limits["beta"][0], new_max_beta)
+        model.PARAMLIMITS = new_limits
+
         super(GammaDistributedBetaModel, self).__init__(model, "beta",
                 ncats, alpha_lambda=1.0, beta_lambda=2.0,
                 freeparams=['alpha_lambda', 'beta_lambda'])
+
+        assert all([scipy.allclose(new_max_beta, m.PARAMLIMITS["beta"][1])
+                for m in self._models]), ("{0}\n{1}".format(
+                new_max_beta, '\n'.join([m.PARAMLIMITS["beta"][1]
+                for m in self._models])))
 
 
 if __name__ == '__main__':
