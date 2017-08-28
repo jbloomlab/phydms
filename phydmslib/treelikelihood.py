@@ -430,7 +430,7 @@ class TreeLikelihood(object):
                     paramsconverged = True
                     jacmax = scipy.absolute(result.jac).max()
                     if (jacmax > 1000) and not (firstbrlenpass and optimize_brlen):
-                        raise RuntimeError("Optimizer reports convergence, "
+                        warnings.warn("Optimizer reports convergence, "
                                 "but max element in Jacobian is {0}\n"
                                 "Summary of optimization:\n{1}".format(
                                 jacmax, summary))

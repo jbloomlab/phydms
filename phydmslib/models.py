@@ -558,9 +558,9 @@ class ExpCM(Model):
                         self.Ainv, tips))
                 if gaps is not None:
                     M[gaps] = scipy.ones(N_CODON, dtype='float')
-        if M.min() < -0.01:
-            warnings.warn("Large negative value in M(t) being set to 0. "
-                    "Value is {0}, t is {1}".format(M.min(), t))
+        #if M.min() < -0.01:
+        #    warnings.warn("Large negative value in M(t) being set to 0. "
+        #            "Value is {0}, t is {1}".format(M.min(), t))
         M[M < 0] = 0.0
         return M
 
