@@ -1946,8 +1946,8 @@ class GammaDistributedModel(DistributionModel):
             The paramter which the gamma distirubtion is implemented over.
     """
 
-    _PARAMLIMITS = {'alpha_lambda':(0.3, 10),
-                    'beta_lambda':(0.3, 10),
+    _PARAMLIMITS = {'alpha_lambda':(0.3, 3.5),
+                    'beta_lambda':(0.7, 10),
                    }
     PARAMTYPES = {'alpha_lambda':float,
                   'beta_lambda':float,
