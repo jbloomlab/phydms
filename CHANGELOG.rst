@@ -1,8 +1,10 @@
 Changelog
 ===========
 
-2.0.dev6
+2.1.0
 ---------
+* Added ``--gammabeta`` option to ``phydms``
+
 * Added ``ExpCM`` with ``divpressure`` to ``simulate.py``.
 
 * Updated citation

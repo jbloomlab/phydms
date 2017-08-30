@@ -325,7 +325,7 @@ class ExpCM(Model):
                     minimum value for {0}, {1}, is equal to or \
                     larger than the new maximum value, {2}"\
                     .format(param, value[param][0], value[param][1])
-        self._PARAMLIMITS = value
+        self._PARAMLIMITS = value.copy()
 
 
     def __init__(self, prefs, kappa=2.0, omega=0.5, beta=1.0, mu=1.0,
@@ -1942,8 +1942,8 @@ class GammaDistributedModel(DistributionModel):
             Gamma distribution shape parameter.
         `beta_omega` (`float` > 0)
             Gamma distribution inverse-scale parameter
-        `lambda_param`
-            The paramter which the gamma distirubtion is implemented over.
+        `lambda_param` (str)
+            Parameter which the gamma distirubtion is implemented over.
     """
 
     _PARAMLIMITS = {'alpha_lambda':(0.3, 3.5),
@@ -1984,8 +1984,8 @@ class GammaDistributedModel(DistributionModel):
         This list is `['alpha_lambda', 'beta_lambda']`."""
         return ['alpha_lambda', 'beta_lambda']
 
-    def __init__(self, model, lambda_param, ncats, alpha_lambda=1.0, beta_lambda=2.0,
-            freeparams=['alpha_lambda', 'beta_lambda']):
+    def __init__(self, model, lambda_param, ncats, alpha_lambda=1.0, 
+            beta_lambda=2.0, freeparams=['alpha_lambda', 'beta_lambda']):
         """Initialize a `GammaDistributedModel`.
 
         Args:
@@ -2288,7 +2288,7 @@ class GammaDistributedOmegaModel(GammaDistributedModel):
     """Implements gamma distribution over `omega` for a model.
 
     This model can be used to implement a gamma distribution over a
-    `Models``omega` parameter. For instance, if this is done for the
+    `Models` `omega` parameter. For instance, if this is done for the
     `YNGKP_M0` model, it yields a M5 variant of the YNGKP model.
 
     See `__init__` method for how to initialize a
@@ -2342,7 +2342,7 @@ class GammaDistributedBetaModel(GammaDistributedModel):
         # set new limits so the maximum value of `beta` is equal to or
         # greater than the maximum `beta` inferred from the gamma distribution
         # with the constrained `alpha_beta` and `beta_beta` parameters
-        new_max_beta = DiscreteGamma(self.PARAMLIMITS["alpha_lambda"][1],\
+        new_max_beta = DiscreteGamma(self.PARAMLIMITS["alpha_lambda"][1],
                 self.PARAMLIMITS["beta_lambda"][0], ncats)[-1]
         new_limits = model.PARAMLIMITS
         new_limits["beta"] = (new_limits["beta"][0], new_max_beta)

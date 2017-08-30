@@ -923,7 +923,7 @@ In a single unit of time, the probability that if site :math:`r` is initially :m
 Therefore, if we optimize the branch lengths :math:`t_b` and the model parameters in :math:`P_{r,xy}`, and then at the end re-scale the branch lengths to :math:`t_b' = t_b \times \frac{-\mu}{L} \sum_{r=1}^L \sum_x p_{r,x} P_{r,xx}` then the re-scaled branch lengths :math:`t_b` are in units of substitutions per sites. Therefore, for input and output to ``phydms``, we assume that input branch lengths are already in units of substitutions per site, and scale them from :math:`t_b'` to :math:`t_b`. Optimization is performed on :math:`t_b`, and then for output we re-scale the optimized branch lengths from :math:`t_b` to :math:`t_b'`.
 
 Models with a gamma-distributed model parameter
----------------------------------------------
+------------------------------------------------
 The models described above fit a single value to each model parameter.
 We can also fit a distribution of values across sites for one model parameter :math:`\lambda`.
 For instance, when :math:`\lambda` is the :math:`\omega` of the *YNGKP* models, we get the *YNGKP_M5* model described in `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_.
