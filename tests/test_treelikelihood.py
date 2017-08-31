@@ -142,7 +142,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         self.assertTrue(nparams == sum(map(lambda x: (1 if isinstance(x, float)
                 else len(x)), modelparams.values())))
         # set to new value, make sure have changed
-        tl.paramsarray = scipy.array([random.uniform(0.2, 0.8) for i in
+        tl.paramsarray = scipy.array([random.uniform(0.7, 0.8) for i in
                 range(nparams)])
         for (param, value) in modelparams.items():
             self.assertFalse(scipy.allclose(value, getattr(tl.model, param)))
