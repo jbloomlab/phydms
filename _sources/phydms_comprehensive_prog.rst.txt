@@ -19,6 +19,8 @@ For each set of site-specific amino-acid preferences, ``phydms_comprehensive`` o
 
   * *ExpCM* with a gamma-distributed :math:`\omega` (if using the ``--gammaomega`` flag).
 
+  * *ExpCM* with a gamma-distributed :math:`\beta` (if using the ``--gammabeta`` flag).
+
   * *YNGKP_M0*
 
   * *YNGKP_M5*
@@ -77,6 +79,6 @@ This file is in Markdown format::
 
 ``phydms`` output for each model
 ++++++++++++++++++++++++++++++++++
-For each individual model, there will also be all of the expected ``phydms`` output files as described in :ref:`phydms_prog`. These files will begin with the prefix specified by ``outprefix``, which will be followed by the name of the model. 
+For each individual model, there will also be all of the expected ``phydms`` output files as described in :ref:`phydms_prog`. These files will begin with the prefix specified by ``outprefix``, which will be followed by the name of the model.
 
 .. include:: weblinks.txt

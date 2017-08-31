@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Numerical implementation &#8212; phydms 2.0.dev6 documentation</title>
+    <title>Numerical implementation &#8212; phydms 2.1.0 documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2.0.dev6',
+        VERSION:     '2.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="ExpCM.html" title="Experimentally Informed Codon Models"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.dev6 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -72,7 +72,7 @@ It may be of help in trying to understand the code.</p>
 <li><a class="reference internal" href="#calculating-the-likelihood-and-derivatives-on-a-tree" id="id13">Calculating the likelihood and derivatives on a tree</a></li>
 <li><a class="reference internal" href="#scaling-to-avoid-numerical-underflow" id="id14">Scaling to avoid numerical underflow</a></li>
 <li><a class="reference internal" href="#units-of-tree-branch-lengths" id="id15">Units of tree branch lengths</a></li>
-<li><a class="reference internal" href="#models-with-gamma-distributed" id="id16">Models with gamma-distributed <span class="math">\(\omega\)</span></a></li>
+<li><a class="reference internal" href="#models-with-a-gamma-distributed-model-parameter" id="id16">Models with a gamma-distributed model parameter</a></li>
 <li><a class="reference internal" href="#derivatives-with-respect-to-branch-lengths" id="id17">Derivatives with respect to branch lengths</a></li>
 <li><a class="reference internal" href="#optimization" id="id18">Optimization</a></li>
 </ul>
@@ -690,44 +690,44 @@ By the chain rule, we have</p>
 <p>In a single unit of time, the probability that if site <span class="math">\(r\)</span> is initially <span class="math">\(x\)</span>, then it will undergo a substitution to some other codon <span class="math">\(y\)</span> is <span class="math">\(\sum_{y \ne x} P_{r,xy} = -P_{r,xx}\)</span>. Since the equilibrium probability that site <span class="math">\(r\)</span> is <span class="math">\(x\)</span> is <span class="math">\(p_{r,x}\)</span>, then the probability that site <span class="math">\(r\)</span> undergoes a substitution in a unit of time is <span class="math">\(-\mu \sum_x p_{r,x} P_{r,xx}\)</span>. So averaging over all <span class="math">\(L\)</span> sites, the probability that the average site will undergo a substitution in a unit of time is <span class="math">\(-\frac{\mu}{L} \sum_{r=1}^L \sum_x p_{r,x} P_{r,xx}\)</span>.</p>
 <p>Therefore, if we optimize the branch lengths <span class="math">\(t_b\)</span> and the model parameters in <span class="math">\(P_{r,xy}\)</span>, and then at the end re-scale the branch lengths to <span class="math">\(t_b' = t_b \times \frac{-\mu}{L} \sum_{r=1}^L \sum_x p_{r,x} P_{r,xx}\)</span> then the re-scaled branch lengths <span class="math">\(t_b\)</span> are in units of substitutions per sites. Therefore, for input and output to <code class="docutils literal"><span class="pre">phydms</span></code>, we assume that input branch lengths are already in units of substitutions per site, and scale them from <span class="math">\(t_b'\)</span> to <span class="math">\(t_b\)</span>. Optimization is performed on <span class="math">\(t_b\)</span>, and then for output we re-scale the optimized branch lengths from <span class="math">\(t_b\)</span> to <span class="math">\(t_b'\)</span>.</p>
 </div>
-<div class="section" id="models-with-gamma-distributed">
-<h2><a class="toc-backref" href="#id16">Models with gamma-distributed <span class="math">\(\omega\)</span></a><a class="headerlink" href="#models-with-gamma-distributed" title="Permalink to this headline">¶</a></h2>
-<p>The models described above fit a single <span class="math">\(\omega\)</span> value.
-We can also fit a distribution of <span class="math">\(\omega\)</span> values across sites.
-For instance, when this is done for the <em>YNGKP</em> models, we get the <em>YNGKP_M5</em> model described in <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a>.</p>
-<p>Specifically, let the <span class="math">\(\omega\)</span> values be drawn from <span class="math">\(K\)</span> discrete categories with omega values <span class="math">\(\omega_0, \omega_2, \ldots, \omega_{K-1}\)</span>, and give equal weight to each category. Then the overall likelihood at site <span class="math">\(r\)</span> is</p>
+<div class="section" id="models-with-a-gamma-distributed-model-parameter">
+<h2><a class="toc-backref" href="#id16">Models with a gamma-distributed model parameter</a><a class="headerlink" href="#models-with-a-gamma-distributed-model-parameter" title="Permalink to this headline">¶</a></h2>
+<p>The models described above fit a single value to each model parameter.
+We can also fit a distribution of values across sites for one model parameter <span class="math">\(\lambda\)</span>.
+For instance, when <span class="math">\(\lambda\)</span> is the <span class="math">\(\omega\)</span> of the <em>YNGKP</em> models, we get the <em>YNGKP_M5</em> model described in <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a>.</p>
+<p>Specifically, let the <span class="math">\(\lambda\)</span> values be drawn from <span class="math">\(K\)</span> discrete categories with lambda values <span class="math">\(\lambda_0, \lambda_2, \ldots, \lambda_{K-1}\)</span>, and give equal weight to each category. Then the overall likelihood at site <span class="math">\(r\)</span> is</p>
 <div class="math">
 \[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right) =
-\frac{1}{K} \sum_{k=0}^{K-1} \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_k}\right)\]</div>
-<p>and the derivative with respect to model parameter <span class="math">\(\lambda\)</span> is simply</p>
+\frac{1}{K} \sum_{k=0}^{K-1} \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\lambda = \lambda_k}\right)\]</div>
+<p>and the derivative with respect to any non-<span class="math">\(\lambda\)</span> model parameter <span class="math">\(\alpha\)</span> is simply</p>
 <div class="math">
-\[\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \lambda} =
-\frac{1}{K} \sum_{k=0}^{K-1} \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_k}\right)}{\partial \lambda}.\]</div>
-<p>The different <span class="math">\(\omega_k\)</span> values are drawn from the means of a gamma-distribution discretized into <span class="math">\(K\)</span> categories as described by <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pubmed/7932792">Yang, J Mol Evol, 39:306-314</a>. Specifically, this gamma distribution is described by a shape parameter <span class="math">\(\alpha_{\omega}\)</span> and an inverse scale parameter <span class="math">\(\beta_{\omega}\)</span> such that the probability density function of a continuous <span class="math">\(\omega\)</span> is given by</p>
+\[\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \alpha} =
+\frac{1}{K} \sum_{k=0}^{K-1} \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\lambda = \lambda_k}\right)}{\partial \alpha}.\]</div>
+<p>The different <span class="math">\(\lambda_k\)</span> values are drawn from the means of a gamma-distribution discretized into <span class="math">\(K\)</span> categories as described by <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pubmed/7932792">Yang, J Mol Evol, 39:306-314</a>. Specifically, this gamma distribution is described by a shape parameter <span class="math">\(\alpha_{\lambda}\)</span> and an inverse scale parameter <span class="math">\(\beta_{\lambda}\)</span> such that the probability density function of a continuous <span class="math">\(\lambda\)</span> is given by</p>
 <div class="math">
-\[g\left(\omega; \alpha_{\omega}, \beta_{\omega}\right) = \frac{\left(\beta_{\alpha}\right)^{\alpha_{\omega}} e^{-\beta_{\omega} \omega} \omega^{\alpha_{\omega} - 1}}{\Gamma\left(\alpha_{\omega}\right)}.\]</div>
-<p>This function can be evaluated by <code class="docutils literal"><span class="pre">scipy.stats.gamma.pdf(omega,</span> <span class="pre">alpha_omega,</span> <span class="pre">scale=1.0</span> <span class="pre">/</span> <span class="pre">beta_omega)</span></code>. Note also that the mean of this distribution is <span class="math">\(\frac{\alpha_{\omega}}{\beta_{\omega}}\)</span> and the variance is <span class="math">\(\frac{\alpha_{\omega}}{\left(\beta_{\omega}\right)^2}\)</span>.</p>
+\[g\left(\lambda; \alpha_{\lambda}, \beta_{\lambda}\right) = \frac{\left(\beta_{\alpha}\right)^{\alpha_{\lambda}} e^{-\beta_{\lambda} \lambda} \lambda^{\alpha_{\lambda} - 1}}{\Gamma\left(\alpha_{\lambda}\right)}.\]</div>
+<p>This function can be evaluated by <code class="docutils literal"><span class="pre">scipy.stats.gamma.pdf(lambda,</span> <span class="pre">alpha_lambda,</span> <span class="pre">scale=1.0</span> <span class="pre">/</span> <span class="pre">beta_lambda)</span></code>. Note also that the mean of this distribution is <span class="math">\(\frac{\alpha_{\lambda}}{\beta_{\lambda}}\)</span> and the variance is <span class="math">\(\frac{\alpha_{\lambda}}{\left(\beta_{\lambda}\right)^2}\)</span>.</p>
 <p>The lower and upper boundaries of the interval for each category <span class="math">\(k\)</span> are</p>
 <div class="math">
-\[\begin{split}\omega_{k,\rm{lower}} &amp;=&amp; Q_{\Gamma}\left(\frac{k}{K}; \alpha_{\omega}, \beta_{\omega}\right) \\
-\omega_{k,\rm{upper}} &amp;=&amp; Q_{\Gamma}\left(\frac{k + 1}{K}; \alpha_{\omega}, \beta_{\omega}\right)\end{split}\]</div>
-<p>where <span class="math">\(Q_{\Gamma}\)</span> is the quantile function (or percent-point function) of the gamma distribution. This function can be evaluated by <code class="docutils literal"><span class="pre">scipy.stats.gamma.ppf(k</span> <span class="pre">/</span> <span class="pre">K,</span> <span class="pre">alpha_omega,</span> <span class="pre">scale=1.0</span> <span class="pre">/</span> <span class="pre">beta_omega)</span></code>.</p>
+\[\begin{split}\lambda_{k,\rm{lower}} &amp;=&amp; Q_{\Gamma}\left(\frac{k}{K}; \alpha_{\lambda}, \beta_{\lambda}\right) \\
+\lambda_{k,\rm{upper}} &amp;=&amp; Q_{\Gamma}\left(\frac{k + 1}{K}; \alpha_{\lambda}, \beta_{\lambda}\right)\end{split}\]</div>
+<p>where <span class="math">\(Q_{\Gamma}\)</span> is the quantile function (or percent-point function) of the gamma distribution. This function can be evaluated by <code class="docutils literal"><span class="pre">scipy.stats.gamma.ppf(k</span> <span class="pre">/</span> <span class="pre">K,</span> <span class="pre">alpha_lambda,</span> <span class="pre">scale=1.0</span> <span class="pre">/</span> <span class="pre">beta_lambda)</span></code>.</p>
 <p>The mean for each category <span class="math">\(k\)</span> is</p>
 <div class="math">
-\[\omega_k = \frac{\alpha_{\omega}K}{\beta_{\omega}} \left[\gamma\left(\omega_{k,\rm{upper}} \beta_{\omega}, \alpha_{\omega} + 1\right) - \gamma\left( \omega_{k,\rm{lower}} \beta_{\omega}, \alpha_{\omega} + 1 \right)\right]\]</div>
-<p>where <span class="math">\(\gamma\)</span> is the lower-incomplete gamma function and can be evaluated by <code class="docutils literal"><span class="pre">scipy.special.gammainc(alpha_omega</span> <span class="pre">+</span> <span class="pre">1,</span> <span class="pre">omega_k_upper</span> <span class="pre">*</span> <span class="pre">beta_omega)</span></code>.</p>
-<p>Note that <span class="math">\(\omega_k\)</span> is not actually a free parameter, as it is determined by <span class="math">\(\alpha_{\omega}\)</span> and <span class="math">\(\beta_{\omega}\)</span>.
+\[\lambda_k = \frac{\alpha_{\lambda}K}{\beta_{\lambda}} \left[\gamma\left(\lambda_{k,\rm{upper}} \beta_{\lambda}, \alpha_{\lambda} + 1\right) - \gamma\left( \lambda_{k,\rm{lower}} \beta_{\lambda}, \alpha_{\lambda} + 1 \right)\right]\]</div>
+<p>where <span class="math">\(\gamma\)</span> is the lower-incomplete gamma function and can be evaluated by <code class="docutils literal"><span class="pre">scipy.special.gammainc(alpha_lambda</span> <span class="pre">+</span> <span class="pre">1,</span> <span class="pre">omega_k_upper</span> <span class="pre">*</span> <span class="pre">beta_lambda)</span></code>.</p>
+<p>Note that <span class="math">\(\lambda_k\)</span> is not actually a free parameter, as it is determined by <span class="math">\(\alpha_{\lambda}\)</span> and <span class="math">\(\beta_{\lambda}\)</span>.
 The derivative of the log likelihood at site <span class="math">\(r\)</span> with respect to these parameters is simply</p>
 <div class="math">
-\[\begin{split}\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \alpha_{\omega}} &amp;=&amp;
-\frac{1}{K} \sum\limits_{k=0}^{K-1} \frac{\partial \omega_k}{\partial \omega_{\alpha}}\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_k}\right)}{\partial \omega_k} \\
-\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \beta_{\omega}} &amp;=&amp;
-\frac{1}{K} \sum\limits_{k=0}^{K-1} \frac{\partial \omega_k}{\partial \omega_{\beta}}\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_k}\right)}{\partial \omega_k}.\end{split}\]</div>
-<p>The derivatives <span class="math">\(\frac{\partial \omega_k}{\partial \omega_{\alpha}}\)</span> and <span class="math">\(\frac{\partial \omega_k}{\partial \omega_{\beta}}\)</span> are computed numerically using the finite-difference method.</p>
+\[\begin{split}\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \alpha_{\lambda}} &amp;=&amp;
+\frac{1}{K} \sum\limits_{k=0}^{K-1} \frac{\partial \lambda_k}{\partial \alpha_{\lambda}}\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\lambda = \lambda_k}\right)}{\partial \lambda_k} \\
+\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \beta_{\lambda}} &amp;=&amp;
+\frac{1}{K} \sum\limits_{k=0}^{K-1} \frac{\partial \lambda_k}{\partial \beta_{\lambda}}\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\lambda = \lambda_k}\right)}{\partial \lambda_k}.\end{split}\]</div>
+<p>The derivatives <span class="math">\(\frac{\partial \lambda_k}{\partial \alpha_{\lambda}}\)</span> and <span class="math">\(\frac{\partial \lambda_k}{\partial \beta_{\lambda}}\)</span> are computed numerically using the finite-difference method.</p>
 </div>
 <div class="section" id="derivatives-with-respect-to-branch-lengths">
 <h2><a class="toc-backref" href="#id17">Derivatives with respect to branch lengths</a><a class="headerlink" href="#derivatives-with-respect-to-branch-lengths" title="Permalink to this headline">¶</a></h2>
-<p>The section above describes how to compute the derivatives with respect to paramters (e.g., model parameters) that affect all parts of the tree.
+<p>The section above describes how to compute the derivatives with respect to parameters (e.g., model parameters) that affect all parts of the tree.
 In many cases, we may want to optimize individual branch lengths rather than the overall mutation rate <span class="math">\(\mu\)</span>.
 In this case, we need to compute the derivatives with respect to the branch lengths.
 This is somewhat simpler for each individual branch length, since each individual branch length only affects part of the tree.</p>
@@ -789,7 +789,7 @@ This is somewhat simpler for each individual branch length, since each individua
 <li><a class="reference internal" href="#calculating-the-likelihood-and-derivatives-on-a-tree">Calculating the likelihood and derivatives on a tree</a></li>
 <li><a class="reference internal" href="#scaling-to-avoid-numerical-underflow">Scaling to avoid numerical underflow</a></li>
 <li><a class="reference internal" href="#units-of-tree-branch-lengths">Units of tree branch lengths</a></li>
-<li><a class="reference internal" href="#models-with-gamma-distributed">Models with gamma-distributed <span class="math">\(\omega\)</span></a></li>
+<li><a class="reference internal" href="#models-with-a-gamma-distributed-model-parameter">Models with a gamma-distributed model parameter</a></li>
 <li><a class="reference internal" href="#derivatives-with-respect-to-branch-lengths">Derivatives with respect to branch lengths</a></li>
 <li><a class="reference internal" href="#optimization">Optimization</a></li>
 </ul>
@@ -838,7 +838,7 @@ This is somewhat simpler for each individual branch length, since each individua
         <li class="right" >
           <a href="ExpCM.html" title="Experimentally Informed Codon Models"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.0.dev6 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
