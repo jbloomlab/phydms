@@ -16,6 +16,7 @@ import tempfile
 import string
 import math
 import shutil
+import natsort
 import numpy
 import matplotlib
 matplotlib.use('pdf')
