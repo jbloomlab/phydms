@@ -7,7 +7,6 @@ import sys
 import os
 import re
 import glob
-import scipy
 try:
     from setuptools import setup
     from setuptools import Extension
@@ -59,6 +58,7 @@ class lazy_cythonize(list):
 
 def extensions():
     """Returns list of `cython` extensions for `lazy_cythonize`."""
+    import scipy
     from Cython.Build import cythonize
     ext = [
             Extension('phydmslib.numutils', ['phydmslib/numutils.pyx'],
