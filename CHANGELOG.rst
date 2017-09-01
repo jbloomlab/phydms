@@ -1,6 +1,10 @@
 Changelog
 ===========
 
+2.1.1
+---------
+* Altered ``setup.py`` to enable installation without ``numpy`` being pre-installed. 
+
 2.1.0
 ---------
 * Added ``--gammabeta`` option to ``phydms``

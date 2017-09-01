@@ -58,11 +58,11 @@ class lazy_cythonize(list):
 
 def extensions():
     """Returns list of `cython` extensions for `lazy_cythonize`."""
-    import scipy
+    import numpy
     from Cython.Build import cythonize
     ext = [
             Extension('phydmslib.numutils', ['phydmslib/numutils.pyx'],
-                    include_dirs=[scipy.get_include()],
+                    include_dirs=[numpy.get_include()],
                     extra_compile_args=['-Wno-unused-function']),
           ]      
     return cythonize(ext)
@@ -79,6 +79,10 @@ setup(
     description = 'Phylogenetic analyses informed by deep mutational scanning data.',
     long_description = readme,
     license = 'GPLv3',
+    setup_requires = [
+        'cython>=0.21',
+        'numpy>=0.18',
+        ],
     install_requires = [
         'biopython>=1.67',
         'cython>=0.21',
