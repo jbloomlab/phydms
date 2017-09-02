@@ -267,9 +267,9 @@ def PhyDMSLogoPlotParser():
             'amino-acid letters. kd = Kyte-Doolittle hydrophobicity; '
             'mw = molecular weight; functionalgroup = divide in 7 '
             'groups; charge = charge at neutral pH.')
-    parser.add_argument('--colormap', type=str, default='mapmetric',
-            help="Colormap for amino-acids. Must specify a valid 'matplotlib' "
-            "color map. Only used when '--mapmetric' is 'kd' or 'mw'.")
+    parser.add_argument('--colormap', type=str, default='jet',
+            help="Name of `matplotlib` color map for amino acids "
+            "when `--mapmetric` is 'kd' or 'mw'.")
     parser.add_argument('--diffprefheight', type=FloatGreaterThanZero,
             default=1.0, help="Height of diffpref logo in each direction.")
     parser.add_argument('--omegabysite', help="Overlay omega on "

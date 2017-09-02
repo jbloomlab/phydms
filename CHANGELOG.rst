@@ -1,6 +1,10 @@
 Changelog
 ===========
 
+2.1.dev2
+-----------
+* Fixed ``--colormap`` option to ``phydms_logoplot``.
+
 2.1.1
 ---------
 * Altered ``setup.py`` to enable installation without ``numpy`` being pre-installed. 

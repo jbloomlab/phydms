@@ -207,7 +207,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline, numberevery=10, allowuns
     * *overlay* : this argument allows you to make overlay bars that indicated
       other properties for the sites. By default, this option is *None*, meaning that
       no overlay is created. If you set it to something else, it must be a list
-      giving either one or two properties. Each property is a tuple:
+      giving one to three properties. Each property is a tuple:
       *(prop_d, shortname, longname)* where:
 
         - *prop_d* is a dictionary keyed by site numbers that are in *sites*.
