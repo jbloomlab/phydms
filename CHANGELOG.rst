@@ -5,7 +5,7 @@ Changelog
 -----------
 * Fixed ``--colormap`` option to ``phydms_logoplot``.
 
-* Added `underlay` option to `weblogo.LogoPlot`.
+* Added `underlay` and wildtype overlay bar options to `weblogo.LogoPlot`.
 
 2.1.1
 ---------

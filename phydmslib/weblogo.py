@@ -155,7 +155,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
         overlay_cmap=None, ylimits=None, relativestackheight=1,
         custom_cmap='jet', map_metric='kd', noseparator=False,
         underlay=False):
-    """Constructs a sequence logo showing amino-acid or nucleotide preferences.
+    """Create sequence logo showing amino-acid or nucleotide preferences.
 
     The heights of each letter is equal to the preference of
     that site for that amino acid or nucleotide.
@@ -209,10 +209,9 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
       of the data in the positive and negative directions. Must encompass the 
       actual maximum and minimum of the data.
 
-    * *overlay* : this argument allows you to make overlay bars that indicated
-      other properties for the sites. By default, this option is *None*, meaning that
-      no overlay is created. If you set it to something else, it must be a list
-      giving one to three properties. Each property is a tuple:
+    * *overlay* : make overlay bars that indicate other properties for
+      the sites. If you set to something other than `None`, it should be
+      a list giving one to three properties. Each property is a tuple:
       *(prop_d, shortname, longname)* where:
 
         - *prop_d* is a dictionary keyed by site numbers that are in *sites*.
@@ -231,6 +230,11 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
 
         - *longname* : longer name for property used on axes label. Can be the
           same as *shortname* if you don't need a different long name.
+
+        - In the special case where both *shortname* and *longname* are 
+          the string `wildtype`, then rather than an overlay bar we
+          right the one-character wildtype identity in `prop_d` for each
+          site.
 
     * *fix_limits* is only meaningful if *overlay* is being used. In this case, for any
       *shortname* in *overlay* that also keys an entry in *fix_limits*, we use
@@ -915,7 +919,7 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
     pts_per_inch = 72.0 # to convert between points and inches
     # some general properties of the plot
     matplotlib.rc('text', usetex=True)
-    matplotlib.rc('xtick', labelsize=9)
+    matplotlib.rc('xtick', labelsize=8)
     matplotlib.rc('xtick', direction='out')
     matplotlib.rc('ytick', direction='out')
     matplotlib.rc('axes', linewidth=0.5)
@@ -936,7 +940,13 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
     # determine property types
     prop_types = {}
     for (prop_d, shortname, longname) in overlay:
-        if all([isinstance(prop, str) for prop in prop_d.values()]):
+        if shortname == longname == 'wildtype':
+            assert all([(isinstance(prop, str) and len(prop) == 1) for 
+                    prop in prop_d.values()]), 'prop_d does not give letters'
+            proptype = 'wildtype'
+            (vmin, vmax) = (0, 1) # not used, but need to be assigned
+            propcategories = None # not used, but needs to be assigned
+        elif all([isinstance(prop, str) for prop in prop_d.values()]):
             proptype = 'discrete'
             propcategories = list(set(prop_d.values()))
             propcategories.sort()
@@ -971,13 +981,29 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
         pylab.xticks([])
         for (iprop, (prop_d, shortname, longname)) in enumerate(overlay):
             (proptype, vmin, vmax, propcategories) = prop_types[shortname]
-            prop_ax = pylab.axes([lmargin / figwidth, ((nlines - iline - 1) * (logoheight + len(overlay) * (barspacing + barheight)) + (1 - int(underlay)) * logoheight + int(underlay) * barspacing + iprop * (barspacing + barheight)) / figheight, xlength / figwidth, barheight / figheight], frameon=True)
+            prop_ax = pylab.axes([
+                    lmargin / figwidth, 
+                    ((nlines - iline - 1) * (logoheight + 
+                        len(overlay) * (barspacing + barheight)) + 
+                        (1 - int(underlay)) * logoheight + int(underlay) * 
+                        barspacing + iprop * (barspacing + barheight)) 
+                        / figheight, 
+                    xlength / figwidth, 
+                    barheight / figheight], 
+                    frameon=(proptype != 'wildtype'))
             prop_ax.xaxis.set_ticks_position('none')
-            prop_ax.yaxis.set_ticks_position('left')
             pylab.xticks([])
-            pylab.yticks([0], [shortname], size=8)
             pylab.xlim((0, len(isites)))
             pylab.ylim(-0.5, 0.5)
+            if proptype == 'wildtype':
+                pylab.yticks([])
+                prop_ax.yaxis.set_ticks_position('none')
+                for (isite, site) in enumerate(isites):
+                    pylab.text(isite + 0.5, -0.5, prop_d[site], size=9, 
+                            horizontalalignment='center', family='monospace')
+                continue
+            pylab.yticks([0], [shortname], size=8)
+            prop_ax.yaxis.set_ticks_position('left')
             propdata = pylab.zeros(shape=(1, len(isites)))
             propdata[ : ] = pylab.nan # set to nan for all entries
             for (isite, site) in enumerate(isites):
@@ -991,23 +1017,26 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
             prop_image[shortname] = pylab.imshow(propdata, interpolation='nearest', aspect='auto', extent=[0, len(isites), 0.5, -0.5], cmap=cmap, vmin=vmin, vmax=vmax)
             pylab.yticks([0], [shortname], size=8)
     # set up colorbar axes, then color bars
-    if len(overlay) == 1:
+    ncolorbars = len([p for p in prop_types.values() if p[0] != 'wildtype'])
+    if ncolorbars == 1:
         colorbarwidth = 0.4
         colorbarspacingwidth = 1.0 - colorbarwidth
-    else:
+    elif ncolorbars:
         colorbarspacingfrac = 0.5 # space between color bars is this fraction of bar width
-        colorbarwidth = 1.0 / (len(overlay) * (1.0 + colorbarspacingfrac)) # width of color bars in fraction of figure width
+        colorbarwidth = 1.0 / (ncolorbars * (1.0 + colorbarspacingfrac)) # width of color bars in fraction of figure width
         colorbarspacingwidth = colorbarwidth * colorbarspacingfrac # width of color bar spacing in fraction of figure width
     propnames = {}
-    for (icolorbar, (prop_d, shortname, longname)) in enumerate(overlay):
+    icolorbar = 0
+    for (prop_d, shortname, longname) in overlay:
         (proptype, vmin, vmax, propcategories) = prop_types[shortname]
+        if proptype == 'wildtype':
+            continue
         if shortname == longname or not longname:
             propname = shortname
         elif fixlongname:
             propname = longname
         else:
             propname = "%s (%s)" % (longname, shortname)
-#        colorbar_ax = pylab.axes([colorbarspacingwidth * 0.5 + icolorbar * (colorbarwidth + colorbarspacingwidth), 1.0 - (colorbar_tmargin + barheight) / figwidth, colorbarwidth, barheight / figwidth], frameon=True)
         colorbar_ax = pylab.axes([colorbarspacingwidth * 0.5 + icolorbar * (colorbarwidth + colorbarspacingwidth), 1.0 - (colorbar_tmargin + barheight) / figheight, colorbarwidth, barheight / figheight], frameon=True)
         colorbar_ax.xaxis.set_ticks_position('bottom')
         colorbar_ax.yaxis.set_ticks_position('none')
@@ -1035,6 +1064,7 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
             (ticklocs, ticknames) = fix_limits[shortname]
             cb.set_ticks(ticklocs)
             cb.set_ticklabels(ticknames)
+        icolorbar += 1
     # save the plot
     pylab.savefig(overlayfile, transparent=True)
 
