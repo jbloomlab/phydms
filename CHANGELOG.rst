@@ -5,6 +5,8 @@ Changelog
 -----------
 * Fixed ``--colormap`` option to ``phydms_logoplot``.
 
+* Added `underlay` option to `weblogo.LogoPlot`.
+
 2.1.1
 ---------
 * Altered ``setup.py`` to enable installation without ``numpy`` being pre-installed. 

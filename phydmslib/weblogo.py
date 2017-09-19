@@ -149,7 +149,12 @@ def FunctionalGroupColorMapping(maptype='jet', reverse=False):
     return (None, mapping_d, None)
 
 
-def LogoPlot(sites, datatype, data, plotfile, nperline, numberevery=10, allowunsorted=False, ydatamax=1.01, overlay=None, fix_limits={}, fixlongname=False, overlay_cmap=None, ylimits=None, relativestackheight=1, custom_cmap='jet', map_metric='kd', noseparator=False):
+def LogoPlot(sites, datatype, data, plotfile, nperline,
+        numberevery=10, allowunsorted=False, ydatamax=1.01,
+        overlay=None, fix_limits={}, fixlongname=False,
+        overlay_cmap=None, ylimits=None, relativestackheight=1,
+        custom_cmap='jet', map_metric='kd', noseparator=False,
+        underlay=False):
     """Constructs a sequence logo showing amino-acid or nucleotide preferences.
 
     The heights of each letter is equal to the preference of
@@ -260,6 +265,8 @@ def LogoPlot(sites, datatype, data, plotfile, nperline, numberevery=10, allowuns
     * *noseparator* is only meaningful if *datatype* is 'diffsel' or 'diffprefs'.
       If it set to *True*, then we do **not** print a black horizontal line to
       separate positive and negative values.
+
+    * *underlay* if `True` then make an underlay rather than an overlay.
     """
     assert datatype in ['prefs', 'diffprefs', 'diffsel'], "Invalid datatype {0}".format(datatype)
 
@@ -445,16 +452,19 @@ def LogoPlot(sites, datatype, data, plotfile, nperline, numberevery=10, allowuns
             foverlay = os.fdopen(fdoverlay, 'wb')
             foverlay.close() # close, but we still have the path overlayfile...
             fmerged = os.fdopen(fdmerged, 'wb')
-            LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth=stackwidth, rmargin=rmargin, logoheight=stackwidth * stackaspectratio + stackheightmargin, barheight=barheight, barspacing=barspacing, fix_limits=fix_limits, fixlongname=fixlongname, overlay_cmap=overlay_cmap)
+            logoheight = stackwidth * stackaspectratio + stackheightmargin
+            LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth=stackwidth, rmargin=rmargin, logoheight=logoheight, barheight=barheight, barspacing=barspacing, fix_limits=fix_limits, fixlongname=fixlongname, overlay_cmap=overlay_cmap, underlay=underlay)
             plotfile_f = open(plotfile, 'rb')
             plot = PyPDF2.PdfFileReader(plotfile_f).getPage(0)
             overlayfile_f = open(overlayfile, 'rb')
-            overlay = PyPDF2.PdfFileReader(overlayfile_f).getPage(0)
-            xshift = overlay.artBox[2] - plot.artBox[2]
-            overlay.mergeTranslatedPage(plot, xshift, 0)
-            overlay.compressContentStreams() 
+            overlaypdf = PyPDF2.PdfFileReader(overlayfile_f).getPage(0)
+            xshift = overlaypdf.artBox[2] - plot.artBox[2]
+            yshift = (barheight + barspacing) * len(overlay) - 0.5 * barspacing
+            overlaypdf.mergeTranslatedPage(plot, xshift, 
+                    yshift * int(underlay), expand=True)
+            overlaypdf.compressContentStreams() 
             output = PyPDF2.PdfFileWriter()
-            output.addPage(overlay)
+            output.addPage(overlaypdf)
             output.write(fmerged)
             fmerged.close()
             shutil.move(mergedfile, plotfile)
@@ -856,7 +866,7 @@ class _my_Motif(corebio.matrix.AlphabeticArray) :
 #==============================================================
 
 
-def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoheight, barheight, barspacing, fix_limits={}, fixlongname=False, overlay_cmap=None):
+def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoheight, barheight, barspacing, fix_limits={}, fixlongname=False, overlay_cmap=None, underlay=False):
     """Makes overlay for *LogoPlot*.
 
     This function creates colored bars overlay bars showing up to two
@@ -890,6 +900,8 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
     * *fixlongname* has the same meaning of the variable of this name used by *LogoPlot*.
 
     * *overlay_cmap* has the same meaning of the variable of this name used by *LogoPlot*.
+
+    * *underlay* is a bool. If `True`, make an underlay rather than an overlay.
     """
     if not pylab.get_backend().lower() == 'pdf':
         raise ValueError("You cannot use this function without first setting the matplotlib / pylab backend to 'pdf'. Do this with: matplotlib.use('pdf')")
@@ -916,7 +928,9 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
     lmargin = 25 # left margin in points
     barwidth = nperline * sitewidth
     figwidth = lmargin + rmargin + barwidth
-    figheight = nlines * (logoheight + len(overlay) * (barheight + barspacing)) + barheight + colorbar_bmargin + colorbar_tmargin
+    figheight = nlines * (logoheight + len(overlay) * (barheight +
+            barspacing)) + (barheight + colorbar_bmargin + colorbar_tmargin) + (
+            int(underlay) * len(overlay) * (barheight + barspacing))
     # set up the figure and axes
     fig = pylab.figure(figsize=(figwidth / pts_per_inch, figheight / pts_per_inch))
     # determine property types
@@ -957,7 +971,7 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
         pylab.xticks([])
         for (iprop, (prop_d, shortname, longname)) in enumerate(overlay):
             (proptype, vmin, vmax, propcategories) = prop_types[shortname]
-            prop_ax = pylab.axes([lmargin / figwidth, ((nlines - iline - 1) * (logoheight + len(overlay) * (barspacing + barheight)) + logoheight + iprop * (barspacing + barheight)) / figheight, xlength / figwidth, barheight / figheight], frameon=True)
+            prop_ax = pylab.axes([lmargin / figwidth, ((nlines - iline - 1) * (logoheight + len(overlay) * (barspacing + barheight)) + (1 - int(underlay)) * logoheight + int(underlay) * barspacing + iprop * (barspacing + barheight)) / figheight, xlength / figwidth, barheight / figheight], frameon=True)
             prop_ax.xaxis.set_ticks_position('none')
             prop_ax.yaxis.set_ticks_position('left')
             pylab.xticks([])
