@@ -77,17 +77,12 @@ If you have previously installed `phydms`_ but are not sure that you have the la
 
 Install ``phydms`` from source code
 -----------------------------------------------------------------------------------
-You can also install from the `phydms source code`_ on GitHub. (However, if you are simply using `phydms`_ and not developing it, you are suggested to instead use `pip`_.)
+First clone the `phydms source code`_ from GitHub::
 
-To install from source, first make sure that you have the `Other required software`_.
+    git clone https://github.com/jbloomlab/phydms
 
-Then download or clone the `phydms source code`_ from GitHub.
-After unpacking the main ``phydms`` directory that contains this source, install locally with::
 
-    cd phydms
-    python setup.py install --user
-
-If you want to install from source but want `pip`_ to process the dependencies, you can install locally with::
+Then install locally with::
 
     cd phydms
     pip install -e . --user
