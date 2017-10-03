@@ -1,7 +1,11 @@
 Changelog
 ===========
 
-2.1.dev2
+2.1.3
+-------
+* Added `scalebar` option to `weblogo.LogoPlot`.
+
+2.1.2
 -----------
 * Fixed ``--colormap`` option to ``phydms_logoplot``.
 

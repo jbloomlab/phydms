@@ -88,7 +88,7 @@ setup(
         'cython>=0.21',
         'numpy>=1.11',
         'scipy>=0.18',
-        'matplotlib>=1.5.1',
+        'matplotlib>=2.0.2',
         'natsort>=5.0.1',
         'sympy>=1.0',
         'six>=1.10',

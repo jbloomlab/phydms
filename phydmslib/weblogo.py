@@ -154,7 +154,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
         overlay=None, fix_limits={}, fixlongname=False,
         overlay_cmap=None, ylimits=None, relativestackheight=1,
         custom_cmap='jet', map_metric='kd', noseparator=False,
-        underlay=False):
+        underlay=False, scalebar=False):
     """Create sequence logo showing amino-acid or nucleotide preferences.
 
     The heights of each letter is equal to the preference of
@@ -271,6 +271,10 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
       separate positive and negative values.
 
     * *underlay* if `True` then make an underlay rather than an overlay.
+
+    * *scalebar*: show a scale bar. If `False`, no scale bar shown. Otherwise
+      should be a 2-tuple of `(scalebarlen, scalebarlabel)`. Currently only
+      works when data is `diffsel`.
     """
     assert datatype in ['prefs', 'diffprefs', 'diffsel'], "Invalid datatype {0}".format(datatype)
 
@@ -318,8 +322,8 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
     assert relativestackheight > 0, "relativestackheight must be > 0"
     stackaspectratio *= relativestackheight
     if overlay:
-        if not (1 <= len(overlay) <= 3):
-            raise ValueError("overlay must be a list of between one and three entries; instead it had %d entries" % len(overlay))
+        if len(overlay) > 3:
+            raise ValueError("overlay cannot have more than 3 entries")
         ymax = (stackaspectratio * stackwidth + len(overlay) * (barspacing + barheight)) / float(stackaspectratio * stackwidth)
         aspectratio = ymax * stackaspectratio # effective aspect ratio for full range
     else:
@@ -328,6 +332,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
     rmargin = 11.5 # right margin in points, fixed by weblogo
     stackheightmargin = 16 # margin between stacks in points, fixed by weblogo
 
+    showscalebar = False
     try:
         # write data into transfacfile (a temporary file)
         (fd, transfacfile) = tempfile.mkstemp()
@@ -387,6 +392,11 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
                     firstpositiveindex += 1
                 ordered_alphabets[isite] = [firstblankchar] + [tup[1] for tup in diffsel_r[ : firstpositiveindex]] + [separatorchar] + [tup[1] for tup in diffsel_r[firstpositiveindex : ]] + [lastblankchar] # order from most negative to most positive with blank characters and separators
                 f.write(' %g %g %g\n' % ((negativesum - dataymin) / yextent, (dataymax - positivesum) / yextent, separatorheight / yextent)) # heights for blank charactors and separators
+            # height of one unit on y-axis in points
+            heightofone = stackwidth * stackaspectratio / yextent
+            assert heightofone > 0
+            if scalebar:
+                showscalebar = (heightofone * scalebar[0], scalebar[1])
         else:
             raise ValueError("Invalid datatype of %s" % datatype)
         f.close()
@@ -449,7 +459,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
             os.remove(transfacfile)
 
     # now build the overlay
-    if overlay:
+    if overlay or showscalebar:
         try:
             (fdoverlay, overlayfile) = tempfile.mkstemp(suffix='.pdf')
             (fdmerged, mergedfile) = tempfile.mkstemp(suffix='.pdf')
@@ -457,7 +467,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
             foverlay.close() # close, but we still have the path overlayfile...
             fmerged = os.fdopen(fdmerged, 'wb')
             logoheight = stackwidth * stackaspectratio + stackheightmargin
-            LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth=stackwidth, rmargin=rmargin, logoheight=logoheight, barheight=barheight, barspacing=barspacing, fix_limits=fix_limits, fixlongname=fixlongname, overlay_cmap=overlay_cmap, underlay=underlay)
+            LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth=stackwidth, rmargin=rmargin, logoheight=logoheight, barheight=barheight, barspacing=barspacing, fix_limits=fix_limits, fixlongname=fixlongname, overlay_cmap=overlay_cmap, underlay=underlay, scalebar=showscalebar)
             plotfile_f = open(plotfile, 'rb')
             plot = PyPDF2.PdfFileReader(plotfile_f).getPage(0)
             overlayfile_f = open(overlayfile, 'rb')
@@ -870,7 +880,7 @@ class _my_Motif(corebio.matrix.AlphabeticArray) :
 #==============================================================
 
 
-def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoheight, barheight, barspacing, fix_limits={}, fixlongname=False, overlay_cmap=None, underlay=False):
+def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoheight, barheight, barspacing, fix_limits={}, fixlongname=False, overlay_cmap=None, underlay=False, scalebar=False):
     """Makes overlay for *LogoPlot*.
 
     This function creates colored bars overlay bars showing up to two
@@ -906,6 +916,9 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
     * *overlay_cmap* has the same meaning of the variable of this name used by *LogoPlot*.
 
     * *underlay* is a bool. If `True`, make an underlay rather than an overlay.
+
+    * *scalebar: if not `False`, is 2-tuple `(scalebarheight, scalebarlabel)`
+      where `scalebarheight` is in points.
     """
     if not pylab.get_backend().lower() == 'pdf':
         raise ValueError("You cannot use this function without first setting the matplotlib / pylab backend to 'pdf'. Do this with: matplotlib.use('pdf')")
@@ -1016,8 +1029,11 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
                         raise ValueError('neither continuous nor discrete')
             prop_image[shortname] = pylab.imshow(propdata, interpolation='nearest', aspect='auto', extent=[0, len(isites), 0.5, -0.5], cmap=cmap, vmin=vmin, vmax=vmax)
             pylab.yticks([0], [shortname], size=8)
+
     # set up colorbar axes, then color bars
     ncolorbars = len([p for p in prop_types.values() if p[0] != 'wildtype'])
+    if scalebar:
+        ncolorbars += 1
     if ncolorbars == 1:
         colorbarwidth = 0.4
         colorbarspacingwidth = 1.0 - colorbarwidth
@@ -1025,9 +1041,32 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
         colorbarspacingfrac = 0.5 # space between color bars is this fraction of bar width
         colorbarwidth = 1.0 / (ncolorbars * (1.0 + colorbarspacingfrac)) # width of color bars in fraction of figure width
         colorbarspacingwidth = colorbarwidth * colorbarspacingfrac # width of color bar spacing in fraction of figure width
+    # bottom of color bars
+    ybottom = 1.0 - (colorbar_tmargin + barheight) / figheight
     propnames = {}
-    icolorbar = 0
-    for (prop_d, shortname, longname) in overlay:
+    icolorbar = -1
+    while icolorbar < len(overlay):
+        if icolorbar == -1:
+            # show scale bar if being used
+            icolorbar += 1
+            if scalebar:
+                (scalebarheight, scalebarlabel) = scalebar
+                xleft = (colorbarspacingwidth * 0.5 + icolorbar *
+                        (colorbarwidth + colorbarspacingwidth))
+                ytop = 1 - colorbar_tmargin / figheight
+                scalebarheightfrac = scalebarheight / figheight
+                # follow here for fig axes: https://stackoverflow.com/a/5022412
+                fullfigax = pylab.axes([0, 0, 1, 1], facecolor=(1, 1, 1, 0))
+                fullfigax.axvline(x=xleft, ymin=ytop - scalebarheightfrac,
+                        ymax=ytop, color='black', linewidth=1.5)
+                pylab.text(xleft + 0.005, ytop - scalebarheightfrac / 2.0,
+                        scalebarlabel, verticalalignment='center',
+                        horizontalalignment='left',
+                        transform=fullfigax.transAxes)
+            continue
+
+        (prop_d, shortname, longname) = overlay[icolorbar]
+        icolorbar += 1
         (proptype, vmin, vmax, propcategories) = prop_types[shortname]
         if proptype == 'wildtype':
             continue
@@ -1037,7 +1076,7 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
             propname = longname
         else:
             propname = "%s (%s)" % (longname, shortname)
-        colorbar_ax = pylab.axes([colorbarspacingwidth * 0.5 + icolorbar * (colorbarwidth + colorbarspacingwidth), 1.0 - (colorbar_tmargin + barheight) / figheight, colorbarwidth, barheight / figheight], frameon=True)
+        colorbar_ax = pylab.axes([colorbarspacingwidth * 0.5 + (icolorbar - int(not bool(scalebar))) * (colorbarwidth + colorbarspacingwidth), ybottom, colorbarwidth, barheight / figheight], frameon=True)
         colorbar_ax.xaxis.set_ticks_position('bottom')
         colorbar_ax.yaxis.set_ticks_position('none')
         pylab.xticks([])
@@ -1064,7 +1103,7 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
             (ticklocs, ticknames) = fix_limits[shortname]
             cb.set_ticks(ticklocs)
             cb.set_ticklabels(ticknames)
-        icolorbar += 1
+
     # save the plot
     pylab.savefig(overlayfile, transparent=True)
 
