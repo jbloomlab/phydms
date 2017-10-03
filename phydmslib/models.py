@@ -813,6 +813,24 @@ class ExpCM(Model):
             scipy.fill_diagonal(m[r], 0)
             m[r][self._diag_indices] -= scipy.sum(m[r], axis=1)
 
+
+    def _spielman_wr(self):
+        """Calculates the site-specific omega value following Spielman and Wilke, 2015"""
+        wr = []
+        for r in range(self.nsites):
+            num = 0
+            den = 0
+            for i in range(N_CODON):
+                j = scipy.intersect1d(scipy.where(CODON_SINGLEMUT[i]==True)[0], scipy.where(CODON_NONSYN[i]==True)[0])
+                p_i = self.stationarystate[r][i]
+                P_xy = self.Prxy[r][i][j].sum()
+                Q_xy = self.Qxy[i][j].sum()
+                num += (p_i * P_xy)
+                den += (p_i * Q_xy)
+            result = num/den
+            wr.append(result)
+        return wr
+
 class ExpCM_fitprefs(ExpCM):
     """An `ExpCM` with the preferences `pi` as free parameters.
 
@@ -1984,7 +2002,7 @@ class GammaDistributedModel(DistributionModel):
         This list is `['alpha_lambda', 'beta_lambda']`."""
         return ['alpha_lambda', 'beta_lambda']
 
-    def __init__(self, model, lambda_param, ncats, alpha_lambda=1.0, 
+    def __init__(self, model, lambda_param, ncats, alpha_lambda=1.0,
             beta_lambda=2.0, freeparams=['alpha_lambda', 'beta_lambda']):
         """Initialize a `GammaDistributedModel`.
 
