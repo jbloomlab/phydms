@@ -1,5 +1,8 @@
 Changelog
 ===========
+2.1.dev4
+-------
+* Added ``spielmanwr`` calculation to ``ExpCM`` model
 
 2.1.3
 -------
@@ -13,7 +16,7 @@ Changelog
 
 2.1.1
 ---------
-* Altered ``setup.py`` to enable installation without ``numpy`` being pre-installed. 
+* Altered ``setup.py`` to enable installation without ``numpy`` being pre-installed.
 
 2.1.0
 ---------
