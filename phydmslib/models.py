@@ -814,7 +814,7 @@ class ExpCM(Model):
             m[r][self._diag_indices] -= scipy.sum(m[r], axis=1)
 
 
-    def _spielman_wr(self):
+    def spielman_wr(self):
         """Calculates the site-specific omega value following Spielman and Wilke, 2015"""
         wr = []
         for r in range(self.nsites):
