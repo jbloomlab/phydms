@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>phydmslib package &#8212; phydms 2.1.2 documentation</title>
+    <title>phydmslib package &#8212; phydms 2.1.3 documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2.1.2',
+        VERSION:     '2.1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="api.html" title="phydmslib API"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.1.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.1.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="api.html" accesskey="U"><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &#187;</li> 
       </ul>
     </div>  
@@ -546,7 +546,7 @@ index ranging over each element in <cite>eta</cite>.</dd>
 
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'beta': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'pi': &lt;class 'float'&gt;, 'kappa': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,))}</em><a class="headerlink" href="#phydmslib.models.ExpCM.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PARAMTYPES</code><em class="property"> = {'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'omega': &lt;class 'float'&gt;, 'beta': &lt;class 'float'&gt;, 'pi': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -671,7 +671,7 @@ to one.</dd>
 
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM_empirical_phi.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'omega': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'pi': &lt;class 'float'&gt;, 'kappa': &lt;class 'float'&gt;, 'beta': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,))}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PARAMTYPES</code><em class="property"> = {'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'omega': &lt;class 'float'&gt;, 'beta': &lt;class 'float'&gt;, 'pi': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -721,7 +721,7 @@ The maximum absolute value of the array should be between 0 and 1.</dd>
 
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'beta': &lt;class 'float'&gt;, 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'mu': &lt;class 'float'&gt;, 'pi': &lt;class 'float'&gt;, 'kappa': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;, 'omega2': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,))}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PARAMTYPES</code><em class="property"> = {'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'omega2': &lt;class 'float'&gt;, 'kappa': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'omega': &lt;class 'float'&gt;, 'beta': &lt;class 'float'&gt;, 'pi': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1358,7 +1358,7 @@ The codon frequencies, <cite>Phi_x</cite> are computed from the <cite>phi</cite>
 
 <dl class="attribute">
 <dt id="phydmslib.models.YNGKP_M0.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'kappa': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'e_pw': (&lt;class 'numpy.ndarray'&gt;, (3, 4))}</em><a class="headerlink" href="#phydmslib.models.YNGKP_M0.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PARAMTYPES</code><em class="property"> = {'kappa': &lt;class 'float'&gt;, 'e_pw': (&lt;class 'numpy.ndarray'&gt;, (3, 4)), 'omega': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.YNGKP_M0.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -2159,7 +2159,7 @@ and hydrophobic ones blue.</p>
 
 <dl class="function">
 <dt id="phydmslib.weblogo.LogoOverlay">
-<code class="descclassname">phydmslib.weblogo.</code><code class="descname">LogoOverlay</code><span class="sig-paren">(</span><em>sites</em>, <em>overlayfile</em>, <em>overlay</em>, <em>nperline</em>, <em>sitewidth</em>, <em>rmargin</em>, <em>logoheight</em>, <em>barheight</em>, <em>barspacing</em>, <em>fix_limits={}</em>, <em>fixlongname=False</em>, <em>overlay_cmap=None</em>, <em>underlay=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.LogoOverlay" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">phydmslib.weblogo.</code><code class="descname">LogoOverlay</code><span class="sig-paren">(</span><em>sites</em>, <em>overlayfile</em>, <em>overlay</em>, <em>nperline</em>, <em>sitewidth</em>, <em>rmargin</em>, <em>logoheight</em>, <em>barheight</em>, <em>barspacing</em>, <em>fix_limits={}</em>, <em>fixlongname=False</em>, <em>overlay_cmap=None</em>, <em>underlay=False</em>, <em>scalebar=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.LogoOverlay" title="Permalink to this definition">¶</a></dt>
 <dd><p>Makes overlay for <em>LogoPlot</em>.</p>
 <p>This function creates colored bars overlay bars showing up to two
 properties.
@@ -2181,12 +2181,14 @@ the overlay. It must end in the extension <code class="docutils literal"><span c
 <li><em>fixlongname</em> has the same meaning of the variable of this name used by <em>LogoPlot</em>.</li>
 <li><em>overlay_cmap</em> has the same meaning of the variable of this name used by <em>LogoPlot</em>.</li>
 <li><em>underlay</em> is a bool. If <cite>True</cite>, make an underlay rather than an overlay.</li>
+<li><a href="#id1"><span class="problematic" id="id2">*</span></a>scalebar: if not <cite>False</cite>, is 2-tuple <cite>(scalebarheight, scalebarlabel)</cite>
+where <cite>scalebarheight</cite> is in points.</li>
 </ul>
 </dd></dl>
 
 <dl class="function">
 <dt id="phydmslib.weblogo.LogoPlot">
-<code class="descclassname">phydmslib.weblogo.</code><code class="descname">LogoPlot</code><span class="sig-paren">(</span><em>sites</em>, <em>datatype</em>, <em>data</em>, <em>plotfile</em>, <em>nperline</em>, <em>numberevery=10</em>, <em>allowunsorted=False</em>, <em>ydatamax=1.01</em>, <em>overlay=None</em>, <em>fix_limits={}</em>, <em>fixlongname=False</em>, <em>overlay_cmap=None</em>, <em>ylimits=None</em>, <em>relativestackheight=1</em>, <em>custom_cmap='jet'</em>, <em>map_metric='kd'</em>, <em>noseparator=False</em>, <em>underlay=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.LogoPlot" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">phydmslib.weblogo.</code><code class="descname">LogoPlot</code><span class="sig-paren">(</span><em>sites</em>, <em>datatype</em>, <em>data</em>, <em>plotfile</em>, <em>nperline</em>, <em>numberevery=10</em>, <em>allowunsorted=False</em>, <em>ydatamax=1.01</em>, <em>overlay=None</em>, <em>fix_limits={}</em>, <em>fixlongname=False</em>, <em>overlay_cmap=None</em>, <em>ylimits=None</em>, <em>relativestackheight=1</em>, <em>custom_cmap='jet'</em>, <em>map_metric='kd'</em>, <em>noseparator=False</em>, <em>underlay=False</em>, <em>scalebar=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.LogoPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create sequence logo showing amino-acid or nucleotide preferences.</p>
 <p>The heights of each letter is equal to the preference of
 that site for that amino acid or nucleotide.</p>
@@ -2308,6 +2310,10 @@ separate positive and negative values.</p>
 </li>
 <li><p class="first"><em>underlay</em> if <cite>True</cite> then make an underlay rather than an overlay.</p>
 </li>
+<li><p class="first"><em>scalebar</em>: show a scale bar. If <cite>False</cite>, no scale bar shown. Otherwise
+should be a 2-tuple of <cite>(scalebarlen, scalebarlabel)</cite>. Currently only
+works when data is <cite>diffsel</cite>.</p>
+</li>
 </ul>
 </dd></dl>
 
@@ -2395,7 +2401,7 @@ function is identical to <em>KyteDoolittleColorMapping</em></p>
         <li class="right" >
           <a href="api.html" title="phydmslib API"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.1.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.1.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="api.html" ><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &#187;</li> 
       </ul>
     </div>
