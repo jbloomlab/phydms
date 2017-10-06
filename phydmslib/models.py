@@ -838,7 +838,7 @@ class ExpCM(Model):
             num = 0
             den = 0
             for i in range(N_CODON):
-                j = scipy.intersect1d(scipy.where(CODON_SINGLEMUT[i]==True)[0],\
+                j = scipy.intersect1d(scipy.where(CODON_SINGLEMUT[i]==True)[0],
                         scipy.where(CODON_NONSYN[i]==True)[0])
                 p_i = self.stationarystate[r][i]
                 P_xy = self.Prxy[r][i][j].sum()
