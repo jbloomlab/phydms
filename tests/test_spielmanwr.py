@@ -15,7 +15,6 @@ class testExpCM_spielmanwr(unittest.TestCase):
     # use approach here to run multiple tests:
     # http://stackoverflow.com/questions/17260469/instantiate-python-unittest-testcase-with-arguments
     MODEL = phydmslib.models.ExpCM
-    DISTRIBUTIONMODEL = None
 
     def testExpCM_spielmanwr(self):
         """Test the `ExpCM` function `_spielman_wr`."""
@@ -40,18 +39,6 @@ class testExpCM_spielmanwr(unittest.TestCase):
         else:
             raise ValueError("Invalid MODEL: {0}".format(self.MODEL))
 
-        if self.DISTRIBUTIONMODEL is None:
-            pass
-        elif (self.DISTRIBUTIONMODEL ==
-                phydmslib.models.GammaDistributedOmegaModel):
-            self.model = self.DISTRIBUTIONMODEL(self.model, ncats=4)
-        elif (self.DISTRIBUTIONMODEL ==
-                phydmslib.models.GammaDistributedBetaModel):
-            self.model = self.DISTRIBUTIONMODEL(self.model, ncats=4)
-        else:
-            raise ValueError("Invalid DISTRIBUTIONMODEL: {0}".format(
-                    self.DISTRIBUTIONMODEL))
-
         # test `_spielman_wr` calculation
         wr = []
         for n in range(self.model.nsites):
@@ -69,45 +56,13 @@ class testExpCM_spielmanwr(unittest.TestCase):
         wr = scipy.array(wr)
         self.assertTrue(scipy.allclose(wr, scipy.array(self.model.spielman_wr()), rtol=0.01))
 
+
 class test_empirical_phi_spielmanwr(testExpCM_spielmanwr):
     """Test the calculation of `spielmanwr` using the model `ExpCM_empirical_phi`"""
 
     # use approach here to run multiple tests:
     # http://stackoverflow.com/questions/17260469/instantiate-python-unittest-testcase-with-arguments
     MODEL = phydmslib.models.ExpCM_empirical_phi
-    DISTRIBUTIONMODEL = None
-
-# class test_empirical_phi_gammaomega_spielmanwr(testExpCM_spielmanwr):
-#     """Test the calculation of `spielmanwr` using the model `ExpCM_empirical_phi_gammaomega`"""
-#
-#     # use approach here to run multiple tests:
-#     # http://stackoverflow.com/questions/17260469/instantiate-python-unittest-testcase-with-arguments
-#     MODEL = phydmslib.models.ExpCM_empirical_phi
-#     DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedOmegaModel
-#
-# class test_expcm_gammaomega_spielmanwr(testExpCM_spielmanwr):
-#     """Test the calculation of `spielmanwr` using the model `ExpCM_gammaomega`"""
-#
-#     # use approach here to run multiple tests:
-#     # http://stackoverflow.com/questions/17260469/instantiate-python-unittest-testcase-with-arguments
-#     MODEL = phydmslib.models.ExpCM
-#     DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedOmegaModel
-#
-# class test_expcm_gammabeta_spielmanwr(testExpCM_spielmanwr):
-#     """Test the calculation of `spielmanwr` using the model `ExpCM_gammabeta`"""
-#
-#     # use approach here to run multiple tests:
-#     # http://stackoverflow.com/questions/17260469/instantiate-python-unittest-testcase-with-arguments
-#     MODEL = phydmslib.models.ExpCM
-#     DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedBetaModel
-#
-# class test_empirical_phi_gammabeta_spielmanwr(testExpCM_spielmanwr):
-#     """Test the calculation of `spielmanwr` using the model `ExpCM_empirical_phi_gammabeta`"""
-#
-#     # use approach here to run multiple tests:
-#     # http://stackoverflow.com/questions/17260469/instantiate-python-unittest-testcase-with-arguments
-#     MODEL = phydmslib.models.ExpCM_empirical_phi
-#     DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedBetaModel
 
 
 if __name__ == '__main__':

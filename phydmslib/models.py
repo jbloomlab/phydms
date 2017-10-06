@@ -815,13 +815,31 @@ class ExpCM(Model):
 
 
     def spielman_wr(self):
-        """Calculates the site-specific omega value following Spielman and Wilke, 2015"""
+        """Returns a list of site-specific omega values calculated from the `ExpCM`.
+
+        Following
+        `Spielman and Wilke, MBE, 32:1097–1108 <https://doi.org/10.1093/molbev/msv003>`_,
+        we can predict the `dN/dS` value for each site `r`,
+        :math:`\\rm{spielman}\\omega_r`, from the `ExpCM`.
+
+        :math:`\\rm{spielman}\\omega_r = \\frac{\\sum_x \\sum_{y \\in N_x}p_{r,x}\
+        P_{r,xy}}{\\sum_x \\sum_{y \\in Nx}p_{r,x}Q_{xy}}`,
+        where `r,x,y`, :math:`p_{r,x}`, :math:`P_{r,xy}`, and :math:`Q_{x,y}`
+        have the same definitions as in the main `ExpCM` doc string and :math:`N_{x}`
+        is the set of codons which are non-synonymous to codon `x` and differ from
+        `x` by one nucleotide.
+
+        This calculation includes all current `ExpCM` parameter values,
+        including :math:`\\omega`. If you would like the
+        :math:`\\rm{spielman}\\omega_r` *without* a gene-wide rate of
+        non-synonymous change, set :math:`\\omega = 1`."""
         wr = []
         for r in range(self.nsites):
             num = 0
             den = 0
             for i in range(N_CODON):
-                j = scipy.intersect1d(scipy.where(CODON_SINGLEMUT[i]==True)[0], scipy.where(CODON_NONSYN[i]==True)[0])
+                j = scipy.intersect1d(scipy.where(CODON_SINGLEMUT[i]==True)[0],\
+                        scipy.where(CODON_NONSYN[i]==True)[0])
                 p_i = self.stationarystate[r][i]
                 P_xy = self.Prxy[r][i][j].sum()
                 Q_xy = self.Qxy[i][j].sum()
