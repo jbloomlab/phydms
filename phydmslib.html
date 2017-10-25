@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>phydmslib package &#8212; phydms 2.1.3 documentation</title>
+    <title>phydmslib package &#8212; phydms 2.1.4 documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2.1.3',
+        VERSION:     '2.1.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="api.html" title="phydmslib API"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.1.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.1.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="api.html" accesskey="U"><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &#187;</li> 
       </ul>
     </div>  
@@ -546,7 +546,7 @@ index ranging over each element in <cite>eta</cite>.</dd>
 
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'omega': &lt;class 'float'&gt;, 'beta': &lt;class 'float'&gt;, 'pi': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PARAMTYPES</code><em class="property"> = {'kappa': &lt;class 'float'&gt;, 'pi': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'beta': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -624,6 +624,25 @@ at each site.</dd>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="phydmslib.models.ExpCM.spielman_wr">
+<code class="descname">spielman_wr</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.spielman_wr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of site-specific omega values calculated from the <cite>ExpCM</cite>.</p>
+<p>Following
+<a class="reference external" href="https://doi.org/10.1093/molbev/msv003">Spielman and Wilke, MBE, 32:1097–1108</a>,
+we can predict the <cite>dN/dS</cite> value for each site <cite>r</cite>,
+<span class="math">\(\rm{spielman}\omega_r\)</span>, from the <cite>ExpCM</cite>.</p>
+<p><span class="math">\(\rm{spielman}\omega_r = \frac{\sum_x \sum_{y \in N_x}p_{r,x}        P_{r,xy}}{\sum_x \sum_{y \in Nx}p_{r,x}Q_{xy}}\)</span>,
+where <cite>r,x,y</cite>, <span class="math">\(p_{r,x}\)</span>, <span class="math">\(P_{r,xy}\)</span>, and <span class="math">\(Q_{x,y}\)</span>
+have the same definitions as in the main <cite>ExpCM</cite> doc string and <span class="math">\(N_{x}\)</span>
+is the set of codons which are non-synonymous to codon <cite>x</cite> and differ from
+<cite>x</cite> by one nucleotide.</p>
+<p>This calculation includes all current <cite>ExpCM</cite> parameter values,
+including <span class="math">\(\omega\)</span>. If you would like the
+<span class="math">\(\rm{spielman}\omega_r\)</span> <em>without</em> a gene-wide rate of
+non-synonymous change, set <span class="math">\(\omega = 1\)</span>.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM.stationarystate">
 <code class="descname">stationarystate</code><a class="headerlink" href="#phydmslib.models.ExpCM.stationarystate" title="Permalink to this definition">¶</a></dt>
@@ -671,7 +690,7 @@ to one.</dd>
 
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM_empirical_phi.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'omega': &lt;class 'float'&gt;, 'beta': &lt;class 'float'&gt;, 'pi': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PARAMTYPES</code><em class="property"> = {'kappa': &lt;class 'float'&gt;, 'pi': &lt;class 'float'&gt;, 'beta': &lt;class 'float'&gt;, 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'omega': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -721,7 +740,7 @@ The maximum absolute value of the array should be between 0 and 1.</dd>
 
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'omega2': &lt;class 'float'&gt;, 'kappa': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'omega': &lt;class 'float'&gt;, 'beta': &lt;class 'float'&gt;, 'pi': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PARAMTYPES</code><em class="property"> = {'omega2': &lt;class 'float'&gt;, 'kappa': &lt;class 'float'&gt;, 'pi': &lt;class 'float'&gt;, 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'omega': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'beta': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -923,7 +942,7 @@ method; do <strong>not</strong> set attributes directly.</p>
 
 <dl class="attribute">
 <dt id="phydmslib.models.GammaDistributedModel.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'beta_lambda': &lt;class 'float'&gt;, 'alpha_lambda': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PARAMTYPES</code><em class="property"> = {'alpha_lambda': &lt;class 'float'&gt;, 'beta_lambda': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -2401,7 +2420,7 @@ function is identical to <em>KyteDoolittleColorMapping</em></p>
         <li class="right" >
           <a href="api.html" title="phydmslib API"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.1.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.1.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="api.html" ><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &#187;</li> 
       </ul>
     </div>
