@@ -1045,6 +1045,7 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
     ybottom = 1.0 - (colorbar_tmargin + barheight) / figheight
     propnames = {}
     icolorbar = -1
+    icolorbarshift = 0
     while icolorbar < len(overlay):
         if icolorbar == -1:
             # show scale bar if being used
@@ -1069,6 +1070,7 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
         icolorbar += 1
         (proptype, vmin, vmax, propcategories) = prop_types[shortname]
         if proptype == 'wildtype':
+            icolorbarshift += 1
             continue
         if shortname == longname or not longname:
             propname = shortname
@@ -1076,7 +1078,7 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
             propname = longname
         else:
             propname = "%s (%s)" % (longname, shortname)
-        colorbar_ax = pylab.axes([colorbarspacingwidth * 0.5 + (icolorbar - int(not bool(scalebar))) * (colorbarwidth + colorbarspacingwidth), ybottom, colorbarwidth, barheight / figheight], frameon=True)
+        colorbar_ax = pylab.axes([colorbarspacingwidth * 0.5 + (icolorbar - icolorbarshift - int(not bool(scalebar))) * (colorbarwidth + colorbarspacingwidth), ybottom, colorbarwidth, barheight / figheight], frameon=True)
         colorbar_ax.xaxis.set_ticks_position('bottom')
         colorbar_ax.yaxis.set_ticks_position('none')
         pylab.xticks([])

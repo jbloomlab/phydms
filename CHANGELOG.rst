@@ -1,8 +1,10 @@
 Changelog
 ===========
-2.1.dev4
+2.1.4
 -------
 * Added ``spielmanwr`` calculation to ``ExpCM`` model
+
+* Fixed minor bug with overlays in `weblogo.LogoPlot`
 
 2.1.3
 -------
