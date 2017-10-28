@@ -818,7 +818,7 @@ class ExpCM(Model):
         """Returns a list of site-specific omega values calculated from the `ExpCM`.
 
         Following
-        `Spielman and Wilke, MBE, 32:1097–1108 <https://doi.org/10.1093/molbev/msv003>`_,
+        `Spielman and Wilke, MBE, 32:1097-1108 <https://doi.org/10.1093/molbev/msv003>`_,
         we can predict the `dN/dS` value for each site `r`,
         :math:`\\rm{spielman}\\omega_r`, from the `ExpCM`.
 
