@@ -1,5 +1,10 @@
 Changelog
 ===========
+
+2.2.dev0
+-----
+* Added `utils.modelComparisonDataFrame` function
+
 2.1.4
 -------
 * Added ``spielmanwr`` calculation to ``ExpCM`` model

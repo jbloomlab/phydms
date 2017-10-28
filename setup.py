@@ -92,7 +92,7 @@ setup(
         'natsort>=5.0.1',
         'sympy>=1.0',
         'six>=1.10',
-        'pandas>=0.18',
+        'pandas>=0.20.2',
         'pyvolve>=0.8.4',
         'statsmodels>=0.8',
         'weblogo>=3.4, <3.6',
