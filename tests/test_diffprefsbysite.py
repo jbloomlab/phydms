@@ -21,8 +21,8 @@ import matplotlib.pyplot as plt
 import pyvolve
 
 
-class test_OmegaBySiteExpCM(unittest.TestCase):
-    """Tests ``--omegabysite`` to ``phydms`` for `ExpCM`."""
+class test_DiffPrefsBySiteExpCM(unittest.TestCase):
+    """Tests ``--diffprefsbysite`` to ``phydms`` for `ExpCM`."""
     gammaomega_arg = []
 
     def setUp(self):

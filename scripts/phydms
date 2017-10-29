@@ -12,6 +12,7 @@ import logging
 import random
 import time
 import math
+import operator
 import multiprocessing
 import warnings
 warnings.simplefilter('always')
@@ -126,7 +127,10 @@ def fitOmegaBySite(argtup):
 
     `argtup` is return value of `treeliksForOmegaBySite`.
 
-    Returns tuple of P-value, tab-separated line with site, omega, P, dLnL"""
+    Returns tuple `(pval, omega, resultstr)` where `pval` is P-value,
+    `omega` is omega, and `resultstr` is tab-separated line with 
+    site, omega, P, dLnL.
+    """
     (site, treeliks, nograd) = argtup
     if treeliks['fix'].model.freeparams: # can be no params if using fixsyn
         result = treeliks['fix'].maximizeLikelihood(optimize_brlen=False,
@@ -145,7 +149,8 @@ def fitOmegaBySite(argtup):
             msg += '\nomega_{0} {1}'.format(name, treeliks[name].model.omega)
         raise RuntimeError("loglik higher for fit omega:{0}".format(msg))
     p = scipy.stats.chi2.sf(2.0 * max(0, dLnL), df=1)
-    return (p, '{0}\t{1:.3f}\t{2:.3g}\t{3:.3f}'.format(site, omega, p, dLnL))
+    return (p, omega, '{0}\t{1:.3f}\t{2:.3g}\t{3:.3f}'.format(
+            site, omega, p, dLnL))
 
 
 def main():
@@ -460,19 +465,30 @@ def main():
                 if ncpus > 1:
                     pool.close()
                     pool.join()
-            omegaresults = sorted(omegaresults)
-            qvalues = statsmodels.sandbox.stats.multicomp.multipletests(
-                    scipy.array([tup[0] for tup in omegaresults]),
-                    method='fdr_bh')[1]
-            omegaresults = ['{0}\t{1:.3g}'.format(tup[1], q) for
-                    (tup, q) in zip(omegaresults, qvalues)]
+            pvalues = scipy.array([tup[0] for tup in omegaresults])
+            omegas = scipy.array([tup[1] for tup in omegaresults])
+            omega_strs = [tup[2] for tup in omegaresults]
+            # compute Q-values separately for each sign of omega
+            qvalues = scipy.ones(pvalues.shape)
+            for op in [operator.ge, operator.le]:
+                pvalues_sign = scipy.where(op(omegas, 1),
+                        pvalues, 1)
+                qvalues_sign = (statsmodels.sandbox.stats.multicomp
+                        .multipletests(pvalues_sign, method='fdr_bh')[1])
+                qvalues = scipy.minimum(qvalues, qvalues_sign)
+            sortindex = scipy.argsort(qvalues)
+            qvalues = scipy.take(qvalues, sortindex)
+            omega_strs = scipy.take(omega_strs, sortindex)
+            omegaresults = ['{0}\t{1:.3g}'.format(omega_str, q) for
+                    (omega_str, q) in zip(omega_strs, qvalues)]
             logger.info("Completed fitting the site-specific omega values.")
             logger.info("Writing results to {0}\n".format(omegafile))
             with open(omegafile, 'w') as f:
                 f.write('# Omega fit to each site after fixing tree and '
                         'all other parameters.\n# Fits compared to null model '
                         'of omega = 1.\n# P-values NOT corrected for multiple '
-                        'testing, so consider Q-values too.\n# {0}\n#\n'
+                        'testing, so consider Q-values too.\n# Q-values '
+                        'computed separately for omega > and < 1 # {0}\n#\n'
                         'site\tomega\tP\tdLnL\tQ\n{1}'.format(fixsynstr,
                         '\n'.join(omegaresults)))
 
