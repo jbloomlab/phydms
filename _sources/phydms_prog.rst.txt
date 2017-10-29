@@ -221,10 +221,12 @@ Here is an example of the first few lines of a file. The entries are tab separat
 
 The *P*-values are for rejection of the null hypothesis that :math:`\omega_r = 1` (calculated using a :math:`\chi_1^2` test).
 These *P*-values are **not** corrected for multiple hypothesis testing; so you should instead look at the *Q*-values, which give the false discovery rate if this site and all above it are considered to have :math:`\omega \ne 1`.
-The sites are sorted in the file by *P*-value.
+The sites are sorted in the file by *Q*-value.
 
 For this type of test, the quantity of interest is typically not so much the exact value of :math:`\omega_r`, but rather the *P*-value (or *Q*-value) that :math:`\omega_r \ne 1`.
 That *P*-value (or *Q*-value) is what indicates the credence that you should lend to the idea that a site is under diversifying selection if :math:`\omega_r > 1`.
+
+Note that the *Q*-values are computed separately for :math:`\omega > 1` and :math:`\omega < 1`, since we do not necessarily expect a symmetric distribution of :math:`\omega` values.
 
 Site-specific differential selection
 +++++++++++++++++++++++++++++++++++++++
