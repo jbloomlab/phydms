@@ -53,20 +53,20 @@ raxml -s example_data/HA_alignment.fasta -n HA_alignment -m GTRCAT -p1 -T 2
 Partition: 0 with name: No Name Provided
 Base frequencies: 0.345 0.188 0.227 0.239 
 
-Inference[0]: Time 1.232960 CAT-based likelihood -5217.371828, best rearrangement setting 5
+Inference[0]: Time 0.995664 CAT-based likelihood -5217.371828, best rearrangement setting 5
 
 
 Conducting final model optimizations on all 1 trees under GAMMA-based models ....
 
-Inference[0] final GAMMA-based Likelihood: -6064.728910 tree written to file /Users/sarah/Google Drive/GS/lab/phydms/tutorial/RAxML_result.HA_alignment
+Inference[0] final GAMMA-based Likelihood: -6064.728910 tree written to file /Users/sarah/Desktop/phydms/tutorial/RAxML_result.HA_alignment
 
 
 Starting final GAMMA-based thorough Optimization on tree 0 likelihood -6064.728910 .... 
 
 Final GAMMA-based Score of best tree -6064.728910
 
-Program execution info written to /Users/sarah/Google Drive/GS/lab/phydms/tutorial/RAxML_info.HA_alignment
-Best-scoring ML tree written to: /Users/sarah/Google Drive/GS/lab/phydms/tutorial/RAxML_bestTree.HA_alignment
+Program execution info written to /Users/sarah/Desktop/phydms/tutorial/RAxML_info.HA_alignment
+Best-scoring ML tree written to: /Users/sarah/Desktop/phydms/tutorial/RAxML_bestTree.HA_alignment
 
-Overall execution time: 2.580535 secs or 0.000717 hours or 0.000030 days
+Overall execution time: 2.506188 secs or 0.000696 hours or 0.000029 days
 

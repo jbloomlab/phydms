@@ -53,20 +53,20 @@ raxml -s example_data/betaLactamase_alignment.fasta -n betaLactamase_alignment -
 Partition: 0 with name: No Name Provided
 Base frequencies: 0.239 0.269 0.292 0.201 
 
-Inference[0]: Time 3.023559 CAT-based likelihood -2369.940928, best rearrangement setting 5
+Inference[0]: Time 1.591786 CAT-based likelihood -2369.940928, best rearrangement setting 5
 
 
 Conducting final model optimizations on all 1 trees under GAMMA-based models ....
 
-Inference[0] final GAMMA-based Likelihood: -3047.684093 tree written to file /Users/sarah/Google Drive/GS/lab/phydms/tutorial/RAxML_result.betaLactamase_alignment
+Inference[0] final GAMMA-based Likelihood: -3047.684093 tree written to file /Users/sarah/Desktop/phydms/tutorial/RAxML_result.betaLactamase_alignment
 
 
 Starting final GAMMA-based thorough Optimization on tree 0 likelihood -3047.684093 .... 
 
 Final GAMMA-based Score of best tree -3046.208683
 
-Program execution info written to /Users/sarah/Google Drive/GS/lab/phydms/tutorial/RAxML_info.betaLactamase_alignment
-Best-scoring ML tree written to: /Users/sarah/Google Drive/GS/lab/phydms/tutorial/RAxML_bestTree.betaLactamase_alignment
+Program execution info written to /Users/sarah/Desktop/phydms/tutorial/RAxML_info.betaLactamase_alignment
+Best-scoring ML tree written to: /Users/sarah/Desktop/phydms/tutorial/RAxML_bestTree.betaLactamase_alignment
 
-Overall execution time: 5.361093 secs or 0.001489 hours or 0.000062 days
+Overall execution time: 2.513693 secs or 0.000698 hours or 0.000029 days
 

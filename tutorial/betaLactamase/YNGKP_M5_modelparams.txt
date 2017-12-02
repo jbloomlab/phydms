@@ -1,6 +1,6 @@
-alpha_omega = 0.300315
-beta_omega = 0.489781
-kappa = 3.02469
+alpha_omega = 0.354378
+beta_omega = 0.700001
+kappa = 2.93854
 phi0A = 0.255391
 phi0C = 0.257621
 phi0G = 0.360967
