@@ -103,7 +103,7 @@ def main():
         logfile = "{0}.log".format(args['outprefix'])
         args['outprefix'] = '{0}_'.format(args['outprefix'])
     modelcomparisonfile = '{0}modelcomparison.md'.format(args['outprefix'])
-    raxmlStandardOutputFile = '{0}ramxl_output.txt'.format(args['outprefix'])
+    raxmlStandardOutputFile = '{0}raxml_output.txt'.format(args['outprefix'])
 
     #Set up to log everything to logfile.
     if os.path.isfile(logfile):
