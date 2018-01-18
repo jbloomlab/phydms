@@ -5,6 +5,8 @@ Changelog
 -----
 * Fixed typo in `phydms_comprehensive` output file
 
+* Fixed normalization bug in `Phi_x` calculation
+
 2.2.0
 -----
 * Changed computation of ``--omegabysite`` *Q*-values to compute them separately for omega > and < 1. This fixes the issue of many sites of negative selection leading to overly sensitive identification of positive selection.
