@@ -28,7 +28,7 @@ class testExpCM(unittest.TestCase):
         minpref = 0.01
         for r in range(self.nsites):
             rprefs = scipy.random.dirichlet([0.5] * N_AA)
-            rprefs[rprefs < minpref] = minpref 
+            rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
 
@@ -43,6 +43,8 @@ class testExpCM(unittest.TestCase):
         self.assertTrue(scipy.allclose(omega, self.expcm.omega))
         self.assertTrue(scipy.allclose(kappa, self.expcm.kappa))
         self.assertTrue(scipy.allclose(beta, self.expcm.beta))
+
+        self.assertTrue(scipy.allclose(scipy.repeat(1.0, self.nsites), self.expcm.stationarystate.sum(axis=1)))
 
         # now check ExpCM attributes / derivates, updating several times
         for update in range(2):
@@ -66,7 +68,7 @@ class testExpCM(unittest.TestCase):
         self.assertFalse(scipy.isinf(self.expcm.Prxy).any())
         diag = scipy.eye(N_CODON, dtype='bool')
         for r in range(self.nsites):
-            self.assertTrue(scipy.allclose(0, scipy.sum(self.expcm.Prxy[r], 
+            self.assertTrue(scipy.allclose(0, scipy.sum(self.expcm.Prxy[r],
                     axis=1)))
             self.assertTrue(scipy.allclose(0, self.expcm.Prxy[r].sum()))
             self.assertTrue((self.expcm.Prxy[r][diag] <= 0).all())
@@ -107,10 +109,10 @@ class testExpCM(unittest.TestCase):
                     if not CODON_SINGLEMUT[x][y]:
                         Prxy = 0
                     else:
-                        w = NT_TO_INDEX[[ynt for (xnt, ynt) in zip(INDEX_TO_CODON[x], 
+                        w = NT_TO_INDEX[[ynt for (xnt, ynt) in zip(INDEX_TO_CODON[x],
                                 INDEX_TO_CODON[y]) if xnt != ynt][0]]
                         if w == 0:
-                            phiw = 1 - eta0                            
+                            phiw = 1 - eta0
                         elif w == 1:
                             phiw = eta0 * (1 - eta1)
                         elif w == 2:
@@ -119,13 +121,13 @@ class testExpCM(unittest.TestCase):
                             phiw = eta0 * eta1 * eta2
                         else:
                             raise ValueError("Invalid w")
-                        self.assertTrue(scipy.allclose(float(phiw.subs(values)), 
+                        self.assertTrue(scipy.allclose(float(phiw.subs(values)),
                                 self.expcm.phi[w]))
                         if CODON_TRANSITION[x][y]:
                             Qxy = kappa * phiw
                         else:
                             Qxy = phiw
-                        self.assertTrue(scipy.allclose(float(Qxy.subs(values)), 
+                        self.assertTrue(scipy.allclose(float(Qxy.subs(values)),
                                 self.expcm.Qxy[x][y]))
                         if CODON_NONSYN[x][y]:
                             if pirAx == pirAy:
@@ -202,7 +204,7 @@ class testExpCM(unittest.TestCase):
                         "Max diff {0}".format((self.expcm.M(t)[r] - direct).max()))
         # check derivatives of M calculated by dM
         # implementation looks a bit complex because `check_grad` function
-        # can only be used for single values at a time, so have to loop 
+        # can only be used for single values at a time, so have to loop
         # over r, x, y and so hash values to make faster
         def funcM(paramvalue, paramname, t, expcm, r, x, y, storedvalues):
             """Gets `M(t)[r][x][y]`."""
@@ -239,12 +241,12 @@ class testExpCM(unittest.TestCase):
                     for x in range(N_CODON):
                         for y in range(N_CODON):
                             diff = scipy.optimize.check_grad(funcM, funcdM, pvalue,
-                                    pname, t, self.expcm, r, x, y, storedvalues) 
+                                    pname, t, self.expcm, r, x, y, storedvalues)
                             self.assertTrue(diff < 2e-3, ("diff {0} for {1}:" +
                                 " r = {2}, x = {3}, y = {4}, beta = {5} " +
                                 "pirAx = {6}, pirAy = {7}, t = {8}, mu = {9}"
-                                ).format(diff, pname, r, x, y, 
-                                self.params['beta'], self.expcm.pi_codon[r][x], 
+                                ).format(diff, pname, r, x, y,
+                                self.params['beta'], self.expcm.pi_codon[r][x],
                                 self.expcm.pi_codon[r][y], t, self.expcm.mu))
                 self.expcm.updateParams(self.params) # back to original value
 

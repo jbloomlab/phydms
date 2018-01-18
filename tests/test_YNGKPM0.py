@@ -38,6 +38,8 @@ class testYNGKP_M0(unittest.TestCase):
         self.assertTrue(scipy.allclose(omega, self.YNGKP_M0.omega))
         self.assertTrue(scipy.allclose(kappa, self.YNGKP_M0.kappa))
 
+        self.assertTrue(scipy.allclose(scipy.repeat(1.0, self.nsites), self.YNGKP_M0.stationarystate.sum(axis=1)))
+
         # now check YNGKP_M0 attributes / derivates, updating several times
         for update in range(2):
             self.params = {'omega':random.uniform(0.1, 2),

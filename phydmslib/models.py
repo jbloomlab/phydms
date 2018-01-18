@@ -1653,6 +1653,7 @@ class YNGKP_M0(Model):
         for codon in range(N_CODON):
             for pos in range(3):
                 self.Phi_x[codon] *= self.phi[pos][CODON_NT_INDEX[pos][codon]]
+        self.Phi_x /= self.Phi_x.sum()
 
     def updateParams(self, newvalues, update_all=False):
         """See docs for `Model` abstract base class."""
