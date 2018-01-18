@@ -5,7 +5,7 @@ Changelog
 -----
 * Fixed typo in `phydms_comprehensive` output file
 
-* Fixed normalization bug in `Phi_x` calculation
+* Fixed normalization bug in `Phi_x` calculation, might slightly change numerical values for YNGKP models.
 
 2.2.0
 -----

@@ -683,7 +683,7 @@ The 12 nucleotide corrected nucleotide frequency parameters :math:`\phi_w^p` are
       e^2_w = \frac{\phi^2_w \times \left(1- \sum\limits_{ywz\epsilon X} \phi^1_y\times\phi^3_z\right)}{1-\sum\limits_{xyz\epsilon X} \phi^1_x\times\phi^2_y\times\phi^3_z}\\
       e^3_w = \frac{\phi^3_w \times \left(1- \sum\limits_{yzw\epsilon X} \phi^1_y\times\phi^2_z\right)}{1-\sum\limits_{xyz\epsilon X} \phi^1_x\times\phi^2_y\times\phi^3_z}\\
 
-where :math:`X = \{TAA, TAG, TGA\}`. We use the :math:`\phi^p_w` values determined in this way to compute :math:`\Phi_x = \frac{\phi^1_{x_1} \times \phi^2_{x_2} \times \phi^3_{x_3}}{ \sum\limits_{x} \phi^1_{x_1} \times \phi^2_{x_2} \times \phi^3_{x_3}}` where :math:`x \notin X`.
+where :math:`X = \{TAA, TAG, TGA\}`. We use the :math:`\phi^p_w` values determined in this way to compute :math:`\Phi_x = \frac{\phi^1_{x_1} \times \phi^2_{x_2} \times \phi^3_{x_3}}{ \sum\limits_{y} \phi^1_{y_1} \times \phi^2_{y_2} \times \phi^3_{y_3}}` where :math:`y \notin X` ranges over all stop codons.
 
 Exponentials of the substitution matrix and derivatives
 --------------------------------------------------------
