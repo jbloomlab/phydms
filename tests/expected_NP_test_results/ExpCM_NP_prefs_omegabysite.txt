@@ -1,7 +1,7 @@
 # Omega fit to each site after fixing tree and all other parameters.
 # Fits compared to null model of omega = 1.
 # P-values NOT corrected for multiple testing, so consider Q-values too.
-# Will fit different synonymous rate for each site.
+# Q-values computed separately for omega > and < 1 # Will fit different synonymous rate for each site.
 #
 site	omega	P	dLnL	Q
 1	1.000	1	0.000	1
@@ -35,7 +35,7 @@ site	omega	P	dLnL	Q
 341	0.000	0.73	0.059	1
 313	1.000	1	0.000	1
 342	1.000	1	0.000	1
-344	92.465	0.223	0.742	1
+344	92.472	0.223	0.742	1
 371	0.000	0.959	0.001	1
 370	0.000	0.539	0.189	1
 369	0.000	0.892	0.009	1
@@ -87,7 +87,7 @@ site	omega	P	dLnL	Q
 261	0.000	0.868	0.014	1
 260	1.000	1	0.000	1
 259	1.147	0.882	0.011	1
-258	1.000	1	-0.000	1
+258	1.000	1	0.000	1
 257	0.303	0.216	0.765	1
 256	0.000	0.858	0.016	1
 255	1.000	1	0.000	1
@@ -302,7 +302,7 @@ site	omega	P	dLnL	Q
 108	1.000	1	0.000	1
 107	1.000	1	0.000	1
 106	0.000	0.824	0.025	1
-105	90.017	0.656	0.099	1
+105	91.448	0.656	0.099	1
 104	1.000	1	0.000	1
 103	1.734	0.614	0.127	1
 102	0.327	0.366	0.408	1
@@ -458,7 +458,7 @@ site	omega	P	dLnL	Q
 139	1.000	1	0.000	1
 138	0.000	0.826	0.024	1
 137	1.000	1	0.000	1
-136	100.000	0.811	0.028	1
+136	94.404	0.811	0.028	1
 135	1.000	1	0.000	1
 134	1.000	1	0.000	1
 133	0.000	0.757	0.048	1

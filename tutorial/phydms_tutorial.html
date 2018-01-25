@@ -281,32 +281,46 @@ div.tocify {
 <h2><code>phydms_comprehensive</code> command-line usage</h2>
 <p>Here is the full list of requirements and options for <a href="http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html"><code>phydms_comprehensive</code></a>. Below is a discussion of the <a href="#inputFiles">input files</a>, running the <a href="#phydms_comprehensiveCommand"><code>phydms_comprehensive</code> command</a>, and <a href="#interpretation">interpretation of the results</a>.</p>
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">phydms_comprehensive</span> -h</code></pre></div>
-<pre><code>usage: phydms_comprehensive [-h] (--raxml RAXML | --tree TREE) [--ncpus NCPUS] [--brlen {scale,optimize}] [--omegabysite] [--diffprefsbysite] [--gammaomega] [--gammabeta]
+<pre><code>usage: phydms_comprehensive [-h] (--raxml RAXML | --tree TREE) [--ncpus NCPUS]
+                            [--brlen {scale,optimize}] [--omegabysite]
+                            [--diffprefsbysite] [--gammaomega] [--gammabeta]
                             [--no-avgprefs] [--randprefs] [-v]
                             outprefix alignment prefsfiles [prefsfiles ...]
 
-Comprehensive phylogenetic model comparison and detection of selection informed by deep mutational scanning data. This program runs 'phydms' repeatedly to compare
-substitution models and detect selection. The 'phydms' package is written by the Bloom lab (see https://github.com/jbloomlab/phydms/contributors). Version 2.2.0. Full
+Comprehensive phylogenetic model comparison and detection of selection
+informed by deep mutational scanning data. This program runs 'phydms'
+repeatedly to compare substitution models and detect selection. The 'phydms'
+package is written by the Bloom lab (see
+https://github.com/jbloomlab/phydms/contributors). Version 2.2.dev1. Full
 documentation at http://jbloomlab.github.io/phydms
 
 positional arguments:
   outprefix             Output file prefix.
   alignment             Existing FASTA file with aligned codon sequences.
-  prefsfiles            Existing files with site-specific amino-acid preferences.
+  prefsfiles            Existing files with site-specific amino-acid
+                        preferences.
 
 optional arguments:
   -h, --help            show this help message and exit
   --raxml RAXML         Path to RAxML (e.g., 'raxml') (default: None)
-  --tree TREE           Existing Newick file giving input tree. (default: None)
-  --ncpus NCPUS         Use this many CPUs; -1 means all available. (default: -1)
+  --tree TREE           Existing Newick file giving input tree. (default:
+                        None)
+  --ncpus NCPUS         Use this many CPUs; -1 means all available. (default:
+                        -1)
   --brlen {scale,optimize}
-                        How to handle branch lengths: scale by single parameter or optimize each one (default: optimize)
+                        How to handle branch lengths: scale by single
+                        parameter or optimize each one (default: optimize)
   --omegabysite         Fit omega (dN/dS) for each site. (default: False)
-  --diffprefsbysite     Fit differential preferences for each site. (default: False)
-  --gammaomega          Fit ExpCM with gamma distributed omega. (default: False)
-  --gammabeta           Fit ExpCM with gamma distributed beta. (default: False)
-  --no-avgprefs         No fitting of models with preferences averaged across sites for ExpCM. (default: False)
-  --randprefs           Include ExpCM models with randomized preferences. (default: False)
+  --diffprefsbysite     Fit differential preferences for each site. (default:
+                        False)
+  --gammaomega          Fit ExpCM with gamma distributed omega. (default:
+                        False)
+  --gammabeta           Fit ExpCM with gamma distributed beta. (default:
+                        False)
+  --no-avgprefs         No fitting of models with preferences averaged across
+                        sites for ExpCM. (default: False)
+  --randprefs           Include ExpCM models with randomized preferences.
+                        (default: False)
   -v, --version         show program's version number and exit</code></pre>
 </div>
 <div id="inputFiles" class="section level2">
@@ -371,21 +385,21 @@ There are preferences measured for 263 sites</code></pre>
 <p>We can now run <a href="http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html"><code>phydms_comprehensive</code></a> by specifying our output prefix (in this case a directory called <code>betaLactamase</code>), our <a href="#prefs">preferences</a>, and our <a href="#seqs">alignment</a>. The output below is the <a href="http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html"><code>phydms_comprehensive</code></a> run log.</p>
 <!-- code to run -->
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">phydms_comprehensive</span> betaLactamase/ example_data/betaLactamase_alignment.fasta example_data/betaLactamase_prefs.csv --raxml raxml</code></pre></div>
-<pre><code>2017-12-01 16:51:18,965 - INFO - Beginning execution of phydms_comprehensive in directory /Users/sarah/Desktop/phydms/tutorial
+<pre><code>2018-01-24 21:46:20,943 - INFO - Beginning execution of phydms_comprehensive in directory /Users/sarah/Desktop/phydms/tutorial
 
-2017-12-01 16:51:18,969 - INFO - Progress is being logged to betaLactamase/log.log
+2018-01-24 21:46:20,943 - INFO - Progress is being logged to betaLactamase/log.log
 
-2017-12-01 16:51:18,969 - INFO - Version information:
-    Time and date: Fri Dec  1 16:51:17 2017
+2018-01-24 21:46:20,943 - INFO - Version information:
+    Time and date: Wed Jan 24 21:46:20 2018
     Platform: Darwin-15.6.0-x86_64-i386-64bit
     Python version: 3.5.2 (v3.5.2:4def2a2901a5, Jun 26 2016, 10:47:25)  [GCC 4.2.1 (Apple Inc. build 5666) (dot 3)]
-    phydms version: 2.2.0
+    phydms version: 2.2.dev1
     Bio version: 1.68
-    cython version: 0.25.1
-    numpy version: 1.12.1
+    cython version: 0.27.3
+    numpy version: 1.13.3
     scipy version: 0.19.0
     matplotlib version: 2.0.2
-    natsort version: 5.0.1
+    natsort version: 5.1.1
     sympy version: 1.0
     six version: 1.10.0
     pandas version: 0.20.3
@@ -394,66 +408,66 @@ There are preferences measured for 263 sites</code></pre>
     weblogolib version: 3.5.0
     PyPDF2 version: 1.26.0
 
-2017-12-01 16:51:18,970 - INFO - Parsed the following command-line arguments:
-    omegabysite = False
-    ncpus = -1
-    outprefix = betaLactamase/
-    tree = None
+2018-01-24 21:46:20,943 - INFO - Parsed the following command-line arguments:
     randprefs = False
-    brlen = optimize
-    diffprefsbysite = False
     noavgprefs = False
     raxml = raxml
-    gammaomega = False
-    alignment = example_data/betaLactamase_alignment.fasta
-    gammabeta = False
+    outprefix = betaLactamase/
     prefsfiles = ['example_data/betaLactamase_prefs.csv']
+    alignment = example_data/betaLactamase_alignment.fasta
+    omegabysite = False
+    gammaomega = False
+    diffprefsbysite = False
+    gammabeta = False
+    brlen = optimize
+    tree = None
+    ncpus = -1
 
-2017-12-01 16:51:18,970 - INFO - Checking that the alignment example_data/betaLactamase_alignment.fasta is valid...
-2017-12-01 16:51:19,263 - INFO - Valid alignment specifying 50 sequences of length 789.
+2018-01-24 21:46:20,944 - INFO - Checking that the alignment example_data/betaLactamase_alignment.fasta is valid...
+2018-01-24 21:46:21,150 - INFO - Valid alignment specifying 50 sequences of length 789.
 
-2017-12-01 16:51:19,263 - INFO - Tree not specified.
-2017-12-01 16:51:19,291 - INFO - Inferring tree with RAxML using command raxml
-2017-12-01 16:51:21,402 - INFO - RAxML inferred tree is now named betaLactamase/RAxML_tree.newick
-2017-12-01 16:51:21,404 - INFO - Removed the following existing files that have names that match the names of output files that will be created: betaLactamase/modelcomparison.md, betaLactamase/YNGKP_M5_log.log, betaLactamase/YNGKP_M5_tree.newick, betaLactamase/YNGKP_M5_loglikelihood.txt, betaLactamase/YNGKP_M5_modelparams.txt, betaLactamase/averaged_ExpCM_betaLactamase_prefs_log.log, betaLactamase/averaged_ExpCM_betaLactamase_prefs_tree.newick, betaLactamase/averaged_ExpCM_betaLactamase_prefs_loglikelihood.txt, betaLactamase/averaged_ExpCM_betaLactamase_prefs_modelparams.txt, betaLactamase/YNGKP_M0_log.log, betaLactamase/YNGKP_M0_tree.newick, betaLactamase/YNGKP_M0_loglikelihood.txt, betaLactamase/YNGKP_M0_modelparams.txt, betaLactamase/ExpCM_betaLactamase_prefs_log.log, betaLactamase/ExpCM_betaLactamase_prefs_tree.newick, betaLactamase/ExpCM_betaLactamase_prefs_loglikelihood.txt, betaLactamase/ExpCM_betaLactamase_prefs_modelparams.txt
+2018-01-24 21:46:21,150 - INFO - Tree not specified.
+2018-01-24 21:46:21,169 - INFO - Inferring tree with RAxML using command raxml
+2018-01-24 21:46:23,122 - INFO - RAxML inferred tree is now named betaLactamase/RAxML_tree.newick
+2018-01-24 21:46:23,123 - INFO - Removed the following existing files that have names that match the names of output files that will be created: betaLactamase/YNGKP_M5_log.log, betaLactamase/ExpCM_betaLactamase_prefs_log.log, betaLactamase/YNGKP_M0_log.log, betaLactamase/averaged_ExpCM_betaLactamase_prefs_log.log
 
-2017-12-01 16:51:21,405 - INFO - Starting analysis to optimize tree in betaLactamase/RAxML_tree.newick using model YNGKP_M5. The command is: phydms example_data/betaLactamase_alignment.fasta betaLactamase/RAxML_tree.newick YNGKP_M5 betaLactamase/YNGKP_M5 --brlen optimize --ncpus 1
+2018-01-24 21:46:23,123 - INFO - Starting analysis to optimize tree in betaLactamase/RAxML_tree.newick using model YNGKP_M5. The command is: phydms example_data/betaLactamase_alignment.fasta betaLactamase/RAxML_tree.newick YNGKP_M5 betaLactamase/YNGKP_M5 --brlen optimize --ncpus 1
 
-2017-12-01 16:51:21,405 - INFO - Starting analysis to optimize tree in betaLactamase/RAxML_tree.newick using model averaged_ExpCM_betaLactamase_prefs. The command is: phydms example_data/betaLactamase_alignment.fasta betaLactamase/RAxML_tree.newick ExpCM_example_data/betaLactamase_prefs.csv betaLactamase/averaged_ExpCM_betaLactamase_prefs --brlen optimize --avgprefs --ncpus 1
+2018-01-24 21:46:23,124 - INFO - Starting analysis to optimize tree in betaLactamase/RAxML_tree.newick using model ExpCM_betaLactamase_prefs. The command is: phydms example_data/betaLactamase_alignment.fasta betaLactamase/RAxML_tree.newick ExpCM_example_data/betaLactamase_prefs.csv betaLactamase/ExpCM_betaLactamase_prefs --brlen optimize --ncpus 1
 
-2017-12-01 16:51:21,405 - INFO - Starting analysis to optimize tree in betaLactamase/RAxML_tree.newick using model YNGKP_M0. The command is: phydms example_data/betaLactamase_alignment.fasta betaLactamase/RAxML_tree.newick YNGKP_M0 betaLactamase/YNGKP_M0 --brlen optimize --ncpus 1
+2018-01-24 21:46:23,124 - INFO - Starting analysis to optimize tree in betaLactamase/RAxML_tree.newick using model YNGKP_M0. The command is: phydms example_data/betaLactamase_alignment.fasta betaLactamase/RAxML_tree.newick YNGKP_M0 betaLactamase/YNGKP_M0 --brlen optimize --ncpus 1
 
-2017-12-01 16:51:21,405 - INFO - Starting analysis to optimize tree in betaLactamase/RAxML_tree.newick using model ExpCM_betaLactamase_prefs. The command is: phydms example_data/betaLactamase_alignment.fasta betaLactamase/RAxML_tree.newick ExpCM_example_data/betaLactamase_prefs.csv betaLactamase/ExpCM_betaLactamase_prefs --brlen optimize --ncpus 1
+2018-01-24 21:46:23,124 - INFO - Starting analysis to optimize tree in betaLactamase/RAxML_tree.newick using model averaged_ExpCM_betaLactamase_prefs. The command is: phydms example_data/betaLactamase_alignment.fasta betaLactamase/RAxML_tree.newick ExpCM_example_data/betaLactamase_prefs.csv betaLactamase/averaged_ExpCM_betaLactamase_prefs --brlen optimize --avgprefs --ncpus 1
 
-2017-12-01 16:58:01,749 - INFO - Analysis completed for YNGKP_M0
-2017-12-01 16:58:01,753 - INFO - Found expected output file betaLactamase/YNGKP_M0_log.log
-2017-12-01 16:58:01,753 - INFO - Found expected output file betaLactamase/YNGKP_M0_tree.newick
-2017-12-01 16:58:01,753 - INFO - Found expected output file betaLactamase/YNGKP_M0_loglikelihood.txt
-2017-12-01 16:58:01,753 - INFO - Found expected output file betaLactamase/YNGKP_M0_modelparams.txt
-2017-12-01 16:58:01,753 - INFO - Analysis successful for YNGKP_M0
+2018-01-24 21:53:11,022 - INFO - Analysis completed for YNGKP_M0
+2018-01-24 21:53:11,023 - INFO - Found expected output file betaLactamase/YNGKP_M0_log.log
+2018-01-24 21:53:11,024 - INFO - Found expected output file betaLactamase/YNGKP_M0_tree.newick
+2018-01-24 21:53:11,024 - INFO - Found expected output file betaLactamase/YNGKP_M0_loglikelihood.txt
+2018-01-24 21:53:11,024 - INFO - Found expected output file betaLactamase/YNGKP_M0_modelparams.txt
+2018-01-24 21:53:11,025 - INFO - Analysis successful for YNGKP_M0
 
-2017-12-01 17:06:58,276 - INFO - Analysis completed for YNGKP_M5
-2017-12-01 17:06:58,281 - INFO - Found expected output file betaLactamase/YNGKP_M5_log.log
-2017-12-01 17:06:58,282 - INFO - Found expected output file betaLactamase/YNGKP_M5_tree.newick
-2017-12-01 17:06:58,282 - INFO - Found expected output file betaLactamase/YNGKP_M5_loglikelihood.txt
-2017-12-01 17:06:58,282 - INFO - Found expected output file betaLactamase/YNGKP_M5_modelparams.txt
-2017-12-01 17:06:58,282 - INFO - Analysis successful for YNGKP_M5
+2018-01-24 22:02:11,197 - INFO - Analysis completed for YNGKP_M5
+2018-01-24 22:02:11,207 - INFO - Found expected output file betaLactamase/YNGKP_M5_log.log
+2018-01-24 22:02:11,207 - INFO - Found expected output file betaLactamase/YNGKP_M5_tree.newick
+2018-01-24 22:02:11,208 - INFO - Found expected output file betaLactamase/YNGKP_M5_loglikelihood.txt
+2018-01-24 22:02:11,208 - INFO - Found expected output file betaLactamase/YNGKP_M5_modelparams.txt
+2018-01-24 22:02:11,208 - INFO - Analysis successful for YNGKP_M5
 
-2017-12-01 17:08:05,469 - INFO - Analysis completed for ExpCM_betaLactamase_prefs
-2017-12-01 17:08:05,469 - INFO - Found expected output file betaLactamase/ExpCM_betaLactamase_prefs_log.log
-2017-12-01 17:08:05,469 - INFO - Found expected output file betaLactamase/ExpCM_betaLactamase_prefs_tree.newick
-2017-12-01 17:08:05,470 - INFO - Found expected output file betaLactamase/ExpCM_betaLactamase_prefs_loglikelihood.txt
-2017-12-01 17:08:05,470 - INFO - Found expected output file betaLactamase/ExpCM_betaLactamase_prefs_modelparams.txt
-2017-12-01 17:08:05,470 - INFO - Analysis successful for ExpCM_betaLactamase_prefs
+2018-01-24 22:03:07,584 - INFO - Analysis completed for ExpCM_betaLactamase_prefs
+2018-01-24 22:03:07,584 - INFO - Found expected output file betaLactamase/ExpCM_betaLactamase_prefs_log.log
+2018-01-24 22:03:07,584 - INFO - Found expected output file betaLactamase/ExpCM_betaLactamase_prefs_tree.newick
+2018-01-24 22:03:07,585 - INFO - Found expected output file betaLactamase/ExpCM_betaLactamase_prefs_loglikelihood.txt
+2018-01-24 22:03:07,585 - INFO - Found expected output file betaLactamase/ExpCM_betaLactamase_prefs_modelparams.txt
+2018-01-24 22:03:07,585 - INFO - Analysis successful for ExpCM_betaLactamase_prefs
 
-2017-12-01 17:10:46,897 - INFO - Analysis completed for averaged_ExpCM_betaLactamase_prefs
-2017-12-01 17:10:46,897 - INFO - Found expected output file betaLactamase/averaged_ExpCM_betaLactamase_prefs_log.log
-2017-12-01 17:10:46,897 - INFO - Found expected output file betaLactamase/averaged_ExpCM_betaLactamase_prefs_tree.newick
-2017-12-01 17:10:46,897 - INFO - Found expected output file betaLactamase/averaged_ExpCM_betaLactamase_prefs_loglikelihood.txt
-2017-12-01 17:10:46,898 - INFO - Found expected output file betaLactamase/averaged_ExpCM_betaLactamase_prefs_modelparams.txt
-2017-12-01 17:10:46,898 - INFO - Analysis successful for averaged_ExpCM_betaLactamase_prefs
+2018-01-24 22:05:44,594 - INFO - Analysis completed for averaged_ExpCM_betaLactamase_prefs
+2018-01-24 22:05:44,594 - INFO - Found expected output file betaLactamase/averaged_ExpCM_betaLactamase_prefs_log.log
+2018-01-24 22:05:44,594 - INFO - Found expected output file betaLactamase/averaged_ExpCM_betaLactamase_prefs_tree.newick
+2018-01-24 22:05:44,595 - INFO - Found expected output file betaLactamase/averaged_ExpCM_betaLactamase_prefs_loglikelihood.txt
+2018-01-24 22:05:44,595 - INFO - Found expected output file betaLactamase/averaged_ExpCM_betaLactamase_prefs_modelparams.txt
+2018-01-24 22:05:44,595 - INFO - Analysis successful for averaged_ExpCM_betaLactamase_prefs
 
-2017-12-01 17:10:47,910 - INFO - Successful completion of phydms_comprehensive</code></pre>
+2018-01-24 22:05:45,612 - INFO - Successful completion of phydms_comprehensive</code></pre>
 </div>
 </div>
 <div id="outputFiles" class="section level2">
@@ -480,7 +494,8 @@ betaLactamase/averaged_ExpCM_betaLactamase_prefs_modelparams.txt
 betaLactamase/averaged_ExpCM_betaLactamase_prefs_tree.newick
 betaLactamase/log.log
 betaLactamase/modelcomparison.md
-betaLactamase/ramxl_output.txt</code></pre>
+betaLactamase/ramxl_output.txt
+betaLactamase/raxml_output.txt</code></pre>
 </div>
 <div id="interpretation" class="section level2">
 <h2>Interpretation of <code>phydms_comprehensive</code> results</h2>
@@ -562,32 +577,46 @@ betaLactamase/ramxl_output.txt</code></pre>
 <h2><code>phydms_comprehensive</code> command-line usage</h2>
 <p>Here is the full list of requirements and options for <a href="http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html"><code>phydms_comprehensive</code></a>. Below is a discussion of the <a href="#inputFilesHA">input files</a>, running the <a href="#phydms_comprehensiveCommandHA"><code>phydms_comprehensive</code> command</a>, and <a href="#interpretationHA">interpretation of the results</a>.</p>
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">phydms_comprehensive</span> -h</code></pre></div>
-<pre><code>usage: phydms_comprehensive [-h] (--raxml RAXML | --tree TREE) [--ncpus NCPUS] [--brlen {scale,optimize}] [--omegabysite] [--diffprefsbysite] [--gammaomega] [--gammabeta]
+<pre><code>usage: phydms_comprehensive [-h] (--raxml RAXML | --tree TREE) [--ncpus NCPUS]
+                            [--brlen {scale,optimize}] [--omegabysite]
+                            [--diffprefsbysite] [--gammaomega] [--gammabeta]
                             [--no-avgprefs] [--randprefs] [-v]
                             outprefix alignment prefsfiles [prefsfiles ...]
 
-Comprehensive phylogenetic model comparison and detection of selection informed by deep mutational scanning data. This program runs 'phydms' repeatedly to compare
-substitution models and detect selection. The 'phydms' package is written by the Bloom lab (see https://github.com/jbloomlab/phydms/contributors). Version 2.2.0. Full
+Comprehensive phylogenetic model comparison and detection of selection
+informed by deep mutational scanning data. This program runs 'phydms'
+repeatedly to compare substitution models and detect selection. The 'phydms'
+package is written by the Bloom lab (see
+https://github.com/jbloomlab/phydms/contributors). Version 2.2.dev1. Full
 documentation at http://jbloomlab.github.io/phydms
 
 positional arguments:
   outprefix             Output file prefix.
   alignment             Existing FASTA file with aligned codon sequences.
-  prefsfiles            Existing files with site-specific amino-acid preferences.
+  prefsfiles            Existing files with site-specific amino-acid
+                        preferences.
 
 optional arguments:
   -h, --help            show this help message and exit
   --raxml RAXML         Path to RAxML (e.g., 'raxml') (default: None)
-  --tree TREE           Existing Newick file giving input tree. (default: None)
-  --ncpus NCPUS         Use this many CPUs; -1 means all available. (default: -1)
+  --tree TREE           Existing Newick file giving input tree. (default:
+                        None)
+  --ncpus NCPUS         Use this many CPUs; -1 means all available. (default:
+                        -1)
   --brlen {scale,optimize}
-                        How to handle branch lengths: scale by single parameter or optimize each one (default: optimize)
+                        How to handle branch lengths: scale by single
+                        parameter or optimize each one (default: optimize)
   --omegabysite         Fit omega (dN/dS) for each site. (default: False)
-  --diffprefsbysite     Fit differential preferences for each site. (default: False)
-  --gammaomega          Fit ExpCM with gamma distributed omega. (default: False)
-  --gammabeta           Fit ExpCM with gamma distributed beta. (default: False)
-  --no-avgprefs         No fitting of models with preferences averaged across sites for ExpCM. (default: False)
-  --randprefs           Include ExpCM models with randomized preferences. (default: False)
+  --diffprefsbysite     Fit differential preferences for each site. (default:
+                        False)
+  --gammaomega          Fit ExpCM with gamma distributed omega. (default:
+                        False)
+  --gammabeta           Fit ExpCM with gamma distributed beta. (default:
+                        False)
+  --no-avgprefs         No fitting of models with preferences averaged across
+                        sites for ExpCM. (default: False)
+  --randprefs           Include ExpCM models with randomized preferences.
+                        (default: False)
   -v, --version         show program's version number and exit</code></pre>
 </div>
 <div id="inputFilesHA" class="section level2">
@@ -711,32 +740,46 @@ There are preferences measured for 564 sites</code></pre>
 <h2><code>phydms_comprehensive</code> command-line usage</h2>
 <p>Here is the full list of requirements and options for <a href="http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html"><code>phydms_comprehensive</code></a>. To detect diversifying pressure, we are going to include the optional flag <code>--omegabysite</code>. Below is a discussion of the <a href="#inputFilesAll">input files</a>, running the <a href="#phydms_comprehensiveCommandAll"><code>phydms_comprehensive</code> command</a>, and <a href="#interpretationAll">interpretation of the results</a>.</p>
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">phydms_comprehensive</span> -h</code></pre></div>
-<pre><code>usage: phydms_comprehensive [-h] (--raxml RAXML | --tree TREE) [--ncpus NCPUS] [--brlen {scale,optimize}] [--omegabysite] [--diffprefsbysite] [--gammaomega] [--gammabeta]
+<pre><code>usage: phydms_comprehensive [-h] (--raxml RAXML | --tree TREE) [--ncpus NCPUS]
+                            [--brlen {scale,optimize}] [--omegabysite]
+                            [--diffprefsbysite] [--gammaomega] [--gammabeta]
                             [--no-avgprefs] [--randprefs] [-v]
                             outprefix alignment prefsfiles [prefsfiles ...]
 
-Comprehensive phylogenetic model comparison and detection of selection informed by deep mutational scanning data. This program runs 'phydms' repeatedly to compare
-substitution models and detect selection. The 'phydms' package is written by the Bloom lab (see https://github.com/jbloomlab/phydms/contributors). Version 2.2.0. Full
+Comprehensive phylogenetic model comparison and detection of selection
+informed by deep mutational scanning data. This program runs 'phydms'
+repeatedly to compare substitution models and detect selection. The 'phydms'
+package is written by the Bloom lab (see
+https://github.com/jbloomlab/phydms/contributors). Version 2.2.dev1. Full
 documentation at http://jbloomlab.github.io/phydms
 
 positional arguments:
   outprefix             Output file prefix.
   alignment             Existing FASTA file with aligned codon sequences.
-  prefsfiles            Existing files with site-specific amino-acid preferences.
+  prefsfiles            Existing files with site-specific amino-acid
+                        preferences.
 
 optional arguments:
   -h, --help            show this help message and exit
   --raxml RAXML         Path to RAxML (e.g., 'raxml') (default: None)
-  --tree TREE           Existing Newick file giving input tree. (default: None)
-  --ncpus NCPUS         Use this many CPUs; -1 means all available. (default: -1)
+  --tree TREE           Existing Newick file giving input tree. (default:
+                        None)
+  --ncpus NCPUS         Use this many CPUs; -1 means all available. (default:
+                        -1)
   --brlen {scale,optimize}
-                        How to handle branch lengths: scale by single parameter or optimize each one (default: optimize)
+                        How to handle branch lengths: scale by single
+                        parameter or optimize each one (default: optimize)
   --omegabysite         Fit omega (dN/dS) for each site. (default: False)
-  --diffprefsbysite     Fit differential preferences for each site. (default: False)
-  --gammaomega          Fit ExpCM with gamma distributed omega. (default: False)
-  --gammabeta           Fit ExpCM with gamma distributed beta. (default: False)
-  --no-avgprefs         No fitting of models with preferences averaged across sites for ExpCM. (default: False)
-  --randprefs           Include ExpCM models with randomized preferences. (default: False)
+  --diffprefsbysite     Fit differential preferences for each site. (default:
+                        False)
+  --gammaomega          Fit ExpCM with gamma distributed omega. (default:
+                        False)
+  --gammabeta           Fit ExpCM with gamma distributed beta. (default:
+                        False)
+  --no-avgprefs         No fitting of models with preferences averaged across
+                        sites for ExpCM. (default: False)
+  --randprefs           Include ExpCM models with randomized preferences.
+                        (default: False)
   -v, --version         show program's version number and exit</code></pre>
 </div>
 <div id="inputFilesAll" class="section level2">
@@ -824,7 +867,7 @@ site    omega   P   dLnL    Q
 # Q-values computed separately for omega &gt; and &lt; 1 # Will fit different synonymous rate for each site.
 #
 site    omega   P   dLnL    Q
-248 20.048  0.000567    5.941   0.0745
+248 20.043  0.000567    5.941   0.0745
 213 37.250  0.000345    6.404   0.0745
 218 95.530  0.00262 4.527   0.23
 233 0.000   0.00164 4.956   0.432
@@ -850,32 +893,46 @@ site    omega   P   dLnL    Q
 <h2><code>phydms_comprehensive</code> command-line usage</h2>
 <p>Here is the full list of requirements and options for <a href="http://jbloomlab.github.io/phydms/phydms_comprehensive_prog.html"><code>phydms_comprehensive</code></a>. To detect diversifying pressure, we are going to include the optional flag <code>--diffprefsbysite</code>. Below is a discussion of the <a href="#inputFilesdiff">input files</a>, running the <a href="#phydms_comprehensiveCommanddiff"><code>phydms_comprehensive</code> command</a>, and <a href="#interpretationdiff">interpretation of the results</a>.</p>
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">phydms_comprehensive</span> -h</code></pre></div>
-<pre><code>usage: phydms_comprehensive [-h] (--raxml RAXML | --tree TREE) [--ncpus NCPUS] [--brlen {scale,optimize}] [--omegabysite] [--diffprefsbysite] [--gammaomega] [--gammabeta]
+<pre><code>usage: phydms_comprehensive [-h] (--raxml RAXML | --tree TREE) [--ncpus NCPUS]
+                            [--brlen {scale,optimize}] [--omegabysite]
+                            [--diffprefsbysite] [--gammaomega] [--gammabeta]
                             [--no-avgprefs] [--randprefs] [-v]
                             outprefix alignment prefsfiles [prefsfiles ...]
 
-Comprehensive phylogenetic model comparison and detection of selection informed by deep mutational scanning data. This program runs 'phydms' repeatedly to compare
-substitution models and detect selection. The 'phydms' package is written by the Bloom lab (see https://github.com/jbloomlab/phydms/contributors). Version 2.2.0. Full
+Comprehensive phylogenetic model comparison and detection of selection
+informed by deep mutational scanning data. This program runs 'phydms'
+repeatedly to compare substitution models and detect selection. The 'phydms'
+package is written by the Bloom lab (see
+https://github.com/jbloomlab/phydms/contributors). Version 2.2.dev1. Full
 documentation at http://jbloomlab.github.io/phydms
 
 positional arguments:
   outprefix             Output file prefix.
   alignment             Existing FASTA file with aligned codon sequences.
-  prefsfiles            Existing files with site-specific amino-acid preferences.
+  prefsfiles            Existing files with site-specific amino-acid
+                        preferences.
 
 optional arguments:
   -h, --help            show this help message and exit
   --raxml RAXML         Path to RAxML (e.g., 'raxml') (default: None)
-  --tree TREE           Existing Newick file giving input tree. (default: None)
-  --ncpus NCPUS         Use this many CPUs; -1 means all available. (default: -1)
+  --tree TREE           Existing Newick file giving input tree. (default:
+                        None)
+  --ncpus NCPUS         Use this many CPUs; -1 means all available. (default:
+                        -1)
   --brlen {scale,optimize}
-                        How to handle branch lengths: scale by single parameter or optimize each one (default: optimize)
+                        How to handle branch lengths: scale by single
+                        parameter or optimize each one (default: optimize)
   --omegabysite         Fit omega (dN/dS) for each site. (default: False)
-  --diffprefsbysite     Fit differential preferences for each site. (default: False)
-  --gammaomega          Fit ExpCM with gamma distributed omega. (default: False)
-  --gammabeta           Fit ExpCM with gamma distributed beta. (default: False)
-  --no-avgprefs         No fitting of models with preferences averaged across sites for ExpCM. (default: False)
-  --randprefs           Include ExpCM models with randomized preferences. (default: False)
+  --diffprefsbysite     Fit differential preferences for each site. (default:
+                        False)
+  --gammaomega          Fit ExpCM with gamma distributed omega. (default:
+                        False)
+  --gammabeta           Fit ExpCM with gamma distributed beta. (default:
+                        False)
+  --no-avgprefs         No fitting of models with preferences averaged across
+                        sites for ExpCM. (default: False)
+  --randprefs           Include ExpCM models with randomized preferences.
+                        (default: False)
   -v, --version         show program's version number and exit</code></pre>
 </div>
 <div id="inputFilesdiff" class="section level2">
@@ -938,7 +995,7 @@ df <span class="op">=</span> pd.read_csv(<span class="st">&quot;HA_diffprefs/Exp
 df <span class="op">=</span> pd.read_csv(<span class="st">&quot;betaLactamase_diffprefs/ExpCM_betaLactamase_prefs_diffprefsbysite.txt&quot;</span>, sep<span class="op">=</span><span class="st">'</span><span class="ch">\t</span><span class="st">'</span>, skiprows<span class="op">=</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>))
 <span class="bu">print</span> df.iloc[:,<span class="bu">range</span>(<span class="dv">9</span>) <span class="op">+</span> [<span class="op">-</span><span class="dv">1</span>]].head(<span class="dv">6</span>).to_string(index <span class="op">=</span> <span class="va">False</span>)</code></pre></div>
 <pre><code>site   dpi_A   dpi_C   dpi_D   dpi_E   dpi_F   dpi_G   dpi_H   dpi_I  half_sum_abs_dpi
- 213 -0.3701 -0.0003 -0.0009 -0.0003 -0.0003 -0.5690 -0.0005 -0.0003            0.9656
+ 213 -0.3701 -0.0003 -0.0009 -0.0003 -0.0003 -0.5691 -0.0005 -0.0003            0.9656
  214 -0.0518 -0.0002 -0.0492 -0.0417  0.0032 -0.0533 -0.0048  0.0049            0.3394
  104 -0.0201 -0.0054 -0.0076 -0.0092 -0.0035 -0.0009 -0.0080 -0.0285            0.2555
  167 -0.0147 -0.0042 -0.0063 -0.0198 -0.0027 -0.0145 -0.0063 -0.0072            0.2271
