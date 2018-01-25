@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>phydmslib package &#8212; phydms 2.2.0 documentation</title>
+    <title>phydmslib package &#8212; phydms 2.2.1 documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2.2.0',
+        VERSION:     '2.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="api.html" title="phydmslib API"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.2.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.2.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="api.html" accesskey="U"><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &#187;</li> 
       </ul>
     </div>  
@@ -447,7 +447,7 @@ state probability of codon <cite>x</cite> at site <cite>r</cite> for category <c
 
 <dl class="class">
 <dt id="phydmslib.models.ExpCM">
-<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">ExpCM</code><span class="sig-paren">(</span><em>prefs, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, phi=array([ 0.25,  0.25,  0.25,  0.25]), freeparams=['kappa', 'omega', 'beta', 'mu', 'eta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">ExpCM</code><span class="sig-paren">(</span><em>prefs, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, phi=array([0.25, 0.25, 0.25, 0.25]), freeparams=['kappa', 'omega', 'beta', 'mu', 'eta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#phydmslib.models.Model" title="phydmslib.models.Model"><code class="xref py py-class docutils literal"><span class="pre">phydmslib.models.Model</span></code></a></p>
 <p>Experimentally informed codon models (ExpCM) for a gene.</p>
 <p>See <cite>__init__</cite> method for how to initialize an <cite>ExpCM</cite>.</p>
@@ -551,7 +551,7 @@ index ranging over each element in <cite>eta</cite>.</dd>
 
 <dl class="method">
 <dt id="phydmslib.models.ExpCM.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>prefs, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, phi=array([ 0.25,  0.25,  0.25,  0.25]), freeparams=['kappa', 'omega', 'beta', 'mu', 'eta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>prefs, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, phi=array([0.25, 0.25, 0.25, 0.25]), freeparams=['kappa', 'omega', 'beta', 'mu', 'eta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize an <cite>ExpCM</cite> object.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -690,7 +690,7 @@ to one.</dd>
 
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM_empirical_phi.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'beta': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'kappa': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'omega': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'pi': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PARAMTYPES</code><em class="property"> = {'beta': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'pi': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -740,7 +740,7 @@ The maximum absolute value of the array should be between 0 and 1.</dd>
 
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'beta': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'kappa': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'omega': &lt;class 'float'&gt;, 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'omega2': &lt;class 'float'&gt;, 'pi': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PARAMTYPES</code><em class="property"> = {'beta': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;, 'omega2': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'pi': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -942,7 +942,7 @@ method; do <strong>not</strong> set attributes directly.</p>
 
 <dl class="attribute">
 <dt id="phydmslib.models.GammaDistributedModel.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'beta_lambda': &lt;class 'float'&gt;, 'alpha_lambda': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PARAMTYPES</code><em class="property"> = {'alpha_lambda': &lt;class 'float'&gt;, 'beta_lambda': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1377,7 +1377,7 @@ The codon frequencies, <cite>Phi_x</cite> are computed from the <cite>phi</cite>
 
 <dl class="attribute">
 <dt id="phydmslib.models.YNGKP_M0.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'omega': &lt;class 'float'&gt;, 'kappa': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'e_pw': (&lt;class 'numpy.ndarray'&gt;, (3, 4))}</em><a class="headerlink" href="#phydmslib.models.YNGKP_M0.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PARAMTYPES</code><em class="property"> = {'e_pw': (&lt;class 'numpy.ndarray'&gt;, (3, 4)), 'kappa': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.YNGKP_M0.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -2468,13 +2468,13 @@ function is identical to <em>KyteDoolittleColorMapping</em></p>
         <li class="right" >
           <a href="api.html" title="phydmslib API"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.2.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.2.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="api.html" ><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
   </body>
 </html>

@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Numerical implementation &#8212; phydms 2.2.0 documentation</title>
+    <title>Numerical implementation &#8212; phydms 2.2.1 documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2.2.0',
+        VERSION:     '2.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="ExpCM.html" title="Experimentally Informed Codon Models"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.2.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.2.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -532,7 +532,7 @@ The 12 nucleotide corrected nucleotide frequency parameters <span class="math">\
 <span class="eqno">(41)<a class="headerlink" href="#equation-phi_pw" title="Permalink to this equation">¶</a></span>\[\begin{split}e^1_w = \frac{\phi^1_w \times \left(1- \sum\limits_{wyz\epsilon X} \phi^2_y\times\phi^3_z\right)}{1-\sum\limits_{xyz\epsilon X} \phi^1_x\times\phi^2_y\times\phi^3_z}\\
 e^2_w = \frac{\phi^2_w \times \left(1- \sum\limits_{ywz\epsilon X} \phi^1_y\times\phi^3_z\right)}{1-\sum\limits_{xyz\epsilon X} \phi^1_x\times\phi^2_y\times\phi^3_z}\\
 e^3_w = \frac{\phi^3_w \times \left(1- \sum\limits_{yzw\epsilon X} \phi^1_y\times\phi^2_z\right)}{1-\sum\limits_{xyz\epsilon X} \phi^1_x\times\phi^2_y\times\phi^3_z}\\\end{split}\]</div>
-<p>where <span class="math">\(X = \{TAA, TAG, TGA\}\)</span>. We use the <span class="math">\(\phi^p_w\)</span> values determined in this way to compute <span class="math">\(\Phi_x = \phi^1_{x_1} \times \phi^2_{x_2} \times \phi^3_{x_3}\)</span>.</p>
+<p>where <span class="math">\(X = \{TAA, TAG, TGA\}\)</span>. We use the <span class="math">\(\phi^p_w\)</span> values determined in this way to compute <span class="math">\(\Phi_x = \frac{\phi^1_{x_1} \times \phi^2_{x_2} \times \phi^3_{x_3}}{ \sum\limits_{y} \phi^1_{y_1} \times \phi^2_{y_2} \times \phi^3_{y_3}}\)</span> where <span class="math">\(y \notin X\)</span> ranges over all stop codons.</p>
 </div>
 <div class="section" id="exponentials-of-the-substitution-matrix-and-derivatives">
 <h2><a class="toc-backref" href="#id11">Exponentials of the substitution matrix and derivatives</a><a class="headerlink" href="#exponentials-of-the-substitution-matrix-and-derivatives" title="Permalink to this headline">¶</a></h2>
@@ -838,12 +838,12 @@ This is somewhat simpler for each individual branch length, since each individua
         <li class="right" >
           <a href="ExpCM.html" title="Experimentally Informed Codon Models"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.2.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.2.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
   </body>
 </html>
