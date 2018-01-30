@@ -814,8 +814,17 @@ class ExpCM(Model):
             m[r][self._diag_indices] -= scipy.sum(m[r], axis=1)
 
 
-    def spielman_wr(self):
+    def spielman_wr(self, norm=True):
         """Returns a list of site-specific omega values calculated from the `ExpCM`.
+
+            Args:
+                `norm` (bool)
+                    If `True`, normalize the `omega_r` values by the ExpCM
+                    gene-wide `omega`.
+
+            Returns:
+                `wr` (list)
+                    list of `omega_r` values of length `nsites`
 
         Following
         `Spielman and Wilke, MBE, 32:1097-1108 <https://doi.org/10.1093/molbev/msv003>`_,
@@ -827,12 +836,8 @@ class ExpCM(Model):
         where `r,x,y`, :math:`p_{r,x}`, :math:`P_{r,xy}`, and :math:`Q_{x,y}`
         have the same definitions as in the main `ExpCM` doc string and :math:`N_{x}`
         is the set of codons which are non-synonymous to codon `x` and differ from
-        `x` by one nucleotide.
+        `x` by one nucleotide."""
 
-        This calculation includes all current `ExpCM` parameter values,
-        including :math:`\\omega`. If you would like the
-        :math:`\\rm{spielman}\\omega_r` *without* a gene-wide rate of
-        non-synonymous change, set :math:`\\omega = 1`."""
         wr = []
         for r in range(self.nsites):
             num = 0
@@ -841,7 +846,9 @@ class ExpCM(Model):
                 j = scipy.intersect1d(scipy.where(CODON_SINGLEMUT[i]==True)[0],
                         scipy.where(CODON_NONSYN[i]==True)[0])
                 p_i = self.stationarystate[r][i]
-                P_xy = (self.Prxy[r][i][j].sum())/(self.omega)
+                P_xy = self.Prxy[r][i][j].sum()
+                if norm:
+                    P_xy = P_xy/self.omega
                 Q_xy = self.Qxy[i][j].sum()
                 num += (p_i * P_xy)
                 den += (p_i * Q_xy)

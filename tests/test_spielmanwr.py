@@ -48,13 +48,14 @@ class testExpCM_spielmanwr(unittest.TestCase):
                 for y in range(N_CODON):
                     if CODON_SINGLEMUT[x][y] and CODON_NONSYN[x][y]:
                         prx = self.model.stationarystate[n][x]
-                        Prxy = (self.model.Prxy[n][x][y])/self.model.omega
+                        Prxy = (self.model.Prxy[n][x][y])
                         Qxy = self.model.Qxy[x][y]
                         numerator += prx * Prxy
                         denominator += prx * Qxy
             wr.append(numerator/denominator)
         wr = scipy.array(wr)
-        self.assertTrue(scipy.allclose(wr, scipy.array(self.model.spielman_wr()), rtol=0.01))
+        self.assertTrue(scipy.allclose(wr, scipy.array(self.model.spielman_wr(norm=False)), rtol=0.01))
+        self.assertTrue(scipy.allclose(wr/self.model.omega, scipy.array(self.model.spielman_wr()), rtol=0.01))
 
 
 class test_empirical_phi_spielmanwr(testExpCM_spielmanwr):
