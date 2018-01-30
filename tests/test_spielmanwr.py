@@ -48,7 +48,7 @@ class testExpCM_spielmanwr(unittest.TestCase):
                 for y in range(N_CODON):
                     if CODON_SINGLEMUT[x][y] and CODON_NONSYN[x][y]:
                         prx = self.model.stationarystate[n][x]
-                        Prxy = self.model.Prxy[n][x][y]
+                        Prxy = (self.model.Prxy[n][x][y])/self.model.omega
                         Qxy = self.model.Qxy[x][y]
                         numerator += prx * Prxy
                         denominator += prx * Qxy

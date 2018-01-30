@@ -1,6 +1,10 @@
 Changelog
 ===========
 
+2.2.dev2
+-----
+* Fixed bug in ``spielmanwr``
+
 2.2.1
 -----
 * Fixed typo in `phydms_comprehensive` output file

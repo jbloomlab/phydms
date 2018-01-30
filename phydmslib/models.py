@@ -841,7 +841,7 @@ class ExpCM(Model):
                 j = scipy.intersect1d(scipy.where(CODON_SINGLEMUT[i]==True)[0],
                         scipy.where(CODON_NONSYN[i]==True)[0])
                 p_i = self.stationarystate[r][i]
-                P_xy = self.Prxy[r][i][j].sum()
+                P_xy = (self.Prxy[r][i][j].sum())/(self.omega)
                 Q_xy = self.Qxy[i][j].sum()
                 num += (p_i * P_xy)
                 den += (p_i * Q_xy)
