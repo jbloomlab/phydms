@@ -831,12 +831,16 @@ class ExpCM(Model):
         we can predict the `dN/dS` value for each site `r`,
         :math:`\\rm{spielman}\\omega_r`, from the `ExpCM`.
 
+        When `norm` is `False`, the `omega_r` values are defined as
         :math:`\\rm{spielman}\\omega_r = \\frac{\\sum_x \\sum_{y \\in N_x}p_{r,x}\
         P_{r,xy}}{\\sum_x \\sum_{y \\in Nx}p_{r,x}Q_{xy}}`,
         where `r,x,y`, :math:`p_{r,x}`, :math:`P_{r,xy}`, and :math:`Q_{x,y}`
         have the same definitions as in the main `ExpCM` doc string and :math:`N_{x}`
         is the set of codons which are non-synonymous to codon `x` and differ from
-        `x` by one nucleotide."""
+        `x` by one nucleotide.
+
+        When `norm` is `True`, the `omega_r` values above are divided by the
+        ExpCM `omega` value."""
 
         wr = []
         for r in range(self.nsites):
