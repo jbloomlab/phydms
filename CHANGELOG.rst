@@ -1,7 +1,7 @@
 Changelog
 ===========
 
-2.2.dev2
+2.2.2
 -----
 * Fixed bug in ``spielmanwr``
 
