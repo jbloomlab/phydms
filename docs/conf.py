@@ -126,12 +126,22 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
+html_theme = 'alabaster'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+html_theme_options = {
+        'logo':'BloomLogo.jpg',
+        'logo_name':'true',
+        'description':'Software for phylogenetic analyses informed by deep mutational scanning.',
+        'github_button':'true',
+        'github_user':'jbloomlab',
+        'github_repo':'phydms',
+        'github_banner':'true',
+        # 'travis_button':'true',
+        'sidebar_width':'305px',
+        }
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
@@ -155,7 +165,7 @@ html_theme = 'default'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ['_static/']
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
@@ -170,8 +180,20 @@ html_static_path = ['_static']
 # typographically correct entities.
 #html_use_smartypants = True
 
-# Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+# Custom sidebar templates, must be a dictionary that maps document names
+# to template names.
+#
+# This is required for the alabaster theme
+# refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
+html_sidebars = {
+    '**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',  # needs 'show_related': True theme option to display
+        'searchbox.html',
+        'donate.html',
+    ]
+}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
@@ -269,7 +291,8 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'phydms', u'phydms Documentation',
-   u'Jesse D. Bloom', 'phydms', 'One line description of project.',
+   u'Jesse D. Bloom', 'phydms',
+   'Software for phylogenetic analyses informed by deep mutational scanning.',
    'Miscellaneous'),
 ]
 
