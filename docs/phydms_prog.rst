@@ -41,23 +41,22 @@ Command-line usage
     The transition-transversion ratio :math:`\kappa` is optimized by maximum likelihood.
     The nonsynonymous-synonymous ratio :math:`\omega` is optimized differently depending on the variant:
 
-        - *YNGKP_M0* : a single :math:`\omega` is optimized by maximum likelihood.
+        -*YNGKP_M0* : a single :math:`\omega` is optimized by maximum likelihood.
 
-        - *YNGKP_M5* : :math:`\omega` drawn from a gamma distribution with the two parameters optimized by maximum likelihood. The distribution has ``--ncats`` categories.
+        -*YNGKP_M5* : :math:`\omega` drawn from a gamma distribution with the two parameters optimized by maximum likelihood. The distribution has ``--ncats`` categories.
 
     *ExpCM_<prefsfile>* is an :ref:`ExpCM` with amino-acid preferences taken from the file ``prefsfile``.
     The preferences file must specify a preference for the amino acid encoded by every site in ``alignment``, using sequential 1, 2, ... numbering.
     Any stop-codon preferences specified in the file are ignored.
     The preferences file can be in several formats:
 
-        * A comma-, tab-, or space-delimited file with the first column giving
-          the site and the rest giving the preference for each amino-acid::
+        -A comma-, tab-, or space-delimited file with the first column giving the site and the rest giving the preference for each amino-acid::
 
             site A C D E F G H I K L M N P Q R S T V W Y
             1 0.044  0.046 0.048 0.0461 0.046 0.0411 0.052 0.027 0.046 0.043 0.172 0.045 0.045 0.045 0.044 0.041 0.037 0.028 0.046 0.048
             2 0.658 0.006 0.005 0.029 0.005 0.019 0.007 0.004 0.007 0.001 0.036 0.005 0.009 0.003 0.005 0.014 0.013 0.148 0.009 0.005
 
-        * The more complex `dms_tools`_ `preferences file format`_
+        -The more complex `dms_tools`_ `preferences file format`_
 
     Importantly, the amino-acid preferences must be obtained **independently** from the sequence
     alignment being analyzed. A deep mutational scanning experiment is an independent means
@@ -72,9 +71,9 @@ Command-line usage
     The tree topology is fixed to that in ``tree``.
     But there are several options for how the branch lengths are handled:
 
-      * *scale*: fix the relative length of the branches to the values in ``tree``, but scale them all by a single parameter :math:`\mu` that is optimized. This approach will be faster.
+      -*scale*: fix the relative length of the branches to the values in ``tree``, but scale them all by a single parameter :math:`\mu` that is optimized. This approach will be faster.
 
-      * *optimize*: optimize all branch lengths as free parameters. This approach will be more accurate, but slower.
+      -*optimize*: optimize all branch lengths as free parameters. This approach will be more accurate, but slower.
 
    \-\-gammaomega
     Use this option for a `model` of *ExpCM* if you want :math:`\omega` to be drawn from ``--ncats`` gamma-distributed categories, similar to a *YNGKP_M5* model.
@@ -200,7 +199,7 @@ To get the exact values, use the :ref:`api` to call ``phydmslib.models.DiscreteG
     phiC = 0.196471
     phiG = 0.22418
 
-The shape and scale parameters for gamma-distributed :math:`\beta` are :math:`\alpha_{\beta}` and :math:`\beta_{\beta}`, respectively. 
+The shape and scale parameters for gamma-distributed :math:`\beta` are :math:`\alpha_{\beta}` and :math:`\beta_{\beta}`, respectively.
 
 Tree file
 ++++++++++++
