@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Numerical implementation &#8212; phydms 2.2.2 documentation</title>
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2.2.2',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -25,27 +17,15 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="phydmslib API" href="api.html" />
-    <link rel="prev" title="Experimentally Informed Codon Models" href="ExpCM.html" /> 
-  </head>
-  <body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="api.html" title="phydmslib API"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="ExpCM.html" title="Experimentally Informed Codon Models"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.2.2 documentation</a> &#187;</li> 
-      </ul>
-    </div>  
+    <link rel="prev" title="Experimentally Informed Codon Models" href="ExpCM.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -82,15 +62,15 @@ It may be of help in trying to understand the code.</p>
 <div class="section" id="expcm-substitution-model-parameters-and-derivatives">
 <h2><a class="toc-backref" href="#id4"><em>ExpCM</em> substitution model parameters and derivatives</a><a class="headerlink" href="#expcm-substitution-model-parameters-and-derivatives" title="Permalink to this headline">¶</a></h2>
 <p>We begin by considering the basic <em>ExpCM</em> substitution model defined in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>.
-<span class="math">\(P_{r,xy}\)</span> gives the substitution rate from codon <span class="math">\(x\)</span> to codon <span class="math">\(y \ne x\)</span> at site <span class="math">\(r\)</span>, and is defined by</p>
-<div class="math">
+<span class="math notranslate nohighlight">\(P_{r,xy}\)</span> gives the substitution rate from codon <span class="math notranslate nohighlight">\(x\)</span> to codon <span class="math notranslate nohighlight">\(y \ne x\)</span> at site <span class="math notranslate nohighlight">\(r\)</span>, and is defined by</p>
+<div class="math notranslate nohighlight">
 \[\begin{split}P_{r,xy} =
 \begin{cases}
 Q_{xy} \times F_{r,xy} &amp; \mbox{if $x \ne y$,} \\
 -\sum\limits_{z \ne x} F_{r,xz} Q_{xz} &amp; \mbox{if $x = y$.}
 \end{cases}\end{split}\]</div>
-<p>where <span class="math">\(Q_{xy}\)</span> is the rate of mutation from codon <span class="math">\(x\)</span> to <span class="math">\(y\)</span> and is defined by</p>
-<div class="math">
+<p>where <span class="math notranslate nohighlight">\(Q_{xy}\)</span> is the rate of mutation from codon <span class="math notranslate nohighlight">\(x\)</span> to <span class="math notranslate nohighlight">\(y\)</span> and is defined by</p>
+<div class="math notranslate nohighlight">
 \[\begin{split}Q_{xy}
 &amp;=&amp;
 \begin{cases}
@@ -98,9 +78,9 @@ Q_{xy} \times F_{r,xy} &amp; \mbox{if $x \ne y$,} \\
 \kappa \phi_w &amp; \mbox{if $x$ is converted to $y$ by a single-nucleotide transition to $w$,} \\
 0 &amp; \mbox{if $x$ and $y$ differ by more than one nucleotide,} \\
 \end{cases}\end{split}\]</div>
-<p>where <span class="math">\(\kappa\)</span> is the transition-transversion ratio and <span class="math">\(\phi_w\)</span> is the expected frequency of nucleotide <span class="math">\(w\)</span> in the absence of selection on amino-acid mutation (and so is subject to the constraint <span class="math">\(1 = \sum_w \phi_w\)</span>).</p>
-<p>The “fixation probability” <span class="math">\(F_{r,xy}\)</span> of the mutation from <span class="math">\(x\)</span> to <span class="math">\(y\)</span> is</p>
-<div class="math">
+<p>where <span class="math notranslate nohighlight">\(\kappa\)</span> is the transition-transversion ratio and <span class="math notranslate nohighlight">\(\phi_w\)</span> is the expected frequency of nucleotide <span class="math notranslate nohighlight">\(w\)</span> in the absence of selection on amino-acid mutation (and so is subject to the constraint <span class="math notranslate nohighlight">\(1 = \sum_w \phi_w\)</span>).</p>
+<p>The “fixation probability” <span class="math notranslate nohighlight">\(F_{r,xy}\)</span> of the mutation from <span class="math notranslate nohighlight">\(x\)</span> to <span class="math notranslate nohighlight">\(y\)</span> is</p>
+<div class="math notranslate nohighlight">
 \[\begin{split}F_{r,xy}
 &amp;=&amp;
 \begin{cases}
@@ -108,22 +88,22 @@ Q_{xy} \times F_{r,xy} &amp; \mbox{if $x \ne y$,} \\
 \omega &amp; \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
 \omega \times \frac{-\beta \ln\left(\pi_{r,\mathcal{A}\left(x\right)} / \pi_{r,\mathcal{A}\left(y\right)}\right)}{1 - \left(\pi_{r,\mathcal{A}\left(x\right)} / \pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}} &amp; \mbox{otherwise.}
 \end{cases}\end{split}\]</div>
-<p>where <span class="math">\(\pi_{r,a}\)</span> is the preference of site <span class="math">\(r\)</span> for amino acid <span class="math">\(a\)</span>, <span class="math">\(\operatorname{A}\left(x\right)\)</span> is the amino acid encoded by codon <span class="math">\(x\)</span>, <span class="math">\(\beta\)</span> is the <em>stringency parameter</em>, and <span class="math">\(\omega\)</span> is a relative rate of nonsynonymous to synonymous mutations after accounting for the selection encapsulated by the preferences.</p>
-<p>We define a variable transformation of the four nucleotide frequency parameters <span class="math">\(\phi_w\)</span> (three of which are unique).
+<p>where <span class="math notranslate nohighlight">\(\pi_{r,a}\)</span> is the preference of site <span class="math notranslate nohighlight">\(r\)</span> for amino acid <span class="math notranslate nohighlight">\(a\)</span>, <span class="math notranslate nohighlight">\(\operatorname{A}\left(x\right)\)</span> is the amino acid encoded by codon <span class="math notranslate nohighlight">\(x\)</span>, <span class="math notranslate nohighlight">\(\beta\)</span> is the <em>stringency parameter</em>, and <span class="math notranslate nohighlight">\(\omega\)</span> is a relative rate of nonsynonymous to synonymous mutations after accounting for the selection encapsulated by the preferences.</p>
+<p>We define a variable transformation of the four nucleotide frequency parameters <span class="math notranslate nohighlight">\(\phi_w\)</span> (three of which are unique).
 This transformation aids in numerical optimization.
-Specifically, we number the four nucleotides in alphabetical order so that <span class="math">\(w = 0\)</span> denotes <em>A</em>, <span class="math">\(w = 1\)</span> denotes <em>C</em>, <span class="math">\(w = 2\)</span> denotes <em>G</em>, and <span class="math">\(w = 3\)</span> denotes <em>T</em>.
-We then define the three free variables <span class="math">\(\eta_0\)</span>, <span class="math">\(\eta_1\)</span>, and <span class="math">\(\eta_2\)</span>, all of which are constrained to fall between zero and one.
-For notational convenience in the formulas below, we also define <span class="math">\(\eta_3 = 0\)</span>; note however that <span class="math">\(\eta_3\)</span> is not a free parameter, as it is always zero.
-We define <span class="math">\(\phi_w\)</span> in terms of these <span class="math">\(\eta_i\)</span> variables by</p>
-<div class="math" id="equation-phi_from_eta">
-<span class="eqno">(1)<a class="headerlink" href="#equation-phi_from_eta" title="Permalink to this equation">¶</a></span>\[\phi_w = \left(\prod_{i = 0}^{w - 1} \eta_i\right) \left(1 - \eta_w\right)\]</div>
+Specifically, we number the four nucleotides in alphabetical order so that <span class="math notranslate nohighlight">\(w = 0\)</span> denotes <em>A</em>, <span class="math notranslate nohighlight">\(w = 1\)</span> denotes <em>C</em>, <span class="math notranslate nohighlight">\(w = 2\)</span> denotes <em>G</em>, and <span class="math notranslate nohighlight">\(w = 3\)</span> denotes <em>T</em>.
+We then define the three free variables <span class="math notranslate nohighlight">\(\eta_0\)</span>, <span class="math notranslate nohighlight">\(\eta_1\)</span>, and <span class="math notranslate nohighlight">\(\eta_2\)</span>, all of which are constrained to fall between zero and one.
+For notational convenience in the formulas below, we also define <span class="math notranslate nohighlight">\(\eta_3 = 0\)</span>; note however that <span class="math notranslate nohighlight">\(\eta_3\)</span> is not a free parameter, as it is always zero.
+We define <span class="math notranslate nohighlight">\(\phi_w\)</span> in terms of these <span class="math notranslate nohighlight">\(\eta_i\)</span> variables by</p>
+<div class="math notranslate nohighlight" id="equation-phi-from-eta">
+<span class="eqno">(1)<a class="headerlink" href="#equation-phi-from-eta" title="Permalink to this equation">¶</a></span>\[\phi_w = \left(\prod_{i = 0}^{w - 1} \eta_i\right) \left(1 - \eta_w\right)\]</div>
 <p>or conversely</p>
-<div class="math" id="equation-eta_from_phi">
-<span class="eqno">(2)<a class="headerlink" href="#equation-eta_from_phi" title="Permalink to this equation">¶</a></span>\[\eta_w = 1 - \phi_w / \left(\prod_{i = 0}^{w - 1} \eta_i\right).\]</div>
-<p>Note that setting <span class="math">\(\eta_w = \frac{3 - w}{4 - w}\)</span> makes all of the <span class="math">\(\phi_w\)</span> values equal to <span class="math">\(\frac{1}{4}\)</span>.</p>
+<div class="math notranslate nohighlight" id="equation-eta-from-phi">
+<span class="eqno">(2)<a class="headerlink" href="#equation-eta-from-phi" title="Permalink to this equation">¶</a></span>\[\eta_w = 1 - \phi_w / \left(\prod_{i = 0}^{w - 1} \eta_i\right).\]</div>
+<p>Note that setting <span class="math notranslate nohighlight">\(\eta_w = \frac{3 - w}{4 - w}\)</span> makes all of the <span class="math notranslate nohighlight">\(\phi_w\)</span> values equal to <span class="math notranslate nohighlight">\(\frac{1}{4}\)</span>.</p>
 <p>The derivatives are:</p>
-<div class="math" id="equation-dphi_deta">
-<span class="eqno">(3)<a class="headerlink" href="#equation-dphi_deta" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial \phi_w}{\partial \eta_i}
+<div class="math notranslate nohighlight" id="equation-dphi-deta">
+<span class="eqno">(3)<a class="headerlink" href="#equation-dphi-deta" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial \phi_w}{\partial \eta_i}
 &amp; = &amp;
 \begin{cases}
 \left(\prod_{j = 0}^{i - 1} \eta_j\right)\left(\prod_{j = i + 1}^{w - 1}\eta_j\right) \left(1 - \eta_w\right) = \frac{\phi_w}{\eta_i} &amp; \mbox{if $i &lt; w$} \\
@@ -135,34 +115,34 @@ We define <span class="math">\(\phi_w\)</span> in terms of these <span class="ma
 \frac{\phi_{w}}{\eta_i - \delta_{iw}} &amp; \mbox{if $i \le w$,} \\
 0 &amp; \mbox{otherwise,}
 \end{cases}\end{split}\]</div>
-<p>where <span class="math">\(\delta_{ij}\)</span> is the Kronecker-delta, equal to 1 if <span class="math">\(i = j\)</span> and 0 otherwise.</p>
-<p>Given these definitions, the free parameters in and <em>ExpCM</em> model are <span class="math">\(\kappa\)</span>, <span class="math">\(\eta_0\)</span>, <span class="math">\(\eta_1\)</span>, <span class="math">\(\eta_2\)</span>, <span class="math">\(\beta\)</span>, and <span class="math">\(\omega\)</span>.</p>
-<p>Here are the derivatives of <span class="math">\(P_{r,xy}\)</span> with respect to each of these parameters:</p>
-<div class="math" id="equation-dPrxy_dkappa">
-<span class="eqno">(4)<a class="headerlink" href="#equation-dPrxy_dkappa" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{r,xy}}{\partial \kappa}
+<p>where <span class="math notranslate nohighlight">\(\delta_{ij}\)</span> is the Kronecker-delta, equal to 1 if <span class="math notranslate nohighlight">\(i = j\)</span> and 0 otherwise.</p>
+<p>Given these definitions, the free parameters in and <em>ExpCM</em> model are <span class="math notranslate nohighlight">\(\kappa\)</span>, <span class="math notranslate nohighlight">\(\eta_0\)</span>, <span class="math notranslate nohighlight">\(\eta_1\)</span>, <span class="math notranslate nohighlight">\(\eta_2\)</span>, <span class="math notranslate nohighlight">\(\beta\)</span>, and <span class="math notranslate nohighlight">\(\omega\)</span>.</p>
+<p>Here are the derivatives of <span class="math notranslate nohighlight">\(P_{r,xy}\)</span> with respect to each of these parameters:</p>
+<div class="math notranslate nohighlight" id="equation-dprxy-dkappa">
+<span class="eqno">(4)<a class="headerlink" href="#equation-dprxy-dkappa" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{r,xy}}{\partial \kappa}
 &amp;=&amp;
 \begin{cases}
 \frac{P_{r,xy}}{\kappa} &amp; \mbox{if $x$ is converted to $y$ by a transition of a nucleotide to $w$,} \\
 0 &amp; \mbox{if $x$ and $y$ differ by something other than a single transition,} \\
 -\sum\limits_{z \ne x} \frac{\partial P_{r,xz}}{\partial \kappa} &amp; \mbox{if $x = y$.}
 \end{cases}\end{split}\]</div>
-<div class="math" id="equation-dPrxy_deta">
-<span class="eqno">(5)<a class="headerlink" href="#equation-dPrxy_deta" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{r,xy}}{\partial \eta_i}
+<div class="math notranslate nohighlight" id="equation-dprxy-deta">
+<span class="eqno">(5)<a class="headerlink" href="#equation-dprxy-deta" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{r,xy}}{\partial \eta_i}
 =
 \begin{cases}
 \frac{P_{r,xy}}{\phi_w} \frac{\partial \phi_w}{\partial \eta_i} = \frac{P_{r,xy}}{\eta_i - \delta_{iw}} &amp; \mbox{if $x$ is converted to $y$ by a single-nucleotide mutation to $w \ge i$,} \\
 0 &amp; \mbox{if $i &gt; w$ or $x$ and $y$ differ by more than one nucleotide,} \\
 -\sum\limits_{z \ne x} \frac{\partial P_{r,xz}}{\partial \eta_i} &amp; \mbox{if $x = y$.}
 \end{cases}\end{split}\]</div>
-<div class="math" id="equation-dPrxy_domega">
-<span class="eqno">(6)<a class="headerlink" href="#equation-dPrxy_domega" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{r,xy}}{\partial \omega} =
+<div class="math notranslate nohighlight" id="equation-dprxy-domega">
+<span class="eqno">(6)<a class="headerlink" href="#equation-dprxy-domega" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{r,xy}}{\partial \omega} =
 \begin{cases}
 0 &amp; \mbox{if $\operatorname{A}\left(x\right) = \operatorname{A}\left(y\right)$ and $x \ne y$} \\
 \frac{P_{r,xy}}{\omega} &amp; \mbox{if $\operatorname{A}\left(x\right) \ne \operatorname{A}\left(y\right)$,} \\
 -\sum\limits_{z \ne x} \frac{\partial P_{r,xz}}{\partial \omega} &amp; \mbox{if $x = y$.}
 \end{cases}\end{split}\]</div>
-<div class="math" id="equation-dPrxy_dbeta">
-<span class="eqno">(7)<a class="headerlink" href="#equation-dPrxy_dbeta" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{r,xy}}{\partial \beta} =
+<div class="math notranslate nohighlight" id="equation-dprxy-dbeta">
+<span class="eqno">(7)<a class="headerlink" href="#equation-dprxy-dbeta" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{r,xy}}{\partial \beta} =
 \begin{cases}
 0 &amp; \mbox{if $\operatorname{A}\left(x\right) = \operatorname{A}\left(y\right)$ and $x \ne y$}, \\
 0 &amp; \mbox{if $\pi_{r,\operatorname{A}\left(x\right)} = \pi_{r,\operatorname{A}\left(y\right)}$ and $x \ne y$}, \\
@@ -174,35 +154,35 @@ We define <span class="math">\(\phi_w\)</span> in terms of these <span class="ma
 </div>
 <div class="section" id="expcm-stationary-state-and-derivatives">
 <h2><a class="toc-backref" href="#id5"><em>ExpCM</em> stationary state and derivatives</a><a class="headerlink" href="#expcm-stationary-state-and-derivatives" title="Permalink to this headline">¶</a></h2>
-<p>The stationary state of the substitution model defined by <span class="math">\(P_{r,xy}\)</span> is</p>
-<div class="math" id="equation-prx">
+<p>The stationary state of the substitution model defined by <span class="math notranslate nohighlight">\(P_{r,xy}\)</span> is</p>
+<div class="math notranslate nohighlight" id="equation-prx">
 <span class="eqno">(8)<a class="headerlink" href="#equation-prx" title="Permalink to this equation">¶</a></span>\[p_{r,x} = \frac{q_x f_{r,x}}{\sum_z q_z f_{r,z}}\]</div>
 <p>where</p>
-<div class="math" id="equation-frx">
+<div class="math notranslate nohighlight" id="equation-frx">
 <span class="eqno">(9)<a class="headerlink" href="#equation-frx" title="Permalink to this equation">¶</a></span>\[f_{r,x} = \left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta}\]</div>
 <p>and</p>
-<div class="math" id="equation-qx">
+<div class="math notranslate nohighlight" id="equation-qx">
 <span class="eqno">(10)<a class="headerlink" href="#equation-qx" title="Permalink to this equation">¶</a></span>\[q_x = \phi_{x_0}\phi_{x_1}\phi_{x_2}\]</div>
-<p>where <span class="math">\(x_0\)</span>, <span class="math">\(x_1\)</span>, and <span class="math">\(x_2\)</span> are the nucleotides at the first, second, and third positions of codon <span class="math">\(x\)</span>.</p>
-<p>The derivatives of the stationary state with respect to <span class="math">\(\kappa\)</span> and <span class="math">\(\omega\)</span> are zero as these do not affect that state, so:</p>
-<div class="math" id="equation-dprx_dkappadomega">
-<span class="eqno">(11)<a class="headerlink" href="#equation-dprx_dkappadomega" title="Permalink to this equation">¶</a></span>\[\frac{\partial p_{r,x}}{\partial \kappa} = \frac{\partial p_{r,x}}{\partial \omega} = 0\]</div>
-<p>The stationary state is sensitive to the value of <span class="math">\(\beta\)</span>, with derivative:</p>
-<div class="math" id="equation-dprx_dbeta">
-<span class="eqno">(12)<a class="headerlink" href="#equation-dprx_dbeta" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial p_{r,x}}{\partial \beta} &amp;=&amp;
+<p>where <span class="math notranslate nohighlight">\(x_0\)</span>, <span class="math notranslate nohighlight">\(x_1\)</span>, and <span class="math notranslate nohighlight">\(x_2\)</span> are the nucleotides at the first, second, and third positions of codon <span class="math notranslate nohighlight">\(x\)</span>.</p>
+<p>The derivatives of the stationary state with respect to <span class="math notranslate nohighlight">\(\kappa\)</span> and <span class="math notranslate nohighlight">\(\omega\)</span> are zero as these do not affect that state, so:</p>
+<div class="math notranslate nohighlight" id="equation-dprx-dkappadomega">
+<span class="eqno">(11)<a class="headerlink" href="#equation-dprx-dkappadomega" title="Permalink to this equation">¶</a></span>\[\frac{\partial p_{r,x}}{\partial \kappa} = \frac{\partial p_{r,x}}{\partial \omega} = 0\]</div>
+<p>The stationary state is sensitive to the value of <span class="math notranslate nohighlight">\(\beta\)</span>, with derivative:</p>
+<div class="math notranslate nohighlight" id="equation-dprx-dbeta">
+<span class="eqno">(12)<a class="headerlink" href="#equation-dprx-dbeta" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial p_{r,x}}{\partial \beta} &amp;=&amp;
 \frac{p_{r,x}\left[\ln\left(\pi_{r,\operatorname{A}\left(x\right)}\right)\left(\sum_z f_{r,z} q_z\right) - \sum_z \ln\left(\pi_{r,\operatorname{A}\left(z\right)}\right) f_{r,z} q_z\right]}
 {\sum_z q_z f_{r,z}} \\
 &amp;=&amp; p_{r,x} \left(\ln\left(\pi_{r,\operatorname{A}\left(x\right)}\right) - \frac{\sum_z \ln\left(\pi_{r,\operatorname{A}\left(z\right)}\right) f_{r,z} q_z}{\sum_z q_z f_{r,z}}\right) \\
 &amp;=&amp; p_{r,x} \left(\ln\left(\pi_{r,\operatorname{A}\left(x\right)}\right) - \sum_z \ln\left(\pi_{r,\operatorname{A}\left(z\right)}\right) p_{r,z}\right)\end{split}\]</div>
-<p>The stationary state is also sensitive to the values of <span class="math">\(\eta_0\)</span>, <span class="math">\(\eta_1\)</span>, and <span class="math">\(\eta_2\)</span>:</p>
-<div class="math" id="equation-dprx_detai">
-<span class="eqno">(13)<a class="headerlink" href="#equation-dprx_detai" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial p_{r,x}}{\partial \eta_i} &amp;=&amp;
+<p>The stationary state is also sensitive to the values of <span class="math notranslate nohighlight">\(\eta_0\)</span>, <span class="math notranslate nohighlight">\(\eta_1\)</span>, and <span class="math notranslate nohighlight">\(\eta_2\)</span>:</p>
+<div class="math notranslate nohighlight" id="equation-dprx-detai">
+<span class="eqno">(13)<a class="headerlink" href="#equation-dprx-detai" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial p_{r,x}}{\partial \eta_i} &amp;=&amp;
 \frac{f_{r,x} \frac{\partial q_x}{\partial \eta_i}\left(\sum_z q_z f_{r,z}\right) - f_{r,x} q_x \left(\sum_z f_{r,z} \frac{\partial q_z}{\partial \eta_i} \right)}
 {\left(\sum_z q_z f_{r,z}\right)^2} \\
 &amp;=&amp; \frac{\partial q_x}{\partial \eta_i}\frac{p_{r,x}}{q_x} - p_{r,x} \frac{\sum_z f_{r,z} \frac{\partial q_z}{\partial \eta_i}}{\sum_z q_z f_{r,z}}\end{split}\]</div>
-<p>where the <span class="math">\(\frac{\partial q_x}{\partial \eta_i}\)</span> terms are:</p>
-<div class="math" id="equation-dqx_deta">
-<span class="eqno">(14)<a class="headerlink" href="#equation-dqx_deta" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial q_x}{\partial \eta_i} &amp; = &amp;
+<p>where the <span class="math notranslate nohighlight">\(\frac{\partial q_x}{\partial \eta_i}\)</span> terms are:</p>
+<div class="math notranslate nohighlight" id="equation-dqx-deta">
+<span class="eqno">(14)<a class="headerlink" href="#equation-dqx-deta" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial q_x}{\partial \eta_i} &amp; = &amp;
 \frac{\partial \phi_{x_0}}{\partial \eta_i} \phi_{x_1} \phi_{x_2} +
 \frac{\partial \phi_{x_1}}{\partial \eta_i} \phi_{x_0} \phi_{x_2} +
 \frac{\partial \phi_{x_2}}{\partial \eta_i} \phi_{x_0} \phi_{x_1} \\
@@ -212,9 +192,9 @@ We define <span class="math">\(\phi_w\)</span> in terms of these <span class="ma
 q_x \sum_{j=0}^{2} \frac{1}{\phi_{x_j}} \frac{\partial \phi_{x_j}}{\partial \eta_i} \\
 &amp; = &amp;
 q_x \sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le x_j \right)}{\eta_i - \delta_{ix_j}}\end{split}\]</div>
-<p>where <span class="math">\(\operatorname{bool}\left(i \le j\right)\)</span> is 1 if <span class="math">\(i \le j\)</span> and 0 otherwise, and so</p>
-<div class="math" id="equation-dprx_detai_2">
-<span class="eqno">(15)<a class="headerlink" href="#equation-dprx_detai_2" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial p_{r,x}}{\partial \eta_i} &amp; = &amp;
+<p>where <span class="math notranslate nohighlight">\(\operatorname{bool}\left(i \le j\right)\)</span> is 1 if <span class="math notranslate nohighlight">\(i \le j\)</span> and 0 otherwise, and so</p>
+<div class="math notranslate nohighlight" id="equation-dprx-detai-2">
+<span class="eqno">(15)<a class="headerlink" href="#equation-dprx-detai-2" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial p_{r,x}}{\partial \eta_i} &amp; = &amp;
 p_{r,x}
 \left[\sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le x_j \right)}{\eta_i - \delta_{ix_j}} - \frac{\sum_z f_{r,z} q_z \sum_{j=0}^{2} \frac{\operatorname{bool}\left(i \le z_j \right)}{\eta_i - \delta_{iz_j}}}{\sum_z q_z f_{r,z}} \right] \\
 &amp; = &amp;
@@ -224,37 +204,37 @@ p_{r,x}
 </div>
 <div class="section" id="expcm-with-empirical-nucleotide-frequencies">
 <h2><a class="toc-backref" href="#id6"><em>ExpCM</em> with empirical nucleotide frequencies</a><a class="headerlink" href="#expcm-with-empirical-nucleotide-frequencies" title="Permalink to this headline">¶</a></h2>
-<p>In the description above, the nucleotide frequencies <span class="math">\(\phi_w\)</span> are fit as three free parameters.
+<p>In the description above, the nucleotide frequencies <span class="math notranslate nohighlight">\(\phi_w\)</span> are fit as three free parameters.
 Now let’s consider the case where we instead calculate them empirically to give a stationary state that implies nucleotide frequencies that match those empirically observed in the alignment.
 This should be beneficial in terms of optimization because it reduces the number of model parameters that need to be optimized.</p>
-<p>Let <span class="math">\(g_w\)</span> be the empirical frequency of nucleotide <span class="math">\(w\)</span> taken over all sites and sequences in the alignment.
-Obviously, <span class="math">\(1 = \sum_w g_w\)</span>.
-We want to empirically set <span class="math">\(\phi_w\)</span> to some value <span class="math">\(\hat{\phi}_w\)</span> such that when <span class="math">\(q_x = \hat{\phi}_{x_0} \hat{\phi}_{x_1} \hat{\phi}_{x_2}\)</span> then</p>
-<div class="math" id="equation-phihat">
+<p>Let <span class="math notranslate nohighlight">\(g_w\)</span> be the empirical frequency of nucleotide <span class="math notranslate nohighlight">\(w\)</span> taken over all sites and sequences in the alignment.
+Obviously, <span class="math notranslate nohighlight">\(1 = \sum_w g_w\)</span>.
+We want to empirically set <span class="math notranslate nohighlight">\(\phi_w\)</span> to some value <span class="math notranslate nohighlight">\(\hat{\phi}_w\)</span> such that when <span class="math notranslate nohighlight">\(q_x = \hat{\phi}_{x_0} \hat{\phi}_{x_1} \hat{\phi}_{x_2}\)</span> then</p>
+<div class="math notranslate nohighlight" id="equation-phihat">
 <span class="eqno">(16)<a class="headerlink" href="#equation-phihat" title="Permalink to this equation">¶</a></span>\[\begin{split}g_w &amp; = &amp;
 \frac{1}{L} \sum_r \sum_x \frac{1}{3} N_w\left(x\right) p_{r,x} \\
 &amp; = &amp;
 \frac{1}{3L} \sum_r \frac{\sum_x N_w\left(x\right) f_{r,x} \prod_{k=0}^2 \hat{\phi}_{x_k}}{\sum_y f_{r,y} \prod_{k=0}^2 \hat{\phi}_{y_k}} \\\end{split}\]</div>
-<p>where <span class="math">\(N_w\left(x\right) = \sum_{k=0}^2 \delta_{x_k, w}\)</span> is the number of occurrence of nucleotide <span class="math">\(w\)</span> in codon <span class="math">\(x\)</span>, <span class="math">\(r\)</span> ranges over all codon sites in the gene, <span class="math">\(x\)</span> ranges over all codons, and <span class="math">\(k\)</span> ranges over the first three nucleotides.</p>
-<p>There are three independent <span class="math">\(g_w\)</span> values and three independent <span class="math">\(\hat{\phi}_w\)</span> values (since <span class="math">\(1 = \sum_w g_w = \sum_w \hat{\phi}_w\)</span>), so we have three equations and three unknowns.
-We could not solve the set of three equations analytically for the <span class="math">\(\hat{\phi}_w\)</span> values, so instead we use a non-linear equation solver to determine their values.</p>
-<p>When using empirical nucleotide frequencies, we no longer need to calculate any derivatives with respect to <span class="math">\(\eta_i\)</span> as we no longer have the <span class="math">\(\eta_i\)</span> free parameters.</p>
-<p>However, now the value of <span class="math">\(\phi_w = \hat{\phi}_w\)</span> depends on <span class="math">\(\beta\)</span> via the <span class="math">\(f_{r,x}\)</span> parameters in Equation <a class="reference internal" href="#equation-phihat">(16)</a>.
-So we need new formulas for <span class="math">\(\frac{\partial p_{r,x}}{\partial \beta}\)</span> and <span class="math">\(\frac{\partial P_{r,xy}}{\partial \beta}\)</span> that accounts for this dependency.</p>
-<p>Since we do not have an analytic expression for <span class="math">\(\hat{\phi}_w\)</span>, we cannot compute <span class="math">\(\frac{\partial \phi_w}{\partial \beta}\)</span> analytically.
+<p>where <span class="math notranslate nohighlight">\(N_w\left(x\right) = \sum_{k=0}^2 \delta_{x_k, w}\)</span> is the number of occurrence of nucleotide <span class="math notranslate nohighlight">\(w\)</span> in codon <span class="math notranslate nohighlight">\(x\)</span>, <span class="math notranslate nohighlight">\(r\)</span> ranges over all codon sites in the gene, <span class="math notranslate nohighlight">\(x\)</span> ranges over all codons, and <span class="math notranslate nohighlight">\(k\)</span> ranges over the first three nucleotides.</p>
+<p>There are three independent <span class="math notranslate nohighlight">\(g_w\)</span> values and three independent <span class="math notranslate nohighlight">\(\hat{\phi}_w\)</span> values (since <span class="math notranslate nohighlight">\(1 = \sum_w g_w = \sum_w \hat{\phi}_w\)</span>), so we have three equations and three unknowns.
+We could not solve the set of three equations analytically for the <span class="math notranslate nohighlight">\(\hat{\phi}_w\)</span> values, so instead we use a non-linear equation solver to determine their values.</p>
+<p>When using empirical nucleotide frequencies, we no longer need to calculate any derivatives with respect to <span class="math notranslate nohighlight">\(\eta_i\)</span> as we no longer have the <span class="math notranslate nohighlight">\(\eta_i\)</span> free parameters.</p>
+<p>However, now the value of <span class="math notranslate nohighlight">\(\phi_w = \hat{\phi}_w\)</span> depends on <span class="math notranslate nohighlight">\(\beta\)</span> via the <span class="math notranslate nohighlight">\(f_{r,x}\)</span> parameters in Equation <a class="reference internal" href="#equation-phihat">(16)</a>.
+So we need new formulas for <span class="math notranslate nohighlight">\(\frac{\partial p_{r,x}}{\partial \beta}\)</span> and <span class="math notranslate nohighlight">\(\frac{\partial P_{r,xy}}{\partial \beta}\)</span> that accounts for this dependency.</p>
+<p>Since we do not have an analytic expression for <span class="math notranslate nohighlight">\(\hat{\phi}_w\)</span>, we cannot compute <span class="math notranslate nohighlight">\(\frac{\partial \phi_w}{\partial \beta}\)</span> analytically.
 But we can compute these derivatives numerically.
 This is done using a finite-difference method.</p>
-<p>We now update the formula in Equation <a class="reference internal" href="#equation-dPrxy_dbeta">(7)</a> for the case when <span class="math">\(\phi_w\)</span> depends on <span class="math">\(\beta\)</span>. In that case, we have:</p>
-<div class="math" id="equation-dQxy_dbeta_empirical_phi">
-<span class="eqno">(17)<a class="headerlink" href="#equation-dQxy_dbeta_empirical_phi" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial Q_{xy}}{\partial \beta} =
+<p>We now update the formula in Equation <a class="reference internal" href="#equation-dprxy-dbeta">(7)</a> for the case when <span class="math notranslate nohighlight">\(\phi_w\)</span> depends on <span class="math notranslate nohighlight">\(\beta\)</span>. In that case, we have:</p>
+<div class="math notranslate nohighlight" id="equation-dqxy-dbeta-empirical-phi">
+<span class="eqno">(17)<a class="headerlink" href="#equation-dqxy-dbeta-empirical-phi" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial Q_{xy}}{\partial \beta} =
 \begin{cases}
 \frac{\partial \phi_w}{\partial \beta} &amp; \mbox{if $x$ is converted to $y$ by a single-nucleotide transversion to $w$,} \\
 \kappa \frac{\partial \phi_w}{\partial \beta} &amp; \mbox{if $x$ is converted to $y$ by a single-nucleotide transition to $w$,} \\
 0 &amp; \mbox{if $x$ and $y$ differ by more than one nucleotide,} \\
 \end{cases}\end{split}\]</div>
 <p>and</p>
-<div class="math" id="equation-dFrxy_dbeta_empirical_phi">
-<span class="eqno">(18)<a class="headerlink" href="#equation-dFrxy_dbeta_empirical_phi" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial F_{r,xy}}{\partial \beta}
+<div class="math notranslate nohighlight" id="equation-dfrxy-dbeta-empirical-phi">
+<span class="eqno">(18)<a class="headerlink" href="#equation-dfrxy-dbeta-empirical-phi" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial F_{r,xy}}{\partial \beta}
 &amp;=&amp;
 \begin{cases}
 0 &amp; \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
@@ -262,21 +242,21 @@ This is done using a finite-difference method.</p>
 \frac{F_{r,xy} \left(1 - \frac{F_{r,xy}}{\omega} \left(\pi_{r,\operatorname{A}\left(x\right)} / \pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta}\right)}{\beta}
 &amp; \mbox{otherwise,}
 \end{cases}\end{split}\]</div>
-<p>so for all <span class="math">\(x \ne y\)</span>, we have</p>
-<div class="math" id="equation-dPrxy_dbeta_empirical_phi">
-<span class="eqno">(19)<a class="headerlink" href="#equation-dPrxy_dbeta_empirical_phi" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{r,xy}}{\partial \beta}
+<p>so for all <span class="math notranslate nohighlight">\(x \ne y\)</span>, we have</p>
+<div class="math notranslate nohighlight" id="equation-dprxy-dbeta-empirical-phi">
+<span class="eqno">(19)<a class="headerlink" href="#equation-dprxy-dbeta-empirical-phi" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{r,xy}}{\partial \beta}
 &amp; = &amp;
 \frac{\partial \left(Q_{xy} \times F_{r,xy}\right)}{\partial \beta} \\
 &amp; = &amp;
 Q_{xy} \frac{\partial F_{r,xy}}{\partial \beta} + F_{r,xy} \frac{\partial Q_{xy}}{\partial \beta} \\
 &amp; = &amp;
 \left[\frac{\partial P_{r,xy}}{\partial \beta}\right]_{\mbox{free } \phi_w} + F_{r,xy} \frac{\partial Q_{xy}}{\partial \beta}.\end{split}\]</div>
-<p>where <span class="math">\(\left[\frac{\partial P_{r,xy}}{\partial \beta}\right]_{\mbox{free } \phi_w}\)</span> is the expression given by Equation <a class="reference internal" href="#equation-dPrxy_dbeta">(7)</a>.
-When <span class="math">\(x = y\)</span>, we have <span class="math">\(\frac{\partial P_{r,xx}}{\partial \beta} = \sum\limits_{z \ne x} -\frac{\partial P_{r,xz}}{\partial \beta}\)</span>.</p>
-<p>We also must update the formula in Equation <a class="reference internal" href="#equation-dprx_dbeta">(12)</a> for the case where <span class="math">\(\phi_w\)</span> depends on <span class="math">\(\beta\)</span>.
+<p>where <span class="math notranslate nohighlight">\(\left[\frac{\partial P_{r,xy}}{\partial \beta}\right]_{\mbox{free } \phi_w}\)</span> is the expression given by Equation <a class="reference internal" href="#equation-dprxy-dbeta">(7)</a>.
+When <span class="math notranslate nohighlight">\(x = y\)</span>, we have <span class="math notranslate nohighlight">\(\frac{\partial P_{r,xx}}{\partial \beta} = \sum\limits_{z \ne x} -\frac{\partial P_{r,xz}}{\partial \beta}\)</span>.</p>
+<p>We also must update the formula in Equation <a class="reference internal" href="#equation-dprx-dbeta">(12)</a> for the case where <span class="math notranslate nohighlight">\(\phi_w\)</span> depends on <span class="math notranslate nohighlight">\(\beta\)</span>.
 We have:</p>
-<div class="math" id="equation-dqx_dbeta_empirical_phi">
-<span class="eqno">(20)<a class="headerlink" href="#equation-dqx_dbeta_empirical_phi" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial q_x}{\partial \beta}
+<div class="math notranslate nohighlight" id="equation-dqx-dbeta-empirical-phi">
+<span class="eqno">(20)<a class="headerlink" href="#equation-dqx-dbeta-empirical-phi" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial q_x}{\partial \beta}
 &amp; = &amp;
 \frac{\partial \left(\phi_{x_0} \phi_{x_1} \phi_{x_2}\right)}{\partial \beta} \\
 &amp; = &amp;
@@ -284,13 +264,13 @@ We have:</p>
 &amp; = &amp;
 q_x \sum\limits_{j=0}^2 \frac{1}{\phi_{x_j}} \frac{\partial \phi_{x_j}}{\partial \beta}\end{split}\]</div>
 <p>and</p>
-<div class="math" id="equation-dfrx_dbeta_empirical_phi">
-<span class="eqno">(21)<a class="headerlink" href="#equation-dfrx_dbeta_empirical_phi" title="Permalink to this equation">¶</a></span>\[\frac{\partial f_{r,x}}{\partial \beta}
+<div class="math notranslate nohighlight" id="equation-dfrx-dbeta-empirical-phi">
+<span class="eqno">(21)<a class="headerlink" href="#equation-dfrx-dbeta-empirical-phi" title="Permalink to this equation">¶</a></span>\[\frac{\partial f_{r,x}}{\partial \beta}
 =
 f_{r,x} \left[\ln\left(\pi_{r,\operatorname{A}\left(x\right)}\right)\right].\]</div>
 <p>So:</p>
-<div class="math" id="equation-dprx_dbeta_empirical_phi">
-<span class="eqno">(22)<a class="headerlink" href="#equation-dprx_dbeta_empirical_phi" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial p_{r,x}}{\partial \beta}
+<div class="math notranslate nohighlight" id="equation-dprx-dbeta-empirical-phi">
+<span class="eqno">(22)<a class="headerlink" href="#equation-dprx-dbeta-empirical-phi" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial p_{r,x}}{\partial \beta}
 &amp; = &amp;
 \frac{\partial}{\partial \beta} \left(\frac{q_x f_{r,x}}{\sum_z q_z f_{r,z}}\right) \\
 &amp; = &amp;
@@ -304,27 +284,27 @@ p_{r,x} \left[\left[\ln\left(\pi_{r,\operatorname{A}\left(x\right)}\right)\right
 &amp; = &amp;
 \left[\frac{\partial p_{r,x}}{\partial \beta}\right]_{\mbox{free } \phi_w} +
 p_{r,x} \left[\sum\limits_{j=0}^2 \frac{1}{\phi_{x_j}} \frac{\partial \phi_{x_j}}{\partial \beta} - \sum_z p_{r,z}\sum\limits_{j=0}^2 \frac{1}{\phi_{z_j}} \frac{\partial \phi_{z_j}}{\partial \beta}\right]\end{split}\]</div>
-<p>where <span class="math">\(\left[\frac{\partial p_{r,x}}{\partial \beta}\right]_{\mbox{free } \phi_w}\)</span> is the expresssion given by Equation <a class="reference internal" href="#equation-dprx_dbeta">(12)</a>.</p>
+<p>where <span class="math notranslate nohighlight">\(\left[\frac{\partial p_{r,x}}{\partial \beta}\right]_{\mbox{free } \phi_w}\)</span> is the expresssion given by Equation <a class="reference internal" href="#equation-dprx-dbeta">(12)</a>.</p>
 </div>
 <div class="section" id="expcm-with-empirical-nucleotide-frequencies-and-diversifying-pressure">
 <h2><a class="toc-backref" href="#id7"><em>ExpCM</em> with empirical nucleotide frequencies and diversifying pressure</a><a class="headerlink" href="#expcm-with-empirical-nucleotide-frequencies-and-diversifying-pressure" title="Permalink to this headline">¶</a></h2>
-<p>The <span class="math">\(\omega\)</span> value in the previous models is the gene-wide relative rate of nonsynonymous to synonymous mutations after accounting for the differing preferences among sites.
+<p>The <span class="math notranslate nohighlight">\(\omega\)</span> value in the previous models is the gene-wide relative rate of nonsynonymous to synonymous mutations after accounting for the differing preferences among sites.
 In some cases, it might be possible to specify <em>a priori</em> expections for the diversifying pressure at each site.
 For instance, viruses benefit from amino-acid change in sites targeted by the immune system and, consequently, these sites have a higher rate of amino-acid substitution than expected given their level of inherent functional constraint.
-We can incorporate our expectations for diversifying pressure at specific sites into the selection terms <span class="math">\(F_{r,xy}\)</span>.</p>
-<p>Let <span class="math">\(\delta_{r}\)</span> be the pre-determined diversifying pressure for amino-acid change at site <span class="math">\(r\)</span> in the protein. A large positive value of <span class="math">\(\delta_r\)</span> corresponds to high pressure for amino-acid diversification, and negative value corresponds to expected pressure against amino-acid diversification beyond that captured in the amino-acid preferences.  We then replace <span class="math">\(\omega\)</span> in Equation <a class="reference internal" href="ExpCM.html#equation-Frxy">(3)</a> with the expression <span class="math">\(\omega\times\left(1+\omega_{2}\times\delta_{r}\right)\)</span>, resulting in selection terms:</p>
-<div class="math">
+We can incorporate our expectations for diversifying pressure at specific sites into the selection terms <span class="math notranslate nohighlight">\(F_{r,xy}\)</span>.</p>
+<p>Let <span class="math notranslate nohighlight">\(\delta_{r}\)</span> be the pre-determined diversifying pressure for amino-acid change at site <span class="math notranslate nohighlight">\(r\)</span> in the protein. A large positive value of <span class="math notranslate nohighlight">\(\delta_r\)</span> corresponds to high pressure for amino-acid diversification, and negative value corresponds to expected pressure against amino-acid diversification beyond that captured in the amino-acid preferences.  We then replace <span class="math notranslate nohighlight">\(\omega\)</span> in Equation <a class="reference internal" href="ExpCM.html#equation-frxy">(3)</a> with the expression <span class="math notranslate nohighlight">\(\omega\times\left(1+\omega_{2}\times\delta_{r}\right)\)</span>, resulting in selection terms:</p>
+<div class="math notranslate nohighlight">
 \[\begin{split}F_{r,xy} =
 \begin{cases}
 1 &amp; \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$} \\
 \omega\times\left(1+\omega_{2}\times\delta_{r}\right) &amp; \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
 \omega\times\left(1+\omega_{2}\times\delta_{r}\right) \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} &amp; \mbox{otherwise.}
 \end{cases}\end{split}\]</div>
-<p>Whereas before <span class="math">\(\omega\)</span> reflected the elevation of non-synonymous substitution rate (averaged across the entire gene) beyond that expected given the amino-acid preferences, now <span class="math">\(\omega\)</span> reflects a gene-wide rate of elevated non-synonymous substitution after taking into account the expected sites of diversifying pressure (as represented by <span class="math">\(\delta_r\)</span>) weighted by <span class="math">\(\omega_{2}\times\delta_{r}\)</span>. These new selection terms in equation Equation <a class="reference internal" href="ExpCM.html#equation-Frxy_divpressure">(11)</a> are identical the selection terms in Equation <a class="reference internal" href="ExpCM.html#equation-Frxy">(3)</a> when <span class="math">\(\omega_{2} = 0\)</span>.</p>
-<p>To ensure a positive value of <span class="math">\(\omega\times\left(1+\omega_{2}\times\delta_{r}\right)\)</span>, we constrain <span class="math">\(\omega&gt;0\)</span>, <span class="math">\(-1&lt;\omega_2&lt;\infty\)</span>, and <span class="math">\(\lvert\max_r\delta_r\rvert\le1\)</span>.</p>
-<p>We have added one more parameter to Equation <a class="reference internal" href="ExpCM.html#equation-Prxy">(1)</a>, <span class="math">\(\omega_2\)</span>, so we need to add a new derivative, <span class="math">\(\frac{\partial P_{r,xy}}{\partial \omega_2}\)</span> <a class="reference internal" href="#equation-dPrxy_domega2_divpressure">(23)</a>.</p>
-<div class="math" id="equation-dPrxy_domega2_divpressure">
-<span class="eqno">(23)<a class="headerlink" href="#equation-dPrxy_domega2_divpressure" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{r,xy}}{\partial \omega_2} =
+<p>Whereas before <span class="math notranslate nohighlight">\(\omega\)</span> reflected the elevation of non-synonymous substitution rate (averaged across the entire gene) beyond that expected given the amino-acid preferences, now <span class="math notranslate nohighlight">\(\omega\)</span> reflects a gene-wide rate of elevated non-synonymous substitution after taking into account the expected sites of diversifying pressure (as represented by <span class="math notranslate nohighlight">\(\delta_r\)</span>) weighted by <span class="math notranslate nohighlight">\(\omega_{2}\times\delta_{r}\)</span>. These new selection terms in equation Equation <a class="reference internal" href="ExpCM.html#equation-frxy-divpressure">(11)</a> are identical the selection terms in Equation <a class="reference internal" href="ExpCM.html#equation-frxy">(3)</a> when <span class="math notranslate nohighlight">\(\omega_{2} = 0\)</span>.</p>
+<p>To ensure a positive value of <span class="math notranslate nohighlight">\(\omega\times\left(1+\omega_{2}\times\delta_{r}\right)\)</span>, we constrain <span class="math notranslate nohighlight">\(\omega&gt;0\)</span>, <span class="math notranslate nohighlight">\(-1&lt;\omega_2&lt;\infty\)</span>, and <span class="math notranslate nohighlight">\(\lvert\max_r\delta_r\rvert\le1\)</span>.</p>
+<p>We have added one more parameter to Equation <a class="reference internal" href="ExpCM.html#equation-prxy">(1)</a>, <span class="math notranslate nohighlight">\(\omega_2\)</span>, so we need to add a new derivative, <span class="math notranslate nohighlight">\(\frac{\partial P_{r,xy}}{\partial \omega_2}\)</span> <a class="reference internal" href="#equation-dprxy-domega2-divpressure">(23)</a>.</p>
+<div class="math notranslate nohighlight" id="equation-dprxy-domega2-divpressure">
+<span class="eqno">(23)<a class="headerlink" href="#equation-dprxy-domega2-divpressure" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{r,xy}}{\partial \omega_2} =
 \begin{cases}
 0 &amp; \mbox{if $\operatorname{A}\left(x\right) = \operatorname{A}\left(y\right)$ and $x \ne y$} \\
 \omega \times \delta_r \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} \times Q_{xy} &amp; \mbox{if $\operatorname{A}\left(x\right) \ne \operatorname{A}\left(y\right)$,} \\
@@ -333,22 +313,22 @@ We can incorporate our expectations for diversifying pressure at specific sites 
 </div>
 <div class="section" id="expcm-with-the-preferences-as-free-parameters">
 <h2><a class="toc-backref" href="#id8"><em>ExpCM</em> with the preferences as free parameters</a><a class="headerlink" href="#expcm-with-the-preferences-as-free-parameters" title="Permalink to this headline">¶</a></h2>
-<p>In most situations, the amino-acid preferences <span class="math">\(\pi_{r,a}\)</span> are experimentally measured.
+<p>In most situations, the amino-acid preferences <span class="math notranslate nohighlight">\(\pi_{r,a}\)</span> are experimentally measured.
 But in certain situations, we wish to treat these as free parameters that we optimize by maximum likelihood.
-There are two different implementations of how this is done, instantiated in the <code class="docutils literal"><span class="pre">ExpCM_fitprefs</span></code> and <code class="docutils literal"><span class="pre">ExpCM_fitprefs2</span></code> classes.
+There are two different implementations of how this is done, instantiated in the <code class="docutils literal notranslate"><span class="pre">ExpCM_fitprefs</span></code> and <code class="docutils literal notranslate"><span class="pre">ExpCM_fitprefs2</span></code> classes.
 These classes differ in how the preferences are represented as parameters, and so may have different optimization efficiencies.</p>
 <p>First, we describe aspects general to both implementations, then we describe the details specific to each.</p>
-<p>The <span class="math">\(F_{r,xy}\)</span> terms defined by Equation <a class="reference internal" href="ExpCM.html#equation-Frxy">(3)</a> depend on <span class="math">\(\pi_{r,a}\)</span>.
+<p>The <span class="math notranslate nohighlight">\(F_{r,xy}\)</span> terms defined by Equation <a class="reference internal" href="ExpCM.html#equation-frxy">(3)</a> depend on <span class="math notranslate nohighlight">\(\pi_{r,a}\)</span>.
 The derivative is</p>
-<div class="math" id="equation-dFrxy_dpi">
-<span class="eqno">(24)<a class="headerlink" href="#equation-dFrxy_dpi" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial F_{r,xy}}{\partial \pi_{r,a}} &amp;=&amp;
+<div class="math notranslate nohighlight" id="equation-dfrxy-dpi">
+<span class="eqno">(24)<a class="headerlink" href="#equation-dfrxy-dpi" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial F_{r,xy}}{\partial \pi_{r,a}} &amp;=&amp;
 \begin{cases}
 \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\omega \beta}{2 \pi_{r,a}} &amp; \mbox{if $\pi_{r, \mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$}, \\
 \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\omega \beta}{\pi_{r,a}} \frac{\left(\pi_{r,\mathcal{A}\left(x\right)} / \pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\left[\ln\left(\left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right) - 1\right] + 1}{\left(1 - \left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right)^2} &amp; \mbox{if $\pi_{r, \mathcal{A}\left(x\right)} \ne \pi_{r,\mathcal{A}\left(y\right)}$}, \\
 \end{cases}\end{split}\]</div>
-<p>where the expressions when <span class="math">\(\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}\)</span> are derived from application of L’Hopital’s rule, and <span class="math">\(\delta_{ij}\)</span> is the Kronecker delta.</p>
+<p>where the expressions when <span class="math notranslate nohighlight">\(\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}\)</span> are derived from application of L’Hopital’s rule, and <span class="math notranslate nohighlight">\(\delta_{ij}\)</span> is the Kronecker delta.</p>
 <p>Define</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\begin{split}\tilde{F}_{r,xy} =
 \begin{cases}
 0 &amp; \mbox{if $\mathcal{A}\left(x\right) = \mathcal{A}\left(y\right)$,} \\
@@ -356,11 +336,11 @@ The derivative is</p>
 \left(\omega \beta\right) \frac{\left(\pi_{r,\mathcal{A}\left(x\right)} / \pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\left[\ln\left(\left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right) - 1\right] + 1}{\left(1 - \left(\frac{\pi_{r,\mathcal{A}\left(x\right)}}{\pi_{r,\mathcal{A}\left(y\right)}}\right)^{\beta}\right)^2} &amp; \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r, \mathcal{A}\left(x\right)} \ne \pi_{r,\mathcal{A}\left(y\right)}$,}
 \end{cases}\end{split}\]</div>
 <p>so that</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\frac{\partial F_{r,xy}}{\partial \pi_{r,a}} = \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\tilde{F}_{r,xy}}{\pi_{r,a}}.\]</div>
-<p>We also need to calculate the derivative of the stationary state <span class="math">\(p_{r,x}\)</span> given by Equation <a class="reference internal" href="#equation-prx">(8)</a> with respect to the preference. In this calculation, we simplify the algebra by taking advantage of the fact that for our fit preferences models, we always have <span class="math">\(\beta = 1\)</span> to simplify from the first to the second line below:</p>
-<div class="math" id="equation-dprx_dpi">
-<span class="eqno">(25)<a class="headerlink" href="#equation-dprx_dpi" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial p_{r,x}}{\partial \pi_{r,a}} &amp;=&amp;
+<p>We also need to calculate the derivative of the stationary state <span class="math notranslate nohighlight">\(p_{r,x}\)</span> given by Equation <a class="reference internal" href="#equation-prx">(8)</a> with respect to the preference. In this calculation, we simplify the algebra by taking advantage of the fact that for our fit preferences models, we always have <span class="math notranslate nohighlight">\(\beta = 1\)</span> to simplify from the first to the second line below:</p>
+<div class="math notranslate nohighlight" id="equation-dprx-dpi">
+<span class="eqno">(25)<a class="headerlink" href="#equation-dprx-dpi" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial p_{r,x}}{\partial \pi_{r,a}} &amp;=&amp;
 \frac{\partial}{\partial \pi_{r,x}}\left(\frac{q_x \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}}{\sum_z q_z \left(\pi_{r,\mathcal{A}\left(z\right)}\right)^{\beta}}\right) \\
 &amp;=&amp;
 \frac{\partial}{\partial \pi_{r,x}}\left(\frac{q_x \pi_{r,\mathcal{A}\left(x\right)}}{\sum_z q_z \pi_{r,\mathcal{A}\left(z\right)}}\right) \\
@@ -369,30 +349,30 @@ The derivative is</p>
 &amp;=&amp;
 \delta_{a\mathcal{A}\left(x\right)} \frac{p_{r,x}}{\pi_{r,a}} - p_{r,x} \sum_z\delta_{a\mathcal{A}\left(z\right)} \frac{p_{r,z}}{\pi_{r,a}}.\end{split}\]</div>
 <div class="section" id="expcm-fitprefs-implementation">
-<h3><code class="docutils literal"><span class="pre">ExpCM_fitprefs</span></code> implementation<a class="headerlink" href="#expcm-fitprefs-implementation" title="Permalink to this headline">¶</a></h3>
-<p>We define a variable transformation from the 20 <span class="math">\(\pi_{r,a}\)</span> values at each site <span class="math">\(r\)</span> (19 of these 20 values are unique since they sum to one).
-This transformation is analogous to that in Equations <a class="reference internal" href="#equation-phi_from_eta">(1)</a> and <a class="reference internal" href="#equation-eta_from_phi">(2)</a>.
-Specifically, we number the 20 amino acids such that <span class="math">\(a = 0\)</span> means alanine, <span class="math">\(a = 1\)</span> means cysteine, and so on up to <span class="math">\(a = 19\)</span> meaning tyrosine..
-We then define 19 free variables for each site <span class="math">\(r\)</span>: <span class="math">\(\zeta_{r,0}, \zeta_{r,1}, \ldots, \zeta_{r,18}\)</span>, all of which are constrained to value between zero and one.
-For notational convenience, we also define <span class="math">\(\zeta_{r,19} = 0\)</span>, but not that <span class="math">\(\zeta_{r,19}\)</span> is <strong>not</strong> a free parameter as it is always zero.</p>
+<h3><code class="docutils literal notranslate"><span class="pre">ExpCM_fitprefs</span></code> implementation<a class="headerlink" href="#expcm-fitprefs-implementation" title="Permalink to this headline">¶</a></h3>
+<p>We define a variable transformation from the 20 <span class="math notranslate nohighlight">\(\pi_{r,a}\)</span> values at each site <span class="math notranslate nohighlight">\(r\)</span> (19 of these 20 values are unique since they sum to one).
+This transformation is analogous to that in Equations <a class="reference internal" href="#equation-phi-from-eta">(1)</a> and <a class="reference internal" href="#equation-eta-from-phi">(2)</a>.
+Specifically, we number the 20 amino acids such that <span class="math notranslate nohighlight">\(a = 0\)</span> means alanine, <span class="math notranslate nohighlight">\(a = 1\)</span> means cysteine, and so on up to <span class="math notranslate nohighlight">\(a = 19\)</span> meaning tyrosine..
+We then define 19 free variables for each site <span class="math notranslate nohighlight">\(r\)</span>: <span class="math notranslate nohighlight">\(\zeta_{r,0}, \zeta_{r,1}, \ldots, \zeta_{r,18}\)</span>, all of which are constrained to value between zero and one.
+For notational convenience, we also define <span class="math notranslate nohighlight">\(\zeta_{r,19} = 0\)</span>, but not that <span class="math notranslate nohighlight">\(\zeta_{r,19}\)</span> is <strong>not</strong> a free parameter as it is always zero.</p>
 <p>We the define</p>
-<div class="math" id="equation-pi_from_zeta">
-<span class="eqno">(26)<a class="headerlink" href="#equation-pi_from_zeta" title="Permalink to this equation">¶</a></span>\[\pi_{r,a} = \left(\prod\limits_{i=0}^{a - 1} \zeta_{r,i}\right) \left(1 - \zeta_{r,a}\right)\]</div>
+<div class="math notranslate nohighlight" id="equation-pi-from-zeta">
+<span class="eqno">(26)<a class="headerlink" href="#equation-pi-from-zeta" title="Permalink to this equation">¶</a></span>\[\pi_{r,a} = \left(\prod\limits_{i=0}^{a - 1} \zeta_{r,i}\right) \left(1 - \zeta_{r,a}\right)\]</div>
 <p>and conversely</p>
-<div class="math" id="equation-zeta_from_pi">
-<span class="eqno">(27)<a class="headerlink" href="#equation-zeta_from_pi" title="Permalink to this equation">¶</a></span>\[\zeta_{r,a} = 1 - \pi_{r,a} / \left(\prod\limits_{i=0}^{a - 1} \zeta_{r,i} \right).\]</div>
-<p>Note that setting <span class="math">\(\zeta_{r,a} = \frac{19 - a}{20 - a}\)</span> makes all the <span class="math">\(\pi_{r,a}\)</span> values equal to <span class="math">\(\frac{1}{20}\)</span>.</p>
-<p>In analogy with Equation <a class="reference internal" href="#equation-dphi_deta">(3)</a>, we have</p>
-<div class="math" id="equation-dpi_dzeta">
-<span class="eqno">(28)<a class="headerlink" href="#equation-dpi_dzeta" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} =
+<div class="math notranslate nohighlight" id="equation-zeta-from-pi">
+<span class="eqno">(27)<a class="headerlink" href="#equation-zeta-from-pi" title="Permalink to this equation">¶</a></span>\[\zeta_{r,a} = 1 - \pi_{r,a} / \left(\prod\limits_{i=0}^{a - 1} \zeta_{r,i} \right).\]</div>
+<p>Note that setting <span class="math notranslate nohighlight">\(\zeta_{r,a} = \frac{19 - a}{20 - a}\)</span> makes all the <span class="math notranslate nohighlight">\(\pi_{r,a}\)</span> values equal to <span class="math notranslate nohighlight">\(\frac{1}{20}\)</span>.</p>
+<p>In analogy with Equation <a class="reference internal" href="#equation-dphi-deta">(3)</a>, we have</p>
+<div class="math notranslate nohighlight" id="equation-dpi-dzeta">
+<span class="eqno">(28)<a class="headerlink" href="#equation-dpi-dzeta" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} =
 \begin{cases}
 \frac{\pi_{r,a}}{\zeta_{r,i} - \delta_{ia}} &amp; \mbox{if $i \le a$,} \\
 0 &amp; \mbox{otherwise,}
 \end{cases}\end{split}\]</div>
-<p>where <span class="math">\(\delta_{ij}\)</span> is the Kronecker-delta.</p>
+<p>where <span class="math notranslate nohighlight">\(\delta_{ij}\)</span> is the Kronecker-delta.</p>
 <p>We then have</p>
-<div class="math" id="equation-dPrxy_dzeta">
-<span class="eqno">(29)<a class="headerlink" href="#equation-dPrxy_dzeta" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{r,xy}}{\partial \zeta_{r,i}} =
+<div class="math notranslate nohighlight" id="equation-dprxy-dzeta">
+<span class="eqno">(29)<a class="headerlink" href="#equation-dprxy-dzeta" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{r,xy}}{\partial \zeta_{r,i}} =
 Q_{xy} \sum\limits_a \frac{\partial F_{r,xy}}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} =
 \begin{cases}
 0 &amp; \mbox{if $i &gt; \mathcal{A}\left(x\right)$ and $i &gt; \mathcal{A}\left(y\right)$ and $x \ne y$,} \\
@@ -402,31 +382,31 @@ Q_{xy} \sum\limits_a \frac{\partial F_{r,xy}}{\partial \pi_{r,a}} \frac{\partial
 -\sum\limits_{z \ne x} \frac{\partial P_{r,xy}}{\partial \zeta_{r,i}} &amp; \mbox{if $x = y$}.
 \end{cases}\end{split}\]</div>
 <p>We also have:</p>
-<div class="math" id="equation-dprx_dzeta">
-<span class="eqno">(30)<a class="headerlink" href="#equation-dprx_dzeta" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial p_{r,x}}{\partial \zeta_{r,i}} &amp;=&amp;
+<div class="math notranslate nohighlight" id="equation-dprx-dzeta">
+<span class="eqno">(30)<a class="headerlink" href="#equation-dprx-dzeta" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial p_{r,x}}{\partial \zeta_{r,i}} &amp;=&amp;
 \sum\limits_a \frac{\partial p_{r,x}}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
 &amp;=&amp; p_{r,x} \sum\limits_{a \ge i} \frac{1}{\zeta_{r,i} - \delta_{ia}} \left(\delta_{a\mathcal{A}\left(x\right)} - \sum_z\delta_{a\mathcal{A}\left(z\right)} p_{r,z} \right).\end{split}\]</div>
 </div>
 <div class="section" id="expcm-prefs2-implementation">
-<h3><code class="docutils literal"><span class="pre">ExpCM_prefs2</span></code> implementation<a class="headerlink" href="#expcm-prefs2-implementation" title="Permalink to this headline">¶</a></h3>
-<p>For this implementation, we define a different variable transformation from the 20 <span class="math">\(\pi_{r,a}\)</span> values at each site <span class="math">\(r\)</span> (19 of these 20 values are unique since they sum to one).
-We define 19 free variables for each site <span class="math">\(r\)</span>: <span class="math">\(\zeta_{r,0}, \zeta_{r,1}, \ldots, \zeta_{r,18}\)</span>, all of which are constrained to be greater than zero.
-For notational convenience, we also define <span class="math">\(\zeta_{r,19} = 1\)</span>, but not that <span class="math">\(\zeta_{r,19}\)</span> is <strong>not</strong> a free parameter as it is always one.</p>
+<h3><code class="docutils literal notranslate"><span class="pre">ExpCM_prefs2</span></code> implementation<a class="headerlink" href="#expcm-prefs2-implementation" title="Permalink to this headline">¶</a></h3>
+<p>For this implementation, we define a different variable transformation from the 20 <span class="math notranslate nohighlight">\(\pi_{r,a}\)</span> values at each site <span class="math notranslate nohighlight">\(r\)</span> (19 of these 20 values are unique since they sum to one).
+We define 19 free variables for each site <span class="math notranslate nohighlight">\(r\)</span>: <span class="math notranslate nohighlight">\(\zeta_{r,0}, \zeta_{r,1}, \ldots, \zeta_{r,18}\)</span>, all of which are constrained to be greater than zero.
+For notational convenience, we also define <span class="math notranslate nohighlight">\(\zeta_{r,19} = 1\)</span>, but not that <span class="math notranslate nohighlight">\(\zeta_{r,19}\)</span> is <strong>not</strong> a free parameter as it is always one.</p>
 <p>We then define</p>
-<div class="math" id="equation-pi_from_zeta2">
-<span class="eqno">(31)<a class="headerlink" href="#equation-pi_from_zeta2" title="Permalink to this equation">¶</a></span>\[\pi_{r,a} = \frac{\zeta_{r,a}}{\sum_{j} \zeta_{r,j}}\]</div>
+<div class="math notranslate nohighlight" id="equation-pi-from-zeta2">
+<span class="eqno">(31)<a class="headerlink" href="#equation-pi-from-zeta2" title="Permalink to this equation">¶</a></span>\[\pi_{r,a} = \frac{\zeta_{r,a}}{\sum_{j} \zeta_{r,j}}\]</div>
 <p>and conversely</p>
-<div class="math" id="equation-zeta_from_pi2">
-<span class="eqno">(32)<a class="headerlink" href="#equation-zeta_from_pi2" title="Permalink to this equation">¶</a></span>\[\zeta_{r,a} = \frac{\pi_{r,a}}{\pi_{r,19}}.\]</div>
+<div class="math notranslate nohighlight" id="equation-zeta-from-pi2">
+<span class="eqno">(32)<a class="headerlink" href="#equation-zeta-from-pi2" title="Permalink to this equation">¶</a></span>\[\zeta_{r,a} = \frac{\pi_{r,a}}{\pi_{r,19}}.\]</div>
 <p>We therefore have</p>
-<div class="math" id="equation-dpi_dzeta2">
-<span class="eqno">(33)<a class="headerlink" href="#equation-dpi_dzeta2" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} &amp;=&amp;
+<div class="math notranslate nohighlight" id="equation-dpi-dzeta2">
+<span class="eqno">(33)<a class="headerlink" href="#equation-dpi-dzeta2" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} &amp;=&amp;
 \frac{1}{\sum_{j} \zeta_{r,j}} \left(\delta_{ia} - \frac{\zeta_{r,a}}{\sum_{j} \zeta_{r,j}}\right) \\
 &amp;=&amp; \frac{\pi_{r,a}}{\zeta_{r,a}} \left(\delta_{ia} - \pi_{r,a}\right)\end{split}\]</div>
-<p>where <span class="math">\(\delta_{ij}\)</span> is the Kronecker-delta.</p>
+<p>where <span class="math notranslate nohighlight">\(\delta_{ij}\)</span> is the Kronecker-delta.</p>
 <p>We then have</p>
-<div class="math" id="equation-dPrxy_dzeta2">
-<span class="eqno">(34)<a class="headerlink" href="#equation-dPrxy_dzeta2" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{r,xy}}{\partial \zeta_{r,i}} &amp;=&amp;
+<div class="math notranslate nohighlight" id="equation-dprxy-dzeta2">
+<span class="eqno">(34)<a class="headerlink" href="#equation-dprxy-dzeta2" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{r,xy}}{\partial \zeta_{r,i}} &amp;=&amp;
 Q_{xy} \sum\limits_a \frac{\partial F_{r,xy}}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
 &amp;=&amp; Q_{xy} \tilde{F}_{r,xy} \sum\limits_a \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{1}{\zeta_{r,a}} \left(\delta_{ia} - \pi_{r,a}\right) \\
 &amp;=&amp; Q_{xy} \tilde{F}_{r,xy} \left[\left(\sum\limits_a \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\delta_{ia}}{\zeta_{r,a}}\right) - \left(\sum\limits_a \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \frac{\pi_{r,a}}{\zeta_{r,a}}\right)\right] \\
@@ -434,8 +414,8 @@ Q_{xy} \sum\limits_a \frac{\partial F_{r,xy}}{\partial \pi_{r,a}} \frac{\partial
 &amp;=&amp; Q_{xy} \tilde{F}_{r,xy} \left[\frac{\delta_{i\mathcal{A}\left(y\right)} - \delta_{i\mathcal{A}\left(x\right)}}{\zeta_{r,i}} - \left(\frac{1}{\sum_j \zeta_{r,j}}\sum\limits_a \left(\delta_{a\mathcal{A}\left(y\right)} - \delta_{a\mathcal{A}\left(x\right)} \right) \right)\right] \\
 &amp;=&amp; Q_{xy} \tilde{F}_{r,xy} \left[\frac{\delta_{i\mathcal{A}\left(y\right)} - \delta_{i\mathcal{A}\left(x\right)}}{\zeta_{r,i}}\right].\end{split}\]</div>
 <p>We also have:</p>
-<div class="math" id="equation-dprx_dzeta2">
-<span class="eqno">(35)<a class="headerlink" href="#equation-dprx_dzeta2" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial p_{r,x}}{\partial \zeta_{r,i}} &amp;=&amp;
+<div class="math notranslate nohighlight" id="equation-dprx-dzeta2">
+<span class="eqno">(35)<a class="headerlink" href="#equation-dprx-dzeta2" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial p_{r,x}}{\partial \zeta_{r,i}} &amp;=&amp;
 \sum\limits_a \frac{\partial p_{r,x}}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
 &amp;=&amp; p_{r,x} \sum\limits_{a} \frac{\delta_{ia} - \pi_{r,a}}{\zeta_{r,a}} \left(\delta_{a\mathcal{A}\left(x\right)} - \sum_z\delta_{a\mathcal{A}\left(z\right)} p_{r,z} \right) \\
 &amp;=&amp; p_{r,x} \left[\frac{1}{\zeta_{r,i}} \left(\delta_{i\mathcal{A}\left(x\right)} - \sum_z\delta_{i\mathcal{A}\left(z\right)} p_{r,z} \right) - \sum\limits_{a} \frac{\pi_{r,a}}{\zeta_{r,a}} \left(\delta_{a\mathcal{A}\left(x\right)} - \sum_z\delta_{a\mathcal{A}\left(z\right)} p_{r,z} \right)\right] \\
@@ -451,31 +431,31 @@ We do this by defining a regularizing prior over the preferences, and then maxim
 <div class="section" id="inverse-quadratic-prior">
 <h3>Inverse-quadratic prior<a class="headerlink" href="#inverse-quadratic-prior" title="Permalink to this headline">¶</a></h3>
 <p>This is the prior used in <a class="reference external" href="http://biologydirect.biomedcentral.com/articles/10.1186/s13062-016-0172-z">Bloom, Biology Direct, 12:1</a> (note that the notation used here is slightly different than in that reference).
-Let <span class="math">\(\pi_{r,a}\)</span> be the preference that we are trying to optimize, and let <span class="math">\(\theta_{r,a}\)</span> be our prior estimate of <span class="math">\(\pi_{r,a}\)</span>.
-Typically, this estimate is the original experimentally measured preference <span class="math">\(\pi_{r,a}^{\rm{orig}}\)</span> re-scaled by the optimized stringency parameter <span class="math">\(\beta\)</span>, namely <span class="math">\(\theta_{r,a} = \frac{\left(\pi_{r,a}^{\rm{orig}}\right)^{\beta}}{\sum_{a'} \left(\pi_{r,a'}^{\rm{orig}}\right)^{\beta}}\)</span>.</p>
+Let <span class="math notranslate nohighlight">\(\pi_{r,a}\)</span> be the preference that we are trying to optimize, and let <span class="math notranslate nohighlight">\(\theta_{r,a}\)</span> be our prior estimate of <span class="math notranslate nohighlight">\(\pi_{r,a}\)</span>.
+Typically, this estimate is the original experimentally measured preference <span class="math notranslate nohighlight">\(\pi_{r,a}^{\rm{orig}}\)</span> re-scaled by the optimized stringency parameter <span class="math notranslate nohighlight">\(\beta\)</span>, namely <span class="math notranslate nohighlight">\(\theta_{r,a} = \frac{\left(\pi_{r,a}^{\rm{orig}}\right)^{\beta}}{\sum_{a'} \left(\pi_{r,a'}^{\rm{orig}}\right)^{\beta}}\)</span>.</p>
 <p>The prior is then</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) =
 \prod\limits_r \prod\limits_a \left(\frac{1}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2}\right)^{C_2}.\]</div>
 <p>or</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right] = -C_2 \sum\limits_r \sum\limits_a \ln\left(1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2 \right)\]</div>
-<p>where <span class="math">\(C_1\)</span> and <span class="math">\(C_2\)</span> are parameters that specify how concentrated the prior is (larger values make the prior more strongly peaked at <span class="math">\(\theta_{r,a}\)</span>).</p>
+<p>where <span class="math notranslate nohighlight">\(C_1\)</span> and <span class="math notranslate nohighlight">\(C_2\)</span> are parameters that specify how concentrated the prior is (larger values make the prior more strongly peaked at <span class="math notranslate nohighlight">\(\theta_{r,a}\)</span>).</p>
 <p>The derivative is</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \pi_{r,a}} =
 \frac{-2 C_1 C_2 \left(\pi_{r,a} - \theta_{r,a}\right)}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2},\]</div>
-<p>This prior can then be defined in terms of the transformation variable for the <code class="docutils literal"><span class="pre">ExpCM_fitprefs</span></code> or <code class="docutils literal"><span class="pre">ExpCM_fitprefs2</span></code> implementation:</p>
+<p>This prior can then be defined in terms of the transformation variable for the <code class="docutils literal notranslate"><span class="pre">ExpCM_fitprefs</span></code> or <code class="docutils literal notranslate"><span class="pre">ExpCM_fitprefs2</span></code> implementation:</p>
 <div class="section" id="id1">
-<h4><code class="docutils literal"><span class="pre">ExpCM_fitprefs</span></code> implementation<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
-<div class="math">
+<h4><code class="docutils literal notranslate"><span class="pre">ExpCM_fitprefs</span></code> implementation<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<div class="math notranslate nohighlight">
 \[\begin{split}\frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \zeta_{r,i}}
    &amp;=&amp; \sum\limits_a \frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
       &amp;=&amp; -2 C_1 C_2 \sum\limits_{a \ge i} \frac{\left(\pi_{r,a} - \theta_{r,a}\right)}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2 } \frac{\pi_{r,a}}{\zeta_{r,i} - \delta_ia}.\end{split}\]</div>
 </div>
 <div class="section" id="expcm-fitprefs2-implementation">
-<h4><code class="docutils literal"><span class="pre">ExpCM_fitprefs2</span></code> implementation<a class="headerlink" href="#expcm-fitprefs2-implementation" title="Permalink to this headline">¶</a></h4>
-<div class="math">
+<h4><code class="docutils literal notranslate"><span class="pre">ExpCM_fitprefs2</span></code> implementation<a class="headerlink" href="#expcm-fitprefs2-implementation" title="Permalink to this headline">¶</a></h4>
+<div class="math notranslate nohighlight">
 \[\begin{split}\frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \zeta_{r,i}}
 &amp;=&amp; \sum\limits_a \frac{\partial \ln\left[ \Pr\left(\left\{\pi_{r,a}\right\} \mid \left\{\theta_{r,a}\right\}\right) \right]}{\partial \pi_{r,a}} \frac{\partial \pi_{r,a}}{\partial \zeta_{r,i}} \\
 &amp;=&amp; -2 C_1 C_2 \sum\limits_{a} \frac{\left(\pi_{r,a} - \theta_{r,a}\right)}{1 + C_1 \times \left(\pi_{r,a} - \theta_{r,a}\right)^2 } \frac{\pi_{r,a}}{\zeta_{r,a}}\left(\delta_{ia} - \pi_{r,a}\right) \\
@@ -487,98 +467,98 @@ Typically, this estimate is the original experimentally measured preference <spa
 <h2><a class="toc-backref" href="#id10"><em>YNGKP_M0</em> model</a><a class="headerlink" href="#yngkp-m0-model" title="Permalink to this headline">¶</a></h2>
 <p>We consider the basic Goldman-Yang style <em>YNGKP_M0</em> substitution model defined in <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a>.
 This model is <strong>not</strong> site-specific.
-<span class="math">\(P_{xy}\)</span> is the substitution rate from codon <cite>x</cite> to codon <cite>y</cite> and is defined by</p>
-<div class="math" id="equation-Pxy_M0">
-<span class="eqno">(36)<a class="headerlink" href="#equation-Pxy_M0" title="Permalink to this equation">¶</a></span>\[\begin{split}P_{xy} =
+<span class="math notranslate nohighlight">\(P_{xy}\)</span> is the substitution rate from codon <cite>x</cite> to codon <cite>y</cite> and is defined by</p>
+<div class="math notranslate nohighlight" id="equation-pxy-m0">
+<span class="eqno">(36)<a class="headerlink" href="#equation-pxy-m0" title="Permalink to this equation">¶</a></span>\[\begin{split}P_{xy} =
 \begin{cases}
 0 &amp; \mbox{if $x$ and $y$ differ by more than one nucleotide,}\\
 \mu \omega \Phi_{y} &amp; \mbox{if $x$ is converted to $y$ by a single-nucleotide transversion,} \\
 \kappa \mu \omega \Phi_{y} &amp; \mbox{if $x$ is converted to $y$ by a single-nucleotide transition,} \\
 -\sum\limits_{z \ne x} P_{xz} &amp; \mbox{if $x = y$.}
 \end{cases}\end{split}\]</div>
-<p>where <span class="math">\(\kappa\)</span> is the transition-transversion ratio, <span class="math">\(\Phi_y\)</span> is the equilibrium frequency of
-codon <span class="math">\(y\)</span>, <span class="math">\(\omega\)</span> is the gene-wide rate of non-synonymous change, and <span class="math">\(\mu\)</span> is the substitution rate.
-Typically <span class="math">\(\Phi_y\)</span> is determined empirically as described below,
-and <span class="math">\(\kappa\)</span> and <span class="math">\(\omega\)</span> are optimized by maximum likelihood.</p>
+<p>where <span class="math notranslate nohighlight">\(\kappa\)</span> is the transition-transversion ratio, <span class="math notranslate nohighlight">\(\Phi_y\)</span> is the equilibrium frequency of
+codon <span class="math notranslate nohighlight">\(y\)</span>, <span class="math notranslate nohighlight">\(\omega\)</span> is the gene-wide rate of non-synonymous change, and <span class="math notranslate nohighlight">\(\mu\)</span> is the substitution rate.
+Typically <span class="math notranslate nohighlight">\(\Phi_y\)</span> is determined empirically as described below,
+and <span class="math notranslate nohighlight">\(\kappa\)</span> and <span class="math notranslate nohighlight">\(\omega\)</span> are optimized by maximum likelihood.</p>
 <p>The derivatives are:</p>
-<div class="math" id="equation-dPxy_dkappa_M0">
-<span class="eqno">(37)<a class="headerlink" href="#equation-dPxy_dkappa_M0" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{xy}}{\partial \kappa}
+<div class="math notranslate nohighlight" id="equation-dpxy-dkappa-m0">
+<span class="eqno">(37)<a class="headerlink" href="#equation-dpxy-dkappa-m0" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{xy}}{\partial \kappa}
 &amp;=&amp;
 \begin{cases}
 \frac{P_{xy}}{\kappa} &amp; \mbox{if $x$ is converted to $y$ by a transition of a nucleotide to $w$,} \\
 0 &amp; \mbox{if $x$ and $y$ differ by something other than a single transition,} \\
 -\sum\limits_{z \ne x} \frac{\partial P_{xz}}{\partial \kappa} &amp; \mbox{if $x = y$.}
 \end{cases}\end{split}\]</div>
-<div class="math" id="equation-dPxy_domega_M0">
-<span class="eqno">(38)<a class="headerlink" href="#equation-dPxy_domega_M0" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{xy}}{\partial \omega} =
+<div class="math notranslate nohighlight" id="equation-dpxy-domega-m0">
+<span class="eqno">(38)<a class="headerlink" href="#equation-dpxy-domega-m0" title="Permalink to this equation">¶</a></span>\[\begin{split}\frac{\partial P_{xy}}{\partial \omega} =
 \begin{cases}
 0 &amp; \mbox{if $\operatorname{A}\left(x\right) = \operatorname{A}\left(y\right)$ and $x \ne y$} \\
 \frac{P_{xy}}{\omega} &amp; \mbox{if $\operatorname{A}\left(x\right) \ne \operatorname{A}\left(y\right)$,} \\
 -\sum\limits_{z \ne x} \frac{\partial P_{xz}}{\partial \omega} &amp; \mbox{if $x = y$.}
 \end{cases}\end{split}\]</div>
-<p>The stationary state of the substitution model defined by <span class="math">\(P_{xy}\)</span> is</p>
-<div class="math" id="equation-px_M0">
-<span class="eqno">(39)<a class="headerlink" href="#equation-px_M0" title="Permalink to this equation">¶</a></span>\[p_{x} = \Phi_x\]</div>
-<p>The derivatives of the stationary state with respect to <span class="math">\(\kappa\)</span> and <span class="math">\(\omega\)</span> are zero as these do not affect that state, so:</p>
-<div class="math" id="equation-dprx_dkappadomega_M0">
-<span class="eqno">(40)<a class="headerlink" href="#equation-dprx_dkappadomega_M0" title="Permalink to this equation">¶</a></span>\[\frac{\partial p_{x}}{\partial \kappa} = \frac{\partial p_{x}}{\partial \omega} = 0\]</div>
-<p>We calculate the codon frequencies <span class="math">\(\Phi_x\)</span> from the observed nucleotide frequencies.</p>
-<p>The original <em>F3X4</em> method calculated <span class="math">\(\Phi_x\)</span> directly from the empirical alignment frequencies. Specifically, let <span class="math">\(e^p_w\)</span> be the empirical frequency of nucleotide <span class="math">\(w\)</span> at codon position <span class="math">\(p\)</span>. In the original <em>F3X4</em> method,
-<span class="math">\(\Phi_x = e^1_{x_1} \times e^2_{x_2} \times e^3_{x_3}\)</span>.
+<p>The stationary state of the substitution model defined by <span class="math notranslate nohighlight">\(P_{xy}\)</span> is</p>
+<div class="math notranslate nohighlight" id="equation-px-m0">
+<span class="eqno">(39)<a class="headerlink" href="#equation-px-m0" title="Permalink to this equation">¶</a></span>\[p_{x} = \Phi_x\]</div>
+<p>The derivatives of the stationary state with respect to <span class="math notranslate nohighlight">\(\kappa\)</span> and <span class="math notranslate nohighlight">\(\omega\)</span> are zero as these do not affect that state, so:</p>
+<div class="math notranslate nohighlight" id="equation-dprx-dkappadomega-m0">
+<span class="eqno">(40)<a class="headerlink" href="#equation-dprx-dkappadomega-m0" title="Permalink to this equation">¶</a></span>\[\frac{\partial p_{x}}{\partial \kappa} = \frac{\partial p_{x}}{\partial \omega} = 0\]</div>
+<p>We calculate the codon frequencies <span class="math notranslate nohighlight">\(\Phi_x\)</span> from the observed nucleotide frequencies.</p>
+<p>The original <em>F3X4</em> method calculated <span class="math notranslate nohighlight">\(\Phi_x\)</span> directly from the empirical alignment frequencies. Specifically, let <span class="math notranslate nohighlight">\(e^p_w\)</span> be the empirical frequency of nucleotide <span class="math notranslate nohighlight">\(w\)</span> at codon position <span class="math notranslate nohighlight">\(p\)</span>. In the original <em>F3X4</em> method,
+<span class="math notranslate nohighlight">\(\Phi_x = e^1_{x_1} \times e^2_{x_2} \times e^3_{x_3}\)</span>.
 This method produces biased codon frequencies because the stop codon nucleotide composition is not taken into account.</p>
 <p>To address this issue, we follow the <em>Corrected F3X4</em> (or <em>CF3X4</em>) method from <a class="reference external" href="http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0011230">Pond et al, PLoS One, 5:e11230</a>.
-The 12 nucleotide corrected nucleotide frequency parameters <span class="math">\(\phi_w^p\)</span> are estimated from the observed nucleotide frequencies by solving a set of 12 nonlinear equations:</p>
-<div class="math" id="equation-phi_pw">
-<span class="eqno">(41)<a class="headerlink" href="#equation-phi_pw" title="Permalink to this equation">¶</a></span>\[\begin{split}e^1_w = \frac{\phi^1_w \times \left(1- \sum\limits_{wyz\epsilon X} \phi^2_y\times\phi^3_z\right)}{1-\sum\limits_{xyz\epsilon X} \phi^1_x\times\phi^2_y\times\phi^3_z}\\
+The 12 nucleotide corrected nucleotide frequency parameters <span class="math notranslate nohighlight">\(\phi_w^p\)</span> are estimated from the observed nucleotide frequencies by solving a set of 12 nonlinear equations:</p>
+<div class="math notranslate nohighlight" id="equation-phi-pw">
+<span class="eqno">(41)<a class="headerlink" href="#equation-phi-pw" title="Permalink to this equation">¶</a></span>\[\begin{split}e^1_w = \frac{\phi^1_w \times \left(1- \sum\limits_{wyz\epsilon X} \phi^2_y\times\phi^3_z\right)}{1-\sum\limits_{xyz\epsilon X} \phi^1_x\times\phi^2_y\times\phi^3_z}\\
 e^2_w = \frac{\phi^2_w \times \left(1- \sum\limits_{ywz\epsilon X} \phi^1_y\times\phi^3_z\right)}{1-\sum\limits_{xyz\epsilon X} \phi^1_x\times\phi^2_y\times\phi^3_z}\\
 e^3_w = \frac{\phi^3_w \times \left(1- \sum\limits_{yzw\epsilon X} \phi^1_y\times\phi^2_z\right)}{1-\sum\limits_{xyz\epsilon X} \phi^1_x\times\phi^2_y\times\phi^3_z}\\\end{split}\]</div>
-<p>where <span class="math">\(X = \{TAA, TAG, TGA\}\)</span>. We use the <span class="math">\(\phi^p_w\)</span> values determined in this way to compute <span class="math">\(\Phi_x = \frac{\phi^1_{x_1} \times \phi^2_{x_2} \times \phi^3_{x_3}}{ \sum\limits_{y} \phi^1_{y_1} \times \phi^2_{y_2} \times \phi^3_{y_3}}\)</span> where <span class="math">\(y \notin X\)</span> ranges over all stop codons.</p>
+<p>where <span class="math notranslate nohighlight">\(X = \{TAA, TAG, TGA\}\)</span>. We use the <span class="math notranslate nohighlight">\(\phi^p_w\)</span> values determined in this way to compute <span class="math notranslate nohighlight">\(\Phi_x = \frac{\phi^1_{x_1} \times \phi^2_{x_2} \times \phi^3_{x_3}}{ \sum\limits_{y} \phi^1_{y_1} \times \phi^2_{y_2} \times \phi^3_{y_3}}\)</span> where <span class="math notranslate nohighlight">\(y \notin X\)</span> ranges over all stop codons.</p>
 </div>
 <div class="section" id="exponentials-of-the-substitution-matrix-and-derivatives">
 <h2><a class="toc-backref" href="#id11">Exponentials of the substitution matrix and derivatives</a><a class="headerlink" href="#exponentials-of-the-substitution-matrix-and-derivatives" title="Permalink to this headline">¶</a></h2>
-<p>The definitions above can be used to define a set of matrices <span class="math">\(\mathbf{P_r} = \left[P_{r,xy}\right]\)</span> that give the rate of transition from codon <span class="math">\(x\)</span> to <span class="math">\(y\)</span> at site <span class="math">\(r\)</span>. A key computation is to compute the probability of a transition in some amount of elapsed time <span class="math">\(\mu t\)</span>. These probabilities are given by</p>
-<div class="math" id="equation-Mr">
-<span class="eqno">(42)<a class="headerlink" href="#equation-Mr" title="Permalink to this equation">¶</a></span>\[\mathbf{M_r}\left(\mu t\right) = e^{\mu t\mathbf{P_r}}.\]</div>
-<p>In this section, we deal with how to compute <span class="math">\(\mathbf{M_r}\left(\mu t\right)\)</span> and its derivatives.</p>
-<p>Because <span class="math">\(\mathbf{P_r}\)</span> is reversible with stationary state given by the vector <span class="math">\(\mathbf{p_r} = \left[p_{r,x}\right]\)</span>, then as described by <a class="reference external" href="http://www.maths.otago.ac.nz/~dbryant/Papers/04IHPLikelihood.pdf">Bryant, Galtier, and Poursat (2005)</a>, the matrix <span class="math">\(\left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{1}{2}} \mathbf{P_r} \left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{-1}{2}}\)</span> is symmetric.</p>
+<p>The definitions above can be used to define a set of matrices <span class="math notranslate nohighlight">\(\mathbf{P_r} = \left[P_{r,xy}\right]\)</span> that give the rate of transition from codon <span class="math notranslate nohighlight">\(x\)</span> to <span class="math notranslate nohighlight">\(y\)</span> at site <span class="math notranslate nohighlight">\(r\)</span>. A key computation is to compute the probability of a transition in some amount of elapsed time <span class="math notranslate nohighlight">\(\mu t\)</span>. These probabilities are given by</p>
+<div class="math notranslate nohighlight" id="equation-mr">
+<span class="eqno">(42)<a class="headerlink" href="#equation-mr" title="Permalink to this equation">¶</a></span>\[\mathbf{M_r}\left(\mu t\right) = e^{\mu t\mathbf{P_r}}.\]</div>
+<p>In this section, we deal with how to compute <span class="math notranslate nohighlight">\(\mathbf{M_r}\left(\mu t\right)\)</span> and its derivatives.</p>
+<p>Because <span class="math notranslate nohighlight">\(\mathbf{P_r}\)</span> is reversible with stationary state given by the vector <span class="math notranslate nohighlight">\(\mathbf{p_r} = \left[p_{r,x}\right]\)</span>, then as described by <a class="reference external" href="http://www.maths.otago.ac.nz/~dbryant/Papers/04IHPLikelihood.pdf">Bryant, Galtier, and Poursat (2005)</a>, the matrix <span class="math notranslate nohighlight">\(\left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{1}{2}} \mathbf{P_r} \left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{-1}{2}}\)</span> is symmetric.</p>
 <p>We can use a numerical routine to compute the eigenvalues and orthonormal eigenvectors.
-Let <span class="math">\(\mathbf{D_r}\)</span> be a diagonal matrix with elements equal to the eigenvalues, let <span class="math">\(\mathbf{B_r}\)</span> be the matrix whose columns are the right orthonormal eigenvectors (in the same order as the eigenvalues), and note that <span class="math">\(\mathbf{B_r}^{-1} = \mathbf{B_r}^T\)</span>.
-Then we have <span class="math">\(\left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{1}{2}} \mathbf{P_r} \left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{-1}{2}} = \mathbf{B_r} \mathbf{D_r} \mathbf{B_r}^T\)</span> or equivalently</p>
-<div class="math">
+Let <span class="math notranslate nohighlight">\(\mathbf{D_r}\)</span> be a diagonal matrix with elements equal to the eigenvalues, let <span class="math notranslate nohighlight">\(\mathbf{B_r}\)</span> be the matrix whose columns are the right orthonormal eigenvectors (in the same order as the eigenvalues), and note that <span class="math notranslate nohighlight">\(\mathbf{B_r}^{-1} = \mathbf{B_r}^T\)</span>.
+Then we have <span class="math notranslate nohighlight">\(\left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{1}{2}} \mathbf{P_r} \left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{-1}{2}} = \mathbf{B_r} \mathbf{D_r} \mathbf{B_r}^T\)</span> or equivalently</p>
+<div class="math notranslate nohighlight">
 \[\mathbf{P_r} = \mathbf{A_r} \mathbf{D_r} \mathbf{A_r}^{-1}\]</div>
 <p>where</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\mathbf{A_r} = \left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{-1}{2}} \mathbf{B_r}\]</div>
 <p>and</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\mathbf{A_r}^{-1} = \mathbf{B_r}^T \left[\operatorname{diag}\left(\mathbf{p_r}\right)\right]^{\frac{1}{2}}.\]</div>
 <p>The matrix exponentials are then easily calculated as</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\mathbf{M_r}\left(\mu t\right) = e^{\mu t\mathbf{P_r}} = \mathbf{A_r} e^{\mu t \mathbf{D_r}} \mathbf{A_r}^{-1}\]</div>
-<p>We also want to calculate the derivatives of <span class="math">\(\mathbf{M_r}\left(\mu t\right)\)</span> with respect to the other parameters on which <span class="math">\(P_{r,xy}\)</span> depends (e.g., <span class="math">\(\beta\)</span>, <span class="math">\(\eta_i\)</span>, <span class="math">\(\kappa\)</span>, and <span class="math">\(\omega\)</span>).</p>
-<p>According to <a class="reference external" href="https://www.jstor.org/stable/2288545?seq=1#page_scan_tab_contents">Kalbeisch and Lawless (1985)</a> (see also <a class="reference external" href="http://www.mathstat.dal.ca/~hgu/hession.pdf">Kenney and Gu (2012)</a> and <a class="reference external" href="http://dx.plos.org/10.1371/journal.pone.0022201">Bloom et al (2011)</a>), the derivative with respect to some parameter <span class="math">\(z\)</span> is given by</p>
-<div class="math">
+<p>We also want to calculate the derivatives of <span class="math notranslate nohighlight">\(\mathbf{M_r}\left(\mu t\right)\)</span> with respect to the other parameters on which <span class="math notranslate nohighlight">\(P_{r,xy}\)</span> depends (e.g., <span class="math notranslate nohighlight">\(\beta\)</span>, <span class="math notranslate nohighlight">\(\eta_i\)</span>, <span class="math notranslate nohighlight">\(\kappa\)</span>, and <span class="math notranslate nohighlight">\(\omega\)</span>).</p>
+<p>According to <a class="reference external" href="https://www.jstor.org/stable/2288545?seq=1#page_scan_tab_contents">Kalbeisch and Lawless (1985)</a> (see also <a class="reference external" href="http://www.mathstat.dal.ca/~hgu/hession.pdf">Kenney and Gu (2012)</a> and <a class="reference external" href="http://dx.plos.org/10.1371/journal.pone.0022201">Bloom et al (2011)</a>), the derivative with respect to some parameter <span class="math notranslate nohighlight">\(z\)</span> is given by</p>
+<div class="math notranslate nohighlight">
 \[\frac{\partial \mathbf{M_r}\left(\mu t\right)}{\partial z} = \mathbf{A_r} \mathbf{V_{r,z}} \mathbf{A_r}^{-1}\]</div>
-<p>where the elements of <span class="math">\(\mathbf{V_{r,z}}\)</span> are</p>
-<div class="math">
+<p>where the elements of <span class="math notranslate nohighlight">\(\mathbf{V_{r,z}}\)</span> are</p>
+<div class="math notranslate nohighlight">
 \[\begin{split}V_{xy}^{r,z} =
 \begin{cases}
 B_{xy}^{r,z} \frac{\exp\left(\mu t D^r_{xx}\right) - \exp\left(\mu t D^r_{yy}\right)}{D^r_{xx} - D^r_{yy}} &amp; \mbox{if $x \ne y$ and $D_{xx}^r \ne D_{yy}^r$}, \\
 B_{xy}^{r,z} \mu t \exp\left(\mu t D^r_{xx}\right) &amp; \mbox{if $x \ne y$ and $D_{xx}^r = D_{yy}^r$}, \\
 B_{xx}^{r,z} \mu t \exp\left(\mu t D_{xx}^r\right)&amp; \mbox{if $x = y$},
 \end{cases}\end{split}\]</div>
-<p>where <span class="math">\(D^r_{xx}\)</span> and <span class="math">\(D^r_{yy}\)</span> are the diagonal elements of <span class="math">\(\mathbf{D_r}\)</span>, and <span class="math">\(B_{xy}^{r,z}\)</span> are the elements of the matrix <span class="math">\(\mathbf{B_{r,z}}\)</span> defined by</p>
-<div class="math">
+<p>where <span class="math notranslate nohighlight">\(D^r_{xx}\)</span> and <span class="math notranslate nohighlight">\(D^r_{yy}\)</span> are the diagonal elements of <span class="math notranslate nohighlight">\(\mathbf{D_r}\)</span>, and <span class="math notranslate nohighlight">\(B_{xy}^{r,z}\)</span> are the elements of the matrix <span class="math notranslate nohighlight">\(\mathbf{B_{r,z}}\)</span> defined by</p>
+<div class="math notranslate nohighlight">
 \[\mathbf{B_{r,z}} = \mathbf{A_r}^{-1} \frac{\partial \mathbf{P_r}}{\partial z} \mathbf{A_r}.\]</div>
 </div>
 <div class="section" id="scaling-the-branch-lengths-with-a-mutation-rate">
 <h2><a class="toc-backref" href="#id12">Scaling the branch lengths with a mutation rate</a><a class="headerlink" href="#scaling-the-branch-lengths-with-a-mutation-rate" title="Permalink to this headline">¶</a></h2>
-<p>The aforementioned section defines the substitution probabilities in terms of <span class="math">\(\mu t\)</span> (e.g., Eq. <a class="reference internal" href="#equation-Mr">(42)</a>).
-Here <span class="math">\(\mu\)</span> is a substitution rate, and <span class="math">\(t\)</span> is the branch length.
-If we are freely optimizing all branch lengths, then we just set <span class="math">\(\mu = 1\)</span> so that <span class="math">\(\mu t = t\)</span>, and then <span class="math">\(\mu\)</span> effectively drops out.
-However, if we have fixed the branch lengths are <strong>not</strong> optimizing them, then we might want to include a parameter <span class="math">\(\mu\)</span> that effectively re-scales all the fixed branch lengths by a constant.
-In this case, <span class="math">\(\mu\)</span> also becomes a free parameter of the model, and we want to compute the derivative of <span class="math">\(\mathbf{M_r}\left(\mu t\right)\)</span> with respect to <span class="math">\(\mu\)</span>. This is straightforward:</p>
-<div class="math">
+<p>The aforementioned section defines the substitution probabilities in terms of <span class="math notranslate nohighlight">\(\mu t\)</span> (e.g., Eq. <a class="reference internal" href="#equation-mr">(42)</a>).
+Here <span class="math notranslate nohighlight">\(\mu\)</span> is a substitution rate, and <span class="math notranslate nohighlight">\(t\)</span> is the branch length.
+If we are freely optimizing all branch lengths, then we just set <span class="math notranslate nohighlight">\(\mu = 1\)</span> so that <span class="math notranslate nohighlight">\(\mu t = t\)</span>, and then <span class="math notranslate nohighlight">\(\mu\)</span> effectively drops out.
+However, if we have fixed the branch lengths are <strong>not</strong> optimizing them, then we might want to include a parameter <span class="math notranslate nohighlight">\(\mu\)</span> that effectively re-scales all the fixed branch lengths by a constant.
+In this case, <span class="math notranslate nohighlight">\(\mu\)</span> also becomes a free parameter of the model, and we want to compute the derivative of <span class="math notranslate nohighlight">\(\mathbf{M_r}\left(\mu t\right)\)</span> with respect to <span class="math notranslate nohighlight">\(\mu\)</span>. This is straightforward:</p>
+<div class="math notranslate nohighlight">
 \[\frac{\partial \mathbf{M_r}\left(\mu t\right)}{\partial \mu} = t \mathbf{P_r} e^{\mu t \mathbf{P_r}} = t \mathbf{P_r} \mathbf{M_r}\left(\mu t\right).\]</div>
 </div>
 <div class="section" id="calculating-the-likelihood-and-derivatives-on-a-tree">
@@ -590,37 +570,37 @@ Here we consider how to use those computations to compute the actual likelihoods
 <p class="caption"><span class="caption-text">The tree used in the example calculation below.</span></p>
 </div>
 <p>We begin by computing the likelihood of the alignment at a specific site.
-Let <span class="math">\(\mathcal{S}_r\)</span> denote the set of aligned codons at site <span class="math">\(r\)</span>, let <span class="math">\(\mathcal{T}\)</span> by the phylogenetic tree with branch lengths specified, and let <span class="math">\(\mathbf{P_r}\)</span> be the transition matrix at site <span class="math">\(r\)</span> defined above.
-Then the likelihood at site <span class="math">\(r\)</span> is <span class="math">\(\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)\)</span>.
+Let <span class="math notranslate nohighlight">\(\mathcal{S}_r\)</span> denote the set of aligned codons at site <span class="math notranslate nohighlight">\(r\)</span>, let <span class="math notranslate nohighlight">\(\mathcal{T}\)</span> by the phylogenetic tree with branch lengths specified, and let <span class="math notranslate nohighlight">\(\mathbf{P_r}\)</span> be the transition matrix at site <span class="math notranslate nohighlight">\(r\)</span> defined above.
+Then the likelihood at site <span class="math notranslate nohighlight">\(r\)</span> is <span class="math notranslate nohighlight">\(\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)\)</span>.
 For the example tree above, we can use the pruning algorithm (<a class="reference external" href="http://rd.springer.com/article/10.1007/BF01734359">Felsenstein, J Mol Evol, 1981</a>) to write</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)
 =
 \sum_y p_{r,y} M_{r,yGAA}\left(t_3\right) \left[\sum_x M_{r,yx}\left(t_4\right) M_{r,xCAA}\left(t_1\right) M_{r,xCAG}\left(t_2\right)\right].\]</div>
-<p>Let <span class="math">\(n\)</span> denote a node on a tree, let <span class="math">\(t_n\)</span> denote the length of the branch leading to node <span class="math">\(n\)</span>, and let <span class="math">\(\mathcal{d}_1\left(n\right)\)</span> and <span class="math">\(\mathcal{d}_1\left(n\right)\)</span> denote the right and left descendents of node <span class="math">\(n\)</span> for all non-terminal nodes.
-Then define the <em>partial conditional likelihood</em> of the subtree rooted at <span class="math">\(n\)</span> as:</p>
-<div class="math">
+<p>Let <span class="math notranslate nohighlight">\(n\)</span> denote a node on a tree, let <span class="math notranslate nohighlight">\(t_n\)</span> denote the length of the branch leading to node <span class="math notranslate nohighlight">\(n\)</span>, and let <span class="math notranslate nohighlight">\(\mathcal{d}_1\left(n\right)\)</span> and <span class="math notranslate nohighlight">\(\mathcal{d}_1\left(n\right)\)</span> denote the right and left descendents of node <span class="math notranslate nohighlight">\(n\)</span> for all non-terminal nodes.
+Then define the <em>partial conditional likelihood</em> of the subtree rooted at <span class="math notranslate nohighlight">\(n\)</span> as:</p>
+<div class="math notranslate nohighlight">
 \[\begin{split}L_{r,n}\left(x\right) =
 \begin{cases}
 \delta_{x\mathcal{S}_{r,n}} &amp; \mbox{if $n$ is a tip node with codon $\mathcal{S}_{r,n}$ at site $r$,} \\
 1 &amp; \mbox{if $n$ is a tip node with a gap at site $r$,} \\
 \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right) L_{r, \mathcal{d}_1\left(n\right)}\left(y\right)\right] \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) L_{r, \mathcal{d}_2\left(n\right)}\left(y\right)\right] &amp; \mbox{otherwise.}
 \end{cases}\end{split}\]</div>
-<p>where <span class="math">\(\delta_{xy}\)</span> is the <a class="reference external" href="http://en.wikipedia.org/wiki/Kronecker_delta">Kronecker delta</a>.
-So for instance in the example tree above, <span class="math">\(L_{r,n_4}\left(x\right) = M_{r,xCAA}\left(t_1\right) M_{r,xCAG}\left(t_2\right)\)</span>, and <span class="math">\(L_{r,n_5}\left(y\right) = M_{r,yGAA} \sum_x M_{r,yx}\left(t_4\right) L_{r,n_4}\left(x\right)\)</span>.</p>
+<p>where <span class="math notranslate nohighlight">\(\delta_{xy}\)</span> is the <a class="reference external" href="http://en.wikipedia.org/wiki/Kronecker_delta">Kronecker delta</a>.
+So for instance in the example tree above, <span class="math notranslate nohighlight">\(L_{r,n_4}\left(x\right) = M_{r,xCAA}\left(t_1\right) M_{r,xCAG}\left(t_2\right)\)</span>, and <span class="math notranslate nohighlight">\(L_{r,n_5}\left(y\right) = M_{r,yGAA} \sum_x M_{r,yx}\left(t_4\right) L_{r,n_4}\left(x\right)\)</span>.</p>
 <p>Using this definition, we have</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)
 = \sum_x p_{r,x} L_{r,n_{\rm{root}}}\left(x\right)\]</div>
-<p>where <span class="math">\(n_{\rm{root}}\)</span> is the root node of tree <span class="math">\(\mathcal{T}\)</span>; <span class="math">\(n_{\rm{root}} = n_5\)</span> in the example tree above.</p>
+<p>where <span class="math notranslate nohighlight">\(n_{\rm{root}}\)</span> is the root node of tree <span class="math notranslate nohighlight">\(\mathcal{T}\)</span>; <span class="math notranslate nohighlight">\(n_{\rm{root}} = n_5\)</span> in the example tree above.</p>
 <p>In practice, we usually work with the log likelihoods (always using natural logarithms).
 The total likelihood is the sum of the log likelihoods for each site:</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\ln \left[ \Pr\left(\mathcal{S} \mid \mathcal{T}, \left\{\mathbf{P_r}\right\}\right) \right] = \sum_r \ln \left[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right) \right].\]</div>
 <p>We next consider how to compute the derivatives with respect to some model parameter.
-Let <span class="math">\(\alpha\)</span> denote the model parameter in question, and assume that we have already determined <span class="math">\(\frac{M_{r,xy}\left(t\right)}{\partial \alpha}\)</span>.
+Let <span class="math notranslate nohighlight">\(\alpha\)</span> denote the model parameter in question, and assume that we have already determined <span class="math notranslate nohighlight">\(\frac{M_{r,xy}\left(t\right)}{\partial \alpha}\)</span>.
 By the chain rule, we have</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\begin{split}\frac{\partial L_{r,n}\left(x\right)}{\partial \alpha} =
 \begin{cases}
 0 &amp; \mbox{if $n$ is a tip node,}, \\
@@ -631,45 +611,45 @@ By the chain rule, we have</p>
 \left[\sum_y \frac{\partial M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right)}{\partial \alpha} L_{r, \mathcal{d}_2\left(n\right)}\left(y\right) + M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) \frac{\partial L_{r, \mathcal{d}_2\left(n\right)}\left(y\right)}{\partial \alpha}\right] &amp; \\
 \end{cases}\end{split}\]</div>
 <p>The derivative of the likelihood at the site is then</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \alpha}
 = \sum_x \left(\frac{\partial p_{r,x}}{\partial \alpha} L_{r,n_{\rm{root}}}\left(x\right) + p_{r,x} \frac{\partial L_{r,n_{\rm{root}}}\left(x\right)}{\partial \alpha}\right)\]</div>
 <p>and the derivative of the log likelihood at the site is</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\frac{\partial \ln\left[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)\right]}{\partial \alpha}
 = \frac{\sum_x \left(\frac{\partial p_{r,x}}{\partial \alpha} L_{r,n_{\rm{root}}}\left(x\right) + p_{r,x} \frac{\partial L_{r,n_{\rm{root}}}\left(x\right)}{\partial \alpha}\right)}
 {\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}.\]</div>
 <p>The derivative of the overall log likelihood is</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\frac{\partial \ln \left[ \Pr\left(\mathcal{S} \mid \mathcal{T}, \left\{\mathbf{P_r}\right\}\right) \right]}{\partial \alpha}
 = \sum_r \frac{\partial \ln \left[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right) \right]}{\partial \alpha}.\]</div>
 </div>
 <div class="section" id="scaling-to-avoid-numerical-underflow">
 <h2><a class="toc-backref" href="#id14">Scaling to avoid numerical underflow</a><a class="headerlink" href="#scaling-to-avoid-numerical-underflow" title="Permalink to this headline">¶</a></h2>
 <p>For larger trees, there can be numerical underflow due to multiplication of lots of small numbers when computing the likelihoods. This issue, and how it can be solved by re-scaling the likelihoods during the calculation, is discussed on page 426 of <a class="reference external" href="http://abacus.gene.ucl.ac.uk/ziheng/pdf/2000YangJMEv51p423.pdf">Yang, J Mol Evol, 51:423-432</a>.</p>
-<p>Let <span class="math">\(L_{r,n}\left(x\right)\)</span> be the partial conditional likelihood at node <span class="math">\(n\)</span> of codon <span class="math">\(x\)</span> at site <span class="math">\(r\)</span> as defined above. These partial conditional likelihoods can get very small as we move up the tree towards the root, as they are recursively defined as the products of very small numbers. For the scaling to avoid underflow, we define the scaled partial condition likelilhood as</p>
-<div class="math">
+<p>Let <span class="math notranslate nohighlight">\(L_{r,n}\left(x\right)\)</span> be the partial conditional likelihood at node <span class="math notranslate nohighlight">\(n\)</span> of codon <span class="math notranslate nohighlight">\(x\)</span> at site <span class="math notranslate nohighlight">\(r\)</span> as defined above. These partial conditional likelihoods can get very small as we move up the tree towards the root, as they are recursively defined as the products of very small numbers. For the scaling to avoid underflow, we define the scaled partial condition likelilhood as</p>
+<div class="math notranslate nohighlight">
 \[\tilde{L}_{r,n}\left(x\right) = \frac{L_{r,n}\left(x\right)}{U_{r,n} \times \prod\limits_{k &lt; n} U_{r,k}}\]</div>
-<p>where we use <span class="math">\(k &lt; n\)</span> to indicate all nodes <span class="math">\(k\)</span> that are descendants of <span class="math">\(n\)</span>, and where</p>
-<div class="math">
+<p>where we use <span class="math notranslate nohighlight">\(k &lt; n\)</span> to indicate all nodes <span class="math notranslate nohighlight">\(k\)</span> that are descendants of <span class="math notranslate nohighlight">\(n\)</span>, and where</p>
+<div class="math notranslate nohighlight">
 \[\begin{split}U_{r,n} =
 \begin{cases}
 1 &amp; \mbox{if $n$ is divisible by $K$,} \\
 \max_x\left[L_{r,n}\left(x\right) \times \prod\limits_{k &lt; n} U_{r,k}\right] &amp; \mbox{otherwise}
 \end{cases}\end{split}\]</div>
-<p>where <span class="math">\(K\)</span> is the frequency with which we re-scale the likelihoods. A reasonable value of <span class="math">\(K\)</span> might be 5 or 10. Effectively, this means that every <span class="math">\(K\)</span> nodes we are re-scaling so that the largest partial conditional likelihood is one.</p>
-<p>With this re-scaling, the total likelihood at site <span class="math">\(r\)</span> is then</p>
-<div class="math">
+<p>where <span class="math notranslate nohighlight">\(K\)</span> is the frequency with which we re-scale the likelihoods. A reasonable value of <span class="math notranslate nohighlight">\(K\)</span> might be 5 or 10. Effectively, this means that every <span class="math notranslate nohighlight">\(K\)</span> nodes we are re-scaling so that the largest partial conditional likelihood is one.</p>
+<p>With this re-scaling, the total likelihood at site <span class="math notranslate nohighlight">\(r\)</span> is then</p>
+<div class="math notranslate nohighlight">
 \[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)
 = \left(\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)\right) \times
 \left(\prod\limits_n U_{r,n}\right)\]</div>
-<p>and the total log likelihood at site <span class="math">\(r\)</span> is</p>
-<div class="math">
+<p>and the total log likelihood at site <span class="math notranslate nohighlight">\(r\)</span> is</p>
+<div class="math notranslate nohighlight">
 \[\ln\left[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)\right]
 = \ln\left(\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)\right) +
 \sum\limits_n \ln\left(U_{r,n}\right).\]</div>
 <p>The derivative is then</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\begin{split}\frac{\partial \ln\left[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)\right]}{\partial \alpha} &amp;=&amp;
 \frac{\frac{\partial}{\partial \alpha}\left[ \left(\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)\right) \times \left(\prod\limits_n U_{r,n}\right) \right]}{\left(\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)\right) \times \left(\prod\limits_n U_{r,n}\right)} \\
 &amp;=&amp;
@@ -678,68 +658,68 @@ By the chain rule, we have</p>
 {\left(\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)\right) \times \left(\prod\limits_n U_{r,n}\right)} \\
 &amp;=&amp;
 \frac{\sum_x \left(\frac{\partial p_{r,x}}{\partial \alpha} \tilde{L}_{r,n_{\rm{root}}}\left(x\right) + p_{r,x} \frac{\partial \tilde{L}_{r,n_{\rm{root}}}\left(x\right)}{\partial \alpha}\right)}{\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)} + \frac{\frac{\partial \left(\prod\limits_n U_{r,n}\right)}{\partial \alpha}}{\prod\limits_n U_{r,n}}.\end{split}\]</div>
-<p>For reasons that are not immediately obvious to me but are clearly verified by numerical testing, this last term of <span class="math">\(\frac{\frac{\partial \left(\prod\limits_n U_{r,n}\right)}{\partial \alpha}}{\prod\limits_n U_{r,n}}\)</span> is zero, and so</p>
-<div class="math">
+<p>For reasons that are not immediately obvious to me but are clearly verified by numerical testing, this last term of <span class="math notranslate nohighlight">\(\frac{\frac{\partial \left(\prod\limits_n U_{r,n}\right)}{\partial \alpha}}{\prod\limits_n U_{r,n}}\)</span> is zero, and so</p>
+<div class="math notranslate nohighlight">
 \[\frac{\partial \ln\left[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)\right]}{\partial \alpha} =
 \frac{\sum_x \left(\frac{\partial p_{r,x}}{\partial \alpha} \tilde{L}_{r,n_{\rm{root}}}\left(x\right) + p_{r,x} \frac{\partial \tilde{L}_{r,n_{\rm{root}}}\left(x\right)}{\partial \alpha}\right)}{\sum\limits_x p_{r,x} \tilde{L}_{r,n_{\rm{root}}}\left(x\right)}.\]</div>
-<p>In practice, we work with the <span class="math">\(\tilde{L}_{r,n}\left(x\right)\)</span> values, and then apply the correction of adding <span class="math">\(\sum_n \ln\left(U_r,n\right)\)</span> at the end.</p>
+<p>In practice, we work with the <span class="math notranslate nohighlight">\(\tilde{L}_{r,n}\left(x\right)\)</span> values, and then apply the correction of adding <span class="math notranslate nohighlight">\(\sum_n \ln\left(U_r,n\right)\)</span> at the end.</p>
 </div>
 <div class="section" id="units-of-tree-branch-lengths">
 <h2><a class="toc-backref" href="#id15">Units of tree branch lengths</a><a class="headerlink" href="#units-of-tree-branch-lengths" title="Permalink to this headline">¶</a></h2>
-<p>When we optimize with the <span class="math">\(P_{r,xy}\)</span> substitution matrices described above, the resulting branch lengths are <strong>not</strong> in units of substitutions per site. Therefore, for tree input / output, we re-scale the branch lengths so that they are in units of substitution per site.</p>
-<p>In a single unit of time, the probability that if site <span class="math">\(r\)</span> is initially <span class="math">\(x\)</span>, then it will undergo a substitution to some other codon <span class="math">\(y\)</span> is <span class="math">\(\sum_{y \ne x} P_{r,xy} = -P_{r,xx}\)</span>. Since the equilibrium probability that site <span class="math">\(r\)</span> is <span class="math">\(x\)</span> is <span class="math">\(p_{r,x}\)</span>, then the probability that site <span class="math">\(r\)</span> undergoes a substitution in a unit of time is <span class="math">\(-\mu \sum_x p_{r,x} P_{r,xx}\)</span>. So averaging over all <span class="math">\(L\)</span> sites, the probability that the average site will undergo a substitution in a unit of time is <span class="math">\(-\frac{\mu}{L} \sum_{r=1}^L \sum_x p_{r,x} P_{r,xx}\)</span>.</p>
-<p>Therefore, if we optimize the branch lengths <span class="math">\(t_b\)</span> and the model parameters in <span class="math">\(P_{r,xy}\)</span>, and then at the end re-scale the branch lengths to <span class="math">\(t_b' = t_b \times \frac{-\mu}{L} \sum_{r=1}^L \sum_x p_{r,x} P_{r,xx}\)</span> then the re-scaled branch lengths <span class="math">\(t_b\)</span> are in units of substitutions per sites. Therefore, for input and output to <code class="docutils literal"><span class="pre">phydms</span></code>, we assume that input branch lengths are already in units of substitutions per site, and scale them from <span class="math">\(t_b'\)</span> to <span class="math">\(t_b\)</span>. Optimization is performed on <span class="math">\(t_b\)</span>, and then for output we re-scale the optimized branch lengths from <span class="math">\(t_b\)</span> to <span class="math">\(t_b'\)</span>.</p>
+<p>When we optimize with the <span class="math notranslate nohighlight">\(P_{r,xy}\)</span> substitution matrices described above, the resulting branch lengths are <strong>not</strong> in units of substitutions per site. Therefore, for tree input / output, we re-scale the branch lengths so that they are in units of substitution per site.</p>
+<p>In a single unit of time, the probability that if site <span class="math notranslate nohighlight">\(r\)</span> is initially <span class="math notranslate nohighlight">\(x\)</span>, then it will undergo a substitution to some other codon <span class="math notranslate nohighlight">\(y\)</span> is <span class="math notranslate nohighlight">\(\sum_{y \ne x} P_{r,xy} = -P_{r,xx}\)</span>. Since the equilibrium probability that site <span class="math notranslate nohighlight">\(r\)</span> is <span class="math notranslate nohighlight">\(x\)</span> is <span class="math notranslate nohighlight">\(p_{r,x}\)</span>, then the probability that site <span class="math notranslate nohighlight">\(r\)</span> undergoes a substitution in a unit of time is <span class="math notranslate nohighlight">\(-\mu \sum_x p_{r,x} P_{r,xx}\)</span>. So averaging over all <span class="math notranslate nohighlight">\(L\)</span> sites, the probability that the average site will undergo a substitution in a unit of time is <span class="math notranslate nohighlight">\(-\frac{\mu}{L} \sum_{r=1}^L \sum_x p_{r,x} P_{r,xx}\)</span>.</p>
+<p>Therefore, if we optimize the branch lengths <span class="math notranslate nohighlight">\(t_b\)</span> and the model parameters in <span class="math notranslate nohighlight">\(P_{r,xy}\)</span>, and then at the end re-scale the branch lengths to <span class="math notranslate nohighlight">\(t_b' = t_b \times \frac{-\mu}{L} \sum_{r=1}^L \sum_x p_{r,x} P_{r,xx}\)</span> then the re-scaled branch lengths <span class="math notranslate nohighlight">\(t_b\)</span> are in units of substitutions per sites. Therefore, for input and output to <code class="docutils literal notranslate"><span class="pre">phydms</span></code>, we assume that input branch lengths are already in units of substitutions per site, and scale them from <span class="math notranslate nohighlight">\(t_b'\)</span> to <span class="math notranslate nohighlight">\(t_b\)</span>. Optimization is performed on <span class="math notranslate nohighlight">\(t_b\)</span>, and then for output we re-scale the optimized branch lengths from <span class="math notranslate nohighlight">\(t_b\)</span> to <span class="math notranslate nohighlight">\(t_b'\)</span>.</p>
 </div>
 <div class="section" id="models-with-a-gamma-distributed-model-parameter">
 <h2><a class="toc-backref" href="#id16">Models with a gamma-distributed model parameter</a><a class="headerlink" href="#models-with-a-gamma-distributed-model-parameter" title="Permalink to this headline">¶</a></h2>
 <p>The models described above fit a single value to each model parameter.
-We can also fit a distribution of values across sites for one model parameter <span class="math">\(\lambda\)</span>.
-For instance, when <span class="math">\(\lambda\)</span> is the <span class="math">\(\omega\)</span> of the <em>YNGKP</em> models, we get the <em>YNGKP_M5</em> model described in <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a>.</p>
-<p>Specifically, let the <span class="math">\(\lambda\)</span> values be drawn from <span class="math">\(K\)</span> discrete categories with lambda values <span class="math">\(\lambda_0, \lambda_2, \ldots, \lambda_{K-1}\)</span>, and give equal weight to each category. Then the overall likelihood at site <span class="math">\(r\)</span> is</p>
-<div class="math">
+We can also fit a distribution of values across sites for one model parameter <span class="math notranslate nohighlight">\(\lambda\)</span>.
+For instance, when <span class="math notranslate nohighlight">\(\lambda\)</span> is the <span class="math notranslate nohighlight">\(\omega\)</span> of the <em>YNGKP</em> models, we get the <em>YNGKP_M5</em> model described in <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a>.</p>
+<p>Specifically, let the <span class="math notranslate nohighlight">\(\lambda\)</span> values be drawn from <span class="math notranslate nohighlight">\(K\)</span> discrete categories with lambda values <span class="math notranslate nohighlight">\(\lambda_0, \lambda_2, \ldots, \lambda_{K-1}\)</span>, and give equal weight to each category. Then the overall likelihood at site <span class="math notranslate nohighlight">\(r\)</span> is</p>
+<div class="math notranslate nohighlight">
 \[\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right) =
 \frac{1}{K} \sum_{k=0}^{K-1} \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\lambda = \lambda_k}\right)\]</div>
-<p>and the derivative with respect to any non-<span class="math">\(\lambda\)</span> model parameter <span class="math">\(\alpha\)</span> is simply</p>
-<div class="math">
+<p>and the derivative with respect to any non-<span class="math notranslate nohighlight">\(\lambda\)</span> model parameter <span class="math notranslate nohighlight">\(\alpha\)</span> is simply</p>
+<div class="math notranslate nohighlight">
 \[\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \alpha} =
 \frac{1}{K} \sum_{k=0}^{K-1} \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\lambda = \lambda_k}\right)}{\partial \alpha}.\]</div>
-<p>The different <span class="math">\(\lambda_k\)</span> values are drawn from the means of a gamma-distribution discretized into <span class="math">\(K\)</span> categories as described by <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pubmed/7932792">Yang, J Mol Evol, 39:306-314</a>. Specifically, this gamma distribution is described by a shape parameter <span class="math">\(\alpha_{\lambda}\)</span> and an inverse scale parameter <span class="math">\(\beta_{\lambda}\)</span> such that the probability density function of a continuous <span class="math">\(\lambda\)</span> is given by</p>
-<div class="math">
+<p>The different <span class="math notranslate nohighlight">\(\lambda_k\)</span> values are drawn from the means of a gamma-distribution discretized into <span class="math notranslate nohighlight">\(K\)</span> categories as described by <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pubmed/7932792">Yang, J Mol Evol, 39:306-314</a>. Specifically, this gamma distribution is described by a shape parameter <span class="math notranslate nohighlight">\(\alpha_{\lambda}\)</span> and an inverse scale parameter <span class="math notranslate nohighlight">\(\beta_{\lambda}\)</span> such that the probability density function of a continuous <span class="math notranslate nohighlight">\(\lambda\)</span> is given by</p>
+<div class="math notranslate nohighlight">
 \[g\left(\lambda; \alpha_{\lambda}, \beta_{\lambda}\right) = \frac{\left(\beta_{\alpha}\right)^{\alpha_{\lambda}} e^{-\beta_{\lambda} \lambda} \lambda^{\alpha_{\lambda} - 1}}{\Gamma\left(\alpha_{\lambda}\right)}.\]</div>
-<p>This function can be evaluated by <code class="docutils literal"><span class="pre">scipy.stats.gamma.pdf(lambda,</span> <span class="pre">alpha_lambda,</span> <span class="pre">scale=1.0</span> <span class="pre">/</span> <span class="pre">beta_lambda)</span></code>. Note also that the mean of this distribution is <span class="math">\(\frac{\alpha_{\lambda}}{\beta_{\lambda}}\)</span> and the variance is <span class="math">\(\frac{\alpha_{\lambda}}{\left(\beta_{\lambda}\right)^2}\)</span>.</p>
-<p>The lower and upper boundaries of the interval for each category <span class="math">\(k\)</span> are</p>
-<div class="math">
+<p>This function can be evaluated by <code class="docutils literal notranslate"><span class="pre">scipy.stats.gamma.pdf(lambda,</span> <span class="pre">alpha_lambda,</span> <span class="pre">scale=1.0</span> <span class="pre">/</span> <span class="pre">beta_lambda)</span></code>. Note also that the mean of this distribution is <span class="math notranslate nohighlight">\(\frac{\alpha_{\lambda}}{\beta_{\lambda}}\)</span> and the variance is <span class="math notranslate nohighlight">\(\frac{\alpha_{\lambda}}{\left(\beta_{\lambda}\right)^2}\)</span>.</p>
+<p>The lower and upper boundaries of the interval for each category <span class="math notranslate nohighlight">\(k\)</span> are</p>
+<div class="math notranslate nohighlight">
 \[\begin{split}\lambda_{k,\rm{lower}} &amp;=&amp; Q_{\Gamma}\left(\frac{k}{K}; \alpha_{\lambda}, \beta_{\lambda}\right) \\
 \lambda_{k,\rm{upper}} &amp;=&amp; Q_{\Gamma}\left(\frac{k + 1}{K}; \alpha_{\lambda}, \beta_{\lambda}\right)\end{split}\]</div>
-<p>where <span class="math">\(Q_{\Gamma}\)</span> is the quantile function (or percent-point function) of the gamma distribution. This function can be evaluated by <code class="docutils literal"><span class="pre">scipy.stats.gamma.ppf(k</span> <span class="pre">/</span> <span class="pre">K,</span> <span class="pre">alpha_lambda,</span> <span class="pre">scale=1.0</span> <span class="pre">/</span> <span class="pre">beta_lambda)</span></code>.</p>
-<p>The mean for each category <span class="math">\(k\)</span> is</p>
-<div class="math">
+<p>where <span class="math notranslate nohighlight">\(Q_{\Gamma}\)</span> is the quantile function (or percent-point function) of the gamma distribution. This function can be evaluated by <code class="docutils literal notranslate"><span class="pre">scipy.stats.gamma.ppf(k</span> <span class="pre">/</span> <span class="pre">K,</span> <span class="pre">alpha_lambda,</span> <span class="pre">scale=1.0</span> <span class="pre">/</span> <span class="pre">beta_lambda)</span></code>.</p>
+<p>The mean for each category <span class="math notranslate nohighlight">\(k\)</span> is</p>
+<div class="math notranslate nohighlight">
 \[\lambda_k = \frac{\alpha_{\lambda}K}{\beta_{\lambda}} \left[\gamma\left(\lambda_{k,\rm{upper}} \beta_{\lambda}, \alpha_{\lambda} + 1\right) - \gamma\left( \lambda_{k,\rm{lower}} \beta_{\lambda}, \alpha_{\lambda} + 1 \right)\right]\]</div>
-<p>where <span class="math">\(\gamma\)</span> is the lower-incomplete gamma function and can be evaluated by <code class="docutils literal"><span class="pre">scipy.special.gammainc(alpha_lambda</span> <span class="pre">+</span> <span class="pre">1,</span> <span class="pre">omega_k_upper</span> <span class="pre">*</span> <span class="pre">beta_lambda)</span></code>.</p>
-<p>Note that <span class="math">\(\lambda_k\)</span> is not actually a free parameter, as it is determined by <span class="math">\(\alpha_{\lambda}\)</span> and <span class="math">\(\beta_{\lambda}\)</span>.
-The derivative of the log likelihood at site <span class="math">\(r\)</span> with respect to these parameters is simply</p>
-<div class="math">
+<p>where <span class="math notranslate nohighlight">\(\gamma\)</span> is the lower-incomplete gamma function and can be evaluated by <code class="docutils literal notranslate"><span class="pre">scipy.special.gammainc(alpha_lambda</span> <span class="pre">+</span> <span class="pre">1,</span> <span class="pre">omega_k_upper</span> <span class="pre">*</span> <span class="pre">beta_lambda)</span></code>.</p>
+<p>Note that <span class="math notranslate nohighlight">\(\lambda_k\)</span> is not actually a free parameter, as it is determined by <span class="math notranslate nohighlight">\(\alpha_{\lambda}\)</span> and <span class="math notranslate nohighlight">\(\beta_{\lambda}\)</span>.
+The derivative of the log likelihood at site <span class="math notranslate nohighlight">\(r\)</span> with respect to these parameters is simply</p>
+<div class="math notranslate nohighlight">
 \[\begin{split}\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \alpha_{\lambda}} &amp;=&amp;
 \frac{1}{K} \sum\limits_{k=0}^{K-1} \frac{\partial \lambda_k}{\partial \alpha_{\lambda}}\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\lambda = \lambda_k}\right)}{\partial \lambda_k} \\
 \frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial \beta_{\lambda}} &amp;=&amp;
 \frac{1}{K} \sum\limits_{k=0}^{K-1} \frac{\partial \lambda_k}{\partial \beta_{\lambda}}\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\lambda = \lambda_k}\right)}{\partial \lambda_k}.\end{split}\]</div>
-<p>The derivatives <span class="math">\(\frac{\partial \lambda_k}{\partial \alpha_{\lambda}}\)</span> and <span class="math">\(\frac{\partial \lambda_k}{\partial \beta_{\lambda}}\)</span> are computed numerically using the finite-difference method.</p>
+<p>The derivatives <span class="math notranslate nohighlight">\(\frac{\partial \lambda_k}{\partial \alpha_{\lambda}}\)</span> and <span class="math notranslate nohighlight">\(\frac{\partial \lambda_k}{\partial \beta_{\lambda}}\)</span> are computed numerically using the finite-difference method.</p>
 </div>
 <div class="section" id="derivatives-with-respect-to-branch-lengths">
 <h2><a class="toc-backref" href="#id17">Derivatives with respect to branch lengths</a><a class="headerlink" href="#derivatives-with-respect-to-branch-lengths" title="Permalink to this headline">¶</a></h2>
 <p>The section above describes how to compute the derivatives with respect to parameters (e.g., model parameters) that affect all parts of the tree.
-In many cases, we may want to optimize individual branch lengths rather than the overall mutation rate <span class="math">\(\mu\)</span>.
+In many cases, we may want to optimize individual branch lengths rather than the overall mutation rate <span class="math notranslate nohighlight">\(\mu\)</span>.
 In this case, we need to compute the derivatives with respect to the branch lengths.
 This is somewhat simpler for each individual branch length, since each individual branch length only affects part of the tree.</p>
-<p>Specifically, for each internal node <span class="math">\(n\)</span>,</p>
-<div class="math">
+<p>Specifically, for each internal node <span class="math notranslate nohighlight">\(n\)</span>,</p>
+<div class="math notranslate nohighlight">
 \[\begin{split}\frac{\partial L_{r,n}\left(x\right)}{\partial t_{\mathcal{d}_1\left(n\right)}} &amp;=&amp; \frac{\partial}{\partial t_{\mathcal{d}_1\left(n\right)}} \left(\left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right) L_{r,\mathcal{d}_1\left(n\right)}\left(y\right)\right] \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) L_{r,\mathcal{d}_2\left(n\right)}\left(y\right)\right] \right) \\
 &amp;=&amp; \left[\sum_y \frac{\partial M_{r,xy}\left(t_{\mathcal{d}_1\left(n\right)}\right)}{\partial t_{\mathcal{d}_1\left(n\right)}} L_{r,\mathcal{d}_1\left(n\right)}\left(y\right)\right] \left[\sum_y M_{r,xy}\left(t_{\mathcal{d}_2\left(n\right)}\right) L_{r,\mathcal{d}_2\left(n\right)}\left(y\right)\right]\end{split}\]</div>
 <p>where</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\frac{\partial M_{r,xy}\left(t\right)}{\partial t} = \mu \mathbf{P_r} e^{\mu t \mathbf{P_r}} = \mu \mathbf{P_r} \mathbf{M_r}\left(\mu t\right).\]</div>
-<p>Therefore, for every node <span class="math">\(n\)</span> with descendents <span class="math">\(n_1\)</span> and <span class="math">\(n_2\)</span>:</p>
-<div class="math">
+<p>Therefore, for every node <span class="math notranslate nohighlight">\(n\)</span> with descendents <span class="math notranslate nohighlight">\(n_1\)</span> and <span class="math notranslate nohighlight">\(n_2\)</span>:</p>
+<div class="math notranslate nohighlight">
 \[\begin{split}\frac{\partial L_{r,n}\left(x\right)}{\partial t_{n'}} =
 \begin{cases}
 0 &amp; \mbox{if $n'$ is not a descendent of $n$} \\
@@ -747,12 +727,12 @@ This is somewhat simpler for each individual branch length, since each individua
 \left[\sum_y M_{r,xy}\left(t_{n_1}\right) \frac{\partial L_{r,n_1}\left(y\right)}{\partial t_{n'}}\right] \left[\sum_y M_{r,xy}\left(t_{n_2}\right) L_{r,n_2}\left(y\right)\right] &amp; \mbox{if $n'$ is descendent of $n_1$} \\
 \end{cases}\end{split}\]</div>
 <p>and</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)}{\partial t_n} = \frac{\partial L_{r,n_{\rm{root}}}\left(x\right)}{\partial t_n} \times p_{r,x}.\]</div>
 </div>
 <div class="section" id="optimization">
 <h2><a class="toc-backref" href="#id18">Optimization</a><a class="headerlink" href="#optimization" title="Permalink to this headline">¶</a></h2>
-<p>The actual optimization is performed with the <a class="reference external" href="https://en.wikipedia.org/wiki/Limited-memory_BFGS">L-BFGS</a> optimizer implemented in <a class="reference external" href="http://www.scipy.org/">scipy</a> as <code class="docutils literal"><span class="pre">scipy.optimize.minimize(method='L-BFGS-B')</span></code>. The approach is to first optimize all the model parameters along with branch-scaling parameter <span class="math">\(\mu\)</span>, then to optimize all the branch lengths, and to continue to repeat until any optimization step fails to lead to substantial further improvement in likelihood.</p>
+<p>The actual optimization is performed with the <a class="reference external" href="https://en.wikipedia.org/wiki/Limited-memory_BFGS">L-BFGS</a> optimizer implemented in <a class="reference external" href="http://www.scipy.org/">scipy</a> as <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize(method='L-BFGS-B')</span></code>. The approach is to first optimize all the model parameters along with branch-scaling parameter <span class="math notranslate nohighlight">\(\mu\)</span>, then to optimize all the branch lengths, and to continue to repeat until any optimization step fails to lead to substantial further improvement in likelihood.</p>
 <p>During the branch-length optimization, all branch lengths are updated simultaneously. This appears to be the minority approach in phylogenetics (most software does one branch length at a time), but reportedly some software does use simultaneous branch-length optimization (see table on page 18 <a class="reference external" href="http://www.maths.otago.ac.nz/~dbryant/Papers/04IHPLikelihood.pdf">here</a>).</p>
 </div>
 </div>
@@ -763,87 +743,87 @@ This is somewhat simpler for each individual branch length, since each individua
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Numerical implementation</a><ul>
-<li><a class="reference internal" href="#expcm-substitution-model-parameters-and-derivatives"><em>ExpCM</em> substitution model parameters and derivatives</a></li>
-<li><a class="reference internal" href="#expcm-stationary-state-and-derivatives"><em>ExpCM</em> stationary state and derivatives</a></li>
-<li><a class="reference internal" href="#expcm-with-empirical-nucleotide-frequencies"><em>ExpCM</em> with empirical nucleotide frequencies</a></li>
-<li><a class="reference internal" href="#expcm-with-empirical-nucleotide-frequencies-and-diversifying-pressure"><em>ExpCM</em> with empirical nucleotide frequencies and diversifying pressure</a></li>
-<li><a class="reference internal" href="#expcm-with-the-preferences-as-free-parameters"><em>ExpCM</em> with the preferences as free parameters</a><ul>
-<li><a class="reference internal" href="#expcm-fitprefs-implementation"><code class="docutils literal"><span class="pre">ExpCM_fitprefs</span></code> implementation</a></li>
-<li><a class="reference internal" href="#expcm-prefs2-implementation"><code class="docutils literal"><span class="pre">ExpCM_prefs2</span></code> implementation</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#regularizing-preferences-for-expcm-with-preferences-as-free-parameters">Regularizing preferences for <em>ExpCM</em> with preferences as free parameters</a><ul>
-<li><a class="reference internal" href="#inverse-quadratic-prior">Inverse-quadratic prior</a><ul>
-<li><a class="reference internal" href="#id1"><code class="docutils literal"><span class="pre">ExpCM_fitprefs</span></code> implementation</a></li>
-<li><a class="reference internal" href="#expcm-fitprefs2-implementation"><code class="docutils literal"><span class="pre">ExpCM_fitprefs2</span></code> implementation</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#yngkp-m0-model"><em>YNGKP_M0</em> model</a></li>
-<li><a class="reference internal" href="#exponentials-of-the-substitution-matrix-and-derivatives">Exponentials of the substitution matrix and derivatives</a></li>
-<li><a class="reference internal" href="#scaling-the-branch-lengths-with-a-mutation-rate">Scaling the branch lengths with a mutation rate</a></li>
-<li><a class="reference internal" href="#calculating-the-likelihood-and-derivatives-on-a-tree">Calculating the likelihood and derivatives on a tree</a></li>
-<li><a class="reference internal" href="#scaling-to-avoid-numerical-underflow">Scaling to avoid numerical underflow</a></li>
-<li><a class="reference internal" href="#units-of-tree-branch-lengths">Units of tree branch lengths</a></li>
-<li><a class="reference internal" href="#models-with-a-gamma-distributed-model-parameter">Models with a gamma-distributed model parameter</a></li>
-<li><a class="reference internal" href="#derivatives-with-respect-to-branch-lengths">Derivatives with respect to branch lengths</a></li>
-<li><a class="reference internal" href="#optimization">Optimization</a></li>
-</ul>
-</li>
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/BloomLogo.jpg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">phydms</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Software for phylogenetic analyses informed by deep mutational scanning.</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=jbloomlab&repo=phydms&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="howtouse.html">how to use <code class="docutils literal notranslate"><span class="pre">phydms</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="phydms_prog.html">the <code class="docutils literal notranslate"><span class="pre">phydms</span></code> program</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auxiliary_progs.html">auxiliary programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ExpCM.html"><strong>Exp</strong>erimentally Informed <strong>C</strong>odon <strong>M</strong>odels</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Numerical implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">phydmslib</span></code> API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">Acknowledgments and citations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="indices_and_tables.html">Indices and tables</a></li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="ExpCM.html"
-                        title="previous chapter"><strong>Exp</strong>erimentally Informed <strong>C</strong>odon <strong>M</strong>odels</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="api.html"
-                        title="next chapter"><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/implementation.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="ExpCM.html" title="previous chapter"><strong>Exp</strong>erimentally Informed <strong>C</strong>odon <strong>M</strong>odels</a></li>
+      <li>Next: <a href="api.html" title="next chapter"><code class="docutils literal notranslate"><span class="pre">phydmslib</span></code> API</a></li>
+  </ul></li>
+</ul>
+</div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="api.html" title="phydmslib API"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="ExpCM.html" title="Experimentally Informed Codon Models"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">phydms 2.2.2 documentation</a> &#187;</li> 
-      </ul>
+    <div class="footer">
+      &copy;2015-2018, Sarah Hilton and Jesse Bloom.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/implementation.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2015, Jesse D. Bloom.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
-    </div>
+
+    
+    <a href="https://github.com/jbloomlab/phydms" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
   </body>
 </html>
