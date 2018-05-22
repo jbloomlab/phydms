@@ -15,6 +15,7 @@
 import sys
 import os
 import re
+import datetime
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -59,7 +60,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'phydms'
-copyright = u'2015, Jesse D. Bloom'
+copyright = u'2015-%s, Sarah Hilton and Jesse Bloom' % str(datetime.datetime.now().year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -247,7 +248,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   ('index', 'phydms.tex', u'phydms Documentation',
-   u'Jesse D. Bloom', 'manual'),
+   u'Sarah Hilton and Jesse Bloom', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -277,7 +278,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'phydms', u'phydms Documentation',
-     [u'Jesse D. Bloom'], 1)
+     [u'Sarah Hilton and Jesse Bloom'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -291,7 +292,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'phydms', u'phydms Documentation',
-   u'Jesse D. Bloom', 'phydms',
+   u'Sarah Hilton and Jesse Bloom', 'phydms',
    'Software for phylogenetic analyses informed by deep mutational scanning.',
    'Miscellaneous'),
 ]
