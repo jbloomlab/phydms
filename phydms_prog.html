@@ -33,24 +33,25 @@
           <div class="body" role="main">
             
   <div class="section" id="the-phydms-program">
-<span id="phydms-prog"></span><h1><a class="toc-backref" href="#id1">the <code class="docutils literal notranslate"><span class="pre">phydms</span></code> program</a><a class="headerlink" href="#the-phydms-program" title="Permalink to this headline">¶</a></h1>
+<span id="phydms-prog"></span><h1><a class="toc-backref" href="#id2">the <code class="docutils literal notranslate"><span class="pre">phydms</span></code> program</a><a class="headerlink" href="#the-phydms-program" title="Permalink to this headline">¶</a></h1>
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#the-phydms-program" id="id1">the <code class="docutils literal notranslate"><span class="pre">phydms</span></code> program</a><ul>
-<li><a class="reference internal" href="#overview" id="id2">Overview</a></li>
-<li><a class="reference internal" href="#command-line-usage" id="id3">Command-line usage</a><ul>
-<li><a class="reference internal" href="#Positional Arguments" id="id4">Positional Arguments</a></li>
-<li><a class="reference internal" href="#Named Arguments" id="id5">Named Arguments</a></li>
+<li><a class="reference internal" href="#the-phydms-program" id="id2">the <code class="docutils literal notranslate"><span class="pre">phydms</span></code> program</a><ul>
+<li><a class="reference internal" href="#overview" id="id3">Overview</a></li>
+<li><a class="reference internal" href="#command-line-usage" id="id4">Command-line usage</a><ul>
+<li><a class="reference internal" href="#Positional Arguments" id="id5">Positional Arguments</a></li>
+<li><a class="reference internal" href="#Named Arguments" id="id6">Named Arguments</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#output-files" id="id6">Output files</a><ul>
-<li><a class="reference internal" href="#log-file" id="id7">Log file</a></li>
-<li><a class="reference internal" href="#log-likelihood-file" id="id8">Log likelihood file</a></li>
-<li><a class="reference internal" href="#model-parameters" id="id9">Model parameters</a></li>
-<li><a class="reference internal" href="#tree-file" id="id10">Tree file</a></li>
-<li><a class="reference internal" href="#site-specific-omega-file" id="id11">Site-specific omega file</a></li>
-<li><a class="reference internal" href="#site-specific-differential-selection" id="id12">Site-specific differential selection</a></li>
+<li><a class="reference internal" href="#preferences-file-format" id="id7">Preferences file format</a></li>
+<li><a class="reference internal" href="#output-files" id="id8">Output files</a><ul>
+<li><a class="reference internal" href="#log-file" id="id9">Log file</a></li>
+<li><a class="reference internal" href="#log-likelihood-file" id="id10">Log likelihood file</a></li>
+<li><a class="reference internal" href="#model-parameters" id="id11">Model parameters</a></li>
+<li><a class="reference internal" href="#tree-file" id="id12">Tree file</a></li>
+<li><a class="reference internal" href="#site-specific-omega-file" id="id13">Site-specific omega file</a></li>
+<li><a class="reference internal" href="#site-specific-differential-selection" id="id14">Site-specific differential selection</a></li>
 </ul>
 </li>
 </ul>
@@ -58,13 +59,13 @@
 </ul>
 </div>
 <div class="section" id="overview">
-<h2><a class="toc-backref" href="#id2">Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id3">Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">phydms</span></code> can perform phylogenetic analyses with <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a> as well as with some standard non-site-specific substitution models (variants of the <em>YNGKP</em> models described in <a class="reference external" href="http://www.genetics.org/content/155/1/431">Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449</a>). In addition, <code class="docutils literal notranslate"><span class="pre">phydms</span></code> can be used to detect site-specific diversifying or differential selection using the <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a> as described in <a class="reference external" href="http://biologydirect.biomedcentral.com/articles/10.1186/s13062-016-0172-z">Bloom, Biology Direct, 12:1</a>.</p>
 <p>See below for information on the <a class="reference internal" href="#command-line-usage">Command-line usage</a> and <a class="reference internal" href="#output-files">Output files</a>.</p>
 </div>
 <div class="section" id="command-line-usage">
-<h2><a class="toc-backref" href="#id3">Command-line usage</a><a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
-<p>Phylogenetic analysis informed by deep mutational scanning data. The ‘phydms’ package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a>). Version 2.2.dev2. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
+<h2><a class="toc-backref" href="#id4">Command-line usage</a><a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
+<p>Phylogenetic analysis informed by deep mutational scanning data. The ‘phydms’ package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a>). Version 2.2.2. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">phydms</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">brlen</span> <span class="p">{</span><span class="n">scale</span><span class="p">,</span><span class="n">optimize</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">gammaomega</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">gammabeta</span><span class="p">]</span>
               <span class="p">[</span><span class="o">--</span><span class="n">omegabysite</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">omegabysite_fixsyn</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">diffprefsbysite</span><span class="p">]</span>
               <span class="p">[</span><span class="o">--</span><span class="n">diffprefsprior</span> <span class="n">DIFFPREFSPRIOR</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fitphi</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">randprefs</span><span class="p">]</span>
@@ -76,7 +77,7 @@
 </pre></div>
 </div>
 <div class="section" id="Positional Arguments">
-<h3><a class="toc-backref" href="#id4">Positional Arguments</a><a class="headerlink" href="#Positional Arguments" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id5">Positional Arguments</a><a class="headerlink" href="#Positional Arguments" title="Permalink to this headline">¶</a></h3>
 <table class="docutils option-list" frame="void" rules="none">
 <col class="option" />
 <col class="description" />
@@ -108,16 +109,11 @@ The transition-transversion ratio  is optimized by maximum likelihood.
 The nonsynonymous-synonymous ratio  is optimized differently depending on the variant:</p>
 <p>-YNGKP_M0 : a single  is optimized by maximum likelihood.</p>
 <p>-YNGKP_M5 :  drawn from a gamma distribution with the two parameters optimized by maximum likelihood. The distribution has –ncats categories.</p>
-<p>ExpCM_&lt;prefsfile&gt; is an ExpCM with amino-acid preferences taken from the file prefsfile.
+<p class="last">ExpCM_&lt;prefsfile&gt; is an ExpCM with amino-acid preferences taken from the file prefsfile.
 The preferences file must specify a preference for the amino acid encoded by every site in alignment, using sequential 1, 2, … numbering.
 Any stop-codon preferences specified in the file are ignored.
-The preferences file can be in several formats:</p>
-<p>-A comma-, tab-, or space-delimited file with the first column giving the site and the rest giving the preference for each amino-acid:</p>
-<p>site A C D E F G H I K L M N P Q R S T V W Y
-1 0.044  0.046 0.048 0.0461 0.046 0.0411 0.052 0.027 0.046 0.043 0.172 0.045 0.045 0.045 0.044 0.041 0.037 0.028 0.046 0.048
-2 0.658 0.006 0.005 0.029 0.005 0.019 0.007 0.004 0.007 0.001 0.036 0.005 0.009 0.003 0.005 0.014 0.013 0.148 0.009 0.005</p>
-<p>-The more complex dms_tools preferences file format</p>
-<p class="last">Importantly, the amino-acid preferences must be obtained independently from the sequence
+The preferences file must be a comma-, tab-, or space-delimited file with the first column giving the site and the rest giving the preference for each amino-acid (see detailed example below).
+Importantly, the amino-acid preferences must be obtained independently from the sequence
 alignment being analyzed. A deep mutational scanning experiment is an independent means
 of obtaining the preferences, but estimating them from the amino-acid frequencies in the alignment of homologs is not a valid approach as you are then estimating the preferences from the same sequences that you are subsequently analyzing.</p>
 </td></tr>
@@ -131,7 +127,7 @@ of obtaining the preferences, but estimating them from the amino-acid frequencie
 </table>
 </div>
 <div class="section" id="Named Arguments">
-<h3><a class="toc-backref" href="#id5">Named Arguments</a><a class="headerlink" href="#Named Arguments" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id6">Named Arguments</a><a class="headerlink" href="#Named Arguments" title="Permalink to this headline">¶</a></h3>
 <table class="docutils option-list" frame="void" rules="none">
 <col class="option" />
 <col class="description" />
@@ -287,22 +283,31 @@ If this number is too close to zero, you will get runtime errors.</p>
 </table>
 </div>
 </div>
+<div class="section" id="preferences-file-format">
+<h2><a class="toc-backref" href="#id7">Preferences file format</a><a class="headerlink" href="#preferences-file-format" title="Permalink to this headline">¶</a></h2>
+<p>The preferences file should follow the <a class="reference external" href="http://jbloomlab.github.io/dms_tools2">dms_tools2</a> <a class="reference external" href="https://jbloomlab.github.io/dms_tools2/dms2_prefs.html#preferences-file">preferences file format</a> and be a comma-, tab-, or space-delimited file with the first column giving the site and the rest giving the preference for each amino-acid:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">site</span> <span class="n">A</span> <span class="n">C</span> <span class="n">D</span> <span class="n">E</span> <span class="n">F</span> <span class="n">G</span> <span class="n">H</span> <span class="n">I</span> <span class="n">K</span> <span class="n">L</span> <span class="n">M</span> <span class="n">N</span> <span class="n">P</span> <span class="n">Q</span> <span class="n">R</span> <span class="n">S</span> <span class="n">T</span> <span class="n">V</span> <span class="n">W</span> <span class="n">Y</span>
+<span class="mi">1</span> <span class="mf">0.044</span>  <span class="mf">0.046</span> <span class="mf">0.048</span> <span class="mf">0.0461</span> <span class="mf">0.046</span> <span class="mf">0.0411</span> <span class="mf">0.052</span> <span class="mf">0.027</span> <span class="mf">0.046</span> <span class="mf">0.043</span> <span class="mf">0.172</span> <span class="mf">0.045</span> <span class="mf">0.045</span> <span class="mf">0.045</span> <span class="mf">0.044</span> <span class="mf">0.041</span> <span class="mf">0.037</span> <span class="mf">0.028</span> <span class="mf">0.046</span> <span class="mf">0.048</span>
+<span class="mi">2</span> <span class="mf">0.658</span> <span class="mf">0.006</span> <span class="mf">0.005</span> <span class="mf">0.029</span> <span class="mf">0.005</span> <span class="mf">0.019</span> <span class="mf">0.007</span> <span class="mf">0.004</span> <span class="mf">0.007</span> <span class="mf">0.001</span> <span class="mf">0.036</span> <span class="mf">0.005</span> <span class="mf">0.009</span> <span class="mf">0.003</span> <span class="mf">0.005</span> <span class="mf">0.014</span> <span class="mf">0.013</span> <span class="mf">0.148</span> <span class="mf">0.009</span> <span class="mf">0.005</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="output-files">
-<h2><a class="toc-backref" href="#id6">Output files</a><a class="headerlink" href="#output-files" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id8">Output files</a><a class="headerlink" href="#output-files" title="Permalink to this headline">¶</a></h2>
 <p>Running <code class="docutils literal notranslate"><span class="pre">phydms</span></code> will create the following output files, all with the prefix specified by <code class="docutils literal notranslate"><span class="pre">outprefix</span></code>.</p>
 <div class="section" id="log-file">
-<h3><a class="toc-backref" href="#id7">Log file</a><a class="headerlink" href="#log-file" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id9">Log file</a><a class="headerlink" href="#log-file" title="Permalink to this headline">¶</a></h3>
 <p>This is a text file with the suffix <code class="docutils literal notranslate"><span class="pre">_log.log</span></code> that records information about the program’s progress.</p>
 </div>
 <div class="section" id="log-likelihood-file">
-<h3><a class="toc-backref" href="#id8">Log likelihood file</a><a class="headerlink" href="#log-likelihood-file" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id10">Log likelihood file</a><a class="headerlink" href="#log-likelihood-file" title="Permalink to this headline">¶</a></h3>
 <p>This file has the suffix <code class="docutils literal notranslate"><span class="pre">_loglikelihood.txt</span></code>. It simply gives the optimized log likelihood. Here is an example of a file’s contents:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">log</span> <span class="n">likelihood</span> <span class="o">=</span> <span class="o">-</span><span class="mf">4415.24</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="model-parameters">
-<h3><a class="toc-backref" href="#id9">Model parameters</a><a class="headerlink" href="#model-parameters" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id11">Model parameters</a><a class="headerlink" href="#model-parameters" title="Permalink to this headline">¶</a></h3>
 <p>This file has the suffix <code class="docutils literal notranslate"><span class="pre">_modelparams.txt</span></code>.</p>
 <p>Here is an example of the contents for an <em>ExpCM</em> model.
 It gives the values of the parameters described in <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>; note that <span class="math notranslate nohighlight">\(\mu\)</span> is <strong>not</strong> included as it is confounded with the branch lengths:</p>
@@ -345,12 +350,12 @@ To get the exact values, use the <a class="reference internal" href="api.html#ap
 <p>The shape and scale parameters for gamma-distributed <span class="math notranslate nohighlight">\(\beta\)</span> are <span class="math notranslate nohighlight">\(\alpha_{\beta}\)</span> and <span class="math notranslate nohighlight">\(\beta_{\beta}\)</span>, respectively.</p>
 </div>
 <div class="section" id="tree-file">
-<h3><a class="toc-backref" href="#id10">Tree file</a><a class="headerlink" href="#tree-file" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id12">Tree file</a><a class="headerlink" href="#tree-file" title="Permalink to this headline">¶</a></h3>
 <p>This file has the suffix <code class="docutils literal notranslate"><span class="pre">_tree.newick</span></code>, and gives the optimized tree in Newick format.
 The branch lengths are in units of codon substitutions per site.</p>
 </div>
 <div class="section" id="site-specific-omega-file">
-<h3><a class="toc-backref" href="#id11">Site-specific omega file</a><a class="headerlink" href="#site-specific-omega-file" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id13">Site-specific omega file</a><a class="headerlink" href="#site-specific-omega-file" title="Permalink to this headline">¶</a></h3>
 <p>This file has the suffix <code class="docutils literal notranslate"><span class="pre">_omegabysite.txt</span></code>, and is created only if using the <code class="docutils literal notranslate"><span class="pre">--omegabysite</span></code> option. This file gives the <span class="math notranslate nohighlight">\(\omega_r\)</span> values optimized for each site. In the case of a <em>YNGKP</em> model, these are site-specific dN/dS ratios that should be essentially analogous to those obtained under the <em>FEL</em> model described by <a class="reference external" href="http://mbe.oxfordjournals.org/content/22/5/1208.full">Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222</a>. In the case of an <em>ExpCM</em> model, these values indicate diversifying selection for nonsynonymous amino-acid change as described in <a class="reference external" href="http://biologydirect.biomedcentral.com/articles/10.1186/s13062-016-0172-z">Bloom, Biology Direct, 12:1</a> (see also <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>).</p>
 <p>Here is an example of the first few lines of a file. The entries are tab separated:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">site</span>    <span class="n">omega</span>   <span class="n">P</span>   <span class="n">dLnL</span>    <span class="n">Q</span>
@@ -368,7 +373,7 @@ That <em>P</em>-value (or <em>Q</em>-value) is what indicates the credence that 
 <p>Note that the <em>Q</em>-values are computed separately for <span class="math notranslate nohighlight">\(\omega &gt; 1\)</span> and <span class="math notranslate nohighlight">\(\omega &lt; 1\)</span>, since we do not necessarily expect a symmetric distribution of <span class="math notranslate nohighlight">\(\omega\)</span> values.</p>
 </div>
 <div class="section" id="site-specific-differential-selection">
-<h3><a class="toc-backref" href="#id12">Site-specific differential selection</a><a class="headerlink" href="#site-specific-differential-selection" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id14">Site-specific differential selection</a><a class="headerlink" href="#site-specific-differential-selection" title="Permalink to this headline">¶</a></h3>
 <p>This file has the suffix <code class="docutils literal notranslate"><span class="pre">_diffprefsbysite.txt</span></code>, and is created only if using the <code class="docutils literal notranslate"><span class="pre">--diffprefsbysite</span></code> option to an <em>ExpCM</em>. These are the differential preferences (the <span class="math notranslate nohighlight">\(\Delta\pi_{r,a}\)</span> values) described in <a class="reference external" href="http://biologydirect.biomedcentral.com/articles/10.1186/s13062-016-0172-z">Bloom, Biology Direct, 12:1</a> and <a class="reference internal" href="ExpCM.html#expcm"><span class="std std-ref">Experimentally Informed Codon Models</span></a>.</p>
 <p>Here is an example of the first few lines of a file. The entries are tab separated:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">site</span>    <span class="n">dpi_A</span>   <span class="n">dpi_C</span>   <span class="n">dpi_D</span>   <span class="n">dpi_E</span>   <span class="n">dpi_F</span>   <span class="n">dpi_G</span>   <span class="n">dpi_H</span>   <span class="n">dpi_I</span>   <span class="n">dpi_K</span>   <span class="n">dpi_L</span>   <span class="n">dpi_M</span>   <span class="n">dpi_N</span>   <span class="n">dpi_P</span>   <span class="n">dpi_Q</span>   <span class="n">dpi_R</span>   <span class="n">dpi_S</span>   <span class="n">dpi_T</span>   <span class="n">dpi_V</span>   <span class="n">dpi_W</span>   <span class="n">dpi_Y</span>   <span class="n">half_sum_abs_dpi</span>

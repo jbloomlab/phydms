@@ -767,7 +767,7 @@ Calculating the likelihood and derivatives on a tree
 Above we describe computing the transition probabilities as a function of branch length.
 Here we consider how to use those computations to compute the actual likelihoods on a tree.
 
-.. figure:: implementation_tree_example.jpg
+.. figure:: _static/implementation_tree_example.jpg
    :align: center
    :alt: implementation_tree_example.jpg
    :width: 40%
