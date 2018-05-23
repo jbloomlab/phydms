@@ -15,6 +15,7 @@
 import sys
 import os
 import re
+import datetime
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -59,7 +60,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'phydms'
-copyright = u'2015, Jesse D. Bloom'
+copyright = u'2015-%s, Sarah Hilton and Jesse Bloom' % str(datetime.datetime.now().year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -126,12 +127,22 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
+html_theme = 'alabaster'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+html_theme_options = {
+        'logo':'BloomLogo.jpg',
+        'logo_name':'true',
+        'description':'Software for phylogenetic analyses informed by deep mutational scanning.',
+        'github_button':'true',
+        'github_user':'jbloomlab',
+        'github_repo':'phydms',
+        'github_banner':'true',
+        # 'travis_button':'true',
+        'sidebar_width':'305px',
+        }
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
@@ -155,7 +166,7 @@ html_theme = 'default'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ['_static/']
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
@@ -170,8 +181,20 @@ html_static_path = ['_static']
 # typographically correct entities.
 #html_use_smartypants = True
 
-# Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+# Custom sidebar templates, must be a dictionary that maps document names
+# to template names.
+#
+# This is required for the alabaster theme
+# refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
+html_sidebars = {
+    '**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',  # needs 'show_related': True theme option to display
+        'searchbox.html',
+        'donate.html',
+    ]
+}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
@@ -225,7 +248,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   ('index', 'phydms.tex', u'phydms Documentation',
-   u'Jesse D. Bloom', 'manual'),
+   u'Sarah Hilton and Jesse Bloom', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -255,7 +278,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'phydms', u'phydms Documentation',
-     [u'Jesse D. Bloom'], 1)
+     [u'Sarah Hilton and Jesse Bloom'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -269,7 +292,8 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'phydms', u'phydms Documentation',
-   u'Jesse D. Bloom', 'phydms', 'One line description of project.',
+   u'Sarah Hilton and Jesse Bloom', 'phydms',
+   'Software for phylogenetic analyses informed by deep mutational scanning.',
    'Miscellaneous'),
 ]
 

@@ -178,10 +178,10 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
             comma-, space-, or tab-separated file with column
             headers of `site` and then all one-letter amino-acid
             codes, or can be in the more complex format written
-            `dms_tools`. Must be prefs for consecutively numbered
-            sites starting at 1. Stop codon prefs can be present
-            (stop codons are indicated by ``*``); if so they are
-            removed and prefs re-normalized to sum to 1.
+            `dms_tools v1 <http://jbloomlab.github.io/dms_tools/>`_.
+            Must be prefs for consecutively numbered sites starting at 1.
+            Stop codon prefs can be present (stop codons are indicated by
+            ``*``); if so they are removed and prefs re-normalized to sum to 1.
         `minpref` (float >= 0)
             Adjust all preferences to be >= this number.
         `avgprefs`, `randprefs` (bool)
@@ -285,15 +285,17 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
 
 
 def readPrefs_dms_tools_format(f):
-    """Reads the amino-acid preferences written by `dms_tools`.
+    """Reads the amino-acid preferences written by `dms_tools v1 <http://jbloomlab.github.io/dms_tools/>`_.
 
     This is an exact copy of the same code from
     `dms_tools.file_io.ReadPreferences`. It is copied because
-    `dms_tools` is currently only compatible with `python2`, and
-    we needed something that also works with `python3`.
+    `dms_tools v1 <http://jbloomlab.github.io/dms_tools/>`_ is currently
+    only compatible with `python2`, and we needed something that also works
+    with `python3`.
 
     *f* is the name of an existing file or a readable file-like object.
-    It should be in the format written by `dms_tools`.
+    It should be in the format written by
+    `dms_tools v1 <http://jbloomlab.github.io/dms_tools/>`_.
 
     The return value is the tuple: *(sites, wts, pi_means, pi_95credint, h)*
     where *sites*, *wts*, *pi_means*, and *pi_95credint* will all

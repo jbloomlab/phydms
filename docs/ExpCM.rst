@@ -204,7 +204,7 @@ The ``phydms`` program has reasonable defaults for these concentration parameter
 
 Here is a plot of the log prior (Equation :eq:`log_Pr_pi_invquad`) as a function of :math:`C_1` and :math:`C_2`.
 
-.. image:: diffprefs_prior_plot.png
+.. image:: _static/diffprefs_prior_plot.png
    :align: center
    :width: 60%
 
