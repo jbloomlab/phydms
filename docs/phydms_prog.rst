@@ -48,16 +48,7 @@ Command-line usage
     *ExpCM_<prefsfile>* is an :ref:`ExpCM` with amino-acid preferences taken from the file ``prefsfile``.
     The preferences file must specify a preference for the amino acid encoded by every site in ``alignment``, using sequential 1, 2, ... numbering.
     Any stop-codon preferences specified in the file are ignored.
-    The preferences file can be in several formats:
-
-        -A comma-, tab-, or space-delimited file with the first column giving the site and the rest giving the preference for each amino-acid::
-
-            site A C D E F G H I K L M N P Q R S T V W Y
-            1 0.044  0.046 0.048 0.0461 0.046 0.0411 0.052 0.027 0.046 0.043 0.172 0.045 0.045 0.045 0.044 0.041 0.037 0.028 0.046 0.048
-            2 0.658 0.006 0.005 0.029 0.005 0.019 0.007 0.004 0.007 0.001 0.036 0.005 0.009 0.003 0.005 0.014 0.013 0.148 0.009 0.005
-
-        -The more complex `dms_tools`_ `preferences file format`_
-
+    The preference file must be a comma-, tab-, or space-delimited file with the first column giving the site and the rest giving the preference for each amino-acid.
     Importantly, the amino-acid preferences must be obtained **independently** from the sequence
     alignment being analyzed. A deep mutational scanning experiment is an independent means
     of obtaining the preferences, but estimating them from the amino-acid frequencies in the alignment of homologs is not a valid approach as you are then estimating the preferences from the same sequences that you are subsequently analyzing.

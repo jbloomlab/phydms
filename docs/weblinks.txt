@@ -1,9 +1,9 @@
 .. _`Bio++`: http://biopp.univ-montp2.fr/wiki/index.php/Main_Page
 .. _`Python`: https://www.python.org
-.. _`dms_tools`: http://jbloomlab.github.io/dms_tools2
-.. _`dms_tools source code`: https://github.com/jbloomlab/dms_tools2
-.. _`preferences file format`: http://jbloomlab.github.io/dms_tools/fileformats.html#preferences-file
-.. _`differential preferences file format`: http://jbloomlab.github.io/dms_tools/fileformats.html#differential-preferences-file
+.. _`dms_tools2`: http://jbloomlab.github.io/dms_tools2
+.. _`dms_tools2 source code`: https://github.com/jbloomlab/dms_tools2
+.. _`preferences file format`: https://jbloomlab.github.io/dms_tools2/dms2_prefs.html#id8
+.. _`differential preferences file format`: https://jbloomlab.github.io/dms_tools2/dms2_diffsel.html#id9
 .. _`PyStan`: http://pystan.readthedocs.org/en/latest/
 .. _`GelmanRubin1992`: http://www.jstor.org/stable/2246093
 .. _`Kronecker delta`: http://en.wikipedia.org/wiki/Kronecker_delta

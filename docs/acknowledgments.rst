@@ -28,7 +28,7 @@ If you use ``phydms_logoplot`` to create logo plots, please also cite `weblogo`_
 
     * `Crooks et al, Genome Research, 14:1188-1190`_
 
-Finally, if you use `dms_tools`_ to process your deep mutational scanning data before feeding it into `phydms`_, please cite:
+Finally, if you use `dms_tools2`_ to process your deep mutational scanning data before feeding it into `phydms`_, please cite:
 
     * `Bloom, BMC Bioinformatics, 16:168`_
 
