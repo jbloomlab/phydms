@@ -1,7 +1,7 @@
 .. _`Bio++`: http://biopp.univ-montp2.fr/wiki/index.php/Main_Page
 .. _`Python`: https://www.python.org
-.. _`dms_tools`: http://jbloomlab.github.io/dms_tools
-.. _`dms_tools source code`: https://github.com/jbloomlab/dms_tools
+.. _`dms_tools`: http://jbloomlab.github.io/dms_tools2
+.. _`dms_tools source code`: https://github.com/jbloomlab/dms_tools2
 .. _`preferences file format`: http://jbloomlab.github.io/dms_tools/fileformats.html#preferences-file
 .. _`differential preferences file format`: http://jbloomlab.github.io/dms_tools/fileformats.html#differential-preferences-file
 .. _`PyStan`: http://pystan.readthedocs.org/en/latest/
