@@ -1,13 +1,17 @@
 language: python
+
 python:
-  - "2.7"	
   - "3.4"
+
 cache: pip
+
 install:
   - pip install -r test_requirements.txt
   - pip install -e .
+
 script: 
   - pytest
+
 branches:
   only:
     - master

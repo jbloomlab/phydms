@@ -1,6 +1,12 @@
 Changelog
 ===========
 
+2.3.dev0
+------
+* Automate Travis tests
+
+* Only support Python 3.4+
+
 2.2.2
 -----
 * Fixed bug in ``spielmanwr``
