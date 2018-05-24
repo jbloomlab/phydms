@@ -1,0 +1,547 @@
+
+Beginning execution of phydms_logoplot in directory /home/shilton/phydms/tests at time Thu May 24 08:57:52 2018
+
+Version information:
+	Time and date: Thu May 24 08:57:52 2018
+	Platform: Linux-3.13.0-143-generic-x86_64-with-debian-jessie-sid
+	Python version: 3.6.0 |Continuum Analytics, Inc.| (default, Dec 23 2016, 12:22:00)  [GCC 4.4.7 20120313 (Red Hat 4.4.7-1)]
+	phydms version: 2.2.2
+	Bio version: 1.69
+	cython version: 0.25.2
+	numpy version: 1.14.0
+	scipy version: 1.0.0
+	matplotlib version: 2.2.2
+	natsort version: 5.2.0
+	sympy version: 1.0
+	six version: 1.11.0
+	pandas version: 0.21.0
+	pyvolve version: 0.8.4
+	statsmodels version: 0.8.0
+	weblogolib version: 3.5.0
+	PyPDF2 version: 1.26.0
+
+Parsed the following command-line arguments:
+	prefs = None
+	diffprefs = /home/shilton/phydms/tests/expected_NP_test_results/ExpCM_NP_prefs_diffprefsbysite.txt
+	outfile = /home/shilton/phydms/tests/logoplot_test_results/diffprefs_logoplot.pdf
+	stringency = 1
+	nperline = 72
+	numberevery = 10
+	mapmetric = functionalgroup
+	colormap = jet
+	diffprefheight = 1.0
+	omegabysite = None
+	minP = 0.0001
+
+Reading differential preferences from /home/shilton/phydms/tests/expected_NP_test_results/ExpCM_NP_prefs_diffprefsbysite.txt
+Read differential preferences for 498 sites.
+
+Now making plot /home/shilton/phydms/tests/logoplot_test_results/diffprefs_logoplot.pdf...
+Created plot /home/shilton/phydms/tests/logoplot_test_results/diffprefs_logoplot.pdf
+
+Successful completion of phydms_logoplot
+
+Beginning execution of phydms_logoplot in directory /home/shilton/phydms/tests at time Thu May 24 08:57:59 2018
+
+Version information:
+	Time and date: Thu May 24 08:57:59 2018
+	Platform: Linux-3.13.0-143-generic-x86_64-with-debian-jessie-sid
+	Python version: 3.6.0 |Continuum Analytics, Inc.| (default, Dec 23 2016, 12:22:00)  [GCC 4.4.7 20120313 (Red Hat 4.4.7-1)]
+	phydms version: 2.2.2
+	Bio version: 1.69
+	cython version: 0.25.2
+	numpy version: 1.14.0
+	scipy version: 1.0.0
+	matplotlib version: 2.2.2
+	natsort version: 5.2.0
+	sympy version: 1.0
+	six version: 1.11.0
+	pandas version: 0.21.0
+	pyvolve version: 0.8.4
+	statsmodels version: 0.8.0
+	weblogolib version: 3.5.0
+	PyPDF2 version: 1.26.0
+
+Parsed the following command-line arguments:
+	prefs = /home/shilton/phydms/tests/NP_data/NP_prefs.tsv
+	diffprefs = None
+	outfile = /home/shilton/phydms/tests/logoplot_test_results/omegaoverlay_logoplot.pdf
+	stringency = 2.99
+	nperline = 72
+	numberevery = 10
+	mapmetric = functionalgroup
+	colormap = jet
+	diffprefheight = 1.0
+	omegabysite = /home/shilton/phydms/tests/expected_NP_test_results/ExpCM_NP_prefs_omegabysite.txt
+	minP = 0.001
+
+Reading preferences from /home/shilton/phydms/tests/NP_data/NP_prefs.tsv
+Read preferences for 498 sites.
+Re-scaling by stringency parameter 2.99
+
+We will make an overlay with the site-specific omega values in /home/shilton/phydms/tests/expected_NP_test_results/ExpCM_NP_prefs_omegabysite.txt.
+
+Now making plot /home/shilton/phydms/tests/logoplot_test_results/omegaoverlay_logoplot.pdf...
+Created plot /home/shilton/phydms/tests/logoplot_test_results/omegaoverlay_logoplot.pdf
+
+Successful completion of phydms_logoplot
+
+Beginning execution of phydms_logoplot in directory /home/shilton/phydms/tests at time Thu May 24 08:58:10 2018
+
+Version information:
+	Time and date: Thu May 24 08:58:10 2018
+	Platform: Linux-3.13.0-143-generic-x86_64-with-debian-jessie-sid
+	Python version: 3.6.0 |Continuum Analytics, Inc.| (default, Dec 23 2016, 12:22:00)  [GCC 4.4.7 20120313 (Red Hat 4.4.7-1)]
+	phydms version: 2.2.2
+	Bio version: 1.69
+	cython version: 0.25.2
+	numpy version: 1.14.0
+	scipy version: 1.0.0
+	matplotlib version: 2.2.2
+	natsort version: 5.2.0
+	sympy version: 1.0
+	six version: 1.11.0
+	pandas version: 0.21.0
+	pyvolve version: 0.8.4
+	statsmodels version: 0.8.0
+	weblogolib version: 3.5.0
+	PyPDF2 version: 1.26.0
+
+Parsed the following command-line arguments:
+	prefs = /home/shilton/phydms/tests/NP_data/NP_prefs.tsv
+	diffprefs = None
+	outfile = /home/shilton/phydms/tests/logoplot_test_results/prefs_logoplot.pdf
+	stringency = 2.99
+	nperline = 72
+	numberevery = 10
+	mapmetric = charge
+	colormap = jet
+	diffprefheight = 1.0
+	omegabysite = None
+	minP = 0.0001
+
+Reading preferences from /home/shilton/phydms/tests/NP_data/NP_prefs.tsv
+Read preferences for 498 sites.
+Re-scaling by stringency parameter 2.99
+
+Now making plot /home/shilton/phydms/tests/logoplot_test_results/prefs_logoplot.pdf...
+Created plot /home/shilton/phydms/tests/logoplot_test_results/prefs_logoplot.pdf
+
+Successful completion of phydms_logoplot
+
+Beginning execution of phydms_prepalignment in directory /home/shilton/phydms/tests at time Thu May 24 08:58:17 2018
+
+Version information:
+	Time and date: Thu May 24 08:58:17 2018
+	Platform: Linux-3.13.0-143-generic-x86_64-with-debian-jessie-sid
+	Python version: 3.6.0 |Continuum Analytics, Inc.| (default, Dec 23 2016, 12:22:00)  [GCC 4.4.7 20120313 (Red Hat 4.4.7-1)]
+	phydms version: 2.2.2
+	Bio version: 1.69
+	cython version: 0.25.2
+	numpy version: 1.14.0
+	scipy version: 1.0.0
+	matplotlib version: 2.2.2
+	natsort version: 5.2.0
+	sympy version: 1.0
+	six version: 1.11.0
+	pandas version: 0.21.0
+	pyvolve version: 0.8.4
+	statsmodels version: 0.8.0
+	weblogolib version: 3.5.0
+	PyPDF2 version: 1.26.0
+
+Parsed the following command-line arguments:
+	inseqs = /home/shilton/phydms/tests/prepalignment_tests/prealigned_SUMO1_orthologs.fasta
+	alignment = /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqs.fasta
+	refseq = Hsap
+	prealigned = True
+	mafft = mafft
+	minidentity = 0.7
+	minuniqueness = 2
+	purgeseqs = ['']
+	keepseqs = ['']
+
+Removing existing output file /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqs.pdf
+Removing existing output file /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqs.fasta
+There are 0 sequences specified by --keepseqs
+There are 0 sequences specified by --purgeseqs
+Read 67 sequences from /home/shilton/phydms/tests/prepalignment_tests/prealigned_SUMO1_orthologs.fasta
+Retained 67 after removing those specified for purging by '--purgeseqs.'
+Retained 67 sequences after removing any with length not multiple of 3.
+Retained 62 sequences after purging any with ambiguous nucleotides.
+Retained 62 sequences after purging any with premature stops or that are otherwise un-translateable.
+Using the following as reference sequence: ENSP00000376077_Hsap/1-303
+Purged sequences encoding redundant proteins, being sure to retain reference sequence and any specified by '--keepseqs'. Overall, 54 sequences remain.
+You specified '--prealigned', so the sequences are NOT being aligned.
+After stripping gaps relative to reference sequence, all proteins are of length 101
+Retained 48 sequences after purging those with < 0.7 protein identity to reference sequence.
+Retained 32 sequences after purging those without at least 2 amino-acid differences with other retained sequences.
+Writing the final alignment of 32 coding sequences to /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqs.fasta
+Plotting retained and purged sequences to /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqs.pdf
+
+Successful completion of phydms_prepalignment
+
+Beginning execution of phydms_prepalignment in directory /home/shilton/phydms/tests at time Thu May 24 08:58:21 2018
+
+Version information:
+	Time and date: Thu May 24 08:58:21 2018
+	Platform: Linux-3.13.0-143-generic-x86_64-with-debian-jessie-sid
+	Python version: 3.6.0 |Continuum Analytics, Inc.| (default, Dec 23 2016, 12:22:00)  [GCC 4.4.7 20120313 (Red Hat 4.4.7-1)]
+	phydms version: 2.2.2
+	Bio version: 1.69
+	cython version: 0.25.2
+	numpy version: 1.14.0
+	scipy version: 1.0.0
+	matplotlib version: 2.2.2
+	natsort version: 5.2.0
+	sympy version: 1.0
+	six version: 1.11.0
+	pandas version: 0.21.0
+	pyvolve version: 0.8.4
+	statsmodels version: 0.8.0
+	weblogolib version: 3.5.0
+	PyPDF2 version: 1.26.0
+
+Parsed the following command-line arguments:
+	inseqs = /home/shilton/phydms/tests/prepalignment_tests/prealigned_SUMO1_orthologs.fasta
+	alignment = /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.6_minuniqueness2_purgeseqs_keepseqs.fasta
+	refseq = Hsap
+	prealigned = True
+	mafft = mafft
+	minidentity = 0.6
+	minuniqueness = 2
+	purgeseqs = ['']
+	keepseqs = ['']
+
+Removing existing output file /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.6_minuniqueness2_purgeseqs_keepseqs.pdf
+Removing existing output file /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.6_minuniqueness2_purgeseqs_keepseqs.fasta
+There are 0 sequences specified by --keepseqs
+There are 0 sequences specified by --purgeseqs
+Read 67 sequences from /home/shilton/phydms/tests/prepalignment_tests/prealigned_SUMO1_orthologs.fasta
+Retained 67 after removing those specified for purging by '--purgeseqs.'
+Retained 67 sequences after removing any with length not multiple of 3.
+Retained 62 sequences after purging any with ambiguous nucleotides.
+Retained 62 sequences after purging any with premature stops or that are otherwise un-translateable.
+Using the following as reference sequence: ENSP00000376077_Hsap/1-303
+Purged sequences encoding redundant proteins, being sure to retain reference sequence and any specified by '--keepseqs'. Overall, 54 sequences remain.
+You specified '--prealigned', so the sequences are NOT being aligned.
+After stripping gaps relative to reference sequence, all proteins are of length 101
+Retained 51 sequences after purging those with < 0.6 protein identity to reference sequence.
+Retained 35 sequences after purging those without at least 2 amino-acid differences with other retained sequences.
+Writing the final alignment of 35 coding sequences to /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.6_minuniqueness2_purgeseqs_keepseqs.fasta
+Plotting retained and purged sequences to /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.6_minuniqueness2_purgeseqs_keepseqs.pdf
+
+Successful completion of phydms_prepalignment
+
+Beginning execution of phydms_prepalignment in directory /home/shilton/phydms/tests at time Thu May 24 08:58:25 2018
+
+Version information:
+	Time and date: Thu May 24 08:58:25 2018
+	Platform: Linux-3.13.0-143-generic-x86_64-with-debian-jessie-sid
+	Python version: 3.6.0 |Continuum Analytics, Inc.| (default, Dec 23 2016, 12:22:00)  [GCC 4.4.7 20120313 (Red Hat 4.4.7-1)]
+	phydms version: 2.2.2
+	Bio version: 1.69
+	cython version: 0.25.2
+	numpy version: 1.14.0
+	scipy version: 1.0.0
+	matplotlib version: 2.2.2
+	natsort version: 5.2.0
+	sympy version: 1.0
+	six version: 1.11.0
+	pandas version: 0.21.0
+	pyvolve version: 0.8.4
+	statsmodels version: 0.8.0
+	weblogolib version: 3.5.0
+	PyPDF2 version: 1.26.0
+
+Parsed the following command-line arguments:
+	inseqs = /home/shilton/phydms/tests/prepalignment_tests/prealigned_SUMO1_orthologs.fasta
+	alignment = /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness1_purgeseqs_keepseqs.fasta
+	refseq = Hsap
+	prealigned = True
+	mafft = mafft
+	minidentity = 0.7
+	minuniqueness = 1
+	purgeseqs = ['']
+	keepseqs = ['']
+
+Removing existing output file /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness1_purgeseqs_keepseqs.pdf
+Removing existing output file /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness1_purgeseqs_keepseqs.fasta
+There are 0 sequences specified by --keepseqs
+There are 0 sequences specified by --purgeseqs
+Read 67 sequences from /home/shilton/phydms/tests/prepalignment_tests/prealigned_SUMO1_orthologs.fasta
+Retained 67 after removing those specified for purging by '--purgeseqs.'
+Retained 67 sequences after removing any with length not multiple of 3.
+Retained 62 sequences after purging any with ambiguous nucleotides.
+Retained 62 sequences after purging any with premature stops or that are otherwise un-translateable.
+Using the following as reference sequence: ENSP00000376077_Hsap/1-303
+Purged sequences encoding redundant proteins, being sure to retain reference sequence and any specified by '--keepseqs'. Overall, 54 sequences remain.
+You specified '--prealigned', so the sequences are NOT being aligned.
+After stripping gaps relative to reference sequence, all proteins are of length 101
+Retained 48 sequences after purging those with < 0.7 protein identity to reference sequence.
+Retained 42 sequences after purging those without at least 1 amino-acid differences with other retained sequences.
+Writing the final alignment of 42 coding sequences to /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness1_purgeseqs_keepseqs.fasta
+Plotting retained and purged sequences to /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness1_purgeseqs_keepseqs.pdf
+
+Successful completion of phydms_prepalignment
+
+Beginning execution of phydms_prepalignment in directory /home/shilton/phydms/tests at time Thu May 24 08:58:28 2018
+
+Version information:
+	Time and date: Thu May 24 08:58:28 2018
+	Platform: Linux-3.13.0-143-generic-x86_64-with-debian-jessie-sid
+	Python version: 3.6.0 |Continuum Analytics, Inc.| (default, Dec 23 2016, 12:22:00)  [GCC 4.4.7 20120313 (Red Hat 4.4.7-1)]
+	phydms version: 2.2.2
+	Bio version: 1.69
+	cython version: 0.25.2
+	numpy version: 1.14.0
+	scipy version: 1.0.0
+	matplotlib version: 2.2.2
+	natsort version: 5.2.0
+	sympy version: 1.0
+	six version: 1.11.0
+	pandas version: 0.21.0
+	pyvolve version: 0.8.4
+	statsmodels version: 0.8.0
+	weblogolib version: 3.5.0
+	PyPDF2 version: 1.26.0
+
+Parsed the following command-line arguments:
+	inseqs = /home/shilton/phydms/tests/prepalignment_tests/prealigned_SUMO1_orthologs.fasta
+	alignment = /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqsPanuGgor.fasta
+	refseq = Hsap
+	prealigned = True
+	mafft = mafft
+	minidentity = 0.7
+	minuniqueness = 2
+	purgeseqs = ['']
+	keepseqs = ['Panu', 'Ggor']
+
+Removing existing output file /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqsPanuGgor.pdf
+Removing existing output file /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqsPanuGgor.fasta
+There are 2 sequences specified by --keepseqs
+There are 0 sequences specified by --purgeseqs
+Read 67 sequences from /home/shilton/phydms/tests/prepalignment_tests/prealigned_SUMO1_orthologs.fasta
+Retained 67 after removing those specified for purging by '--purgeseqs.'
+Retained 67 sequences after removing any with length not multiple of 3.
+Retained 62 sequences after purging any with ambiguous nucleotides.
+Retained 62 sequences after purging any with premature stops or that are otherwise un-translateable.
+Using the following as reference sequence: ENSP00000376077_Hsap/1-303
+Purged sequences encoding redundant proteins, being sure to retain reference sequence and any specified by '--keepseqs'. Overall, 56 sequences remain.
+You specified '--prealigned', so the sequences are NOT being aligned.
+After stripping gaps relative to reference sequence, all proteins are of length 101
+Retained 50 sequences after purging those with < 0.7 protein identity to reference sequence.
+Retained 34 sequences after purging those without at least 2 amino-acid differences with other retained sequences.
+Writing the final alignment of 34 coding sequences to /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqsPanuGgor.fasta
+Plotting retained and purged sequences to /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqsPanuGgor.pdf
+
+Successful completion of phydms_prepalignment
+
+Beginning execution of phydms_prepalignment in directory /home/shilton/phydms/tests at time Thu May 24 08:58:32 2018
+
+Version information:
+	Time and date: Thu May 24 08:58:32 2018
+	Platform: Linux-3.13.0-143-generic-x86_64-with-debian-jessie-sid
+	Python version: 3.6.0 |Continuum Analytics, Inc.| (default, Dec 23 2016, 12:22:00)  [GCC 4.4.7 20120313 (Red Hat 4.4.7-1)]
+	phydms version: 2.2.2
+	Bio version: 1.69
+	cython version: 0.25.2
+	numpy version: 1.14.0
+	scipy version: 1.0.0
+	matplotlib version: 2.2.2
+	natsort version: 5.2.0
+	sympy version: 1.0
+	six version: 1.11.0
+	pandas version: 0.21.0
+	pyvolve version: 0.8.4
+	statsmodels version: 0.8.0
+	weblogolib version: 3.5.0
+	PyPDF2 version: 1.26.0
+
+Parsed the following command-line arguments:
+	inseqs = /home/shilton/phydms/tests/prepalignment_tests/prealigned_SUMO1_orthologs.fasta
+	alignment = /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqstest_keepseqsfile.fasta
+	refseq = Hsap
+	prealigned = True
+	mafft = mafft
+	minidentity = 0.7
+	minuniqueness = 2
+	purgeseqs = ['']
+	keepseqs = ['/home/shilton/phydms/tests/prepalignment_tests/test_keepseqsfile.txt']
+
+Removing existing output file /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqstest_keepseqsfile.pdf
+Removing existing output file /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqstest_keepseqsfile.fasta
+Read 2 sequences from the --keepseqs file /home/shilton/phydms/tests/prepalignment_tests/test_keepseqsfile.txt
+There are 0 sequences specified by --purgeseqs
+Read 67 sequences from /home/shilton/phydms/tests/prepalignment_tests/prealigned_SUMO1_orthologs.fasta
+Retained 67 after removing those specified for purging by '--purgeseqs.'
+Retained 67 sequences after removing any with length not multiple of 3.
+Retained 62 sequences after purging any with ambiguous nucleotides.
+Retained 62 sequences after purging any with premature stops or that are otherwise un-translateable.
+Using the following as reference sequence: ENSP00000376077_Hsap/1-303
+Purged sequences encoding redundant proteins, being sure to retain reference sequence and any specified by '--keepseqs'. Overall, 56 sequences remain.
+You specified '--prealigned', so the sequences are NOT being aligned.
+After stripping gaps relative to reference sequence, all proteins are of length 101
+Retained 50 sequences after purging those with < 0.7 protein identity to reference sequence.
+Retained 34 sequences after purging those without at least 2 amino-acid differences with other retained sequences.
+Writing the final alignment of 34 coding sequences to /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqstest_keepseqsfile.fasta
+Plotting retained and purged sequences to /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqstest_keepseqsfile.pdf
+
+Successful completion of phydms_prepalignment
+
+Beginning execution of phydms_prepalignment in directory /home/shilton/phydms/tests at time Thu May 24 08:58:36 2018
+
+Version information:
+	Time and date: Thu May 24 08:58:36 2018
+	Platform: Linux-3.13.0-143-generic-x86_64-with-debian-jessie-sid
+	Python version: 3.6.0 |Continuum Analytics, Inc.| (default, Dec 23 2016, 12:22:00)  [GCC 4.4.7 20120313 (Red Hat 4.4.7-1)]
+	phydms version: 2.2.2
+	Bio version: 1.69
+	cython version: 0.25.2
+	numpy version: 1.14.0
+	scipy version: 1.0.0
+	matplotlib version: 2.2.2
+	natsort version: 5.2.0
+	sympy version: 1.0
+	six version: 1.11.0
+	pandas version: 0.21.0
+	pyvolve version: 0.8.4
+	statsmodels version: 0.8.0
+	weblogolib version: 3.5.0
+	PyPDF2 version: 1.26.0
+
+Parsed the following command-line arguments:
+	inseqs = /home/shilton/phydms/tests/prepalignment_tests/prealigned_SUMO1_orthologs.fasta
+	alignment = /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqstest_purgeseqsfile_keepseqsPanuGgor.fasta
+	refseq = Hsap
+	prealigned = True
+	mafft = mafft
+	minidentity = 0.7
+	minuniqueness = 2
+	purgeseqs = ['/home/shilton/phydms/tests/prepalignment_tests/test_purgeseqsfile.txt']
+	keepseqs = ['Panu', 'Ggor']
+
+Removing existing output file /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqstest_purgeseqsfile_keepseqsPanuGgor.pdf
+Removing existing output file /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqstest_purgeseqsfile_keepseqsPanuGgor.fasta
+There are 2 sequences specified by --keepseqs
+Read 1 sequences from the --purgeseqs file /home/shilton/phydms/tests/prepalignment_tests/test_purgeseqsfile.txt
+Read 67 sequences from /home/shilton/phydms/tests/prepalignment_tests/prealigned_SUMO1_orthologs.fasta
+Retained 66 after removing those specified for purging by '--purgeseqs.'
+Retained 66 sequences after removing any with length not multiple of 3.
+Retained 61 sequences after purging any with ambiguous nucleotides.
+Retained 61 sequences after purging any with premature stops or that are otherwise un-translateable.
+Using the following as reference sequence: ENSP00000376077_Hsap/1-303
+Purged sequences encoding redundant proteins, being sure to retain reference sequence and any specified by '--keepseqs'. Overall, 55 sequences remain.
+You specified '--prealigned', so the sequences are NOT being aligned.
+After stripping gaps relative to reference sequence, all proteins are of length 101
+Retained 49 sequences after purging those with < 0.7 protein identity to reference sequence.
+Retained 33 sequences after purging those without at least 2 amino-acid differences with other retained sequences.
+Writing the final alignment of 33 coding sequences to /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqstest_purgeseqsfile_keepseqsPanuGgor.fasta
+Plotting retained and purged sequences to /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqstest_purgeseqsfile_keepseqsPanuGgor.pdf
+
+Successful completion of phydms_prepalignment
+
+Beginning execution of phydms_prepalignment in directory /home/shilton/phydms/tests at time Thu May 24 08:58:39 2018
+
+Version information:
+	Time and date: Thu May 24 08:58:39 2018
+	Platform: Linux-3.13.0-143-generic-x86_64-with-debian-jessie-sid
+	Python version: 3.6.0 |Continuum Analytics, Inc.| (default, Dec 23 2016, 12:22:00)  [GCC 4.4.7 20120313 (Red Hat 4.4.7-1)]
+	phydms version: 2.2.2
+	Bio version: 1.69
+	cython version: 0.25.2
+	numpy version: 1.14.0
+	scipy version: 1.0.0
+	matplotlib version: 2.2.2
+	natsort version: 5.2.0
+	sympy version: 1.0
+	six version: 1.11.0
+	pandas version: 0.21.0
+	pyvolve version: 0.8.4
+	statsmodels version: 0.8.0
+	weblogolib version: 3.5.0
+	PyPDF2 version: 1.26.0
+
+Parsed the following command-line arguments:
+	inseqs = /home/shilton/phydms/tests/prepalignment_tests/prealigned_SUMO1_orthologs.fasta
+	alignment = /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqsFcat_keepseqstest_keepseqsfile.fasta
+	refseq = Hsap
+	prealigned = True
+	mafft = mafft
+	minidentity = 0.7
+	minuniqueness = 2
+	purgeseqs = ['Fcat']
+	keepseqs = ['/home/shilton/phydms/tests/prepalignment_tests/test_keepseqsfile.txt']
+
+Removing existing output file /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqsFcat_keepseqstest_keepseqsfile.pdf
+Removing existing output file /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqsFcat_keepseqstest_keepseqsfile.fasta
+Read 2 sequences from the --keepseqs file /home/shilton/phydms/tests/prepalignment_tests/test_keepseqsfile.txt
+There are 1 sequences specified by --purgeseqs
+Read 67 sequences from /home/shilton/phydms/tests/prepalignment_tests/prealigned_SUMO1_orthologs.fasta
+Retained 66 after removing those specified for purging by '--purgeseqs.'
+Retained 66 sequences after removing any with length not multiple of 3.
+Retained 61 sequences after purging any with ambiguous nucleotides.
+Retained 61 sequences after purging any with premature stops or that are otherwise un-translateable.
+Using the following as reference sequence: ENSP00000376077_Hsap/1-303
+Purged sequences encoding redundant proteins, being sure to retain reference sequence and any specified by '--keepseqs'. Overall, 55 sequences remain.
+You specified '--prealigned', so the sequences are NOT being aligned.
+After stripping gaps relative to reference sequence, all proteins are of length 101
+Retained 49 sequences after purging those with < 0.7 protein identity to reference sequence.
+Retained 33 sequences after purging those without at least 2 amino-acid differences with other retained sequences.
+Writing the final alignment of 33 coding sequences to /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqsFcat_keepseqstest_keepseqsfile.fasta
+Plotting retained and purged sequences to /home/shilton/phydms/tests/prepalignment_tests/test_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqsFcat_keepseqstest_keepseqsfile.pdf
+
+Successful completion of phydms_prepalignment
+
+Beginning execution of phydms_prepalignment in directory /home/shilton/phydms/tests at time Thu May 24 08:58:43 2018
+
+Version information:
+	Time and date: Thu May 24 08:58:43 2018
+	Platform: Linux-3.13.0-143-generic-x86_64-with-debian-jessie-sid
+	Python version: 3.6.0 |Continuum Analytics, Inc.| (default, Dec 23 2016, 12:22:00)  [GCC 4.4.7 20120313 (Red Hat 4.4.7-1)]
+	phydms version: 2.2.2
+	Bio version: 1.69
+	cython version: 0.25.2
+	numpy version: 1.14.0
+	scipy version: 1.0.0
+	matplotlib version: 2.2.2
+	natsort version: 5.2.0
+	sympy version: 1.0
+	six version: 1.11.0
+	pandas version: 0.21.0
+	pyvolve version: 0.8.4
+	statsmodels version: 0.8.0
+	weblogolib version: 3.5.0
+	PyPDF2 version: 1.26.0
+
+Parsed the following command-line arguments:
+	inseqs = /home/shilton/phydms/tests/prepalignment_tests/unaligned_SUMO1_orthologs.fasta
+	alignment = /home/shilton/phydms/tests/prepalignment_tests/test_unaligned_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqs.fasta
+	refseq = Hsap
+	prealigned = False
+	mafft = mafft
+	minidentity = 0.7
+	minuniqueness = 2
+	purgeseqs = ['']
+	keepseqs = ['']
+
+Removing existing output file /home/shilton/phydms/tests/prepalignment_tests/test_unaligned_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqs.pdf
+Removing existing output file /home/shilton/phydms/tests/prepalignment_tests/test_unaligned_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqs.fasta
+There are 0 sequences specified by --keepseqs
+There are 0 sequences specified by --purgeseqs
+Read 67 sequences from /home/shilton/phydms/tests/prepalignment_tests/unaligned_SUMO1_orthologs.fasta
+Retained 67 after removing those specified for purging by '--purgeseqs.'
+Retained 67 sequences after removing any with length not multiple of 3.
+Retained 62 sequences after purging any with ambiguous nucleotides.
+Retained 62 sequences after purging any with premature stops or that are otherwise un-translateable.
+Using the following as reference sequence: ENSP00000376077_Hsap/1-303
+Purged sequences encoding redundant proteins, being sure to retain reference sequence and any specified by '--keepseqs'. Overall, 54 sequences remain.
+Aligning sequences with MAFFT using mafft b'v7.305b (2016/Aug/16)'
+After stripping gaps relative to reference sequence, all proteins are of length 101
+Retained 49 sequences after purging those with < 0.7 protein identity to reference sequence.
+Retained 33 sequences after purging those without at least 2 amino-acid differences with other retained sequences.
+Writing the final alignment of 33 coding sequences to /home/shilton/phydms/tests/prepalignment_tests/test_unaligned_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqs.fasta
+Plotting retained and purged sequences to /home/shilton/phydms/tests/prepalignment_tests/test_unaligned_SUMO1_alignment_minidentity0.7_minuniqueness2_purgeseqs_keepseqs.pdf
+
+Successful completion of phydms_prepalignment
+/home/shilton/phydms/tests/logoplot_test_results/diffprefs_logoplot.pdf

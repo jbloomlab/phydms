@@ -1,0 +1,481 @@
+2018-05-24 08:57:04,045 - INFO - Beginning execution of phydms_divpressure in directory /home/shilton/phydms/tests
+
+2018-05-24 08:57:04,045 - INFO - Progress is being logged to /home/shilton/phydms/tests/divpressure_test_results/log.log
+
+2018-05-24 08:57:04,045 - INFO - Version information:
+	Time and date: Thu May 24 08:57:01 2018
+	Platform: Linux-3.13.0-143-generic-x86_64-with-debian-jessie-sid
+	Python version: 3.6.0 |Continuum Analytics, Inc.| (default, Dec 23 2016, 12:22:00)  [GCC 4.4.7 20120313 (Red Hat 4.4.7-1)]
+	phydms version: 2.2.2
+	Bio version: 1.69
+	cython version: 0.25.2
+	numpy version: 1.14.0
+	scipy version: 1.0.0
+	matplotlib version: 2.2.2
+	natsort version: 5.2.0
+	sympy version: 1.0
+	six version: 1.11.0
+	pandas version: 0.21.0
+	pyvolve version: 0.8.4
+	statsmodels version: 0.8.0
+	weblogolib version: 3.5.0
+	PyPDF2 version: 1.26.0
+
+2018-05-24 08:57:04,045 - INFO - Parsed the following command-line arguments:
+	outprefix = /home/shilton/phydms/tests/divpressure_test_results/
+	alignment = /home/shilton/phydms/tests/divpressure_tests/simulated_NP.fasta
+	prefsfile = /home/shilton/phydms/tests/divpressure_tests/NP_prefs.txt
+	divpressure = ['/home/shilton/phydms/tests/divpressure_tests/divpressure.txt', '/home/shilton/phydms/tests/divpressure_tests/divpressure2.csv']
+	tree = /home/shilton/phydms/tests/divpressure_tests/NP_tree.newick
+	raxml = raxml
+	randomizations = 0
+	ncpus = -1
+
+2018-05-24 08:57:04,055 - INFO - Beginning execution of phydms_divpressure in directory /home/shilton/phydms/tests
+
+2018-05-24 08:57:04,056 - INFO - Progress is being logged to /home/shilton/phydms/tests/divpressure_test_results/log.log
+
+2018-05-24 08:57:04,058 - INFO - Version information:
+	Time and date: Thu May 24 08:57:04 2018
+	Platform: Linux-3.13.0-143-generic-x86_64-with-debian-jessie-sid
+	Python version: 3.6.0 |Continuum Analytics, Inc.| (default, Dec 23 2016, 12:22:00)  [GCC 4.4.7 20120313 (Red Hat 4.4.7-1)]
+	phydms version: 2.2.2
+	Bio version: 1.69
+	cython version: 0.25.2
+	numpy version: 1.14.0
+	scipy version: 1.0.0
+	matplotlib version: 2.2.2
+	natsort version: 5.2.0
+	sympy version: 1.0
+	six version: 1.11.0
+	pandas version: 0.21.0
+	pyvolve version: 0.8.4
+	statsmodels version: 0.8.0
+	weblogolib version: 3.5.0
+	PyPDF2 version: 1.26.0
+
+2018-05-24 08:57:04,059 - INFO - Parsed the following command-line arguments:
+	outprefix = /home/shilton/phydms/tests/divpressure_test_results/
+	alignment = /home/shilton/phydms/tests/divpressure_tests/simulated_NP.fasta
+	prefsfile = /home/shilton/phydms/tests/divpressure_tests/NP_prefs.txt
+	divpressure = ['/home/shilton/phydms/tests/divpressure_tests/divpressure.txt', '/home/shilton/phydms/tests/divpressure_tests/divpressure2.csv']
+	tree = /home/shilton/phydms/tests/divpressure_tests/NP_tree.newick
+	raxml = raxml
+	randomizations = 0
+	ncpus = -1
+
+2018-05-24 08:57:04,061 - INFO - Checking that the alignment /home/shilton/phydms/tests/divpressure_tests/simulated_NP.fasta is valid...
+2018-05-24 08:57:04,087 - INFO - Valid alignment specifying 19 sequences of length 150.
+
+2018-05-24 08:57:04,088 - INFO - Reading tree from /home/shilton/phydms/tests/divpressure_tests/NP_tree.newick
+2018-05-24 08:57:04,090 - INFO - Will use all 28 available CPUs.
+
+2018-05-24 08:57:04,096 - INFO - Starting analysis. Optimizing the branch lengths. The command is: phydms /home/shilton/phydms/tests/divpressure_tests/simulated_NP.fasta /home/shilton/phydms/tests/divpressure_tests/NP_tree.newick ExpCM_/home/shilton/phydms/tests/divpressure_tests/NP_prefs.txt /home/shilton/phydms/tests/divpressure_test_results/ExpCM_NP_prefs --ncpus 8 --brlen optimize
+
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+2018-05-24 08:57:06,997 - INFO - Beginning execution of phydms in directory /home/shilton/phydms/tests
+
+2018-05-24 08:57:06,997 - INFO - Progress is being logged to /home/shilton/phydms/tests/divpressure_test_results/ExpCM_NP_prefs_log.log
+
+2018-05-24 08:57:06,997 - INFO - Version information:
+	Time and date: Thu May 24 08:57:05 2018
+	Platform: Linux-3.13.0-143-generic-x86_64-with-debian-jessie-sid
+	Python version: 3.6.0 |Continuum Analytics, Inc.| (default, Dec 23 2016, 12:22:00)  [GCC 4.4.7 20120313 (Red Hat 4.4.7-1)]
+	phydms version: 2.2.2
+	Bio version: 1.69
+	cython version: 0.25.2
+	numpy version: 1.14.0
+	scipy version: 1.0.0
+	matplotlib version: 2.2.2
+	natsort version: 5.2.0
+	sympy version: 1.0
+	six version: 1.11.0
+	pandas version: 0.21.0
+	pyvolve version: 0.8.4
+	statsmodels version: 0.8.0
+	weblogolib version: 3.5.0
+	PyPDF2 version: 1.26.0
+
+2018-05-24 08:57:06,997 - INFO - Parsed the following arguments:
+	alignment = /home/shilton/phydms/tests/divpressure_tests/simulated_NP.fasta
+	tree = /home/shilton/phydms/tests/divpressure_tests/NP_tree.newick
+	model = ('ExpCM', '/home/shilton/phydms/tests/divpressure_tests/NP_prefs.txt')
+	outprefix = /home/shilton/phydms/tests/divpressure_test_results/ExpCM_NP_prefs
+	brlen = optimize
+	gammaomega = False
+	gammabeta = False
+	omegabysite = False
+	omegabysite_fixsyn = False
+	diffprefsbysite = False
+	diffprefsprior = ('invquadratic', 150.0, 0.5)
+	fitphi = False
+	randprefs = False
+	avgprefs = False
+	divpressure = None
+	ncpus = 8
+	fitprefsmethod = 2
+	ncats = 4
+	minbrlen = 1e-06
+	minpref = 0.002
+	seed = 1
+	initparams = None
+	profile = False
+	opt_details = False
+	nograd = False
+
+2018-05-24 08:57:06,998 - INFO - Random number seed: 1
+
+2018-05-24 08:57:06,998 - INFO - Reading alignment from /home/shilton/phydms/tests/divpressure_tests/simulated_NP.fasta
+2018-05-24 08:57:07,018 - INFO - Read 19 aligned sequences from /home/shilton/phydms/tests/divpressure_tests/simulated_NP.fasta, each consisting of 50 codons.
+
+2018-05-24 08:57:07,018 - INFO - The model will be an ExpCM informed by site-specific amino-acid preferences in /home/shilton/phydms/tests/divpressure_tests/NP_prefs.txt
+2018-05-24 08:57:07,052 - INFO - Successfully read site-specific amino-acid preferences for all 50 sites.
+
+2018-05-24 08:57:07,052 - INFO - Nucleotide frequency parameters phi will be set so stationary state matches alignment nucleotide frequencies of A = 0.318, C = 0.168, G = 0.319, T = 0.195
+
+2018-05-24 08:57:07,268 - INFO - Reading tree from /home/shilton/phydms/tests/divpressure_tests/NP_tree.newick
+2018-05-24 08:57:07,270 - INFO - Tree has 19 tips.
+2018-05-24 08:57:07,272 - INFO - Adjusted 1 branch lengths up to minbrlen 1e-06
+
+2018-05-24 08:57:07,273 - INFO - Initializing TreeLikelihood..
+2018-05-24 08:57:07,911 - INFO - TreeLikelihood initialized.
+2018-05-24 08:57:07,911 - INFO - Maximizing log likelihood (initially -658.05).
+2018-05-24 08:57:07,911 - INFO - Branch lengths will be optimized individually.
+2018-05-24 08:57:27,132 - INFO - Maximization complete:
+	Step 1: optimized parameters, loglik went from -658.05 to -554.16 (15 iterations, 18 function evals)
+	Step 2: optimized branches, loglik went from -554.16 to -532.76 (17 iterations, 25 function evals)
+	Step 3: optimized parameters, loglik went from -532.76 to -532.76 (4 iterations, 6 function evals)
+2018-05-24 08:57:27,133 - INFO - Optimized log likelihood is -532.76.
+2018-05-24 08:57:27,133 - INFO - Writing log likelihood to /home/shilton/phydms/tests/divpressure_test_results/ExpCM_NP_prefs_loglikelihood.txt
+2018-05-24 08:57:27,135 - INFO - Model parameters after optimization:
+	beta = 1.87232
+	kappa = 1.87852
+	omega = 1.05405
+	phiA = 0.31276
+	phiC = 0.170538
+	phiG = 0.304433
+2018-05-24 08:57:27,135 - INFO - Writing model parameters to /home/shilton/phydms/tests/divpressure_test_results/ExpCM_NP_prefs_modelparams.txt
+2018-05-24 08:57:27,136 - INFO - Writing the optimized tree to /home/shilton/phydms/tests/divpressure_test_results/ExpCM_NP_prefs_tree.newick
+
+2018-05-24 08:57:27,139 - INFO - Successful completion of phydms
+2018-05-24 08:57:27,277 - INFO - Analysis successful for NP_prefs without diversifying pressure.
+
+2018-05-24 08:57:49,315 - INFO - Analysis successful for NP_prefs with diversifying pressure divpressure
+
+2018-05-24 08:57:49,317 - INFO - Analysis successful for NP_prefs with diversifying pressure divpressure2
+
+2018-05-24 08:57:50,401 - INFO - Successful completion of phydms_divpressure
+
+Running tests in test_YNGKPM0.py...
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+/home/shilton/miniconda3/lib/python3.6/importlib/_bootstrap.py:205: ImportWarning: can't resolve package from __spec__ or __package__, falling back on __name__ and __path__
+  return f(*args, **kwds)
+All tests were successful.
+
+Running tests in test_brlenderivatives.py...
+/home/shilton/.local/lib/python3.6/site-packages/Pyvolve-0.8.4-py3.6.egg/pyvolve/matrix_builder.py:256: DeprecationWarning: invalid escape sequence \m
+/home/shilton/.local/lib/python3.6/site-packages/Pyvolve-0.8.4-py3.6.egg/pyvolve/matrix_builder.py:256: DeprecationWarning: invalid escape sequence \m
+All tests were successful.
+
+Running tests in test_brlenoptimize.py...
+All tests were successful.
+
+Running tests in test_doctests.py...
+All tests were successful.
+
+Running tests in test_expcm.py...
+All tests were successful.
+
+Running tests in test_expcm_divpressure.py...
+All tests were successful.
+
+Running tests in test_expcm_empirical_phi.py...
+All tests were successful.
+
+Running tests in test_expcm_fitprefs.py...
+All tests were successful.
+
+Running tests in test_expcm_fitprefs_invquadraticprior.py...
+All tests were successful.
+
+Running tests in test_phydms_divpressure.py...
+All tests were successful.
+
+Running tests in test_phydms_logoplot.py...
+All tests were successful.
+
+Running tests in test_prepalignment.py...
+All tests were successful.
+
+Running tests in test_readDivPressure.py...
+All tests were successful.
+
+Running tests in test_readprefs.py...
+All tests were successful.
+
+Running tests in test_treelikelihood.py...
+All tests were successful.
+
+Running tests in test_alignmentSimulation.py...
+All tests were successful.
+
+Running tests in test_spielmanwr.py...
+All tests were successful.
+
+Running tests in test_treelikelihood_fitprefs.py...
+All tests were successful.
+
+Running tests in test_gammadistributedomega_model.py...
+All tests were successful.
+
+Running tests in test_underflow.py...
+All tests were successful.
+
+Running tests in test_alignmentSimulationRandomSeed.py...
+All tests were successful.
+
+Running tests in test_alignmentSimulation_divpressure.py...
+All tests were successful.
+
+Running tests in test_gammadistributedbeta_model.py...
+All tests were successful.
+
+Testing complete. All passed successfully.
