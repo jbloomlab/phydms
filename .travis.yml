@@ -5,6 +5,10 @@ python:
 
 cache: pip
 
+before_install:
+  - sudo apt-get -qq install ghostscript
+  - sudo apt-get -qq install dvipng
+
 install:
   - pip install -r test_requirements.txt
   - pip install -e .
