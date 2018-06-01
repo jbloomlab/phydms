@@ -230,8 +230,6 @@ def main():
             #remove pre-existing RAxML files
             raxmlOutputName = os.path.splitext(os.path.basename(
                     args["alignment"]))[0]
-            raxmlOutputFiles = [n for n in glob.glob("RAxML_*{0}"
-                    .format(raxmlOutputName)) if os.path.isfile(n)]
             raxmlOutputFiles = []
             for raxmlFile in glob.glob("RAxML_*{0}".format(raxmlOutputName)):
                 if os.path.isfile(raxmlFile):
