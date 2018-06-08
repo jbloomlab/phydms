@@ -26,11 +26,11 @@ class test_underflow(unittest.TestCase):
         random.seed(1)
 
         treefile = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                './NP_data/NP_tree.newick'))
+                './NP_data/NP_tree_short.newick'))
         alignmentfile = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                './NP_data/NP_alignment.fasta'))
+                './NP_data/NP_alignment_short.fasta'))
         prefsfile = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                './NP_data/NP_prefs.tsv'))
+                './NP_data/NP_prefs_short.csv'))
 
         alignment = phydmslib.file_io.ReadCodonAlignment(alignmentfile,
                 checknewickvalid=True)
