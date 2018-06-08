@@ -13,9 +13,14 @@ install:
   - pip install -r test_requirements.txt
   - pip install -e .
 
-script: 
+script:
   - pytest
 
 branches:
   only:
     - master
+
+notifications:
+  email:
+    - skhilton@uw.edu
+    - jbloom@fredhutch.org
