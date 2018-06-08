@@ -134,9 +134,9 @@ def FunctionalGroupColorMapping(maptype='jet', reverse=False):
     nucleophilic_color = '#ff7f00'
     hydrophobic_color = '#12ab0d'
     aromatic_color = '#84380b'
-    acidic_color = '#3c58e5'
+    acidic_color = '#e41a1c'
     amide_color = '#972aa8'
-    basic_color = '#e41a1c'
+    basic_color = '#3c58e5'
 
     mapping_d = {'G':small_color, 'A':small_color,
                  'S':nucleophilic_color, 'T':nucleophilic_color, 'C':nucleophilic_color,

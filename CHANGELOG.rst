@@ -7,6 +7,8 @@ Changelog
 
 * Only support Python 3.4+
 
+* Swapped basic and acidic colors of ``functionalgroup`` in `weblogo.py`
+
 2.2.2
 -----
 * Fixed bug in ``spielmanwr``
