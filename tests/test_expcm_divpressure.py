@@ -23,12 +23,12 @@ class test_compare_ExpCM_empirical_phi_with_and_without_divpressure(unittest.Tes
         random.seed(1)
         scipy.random.seed(1)
 
-        nsites = 10
+        nsites = 6
         prefs = []
         minpref = 0.01
         for r in range(nsites):
             rprefs = scipy.random.dirichlet([0.5] * N_AA)
-            rprefs[rprefs < minpref] = minpref 
+            rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
             prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
         g = scipy.random.dirichlet([3] * N_NT)
@@ -42,10 +42,10 @@ class test_compare_ExpCM_empirical_phi_with_and_without_divpressure(unittest.Tes
                 prefs, g, omega=omega, kappa=kappa, beta=beta)
 
         expcm_divpressure = phydmslib.models.ExpCM_empirical_phi_divpressure(
-                prefs, g, divPressureValues=divpressure, omega=omega, 
+                prefs, g, divPressureValues=divpressure, omega=omega,
                 kappa=kappa, beta=beta, omega2=omega2)
 
-        self.assertTrue(scipy.allclose(expcm.stationarystate, 
+        self.assertTrue(scipy.allclose(expcm.stationarystate,
                 expcm_divpressure.stationarystate),
                 "stationarystate differs.")
         self.assertTrue(scipy.allclose(expcm.Qxy,
@@ -63,7 +63,7 @@ class test_compare_ExpCM_empirical_phi_with_and_without_divpressure(unittest.Tes
                 "M({0}) differs".format(t))
         for param in ['kappa', 'omega', 'beta']:
             self.assertTrue(scipy.allclose(getattr(expcm, param),
-                    getattr(expcm_divpressure, param)), 
+                    getattr(expcm_divpressure, param)),
                     "param values differ for {0}".format(param))
             self.assertTrue(scipy.allclose(expcm.dstationarystate(param),
                     expcm_divpressure.dstationarystate(param)),
@@ -81,12 +81,12 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
         # create preferences
         random.seed(1)
         scipy.random.seed(1)
-        self.nsites = 10
+        self.nsites = 6
         self.prefs = []
         minpref = 0.01
         for r in range(self.nsites):
             rprefs = scipy.random.dirichlet([0.5] * N_AA)
-            rprefs[rprefs < minpref] = minpref 
+            rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
         self.divpressure = np.random.randint(2, size=self.nsites)
@@ -98,7 +98,7 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
         kappa = 2.5
         beta = 1.2
         self.expcm_divpressure = phydmslib.models.ExpCM_empirical_phi_divpressure(
-                self.prefs, g=g, divPressureValues=self.divpressure, omega=omega, 
+                self.prefs, g=g, divPressureValues=self.divpressure, omega=omega,
                 kappa=kappa, beta=beta, omega2=omega2)
         # now check ExpCM attributes / derivates, updating several times
         for update in range(2):
@@ -110,13 +110,13 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
                      }
             self.expcm_divpressure.updateParams(self.params)
             self.assertTrue(scipy.allclose(g, self.expcm_divpressure.g))
-                
+
             self.check_empirical_phi()
-            
+
             self.check_dQxy_dbeta()
-            
+
             self.check_dprx_dbeta()
-            
+
             self.check_ExpCM_attributes()
 
             self.check_ExpCM_derivatives()
@@ -133,7 +133,7 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
         self.assertTrue(scipy.allclose(sum(nt_freqs), 3 * self.nsites))
         nt_freqs = scipy.array(nt_freqs)
         nt_freqs /= nt_freqs.sum()
-        self.assertTrue(scipy.allclose(nt_freqs, self.expcm_divpressure.g, atol=1e-5), 
+        self.assertTrue(scipy.allclose(nt_freqs, self.expcm_divpressure.g, atol=1e-5),
                 "Actual nt_freqs: {0}\nExpected (g): {1}".format(
                 nt_freqs, self.expcm_divpressure.g))
 
@@ -146,13 +146,13 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
             return expcm.dphi_dbeta[w]
 
         for w in range(N_NT):
-            diff = scipy.optimize.check_grad(func_phi, func_dphi, 
+            diff = scipy.optimize.check_grad(func_phi, func_dphi,
                     [self.expcm_divpressure.beta], self.expcm_divpressure, w, epsilon=1e-4)
-            self.assertTrue(diff < 1e-4, 
+            self.assertTrue(diff < 1e-4,
                     "dphi_dbeta diff {0} for w = {1}".format(diff, w))
         self.expcm_divpressure.updateParams(self.params) # back to original value
-        
-        
+
+
     def check_dprx_dbeta(self):
         """Checks derivatives of `prx` with respect to `beta`."""
 
@@ -166,9 +166,9 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
 
         for r in range(self.nsites):
             for x in range(N_CODON):
-                diff = scipy.optimize.check_grad(func_prx, func_dprx, 
+                diff = scipy.optimize.check_grad(func_prx, func_dprx,
                         [self.expcm_divpressure.beta], self.expcm_divpressure, r, x, epsilon=1e-4)
-                self.assertTrue(diff < 1e-4, 
+                self.assertTrue(diff < 1e-4,
                         "dprx_dbeta diff {0} for r = {1}, x = {2}".format(
                         diff, r, x))
         self.expcm_divpressure.updateParams(self.params) # back to original value
@@ -186,9 +186,9 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
 
         for x in random.sample(range(N_CODON), 3):
             for y in range(N_CODON):
-                diff = scipy.optimize.check_grad(func_Qxy, func_dQxy, 
+                diff = scipy.optimize.check_grad(func_Qxy, func_dQxy,
                         [self.expcm_divpressure.beta], self.expcm_divpressure, x, y, epsilon=1e-4)
-                self.assertTrue(diff < 1e-4, 
+                self.assertTrue(diff < 1e-4,
                         "dQxy_dbeta diff {0} for x = {1}, y = {2}".format(
                         diff, x, y))
         self.expcm_divpressure.updateParams(self.params) # back to original value
@@ -202,7 +202,7 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
         self.assertFalse(scipy.isinf(self.expcm_divpressure.Prxy).any())
         diag = scipy.eye(N_CODON, dtype='bool')
         for r in range(self.nsites):
-            self.assertTrue(scipy.allclose(0, scipy.sum(self.expcm_divpressure.Prxy[r], 
+            self.assertTrue(scipy.allclose(0, scipy.sum(self.expcm_divpressure.Prxy[r],
                     axis=1)))
             self.assertTrue(scipy.allclose(0, self.expcm_divpressure.Prxy[r].sum()))
             self.assertTrue((self.expcm_divpressure.Prxy[r][diag] <= 0).all())
@@ -228,7 +228,7 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
         """Makes sure derivatives are as expected."""
         # check derivatives of Prxy calculated by dPrxy
         # implementation looks a bit complex because `check_grad` function
-        # can only be used for single values at a time, so have to loop 
+        # can only be used for single values at a time, so have to loop
         # over r, x, y and so hash values to make faster
 
         def funcPrxy(paramvalue, paramname, expcm, r, x, y):
@@ -253,7 +253,7 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
             for r in random.sample(range(self.nsites), 2): # check a few sites
                 for x in random.sample(range(N_CODON), 3): # check a few codons
                     for y in range(N_CODON):
-                        diff = scipy.optimize.check_grad(funcPrxy, funcdPrxy, 
+                        diff = scipy.optimize.check_grad(funcPrxy, funcdPrxy,
                                 pvalue, pname, self.expcm_divpressure, r, x, y, epsilon=1e-4)
                         self.assertTrue(diff < 1e-3, ("diff {0} for {1}:" +
                                 " r = {2}, x = {3}, y = {4}, beta = {5} " +
@@ -261,13 +261,13 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
                                 "omega = {9}, Frxy = {10}, Prxy = {11}, " +
                                 "phi = {12}, kappa = {13}, dQxy_dbeta = {14}, " +
                                 "dphi_dbeta = {15}, dPrxy_dbeta = {16}, piAx_piAy_beta[r][x][y] = {17}"
-                                ).format(diff, pname, r, x, y, 
-                                self.params['beta'], self.expcm_divpressure.pi_codon[r][x], 
+                                ).format(diff, pname, r, x, y,
+                                self.params['beta'], self.expcm_divpressure.pi_codon[r][x],
                                 self.expcm_divpressure.pi_codon[r][y], self.expcm_divpressure.mu,
                                 self.expcm_divpressure.omega, self.expcm_divpressure.Frxy[r][x][y],
-                                self.expcm_divpressure.Prxy[r][x][y], self.expcm_divpressure.phi, 
+                                self.expcm_divpressure.Prxy[r][x][y], self.expcm_divpressure.phi,
                                 self.expcm_divpressure.kappa, self.expcm_divpressure.dQxy_dbeta[x][y],
-                                self.expcm_divpressure.dphi_dbeta, 
+                                self.expcm_divpressure.dphi_dbeta,
                                 self.expcm_divpressure.dPrxy['beta'][r][x][y],
                                 self.expcm_divpressure.piAx_piAy_beta[r][x][y]))
             self.expcm_divpressure.updateParams(self.params) # back to original value
@@ -288,7 +288,7 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
                         "Max diff {0}".format((self.expcm_divpressure.M(t)[r] - direct).max()))
         # check derivatives of M calculated by dM
         # implementation looks a bit complex because `check_grad` function
-        # can only be used for single values at a time, so have to loop 
+        # can only be used for single values at a time, so have to loop
         # over r, x, y and so hash values to make faster
         def funcM(paramvalue, paramname, t, expcm, r, x, y, storedvalues):
             """Gets `M(t)[r][x][y]`."""
@@ -328,15 +328,15 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
                                 continue
                             diff = scipy.optimize.check_grad(funcM, funcdM, pvalue,
                                     pname, t, self.expcm_divpressure, r, x, y, storedvalues,
-                                    epsilon=1e-4) 
+                                    epsilon=1e-4)
                             self.assertTrue(diff < 1e-3, ("diff {0} for {1}:" +
                                 " computed derivative = {10}, " +
                                 " r = {2}, x = {3}, y = {4}, beta = {5}, " +
                                 "pirAx = {6}, pirAy = {7}, t = {8}, mu = {9}"
-                                ).format(diff, pname, r, x, y, 
-                                self.params['beta'], self.expcm_divpressure.pi_codon[r][x], 
+                                ).format(diff, pname, r, x, y,
+                                self.params['beta'], self.expcm_divpressure.pi_codon[r][x],
                                 self.expcm_divpressure.pi_codon[r][y], t, self.expcm_divpressure.mu,
-                                funcdM(pvalue, pname, t, self.expcm_divpressure, 
+                                funcdM(pvalue, pname, t, self.expcm_divpressure,
                                 r, x, y, {})))
                 self.expcm_divpressure.updateParams(self.params) # back to original value
 
