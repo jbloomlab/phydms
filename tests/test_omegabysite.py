@@ -21,11 +21,11 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
 
     def setUp(self):
         self.tree = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                './NP_data/NP_tree.newick'))
+                './NP_data/NP_tree_short.newick'))
         self.alignment = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                './NP_data/NP_alignment.fasta'))
+                './NP_data/NP_alignment_short.fasta'))
         self.prefs = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                './NP_data/NP_prefs.tsv'))
+                './NP_data/NP_prefs_short.csv'))
         self.nsites = len(phydmslib.file_io.ReadCodonAlignment(self.alignment,
                 True)[0][1]) // 3
         self.initializeModel()
