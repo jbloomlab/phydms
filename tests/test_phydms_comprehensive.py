@@ -20,11 +20,11 @@ class test_phydms_comprehensive(unittest.TestCase):
     def test_NP(self):
         """Tests command-line ``phydms_comprehensive`` on NP data."""
         tree = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                './NP_data/NP_tree.newick'))
+                './NP_data/NP_tree_short.newick'))
         alignment = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                './NP_data/NP_alignment.fasta'))
+                './NP_data/NP_alignment_short.fasta'))
         prefs = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                './NP_data/NP_prefs.tsv'))
+                './NP_data/NP_prefs_short.csv'))
         for f in [prefs, alignment]:
             self.assertTrue(os.path.isfile(f), "Can't find file {0}".format(f))
         outprefix = os.path.abspath(os.path.join(os.path.dirname(__file__),

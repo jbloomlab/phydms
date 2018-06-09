@@ -1,6 +1,6 @@
-| Model                   | deltaAIC | LogLikelihood | nParams | ParamValues                                   |
-|-------------------------|----------|---------------|---------|-----------------------------------------------|
-| ExpCM_NP_prefs          | 0.00     | -3389.38      | 6       | beta=2.99, kappa=6.31, omega=0.78             |
-| YNGKP_M5                | 2546.54  | -4656.65      | 12      | alpha_omega=0.30, beta_omega=2.41, kappa=5.84 |
-| averaged_ExpCM_NP_prefs | 2586.44  | -4682.60      | 6       | beta=0.28, kappa=6.51, omega=0.12             |
-| YNGKP_M0                | 2626.34  | -4697.55      | 11      | kappa=5.78, omega=0.11                        |
+| Model                         | deltaAIC | LogLikelihood | nParams | ParamValues                                   |
+|-------------------------------|----------|---------------|---------|-----------------------------------------------|
+| ExpCM_NP_prefs_short          | 0.00     | -775.21       | 6       | beta=3.38, kappa=8.76, omega=0.98             |
+| averaged_ExpCM_NP_prefs_short | 668.90   | -1109.66      | 6       | beta=0.29, kappa=8.96, omega=0.11             |
+| YNGKP_M5                      | 677.50   | -1107.96      | 12      | alpha_omega=0.30, beta_omega=2.52, kappa=7.08 |
+| YNGKP_M0                      | 687.76   | -1114.09      | 11      | kappa=7.00, omega=0.12                        |
