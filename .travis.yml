@@ -8,6 +8,9 @@ cache: pip
 before_install:
   - sudo apt-get -qq install ghostscript
   - sudo apt-get -qq install dvipng
+  - sudo apt-get update
+  - sudo apt-get install mafft
+  - sudo apt-get install raxml
 
 install:
   - pip install -r test_requirements.txt
