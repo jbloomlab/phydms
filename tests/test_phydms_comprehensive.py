@@ -36,12 +36,12 @@ class test_phydms_comprehensive(unittest.TestCase):
 
         subprocess.check_call(['phydms_comprehensive', outprefix, alignment,
                 prefs, "--tree", tree, "--omegabysite", '--brlen', 'scale',
-                '--diffprefsbysite', '--ncpus', str(ncpus)])
+                '--ncpus', str(ncpus)])
 
         expectedresults = os.path.abspath(os.path.join(os.path.dirname(__file__),
                 './expected_NP_test_results/'))
 
-        models = ['ExpCM_NP_prefs', 'averaged_ExpCM_NP_prefs', 'YNGKP_M0',
+        models = ['ExpCM_NP_prefs_short', 'averaged_ExpCM_NP_prefs_short', 'YNGKP_M0',
                 'YNGKP_M5']
 
         for model in models:
