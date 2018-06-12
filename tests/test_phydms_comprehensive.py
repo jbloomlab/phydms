@@ -74,26 +74,6 @@ class test_phydms_comprehensive(unittest.TestCase):
                 sigomegas[name] = omegas[name][omegas[name]['site'].isin(sigsites)]['omega'].values
             self.assertTrue(((sigomegas['actual'] > 1) == (sigomegas['expected'] > 1)).all())
 
-            if 'ExpCM' in model:
-                diffprefs = {}
-                largecutoff = 0.1
-                smallcutoff = 0.01
-                largesites = {}
-                smallsites = {}
-                for (name, prefix) in [('expected', expectedresults), ('actual', outprefix)]:
-                    fname = os.path.abspath(os.path.join(prefix,
-                            './{0}{1}'.format(model, '_diffprefsbysite.txt')))
-                    diffprefs[name] = pandas.read_csv(fname,
-                        comment='#', sep='\t')
-                    # factor builds in a margin in expected versus actual
-                    factor = {'actual':1, 'expected':1.5}[name]
-                    largesites[name] = set(diffprefs[name][diffprefs[name][
-                            'half_sum_abs_dpi'] > largecutoff * factor]['site'].values)
-                    smallsites[name] = set(diffprefs[name][diffprefs[name][
-                            'half_sum_abs_dpi'] < smallcutoff / factor]['site'].values)
-                self.assertTrue(largesites['actual'] >= largesites['expected'])
-                self.assertTrue(smallsites['actual'] >= smallsites['expected'])
-
 
 if __name__ == '__main__':
     runner = unittest.TextTestRunner()
