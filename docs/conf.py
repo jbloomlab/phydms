@@ -140,7 +140,7 @@ html_theme_options = {
         'github_user':'jbloomlab',
         'github_repo':'phydms',
         'github_banner':'true',
-        # 'travis_button':'true',
+        'travis_button':'true',
         'sidebar_width':'305px',
         }
 
