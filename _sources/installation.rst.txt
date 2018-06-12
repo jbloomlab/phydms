@@ -8,7 +8,7 @@ Installation
 
 Minimal requirements
 ----------------------
-`phydms`_ is written in `Python`_. You can run it either under ``python2`` (if you have version 2.7 or higher) or ``python3`` (if you have version 3.4 or higher).
+`phydms`_ is written in `Python`_. It requires Python 3.4 or higher.
 
 Straightforward installation requires the `Python`_ package management system `pip`_ and a ``C`` compiler such a ``gcc`` (there are some ``cython`` extensions). 
 
