@@ -17,11 +17,11 @@ class test_phydms_logoplot(unittest.TestCase):
     def setUp(self):
         """Define input data."""
         self.diffprefs = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                './expected_NP_test_results/ExpCM_NP_prefs_diffprefsbysite.txt'))
+                './expected_NP_test_results/ExpCM_NP_prefs_short_diffprefsbysite.txt'))
         self.omega = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                './expected_NP_test_results/ExpCM_NP_prefs_omegabysite.txt'))
+                './expected_NP_test_results/ExpCM_NP_prefs_short_omegabysite.txt'))
         self.prefs = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                './NP_data/NP_prefs.tsv'))
+                './NP_data/NP_prefs_short.csv'))
         self.outprefix = os.path.abspath(os.path.join(os.path.dirname(__file__),
                 './logoplot_test_results/'))
         self.stringency = '2.99'
