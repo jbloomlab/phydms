@@ -12,6 +12,7 @@ from phydmslib.constants import *
 import pyvolve
 from tempfile import mkstemp
 import random
+import Bio.Phylo
 
 
 def pyvolvePartitions(model, divselection=None):
@@ -119,7 +120,7 @@ def simulateAlignment(model, treeFile, alignmentPrefix, randomSeed=False):
         pass
     else:
         random.seed(randomSeed)
-        
+
     #Transform the branch lengths by dividing by the model `branchScale`
     tree = Bio.Phylo.read(treeFile, 'newick')
     for node in tree.get_terminals() + tree.get_nonterminals():
