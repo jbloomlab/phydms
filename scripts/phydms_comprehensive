@@ -210,9 +210,6 @@ def main():
             .format(args['alignment']))
     alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'],
             checknewickvalid=True) #checks that the identifiers are unique
-    assert len(set([align[1] for align in alignment])) == len([align[1]
-            for align in alignment]), "Remove duplicate sequences from {0}."\
-                    .format(args["alignment"])
     logger.info('Valid alignment specifying {0} sequences of length {1}.\n'
             .format(len(alignment), len(alignment[0][1])))
 
