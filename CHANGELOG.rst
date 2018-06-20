@@ -1,7 +1,7 @@
 Changelog
 ===========
 
-2.3.dev0
+2.3.0
 ------
 * Automate Travis tests
 
