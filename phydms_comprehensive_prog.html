@@ -4,12 +4,20 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>the phydms_comprehensive program &#8212; phydms 2.2.2 documentation</title>
+    <title>the phydms_comprehensive program &#8212; phydms 2.3.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -24,7 +32,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body>
   
 
     <div class="document">
@@ -33,11 +42,11 @@
           <div class="body" role="main">
             
   <div class="section" id="the-phydms-comprehensive-program">
-<span id="phydms-comprehensive-prog"></span><h1><a class="toc-backref" href="#id1">the <code class="docutils literal notranslate"><span class="pre">phydms_comprehensive</span></code> program</a><a class="headerlink" href="#the-phydms-comprehensive-program" title="Permalink to this headline">¶</a></h1>
+<span id="phydms-comprehensive-prog"></span><h1><a class="toc-backref" href="#id1">the <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> program</a><a class="headerlink" href="#the-phydms-comprehensive-program" title="Permalink to this headline">¶</a></h1>
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#the-phydms-comprehensive-program" id="id1">the <code class="docutils literal notranslate"><span class="pre">phydms_comprehensive</span></code> program</a><ul>
+<li><a class="reference internal" href="#the-phydms-comprehensive-program" id="id1">the <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> program</a><ul>
 <li><a class="reference internal" href="#overview" id="id2">Overview</a></li>
 <li><a class="reference internal" href="#command-line-usage" id="id3">Command-line usage</a><ul>
 <li><a class="reference internal" href="#Positional Arguments" id="id4">Positional Arguments</a></li>
@@ -47,7 +56,7 @@
 <li><a class="reference internal" href="#output-files" id="id6">Output files</a><ul>
 <li><a class="reference internal" href="#log-file" id="id7">Log file</a></li>
 <li><a class="reference internal" href="#model-comparison-files" id="id8">Model comparison files</a></li>
-<li><a class="reference internal" href="#phydms-output-for-each-model" id="id9"><code class="docutils literal notranslate"><span class="pre">phydms</span></code> output for each model</a></li>
+<li><a class="reference internal" href="#phydms-output-for-each-model" id="id9"><code class="docutils literal"><span class="pre">phydms</span></code> output for each model</a></li>
 </ul>
 </li>
 </ul>
@@ -56,29 +65,29 @@
 </div>
 <div class="section" id="overview">
 <h2><a class="toc-backref" href="#id2">Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">phydms_comprehensive</span></code> is a program that simplifies usage of <code class="docutils literal notranslate"><span class="pre">phydms</span></code> for standard analyses. Essentially, <code class="docutils literal notranslate"><span class="pre">phydms_comprehensive</span></code> runs <code class="docutils literal notranslate"><span class="pre">phydms</span></code> for several different models to enable model comparisons and identify selection.</p>
-<p>In its simplest usage, you simply provide <code class="docutils literal notranslate"><span class="pre">phydms_comprehensive</span></code> with an alignment and one or more files giving site-specific amino-acid preferences.
-The program then first uses <code class="docutils literal notranslate"><span class="pre">RAxML</span></code> to infer a tree under the <em>GTRCAT</em> model.
-Alternatively, you can specify the tree using <code class="docutils literal notranslate"><span class="pre">--tree</span></code> flag.
-For each set of site-specific amino-acid preferences, <code class="docutils literal notranslate"><span class="pre">phydms_comprehensive</span></code> optimizes the tree with the following models:</p>
+<p><code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> is a program that simplifies usage of <code class="docutils literal"><span class="pre">phydms</span></code> for standard analyses. Essentially, <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> runs <code class="docutils literal"><span class="pre">phydms</span></code> for several different models to enable model comparisons and identify selection.</p>
+<p>In its simplest usage, you simply provide <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> with an alignment and one or more files giving site-specific amino-acid preferences.
+The program then first uses <code class="docutils literal"><span class="pre">RAxML</span></code> to infer a tree under the <em>GTRCAT</em> model.
+Alternatively, you can specify the tree using <code class="docutils literal"><span class="pre">--tree</span></code> flag.
+For each set of site-specific amino-acid preferences, <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> optimizes the tree with the following models:</p>
 <blockquote>
 <div><ul class="simple">
 <li><em>ExpCM</em></li>
-<li><em>ExpCM</em> with a gamma-distributed <span class="math notranslate nohighlight">\(\omega\)</span> (if using the <code class="docutils literal notranslate"><span class="pre">--gammaomega</span></code> flag).</li>
-<li><em>ExpCM</em> with a gamma-distributed <span class="math notranslate nohighlight">\(\beta\)</span> (if using the <code class="docutils literal notranslate"><span class="pre">--gammabeta</span></code> flag).</li>
+<li><em>ExpCM</em> with a gamma-distributed <span class="math">\(\omega\)</span> (if using the <code class="docutils literal"><span class="pre">--gammaomega</span></code> flag).</li>
+<li><em>ExpCM</em> with a gamma-distributed <span class="math">\(\beta\)</span> (if using the <code class="docutils literal"><span class="pre">--gammabeta</span></code> flag).</li>
 <li><em>YNGKP_M0</em></li>
 <li><em>YNGKP_M5</em></li>
 </ul>
 </div></blockquote>
 <p>It also runs each of these <em>ExpCM</em> with averaged preferences as a control.
 Finally, it creates summaries that enable comparison among the models.</p>
-<p>You could get all of this output by simply running <code class="docutils literal notranslate"><span class="pre">phydms</span></code> repeatedly, but using <code class="docutils literal notranslate"><span class="pre">phydms_comprehensive</span></code> automates this process for you.</p>
+<p>You could get all of this output by simply running <code class="docutils literal"><span class="pre">phydms</span></code> repeatedly, but using <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> automates this process for you.</p>
 <p>See below for information on <a class="reference internal" href="#command-line-usage">Command-line usage</a> and <a class="reference internal" href="#output-files">Output files</a>.</p>
 </div>
 <div class="section" id="command-line-usage">
 <h2><a class="toc-backref" href="#id3">Command-line usage</a><a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
-<p>Comprehensive phylogenetic model comparison and detection of selection informed by deep mutational scanning data. This program runs ‘phydms’ repeatedly to compare substitution models and detect selection. The ‘phydms’ package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a>). Version 2.2.2. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">phydms_comprehensive</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">(</span><span class="o">--</span><span class="n">raxml</span> <span class="n">RAXML</span> <span class="o">|</span> <span class="o">--</span><span class="n">tree</span> <span class="n">TREE</span><span class="p">)</span> <span class="p">[</span><span class="o">--</span><span class="n">ncpus</span> <span class="n">NCPUS</span><span class="p">]</span>
+<p>Comprehensive phylogenetic model comparison and detection of selection informed by deep mutational scanning data. This program runs ‘phydms’ repeatedly to compare substitution models and detect selection. The ‘phydms’ package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a>). Version 2.3.0. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">phydms_comprehensive</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">(</span><span class="o">--</span><span class="n">raxml</span> <span class="n">RAXML</span> <span class="o">|</span> <span class="o">--</span><span class="n">tree</span> <span class="n">TREE</span><span class="p">)</span> <span class="p">[</span><span class="o">--</span><span class="n">ncpus</span> <span class="n">NCPUS</span><span class="p">]</span>
                             <span class="p">[</span><span class="o">--</span><span class="n">brlen</span> <span class="p">{</span><span class="n">scale</span><span class="p">,</span><span class="n">optimize</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">omegabysite</span><span class="p">]</span>
                             <span class="p">[</span><span class="o">--</span><span class="n">diffprefsbysite</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">gammaomega</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">gammabeta</span><span class="p">]</span>
                             <span class="p">[</span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">avgprefs</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">randprefs</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span>
@@ -176,17 +185,17 @@ Finally, it creates summaries that enable comparison among the models.</p>
 </div>
 <div class="section" id="output-files">
 <h2><a class="toc-backref" href="#id6">Output files</a><a class="headerlink" href="#output-files" title="Permalink to this headline">¶</a></h2>
-<p>Running <code class="docutils literal notranslate"><span class="pre">phydms_comprehensive</span></code> will create the following output files, all with the prefix specified by <code class="docutils literal notranslate"><span class="pre">outprefix</span></code>.</p>
+<p>Running <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code> will create the following output files, all with the prefix specified by <code class="docutils literal"><span class="pre">outprefix</span></code>.</p>
 <div class="section" id="log-file">
 <h3><a class="toc-backref" href="#id7">Log file</a><a class="headerlink" href="#log-file" title="Permalink to this headline">¶</a></h3>
-<p>A file with the suffix <code class="docutils literal notranslate"><span class="pre">.log</span></code> will be created that summarizes the overall progress of <code class="docutils literal notranslate"><span class="pre">phydms_comprehensive</span></code>. If <code class="docutils literal notranslate"><span class="pre">outprefix</span></code> is just a directory name, this file will be called <code class="docutils literal notranslate"><span class="pre">log.log</span></code>.</p>
+<p>A file with the suffix <code class="docutils literal"><span class="pre">.log</span></code> will be created that summarizes the overall progress of <code class="docutils literal"><span class="pre">phydms_comprehensive</span></code>. If <code class="docutils literal"><span class="pre">outprefix</span></code> is just a directory name, this file will be called <code class="docutils literal"><span class="pre">log.log</span></code>.</p>
 </div>
 <div class="section" id="model-comparison-files">
 <h3><a class="toc-backref" href="#id8">Model comparison files</a><a class="headerlink" href="#model-comparison-files" title="Permalink to this headline">¶</a></h3>
-<p>A file with the suffix <code class="docutils literal notranslate"><span class="pre">modelcomparison.md</span></code> will be created that summarizes the model comparison.
-For each model, it reports the <span class="math notranslate nohighlight">\(\Delta\rm{AIC}\)</span>, the optimized log likelihood, and the values of key parameters.
+<p>A file with the suffix <code class="docutils literal"><span class="pre">modelcomparison.md</span></code> will be created that summarizes the model comparison.
+For each model, it reports the <span class="math">\(\Delta\rm{AIC}\)</span>, the optimized log likelihood, and the values of key parameters.
 This file is in Markdown format:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">|</span> <span class="n">Model</span>                   <span class="o">|</span> <span class="n">deltaAIC</span> <span class="o">|</span> <span class="n">LogLikelihood</span> <span class="o">|</span> <span class="n">nParams</span> <span class="o">|</span> <span class="n">ParamValues</span>                                   <span class="o">|</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">|</span> <span class="n">Model</span>                   <span class="o">|</span> <span class="n">deltaAIC</span> <span class="o">|</span> <span class="n">LogLikelihood</span> <span class="o">|</span> <span class="n">nParams</span> <span class="o">|</span> <span class="n">ParamValues</span>                                   <span class="o">|</span>
 <span class="o">|-------------------------|----------|---------------|---------|-----------------------------------------------|</span>
 <span class="o">|</span> <span class="n">ExpCM_NP_prefs</span>          <span class="o">|</span> <span class="mf">0.00</span>     <span class="o">|</span> <span class="o">-</span><span class="mf">3389.38</span>      <span class="o">|</span> <span class="mi">6</span>       <span class="o">|</span> <span class="n">beta</span><span class="o">=</span><span class="mf">2.99</span><span class="p">,</span> <span class="n">kappa</span><span class="o">=</span><span class="mf">6.31</span><span class="p">,</span> <span class="n">omega</span><span class="o">=</span><span class="mf">0.78</span>             <span class="o">|</span>
 <span class="o">|</span> <span class="n">averaged_ExpCM_NP_prefs</span> <span class="o">|</span> <span class="mf">2586.44</span>  <span class="o">|</span> <span class="o">-</span><span class="mf">4682.60</span>      <span class="o">|</span> <span class="mi">6</span>       <span class="o">|</span> <span class="n">beta</span><span class="o">=</span><span class="mf">0.28</span><span class="p">,</span> <span class="n">kappa</span><span class="o">=</span><span class="mf">6.51</span><span class="p">,</span> <span class="n">omega</span><span class="o">=</span><span class="mf">0.12</span>             <span class="o">|</span>
@@ -196,8 +205,8 @@ This file is in Markdown format:</p>
 </div>
 </div>
 <div class="section" id="phydms-output-for-each-model">
-<h3><a class="toc-backref" href="#id9"><code class="docutils literal notranslate"><span class="pre">phydms</span></code> output for each model</a><a class="headerlink" href="#phydms-output-for-each-model" title="Permalink to this headline">¶</a></h3>
-<p>For each individual model, there will also be all of the expected <code class="docutils literal notranslate"><span class="pre">phydms</span></code> output files as described in <a class="reference internal" href="phydms_prog.html#phydms-prog"><span class="std std-ref">the phydms program</span></a>. These files will begin with the prefix specified by <code class="docutils literal notranslate"><span class="pre">outprefix</span></code>, which will be followed by the name of the model.</p>
+<h3><a class="toc-backref" href="#id9"><code class="docutils literal"><span class="pre">phydms</span></code> output for each model</a><a class="headerlink" href="#phydms-output-for-each-model" title="Permalink to this headline">¶</a></h3>
+<p>For each individual model, there will also be all of the expected <code class="docutils literal"><span class="pre">phydms</span></code> output files as described in <a class="reference internal" href="phydms_prog.html#phydms-prog"><span class="std std-ref">the phydms program</span></a>. These files will begin with the prefix specified by <code class="docutils literal"><span class="pre">outprefix</span></code>, which will be followed by the name of the model.</p>
 </div>
 </div>
 </div>
@@ -248,12 +257,12 @@ This file is in Markdown format:</p>
 <h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="howtouse.html">how to use <code class="docutils literal notranslate"><span class="pre">phydms</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="phydms_prog.html">the <code class="docutils literal notranslate"><span class="pre">phydms</span></code> program</a></li>
+<li class="toctree-l1"><a class="reference internal" href="howtouse.html">how to use <code class="docutils literal"><span class="pre">phydms</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="phydms_prog.html">the <code class="docutils literal"><span class="pre">phydms</span></code> program</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="auxiliary_progs.html">auxiliary programs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ExpCM.html"><strong>Exp</strong>erimentally Informed <strong>C</strong>odon <strong>M</strong>odels</a></li>
 <li class="toctree-l1"><a class="reference internal" href="implementation.html">Numerical implementation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">phydmslib</span></code> API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html"><code class="docutils literal"><span class="pre">phydmslib</span></code> API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">Acknowledgments and citations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="indices_and_tables.html">Indices and tables</a></li>
 </ul>
@@ -264,21 +273,19 @@ This file is in Markdown format:</p>
   <li><a href="index.html">Documentation overview</a><ul>
   <li><a href="auxiliary_progs.html">auxiliary programs</a><ul>
       <li>Previous: <a href="auxiliary_progs.html" title="previous chapter">auxiliary programs</a></li>
-      <li>Next: <a href="phydms_prepalignment.html" title="next chapter">the <code class="docutils literal notranslate"><span class="pre">phydms_prepalignment</span></code> program</a></li>
+      <li>Next: <a href="phydms_prepalignment.html" title="next chapter">the <code class="docutils literal"><span class="pre">phydms_prepalignment</span></code> program</a></li>
   </ul></li>
   </ul></li>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -289,7 +296,7 @@ This file is in Markdown format:</p>
       &copy;2015-2018, Sarah Hilton and Jesse Bloom.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
