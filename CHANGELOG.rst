@@ -1,6 +1,10 @@
 Changelog
 ===========
 
+2.3.dev1
+-----------
+* Fix natural sorting of negative numbers in `phydms_logoplot`
+
 2.3.0
 ------
 * Automate Travis tests
