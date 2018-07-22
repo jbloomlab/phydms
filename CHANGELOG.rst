@@ -5,7 +5,7 @@ Changelog
 -----------
 * Fix natural sorting of negative numbers in `phydms_logoplot`
 
-* Do not set `matplotlib` backend to `pdf` as this was causing problems.
+* Suppress `matplotlib` backend warnings.
 
 2.3.0
 ------
