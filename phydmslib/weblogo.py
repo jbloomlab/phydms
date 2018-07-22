@@ -19,6 +19,7 @@ import shutil
 import natsort
 import numpy
 import matplotlib
+matplotlib.use('pdf', warn=False)
 import pylab
 import PyPDF2
 # the following are part of the weblogo library
@@ -919,8 +920,6 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
     * *scalebar: if not `False`, is 2-tuple `(scalebarheight, scalebarlabel)`
       where `scalebarheight` is in points.
     """
-    if not pylab.get_backend().lower() == 'pdf':
-        raise ValueError("You cannot use this function without first setting the matplotlib / pylab backend to 'pdf'. Do this with: matplotlib.use('pdf')")
     if os.path.splitext(overlayfile)[1] != '.pdf':
         raise ValueError("overlayfile must end in .pdf: %s" % overlayfile)
     if not overlay_cmap:
