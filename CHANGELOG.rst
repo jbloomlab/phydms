@@ -5,6 +5,8 @@ Changelog
 -----------
 * Fix natural sorting of negative numbers in `phydms_logoplot`
 
+* Do not set `matplotlib` backend to `pdf` as this was causing problems.
+
 2.3.0
 ------
 * Automate Travis tests
