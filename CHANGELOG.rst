@@ -1,7 +1,7 @@
 Changelog
 ===========
 
-2.3.dev1
+2.3.1
 -----------
 * Fix natural sorting of negative numbers in `phydms_logoplot`
 
