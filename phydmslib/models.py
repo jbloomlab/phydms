@@ -14,6 +14,7 @@ import six
 import abc
 import warnings
 warnings.simplefilter('always')
+warnings.simplefilter('ignore', ImportWarning)
 import scipy
 import scipy.misc
 import scipy.optimize
@@ -211,7 +212,7 @@ class Model(six.with_metaclass(abc.ABCMeta)):
 
 
 class ExpCM(Model):
-    """Experimentally informed codon models (ExpCM) for a gene.
+    r"""Experimentally informed codon models (ExpCM) for a gene.
 
     See `__init__` method for how to initialize an `ExpCM`.
 

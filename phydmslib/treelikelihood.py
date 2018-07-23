@@ -10,6 +10,7 @@ import math
 import copy
 import warnings
 warnings.simplefilter('always')
+warnings.simplefilter('ignore', ImportWarning)
 import scipy
 import scipy.optimize
 import Bio.Phylo

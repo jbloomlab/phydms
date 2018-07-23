@@ -16,6 +16,7 @@ import operator
 import multiprocessing
 import warnings
 warnings.simplefilter('always')
+warnings.simplefilter('ignore', ImportWarning)
 import scipy
 import scipy.stats
 import statsmodels.sandbox.stats.multicomp
