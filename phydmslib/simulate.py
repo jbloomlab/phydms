@@ -15,7 +15,7 @@ import random
 import Bio.Phylo
 
 
-def pyvolvePartitions(model, divselection=None):
+def pyvolvePartitions(model, divselection=None, rateMatrixPrefix=""):
     """Get list of `pyvolve` partitions for `model`.
 
     Args:
@@ -33,6 +33,7 @@ def pyvolvePartitions(model, divselection=None):
     Returns:
         `partitions` (`list` of `pyvolve.Partition` objects)
             Can be fed into `pyvolve.Evolver` to simulate evolution.
+
     """
     codons = pyvolve.genetics.Genetics().codons
     codon_dict = pyvolve.genetics.Genetics().codon_dict
@@ -67,7 +68,8 @@ def pyvolvePartitions(model, divselection=None):
                         else:
                             fxy *= model.omega
                     if type(model) in [phydmslib.models.ExpCM,
-                            phydmslib.models.ExpCM_empirical_phi, phydmslib.models.ExpCM_empirical_phi_divpressure]:
+                                       phydmslib.models.ExpCM_empirical_phi,
+                                       phydmslib.models.ExpCM_empirical_phi_divpressure]:
                         qxy *= model.phi[NT_TO_INDEX[ynt]]
                         pix = model.pi[r][AA_TO_INDEX[xaa]]**model.beta
                         piy = model.pi[r][AA_TO_INDEX[yaa]]**model.beta
@@ -86,7 +88,7 @@ def pyvolvePartitions(model, divselection=None):
         old_stdout = sys.stdout
         sys.stdout = open(os.devnull, 'w')
         try:
-            m = pyvolve.Model("custom", {"matrix":matrix})
+            m = pyvolve.Model("custom", {"matrix": matrix}, save_custom_frequencies="{0}custom_matrix_frequencies.txt".format(rateMatrixPrefix))
         finally:
             sys.stdout.close()
             sys.stdout = old_stdout
@@ -94,7 +96,9 @@ def pyvolvePartitions(model, divselection=None):
 
     return partitions
 
-def simulateAlignment(model, treeFile, alignmentPrefix, randomSeed=False):
+
+def simulateAlignment(model, treeFile, alignmentPrefix, randomSeed=False,
+                      rateMatrixPrefix=""):
     """
     Simulate an alignment given a model and tree (units = subs/site).
 
@@ -109,22 +113,29 @@ def simulateAlignment(model, treeFile, alignmentPrefix, randomSeed=False):
             Name of newick file used to simulate the sequences.
             The branch lengths should be in substitutions per site,
             which is the default units for all `phydms` outputs.
-        `alignmentPrefix`
+        `alignmentPrefix` (str)
             Prefix for the files created by `pyvolve`.
-
+        `randomSeed` (int)
+            The integer used to seed the random number generator.
+        `rateMatrixPrefix` (str)
+            Prefix for the 'custom_matrix_frequencies.txt' file.
+            This file is created by `pyvolve` and will have the name
+            `{rateMatrixPrefix}custom_matrix_frequencies.txt`. The file is
+            automatically deleted but it is important to have unique names if
+            you are running > 1 simulation in the same directory.
     The result of this function is a simulated FASTA alignment
     file with the name having the prefix giving by `alignmentPrefix`
     and the suffix `'_simulatedalignment.fasta'`.
     """
-    if randomSeed == False:
+    if randomSeed is False:
         pass
     else:
         random.seed(randomSeed)
 
-    #Transform the branch lengths by dividing by the model `branchScale`
+    # Transform the branch lengths by dividing by the model `branchScale`
     tree = Bio.Phylo.read(treeFile, 'newick')
     for node in tree.get_terminals() + tree.get_nonterminals():
-        if (node.branch_length == None) and (node == tree.root):
+        if (node.branch_length is None) and (node == tree.root):
             node.branch_length = 1e-06
         else:
             node.branch_length /= model.branchScale
@@ -134,20 +145,21 @@ def simulateAlignment(model, treeFile, alignmentPrefix, randomSeed=False):
     pyvolve_tree = pyvolve.read_tree(file=temp_path)
     os.remove(temp_path)
 
+    # Make the `pyvolve` partition
+    partitions = pyvolvePartitions(model, rateMatrixPrefix=rateMatrixPrefix)
 
-    #Make the `pyvolve` partition
-    partitions = pyvolvePartitions(model)
-
-    #Simulate the alignment
+    # Simulate the alignment
     alignment = '{0}_simulatedalignment.fasta'.format(alignmentPrefix)
     info = '_temp_{0}info.txt'.format(alignmentPrefix)
     rates = '_temp_{0}_ratefile.txt'.format(alignmentPrefix)
     evolver = pyvolve.Evolver(partitions=partitions, tree=pyvolve_tree)
     evolver(seqfile=alignment, infofile=info, ratefile=rates)
-    for f in [rates,info, "custom_matrix_frequencies.txt"]:
+    for f in [rates, info,
+              "{0}custom_matrix_frequencies.txt".format(rateMatrixPrefix)]:
         if os.path.isfile(f):
             os.remove(f)
     assert os.path.isfile(alignment)
+    return alignment
 
 
 if __name__ == '__main__':
