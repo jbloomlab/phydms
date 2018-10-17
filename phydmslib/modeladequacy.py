@@ -40,11 +40,11 @@ def translate_with_gaps(seq):
 
 
 def calc_aa_frequencies(alignment):
-    r"""Calculate amino-acid frequencies from alignment.
+    """Calculate amino-acid frequencies from a codon alignment.
 
     Args:
         `alignment` (list)
-            Alignment sequences as a list of tuples, (seq_id, seq)
+            Alignment of codon sequences as a list of tuples, (seq_id, seq)
     Returns:
         `pandas` dataframe of amino-acid frequencies by site
 
@@ -75,17 +75,17 @@ def calc_aa_frequencies(alignment):
     True
 
     """
-    # we want to ignore gaps?
     # Read in the alignnment
+    assert scipy.all(scipy.array([len(s[1]) % 3 for s in alignment]) == 0),\
+        "At least one sequence in the alignment is not a multiple of 3."
     seqlength = len(alignment[0][1]) // 3
     df = {k: [0 for x in range(seqlength)] for k in list(INDEX_TO_AA.values())}
 
     # count amino acid frequencies
     for seq in alignment:
-        aa = translate_with_gaps(seq[1])
-        for i in range(len(aa)):
-            if aa[i] != "-":
-                df[aa[i]][i] += 1
+        for i, aa in enumerate(translate_with_gaps(seq[1])):
+            if aa != '-':
+                df[aa][i] += 1
     df = pd.DataFrame(df)
 
     # # Normalize the dataframe
