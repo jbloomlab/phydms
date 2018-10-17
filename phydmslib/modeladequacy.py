@@ -26,6 +26,7 @@ def translate_with_gaps(seq):
     True
 
     """
+    assert len(seq) % 3 == 0, "Sequence is not divisible by 3."
     prot_seq = []
     for i in range(0, len(seq), 3):
         codon = seq[i:i+3]
