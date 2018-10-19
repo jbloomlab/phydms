@@ -4,10 +4,13 @@ Written by Sarah Hilton.
 """
 
 from phydmslib.constants import *
+import phydmslib.models
 import pandas as pd
 import scipy
 import math
+import pandas as pd
 
+scipy.random.seed(0)
 
 def translate_with_gaps(seq):
     """Translate from nucleotides to amino acids.
@@ -34,8 +37,7 @@ def translate_with_gaps(seq):
             AA = "-"
         else:
             codon = CODON_TO_INDEX[codon]
-            AA = CODON_TO_AA[codon]
-            AA = INDEX_TO_AA[AA]
+            AA = INDEX_TO_AA[CODON_TO_AA[codon]]
         prot_seq.append(AA)
     return "".join(prot_seq)
 
@@ -182,6 +184,65 @@ def divJensenShannon(p1, p2):
     m = 0.5 * (p1 + p2)
 
     return 0.5 * (_kldiv(p1, m) + _kldiv(p2, m))
+
+# Note from SKH to JDB
+# I don't use this function in my script but it seemed like it might be useful
+# at some point in someone's analyis
+def make_stationary_state_prefs(model):
+    """Create a preference set from stationary state amino-acid frequencies.
+
+    Args:
+        `model` (phydmslib.models.ExpCM)
+
+    Returns:
+        `prefs` (`pandas` dataframe)
+            The stationary state amino-acid frequencies in preference format.
+
+    """
+    header = [INDEX_TO_AA[x] for x in range(20)]
+    frequencies = calc_stationary_state_freqs(model)
+    prefs = pd.DataFrame(frequencies, columns=header)
+    prefs.insert(0, "site", [x+1 for x in range(len(prefs))])
+    return prefs
+
+
+def calc_stationary_state_freqs(model):
+    """Calculate the stationary state amino-acids frequencies of a model.
+
+    Args:
+        `model` (phydmslib.models.ExpCM)
+
+    Returns:
+        frequencies (`numpy.ndarray` of floats)
+            The stationary state amino-acid frequencies.
+            frequencies[r][a] is the statioanry state frequence of amino acid
+            `a` at site `r`.
+
+    """
+    def _calc_aa_freq(aa, ss):
+        """Calc the frequency of a single site/amino acid pair."""
+        codon_indices = scipy.where(CODON_TO_AA == aa)[0]
+        return ss[codon_indices].sum()
+
+    frequencies = []
+    for r in range(model.nsites):
+        aminoacid_ss = scipy.array([_calc_aa_freq(aa, model.stationarystate[r])
+                                    for aa in range(N_AA)])
+        frequencies.append(aminoacid_ss)
+    return scipy.array(frequencies)
+
+
+def make_expcm(model_fname, prefs):
+    """Make an ExpCM from a model params file."""
+    params = pd.read_csv(model_fname, engine="python", sep=" = ", header=None)
+    params = dict(zip(params[0], params[1]))
+    params["phiT"] = 1 - sum([params[x] for x in params.keys()
+                             if x.startswith("phi")])
+    phi = scipy.array([params["phi{0}".format(INDEX_TO_NT[x])]
+                       for x in range(N_NT)])
+    return phydmslib.models.ExpCM(prefs, kappa=params["kappa"],
+                                  omega=params["omega"], beta=params["beta"],
+                                  mu=0.3, phi=phi, freeparams=['mu'])
 
 
 if __name__ == '__main__':
