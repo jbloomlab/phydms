@@ -13,6 +13,7 @@ import pyvolve
 from tempfile import mkstemp
 import random
 import Bio.Phylo
+import numpy as np
 
 
 def pyvolvePartitions(model, divselection=None, rateMatrixPrefix=""):
@@ -131,6 +132,7 @@ def simulateAlignment(model, treeFile, alignmentPrefix, randomSeed=False,
         pass
     else:
         random.seed(randomSeed)
+        np.random.seed(randomSeed)
 
     # Transform the branch lengths by dividing by the model `branchScale`
     tree = Bio.Phylo.read(treeFile, 'newick')
