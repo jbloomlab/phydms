@@ -66,9 +66,13 @@ class test_modeladequacy(unittest.TestCase):
         self.ss_aa_freqs = (phydmslib.modeladequacy
                             .calc_stationary_state_freqs(self.expcm))
 
-        self.assertTrue(scipy.allclose(self.ss_aa_freqs, df[amino_acids].values))
+        # check that the stationary state frequencies are the same
+        self.assertTrue(scipy.allclose(self.ss_aa_freqs,
+                                       df[amino_acids].values))
 
-        self.ss_aa_prefs = phydmslib.modeladequacy.make_stationary_state_prefs(self.expcm)
+        # check that the pref sets are the same
+        self.ss_aa_prefs = (phydmslib.modeladequacy
+                            .make_stationary_state_prefs(self.expcm))
         self.assertTrue(df.equals(self.ss_aa_prefs))
         self.assertTrue(self.ss_aa_prefs.equals(df))
 
