@@ -8,7 +8,6 @@ import phydmslib.models
 import pandas as pd
 import scipy
 import math
-import pandas as pd
 
 scipy.random.seed(0)
 
@@ -34,11 +33,11 @@ def translate_with_gaps(seq):
     for i in range(0, len(seq), 3):
         codon = seq[i:i+3]
         if codon == "---":
-            AA = "-"
+            aa = "-"
         else:
             codon = CODON_TO_INDEX[codon]
-            AA = INDEX_TO_AA[CODON_TO_AA[codon]]
-        prot_seq.append(AA)
+            aa = INDEX_TO_AA[CODON_TO_AA[codon]]
+        prot_seq.append(aa)
     return "".join(prot_seq)
 
 
