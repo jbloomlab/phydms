@@ -9,7 +9,6 @@ import pandas as pd
 import scipy
 import math
 
-scipy.random.seed(0)
 
 def translate_with_gaps(seq):
     """Translate from nucleotides to amino acids.
@@ -94,7 +93,7 @@ def calc_aa_frequencies(alignment):
     df = df.div(df.sum(axis=1), axis=0)
     assert scipy.allclose(df.sum(axis=1), 1, atol=0.005)
 
-    # final formatting
+    # Final formatting
     aa = [x for x in INDEX_TO_AA.values()]
     aa.sort()  # ABC order
     final_cols = ["site"]
@@ -184,9 +183,7 @@ def divJensenShannon(p1, p2):
 
     return 0.5 * (_kldiv(p1, m) + _kldiv(p2, m))
 
-# Note from SKH to JDB
-# I don't use this function in my script but it seemed like it might be useful
-# at some point in someone's analyis
+
 def make_stationary_state_prefs(model):
     """Create a preference set from stationary state amino-acid frequencies.
 
@@ -242,6 +239,38 @@ def make_expcm(model_fname, prefs):
     return phydmslib.models.ExpCM(prefs, kappa=params["kappa"],
                                   omega=params["omega"], beta=params["beta"],
                                   mu=0.3, phi=phi, freeparams=['mu'])
+
+
+def process_simulations(sims):
+    """Process a list of simulation replicates into one alignment.
+
+    Args:
+        `sims` (list of list of tuples)
+            List of alignment simulations. Each sublist is a single simulation
+            replicate in the form of (seq_id, seq).
+    Returns:
+        `full_alignment`
+            Alignment of sequences as a list of tuples, (seq_id, seq).
+            The sequences are concatenated together from the replicates
+            so [[(seq1, AAA), (seq2, CCC)], [(seq1, GGG), (seq2, TTT)]]
+            becomes [(seq1, AAAGGG), (seq2, CCCTTT)].
+
+    >>> seqs = [[('seq1', 'AAA'), ('seq2', 'CCC')], [('seq1', 'GGG'), ('seq2', 'TTT')]]
+    >>> process_simulations(seqs)
+    [('seq1', 'AAAGGG'), ('seq2', 'CCCTTT')]
+
+    """
+    full_alignment = []
+    temp = {}
+    for sim in sims:
+        for seq in sim:
+            if seq[0] not in temp:
+                temp[seq[0]] = seq[1]
+            else:
+                temp[seq[0]] += seq[1]
+    for key, value in temp.items():
+        full_alignment.append((key, value))
+    return full_alignment
 
 
 if __name__ == '__main__':
