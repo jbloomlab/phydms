@@ -85,11 +85,15 @@ def pyvolvePartitions(model, divselection=None, rateMatrixPrefix=""):
                     matrix[xi][yi] = model.mu * qxy * fxy
             matrix[xi][xi] = -matrix[xi].sum()
 
-        # create model in way that captures annoying print statements in pyvolve
+        # create model in way that captures `pyvovle` print statements
         old_stdout = sys.stdout
         sys.stdout = open(os.devnull, 'w')
         try:
-            m = pyvolve.Model("custom", {"matrix": matrix}, save_custom_frequencies="{0}custom_matrix_frequencies.txt".format(rateMatrixPrefix))
+            custom_matrix_fname = "{0}custom_matrix_frequencies.txt"\
+                                  .format(rateMatrixPrefix)
+            m = pyvolve.Model("custom",
+                              {"matrix": matrix},
+                              save_custom_frequencies=custom_matrix_fname)
         finally:
             sys.stdout.close()
             sys.stdout = old_stdout
@@ -98,8 +102,8 @@ def pyvolvePartitions(model, divselection=None, rateMatrixPrefix=""):
     return partitions
 
 
-def simulateAlignment(model, treeFile, alignmentPrefix, randomSeed=False,
-                      rateMatrixPrefix=""):
+def simulateAlignment(model, treeFile, alignmentPrefix,
+                      randomSeed=False, nSim=1):
     """
     Simulate an alignment given a model and tree (units = subs/site).
 
@@ -118,15 +122,21 @@ def simulateAlignment(model, treeFile, alignmentPrefix, randomSeed=False,
             Prefix for the files created by `pyvolve`.
         `randomSeed` (int)
             The integer used to seed the random number generator.
-        `rateMatrixPrefix` (str)
-            Prefix for the 'custom_matrix_frequencies.txt' file.
-            This file is created by `pyvolve` and will have the name
-            `{rateMatrixPrefix}custom_matrix_frequencies.txt`. The file is
-            automatically deleted but it is important to have unique names if
-            you are running > 1 simulation in the same directory.
-    The result of this function is a simulated FASTA alignment
-    file with the name having the prefix giving by `alignmentPrefix`
-    and the suffix `'_simulatedalignment.fasta'`.
+        `nSim` (int)
+            The number of replicate simlulations to perform. If no
+            number is specified than only one simulated alignment will
+            be created.
+
+    Returns:
+        `createdAlignments` (`str` or `list` of simulation file names)
+            A list of the output files created if `nSim` > 1 or the
+            single output file if `nSim` = 1.
+
+    The result of this function is a simulated FASTA alignment. If `nSim`
+    is set to 1 or not specified then the simulated alignment will be named
+     `'{alignmentPrefix}_simulatedalignment.fasta'`. Otherwise, there will be
+     an alignment named `'{alignmentPrefix}_{rep}_simulatedalignment.fasta'`
+     for `rep` in `range(nSim)`.
     """
     if randomSeed is False:
         pass
@@ -148,20 +158,38 @@ def simulateAlignment(model, treeFile, alignmentPrefix, randomSeed=False,
     os.remove(temp_path)
 
     # Make the `pyvolve` partition
-    partitions = pyvolvePartitions(model, rateMatrixPrefix=rateMatrixPrefix)
+    partitions = pyvolvePartitions(model, rateMatrixPrefix=alignmentPrefix)
 
-    # Simulate the alignment
-    alignment = '{0}_simulatedalignment.fasta'.format(alignmentPrefix)
-    info = '_temp_{0}info.txt'.format(alignmentPrefix)
-    rates = '_temp_{0}_ratefile.txt'.format(alignmentPrefix)
-    evolver = pyvolve.Evolver(partitions=partitions, tree=pyvolve_tree)
-    evolver(seqfile=alignment, infofile=info, ratefile=rates)
-    for f in [rates, info,
-              "{0}custom_matrix_frequencies.txt".format(rateMatrixPrefix)]:
-        if os.path.isfile(f):
-            os.remove(f)
-    assert os.path.isfile(alignment)
-    return alignment
+    createdAlignments = []
+    for rep in range(nSim):
+        # Simulate the alignment
+        alignment = '{0}_{1}_simulatedalignment.fasta'\
+                    .format(alignmentPrefix, rep)
+        info = '_temp_{0}info.txt'.format(alignmentPrefix)
+        rates = '_temp_{0}_ratefile.txt'.format(alignmentPrefix)
+        custom_matrix = '{0}custom_matrix_frequencies.txt'\
+                        .format(alignmentPrefix)
+        evolver = pyvolve.Evolver(partitions=partitions, tree=pyvolve_tree)
+        evolver(seqfile=alignment, infofile=info, ratefile=rates)
+        # Clean up extraneous `pyvovle` simulations
+        for f in [rates, info, custom_matrix]:
+            if os.path.isfile(f):
+                os.remove(f)
+        assert os.path.isfile(alignment)
+        createdAlignments.append(alignment)
+
+    # Make sure all of the expected output files exist
+    if nSim == 1:
+        # Re-name files if only one replicate is specified
+        createdAlignments = ['{0}_simulatedalignment.fasta'\
+                             .format(alignmentPrefix)]
+        os.rename(alignment, createdAlignments[0])
+        assert os.path.isfile(createdAlignments[0]),\
+            "Failed to created file {0}".format(createdAlignments[0])
+    else:
+        for f in createdAlignments:
+            assert os.path.isfile(f), "Failed to created file {0}".format(f)
+    return createdAlignments
 
 
 if __name__ == '__main__':
