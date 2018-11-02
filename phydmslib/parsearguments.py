@@ -470,7 +470,6 @@ def PhyDMSAdequacyParser():
     group.add_argument('--tree', type=ExistingFile,
              help="Existing Newick file giving input tree.")
     parser.add_argument('--metrics', help='Distance metrics',
-                        help=("List of distance metrics."),
                         default=["JensenShannon", "half_sum_abs_diff"],
                         type=ExistingFile, nargs='+')
     parser.add_argument('--random_seed', default=0, help='Use this random seed'
