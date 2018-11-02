@@ -1,0 +1,224 @@
+cumtime:
+Fri Nov  2 14:01:33 2018    modeladequacy_pstats
+
+         264546 function calls (256789 primitive calls) in 0.875 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1289 to 100 due to restriction <100>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     16/1    0.000    0.000    0.875    0.875 {built-in method builtins.exec}
+        1    0.000    0.000    0.875    0.875 <string>:1(<module>)
+        1    0.001    0.001    0.875    0.875 profile_modeladequacy.py:19(main)
+        1    0.001    0.001    0.539    0.539 simulate.py:105(simulateAlignment)
+       10    0.001    0.000    0.424    0.042 evolver.py:122(__call__)
+   180/10    0.002    0.000    0.319    0.032 evolver.py:456(_sim_subtree)
+      170    0.007    0.000    0.313    0.002 evolver.py:503(_evolve_branch)
+      120    0.003    0.000    0.260    0.002 evolver.py:332(_exponentiate_matrix)
+      120    0.001    0.000    0.236    0.002 matfuncs.py:211(expm)
+      120    0.001    0.000    0.235    0.002 matfuncs.py:557(expm)
+      120    0.006    0.000    0.234    0.002 matfuncs.py:605(_expm)
+        1    0.000    0.000    0.110    0.110 modeladequacy.py:231(make_expcm)
+        1    0.001    0.001    0.104    0.104 models.py:332(__init__)
+        1    0.000    0.000    0.102    0.102 models.py:507(updateParams)
+        1    0.000    0.000    0.099    0.099 models.py:716(_update_Prxy_diag)
+        4    0.099    0.025    0.099    0.025 decomp.py:240(eigh)
+        1    0.038    0.038    0.094    0.094 simulate.py:19(pyvolvePartitions)
+      120    0.003    0.000    0.090    0.001 matfuncs.py:676(_solve_P_Q)
+      120    0.057    0.000    0.087    0.001 basic.py:43(solve)
+       12    0.087    0.007    0.087    0.007 {method 'seed' of 'mtrand.RandomState' objects}
+       11    0.001    0.000    0.079    0.007 modeladequacy.py:43(calc_aa_frequencies)
+        1    0.001    0.001    0.054    0.054 file_io.py:171(readPrefs)
+      117    0.001    0.000    0.049    0.000 frame.py:2115(__getitem__)
+       66    0.000    0.000    0.041    0.001 frame.py:316(__init__)
+ 5460/260    0.016    0.000    0.041    0.000 copy.py:132(deepcopy)
+     3540    0.038    0.000    0.038    0.000 {method 'dot' of 'numpy.ndarray' objects}
+       13    0.000    0.000    0.037    0.003 frame.py:408(_init_dict)
+      120    0.008    0.000    0.037    0.000 matfuncs.py:812(_ell)
+      780    0.002    0.000    0.035    0.000 matfuncs.py:141(_smart_matrix_product)
+     4679    0.034    0.000    0.034    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+       14    0.000    0.000    0.034    0.002 frame.py:6156(_arrays_to_mgr)
+       13    0.000    0.000    0.033    0.003 frame.py:2505(__setitem__)
+       13    0.000    0.000    0.032    0.002 frame.py:2573(_set_item)
+       26    0.000    0.000    0.032    0.001 frame.py:2158(_getitem_array)
+        4    0.000    0.000    0.032    0.008 model.py:32(__init__)
+  700/140    0.002    0.000    0.032    0.000 copy.py:210(_deepcopy_list)
+        4    0.000    0.000    0.031    0.008 model.py:188(_construct_model)
+        4    0.000    0.000    0.031    0.008 model.py:207(_assign_matrix)
+      315    0.001    0.000    0.028    0.000 numeric.py:2189(allclose)
+      540    0.002    0.000    0.028    0.000 matfuncs.py:111(_onenorm)
+      540    0.010    0.000    0.025    0.000 linalg.py:2103(norm)
+        4    0.002    0.000    0.025    0.006 model.py:259(_assign_custom_matrix)
+      315    0.003    0.000    0.024    0.000 numeric.py:2260(isclose)
+      680    0.004    0.000    0.024    0.000 copy.py:268(_reconstruct)
+       13    0.000    0.000    0.023    0.002 generic.py:1987(_check_setitem_copy)
+        1    0.023    0.023    0.023    0.023 {built-in method gc.collect}
+27109/27107    0.014    0.000    0.022    0.000 {built-in method builtins.isinstance}
+        2    0.000    0.000    0.022    0.011 parsers.py:557(parser_f)
+        2    0.000    0.000    0.022    0.011 parsers.py:423(_read)
+       27    0.000    0.000    0.022    0.001 generic.py:2141(_take)
+       60    0.014    0.000    0.022    0.000 matfuncs.py:534(pade13_scaled)
+       84    0.001    0.000    0.021    0.000 modeladequacy.py:106(prefDistance)
+      120    0.000    0.000    0.021    0.000 matfuncs.py:451(d4_loose)
+       11    0.003    0.000    0.021    0.002 file_io.py:46(ReadCodonAlignment)
+      240    0.001    0.000    0.021    0.000 matfuncs.py:427(d4_tight)
+        8    0.000    0.000    0.021    0.003 profile_modeladequacy.py:72(<listcomp>)
+      120    0.003    0.000    0.021    0.000 matfuncs.py:78(_onenorm_matrix_power_nnm)
+      276    0.002    0.000    0.020    0.000 series.py:3136(_sanitize_array)
+      368    0.001    0.000    0.019    0.000 lapack.py:496(get_lapack_funcs)
+      368    0.007    0.000    0.019    0.000 blas.py:279(_get_funcs)
+       14    0.001    0.000    0.019    0.001 frame.py:6452(_homogenize)
+        4    0.000    0.000    0.017    0.004 model.py:323(_calculate_state_freqs_from_matrix)
+       28    0.000    0.000    0.017    0.001 internals.py:4243(take)
+    14884    0.016    0.000    0.016    0.000 simulate.py:56(<listcomp>)
+       91    0.000    0.000    0.015    0.000 frame.py:2141(_getitem_column)
+        4    0.013    0.003    0.015    0.004 decomp.py:117(eig)
+       91    0.001    0.000    0.015    0.000 generic.py:1837(_get_item_cache)
+       28    0.000    0.000    0.014    0.001 internals.py:4113(reindex_indexer)
+     1124    0.004    0.000    0.014    0.000 fromnumeric.py:1778(sum)
+       80    0.001    0.000    0.014    0.000 series.py:108(wrapper)
+     20/6    0.000    0.000    0.013    0.002 <frozen importlib._bootstrap>:966(_find_and_load)
+     20/6    0.000    0.000    0.013    0.002 <frozen importlib._bootstrap>:936(_find_and_load_unlocked)
+      120    0.001    0.000    0.013    0.000 matfuncs.py:130(_is_upper_triangular)
+       14    0.000    0.000    0.013    0.001 internals.py:4634(create_block_manager_from_arrays)
+      480    0.001    0.000    0.013    0.000 matfuncs.py:399(A4)
+      315    0.005    0.000    0.013    0.000 numeric.py:2319(within_tol)
+     1754    0.001    0.000    0.013    0.000 _methods.py:31(_sum)
+      240    0.000    0.000    0.012    0.000 matfuncs.py:463(d6_loose)
+   104/78    0.002    0.000    0.012    0.000 base.py:181(__new__)
+      360    0.001    0.000    0.012    0.000 matfuncs.py:433(d6_tight)
+      180    0.000    0.000    0.012    0.000 matfuncs.py:475(d8_loose)
+       60    0.009    0.000    0.012    0.000 matfuncs.py:523(pade9)
+      180    0.000    0.000    0.011    0.000 matfuncs.py:439(d8_tight)
+     1339    0.011    0.000    0.011    0.000 {built-in method builtins.max}
+       14    0.001    0.000    0.011    0.001 internals.py:4645(form_blocks)
+30169/29018    0.008    0.000    0.011    0.000 {built-in method builtins.len}
+       81    0.000    0.000    0.011    0.000 indexing.py:1358(__getitem__)
+     15/4    0.000    0.000    0.011    0.003 <frozen importlib._bootstrap>:651(_load_unlocked)
+     20/4    0.000    0.000    0.010    0.003 <frozen importlib._bootstrap>:211(_call_with_frames_removed)
+     15/4    0.000    0.000    0.010    0.003 <frozen importlib._bootstrap_external>:672(exec_module)
+      680    0.003    0.000    0.010    0.000 copy.py:236(_deepcopy_dict)
+      120    0.001    0.000    0.010    0.000 twodim_base.py:376(tril)
+       22    0.000    0.000    0.010    0.000 generic.py:7279(stat_func)
+       81    0.001    0.000    0.010    0.000 indexing.py:1799(_getitem_axis)
+     1128    0.002    0.000    0.010    0.000 fromnumeric.py:2021(all)
+      440    0.004    0.000    0.010    0.000 Seq.py:961(translate)
+       22    0.000    0.000    0.010    0.000 frame.py:5693(_reduce)
+      248    0.003    0.000    0.010    0.000 _util.py:192(_asarray_validated)
+       22    0.001    0.000    0.010    0.000 indexing.py:1167(_convert_to_indexer)
+      368    0.002    0.000    0.009    0.000 blas.py:218(find_best_blas_type)
+
+
+
+tottime:
+Fri Nov  2 14:01:33 2018    modeladequacy_pstats
+
+         264546 function calls (256789 primitive calls) in 0.875 seconds
+
+   Ordered by: internal time
+   List reduced from 1289 to 100 due to restriction <100>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        4    0.099    0.025    0.099    0.025 decomp.py:240(eigh)
+       12    0.087    0.007    0.087    0.007 {method 'seed' of 'mtrand.RandomState' objects}
+      120    0.057    0.000    0.087    0.001 basic.py:43(solve)
+        1    0.038    0.038    0.094    0.094 simulate.py:19(pyvolvePartitions)
+     3540    0.038    0.000    0.038    0.000 {method 'dot' of 'numpy.ndarray' objects}
+     4679    0.034    0.000    0.034    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+        1    0.023    0.023    0.023    0.023 {built-in method gc.collect}
+    14884    0.016    0.000    0.016    0.000 simulate.py:56(<listcomp>)
+ 5460/260    0.016    0.000    0.041    0.000 copy.py:132(deepcopy)
+27109/27107    0.014    0.000    0.022    0.000 {built-in method builtins.isinstance}
+       60    0.014    0.000    0.022    0.000 matfuncs.py:534(pade13_scaled)
+        4    0.013    0.003    0.015    0.004 decomp.py:117(eig)
+     1339    0.011    0.000    0.011    0.000 {built-in method builtins.max}
+      540    0.010    0.000    0.025    0.000 linalg.py:2103(norm)
+       22    0.009    0.000    0.009    0.000 {built-in method posix.remove}
+       60    0.009    0.000    0.012    0.000 matfuncs.py:523(pade9)
+30169/29018    0.008    0.000    0.011    0.000 {built-in method builtins.len}
+      120    0.008    0.000    0.037    0.000 matfuncs.py:812(_ell)
+       60    0.008    0.000    0.008    0.000 {built-in method io.open}
+     7135    0.007    0.000    0.007    0.000 {built-in method builtins.getattr}
+4787/4772    0.007    0.000    0.007    0.000 {built-in method numpy.core.multiarray.array}
+      170    0.007    0.000    0.313    0.002 evolver.py:503(_evolve_branch)
+      368    0.007    0.000    0.019    0.000 blas.py:279(_get_funcs)
+      120    0.006    0.000    0.234    0.002 matfuncs.py:605(_expm)
+      234    0.005    0.000    0.005    0.000 {pandas._libs.lib.maybe_convert_objects}
+      315    0.005    0.000    0.013    0.000 numeric.py:2319(within_tol)
+      680    0.004    0.000    0.024    0.000 copy.py:268(_reconstruct)
+    13864    0.004    0.000    0.004    0.000 {method 'get' of 'dict' objects}
+     4467    0.004    0.000    0.004    0.000 {built-in method builtins.hasattr}
+     1124    0.004    0.000    0.014    0.000 fromnumeric.py:1778(sum)
+      440    0.004    0.000    0.010    0.000 Seq.py:961(translate)
+      500    0.004    0.000    0.005    0.000 numerictypes.py:939(_can_coerce_all)
+      315    0.003    0.000    0.024    0.000 numeric.py:2260(isclose)
+       80    0.003    0.000    0.003    0.000 modeladequacy.py:178(<listcomp>)
+      680    0.003    0.000    0.010    0.000 copy.py:236(_deepcopy_dict)
+      248    0.003    0.000    0.006    0.000 function_base.py:1170(asarray_chkfinite)
+      440    0.003    0.000    0.004    0.000 Seq.py:2218(_translate_str)
+      120    0.003    0.000    0.090    0.001 matfuncs.py:676(_solve_P_Q)
+      880    0.003    0.000    0.007    0.000 numeric.py:2460(seterr)
+      120    0.003    0.000    0.260    0.002 evolver.py:332(_exponentiate_matrix)
+1212/1211    0.003    0.000    0.005    0.000 common.py:1773(_get_dtype_type)
+      160    0.003    0.000    0.006    0.000 evolver.py:365(_generate_prob_from_unif)
+      248    0.003    0.000    0.010    0.000 _util.py:192(_asarray_validated)
+     3287    0.003    0.000    0.003    0.000 {built-in method builtins.abs}
+       11    0.003    0.000    0.021    0.002 file_io.py:46(ReadCodonAlignment)
+     2060    0.003    0.000    0.003    0.000 copy.py:252(_keep_alive)
+      120    0.003    0.000    0.021    0.000 matfuncs.py:78(_onenorm_matrix_power_nnm)
+     3034    0.002    0.000    0.005    0.000 generic.py:7(_check)
+   104/78    0.002    0.000    0.012    0.000 base.py:181(__new__)
+        1    0.002    0.002    0.002    0.002 {method 'read' of '_io.TextIOWrapper' objects}
+      120    0.002    0.000    0.002    0.000 {method 'outer' of 'numpy.ufunc' objects}
+      880    0.002    0.000    0.003    0.000 numeric.py:2560(geterr)
+      780    0.002    0.000    0.035    0.000 matfuncs.py:141(_smart_matrix_product)
+      368    0.002    0.000    0.009    0.000 blas.py:218(find_best_blas_type)
+      493    0.002    0.000    0.002    0.000 {built-in method numpy.core.multiarray.empty}
+     1128    0.002    0.000    0.010    0.000 fromnumeric.py:2021(all)
+      169    0.002    0.000    0.002    0.000 {built-in method posix.stat}
+     1390    0.002    0.000    0.004    0.000 dtypes.py:85(is_dtype)
+      540    0.002    0.000    0.028    0.000 matfuncs.py:111(_onenorm)
+       10    0.002    0.000    0.005    0.000 evolver.py:271(_write_ratefile)
+      282    0.002    0.000    0.002    0.000 {built-in method numpy.core.multiarray.zeros}
+     9843    0.002    0.000    0.002    0.000 {built-in method builtins.id}
+      200    0.002    0.000    0.002    0.000 {built-in method numpy.core.multiarray.where}
+      257    0.002    0.000    0.002    0.000 {built-in method pandas._libs.lib.list_to_object_array}
+      256    0.002    0.000    0.002    0.000 {built-in method numpy.core.multiarray.copyto}
+      276    0.002    0.000    0.020    0.000 series.py:3136(_sanitize_array)
+  700/140    0.002    0.000    0.032    0.000 copy.py:210(_deepcopy_list)
+       46    0.002    0.000    0.004    0.000 File.py:45(as_handle)
+        1    0.002    0.002    0.002    0.002 {built-in method posix.unlink}
+     7759    0.002    0.000    0.002    0.000 {method 'append' of 'list' objects}
+       10    0.002    0.000    0.005    0.001 evolver.py:289(_write_infofile)
+      680    0.002    0.000    0.002    0.000 {method '__reduce_ex__' of 'object' objects}
+4679/4632    0.002    0.000    0.002    0.000 {built-in method builtins.issubclass}
+      121    0.002    0.000    0.002    0.000 {pandas._libs.lib.infer_dtype}
+      495    0.002    0.000    0.003    0.000 generic.py:3616(__setattr__)
+        4    0.002    0.000    0.025    0.006 model.py:259(_assign_custom_matrix)
+      352    0.002    0.000    0.002    0.000 {built-in method numpy.core.multiarray.arange}
+   180/10    0.002    0.000    0.319    0.032 evolver.py:456(_sim_subtree)
+       14    0.001    0.000    0.011    0.001 internals.py:4645(form_blocks)
+      245    0.001    0.000    0.008    0.000 cast.py:935(maybe_cast_to_datetime)
+        4    0.001    0.000    0.006    0.001 npyio.py:1143(savetxt)
+       57    0.001    0.000    0.004    0.000 internals.py:3114(_rebuild_blknos_and_blklocs)
+      120    0.001    0.000    0.010    0.000 twodim_base.py:376(tril)
+     1387    0.001    0.000    0.009    0.000 {method 'all' of 'numpy.ndarray' objects}
+       94    0.001    0.000    0.008    0.000 algorithms.py:1287(take_nd)
+       84    0.001    0.000    0.021    0.000 modeladequacy.py:106(prefDistance)
+     2374    0.001    0.000    0.004    0.000 numeric.py:495(asanyarray)
+      315    0.001    0.000    0.028    0.000 numeric.py:2189(allclose)
+        4    0.001    0.000    0.001    0.000 lapack.py:566(_compute_lwork)
+      117    0.001    0.000    0.009    0.000 series.py:155(__init__)
+      250    0.001    0.000    0.006    0.000 numerictypes.py:962(find_common_type)
+       15    0.001    0.000    0.001    0.000 {built-in method marshal.loads}
+       80    0.001    0.000    0.001    0.000 {built-in method builtins.round}
+     1485    0.001    0.000    0.004    0.000 numeric.py:424(asarray)
+      120    0.001    0.000    0.002    0.000 twodim_base.py:140(eye)
+      214    0.001    0.000    0.003    0.000 internals.py:107(__init__)
+      120    0.001    0.000    0.235    0.002 matfuncs.py:557(expm)
+      117    0.001    0.000    0.049    0.000 frame.py:2115(__getitem__)
+      231    0.001    0.000    0.008    0.000 cast.py:39(maybe_convert_platform)
+        1    0.001    0.001    0.539    0.539 simulate.py:105(simulateAlignment)
+
+
+
