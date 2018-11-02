@@ -1,0 +1,265 @@
+#!python
+
+"""Model Adequacy test with ``phydms``.
+
+Written by Sarah Hilton."""
+
+# from multiprocessing import Pool
+import multiprocessing
+import phydmslib.simulate
+import phydmslib.file_io
+import phydmslib.modeladequacy
+from phydmslib.constants import *
+import os
+from statsmodels.sandbox.stats.multicomp import multipletests
+import subprocess
+import scipy
+import numpy as np
+import itertools
+import pandas as pd
+import logging
+import phydmslib.parsearguments
+import glob
+
+
+def RunCmds(cmds):
+    """Runs the command line arguments in *cmds* using *subprocess*."""
+    try:
+        p = subprocess.Popen(cmds, stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+        pid = p.pid
+        (stdout, stderr) = p.communicate()
+    except:
+        os.kill(pid, signal.SIGTERM)
+
+
+def calc_pvalue_one_site(model, tree_fname, random_seed, n_sim,
+                         site, natural, ss, metrics):
+    """For each site to go from simulation to pvalue."""
+    amino_acids = list(INDEX_TO_AA.values())
+    amino_acids.sort()
+
+    # simulate alignment
+    prefix = "temp_site_{0}".format(site)
+    sim_fname = phydmslib.simulate.simulateAlignment(model,  # expcm
+                                                     tree_fname,  # tree
+                                                     prefix,  # alignment name
+                                                     random_seed,  # seed
+                                                     n_sim)  # number of rep
+    # process the simulations
+    sims = []
+    for sim in sim_fname:
+        sims.append(phydmslib.file_io.ReadCodonAlignment(sim, checknewickvalid=True))
+        os.remove(sim)
+    sim_freqs = phydmslib.modeladequacy.process_simulations(sims)
+    sim_freqs = phydmslib.modeladequacy.calc_aa_frequencies(sim_freqs)
+    sim_freqs = sim_freqs[amino_acids].values
+
+    np.random.seed(site)  # reset seed because order is not guaranteed
+
+    # calc distances simualtion
+    final = []
+    for metric in metrics:
+        # calc simulation distances
+        sim = scipy.array([phydmslib.modeladequacy.prefDistance(sim, ss, metric)
+                           for sim in sim_freqs])
+        # calc distances natural
+        natural_distance = phydmslib.modeladequacy.prefDistance(natural, ss,
+                                                                metric)
+        # calc pvalues
+        greater = scipy.sum(scipy.greater(sim, natural_distance))
+        tie_breaker = scipy.sum(scipy.equal(sim, natural_distance))
+        if tie_breaker >= 1:
+            tie_breaker = np.random.randint(tie_breaker, size=1)[0]
+        pvalue = (greater + tie_breaker + 1) / (len(sim) + 1)
+        assert 0 <= pvalue <= 1.0, "pvalue is > 1.0 or < 0.0"
+        final.append((site, pvalue, metric))
+
+    return final
+
+
+def main():
+    """Main body of script."""
+
+    # Parse command line arguments
+    parser = phydmslib.parsearguments.PhyDMSAdequacyParser()
+    args = vars(parser.parse_args())
+    prog = parser.prog
+
+    # create output directory if needed
+    outdir = os.path.dirname(args['outprefix'])
+    if outdir:
+        if not os.path.isdir(outdir):
+            if os.path.isfile(outdir):
+                os.remove(outdir)
+            os.mkdir(outdir)
+
+    # set up
+    amino_acids = list(INDEX_TO_AA.values())
+    amino_acids.sort()
+
+    # setup files
+    # file names slightly different depending on
+    # whether outprefix is directory or file
+    if args['outprefix'][-1] == '/':
+        logfile = "{0}log.log".format(args['outprefix'])
+    else:
+        logfile = "{0}.log".format(args['outprefix'])
+        args['outprefix'] = '{0}_'.format(args['outprefix'])
+    pvaluesfile = '{0}pvalues.csv'.format(args['outprefix'])
+    raxmlStandardOutputFile = '{0}raxml_output.txt'.format(args['outprefix'])
+    phydmsStandardOutputFile = '{0}phydms_output.txt'.format(args['outprefix'])
+
+    # Set up to log everything to logfile.
+    if os.path.isfile(logfile):
+        os.remove(logfile)
+    logging.shutdown()
+    logging.captureWarnings(True)
+    versionstring = phydmslib.file_io.Versions()
+    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
+                        level=logging.INFO)
+    logger = logging.getLogger(prog)
+    logfile_handler = logging.FileHandler(logfile)
+    logger.addHandler(logfile_handler)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    logfile_handler.setFormatter(formatter)
+
+    # print some basic information
+    logger.info('Beginning execution of {0} in directory {1}\n'
+                .format(prog, os.getcwd()))
+    logger.info('Progress is being logged to {0}\n'.format(logfile))
+    logger.info('{0}\n'.format(versionstring))
+    logger.info('Parsed the following command-line arguments:\n{0}\n'
+                .format('\n'.join(['\t{0} = {1}'.format(key, args[key])
+                        for key in args.keys()])))
+
+    # check to make sure only ExpCM or GY94 model
+    if args["model"] == "YNGKP_M0":
+        model = args["model"]
+    elif (args["model"][0] == "ExpCM"):
+        model = "{0}_{1}".format(args["model"][0], args["model"][1])
+        prefs = phydmslib.file_io.readPrefs(args["model"][1])
+        prefs = [prefs[r] for r in sorted(prefs.keys())]
+    else:
+        raise ValueError("Model must be YNKP_M0 or ExpCM not {0}"
+                         .format(args["model"]))
+
+
+    # check alignment
+    alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'],
+                                                     checknewickvalid=True)
+    logger.info('Starting analaysis to assess the adequacy of model {0} for alignment {1}'.format(model, args['alignment']))
+    logger.info('{0} is a valid alignment specifying {1} sequences of length {2}.\n'
+                .format(args["alignment"], len(alignment), len(alignment[0][1])))
+    # calc alignment frequencies
+    alignment_freqs = phydmslib.modeladequacy.calc_aa_frequencies(alignment)
+    alignment_freqs["alignment"] = (alignment_freqs[amino_acids]
+                                    .apply(lambda r: tuple(r), axis=1)
+                                    .apply(scipy.array))
+    alignment_freqs = scipy.array(alignment_freqs["alignment"].tolist())
+
+    # read or build a tree
+    if args["tree"]:
+        logger.info("Reading tree from {0}".format(args['tree']))
+    else:
+        logger.info("Tree not specified.")
+        try:
+            raxmlversion = subprocess.check_output([args['raxml'], '-v'],
+                                                   stderr=subprocess.STDOUT)\
+                                                   .strip()
+            logger.info("Inferring tree with RAxML using command {0}"
+                        .format(args['raxml']))
+
+            # remove pre-existing RAxML files
+            raxmlOutputName = os.path.splitext(os.path.basename(
+                    args["alignment"]))[0]
+            raxmlOutputFiles = []
+            for raxmlFile in glob.glob("RAxML_*{0}".format(raxmlOutputName)):
+                if os.path.isfile(raxmlFile):
+                    raxmlOutputFiles.append(raxmlFile)
+                    os.remove(raxmlFile)
+            if len(raxmlOutputFiles) > 0:
+                logger.info('Removed the following RAxML files:\n{0}\n'
+                            .format('\n'.join(['\t{0}'.format(fname) for
+                                               fname in raxmlOutputFiles])))
+
+            # run RAxmL
+            raxmlCMD = [args['raxml'], '-s', args['alignment'], '-n',
+                        raxmlOutputName, '-m', 'GTRCAT', '-p1', '-T', '2']
+            with open(raxmlStandardOutputFile, 'w') as f:
+                subprocess.check_call(raxmlCMD, stdout=f)
+
+            # move RAxML tree to output directory and remove all other files
+            for raxmlFile in glob.glob("RAxML_*{0}".format(raxmlOutputName)):
+                if "bestTree" in raxmlFile:
+                    args["tree"] = args["outprefix"] + 'RAxML_tree.newick'
+                    os.rename(raxmlFile, args['tree'])
+                    logger.info("RAxML inferred tree is now named {0}\n".format(
+                            args['tree']))
+                else:
+                    os.remove(raxmlFile)
+        except OSError:
+            raise ValueError("The raxml command of {0} is not valid. Is raxml"
+                             " installed at this path?".format(args['raxml']))
+
+    # get number of available CPUs and assign to each model
+    if args['ncpus'] == -1:
+        try:
+            args['ncpus'] = multiprocessing.cpu_count()
+        except:
+            raise RuntimeError(("Encountered a problem trying to dynamically"
+                                "determine the number of available CPUs. "
+                                "Please manually specify the number of desired "
+                                "CPUs with '--ncpus' and try again."))
+            logger.info('Will use all %d available CPUs.\n' % args['ncpus'])
+    assert args['ncpus'] >= 1, "Failed to specify valid number of CPUs"
+
+    # run phydms
+    modelparams = "{0}phydms_modelparams.txt".format(args["outprefix"])
+    phydms_CMD = ["phydms", args["alignment"], args["tree"],
+                  model, "{0}{1}".format(args["outprefix"], "phydms")]
+    logger.info('Starting phydms command: {0}'.format(" ".join(phydms_CMD)))
+    RunCmds(phydms_CMD)
+    assert os.path.isfile(modelparams), "Could not find model params file"
+    with open(modelparams,'r') as f:
+        params = f.read()
+    logger.info('phydms run complete. Optimized parameters ({0}) are\n{1}\n'.format(modelparams, params))
+
+    # simulate sequences and calculate pvalues (parallelization)
+    logger.info('Starting {0} simulations for {1} sites with random seed {2}'.format(args["number_simulations"], len(alignment), args["random_seed"]))
+    p = multiprocessing.Pool(args["ncpus"])  # should this be ncpus-1?
+    runs = []
+    pvalues = []
+    for site in range(len(prefs)):
+        if model.startswith("ExpCM"):
+            sim_model = phydmslib.modeladequacy.make_expcm(modelparams,
+                                                           [prefs[site]])
+        else:
+            raise ValueError("Haven't implemented for YNGKP_M0 yet")
+        # all the sites are the same, so take only the first index
+        ss = phydmslib.modeladequacy.calc_stationary_state_freqs(sim_model)[0]
+        runs.append((sim_model, args["tree"], args["random_seed"],
+                    args["number_simulations"], site, alignment_freqs[site],
+                    ss, args["metrics"]))
+    pvalues += p.starmap(calc_pvalue_one_site, runs)
+    logger.info('Simulations complete.')
+
+
+    # format pvalues and calculate qvalues
+    pvalues = list(itertools.chain.from_iterable(pvalues))  # flatten
+    df = pd.DataFrame(pvalues, columns=['site', 'pvalue', 'metric'])
+
+    final = []
+    for name, group in df.groupby("metric"):
+        group = group.sort_values(by="pvalue", ascending=True)
+        group["qvalue"] = multipletests(group["pvalue"].tolist(),
+                                        method='fdr_bh')[1]
+        final.append(group)
+    pd.concat(final).to_csv(pvaluesfile, index=False)
+    logger.info('P- and Q-values written to {0}'.format(pvaluesfile))
+    logger.info('Successful completion of phydms_modeladequacy')
+
+
+
+if __name__ == '__main__':
+    main()  # run the script
