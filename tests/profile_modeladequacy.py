@@ -94,7 +94,7 @@ def main(alignment_fname, preferences_fname, tree_fname, modelparams_fname, n_si
         os.remove(fname)
 
 if __name__ == '__main__':
-    for nsite in [10, 100]:
+    for nsite in [10]:
         for nseq in [5, 34]:
             statsfile = 'cprofile_modeladequacy_nsites{0}_nseqs{1}'.format(nsite, nseq)
             pstatsfile = "pstats_modeladequacy_nsites{0}_nseqs{1}".format(nsite, nseq)
@@ -102,7 +102,7 @@ if __name__ == '__main__':
             prefs = "modeladequacy_tests/HA_short_prefs_nsites{0}.csv".format(nsite)
             tree = "modeladequacy_tests/HA_short_tree_nsites{0}_nseqs{1}.newick".format(nsite, nseq)
             mp = "modeladequacy_tests/phydms_nsites{0}_nseqs{1}/modelparams.txt".format(nsite, nseq)
-            # cProfile.run('main(alignment, prefs, tree, mp, 100, nsite, nseq)', statsfile)
+            cProfile.run('main(alignment, prefs, tree, mp, 10, nsite, nseq)', statsfile)
             with open(pstatsfile, 'w') as stream:
                 stats = pstats.Stats(statsfile, stream=stream)
                 for t in ['cumtime', 'tottime']:
