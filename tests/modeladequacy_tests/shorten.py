@@ -11,8 +11,8 @@ import glob
 import os
 
 def main():
-    total_sites = 4
-    total_number_seqs = 10
+    total_sites = 10
+    total_number_seqs = 5
     prefs = "HA_hybridDoud_prefs.csv"
     alignment = "HA_hybrid_H1.fasta"
 
@@ -20,7 +20,7 @@ def main():
     prefs = pd.read_csv(prefs)
     prefs = prefs.head(total_sites)
     assert prefs['site'].iloc[-1] == len(prefs)
-    prefs.to_csv("HA_short_prefs.csv", index=False)
+    prefs.to_csv("HA_short_prefs_nsites{0}.csv".format(total_sites), index=False)
 
     # make new alignment
     final = []
@@ -29,15 +29,15 @@ def main():
         assert len(seq.seq) == (3 * total_sites)
         final.append(seq)
     final = final[:total_number_seqs]
-    with open("HA_short.fasta", "w") as output_handle:
+    with open("HA_short_nsites{0}_nseqs{1}.fasta".format(total_sites, total_number_seqs), "w") as output_handle:
         SeqIO.write(final, output_handle, "fasta")
 
     # make new tree
     for fname in glob.glob("RAxML*"):
         os.remove(fname)
-    raxml_cmd = ["raxml", "-s", "HA_short.fasta", "-n", "temp", "-m", "GTRCAT", "-p1", "-T", "2"]
+    raxml_cmd = ["raxml", "-s", "HA_short_nsites{0}_nseqs{1}.fasta".format(total_sites, total_number_seqs), "-n", "temp", "-m", "GTRCAT", "-p1", "-T", "2"]
     subprocess.check_call(raxml_cmd)
-    os.rename("RAxML_bestTree.temp", "HA_short_tree.newick")
+    os.rename("RAxML_bestTree.temp", "HA_short_tree_nsites{0}_nseqs{1}.newick".format(total_sites, total_number_seqs))
     for fname in glob.glob("RAxML*"):
         os.remove(fname)
 
