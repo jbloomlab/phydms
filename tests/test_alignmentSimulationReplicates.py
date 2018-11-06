@@ -37,7 +37,7 @@ class test_simulateAlignmentReplicate_ExpCM(unittest.TestCase):
         random.seed(1)
 
         # define model
-        nsites = 200
+        nsites = 20
         prefs = []
         minpref = 0.01
         for r in range(nsites):
@@ -75,28 +75,43 @@ class test_simulateAlignmentReplicate_ExpCM(unittest.TestCase):
             f.write(newicktree)
 
         nSim = 2
-        seed = 1
-        alignments = [{} for x in range(nSim)]
-        alignmentPrefix = "_test"
-        final_alignments = ["{0}_{1}_simulatedalignment.fasta"
-                            .format(alignmentPrefix, i) for i in range(nSim)]
-        phydmslib.simulate.simulateAlignment(model, temptree, alignmentPrefix,
-                                             seed, nSim)
-        for rep in range(nSim):
-            for s in Bio.SeqIO.parse("_test_{0}_simulatedalignment.fasta"
-                                     .format(rep), "fasta"):
-                alignments[rep][s.id] = str(s.seq)
-        # check they are different
-        for key in alignments[0].keys():
-            seqs = [alignments[i][key] for i in range(nSim)]
-            # all sequences should be different
-            self.assertTrue(len(seqs) == len(set(seqs)))
-
-        # general clean-up
+        seeds = [1, 1, 2]  # the first two runs should the the same
+        alignments = [[{} for x in range(nSim)] for x in range(len(seeds))]
+        for i, seed in enumerate(seeds):
+            alignmentPrefix = "_test"
+            final = ["{0}_{1}_simulatedalignment.fasta"
+                     .format(alignmentPrefix, i) for i in range(nSim)]
+            phydmslib.simulate.simulateAlignment(model, temptree,
+                                                 alignmentPrefix, seed, nSim)
+            for rep in range(nSim):
+                for s in Bio.SeqIO.parse("_test_{0}_simulatedalignment.fasta"
+                                         .format(rep), "fasta"):
+                    alignments[i][rep][s.id] = str(s.seq)
+            # clean-up
+            for fasta in final:
+                if os.path.isfile(fasta):
+                    os.remove(fasta)
         os.remove(temptree)
-        for fasta in final_alignments:
-            if os.path.isfile(fasta):
-                os.remove(fasta)
+
+        # sequence names
+        seq_names = list(alignments[1][0].keys())
+
+        # Within each run, the alignments should be different
+        for i, seed in enumerate(seeds):
+            run = alignments[i]
+            for key in seq_names:
+                seqs = [run[rep][key] for rep in range(nSim)]
+                # all sequences should be different
+                self.assertTrue(len(seqs) == len(set(seqs)))
+
+        # The first two alignments should be the same, the third different
+        for rep in range(nSim):
+            for key in seq_names:
+                seq1 = alignments[0][rep][key]
+                seq2 = alignments[1][rep][key]
+                seq3 = alignments[2][rep][key]
+                self.assertTrue(seq1 == seq2)  # first two the same
+                self.assertFalse(seq1 == seq3)  # third different
 
 
 class test_simulateAlignmentReplicate_YNGKP_M0(test_simulateAlignmentReplicate_ExpCM):
