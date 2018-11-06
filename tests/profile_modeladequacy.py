@@ -67,17 +67,17 @@ def main(alignment_fname, preferences_fname, tree_fname, modelparams_fname, n_si
             # calc simulation distances
             sim = scipy.array([phydmslib.modeladequacy.prefDistance(sim, ss, metric)
                                for sim in sims])
-        # # calc distances natural
-        natural_distance = phydmslib.modeladequacy.prefDistance(natural, ss,
-                                                                metric)
-        # calc pvalues
-        greater = scipy.sum(scipy.greater(sim, natural_distance))
-        tie_breaker = scipy.sum(scipy.equal(sim, natural_distance))
-        if tie_breaker >= 1:
-            tie_breaker = np.random.randint(tie_breaker, size=1)[0]
-        pvalue = (greater + tie_breaker + 1) / (len(sim) + 1)
-        assert 0 <= pvalue <= 1.0, "pvalue is > 1.0 or < 0.0"
-        final.append((site, pvalue, metric))
+            # # calc distances natural
+            natural_distance = phydmslib.modeladequacy.prefDistance(natural, ss,
+                                                                    metric)
+            # calc pvalues
+            greater = scipy.sum(scipy.greater(sim, natural_distance))
+            tie_breaker = scipy.sum(scipy.equal(sim, natural_distance))
+            if tie_breaker >= 1:
+                tie_breaker = np.random.randint(tie_breaker, size=1)[0]
+            pvalue = (greater + tie_breaker + 1) / (len(sim) + 1)
+            assert 0 <= pvalue <= 1.0, "pvalue is > 1.0 or < 0.0"
+            final.append((site, pvalue, metric))
 
     # format pvalues and calculate qvalues
     df = pd.DataFrame(final, columns=['site', 'pvalue', 'metric'])
