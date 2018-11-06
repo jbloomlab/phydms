@@ -15,15 +15,11 @@ import itertools
 import pandas as pd
 import cProfile
 import pstats
+import glob
 
-def main():
+def main(alignment_fname, preferences_fname, tree_fname, modelparams_fname, n_sim, n_sites, n_seqs):
     """Main body of script."""
-    # input files
-    alignment_fname = "modeladequacy_tests/HA_short.fasta"
-    preferences_fname = "modeladequacy_tests/HA_short_prefs.csv"
-    tree_fname = "modeladequacy_tests/HA_short_tree.newick"
-    modelparams_fname = "modeladequacy_tests/phydms/modelparams.txt"
-    n_sim = 10
+    # inputs
     metrics = ["JensenShannon", "half_sum_abs_diff"]
 
     # set up
@@ -92,13 +88,25 @@ def main():
         group["qvalue"] = multipletests(group["pvalue"].tolist(),
                                         method='fdr_bh')[1]
         final.append(group)
-    pd.concat(final).to_csv("_modeladequacy_pvalues.csv", index=False)
+    pd.concat(final).to_csv("_modeladequacy_pvalues_nsites{0}_nseqs{1}.csv".format(n_sites, n_seqs), index=False)
 
+    for fname in glob.glob("_modeladequacy_results_*"):
+        os.remove(fname)
 
 if __name__ == '__main__':
-    statsfile = 'modeladequacy_pstats'
-    cProfile.run('main()', statsfile)
-    p = pstats.Stats(statsfile)
-    for t in ['cumtime', 'tottime']:
-        print(f'\n{t}:')
-        p.strip_dirs().sort_stats(t).print_stats(100)
+    for nsite in [10, 100]:
+        for nseq in [5, 34]:
+            statsfile = 'cprofile_modeladequacy_nsites{0}_nseqs{1}'.format(nsite, nseq)
+            pstatsfile = "pstats_modeladequacy_nsites{0}_nseqs{1}".format(nsite, nseq)
+            alignment = "modeladequacy_tests/HA_short_nsites{0}_nseqs{1}.fasta".format(nsite, nseq)
+            prefs = "modeladequacy_tests/HA_short_prefs_nsites{0}.csv".format(nsite)
+            tree = "modeladequacy_tests/HA_short_tree_nsites{0}_nseqs{1}.newick".format(nsite, nseq)
+            mp = "modeladequacy_tests/phydms_nsites{0}_nseqs{1}/modelparams.txt".format(nsite, nseq)
+            # cProfile.run('main(alignment, prefs, tree, mp, 100, nsite, nseq)', statsfile)
+            with open(pstatsfile, 'w') as stream:
+                stats = pstats.Stats(statsfile, stream=stream)
+                for t in ['cumtime', 'tottime']:
+                    print(f'\n{t}:')
+                    # stats.strip_dirs().sort_stats(t).print_stats(100)
+                    stats.sort_stats(t).print_stats(100)
+                stats.print_stats()
