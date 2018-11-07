@@ -75,46 +75,55 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         temptree = '_temp.tree'
         with open(temptree, 'w') as f:
             f.write(newicktree)
-
-        # simulate the alignment
-        phydmslib.simulate.simulateAlignment(model, temptree, alignmentPrefix)
-
-        # read in the test tree, re-scale the branch lengths, and remove the file
         biotree = Bio.Phylo.read(temptree, 'newick')
+
+        # simulate the alignment using `pyvlove`
+        pyvolve_alignments = phydmslib.simulate.simulateAlignment(model, temptree, "{0}_pyvolve".format(alignmentPrefix))
         os.remove(temptree)
+        assert len(pyvolve_alignments) == 1, "Only expected one `pyvolve` alignment"
+        pyvolve_alignments = pyvolve_alignments[0]
+
+        # simulate the alignment using `phydms` `simulator`
+        simulator_alignments = "{0}_simulator.fasta".format(alignmentPrefix)
+        simulator = phydmslib.simulate.simulator(biotree, model)
+        simulator.simulate()
+        simulator.output_alignment(simulator_alignments)
+
+        # re-scale the branch lengths
         for node in biotree.get_terminals() + biotree.get_nonterminals():
             if node.branch_length:
                 node.branch_length /= model.branchScale
 
         # check and see if the simulated alignment has the expected number of
         # subs exists
-        alignment = '{0}_simulatedalignment.fasta'.format(alignmentPrefix)
-        nsubs = 0 # subs in simulated seqs (estimate from Hamming distance)
-        treedist = 0.0 # distance inferred by `TreeLikelihood`
-        a = [(s.description, str(s.seq)) for s in Bio.SeqIO.parse(
-                alignment, 'fasta')]
-        assert len(a[0][1]) == len(a[1][1]) == nsites * 3
-        for f in [alignment]:
-            if os.path.isfile(f):
-                os.remove(f)
-        for r in range(nsites):
-            codon1 = a[0][1][3 * r : 3 * r + 3]
-            codon2 = a[1][1][3 * r : 3 * r + 3]
-            nsubs += len([j for j in range(3) if codon1[j] != codon2[j]])
-        nsubs /= float(nsites)
-        tl = phydmslib.treelikelihood.TreeLikelihood(biotree, a, model)
-        tl.maximizeLikelihood()
-        treedist += sum([n.branch_length for n in tl.tree.get_terminals()])
 
-        # We expect nsubs = t, but build in some tolerance
-        # with rtol since we simulated finite number of sites.
-        self.assertTrue(scipy.allclose(nsubs, t, rtol=0.2),
-                ("Simulated subs per site of {0} is not close "
-                "to expected value of {1} (branchScale = {2}, t = {3})").format(
-                nsubs, t, model.branchScale, t))
-        self.assertTrue(scipy.allclose(treedist, nsubs, rtol=0.2), (
-                "Simulated subs per site of {0} is not close to inferred "
-                "branch length of {1}").format(nsubs, treedist))
+        for alignment in [pyvolve_alignments, simulator_alignments]:
+            nsubs = 0 # subs in simulated seqs (estimate from Hamming distance)
+            treedist = 0.0 # distance inferred by `TreeLikelihood`
+            a = [(s.description, str(s.seq)) for s in Bio.SeqIO.parse(
+                    alignment, 'fasta')]
+            assert len(a[0][1]) == len(a[1][1]) == nsites * 3
+            for f in [alignment]:
+                if os.path.isfile(f):
+                    os.remove(f)
+            for r in range(nsites):
+                codon1 = a[0][1][3 * r : 3 * r + 3]
+                codon2 = a[1][1][3 * r : 3 * r + 3]
+                nsubs += len([j for j in range(3) if codon1[j] != codon2[j]])
+            nsubs /= float(nsites)
+            tl = phydmslib.treelikelihood.TreeLikelihood(biotree, a, model)
+            tl.maximizeLikelihood()
+            treedist += sum([n.branch_length for n in tl.tree.get_terminals()])
+
+            # We expect nsubs = t, but build in some tolerance
+            # with rtol since we simulated finite number of sites.
+            self.assertTrue(scipy.allclose(nsubs, t, rtol=0.2),
+                    ("Simulated subs per site of {0} is not close "
+                    "to expected value of {1} (branchScale = {2}, t = {3})").format(
+                    nsubs, t, model.branchScale, t))
+            self.assertTrue(scipy.allclose(treedist, nsubs, rtol=0.2), (
+                    "Simulated subs per site of {0} is not close to inferred "
+                    "branch length of {1}").format(nsubs, treedist))
 
     def tearDown(self):
         """Remove some files made by `pyvolve`."""
