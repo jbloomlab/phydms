@@ -1,4 +1,6 @@
-"""Functions for performing simulations, mostly using ``pyvolve``.
+"""Functions for simulating alignments.
+
+Simulations can be performed by using `pyvolve` partitions or `phydms` models.
 
 Written by Jesse Bloom and Sarah Hilton.
 """
@@ -14,8 +16,190 @@ from tempfile import mkstemp
 import random
 import Bio.Phylo
 import numpy as np
+import copy
 
 
+class simulator(object):
+    """Uses model and tree to simulate an alignment.
+
+    This class uses the `phydms` models to simulate an alignment.
+    Most commonly, you will initiate a simulator object, simulate
+    an alignment, and then output the final alignment.
+    > simulator = phydmslib.simulate.simulator(tree, model)
+    > simulator.simulate()
+    > simulator.output_alignment(fname)
+
+    See `__init__` for how to initialize a `simulator`.
+
+    Attributes:
+        `tree` (instance of `Bio.Phylo.BaseTree.Tree` derived class)
+            Phylogenetic tree. Branch lengths are in units of codon
+            substitutions per site for the current `model`.
+        `model` (instance of `phydmslib.models.Model` derived class)
+            Specifies the substitution model for `nsites` codon sites.
+            Only accepts `ExpCM_empirical_phi`, `ExpCM`, `YNGKP_M0`
+        `nsites` (int)
+            Number of codon sites.
+        `root` (instance of `Bio.Phylo.BaseTree.Tree.clade` derived class)
+            The root of `tree`
+        `internalnode` (list)
+            Names of the internal nodes in `tree`.
+        `terminalnode` (list)
+            Names of the terminal nodes in `tree`.
+        `alignment` (dictionary)
+            Sequence arrays for each node in the `tree`. The dictionary is
+            keyed by the node name and the value is a list of `nsites`
+            `scipy.arrays` of length `N_CODON`. The codon identity at the site
+            is a 1 and all other elements of the array are zeroes.
+        `simulated_alignment` (list)
+            Final codon alignment. Tuples of (seq_id, seq) for each node in
+            the `tree`.
+    """
+    def __init__(self, tree, model, branchScale=None):
+        """Initialize a `simulator` object.
+
+        Args:
+            `tree`, `model`, `model`
+                Attributes of same name described in class doc string.
+                Note that we make copies of `tree`, and `model`, so
+                the calling objects are not modified during simulation.
+            `branchScale` (`None` or float > 0)
+                The branch lengths in the input tree are assumed
+                to be in units of substitutions per site with
+                the scaling defined by `model.branchScale`. If
+                the scaling should instead be defined by some
+                other value of `branchScale`, indicate by
+                setting to that value rather than `None`. This
+                is useful if tree was inferred on models across
+                many sites but you are now just analyzing an
+                individual one. Note that this option applies
+                only to the input tree, not the output one.
+        """
+        if isinstance(model, phydmslib.models.ExpCM_empirical_phi) or isinstance(model, phydmslib.models.YNGKP_M0) or isinstance(model, phydmslib.models.ExpCM):
+            self.model = copy.deepcopy(model)
+            self.nsites = self.model.nsites
+        else:
+            raise ValueError("model is not a valid model")
+
+        # set up dictionary to hold sequence arrays
+        self.alignment = {}
+        self.simulated_alignment = []
+
+        # tree - not changing the units. Assuming they are correct
+        assert isinstance(tree, Bio.Phylo.BaseTree.Tree), "invalid tree"
+        self._tree = copy.deepcopy(tree)
+
+        # For internal storage, branch lengths are in model units rather
+        # than codon substitutions per site. So here adjust them from
+        # codon substitutions per site to model units.
+        self.root = False
+        self.internalnode = []
+        self.terminalnode = []
+        assert isinstance(tree, Bio.Phylo.BaseTree.Tree), "invalid tree"
+        self._tree = copy.deepcopy(tree)
+        if branchScale == None:
+            branchScale = self.model.branchScale
+        else:
+            assert isinstance(branchScale, float) and branchScale > 0
+        for node in self._tree.find_clades():
+            if node != self._tree.root:
+                node.branch_length /= branchScale
+                self.alignment[node] = []
+                if node.is_terminal:
+                    self.terminalnode.append(node.name)
+                else:
+                    self.internalnode.append(node.name)
+            else:
+                assert not self.root, "More than one root!"
+                self.root = node
+                self.alignment[node] = []
+
+    def simulate(self):
+        """Simulate an alignment.
+
+        Calls functions to simulate an alignment and the
+        processes the simulated alignment.
+
+        Sequences for a given site are stored as a `scipy.array` of
+        length 61. The codon sequence for that site is recorded as a
+        1 at the codon index in this array. All other elements are 0s.
+
+
+        Two private functions:
+            `_evolve_branch`: generate a new sequence. Called by `_traverse_tree`
+            `_traverse_tree`: recursively walks from root to tip of tree.
+        """
+
+        def _evolve_branch(parent, child):
+            """Generates new sequence given a parent and a child node."""
+            branch_length = parent.distance(child)
+            exp_M = self.model.M(branch_length)
+            new_seq = []
+            for r in range(self.model.nsites):
+                site_distribution = self.alignment[parent][r].dot(exp_M[r])  # parent's sequence array times the transition matrix
+                codon = scipy.random.choice(N_CODON, 1, p=site_distribution)[0]  # choose from the new codon distribution for the site
+                # create new sequence array. 1 indicates codon sequence
+                site_seq = scipy.zeros(N_CODON)
+                site_seq[codon] = 1
+                assert len(scipy.where(site_seq==1)[0]) == 1
+                new_seq.append(site_seq)
+            self.alignment[child] = scipy.array(new_seq)  # array of size `nsites`, each element array of 61
+
+        def _traverse_tree(parent, child):
+            """Walks along a branch of the tree.
+            Calls the `_evolve_branch` function for internal nodes.
+            """
+            if parent == None:  # at the root, need to generate a sequence
+                root_seq = []
+                for r in range(self.model.nsites):
+                    ss = self.model.stationarystate[r]
+                    codon = scipy.random.choice(N_CODON, 1, p=ss)[0]  # pull a codon from the stationary state
+                    # create sequence array. 1 indicates codon sequence
+                    site_seq = scipy.zeros(N_CODON)
+                    site_seq[codon] = 1
+                    assert len(scipy.where(site_seq==1)[0]) == 1
+                    root_seq.append(site_seq)
+                self.alignment[child] = scipy.array(root_seq)  # array of size `nsites`, each element array of 61
+            else:  # internal branch, need to evolve along the branch
+                _evolve_branch(parent, child)
+
+            # Did we just simulate to a terminal node?
+            # If not, call the `_traverse_tree` function again
+            if not child.is_terminal():
+                for gchild in child.clades:
+                    _traverse_tree(child, gchild)
+            return
+
+        # beginning of `simulate` function
+        _traverse_tree(None, self.root)  # simulate the sequences
+
+        # reformat the simulated alignment
+        # turn the sequenc arrays into codon sequnces
+        # format alignment as a list of tuples
+        for key in self.alignment:
+            seq = self.alignment[key]
+            final = []
+            for site in seq:
+                codon = scipy.where(site==1)[0]
+                assert len(codon) == 1, "There is more than one codon at a site!"
+                nt = INDEX_TO_CODON[codon[0]]
+                final.append(nt)
+            final = "".join(final)
+            self.simulated_alignment.append((key.name, final))
+
+    def output_alignment(self, fname):
+        """Outputs simulated alignment as fasta file.
+
+        Args:
+            `fname`
+                Name of outputput fasta file.
+        """
+        with open(fname, "w") as f:
+            for seq in self.simulated_alignment:
+                if seq[0] in self.terminalnode:
+                    f.write(">{0}\n{1}\n".format(seq[0],seq[1]))
+
+# simulatoins with `pyvolve`
 def pyvolvePartitions(model, divselection=None, rateMatrixPrefix=""):
     """Get list of `pyvolve` partitions for `model`.
 
