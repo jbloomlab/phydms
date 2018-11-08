@@ -19,7 +19,7 @@ import numpy as np
 import copy
 
 
-class simulator(object):
+class Simulator(object):
     """Uses model and tree to simulate an alignment.
 
     This class uses the `phydms` models to simulate an alignment.
@@ -105,7 +105,7 @@ class simulator(object):
             if node != self._tree.root:
                 node.branch_length /= branchScale
                 self.alignment[node] = []
-                if node.is_terminal:
+                if len(node.clades) == 0:
                     self.terminalnode.append(node.name)
                 else:
                     self.internalnode.append(node.name)
@@ -130,22 +130,23 @@ class simulator(object):
             `_traverse_tree`: recursively walks from root to tip of tree.
         """
 
-        def _evolve_branch(parent, child):
+        def _evolve_branch(parent, child, alignment):
             """Generates new sequence given a parent and a child node."""
             branch_length = parent.distance(child)
             exp_M = self.model.M(branch_length)
             new_seq = []
             for r in range(self.model.nsites):
-                site_distribution = self.alignment[parent][r].dot(exp_M[r])  # parent's sequence array times the transition matrix
+                site_distribution = alignment[parent][r].dot(exp_M[r])  # parent's sequence array times the transition matrix
                 codon = scipy.random.choice(N_CODON, 1, p=site_distribution)[0]  # choose from the new codon distribution for the site
                 # create new sequence array. 1 indicates codon sequence
                 site_seq = scipy.zeros(N_CODON)
                 site_seq[codon] = 1
                 assert len(scipy.where(site_seq==1)[0]) == 1
                 new_seq.append(site_seq)
-            self.alignment[child] = scipy.array(new_seq)  # array of size `nsites`, each element array of 61
+            alignment[child] = scipy.array(new_seq)  # array of size `nsites`, each element array of 61
+            return alignment
 
-        def _traverse_tree(parent, child):
+        def _traverse_tree(parent, child, alignment):
             """Walks along a branch of the tree.
             Calls the `_evolve_branch` function for internal nodes.
             """
@@ -159,25 +160,27 @@ class simulator(object):
                     site_seq[codon] = 1
                     assert len(scipy.where(site_seq==1)[0]) == 1
                     root_seq.append(site_seq)
-                self.alignment[child] = scipy.array(root_seq)  # array of size `nsites`, each element array of 61
+                alignment[child] = scipy.array(root_seq)  # array of size `nsites`, each element array of 61
             else:  # internal branch, need to evolve along the branch
-                _evolve_branch(parent, child)
+                alignment = _evolve_branch(parent, child, alignment)
 
             # Did we just simulate to a terminal node?
             # If not, call the `_traverse_tree` function again
             if not child.is_terminal():
                 for gchild in child.clades:
-                    _traverse_tree(child, gchild)
-            return
+                    alignment = _traverse_tree(child, gchild, alignment)
+            return alignment
 
         # beginning of `simulate` function
-        _traverse_tree(None, self.root)  # simulate the sequences
+        alignment = {}
+        alignment = _traverse_tree(None, self.root, alignment)  # simulate the sequences
 
         # reformat the simulated alignment
         # turn the sequenc arrays into codon sequnces
         # format alignment as a list of tuples
-        for key in self.alignment:
-            seq = self.alignment[key]
+        simulated_alignment = []
+        for key in alignment:
+            seq = alignment[key]
             final = []
             for site in seq:
                 codon = scipy.where(site==1)[0]
@@ -185,9 +188,10 @@ class simulator(object):
                 nt = INDEX_TO_CODON[codon[0]]
                 final.append(nt)
             final = "".join(final)
-            self.simulated_alignment.append((key.name, final))
+            simulated_alignment.append((key.name, final))
+        return simulated_alignment
 
-    def output_alignment(self, fname):
+    def output_alignment(self, simulated_alignment, fname):
         """Outputs simulated alignment as fasta file.
 
         Args:
@@ -195,7 +199,7 @@ class simulator(object):
                 Name of outputput fasta file.
         """
         with open(fname, "w") as f:
-            for seq in self.simulated_alignment:
+            for seq in simulated_alignment:
                 if seq[0] in self.terminalnode:
                     f.write(">{0}\n{1}\n".format(seq[0],seq[1]))
 
