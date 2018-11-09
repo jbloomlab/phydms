@@ -84,9 +84,6 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         """Simulate evolution with the `Simulator` class.
         Ensures scaled branches match number of subs.
         """
-        # set random seeds
-        scipy.random.seed(1)
-        random.seed(1)
         simulator = phydmslib.simulate.Simulator(self.tree, self.model)
         alignment = simulator.simulate(1)
         self.check_alignment(alignment)
@@ -95,9 +92,6 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         """Simulate evolution with `pyvolve` class.
         Ensures scaled branches match number of subs.
         """
-        # set random seeds
-        scipy.random.seed(1)
-        random.seed(1)
 
         # simulate the alignment using `pyvlove`
         alignment = phydmslib.simulate.simulateAlignment(self.model,
@@ -114,6 +108,7 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
             os.remove(alignment[0])
 
     def check_alignment(self, a):
+        scipy.random.seed(1)
         # check and see if the simulated alignment has the expected number of
         # subs exists
         nsubs = 0  # subs in simulated seqs (estimate from Hamming distance)
