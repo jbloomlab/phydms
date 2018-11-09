@@ -39,10 +39,6 @@ class Simulator(object):
             Number of codon sites.
         `root` (instance of `Bio.Phylo.BaseTree.Tree.clade` derived class)
             The root of `tree`
-        `internalnode` (list)
-            Names of the internal nodes in `tree`.
-        `terminalnode` (list)
-            Names of the terminal nodes in `tree`.
 
     """
 
@@ -76,8 +72,8 @@ class Simulator(object):
         assert isinstance(tree, Bio.Phylo.BaseTree.Tree), "invalid tree"
         self._tree = copy.deepcopy(tree)
         self.root = False
-        self.internalnode = []
-        self.terminalnode = []
+        self._internalnode = []
+        self._terminalnode = []
         # For internal storage, branch lengths should be in model units
         # rather than codon substitutions per site. Here we adjust them from
         # For internal storage, branch lengths are in model units rather
@@ -90,13 +86,13 @@ class Simulator(object):
             if node != self._tree.root:
                 node.branch_length /= branchScale  # adjust units
                 if len(node.clades) == 0:  # terminal node
-                    self.terminalnode.append(node.name)
+                    self._terminalnode.append(node.name)
                 else:
-                    self.internalnode.append(node.name)
+                    self._internalnode.append(node.name)
             else:
                 assert not self.root, "Tree has > 1 root. Please re-root tree"
                 self.root = node
-                self.internalnode.append(node.name)
+                self._internalnode.append(node.name)
 
     def simulate(self, randomSeed=False):
         """Simulate an alignment.
@@ -161,7 +157,7 @@ class Simulator(object):
             scipy.random.seed(randomSeed)
 
         # set up alignment and begin tree traversal
-        nodes = self.internalnode + self.terminalnode
+        nodes = self._internalnode + self._terminalnode
         alignment = {node: [] for node in nodes}
         alignment = _traverse_tree(None, self.root, alignment)  # simulate the sequences
 
@@ -169,17 +165,16 @@ class Simulator(object):
         # turn the sequence arrays into codon sequnces
         # format alignment as a list of tuples
         simulated_alignment = []
-        for key in alignment:
-            if key in self.terminalnode:  # only output terminal nodes
-                seq = alignment[key]
-                final = []
-                for site in seq:
-                    codon = scipy.where(site == 1)[0]
-                    assert len(codon) == 1, "More than one codon at a site!"
-                    nt = INDEX_TO_CODON[codon[0]]
-                    final.append(nt)
-                final = "".join(final)
-                simulated_alignment.append((key, final))
+        for node_name in self._terminalnode:
+            seq = alignment[node_name]
+            final = []
+            for site in seq:
+                codon = scipy.where(site == 1)[0]
+                assert len(codon) == 1, "More than one codon at a site!"
+                nt = INDEX_TO_CODON[codon[0]]
+                final.append(nt)
+            final = "".join(final)
+            simulated_alignment.append((node_name, final))
         return simulated_alignment
 
 
@@ -305,7 +300,7 @@ def simulateAlignment(model, treeFile, alignmentPrefix,
      `'{alignmentPrefix}_simulatedalignment.fasta'`. Otherwise, there will be
      an alignment named `'{alignmentPrefix}_{rep}_simulatedalignment.fasta'`
      for `rep` in `range(nSim)`.
-     
+
     """
     if randomSeed is False:
         pass
