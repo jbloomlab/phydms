@@ -63,8 +63,8 @@ class Simulator(object):
 
         """
         if isinstance(model, phydmslib.models.ExpCM_empirical_phi) or isinstance(model, phydmslib.models.YNGKP_M0) or isinstance(model, phydmslib.models.ExpCM):
-            self.model = copy.deepcopy(model)
-            self.nsites = self.model.nsites
+            self._model = copy.deepcopy(model)
+            self.nsites = self._model.nsites
         else:
             raise ValueError("Model type {0} is not a valid model for simulation".format(model))
 
@@ -79,7 +79,7 @@ class Simulator(object):
         # For internal storage, branch lengths are in model units rather
         # codon substitutions per site to model units.
         if branchScale is None:
-            branchScale = self.model.branchScale
+            branchScale = self._model.branchScale
         else:
             assert isinstance(branchScale, float) and branchScale > 0
         for node in self._tree.find_clades():
@@ -118,11 +118,11 @@ class Simulator(object):
             branch_length = parent.distance(child)
 
             if branch_length not in self._cached_exp_M:
-                self._cached_exp_M[branch_length] = self.model.M(branch_length)
+                self._cached_exp_M[branch_length] = self._model.M(branch_length)
             exp_M = self._cached_exp_M[branch_length]
 
             new_seq = []
-            for r in range(self.model.nsites):
+            for r in range(self.nsites):
                 # parent's sequence array times the transition matrix
                 site_distribution = alignment[parent.name][r].dot(exp_M[r])
 
@@ -135,7 +135,7 @@ class Simulator(object):
                 site_seq[codon] = 1
                 new_seq.append(site_seq)
 
-            alignment[child.name] = scipy.array(new_seq)  # array of size `nsites`, each element array of 61
+            alignment[child.name] = new_seq  # array of size `nsites`, each element array of 61
             return alignment
 
         def _traverse_tree(parent, child, alignment):
@@ -145,10 +145,10 @@ class Simulator(object):
             """
             if parent is None:  # at the root, need to generate a sequence
                 root_seq = []
-                for r in range(self.model.nsites):
+                for r in range(self.nsites):
 
-                    # draw codon from stationary state   
-                    ss = self.model.stationarystate[r]
+                    # draw codon from stationary state
+                    ss = self._model.stationarystate[r]
                     cumsum = scipy.cumsum(ss)
                     codon = scipy.argmin(cumsum / cumsum[-1] < scipy.random.rand())
 
