@@ -94,6 +94,8 @@ class Simulator(object):
                 self.root = node
                 self._internalnode.append(node.name)
 
+        self._cached_exp_M = {}
+
     def simulate(self, randomSeed=False):
         """Simulate an alignment.
 
@@ -114,16 +116,25 @@ class Simulator(object):
         def _evolve_branch(parent, child, alignment):
             """Generate new sequence given a parent and a child node."""
             branch_length = parent.distance(child)
-            exp_M = self.model.M(branch_length)
+
+            if branch_length not in self._cached_exp_M:
+                self._cached_exp_M[branch_length] = self.model.M(branch_length)
+            exp_M = self._cached_exp_M[branch_length]
+
             new_seq = []
             for r in range(self.model.nsites):
-                site_distribution = alignment[parent.name][r].dot(exp_M[r])  # parent's sequence array times the transition matrix
-                codon = scipy.random.choice(N_CODON, 1, p=site_distribution)[0]  # choose from the new codon distribution for the site
+                # parent's sequence array times the transition matrix
+                site_distribution = alignment[parent.name][r].dot(exp_M[r])
+
+                # choose from the new codon distribution for the site
+                cumsum = scipy.cumsum(site_distribution)
+                codon = scipy.argmin(cumsum < scipy.random.rand())
+
                 # create new sequence array. 1 indicates codon sequence
                 site_seq = scipy.zeros(N_CODON)
                 site_seq[codon] = 1
-                assert len(scipy.where(site_seq == 1)[0]) == 1
                 new_seq.append(site_seq)
+
             alignment[child.name] = scipy.array(new_seq)  # array of size `nsites`, each element array of 61
             return alignment
 
@@ -135,8 +146,12 @@ class Simulator(object):
             if parent is None:  # at the root, need to generate a sequence
                 root_seq = []
                 for r in range(self.model.nsites):
+
+                    # draw codon from stationary state   
                     ss = self.model.stationarystate[r]
-                    codon = scipy.random.choice(N_CODON, 1, p=ss)[0]  # pull a codon from the stationary state
+                    cumsum = scipy.cumsum(ss)
+                    codon = scipy.argmin(cumsum / cumsum[-1] < scipy.random.rand())
+
                     # create sequence array. 1 indicates codon sequence
                     site_seq = scipy.zeros(N_CODON)
                     site_seq[codon] = 1
