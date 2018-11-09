@@ -31,17 +31,13 @@ class test_simulateAlignmentRandomSeed_ExpCM(unittest.TestCase):
     # http://stackoverflow.com/questions/17260469/instantiate-python-unittest-testcase-with-arguments
     MODEL = phydmslib.models.ExpCM_empirical_phi
 
-    def test_simulateAlignmentRandomSeed(self):
-        """Simulate evolution, ensure scaled branches match number of subs."""
-
-        scipy.random.seed(1)
-        random.seed(1)
-
+    def setUp(self):
+        """Set up parameters for test."""
         # define model
-        nsites = 200
+        self.nsites = 100
         prefs = []
         minpref = 0.01
-        for r in range(nsites):
+        for r in range(self.nsites):
             rprefs = scipy.random.dirichlet([1] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
@@ -52,28 +48,36 @@ class test_simulateAlignmentRandomSeed_ExpCM(unittest.TestCase):
         mu = 0.3
         if self.MODEL == phydmslib.models.ExpCM:
             phi = scipy.random.dirichlet([7] * N_NT)
-            model = phydmslib.models.ExpCM(prefs, kappa=kappa, omega=omega,
-                    beta=beta, mu=mu, phi=phi, freeparams=['mu'])
+            self.model = phydmslib.models.ExpCM(prefs, kappa=kappa, omega=omega,
+                                                beta=beta, mu=mu, phi=phi,
+                                                freeparams=['mu'])
         elif self.MODEL == phydmslib.models.ExpCM_empirical_phi:
             g = scipy.random.dirichlet([7] * N_NT)
-            model = phydmslib.models.ExpCM_empirical_phi(prefs, g,
-                    kappa=kappa, omega=omega, beta=beta, mu=mu,
-                    freeparams=['mu'])
+            self.model = phydmslib.models.ExpCM_empirical_phi(prefs, g,
+                                                              kappa=kappa,
+                                                              omega=omega,
+                                                              beta=beta,
+                                                              mu=mu,
+                                                              freeparams=['mu'])
         elif self.MODEL == phydmslib.models.YNGKP_M0:
             e_pw = scipy.asarray([scipy.random.dirichlet([7] * N_NT) for i
-                    in range(3)])
-            model = phydmslib.models.YNGKP_M0(e_pw, nsites)
+                                  in range(3)])
+            self.model = phydmslib.models.YNGKP_M0(e_pw, self.nsites)
         else:
             raise ValueError("Invalid MODEL: {0}".format(type(self.MODEL)))
 
         # make a test tree
         # tree is two sequences separated by a single branch
-        t = 0.04 / model.branchScale
-        newicktree = '(tip1:{0},tip2:{0});'.format(t / 2.0)
-        temptree = '_temp.tree'
-        with open(temptree, 'w') as f:
+        # the units are in sub/site
+        self.t = 0.04
+        newicktree = '(tip1:{0},tip2:{0});'.format(self.t / 2.0)
+        self.tree_fname = '_temp.tree'
+        with open(self.tree_fname, 'w') as f:
             f.write(newicktree)
+        self.tree = Bio.Phylo.read(self.tree_fname, 'newick')
 
+    def test_pyvovle_randomSeed(self):
+        """Simulate evolution, ensure scaled branches match number of subs."""
         counter = 0
         seed = 1
         alignments = [{}, {}, {}]
@@ -81,7 +85,7 @@ class test_simulateAlignmentRandomSeed_ExpCM(unittest.TestCase):
         # make two alignments with the same seed number
         for counter in range(2):
             alignmentPrefix = "test_counter{0}_seed{1}".format(counter,seed)
-            phydmslib.simulate.simulateAlignment(model, temptree, alignmentPrefix, seed)
+            phydmslib.simulate.simulateAlignment(self.model, self.tree_fname, alignmentPrefix, seed)
             for s in Bio.SeqIO.parse("test_counter{0}_seed{1}_simulatedalignment.fasta".format(counter,seed), "fasta"):
                 alignments[counter][s.id] = str(s.seq)
         # check they are the same
@@ -93,19 +97,35 @@ class test_simulateAlignmentRandomSeed_ExpCM(unittest.TestCase):
         seed += 1
         counter += 1
         alignmentPrefix = "test_counter{0}_seed{1}".format(counter,seed)
-        phydmslib.simulate.simulateAlignment(model, temptree, alignmentPrefix, seed)
+        phydmslib.simulate.simulateAlignment(self.model, self.tree_fname, alignmentPrefix, seed)
         for s in Bio.SeqIO.parse("test_counter{0}_seed{1}_simulatedalignment.fasta".format(counter,seed), "fasta"):
             alignments[counter][s.id] = str(s.seq)
         # check they are different
         for key in alignments[counter].keys():
             self.assertFalse(alignments[counter][key] == alignments[counter - 1][key])
 
-
         # general clean-up
-        os.remove(temptree)
+        os.remove(self.tree_fname)
         for fasta in glob.glob("test*simulatedalignment.fasta"):
             if os.path.isfile(fasta):
                 os.remove(fasta)
+
+    def test_pyvovle_randomSeed(self):
+        """Simulate evolution with the `Simulator` class.
+        Ensures scaled branches match number of subs.
+        """
+        seed = 1
+        alignments = []
+        simulator = phydmslib.simulate.Simulator(self.tree, self.model)
+        for i in range(2):
+            alignments.append(dict(simulator.simulate(seed)))
+        alignments.append(dict(simulator.simulate(seed+1)))
+
+        # check that the first two alignments are the same and the last
+        # is different.
+        for key in alignments[0].keys():
+            self.assertTrue(alignments[0][key] == alignments[1][key])
+            self.assertFalse(alignments[0][key] == alignments[2][key])
 
 
 class test_simulateAlignmentRandomSeed_YNGKP_M0(test_simulateAlignmentRandomSeed_ExpCM):
