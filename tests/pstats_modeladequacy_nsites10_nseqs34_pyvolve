@@ -1,0 +1,220 @@
+Fri Nov  9 09:38:56 2018    cprofile_modeladequacy_nsites10_nseqs34_pyvolve
+
+         121797738 function calls (116278037 primitive calls) in 379.128 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1318 to 100 due to restriction <100>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     16/1    0.000    0.000  379.128  379.128 {built-in method builtins.exec}
+        1    0.012    0.012  379.128  379.128 <string>:1(<module>)
+        1    0.049    0.049  379.116  379.116 profile_modeladequacy.py:20(profile_pyvolve)
+        1    0.056    0.056  355.490  355.490 /Users/sarah/Desktop/phydms/phydmslib/simulate.py:268(simulateAlignment)
+     1000    0.078    0.000  354.568    0.355 /Users/sarah/.local/lib/python3.6/site-packages/pyvolve/evolver.py:122(__call__)
+66000/1000    0.804    0.000  342.106    0.342 /Users/sarah/.local/lib/python3.6/site-packages/pyvolve/evolver.py:456(_sim_subtree)
+    65000    8.794    0.000  340.588    0.005 /Users/sarah/.local/lib/python3.6/site-packages/pyvolve/evolver.py:503(_evolve_branch)
+   170000    3.759    0.000  283.148    0.002 /Users/sarah/.local/lib/python3.6/site-packages/pyvolve/evolver.py:332(_exponentiate_matrix)
+   170000    1.186    0.000  250.108    0.001 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/linalg/matfuncs.py:211(expm)
+   170000    1.310    0.000  248.922    0.001 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:557(expm)
+   170000    4.615    0.000  247.612    0.001 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:605(_expm)
+   170000    3.532    0.000   95.947    0.001 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:676(_solve_P_Q)
+   170000   52.117    0.000   92.097    0.001 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/linalg/basic.py:43(solve)
+   170000    7.029    0.000   44.452    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:812(_ell)
+5078000/218000   14.238    0.000   39.107    0.000 /Users/sarah/miniconda3/lib/python3.6/copy.py:132(deepcopy)
+  3015000   37.963    0.000   37.963    0.000 {method 'dot' of 'numpy.ndarray' objects}
+   773000    2.448    0.000   34.872    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:141(_smart_matrix_product)
+   603000    2.283    0.000   32.716    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:111(_onenorm)
+   603000   11.798    0.000   29.463    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/linalg/linalg.py:2103(norm)
+   170000    0.288    0.000   29.299    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:451(d4_loose)
+  2856393   29.152    0.000   29.152    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+   340000    1.081    0.000   29.110    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:427(d4_tight)
+   170000    2.982    0.000   26.451    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:78(_onenorm_matrix_power_nnm)
+528000/48000    1.468    0.000   25.522    0.001 /Users/sarah/miniconda3/lib/python3.6/copy.py:210(_deepcopy_list)
+   211081    1.053    0.000   24.115    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:2189(allclose)
+   650000    4.661    0.000   24.085    0.000 /Users/sarah/miniconda3/lib/python3.6/copy.py:268(_reconstruct)
+   510020    0.958    0.000   23.921    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/linalg/lapack.py:496(get_lapack_funcs)
+   510020    7.130    0.000   22.964    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/linalg/blas.py:279(_get_funcs)
+   211081    2.655    0.000   20.699    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:2260(isclose)
+   170000    1.080    0.000   17.991    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:130(_is_upper_triangular)
+   340000    0.417    0.000   17.820    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:463(d6_loose)
+   680000    0.848    0.000   17.452    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:399(A4)
+   433000    0.813    0.000   17.434    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:433(d6_tight)
+   820211   16.406    0.000   16.406    0.000 {built-in method builtins.max}
+   170000    1.219    0.000   13.514    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/lib/twodim_base.py:376(tril)
+    93000    8.937    0.000   13.459    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:515(pade7)
+   340020    3.557    0.000   12.796    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/_lib/_util.py:192(_asarray_validated)
+   510020    2.908    0.000   12.541    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/linalg/blas.py:218(find_best_blas_type)
+   211081    4.688    0.000   11.366    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:2319(within_tol)
+   650000    2.905    0.000    9.811    0.000 /Users/sarah/miniconda3/lib/python3.6/copy.py:236(_deepcopy_dict)
+   943000    0.751    0.000    9.745    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:392(A2)
+     1001    1.264    0.001    9.646    0.010 /Users/sarah/Desktop/phydms/phydmslib/file_io.py:46(ReadCodonAlignment)
+    77000    5.634    0.000    9.262    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:507(pade5)
+    93000    0.120    0.000    9.251    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:475(d8_loose)
+    93000    0.349    0.000    9.131    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:439(d8_tight)
+   170000    1.172    0.000    8.799    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/lib/twodim_base.py:327(tri)
+   340022    1.536    0.000    8.793    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numerictypes.py:962(find_common_type)
+  1014329    1.235    0.000    8.790    0.000 {method 'all' of 'numpy.ndarray' objects}
+     1002    8.626    0.009    8.626    0.009 {method 'seed' of 'mtrand.RandomState' objects}
+   340020    4.005    0.000    8.466    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/lib/function_base.py:1170(asarray_chkfinite)
+   371950    2.196    0.000    8.244    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/fromnumeric.py:1778(sum)
+   449000    0.691    0.000    8.021    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:406(A6)
+   180000    4.368    0.000    7.823    0.000 /Users/sarah/.local/lib/python3.6/site-packages/pyvolve/evolver.py:365(_generate_prob_from_unif)
+  1014329    0.655    0.000    7.556    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/_methods.py:40(_all)
+   674294    1.640    0.000    7.370    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/fromnumeric.py:2021(all)
+     1001    0.176    0.000    6.771    0.007 /Users/sarah/Desktop/phydms/phydmslib/modeladequacy.py:43(calc_aa_frequencies)
+   680044    5.193    0.000    6.724    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numerictypes.py:939(_can_coerce_all)
+   603000    1.123    0.000    6.187    0.000 {method 'max' of 'numpy.ndarray' objects}
+   340340    2.480    0.000    6.099    0.000 /Users/sarah/.local/lib/python3.6/site-packages/Bio/Seq.py:961(translate)
+   426924    0.388    0.000    5.976    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/_methods.py:31(_sum)
+       20    0.039    0.002    5.363    0.268 profile_modeladequacy.py:68(<listcomp>)
+    20020    0.292    0.000    5.329    0.000 /Users/sarah/Desktop/phydms/phydmslib/modeladequacy.py:106(prefDistance)
+   603000    0.571    0.000    5.064    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/_methods.py:25(_amax)
+   170000    0.920    0.000    4.678    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:358(__init__)
+   468256    1.864    0.000    4.557    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:2460(seterr)
+   340013    0.889    0.000    4.369    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:146(ones)
+    93000    0.279    0.000    4.204    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:413(A8)
+  3305598    4.053    0.000    4.053    0.000 {built-in method builtins.getattr}
+7948878/7948876    3.430    0.000    3.775    0.000 {built-in method builtins.isinstance}
+   170000    0.817    0.000    3.758    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:120(_ident_like)
+ 12200524    3.606    0.000    3.606    0.000 {method 'get' of 'dict' objects}
+   209130    0.369    0.000    3.425    0.000 {method 'any' of 'numpy.ndarray' objects}
+   170000    3.352    0.000    3.352    0.000 {method 'outer' of 'numpy.ufunc' objects}
+   234128    0.538    0.000    3.335    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:2857(__enter__)
+  1828000    2.433    0.000    3.178    0.000 /Users/sarah/miniconda3/lib/python3.6/copy.py:252(_keep_alive)
+     5024    0.038    0.000    3.135    0.001 /Users/sarah/miniconda3/lib/python3.6/site-packages/pandas/core/frame.py:316(__init__)
+2946172/2945161    3.119    0.000    3.132    0.000 {built-in method numpy.core.multiarray.array}
+   209130    0.181    0.000    3.056    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/_methods.py:37(_any)
+  1300000    0.853    0.000    2.998    0.000 /Users/sarah/miniconda3/lib/python3.6/copy.py:273(<genexpr>)
+     1003    0.037    0.000    2.909    0.003 /Users/sarah/miniconda3/lib/python3.6/site-packages/pandas/core/frame.py:408(_init_dict)
+   170000    1.681    0.000    2.689    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/lib/twodim_base.py:140(eye)
+     1004    0.008    0.000    2.628    0.003 /Users/sarah/miniconda3/lib/python3.6/site-packages/pandas/core/frame.py:6156(_arrays_to_mgr)
+   170200    2.550    0.000    2.550    0.000 {built-in method numpy.core.multiarray.where}
+  1637629    1.036    0.000    2.497    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:495(asanyarray)
+   340340    1.893    0.000    2.473    0.000 /Users/sarah/.local/lib/python3.6/site-packages/Bio/Seq.py:2218(_translate_str)
+   234128    0.540    0.000    2.300    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:2862(__exit__)
+     2231    0.028    0.000    2.178    0.001 /Users/sarah/miniconda3/lib/python3.6/site-packages/pandas/core/frame.py:2115(__getitem__)
+  1453020    1.163    0.000    2.131    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/base.py:1202(isspmatrix)
+     2012    0.017    0.000    2.111    0.001 /Users/sarah/miniconda3/lib/python3.6/site-packages/pandas/core/frame.py:2158(_getitem_array)
+    10010    0.069    0.000    2.098    0.000 /Users/sarah/Desktop/phydms/phydmslib/modeladequacy.py:152(divJensenShannon)
+   340022    2.086    0.000    2.086    0.000 {built-in method numpy.core.multiarray.copyto}
+    20020    0.208    0.000    2.011    0.000 /Users/sarah/Desktop/phydms/phydmslib/modeladequacy.py:176(_kldiv)
+8901699/8791534    1.841    0.000    2.003    0.000 {built-in method builtins.len}
+   340000    1.024    0.000    1.971    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/lib/twodim_base.py:25(_min_int)
+   778103    1.963    0.000    1.963    0.000 {built-in method builtins.abs}
+   650000    1.881    0.000    1.881    0.000 {method '__reduce_ex__' of 'object' objects}
+   468256    1.716    0.000    1.820    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:2560(geterr)
+  8952005    1.815    0.000    1.815    0.000 {built-in method builtins.id}
+   346079    1.759    0.000    1.759    0.000 {built-in method numpy.core.multiarray.arange}
+  1011223    0.766    0.000    1.700    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:424(asarray)
+
+
+Fri Nov  9 09:38:56 2018    cprofile_modeladequacy_nsites10_nseqs34_pyvolve
+
+         121797738 function calls (116278037 primitive calls) in 379.128 seconds
+
+   Ordered by: internal time
+   List reduced from 1318 to 100 due to restriction <100>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+   170000   52.117    0.000   92.097    0.001 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/linalg/basic.py:43(solve)
+  3015000   37.963    0.000   37.963    0.000 {method 'dot' of 'numpy.ndarray' objects}
+  2856393   29.152    0.000   29.152    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+   820211   16.406    0.000   16.406    0.000 {built-in method builtins.max}
+5078000/218000   14.238    0.000   39.107    0.000 /Users/sarah/miniconda3/lib/python3.6/copy.py:132(deepcopy)
+   603000   11.798    0.000   29.463    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/linalg/linalg.py:2103(norm)
+    93000    8.937    0.000   13.459    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:515(pade7)
+    65000    8.794    0.000  340.588    0.005 /Users/sarah/.local/lib/python3.6/site-packages/pyvolve/evolver.py:503(_evolve_branch)
+     1002    8.626    0.009    8.626    0.009 {method 'seed' of 'mtrand.RandomState' objects}
+   510020    7.130    0.000   22.964    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/linalg/blas.py:279(_get_funcs)
+   170000    7.029    0.000   44.452    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:812(_ell)
+    77000    5.634    0.000    9.262    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:507(pade5)
+   680044    5.193    0.000    6.724    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numerictypes.py:939(_can_coerce_all)
+   211081    4.688    0.000   11.366    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:2319(within_tol)
+   650000    4.661    0.000   24.085    0.000 /Users/sarah/miniconda3/lib/python3.6/copy.py:268(_reconstruct)
+   170000    4.615    0.000  247.612    0.001 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:605(_expm)
+   180000    4.368    0.000    7.823    0.000 /Users/sarah/.local/lib/python3.6/site-packages/pyvolve/evolver.py:365(_generate_prob_from_unif)
+  3305598    4.053    0.000    4.053    0.000 {built-in method builtins.getattr}
+   340020    4.005    0.000    8.466    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/lib/function_base.py:1170(asarray_chkfinite)
+   170000    3.759    0.000  283.148    0.002 /Users/sarah/.local/lib/python3.6/site-packages/pyvolve/evolver.py:332(_exponentiate_matrix)
+ 12200524    3.606    0.000    3.606    0.000 {method 'get' of 'dict' objects}
+   340020    3.557    0.000   12.796    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/_lib/_util.py:192(_asarray_validated)
+   170000    3.532    0.000   95.947    0.001 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:676(_solve_P_Q)
+7948878/7948876    3.430    0.000    3.775    0.000 {built-in method builtins.isinstance}
+   170000    3.352    0.000    3.352    0.000 {method 'outer' of 'numpy.ufunc' objects}
+2946172/2945161    3.119    0.000    3.132    0.000 {built-in method numpy.core.multiarray.array}
+   170000    2.982    0.000   26.451    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:78(_onenorm_matrix_power_nnm)
+   510020    2.908    0.000   12.541    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/linalg/blas.py:218(find_best_blas_type)
+   650000    2.905    0.000    9.811    0.000 /Users/sarah/miniconda3/lib/python3.6/copy.py:236(_deepcopy_dict)
+   211081    2.655    0.000   20.699    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:2260(isclose)
+   170200    2.550    0.000    2.550    0.000 {built-in method numpy.core.multiarray.where}
+   340340    2.480    0.000    6.099    0.000 /Users/sarah/.local/lib/python3.6/site-packages/Bio/Seq.py:961(translate)
+   773000    2.448    0.000   34.872    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:141(_smart_matrix_product)
+  1828000    2.433    0.000    3.178    0.000 /Users/sarah/miniconda3/lib/python3.6/copy.py:252(_keep_alive)
+   603000    2.283    0.000   32.716    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:111(_onenorm)
+   371950    2.196    0.000    8.244    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/fromnumeric.py:1778(sum)
+   340022    2.086    0.000    2.086    0.000 {built-in method numpy.core.multiarray.copyto}
+   778103    1.963    0.000    1.963    0.000 {built-in method builtins.abs}
+   340340    1.893    0.000    2.473    0.000 /Users/sarah/.local/lib/python3.6/site-packages/Bio/Seq.py:2218(_translate_str)
+   650000    1.881    0.000    1.881    0.000 {method '__reduce_ex__' of 'object' objects}
+   468256    1.864    0.000    4.557    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:2460(seterr)
+8901699/8791534    1.841    0.000    2.003    0.000 {built-in method builtins.len}
+  8952005    1.815    0.000    1.815    0.000 {built-in method builtins.id}
+   346079    1.759    0.000    1.759    0.000 {built-in method numpy.core.multiarray.arange}
+   468256    1.716    0.000    1.820    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:2560(geterr)
+   170000    1.681    0.000    2.689    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/lib/twodim_base.py:140(eye)
+   674294    1.640    0.000    7.370    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/fromnumeric.py:2021(all)
+   341068    1.630    0.000    1.630    0.000 {built-in method numpy.core.multiarray.zeros}
+   340022    1.536    0.000    8.793    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numerictypes.py:962(find_common_type)
+528000/48000    1.468    0.000   25.522    0.001 /Users/sarah/miniconda3/lib/python3.6/copy.py:210(_deepcopy_list)
+   357129    1.445    0.000    1.445    0.000 {built-in method numpy.core.multiarray.empty}
+   170000    1.310    0.000  248.922    0.001 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:557(expm)
+  1228775    1.296    0.000    1.300    0.000 {built-in method builtins.hasattr}
+     1001    1.264    0.001    9.646    0.010 /Users/sarah/Desktop/phydms/phydmslib/file_io.py:46(ReadCodonAlignment)
+  1014329    1.235    0.000    8.790    0.000 {method 'all' of 'numpy.ndarray' objects}
+   170000    1.219    0.000   13.514    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/lib/twodim_base.py:376(tril)
+   170000    1.186    0.000  250.108    0.001 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/linalg/matfuncs.py:211(expm)
+   170000    1.172    0.000    8.799    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/lib/twodim_base.py:327(tri)
+  1453020    1.163    0.000    2.131    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/base.py:1202(isspmatrix)
+   603000    1.123    0.000    6.187    0.000 {method 'max' of 'numpy.ndarray' objects}
+  5321799    1.115    0.000    1.115    0.000 {method 'append' of 'list' objects}
+   340000    1.081    0.000   29.110    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:427(d4_tight)
+   170000    1.080    0.000   17.991    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:130(_is_upper_triangular)
+   211081    1.053    0.000   24.115    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:2189(allclose)
+  2380000    1.047    0.000    1.047    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numerictypes.py:948(<listcomp>)
+  1637629    1.036    0.000    2.497    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:495(asanyarray)
+   340000    1.024    0.000    1.971    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/lib/twodim_base.py:25(_min_int)
+   510000    0.966    0.000    0.966    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/linalg/basic.py:25(_solve_check)
+   510020    0.958    0.000   23.921    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/linalg/lapack.py:496(get_lapack_funcs)
+   170000    0.920    0.000    4.678    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:358(__init__)
+   340013    0.889    0.000    4.369    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:146(ones)
+   171018    0.889    0.000    1.309    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/shape_base.py:63(atleast_2d)
+     4038    0.867    0.000    0.911    0.000 {built-in method io.open}
+  1300000    0.853    0.000    2.998    0.000 /Users/sarah/miniconda3/lib/python3.6/copy.py:273(<genexpr>)
+   680000    0.848    0.000   17.452    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:399(A4)
+   170000    0.817    0.000    3.758    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:120(_ident_like)
+   433000    0.813    0.000   17.434    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:433(d6_tight)
+66000/1000    0.804    0.000  342.106    0.342 /Users/sarah/.local/lib/python3.6/site-packages/pyvolve/evolver.py:456(_sim_subtree)
+    20020    0.800    0.000    0.800    0.000 /Users/sarah/Desktop/phydms/phydmslib/modeladequacy.py:178(<listcomp>)
+  1011223    0.766    0.000    1.700    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:424(asarray)
+   943000    0.751    0.000    9.745    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:392(A2)
+   650000    0.715    0.000    1.007    0.000 /Users/sarah/miniconda3/lib/python3.6/copyreg.py:87(__newobj__)
+   449000    0.691    0.000    8.021    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/scipy/sparse/linalg/matfuncs.py:406(A6)
+  1206000    0.655    0.000    0.655    0.000 {built-in method numpy.core.multiarray.normalize_axis_index}
+  1014329    0.655    0.000    7.556    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/_methods.py:40(_all)
+1515113/1515066    0.632    0.000    0.632    0.000 {built-in method builtins.issubclass}
+   468256    0.619    0.000    0.619    0.000 {built-in method numpy.core.umath.seterrobj}
+  3250000    0.614    0.000    0.614    0.000 /Users/sarah/miniconda3/lib/python3.6/copy.py:190(_deepcopy_atomic)
+   170000    0.611    0.000    0.661    0.000 /Users/sarah/.local/lib/python3.6/site-packages/pyvolve/evolver.py:82(compare_sequences)
+   211081    0.606    0.000    0.606    0.000 {built-in method numpy.core.multiarray.result_type}
+   234128    0.585    0.000    0.715    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:2853(__init__)
+   174021    0.576    0.000    0.576    0.000 {method 'astype' of 'numpy.ndarray' objects}
+   603000    0.571    0.000    5.064    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/_methods.py:25(_amax)
+   170000    0.551    0.000    0.880    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/shape_base.py:11(atleast_1d)
+    69071    0.548    0.000    0.562    0.000 {method 'readline' of '_io.TextIOWrapper' objects}
+   234128    0.540    0.000    2.300    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:2862(__exit__)
+   234128    0.538    0.000    3.335    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/numeric.py:2857(__enter__)
+   340010    0.523    0.000    0.523    0.000 /Users/sarah/miniconda3/lib/python3.6/site-packages/numpy/core/getlimits.py:532(max)
+   180000    0.503    0.000    0.636    0.000 /Users/sarah/miniconda3/lib/python3.6/random.py:367(uniform)
+   170000    0.500    0.000    0.500    0.000 {built-in method math.factorial}
+
+
