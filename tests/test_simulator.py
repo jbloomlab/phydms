@@ -78,9 +78,7 @@ class test_Simulator_ExpCM(unittest.TestCase):
         self.tree = Bio.Phylo.read(self.tree_fname, 'newick')
 
     def test_simulateAlignment_Simulator(self):
-        """Simulate evolution with the `Simulator` class.
-        Ensures scaled branches match number of subs.
-        """
+        """Compare simulation to known sequence."""
         # simulate an alignment with seeds 1 and 2
         simulator = phydmslib.simulate.Simulator(self.tree, self.model)
         seed1 = dict(simulator.simulate(1))
