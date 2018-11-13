@@ -94,7 +94,15 @@ class Simulator(object):
                 self.root = node
                 self._internalnode.append(node.name)
 
+        self._seq_array = []
+        for x in range(N_CODON):
+            site_seq = scipy.zeros(N_CODON)
+            site_seq[x] = 1
+            self._seq_array.append(site_seq)
+        self._seq_array = scipy.array(self._seq_array)
+
         self._cached_exp_M = {}
+        self._cached_cumsum = {}
 
     def simulate(self, randomSeed=False):
         """Simulate an alignment.
@@ -123,17 +131,15 @@ class Simulator(object):
 
             new_seq = []
             for r in range(self.nsites):
-                # parent's sequence array times the transition matrix
-                site_distribution = alignment[parent.name][r].dot(exp_M[r])
+                x = scipy.where(alignment[parent.name][r] == 1)[0][0]
+                query = (r, x, branch_length)
+                if query not in self._cached_cumsum:
+                    self._cached_cumsum[query] = scipy.cumsum(alignment[parent.name][r].dot(exp_M[r]))
+                cumsum = self._cached_cumsum[query]
 
                 # choose from the new codon distribution for the site
-                cumsum = scipy.cumsum(site_distribution)
                 codon = scipy.argmin(cumsum < scipy.random.rand())
-
-                # create new sequence array. 1 indicates codon sequence
-                site_seq = scipy.zeros(N_CODON)
-                site_seq[codon] = 1
-                new_seq.append(site_seq)
+                new_seq.append(self._seq_array[codon])
 
             alignment[child.name] = new_seq  # array of size `nsites`, each element array of 61
             return alignment
@@ -146,17 +152,12 @@ class Simulator(object):
             if parent is None:  # at the root, need to generate a sequence
                 root_seq = []
                 for r in range(self.nsites):
-
                     # draw codon from stationary state
                     ss = self._model.stationarystate[r]
                     cumsum = scipy.cumsum(ss)
                     codon = scipy.argmin(cumsum / cumsum[-1] < scipy.random.rand())
-
                     # create sequence array. 1 indicates codon sequence
-                    site_seq = scipy.zeros(N_CODON)
-                    site_seq[codon] = 1
-                    assert len(scipy.where(site_seq == 1)[0]) == 1
-                    root_seq.append(site_seq)
+                    root_seq.append(self._seq_array[codon])
                 alignment[child.name] = scipy.array(root_seq)  # array of size `nsites`, each element array of 61
             else:  # internal branch, need to evolve along the branch
                 alignment = _evolve_branch(parent, child, alignment)
