@@ -110,7 +110,7 @@ class test_simulateAlignmentRandomSeed_ExpCM(unittest.TestCase):
             if os.path.isfile(fasta):
                 os.remove(fasta)
 
-    def test_pyvovle_randomSeed(self):
+    def test_simulator_randomSeed(self):
         """Simulate evolution with the `Simulator` class.
         Ensures scaled branches match number of subs.
         """
@@ -126,6 +126,30 @@ class test_simulateAlignmentRandomSeed_ExpCM(unittest.TestCase):
         for key in alignments[0].keys():
             self.assertTrue(alignments[0][key] == alignments[1][key])
             self.assertFalse(alignments[0][key] == alignments[2][key])
+
+    def test_simulator_randomSeed_outside(self):
+        """Simulate evolution with the `Simulator` class.
+        Sets seed before calling `simulate`.
+        Ensures scaled branches match number of subs.
+        """
+        seed = 1
+        alignments = []
+        simulator = phydmslib.simulate.Simulator(self.tree, self.model)
+
+        scipy.random.seed(seed)
+        for i in range(2):
+            alignments.append(dict(simulator.simulate()))
+
+        scipy.random.seed(seed)
+        for i in range(2):
+            alignments.append(dict(simulator.simulate()))
+
+        # check that the first/third and second/fourth are the same
+        # check that the first and second are different
+        for key in alignments[0].keys():
+            self.assertTrue(alignments[0][key] == alignments[2][key])
+            self.assertTrue(alignments[1][key] == alignments[3][key])
+            self.assertFalse(alignments[0][key] == alignments[1][key])
 
 
 class test_simulateAlignmentRandomSeed_YNGKP_M0(test_simulateAlignmentRandomSeed_ExpCM):
