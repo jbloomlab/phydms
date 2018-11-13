@@ -32,52 +32,6 @@ def RunCmds(cmds):
     except:
         os.kill(pid, signal.SIGTERM)
 
-
-def calc_pvalue_one_site(model, tree_fname, random_seed, n_sim,
-                         site, natural, ss, metrics):
-    """For each site to go from simulation to pvalue."""
-    amino_acids = list(INDEX_TO_AA.values())
-    amino_acids.sort()
-
-    # simulate alignment
-    prefix = "temp_site_{0}".format(site)
-    sim_fname = phydmslib.simulate.simulateAlignment(model,  # expcm
-                                                     tree_fname,  # tree
-                                                     prefix,  # alignment name
-                                                     random_seed,  # seed
-                                                     n_sim)  # number of rep
-    # process the simulations
-    sims = []
-    for sim in sim_fname:
-        sims.append(phydmslib.file_io.ReadCodonAlignment(sim, checknewickvalid=True))
-        os.remove(sim)
-    sim_freqs = phydmslib.modeladequacy.process_simulations(sims)
-    sim_freqs = phydmslib.modeladequacy.calc_aa_frequencies(sim_freqs)
-    sim_freqs = sim_freqs[amino_acids].values
-
-    np.random.seed(site)  # reset seed because order is not guaranteed
-
-    # calc distances simualtion
-    final = []
-    for metric in metrics:
-        # calc simulation distances
-        sim = scipy.array([phydmslib.modeladequacy.prefDistance(sim, ss, metric)
-                           for sim in sim_freqs])
-        # calc distances natural
-        natural_distance = phydmslib.modeladequacy.prefDistance(natural, ss,
-                                                                metric)
-        # calc pvalues
-        greater = scipy.sum(scipy.greater(sim, natural_distance))
-        tie_breaker = scipy.sum(scipy.equal(sim, natural_distance))
-        if tie_breaker >= 1:
-            tie_breaker = np.random.randint(tie_breaker, size=1)[0]
-        pvalue = (greater + tie_breaker + 1) / (len(sim) + 1)
-        assert 0 <= pvalue <= 1.0, "pvalue is > 1.0 or < 0.0"
-        final.append((site, pvalue, metric))
-
-    return final
-
-
 def main():
     """Main body of script."""
 
@@ -202,19 +156,7 @@ def main():
             raise ValueError("The raxml command of {0} is not valid. Is raxml"
                              " installed at this path?".format(args['raxml']))
 
-    # get number of available CPUs and assign to each model
-    if args['ncpus'] == -1:
-        try:
-            args['ncpus'] = multiprocessing.cpu_count()
-        except:
-            raise RuntimeError(("Encountered a problem trying to dynamically"
-                                "determine the number of available CPUs. "
-                                "Please manually specify the number of desired "
-                                "CPUs with '--ncpus' and try again."))
-            logger.info('Will use all %d available CPUs.\n' % args['ncpus'])
-    assert args['ncpus'] >= 1, "Failed to specify valid number of CPUs"
-
-    # run phydms
+    # FIT MODEL
     modelparams = "{0}phydms_modelparams.txt".format(args["outprefix"])
     phydms_CMD = ["phydms", args["alignment"], args["tree"],
                   model, "{0}{1}".format(args["outprefix"], "phydms")]
@@ -225,29 +167,64 @@ def main():
         params = f.read()
     logger.info('phydms run complete. Optimized parameters ({0}) are\n{1}\n'.format(modelparams, params))
 
-    # simulate sequences and calculate pvalues (parallelization)
-    logger.info('Starting {0} simulations for {1} sites with random seed {2}'.format(args["number_simulations"], len(alignment), args["random_seed"]))
-    p = multiprocessing.Pool(args["ncpus"])  # should this be ncpus-1?
-    runs = []
-    pvalues = []
-    for site in range(len(prefs)):
-        if model.startswith("ExpCM"):
-            sim_model = phydmslib.modeladequacy.make_expcm(modelparams,
-                                                           [prefs[site]])
-        else:
-            raise ValueError("Haven't implemented for YNGKP_M0 yet")
-        # all the sites are the same, so take only the first index
-        ss = phydmslib.modeladequacy.calc_stationary_state_freqs(sim_model)[0]
-        runs.append((sim_model, args["tree"], args["random_seed"],
-                    args["number_simulations"], site, alignment_freqs[site],
-                    ss, args["metrics"]))
-    pvalues += p.starmap(calc_pvalue_one_site, runs)
-    logger.info('Simulations complete.')
+    # SIMULATIONS
+    logger.info('Starting simulations.')
+    logger.info('Performing {0} replicate simulations.'.format(args["number_simulations"]))
+    # build model
+    model = phydmslib.modeladequacy.make_expcm(modelparams, prefs)
+    # stationary state frequencies
+    ss_freqs = phydmslib.modeladequacy.calc_stationary_state_freqs(model)
 
+    # read in tree
+    tree = Bio.Phylo.read(args["tree"], 'newick')
+    for node in tree.get_terminals() + tree.get_nonterminals():
+        if (node.branch_length is None) and (node == tree.root):
+            node.branch_length = 1e-06
+
+    # simulations
+    simulated_sequences = []
+    simulator = phydmslib.simulate.Simulator(tree, model)
+    for i in range(args["number_simulations"]):
+        simulated_sequences.append(simulator.simulate())
+    # simulated sequences is a list of lists
+    # There is one sequence list for each simulation replicate
+    # each sequence list is a list of tuples, one tuple per sequence
+
+    # need to process simulations on a site by site basis
+    simulations = [[] for x in range(model.nsites)]
+    for sim in simulated_sequences: # for each simulation replicate
+        sim_freqs = phydmslib.modeladequacy.calc_aa_frequencies(sim) # each row is a site and each column is an amino acid
+        sim_freqs = sim_freqs[amino_acids].values # each row is a site and each column is an amino acid
+        for site in range(model.nsites): # for each site, put the amino acid frequency array into a new list
+            simulations[site].append(sim_freqs[site])
+
+    # process simulations
+    logger.info('Calculating p values.')
+    if args["random_seed"]:
+        np.random.seed(args["random_seed"])
+    final = []
+    for site in range(model.nsites):
+        sims = simulations[site]
+        ss = ss_freqs[site]
+        natural = alignment_freqs[site]
+        for metric in args["metrics"]:
+            # calc simulation distances
+            sim = scipy.array([phydmslib.modeladequacy.prefDistance(sim, ss, metric)
+                               for sim in sims])
+            # # calc distances natural
+            natural_distance = phydmslib.modeladequacy.prefDistance(natural, ss,
+                                                                    metric)
+            # calc pvalues
+            greater = scipy.sum(scipy.greater(sim, natural_distance))
+            tie_breaker = scipy.sum(scipy.equal(sim, natural_distance))
+            if tie_breaker >= 1:
+                tie_breaker = np.random.randint(tie_breaker, size=1)[0]
+            pvalue = (greater + tie_breaker + 1) / (len(sim) + 1)
+            assert 0 <= pvalue <= 1.0, "pvalue is > 1.0 or < 0.0"
+            final.append((site, pvalue, metric))
 
     # format pvalues and calculate qvalues
-    pvalues = list(itertools.chain.from_iterable(pvalues))  # flatten
-    df = pd.DataFrame(pvalues, columns=['site', 'pvalue', 'metric'])
+    df = pd.DataFrame(final, columns=['site', 'pvalue', 'metric'])
 
     final = []
     for name, group in df.groupby("metric"):
@@ -256,10 +233,8 @@ def main():
                                         method='fdr_bh')[1]
         final.append(group)
     pd.concat(final).to_csv(pvaluesfile, index=False)
-    logger.info('P- and Q-values written to {0}'.format(pvaluesfile))
-    logger.info('Successful completion of phydms_modeladequacy')
-
-
+    logger.info('P values in {0}.'.format(pvaluesfile))
+    logger.info('Successful completion of model adequacy test.')
 
 if __name__ == '__main__':
     main()  # run the script
