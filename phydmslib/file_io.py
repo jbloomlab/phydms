@@ -391,6 +391,37 @@ def readDivPressure(fileName):
         divPressure[r] = df[df['site'] == r]["divPressureValue"].tolist()[0]
     return divPressure
 
+def outputAlignment(alignment, fname):
+    """Output a `fasta` alignment.
+
+    Within `phydms`, alignments are stored as a list of tuples
+    ([(seq_id), seq]). This function takes such a list and outputs the
+    alignment in the `fasta` format.
+
+    Args:
+        `alignment` (lit of tuples)
+            Each element in the list is one sequence stored as a
+            tuple (seq_id, seq). All sequnces in the alignment should
+            be codon sequences (divisible by 3) and the same length.
+            Sequence names should be unique.
+        `fname` (`str`)
+            Name of the created `fasta` file.
+
+    """
+    # check the aligment
+    seq_ids = [seq[0] for seq in alignment]
+    seq_lengths = [len(seq[1]) for seq in alignment]
+    assert len(seq_ids) == len(set(seq_ids)), "Sequence names should be unique."
+    assert len(set(seq_lengths)) == 1, "Sequences should be the same length."
+    assert seq_lengths[0] % 3 == 0, "Sequences should be divisible by 3."
+
+    with open(fname, "w") as f:
+        for i, seq in enumerate(alignment):
+            if i == 0:
+                f.write(">{0}\n{1}".format(seq[0], seq[1]))  # no leading \n
+            else:
+                f.write("\n>{0}\n{1}".format(seq[0], seq[1]))
+
 
 if __name__ == '__main__':
     import doctest
