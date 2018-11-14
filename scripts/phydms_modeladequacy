@@ -35,6 +35,11 @@ def RunCmds(cmds):
 def main():
     """Main body of script."""
 
+    # functionality I would like to add in
+    # flag to output the simulations
+    # get the random seed up and running
+    # be able to give a model params file?
+
     # Parse command line arguments
     parser = phydmslib.parsearguments.PhyDMSAdequacyParser()
     args = vars(parser.parse_args())
@@ -180,54 +185,43 @@ def main():
     for node in tree.get_terminals() + tree.get_nonterminals():
         if (node.branch_length is None) and (node == tree.root):
             node.branch_length = 1e-06
-
-    # simulations
-    simulated_sequences = []
+    # build the simulator object
     simulator = phydmslib.simulate.Simulator(tree, model)
+
+    # set the random seed
+    if args["random_seed"]:
+        scipy.random.seed(args["random_seed"])
+    simulations_by_site = [[] for x in range(model.nsites)]
     for i in range(args["number_simulations"]):
-        simulated_sequences.append(simulator.simulate())
-    # simulated sequences is a list of lists
-    # There is one sequence list for each simulation replicate
-    # each sequence list is a list of tuples, one tuple per sequence
-
-    # need to process simulations on a site by site basis
-    simulations = [[] for x in range(model.nsites)]
-    for sim in simulated_sequences: # for each simulation replicate
-        sim_freqs = phydmslib.modeladequacy.calc_aa_frequencies(sim) # each row is a site and each column is an amino acid
-        sim_freqs = sim_freqs[amino_acids].values # each row is a site and each column is an amino acid
+        rep = simulator.simulate()
+        sim_freqs = phydmslib.modeladequacy.calc_aa_frequencies(rep) # each row is a site and each column is an amino acid
+        sim_freqs = sim_freqs[amino_acids].values # drop site label
         for site in range(model.nsites): # for each site, put the amino acid frequency array into a new list
-            simulations[site].append(sim_freqs[site])
+            simulations_by_site[site].append(sim_freqs[site])
 
-    # process simulations
+    # calculate distances and p values
     logger.info('Calculating p values.')
     if args["random_seed"]:
         np.random.seed(args["random_seed"])
-    final = []
+    pvalues = []
     for site in range(model.nsites):
-        sims = simulations[site]
+        sims = simulations_by_site[site]
         ss = ss_freqs[site]
         natural = alignment_freqs[site]
         for metric in args["metrics"]:
-            # calc simulation distances
+            # distance from model to simulations
             sim = scipy.array([phydmslib.modeladequacy.prefDistance(sim, ss, metric)
                                for sim in sims])
-            # # calc distances natural
+            # distance from model to natural alignment
             natural_distance = phydmslib.modeladequacy.prefDistance(natural, ss,
                                                                     metric)
-            # calc pvalues
-            greater = scipy.sum(scipy.greater(sim, natural_distance))
-            tie_breaker = scipy.sum(scipy.equal(sim, natural_distance))
-            if tie_breaker >= 1:
-                tie_breaker = np.random.randint(tie_breaker, size=1)[0]
-            pvalue = (greater + tie_breaker + 1) / (len(sim) + 1)
-            assert 0 <= pvalue <= 1.0, "pvalue is > 1.0 or < 0.0"
-            final.append((site, pvalue, metric))
+            pvalue = phydmslib.modeladequacy.calculate_pvalue(sim, natural_distance)
+            pvalues.append((site, pvalue, metric))
+    pvalues = pd.DataFrame(pvalues, columns=['site', 'pvalue', 'metric'])
 
-    # format pvalues and calculate qvalues
-    df = pd.DataFrame(final, columns=['site', 'pvalue', 'metric'])
-
+    # calculate q values
     final = []
-    for name, group in df.groupby("metric"):
+    for name, group in pvalues.groupby("metric"):
         group = group.sort_values(by="pvalue", ascending=True)
         group["qvalue"] = multipletests(group["pvalue"].tolist(),
                                         method='fdr_bh')[1]
