@@ -472,7 +472,7 @@ def PhyDMSAdequacyParser():
     parser.add_argument('--metrics', help='Distance metrics',
                         default=["JensenShannon", "half_sum_abs_diff"],
                         type=ExistingFile, nargs='+')
-    parser.add_argument('--random_seed', default=0, help='Use this random seed'
+    parser.add_argument('--seed', default=0, help='Use this random seed'
                         ' for the simulations', type=int)
     parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; -1 '
             'means all available.', type=int)
