@@ -241,6 +241,47 @@ def make_expcm(model_fname, prefs):
                                   mu=0.3, phi=phi, freeparams=['mu'])
 
 
+def calculate_pvalue(simulation_values, true_value, seed=False):
+    """Calculates pvalue based on simuation distribution.
+
+        The p value is defined as (# simulations greater than true + 1) /
+        (# simulations +1).
+
+        In the case where there is at least one simulation with the exact
+        same value as the true value, the number of "tied" simulations
+        which will be recorded as "greater" will be randomly determined.
+
+        Args:
+            `simulation_values` (list)
+                List of simulation values.
+            `true_value` (`float`)
+                True value to calculate p value for.
+            `seed` (`int` or `False`)
+                Seed used to randomly break ties.
+        Returns:
+            The p value as a float.
+        >>> true = 10
+        >>> calculate_pvalue([1, 2, 3, 4], true)
+        0.2
+        >>> calculate_pvalue([11, 12, 13, 14], true)
+        1.0
+        >>> calculate_pvalue([3, 4, 12, 9], true)
+        0.4
+        >>> calculate_pvalue([1, 10, 10, 11], true, 1)
+        0.6
+    """
+    if seed:
+        scipy.random.seed(seed)
+    assert len(simulation_values) >= 2, "Must have at least two simulations."
+    greater = scipy.sum(scipy.greater(simulation_values, true_value))
+    tie_breaker = scipy.sum(scipy.equal(simulation_values, true_value))
+    if tie_breaker >= 1:
+        tie_breaker = scipy.random.randint(tie_breaker, size=1)[0]
+    pvalue = (greater + tie_breaker + 1) / (len(simulation_values) + 1)
+    assert 0 <= pvalue <= 1.0, "pvalue is > 1.0 or < 0.0"
+    return pvalue
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
