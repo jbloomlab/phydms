@@ -40,6 +40,7 @@ def main():
     # get the random seed up and running
     # be able to give a model params file?
 
+
     # Parse command line arguments
     parser = phydmslib.parsearguments.PhyDMSAdequacyParser()
     args = vars(parser.parse_args())
@@ -83,6 +84,9 @@ def main():
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     logfile_handler.setFormatter(formatter)
 
+    # set the random seed
+    scipy.random.seed(int(args["seed"]))
+
     # print some basic information
     logger.info('Beginning execution of {0} in directory {1}\n'
                 .format(prog, os.getcwd()))
@@ -95,8 +99,10 @@ def main():
     # check to make sure only ExpCM or GY94 model
     if args["model"] == "YNGKP_M0":
         model = args["model"]
+        model_type = "YNGKP_M0"
     elif (args["model"][0] == "ExpCM"):
         model = "{0}_{1}".format(args["model"][0], args["model"][1])
+        model_type = "ExpCM"
         prefs = phydmslib.file_io.readPrefs(args["model"][1])
         prefs = [prefs[r] for r in sorted(prefs.keys())]
     else:
@@ -176,7 +182,11 @@ def main():
     logger.info('Starting simulations.')
     logger.info('Performing {0} replicate simulations.'.format(args["number_simulations"]))
     # build model
-    model = phydmslib.modeladequacy.make_expcm(modelparams, prefs)
+    if model_type == "ExpCM":
+        model = phydmslib.modeladequacy.make_expcm(modelparams, prefs)
+    else:
+        nsites = int(len(alignment[0][1]) / 3)
+        model = phydmslib.modeladequacy.make_YNGKP_M0(modelparams, nsites)
     # stationary state frequencies
     ss_freqs = phydmslib.modeladequacy.calc_stationary_state_freqs(model)
 
@@ -188,9 +198,7 @@ def main():
     # build the simulator object
     simulator = phydmslib.simulate.Simulator(tree, model)
 
-    # set the random seed
-    if args["random_seed"]:
-        scipy.random.seed(args["random_seed"])
+
     simulations_by_site = [[] for x in range(model.nsites)]
     for i in range(args["number_simulations"]):
         rep = simulator.simulate()
@@ -201,8 +209,6 @@ def main():
 
     # calculate distances and p values
     logger.info('Calculating p values.')
-    if args["random_seed"]:
-        np.random.seed(args["random_seed"])
     pvalues = []
     for site in range(model.nsites):
         sims = simulations_by_site[site]

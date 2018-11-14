@@ -240,6 +240,26 @@ def make_expcm(model_fname, prefs):
                                   omega=params["omega"], beta=params["beta"],
                                   mu=0.3, phi=phi, freeparams=['mu'])
 
+def make_YNGKP_M0(model_fname, nsites):
+    """Make an YNGKP_M0 from a model params file."""
+    params = pd.read_csv(model_fname, engine="python", sep=" = ", header=None)
+    params = dict(zip(params[0], params[1]))
+    e_pw = scipy.zeros((3, N_NT))
+    for key in params.keys():
+        if key.startswith("phi"):
+            p = int(key[-2])
+            w = int(NT_TO_INDEX[key[-1]])
+            e_pw[p][w] = params[key]
+        elif key == "kappa":
+            kappa = params[key]
+        elif key == "omega":
+            omega = params[key]
+        else:
+            raise ValueError("Unexpected parameter {0}".format(key))
+    for p in range(3):
+        e_pw[p][3] = 1 - e_pw[p].sum()
+    return phydmslib.models.YNGKP_M0(e_pw, nsites, kappa=kappa, omega=omega, mu=1.0, freeparams=['mu'])
+
 
 def calculate_pvalue(simulation_values, true_value, seed=False):
     """Calculates pvalue based on simuation distribution.
