@@ -240,6 +240,7 @@ def make_expcm(model_fname, prefs):
                                   omega=params["omega"], beta=params["beta"],
                                   mu=0.3, phi=phi, freeparams=['mu'])
 
+
 def make_YNGKP_M0(model_fname, nsites):
     """Make an YNGKP_M0 from a model params file."""
     params = pd.read_csv(model_fname, engine="python", sep=" = ", header=None)
@@ -258,37 +259,39 @@ def make_YNGKP_M0(model_fname, nsites):
             raise ValueError("Unexpected parameter {0}".format(key))
     for p in range(3):
         e_pw[p][3] = 1 - e_pw[p].sum()
-    return phydmslib.models.YNGKP_M0(e_pw, nsites, kappa=kappa, omega=omega, mu=1.0, freeparams=['mu'])
+    return phydmslib.models.YNGKP_M0(e_pw, nsites, kappa=kappa, omega=omega,
+                                     mu=1.0, freeparams=['mu'])
 
 
 def calculate_pvalue(simulation_values, true_value, seed=False):
-    """Calculates pvalue based on simuation distribution.
+    """Calculate pvalue based on simuation distribution.
 
-        The p value is defined as (# simulations greater than true + 1) /
-        (# simulations +1).
+    The p value is defined as (# simulations greater than true + 1) /
+    (# simulations +1).
 
-        In the case where there is at least one simulation with the exact
-        same value as the true value, the number of "tied" simulations
-        which will be recorded as "greater" will be randomly determined.
+    In the case where there is at least one simulation with the exact
+    same value as the true value, the number of "tied" simulations
+    which will be recorded as "greater" will be randomly determined.
 
-        Args:
-            `simulation_values` (list)
-                List of simulation values.
-            `true_value` (`float`)
-                True value to calculate p value for.
-            `seed` (`int` or `False`)
-                Seed used to randomly break ties.
-        Returns:
-            The p value as a float.
-        >>> true = 10
-        >>> calculate_pvalue([1, 2, 3, 4], true)
-        0.2
-        >>> calculate_pvalue([11, 12, 13, 14], true)
-        1.0
-        >>> calculate_pvalue([3, 4, 12, 9], true)
-        0.4
-        >>> calculate_pvalue([1, 10, 10, 11], true, 1)
-        0.6
+    Args:
+        `simulation_values` (list)
+            List of simulation values.
+        `true_value` (`float`)
+            True value to calculate p value for.
+        `seed` (`int` or `False`)
+            Seed used to randomly break ties.
+    Returns:
+        The p value as a float.
+    >>> true = 10
+    >>> calculate_pvalue([1, 2, 3, 4], true)
+    0.2
+    >>> calculate_pvalue([11, 12, 13, 14], true)
+    1.0
+    >>> calculate_pvalue([3, 4, 12, 9], true)
+    0.4
+    >>> calculate_pvalue([1, 10, 10, 11], true, 1)
+    0.6
+
     """
     if seed:
         scipy.random.seed(seed)
