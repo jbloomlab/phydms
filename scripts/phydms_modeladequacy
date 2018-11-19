@@ -57,6 +57,7 @@ def main():
     # set up
     amino_acids = list(INDEX_TO_AA.values())
     amino_acids.sort()
+    metrics = ["JensenShannon", "half_sum_abs_diff"]
 
     # setup files
     # file names slightly different depending on
@@ -216,7 +217,7 @@ def main():
         sims = simulations_by_site[site]
         ss = ss_freqs[site]
         natural = alignment_freqs[site]
-        for metric in args["metrics"]:
+        for metric in metrics:
             # distance from model to simulations
             sim = scipy.array([phydmslib.modeladequacy.prefDistance(sim, ss, metric) for sim in sims])
             # distance from model to natural alignment

@@ -469,9 +469,6 @@ def PhyDMSAdequacyParser():
     group.add_argument('--raxml', help="Path to RAxML (e.g., 'raxml')")
     group.add_argument('--tree', type=ExistingFile,
              help="Existing Newick file giving input tree.")
-    parser.add_argument('--metrics', help='Distance metrics',
-                        default=["JensenShannon", "half_sum_abs_diff"],
-                        type=ExistingFile, nargs='+')
     parser.add_argument('--seed', default=0, help='Use this random seed'
                         ' for the simulations', type=int)
     parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; -1 '
