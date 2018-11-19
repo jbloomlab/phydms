@@ -36,11 +36,6 @@ def RunCmds(cmds):
 def main():
     """Main body of script."""
 
-    # functionality I would like to add in
-    # flag to output the simulations
-    # get the random seed up and running
-    # be able to give a model params file?
-
     # Parse command line arguments
     parser = phydmslib.parsearguments.PhyDMSAdequacyParser()
     args = vars(parser.parse_args())
@@ -186,9 +181,11 @@ def main():
     # build model
     if model_type == "ExpCM":
         model = phydmslib.modeladequacy.make_expcm(modelparams, prefs)
-    else:
+    elif model_type == "YNGKP_M0":
         nsites = int(len(alignment[0][1]) / 3)
         model = phydmslib.modeladequacy.make_YNGKP_M0(modelparams, nsites)
+    else:
+        raise ValueError("Unexpected model type of {0}".format(model_type))
     # stationary state frequencies
     ss_freqs = phydmslib.modeladequacy.calc_stationary_state_freqs(model)
 
@@ -201,7 +198,7 @@ def main():
     simulator = phydmslib.simulate.Simulator(tree, model)
     simulations_by_site = [[] for x in range(model.nsites)]
     for i in range(args["number_simulations"]):
-        rep = simulator.simulate()
+        rep = simulator.simulate((int(args["seed"])+i))
         # each row is a site and each column is an amino acid
         sim_freqs = phydmslib.modeladequacy.calc_aa_frequencies(rep)
         # drop the site label
