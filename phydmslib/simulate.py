@@ -62,7 +62,9 @@ class Simulator(object):
                 individual one.
 
         """
-        if isinstance(model, phydmslib.models.ExpCM_empirical_phi) or isinstance(model, phydmslib.models.YNGKP_M0) or isinstance(model, phydmslib.models.ExpCM):
+        if (isinstance(model, phydmslib.models.ExpCM_empirical_phi)
+               or isinstance(model, phydmslib.models.YNGKP_M0)
+               or isinstance(model, phydmslib.models.ExpCM)):
             self._model = copy.deepcopy(model)
             self.nsites = self._model.nsites
         else:
@@ -71,7 +73,7 @@ class Simulator(object):
         # Copy over tree assuming units in substitutions per site
         assert isinstance(tree, Bio.Phylo.BaseTree.Tree), "invalid tree"
         self._tree = copy.deepcopy(tree)
-        self.root = False
+        self._root = False
         self._internalnode = []
         self._terminalnode = []
         # For internal storage, branch lengths should be in model units
@@ -90,8 +92,8 @@ class Simulator(object):
                 else:
                     self._internalnode.append(node.name)
             else:
-                assert not self.root, "Tree has > 1 root. Please re-root tree"
-                self.root = node
+                assert not self._root, "Tree has > 1 root. Please re-root tree"
+                self._root = node
                 self._internalnode.append(node.name)
 
         self._seq_array = []
@@ -175,7 +177,7 @@ class Simulator(object):
         # set up alignment and begin tree traversal
         nodes = self._internalnode + self._terminalnode
         alignment = {node: [] for node in nodes}
-        alignment = _traverse_tree(None, self.root, alignment)  # simulate the sequences
+        alignment = _traverse_tree(None, self._root, alignment)  # simulate the sequences
 
         # reformat the simulated alignment
         # turn the sequence arrays into codon sequnces
