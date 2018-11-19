@@ -169,7 +169,7 @@ class Simulator(object):
             return alignment
 
         # beginning of `simulate` function
-        if randomSeed:
+        if randomSeed is not False:
             scipy.random.seed(randomSeed)
 
         # set up alignment and begin tree traversal
