@@ -188,24 +188,6 @@ def divJensenShannon(p1, p2):
     return 0.5 * (_kldiv(p1, m) + _kldiv(p2, m))
 
 
-def make_stationary_state_prefs(model):
-    """Create a preference set from stationary state amino-acid frequencies.
-
-    Args:
-        `model` (phydmslib.models.ExpCM)
-
-    Returns:
-        `prefs` (`pandas` dataframe)
-            The stationary state amino-acid frequencies in preference format.
-
-    """
-    header = [INDEX_TO_AA[x] for x in range(20)]
-    frequencies = calc_stationary_state_freqs(model)
-    prefs = pd.DataFrame(frequencies, columns=header)
-    prefs.insert(0, "site", [x+1 for x in range(len(prefs))])
-    return prefs
-
-
 def calc_stationary_state_freqs(model):
     """Calculate the stationary state amino-acids frequencies of a model.
 
