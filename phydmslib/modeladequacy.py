@@ -89,7 +89,11 @@ def calc_aa_frequencies(alignment):
                 df[aa][i] += 1
     df = pd.DataFrame(df)
 
-    # # Normalize the dataframe
+    # Normalize the dataframe
+    assert not scipy.any(df.sum(axis=1) == 0), ("Attempting to normalize a "
+                                                "site by an amino acid count"
+                                                " of zero. Does the alignment"
+                                                " have an all gap column?")
     df = df.div(df.sum(axis=1), axis=0)
     assert scipy.allclose(df.sum(axis=1), 1, atol=0.005)
 
