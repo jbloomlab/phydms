@@ -36,7 +36,7 @@ class test_modeladequacy_ExpCM_seed0(unittest.TestCase):
         alignment = "modeladequacy_tests/HA_short_nsites10_nseqs34.fasta"
         outprefix = "_model_adequacy_results"
         cmd = ["phydms_modeladequacy", outprefix, alignment,
-               self.MODEL, str(n_sim), "--raxml", "raxml",
+               self.MODEL, "--number_simulations", str(n_sim), "--raxml", "raxml",
                "--seed", str(self.SEED)]
         subprocess.check_call(cmd)
 
