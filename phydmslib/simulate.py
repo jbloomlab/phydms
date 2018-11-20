@@ -133,15 +133,15 @@ class Simulator(object):
 
             new_seq = []
             for r in range(self.nsites):
-                x = scipy.where(alignment[parent.name][r] == 1)[0][0]
+                x = alignment[parent.name][r]
                 query = (r, x, branch_length)
                 if query not in self._cached_cumsum:
-                    self._cached_cumsum[query] = scipy.cumsum(alignment[parent.name][r].dot(exp_M[r]))
+                    self._cached_cumsum[query] = scipy.cumsum(self._seq_array[alignment[parent.name][r]].dot(exp_M[r]))
                 cumsum = self._cached_cumsum[query]
 
                 # choose from the new codon distribution for the site
                 codon = scipy.argmin(cumsum < scipy.random.rand())
-                new_seq.append(self._seq_array[codon])
+                new_seq.append(codon)
 
             alignment[child.name] = new_seq  # array of size `nsites`, each element array of 61
             return alignment
@@ -159,7 +159,7 @@ class Simulator(object):
                     cumsum = scipy.cumsum(ss)
                     codon = scipy.argmin(cumsum / cumsum[-1] < scipy.random.rand())
                     # create sequence array. 1 indicates codon sequence
-                    root_seq.append(self._seq_array[codon])
+                    root_seq.append(codon)
                 alignment[child.name] = scipy.array(root_seq)  # array of size `nsites`, each element array of 61
             else:  # internal branch, need to evolve along the branch
                 alignment = _evolve_branch(parent, child, alignment)
@@ -186,12 +186,11 @@ class Simulator(object):
         for node_name in self._terminalnode:
             seq = alignment[node_name]
             final = []
-            for site in seq:
-                codon = scipy.where(site == 1)[0]
-                assert len(codon) == 1, "More than one codon at a site!"
-                nt = INDEX_TO_CODON[codon[0]]
+            for codon in seq:
+                nt = INDEX_TO_CODON[codon]
                 final.append(nt)
             final = "".join(final)
+            assert (len(final) / 3) == self.nsites, "Unexpected sequence length"
             simulated_alignment.append((node_name, final))
         return simulated_alignment
 
