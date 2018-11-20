@@ -143,7 +143,7 @@ class Simulator(object):
                 codon = scipy.argmin(cumsum < scipy.random.rand())
                 new_seq.append(codon)
 
-            alignment[child.name] = new_seq  # array of size `nsites`, each element array of 61
+            alignment[child.name] = new_seq
             return alignment
 
         def _traverse_tree(parent, child, alignment):
