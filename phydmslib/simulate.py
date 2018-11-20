@@ -134,10 +134,10 @@ class Simulator(object):
 
             new_seq = []
             for r in range(self.nsites):
-                x = alignment[parent.name][r]
-                query = (r, x, branch_length)
+                parent_codon = alignment[parent.name][r]
+                query = (r, parent_codon, branch_length)
                 if query not in self._cached_cumsum:
-                    self._cached_cumsum[query] = scipy.cumsum(self._seq_array[alignment[parent.name][r]].dot(exp_M[r]))
+                    self._cached_cumsum[query] = scipy.cumsum(self._seq_array[parent_codon].dot(exp_M[r]))
                 cumsum = self._cached_cumsum[query]
 
                 # choose from the new codon distribution for the site
