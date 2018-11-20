@@ -76,6 +76,9 @@ class Simulator(object):
         self._root = False
         self._internalnode = []
         self._terminalnode = []
+        self._seq_array = []
+        self._cached_exp_M = {}
+        self._cached_cumsum = {}
         # For internal storage, branch lengths should be in model units
         # rather than codon substitutions per site. Here we adjust them from
         # For internal storage, branch lengths are in model units rather
@@ -96,15 +99,13 @@ class Simulator(object):
                 self._root = node
                 self._internalnode.append(node.name)
 
-        self._seq_array = []
+        # set up sequence arrays
         for x in range(N_CODON):
             site_seq = scipy.zeros(N_CODON)
             site_seq[x] = 1
             self._seq_array.append(site_seq)
         self._seq_array = scipy.array(self._seq_array)
 
-        self._cached_exp_M = {}
-        self._cached_cumsum = {}
 
     def simulate(self, randomSeed=False):
         """Simulate an alignment.
