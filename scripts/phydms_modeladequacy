@@ -21,6 +21,15 @@ import logging
 import phydmslib.parsearguments
 import glob
 
+def runSimulation(simulator, i, amino_acids):
+    """Simulates an alignment and computes the amino-acid frequencies."""
+    print(i)
+    rep = simulator.simulate(i)
+    # each row is a site and each column is an amino acid
+    sim_freqs = phydmslib.modeladequacy.calc_aa_frequencies(rep)
+    # drop the site label
+    sim_freqs = sim_freqs[amino_acids].values
+    return sim_freqs
 
 def RunCmds(cmds):
     """Runs the command line arguments in *cmds* using *subprocess*."""
@@ -178,6 +187,13 @@ def main():
     # SIMULATIONS
     logger.info('Starting simulations.')
     logger.info('Performing {0} replicate simulations.'.format(args["number_simulations"]))
+    # get number of cpus for multiprocessing
+    if args['ncpus'] == -1:
+        ncpus = multiprocessing.cpu_count()
+    else:
+        ncpus = args['ncpus']
+    assert ncpus >= 1, "{0} CPUs specified".format(ncpus)
+    logger.info('Using {0} CPUs.'.format(ncpus))
     # build model
     if model_type == "ExpCM":
         model = phydmslib.modeladequacy.make_expcm(modelparams, prefs)
@@ -196,14 +212,11 @@ def main():
             node.branch_length = 1e-06
     # build the simulator object
     simulator = phydmslib.simulate.Simulator(tree, model)
+    process_runs = [(simulator, int(args["seed"])+i, amino_acids) for i in range(args["number_simulations"])]
+    simulation_frequencies = itertools.starmap(runSimulation, process_runs)
+    # process by site
     simulations_by_site = [[] for x in range(model.nsites)]
-    for i in range(args["number_simulations"]):
-        rep = simulator.simulate((int(args["seed"])+i))
-        # each row is a site and each column is an amino acid
-        sim_freqs = phydmslib.modeladequacy.calc_aa_frequencies(rep)
-        # drop the site label
-        sim_freqs = sim_freqs[amino_acids].values
-        # gather alignments by site
+    for sim_freqs in simulation_frequencies:
         for site in range(model.nsites):
             simulations_by_site[site].append(sim_freqs[site])
 
