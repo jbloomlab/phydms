@@ -22,12 +22,6 @@ import phydmslib.parsearguments
 import glob
 
 
-def runSimulation(simulator, i):
-    """Simulates an alignment and computes the amino-acid frequencies."""
-    rep = simulator.simulate(i)
-    return rep
-
-
 def RunCmds(cmds):
     """Runs the command line arguments in *cmds* using *subprocess*."""
     try:
@@ -100,7 +94,7 @@ def main():
                 .format('\n'.join(['\t{0} = {1}'.format(key, args[key])
                         for key in args.keys()])))
 
-    # check to make sure only ExpCM or GY94 model
+    # check to make sure only ExpCM or YNGKP_M0 model
     if args["model"] == "YNGKP_M0":
         model = args["model"]
         model_type = "YNGKP_M0"
@@ -171,7 +165,7 @@ def main():
             raise ValueError("The raxml command of {0} is not valid. Is raxml"
                              " installed at this path?".format(args['raxml']))
 
-    # FIT MODEL
+    # fit the model
     modelparams = "{0}phydms_modelparams.txt".format(args["outprefix"])
     phydms_CMD = ["phydms", args["alignment"], args["tree"],
                   model, "{0}{1}".format(args["outprefix"], "phydms")]
@@ -183,7 +177,7 @@ def main():
     logger.info('phydms run complete. Optimized parameters ({0}) are\n{1}\n'
                 .format(modelparams, params))
 
-    # SIMULATIONS
+    # run the simulations
     logger.info('Starting simulations.')
     logger.info('Performing {0} replicate simulations.'
                 .format(args["number_simulations"]))
@@ -210,20 +204,21 @@ def main():
     for node in tree.get_terminals() + tree.get_nonterminals():
         if (node.branch_length is None) and (node == tree.root):
             node.branch_length = 1e-06
+
     # build the simulator object
     simulator = phydmslib.simulate.Simulator(tree, model)
-    process_runs = [(simulator, seed+i) for i in
-                    range(args["number_simulations"])]
     p = multiprocessing.Pool(ncpus)
-    simulation_frequencies = itertools.starmap(runSimulation, process_runs)
-    temp = []
-    for rep in simulation_frequencies:
+    simulations = p.map(simulator.simulate,
+                                   [seed+i for i in
+                                    range(args["number_simulations"])])
+    simulation_frequencies = []
+    for rep in simulations:
         sim_freqs = phydmslib.modeladequacy.calc_aa_frequencies(rep)
-        # drop the site label
-        temp.append(sim_freqs[amino_acids].values)
+        simulation_frequencies.append(sim_freqs[amino_acids].values)
+        
     # process by site
     simulations_by_site = [[] for x in range(model.nsites)]
-    for sim_freqs in temp:
+    for sim_freqs in simulation_frequencies:
         for site in range(model.nsites):
             simulations_by_site[site].append(sim_freqs[site])
 
