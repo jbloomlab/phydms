@@ -279,7 +279,7 @@ def calculate_pvalue(simulation_values, true_value, seed=False):
     0.6
 
     """
-    if seed:
+    if seed is not False:
         scipy.random.seed(seed)
     assert len(simulation_values) >= 2, "Must have at least two simulations."
     greater = scipy.sum(scipy.greater(simulation_values, true_value))
