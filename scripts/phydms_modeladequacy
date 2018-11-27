@@ -21,10 +21,12 @@ import logging
 import phydmslib.parsearguments
 import glob
 
+
 def runSimulation(simulator, i):
     """Simulates an alignment and computes the amino-acid frequencies."""
     rep = simulator.simulate(i)
     return rep
+
 
 def RunCmds(cmds):
     """Runs the command line arguments in *cmds* using *subprocess*."""
@@ -85,8 +87,9 @@ def main():
     logfile_handler.setFormatter(formatter)
 
     # set the random seed
-    scipy.random.seed(int(args["seed"]))
-    np.random.seed(int(args["seed"]))
+    seed = int(args["seed"])
+    scipy.random.seed(seed)
+    np.random.seed(seed)
 
     # print some basic information
     logger.info('Beginning execution of {0} in directory {1}\n'
@@ -182,7 +185,8 @@ def main():
 
     # SIMULATIONS
     logger.info('Starting simulations.')
-    logger.info('Performing {0} replicate simulations.'.format(args["number_simulations"]))
+    logger.info('Performing {0} replicate simulations.'
+                .format(args["number_simulations"]))
     # get number of cpus for multiprocessing
     if args['ncpus'] == -1:
         ncpus = multiprocessing.cpu_count()
@@ -208,7 +212,8 @@ def main():
             node.branch_length = 1e-06
     # build the simulator object
     simulator = phydmslib.simulate.Simulator(tree, model)
-    process_runs = [(simulator, int(args["seed"])+i) for i in range(args["number_simulations"])]
+    process_runs = [(simulator, seed+i) for i in
+                    range(args["number_simulations"])]
     p = multiprocessing.Pool(ncpus)
     simulation_frequencies = itertools.starmap(runSimulation, process_runs)
     temp = []
@@ -231,13 +236,15 @@ def main():
         natural = alignment_freqs[site]
         for metric in metrics:
             # distance from model to simulations
-            sim = scipy.array([phydmslib.modeladequacy.prefDistance(sim, ss, metric) for sim in sims])
+            sim = scipy.array([phydmslib.modeladequacy.prefDistance(sim, ss, metric)
+                               for sim in sims])
             # distance from model to natural alignment
             natural_distance = phydmslib.modeladequacy.prefDistance(natural,
                                                                     ss,
                                                                     metric)
             pvalue = phydmslib.modeladequacy.calculate_pvalue(sim,
-                                                              natural_distance)
+                                                              natural_distance,
+                                                              seed=seed + site)
             pvalues.append((site, pvalue, metric))
     pvalues = pd.DataFrame(pvalues, columns=['site', 'pvalue', 'metric'])
 
