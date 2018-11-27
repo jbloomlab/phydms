@@ -174,6 +174,7 @@ class Simulator(object):
         # beginning of `simulate` function
         if randomSeed is not False:
             scipy.random.seed(randomSeed)
+            np.random.seed(randomSeed)
 
         # set up alignment and begin tree traversal
         nodes = self._internalnode + self._terminalnode
