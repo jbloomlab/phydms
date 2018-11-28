@@ -27,7 +27,6 @@ class Simulator(object):
     simulate an aligment using `Simulator.simulate`.
 
     See `__init__` for how to initialize a `Simulator`.
-
     Attributes:
         `tree` (instance of `Bio.Phylo.BaseTree.Tree` derived class)
             Phylogenetic tree. Branch lengths are in units of codon
@@ -68,7 +67,8 @@ class Simulator(object):
             self._model = copy.deepcopy(model)
             self.nsites = self._model.nsites
         else:
-            raise ValueError("Model type {0} is not a valid model for simulation".format(model))
+            raise ValueError(("Model type {0} is not a valid model"
+                              " for simulation".format(model)))
 
         # Copy over tree assuming units in substitutions per site
         assert isinstance(tree, Bio.Phylo.BaseTree.Tree), "invalid tree"
@@ -106,7 +106,6 @@ class Simulator(object):
             self._seq_array.append(site_seq)
         self._seq_array = scipy.array(self._seq_array)
 
-
     def simulate(self, randomSeed=False):
         """Simulate an alignment.
 
@@ -126,16 +125,16 @@ class Simulator(object):
         """
         def _evolve_branch(parent, child, alignment):
             """Generate new sequence given a parent and a child node."""
-            branch_length = parent.distance(child)
+            branch_len = parent.distance(child)
 
-            if branch_length not in self._cached_exp_M:
-                self._cached_exp_M[branch_length] = self._model.M(branch_length)
-            exp_M = self._cached_exp_M[branch_length]
+            if branch_len not in self._cached_exp_M:
+                self._cached_exp_M[branch_len] = self._model.M(branch_len)
+            exp_M = self._cached_exp_M[branch_len]
 
             new_seq = []
             for r in range(self.nsites):
                 parent_codon = alignment[parent.name][r]
-                query = (r, parent_codon, branch_length)
+                query = (r, parent_codon, branch_len)
                 if query not in self._cached_cumsum:
                     self._cached_cumsum[query] = scipy.cumsum(self._seq_array[parent_codon].dot(exp_M[r]))
                 cumsum = self._cached_cumsum[query]
@@ -158,10 +157,10 @@ class Simulator(object):
                     # draw codon from stationary state
                     ss = self._model.stationarystate[r]
                     cumsum = scipy.cumsum(ss)
-                    codon = scipy.argmin(cumsum / cumsum[-1] < scipy.random.rand())
-                    # create sequence array. 1 indicates codon sequence
+                    codon = scipy.argmin(cumsum / cumsum[-1] <
+                                         scipy.random.rand())
                     root_seq.append(codon)
-                alignment[child.name] = scipy.array(root_seq)  # array of size `nsites`, each element array of 61
+                alignment[child.name] = scipy.array(root_seq)
             else:  # internal branch, need to evolve along the branch
                 alignment = _evolve_branch(parent, child, alignment)
 
@@ -179,7 +178,7 @@ class Simulator(object):
         # set up alignment and begin tree traversal
         nodes = self._internalnode + self._terminalnode
         alignment = {node: [] for node in nodes}
-        alignment = _traverse_tree(None, self._root, alignment)  # simulate the sequences
+        alignment = _traverse_tree(None, self._root, alignment)
 
         # reformat the simulated alignment
         # turn the sequence arrays into codon sequnces
@@ -192,7 +191,7 @@ class Simulator(object):
                 nt = INDEX_TO_CODON[codon]
                 final.append(nt)
             final = "".join(final)
-            assert (len(final) / 3) == self.nsites, "Unexpected sequence length"
+            assert (len(final) / 3) == self.nsites, "Unexpected seq length."
             simulated_alignment.append((node_name, final))
         return simulated_alignment
 
