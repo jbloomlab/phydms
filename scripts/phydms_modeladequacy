@@ -205,17 +205,25 @@ def main():
         if (node.branch_length is None) and (node == tree.root):
             node.branch_length = 1e-06
 
-    # build the simulator object
+    # build the simulator object and simulate
     simulator = phydmslib.simulate.Simulator(tree, model)
-    p = multiprocessing.Pool(ncpus)
-    simulations = p.map(simulator.simulate,
+    if ncpus > 1:
+        pool = multiprocessing.Pool(ncpus)
+        mapfunc = pool.imap
+    else:
+        mapfunc = map
+    simulations = []
+    simulations += mapfunc(simulator.simulate,
                                    [seed+i for i in
                                     range(args["number_simulations"])])
+    if ncpus > 1:
+        pool.close()
+        pool.join()
     simulation_frequencies = []
     for rep in simulations:
         sim_freqs = phydmslib.modeladequacy.calc_aa_frequencies(rep)
         simulation_frequencies.append(sim_freqs[amino_acids].values)
-        
+
     # process by site
     simulations_by_site = [[] for x in range(model.nsites)]
     for sim_freqs in simulation_frequencies:
