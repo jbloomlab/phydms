@@ -3,7 +3,8 @@
 This test examines the functionality of the model adequcy protocol and checks
 the results against the output in `expected_modeladequacy_results`.
 
-All of the runs using multiprocessing.
+The test tests the function with `ncpus` is equal to 1 (no multiprocessing)
+and with `ncpus` greater than 1 (multiprocessing).
 
 Written by Sarah Hilton.
 """
@@ -25,12 +26,13 @@ import glob
 import subprocess
 
 
-class test_modeladequacy_ExpCM_seed0(unittest.TestCase):
-    """Runs model adequacy on an ExpCM."""
+class test_modeladequacy_ExpCM_mp(unittest.TestCase):
+    """Runs model adequacy on an ExpCM with >1 CPU."""
     # run parameters
     MODEL = "ExpCM_modeladequacy_tests/HA_short_prefs_nsites10.csv"
     EXPECTED = "expected_modeladequacy_results/ExpCM_pvalues_seed0.csv"
     SEED = 0
+    NCPUS = 4
 
     def test_modeladequacy(self):
         """Runs model adequacy and compares against expected results."""
@@ -39,7 +41,7 @@ class test_modeladequacy_ExpCM_seed0(unittest.TestCase):
         outprefix = "_model_adequacy_results"
         cmd = ["phydms_modeladequacy", outprefix, alignment,
                self.MODEL, "--number_simulations", str(n_sim), "--raxml", "raxml",
-               "--seed", str(self.SEED)]
+               "--seed", str(self.SEED), "--ncpus", str(self.NCPUS)]
         subprocess.check_call(cmd)
 
         final = (pd.read_csv("{0}_pvalues.csv".format(outprefix))
@@ -55,25 +57,22 @@ class test_modeladequacy_ExpCM_seed0(unittest.TestCase):
             os.remove(fname)
 
 
-class test_modeladequacy_ExpCM_seed1(test_modeladequacy_ExpCM_seed0):
-    """Runs model adequacy on an ExpCM with a seed of 1."""
+class test_modeladequacy_ExpCM_noMP(test_modeladequacy_ExpCM_mp):
+    """Runs model adequacy on an ExpCM with 1 CPU."""
     # run parameters
-    EXPECTED = "expected_modeladequacy_results/ExpCM_pvalues_seed1.csv"
-    SEED = 1
+    NCPUS = 1
 
-
-class test_modeladequacy_YNGKPM0_seed0(test_modeladequacy_ExpCM_seed0):
-    """Runs model adequacy on a YNGKP_M0 with seed of 0."""
+class test_modeladequacy_YNGKPM0_mp(test_modeladequacy_ExpCM_mp):
+    """Runs model adequacy on a YNGKP_M0 with >1 CPU."""
     # run parameters
     MODEL = "YNGKP_M0"
     EXPECTED = "expected_modeladequacy_results/YNGKP_M0_pvalues_seed0.csv"
 
 
-class test_modeladequacy_YNGKPM0_seed1(test_modeladequacy_YNGKPM0_seed0):
-    """Runs model adequacy on a YNGKP_M0 with seed of 1."""
+class test_modeladequacy_YNGKPM0_noMP(test_modeladequacy_YNGKPM0_mp):
+    """Runs model adequacy on a YNGKP_M0 with 1 CPU."""
     # run parameters
-    SEED = 1
-    EXPECTED = "expected_modeladequacy_results/YNGKP_M0_pvalues_seed1.csv"
+    NCPUS = 1
 
 
 if __name__ == '__main__':
