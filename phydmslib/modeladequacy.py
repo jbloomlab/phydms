@@ -179,8 +179,8 @@ def divJensenShannon(p1, p2):
 
     def _kldiv(a, b):
         with scipy.errstate(all='ignore'):
-            kl = scipy.sum([v for v in a * scipy.log2(a / b)
-                            if not scipy.isnan(v)])
+            kl = a * scipy.log2(a / b)
+            kl = scipy.nansum(kl)
         return kl
 
     m = 0.5 * (p1 + p2)
