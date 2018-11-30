@@ -259,7 +259,7 @@ def main():
             pvalue = phydmslib.modeladequacy.calculate_pvalue(sim,
                                                               natural_distance,
                                                               seed=seed + site)
-            pvalues.append((site, pvalue, metric))
+            pvalues.append((site+1, pvalue, metric))
     pvalues = pd.DataFrame(pvalues, columns=['site', 'pvalue', 'metric'])
 
     # calculate q values
