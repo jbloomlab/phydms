@@ -30,15 +30,15 @@ class test_modeladequacy_ExpCM_mp(unittest.TestCase):
     """Runs model adequacy on an ExpCM with >1 CPU."""
     # run parameters
     MODEL = "ExpCM_modeladequacy_tests/HA_short_prefs_nsites10.csv"
-    EXPECTED = "expected_modeladequacy_results/ExpCM_pvalues_seed0.csv"
+    EXPECTED = "expected_modeladequacy_results/ExpCM_pvalues_seed0_500rep_pvalues.csv"
     SEED = 0
     NCPUS = 4
 
     def test_modeladequacy(self):
         """Runs model adequacy and compares against expected results."""
-        n_sim = 100
+        n_sim = 500
         alignment = "modeladequacy_tests/HA_short_nsites10_nseqs34.fasta"
-        outprefix = "_model_adequacy_results"
+        outprefix = "_mp_results"
         cmd = ["phydms_modeladequacy", outprefix, alignment,
                self.MODEL, "--number_simulations", str(n_sim), "--raxml", "raxml",
                "--seed", str(self.SEED), "--ncpus", str(self.NCPUS)]
@@ -66,7 +66,7 @@ class test_modeladequacy_YNGKPM0_mp(test_modeladequacy_ExpCM_mp):
     """Runs model adequacy on a YNGKP_M0 with >1 CPU."""
     # run parameters
     MODEL = "YNGKP_M0"
-    EXPECTED = "expected_modeladequacy_results/YNGKP_M0_pvalues_seed0.csv"
+    EXPECTED = "expected_modeladequacy_results/YNGKPM0_pvalues_seed0_500rep_pvalues.csv"
 
 
 class test_modeladequacy_YNGKPM0_noMP(test_modeladequacy_YNGKPM0_mp):
