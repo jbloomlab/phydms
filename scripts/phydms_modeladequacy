@@ -23,6 +23,7 @@ import glob
 
 
 def runSimulator(simulator, seed_list):
+    """Runs `simulator.simulate` for a list of seeds"""
     alignments = []
     alignments += map(simulator.simulate, seed_list)
     return alignments
@@ -192,7 +193,13 @@ def main():
     else:
         ncpus = args['ncpus']
     assert ncpus >= 1, "{0} CPUs specified".format(ncpus)
-    logger.info('Using {0} CPUs.'.format(ncpus))
+    if (args["number_simulations"]/ncpus) < 100:
+        ncpus = args["number_simulations"] % 100
+        if ncpus == 0:
+            ncpus = 1
+        logger.info('Using {0} to ensure >= 100 simulations/ CPU'.format(ncpus))
+    else:
+        logger.info('Using {0} CPUs.'.format(ncpus))
     # build model
     if model_type == "ExpCM":
         model = phydmslib.modeladequacy.make_expcm(modelparams, prefs)
