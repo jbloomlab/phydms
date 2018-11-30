@@ -197,7 +197,7 @@ def main():
         ncpus = args["number_simulations"] % 100
         if ncpus == 0:
             ncpus = 1
-        logger.info('Using {0} to ensure >= 100 simulations/ CPU'.format(ncpus))
+        logger.info('Using {0} CPU(s) to ensure >= 100 simulations / CPU'.format(ncpus))
     else:
         logger.info('Using {0} CPUs.'.format(ncpus))
     # build model
@@ -226,13 +226,10 @@ def main():
         seed_batches = [(simulator, seed_batch) for seed_batch in seed_batches]
         simulations = pool.starmap(runSimulator, seed_batches)
         simulations = [rep for rep_batch in simulations for rep in rep_batch]
-    else:
-        mapfunc = map
-        simulations = []
-        simulations += mapfunc(simulator.simulate, seeds)
-    if ncpus > 1:
         pool.close()
         pool.join()
+    else:
+        simulations = map(simulator.simulate, seeds)
     simulation_frequencies = []
     for rep in simulations:
         sim_freqs = phydmslib.modeladequacy.calc_aa_frequencies(rep)
