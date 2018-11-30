@@ -22,6 +22,11 @@ import phydmslib.parsearguments
 import glob
 
 
+def runSimulator(simulator, seed_list):
+    alignments = []
+    alignments += map(simulator.simulate, seed_list)
+    return alignments
+
 def RunCmds(cmds):
     """Runs the command line arguments in *cmds* using *subprocess*."""
     try:
@@ -207,15 +212,17 @@ def main():
 
     # build the simulator object and simulate
     simulator = phydmslib.simulate.Simulator(tree, model)
+    seeds = [seed+i for i in range(args["number_simulations"])]
     if ncpus > 1:
         pool = multiprocessing.Pool(ncpus)
-        mapfunc = pool.imap
+        seed_batches = scipy.array_split(seeds, ncpus)
+        seed_batches = [(simulator, seed_batch) for seed_batch in seed_batches]
+        simulations = pool.starmap(runSimulator, seed_batches)
+        simulations = [rep for rep_batch in simulations for rep in rep_batch]
     else:
         mapfunc = map
-    simulations = []
-    simulations += mapfunc(simulator.simulate,
-                                   [seed+i for i in
-                                    range(args["number_simulations"])])
+        simulations = []
+        simulations += mapfunc(simulator.simulate, seeds)
     if ncpus > 1:
         pool.close()
         pool.join()
