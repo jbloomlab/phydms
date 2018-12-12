@@ -32,3 +32,4 @@ notifications:
   email:
     - skhilton@uw.edu
     - jbloom@fredhutch.org
+  slack: jbloomlab:JyHDWxXUajUbAxI6uhs22Pgr
