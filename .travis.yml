@@ -27,6 +27,7 @@ script:
 branches:
   only:
     - master
+    - model_adequacy
 
 notifications:
   email:
