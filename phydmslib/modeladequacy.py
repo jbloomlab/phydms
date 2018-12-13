@@ -269,13 +269,13 @@ def calculate_pvalue(simulation_values, true_value, seed=False):
     Returns:
         The p value as a float.
     >>> true = 10
-    >>> calculate_pvalue([1, 2, 3, 4], true)
+    >>> print("{:1.1f}".format(calculate_pvalue([1, 2, 3, 4], true)))
     0.2
-    >>> calculate_pvalue([11, 12, 13, 14], true)
+    >>> print("{:1.1f}".format(calculate_pvalue([11, 12, 13, 14], true)))
     1.0
-    >>> calculate_pvalue([3, 4, 12, 9], true)
+    >>> print("{:1.1f}".format(calculate_pvalue([3, 4, 12, 9], true)))
     0.4
-    >>> calculate_pvalue([1, 10, 10, 11], true, 1)
+    >>> print("{:1.1f}".format(calculate_pvalue([1, 10, 10, 11], true, 1)))
     0.6
 
     """
