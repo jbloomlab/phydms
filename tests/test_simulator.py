@@ -29,7 +29,8 @@ class test_Simulator_ExpCM(unittest.TestCase):
     # use approach here to run multiple tests:
     # http://stackoverflow.com/questions/17260469/instantiate-python-unittest-testcase-with-arguments
     MODEL = phydmslib.models.ExpCM_empirical_phi
-    EXPECTED = "expected_simulator_results/expected_simulator_ExpCM.fasta"
+    EXPECTED = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                            'expected_simulator_results/expected_simulator_ExpCM.fasta')
 
     def setUp(self):
         """Set up parameters for test."""
@@ -103,7 +104,8 @@ class test_Simulator_ExpCM(unittest.TestCase):
 class test_Simulator_YNGKP_MO(test_Simulator_ExpCM):
     """Tests `Simulator` simulation of `YNGKP_M0` model."""
     MODEL = phydmslib.models.YNGKP_M0
-    EXPECTED = "expected_simulator_results/expected_simulator_YNGKP_MO.fasta"
+    EXPECTED = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                            'expected_simulator_results/expected_simulator_YNGKP_MO.fasta')
 
 
 if __name__ == '__main__':
