@@ -194,7 +194,7 @@ def main():
         ncpus = args['ncpus']
     assert ncpus >= 1, "{0} CPUs specified".format(ncpus)
     if (args["number_simulations"]/ncpus) < 1000:
-        ncpus = args["number_simulations"] % 1000
+        ncpus = args["number_simulations"] // 1000
         if ncpus == 0:
             ncpus = 1
         logger.info('Using {0} CPU(s) to ensure >= 100 simulations / CPU'.format(ncpus))
