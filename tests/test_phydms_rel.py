@@ -13,6 +13,7 @@ import scipy
 import pandas
 import logging
 import numpy
+import glob
 
 
 class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
@@ -20,15 +21,15 @@ class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
        used for integration.
     """
     TREE = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                           './NP_data/NP_tree_short.newick'))
+                           './REL_input_data/NP_tree.newick'))
     ALIGNMENT = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                './NP_data/NP_alignment_short.fasta'))
+                                './REL_input_data/NP_alignment.fasta'))
     PREFS = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                            './NP_data/NP_prefs_short.csv'))
+                            './REL_input_data/NP_prefs.csv'))
     MODEL = 'ExpCM'
     K2 = 4  # Number of bins used for empirical_bayes integration
     OUTPREFIX = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                './phydms_rel_test_results/'))
+                                './_phydms_rel_test_results/'))
     EXPECTED_PREFIX = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                       './expected_rel_test_results/'))
 
@@ -45,10 +46,6 @@ class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
         for f in [self.ALIGNMENT, self.TREE, self.PREFS]:
             self.assertTrue(
                 os.path.isfile(f), "Can't find test file {0}".format(f))
-
-        # Confirm output directory exists.
-        self.assertTrue(os.path.isdir(self.OUTPREFIX)), \
-            "Can't find output directory {0}".format(self.OUTPREFIX)
 
         ncpus = 1
 
@@ -73,6 +70,12 @@ class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
         suffix_list = ['omegabycategory.csv', 'posteriorprobabilities.csv']
         for suffix in suffix_list:
             self.compare_output_dataframes(expected_prefix, outprefix, suffix)
+
+        # remove files
+        for fname in glob.glob("{0}_*".format(outprefix)):
+            os.remove(fname)
+        if not os.listdir(self.OUTPREFIX):
+            os.rmdir(self.OUTPREFIX)
 
     def compare_output_dataframes(self, expected_prefix, outprefix, suffix):
         values = {}

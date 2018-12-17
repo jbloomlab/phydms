@@ -549,7 +549,7 @@ def main():
                 model = phydmslib.models.YNGKP_M0(
                     e_pw, nsites=tl.model.nsites, kappa=tl.model.kappa,
                     freeparams=['mu', 'omega', 'kappa'])
-            elif args['gammaomega']:
+            elif args['model'][0] == 'ExpCM' and args['gammaomega']:
                 # Reconstruct ExpCM with fit model parameters
                 model = phydmslib.models.ExpCM_empirical_phi(
                     prefslist, g, kappa=tl.model.kappa, beta=tl.model.beta,
