@@ -414,6 +414,9 @@ def PhyDMSParser():
     parser.set_defaults(nograd=False)
     parser.add_argument('--nograd', dest='nograd', action='store_true',
             help="Do not use gradients for likelihood maximization.")
+    parser.add_argument('--empirical_bayes', default=False,
+            type=IntGreaterThanOne, help='The number of categories used '
+            'for the integration of a discretized omega distribution.')
     parser.add_argument('-v', '--version', action='version', version=(
             ('%(prog)s {version}'.format(version=phydmslib.__version__))))
     return parser
