@@ -24,9 +24,8 @@ import glob
 
 def runSimulator(simulator, seed_list):
     """Runs `simulator.simulate` for a list of seeds"""
-    alignments = []
-    alignments += map(simulator.simulate, seed_list)
-    return alignments
+    return map(simulator.simulate, seed_list)
+
 
 def RunCmds(cmds):
     """Runs the command line arguments in *cmds* using *subprocess*."""
@@ -188,16 +187,15 @@ def main():
     logger.info('Performing {0} replicate simulations.'
                 .format(args["number_simulations"]))
     # get number of cpus for multiprocessing
+    min_sims_per_cpu = 1000
     if args['ncpus'] == -1:
         ncpus = multiprocessing.cpu_count()
     else:
         ncpus = args['ncpus']
     assert ncpus >= 1, "{0} CPUs specified".format(ncpus)
-    if (args["number_simulations"]/ncpus) < 1000:
-        ncpus = args["number_simulations"] // 1000
-        if ncpus == 0:
-            ncpus = 1
-        logger.info('Using {0} CPU(s) to ensure >= 100 simulations / CPU'.format(ncpus))
+    if (args["number_simulations"]/ncpus) < min_sims_per_cpu:
+        ncpus = max(1, args["number_simulations"] // min_sims_per_cpu)
+        logger.info('Using {0} CPU(s) to ensure >= {1} simulations / CPU'.format(ncpus, min_sims_per_cpu))
     else:
         logger.info('Using {0} CPUs.'.format(ncpus))
     # build model
@@ -225,11 +223,12 @@ def main():
         seed_batches = scipy.array_split(seeds, ncpus)
         seed_batches = [(simulator, seed_batch) for seed_batch in seed_batches]
         simulations = pool.starmap(runSimulator, seed_batches)
-        simulations = [rep for rep_batch in simulations for rep in rep_batch]
+        simulations = itertools.chain.from_iterable(simulations)
         pool.close()
         pool.join()
     else:
-        simulations = map(simulator.simulate, seeds)
+        simulations = list(map(simulator.simulate, seeds))
+    assert len(simulations) == args['number_simulations']
 
     # process the simulations
     simulations_by_site = [[] for x in range(model.nsites)]
