@@ -121,8 +121,8 @@ def prefDistance(pi1, pi2, distmetric, check_input=False):
     Returns:
         The distance between `pi1` and `pi2`.
 
-    >>> pi1 = [0.5, 0.2, 0.3]
-    >>> pi2 = [0.2, 0.4, 0.4]
+    >>> pi1 = scipy.array([0.5, 0.2, 0.3])
+    >>> pi2 = scipy.array([0.2, 0.4, 0.4])
     >>> scipy.allclose(prefDistance(pi1, pi1, 'half_sum_abs_diff'), 0)
     True
     >>> scipy.allclose(prefDistance(pi1, pi1, 'JensenShannon'), 0)
@@ -162,9 +162,9 @@ def divJensenShannon(p1, p2):
             The two distributions for which we compute divergence.
     Returns:
         The Jensen-Shannon divergence as a float.
-    >>> p1 = [0.5, 0.2, 0.2, 0.1]
-    >>> p2 = [0.4, 0.1, 0.3, 0.2]
-    >>> p3 = [0.0, 0.2, 0.2, 0.6]
+    >>> p1 = scipy.array([0.5, 0.2, 0.2, 0.1])
+    >>> p2 = scipy.array([0.4, 0.1, 0.3, 0.2])
+    >>> p3 = scipy.array([0.0, 0.2, 0.2, 0.6])
     >>> scipy.allclose(divJensenShannon(p1, p1), 0, atol=1e-5)
     True
     >>> scipy.allclose(divJensenShannon(p1, p2), 0.035789, atol=1e-5)
