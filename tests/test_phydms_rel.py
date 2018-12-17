@@ -9,11 +9,8 @@ import os
 import unittest
 import multiprocessing
 import subprocess
-import scipy
 import pandas
-import logging
-import numpy
-import glob
+import scipy
 
 
 class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
@@ -48,62 +45,67 @@ class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
                 os.path.isfile(f), "Can't find test file {0}".format(f))
 
         ncpus = 1
-
-        outprefix = self.OUTPREFIX + self.MODEL + '_k2_' + str(self.K2)
-        expected_prefix = self.EXPECTED_PREFIX + self.MODEL + '_k2_' + \
-            str(self.K2)
+        model_with_bins = self.MODEL + '_k2_' + str(self.K2)
 
         if self.MODEL is 'ExpCM':
             subprocess.check_call(['phydms', self.ALIGNMENT, self.TREE,
-                                  'ExpCM_{0}'.format(self.PREFS), outprefix,
+                                  'ExpCM_{0}'.format(self.PREFS),
+                                   self.OUTPREFIX + model_with_bins,
                                    '--ncpus', str(ncpus), '--gammaomega',
                                    '--empirical_bayes', str(self.K2)])
         elif self.MODEL is 'YNGKP_M5':
             subprocess.check_call(['phydms', self.ALIGNMENT, self.TREE,
-                                  'YNGKP_M5', outprefix, '--ncpus',
-                                   str(ncpus), '--empirical_bayes',
+                                  'YNGKP_M5', self.OUTPREFIX + model_with_bins,
+                                   '--ncpus', str(ncpus), '--empirical_bayes',
                                    str(self.K2)])
         else:
             raise ValueError('Only ExpCM and YNGKP models are implemented at '
                              'this time.')
 
-        suffix_list = ['omegabycategory.csv', 'posteriorprobabilities.csv']
-        for suffix in suffix_list:
-            self.compare_output_dataframes(expected_prefix, outprefix, suffix)
+        self.compare_output_dataframes(
+            self.OUTPREFIX, self.EXPECTED_PREFIX, model_with_bins)
 
-        # Remove output files
-        suffix_list.extend(['log.log', 'loglikelihood.txt', 'tree.newick',
-                            'modelparams.txt'])
-        for suffix in suffix_list:
-            self.remove_output_files(outprefix, suffix)
-        if os.path.isdir(self.OUTPREFIX):
+        self.remove_output_files(self.OUTPREFIX, model_with_bins)
+        if not os.listdir(self.OUTPREFIX):
             os.rmdir(self.OUTPREFIX)
 
-    def compare_output_dataframes(self, expected_prefix, outprefix, suffix):
-        values = {}
-        file_list = [('expected', expected_prefix),
-                     ('actual', outprefix)]
-        for (name, prefix) in file_list:
-            fname = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                    prefix + '_' + suffix))
-            # fname = prefix + '_' + suffix
-            self.assertTrue(
-                os.path.isfile(fname),
-                "Can't find output file {0}".format(fname))
-            values[name] = pandas.read_csv(fname, comment='#', sep='\t')
-        self.assertTrue(
-            numpy.allclose(
-                values['actual'].select_dtypes(exclude=[object]),
-                values['expected'].select_dtypes(exclude=[object])) and
-            values['actual'].select_dtypes(include=[object]).equals(
-                values['expected'].select_dtypes(include=[object]))), \
-            "Expected and actual results differ in value."
+    def compare_output_dataframes(self, outprefix, expected_prefix,
+                                  model_with_bins):
+        omegas = {}
+        for (name, prefix) in [('expected', expected_prefix),
+                               ('actual', outprefix)]:
+            fname = os.path.abspath(os.path.join(prefix, './{0}{1}'.format(
+                model_with_bins, '_omegabycategory.csv')))
+            omegas[name] = pandas.read_csv(fname)
+        self.assertTrue(scipy.allclose(
+            omegas['actual']['post_probability'].values,
+            omegas['expected']['post_probability'].values,
+            atol=0.001, rtol=0.003))
+        self.assertTrue(scipy.allclose(
+            omegas['actual']['omega_value'].values,
+            omegas['expected']['omega_value'].values,
+            atol=0.001, rtol=0.003))
 
-    def remove_output_files(self, outprefix, suffix):
-        fname = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                outprefix + '_' + suffix))
-        if os.path.isfile(fname):
-            os.remove(fname)
+        posteriors = {}
+        for (name, prefix) in [('expected', expected_prefix),
+                               ('actual', outprefix)]:
+            fname = os.path.abspath(os.path.join(prefix, './{0}{1}'.format(
+                model_with_bins, '_posteriorprobabilities.csv')))
+            posteriors[name] = pandas.read_csv(fname)
+        self.assertTrue(scipy.allclose(
+            posteriors['actual']['pr(positive_selection)'].values,
+            posteriors['expected']['pr(positive_selection)'].values,
+            atol=0.001, rtol=0.003))
+
+    def remove_output_files(self, outprefix, model_with_bins):
+        suffix_list = ['_omegabycategory.csv', '_posteriorprobabilities.csv',
+                       '_log.log', '_loglikelihood.txt', '_tree.newick',
+                       '_modelparams.txt']
+        for suffix in suffix_list:
+            fname = os.path.abspath(os.path.join(outprefix, './{0}{1}'.format(
+                model_with_bins, suffix)))
+            if os.path.isfile(fname):
+                os.remove(fname)
 
 
 class test_phydms_rel_ExpCM_k2_50(test_phydms_rel_ExpCM_k2_4):
