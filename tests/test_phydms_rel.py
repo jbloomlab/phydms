@@ -82,7 +82,9 @@ class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
         file_list = [('expected', expected_prefix),
                      ('actual', outprefix)]
         for (name, prefix) in file_list:
-            fname = prefix + '_' + suffix
+            fname = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                    prefix + '_' + suffix))
+            # fname = prefix + '_' + suffix
             self.assertTrue(
                 os.path.isfile(fname),
                 "Can't find output file {0}".format(fname))
