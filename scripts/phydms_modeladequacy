@@ -22,9 +22,10 @@ import phydmslib.parsearguments
 import glob
 
 
-def runSimulator(simulator, seed_list):
+def runSimulator(arglist):
     """Runs `simulator.simulate` for a list of seeds"""
-    seed_list = [int(x) for x in seed_list]
+    simulator = arglist[0]
+    seed_list = [int(x) for x in arglist[1]]
     return map(simulator.simulate, seed_list)
 
 
@@ -222,8 +223,8 @@ def main():
     if ncpus > 1:
         pool = multiprocessing.Pool(ncpus)
         seed_batches = scipy.array_split(seeds, ncpus)
-        seed_batches = [(simulator, seed_batch) for seed_batch in seed_batches]
-        simulations = pool.starmap(runSimulator, seed_batches)
+        seed_batches = [[simulator, seed_batch] for seed_batch in seed_batches]
+        simulations = pool.map(runSimulator, seed_batches)
         simulations = list(itertools.chain.from_iterable(simulations))
         pool.close()
         pool.join()
