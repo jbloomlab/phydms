@@ -148,7 +148,7 @@ class test_compare_ExpCM(unittest.TestCase):
         """Calculate average pairwise amino-acid identity."""
         final = []
         for sim in a:
-            aa_seq = [translate_with_gaps(seq[1]) for seq in sim]
+            aa_seq = [self.translate_with_gaps(seq[1]) for seq in sim]
             for seq_pair in itertools.combinations(aa_seq, 2):
                 aa_id = [1 if seq_pair[0][i] == seq_pair[1][i] else 0
                          for i in range(len(seq_pair[0]))]
@@ -180,6 +180,16 @@ class test_compare_ExpCM(unittest.TestCase):
             if os.path.isfile(f):
                 os.remove(f)
         os.remove(self.tree_fname)
+
+    def translate_with_gaps(self, seq):
+        new_seq = []
+        for i in range(len(seq) // 3):
+            codon = seq[3 * i : 3 * i + 3]
+            if codon == '---':
+                new_seq.append("-")
+            else:
+                new_seq.append(CODONSTR_TO_AASTR[codon])
+        return("".join(new_seq))
 
 
 class test_compare_YNGKP_M0(test_compare_ExpCM):
