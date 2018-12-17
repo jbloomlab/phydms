@@ -78,7 +78,7 @@ def calc_aa_frequencies(alignment):
     return df
 
 
-def prefDistance(pi1, pi2, distmetric, check_input=False):
+def prefDistance(pi1, pi2, distmetric, check_input=True):
     """Compute the distance between two arrays of preferences.
 
     Args:

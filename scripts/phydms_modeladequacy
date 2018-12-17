@@ -248,12 +248,13 @@ def main():
         natural = alignment_freqs[site]
         for metric in metrics:
             # distance from model to simulations
-            sim = scipy.array([phydmslib.modeladequacy.prefDistance(sim, ss, metric)
+            sim = scipy.array([phydmslib.modeladequacy.prefDistance(sim, ss, metric, check_input=False)
                                for sim in sims])
             # distance from model to natural alignment
             natural_distance = phydmslib.modeladequacy.prefDistance(natural,
                                                                     ss,
-                                                                    metric)
+                                                                    metric,
+                                                                    check_input=False)
             pvalue = phydmslib.modeladequacy.calculate_pvalue(sim,
                                                               natural_distance,
                                                               seed=seed + site)
