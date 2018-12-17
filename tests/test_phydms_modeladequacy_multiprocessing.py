@@ -29,14 +29,16 @@ import subprocess
 class test_modeladequacy_ExpCM_mp(unittest.TestCase):
     """Runs model adequacy on an ExpCM with >1 CPU."""
     # run parameters
-    MODEL = "ExpCM_modeladequacy_tests/HA_short_prefs_nsites10.csv"
-    EXPECTED = "expected_modeladequacy_results/ExpCM_pvalues_seed0_500rep_pvalues.csv"
+    MODEL = "ExpCM_{0}".format(os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                               "modeladequacy_tests/HA_short_prefs_nsites10.csv"))
+    EXPECTED = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                            "expected_modeladequacy_results/ExpCM_pvalues_seed0_2000rep_pvalues.csv")
     SEED = 0
     NCPUS = 4
 
     def test_modeladequacy(self):
         """Runs model adequacy and compares against expected results."""
-        n_sim = 500
+        n_sim = 2000
         alignment = "modeladequacy_tests/HA_short_nsites10_nseqs34.fasta"
         outprefix = "_mp_results"
         cmd = ["phydms_modeladequacy", outprefix, alignment,
@@ -62,17 +64,17 @@ class test_modeladequacy_ExpCM_noMP(test_modeladequacy_ExpCM_mp):
     # run parameters
     NCPUS = 1
 
-class test_modeladequacy_YNGKPM0_mp(test_modeladequacy_ExpCM_mp):
-    """Runs model adequacy on a YNGKP_M0 with >1 CPU."""
-    # run parameters
-    MODEL = "YNGKP_M0"
-    EXPECTED = "expected_modeladequacy_results/YNGKPM0_pvalues_seed0_500rep_pvalues.csv"
-
-
-class test_modeladequacy_YNGKPM0_noMP(test_modeladequacy_YNGKPM0_mp):
-    """Runs model adequacy on a YNGKP_M0 with 1 CPU."""
-    # run parameters
-    NCPUS = 1
+# class test_modeladequacy_YNGKPM0_mp(test_modeladequacy_ExpCM_mp):
+#     """Runs model adequacy on a YNGKP_M0 with >1 CPU."""
+#     # run parameters
+#     MODEL = "YNGKP_M0"
+#     EXPECTED = "expected_modeladequacy_results/YNGKPM0_pvalues_seed0_500rep_pvalues.csv"
+#
+#
+# class test_modeladequacy_YNGKPM0_noMP(test_modeladequacy_YNGKPM0_mp):
+#     """Runs model adequacy on a YNGKP_M0 with 1 CPU."""
+#     # run parameters
+#     NCPUS = 1
 
 
 if __name__ == '__main__':
