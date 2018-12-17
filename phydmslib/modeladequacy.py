@@ -10,36 +10,6 @@ import scipy
 import math
 
 
-def translate_with_gaps(seq):
-    """Translate from nucleotides to amino acids.
-
-    Args:
-        `seq` (str)
-            The nucleotide sequence.
-    Returns:
-        The amino-acid sequence
-
-    >>> s1 = "ATGATG"
-    >>> s2 = "CTT---ATG"
-    >>> translate_with_gaps(s1) == "MM"
-    True
-    >>> translate_with_gaps(s2) == "L-M"
-    True
-
-    """
-    assert len(seq) % 3 == 0, "Sequence is not divisible by 3."
-    prot_seq = []
-    for i in range(0, len(seq), 3):
-        codon = seq[i:i+3]
-        if codon == "---":
-            aa = "-"
-        else:
-            codon = CODON_TO_INDEX[codon]
-            aa = INDEX_TO_AA[CODON_TO_AA[codon]]
-        prot_seq.append(aa)
-    return "".join(prot_seq)
-
-
 def calc_aa_frequencies(alignment):
     """Calculate amino-acid frequencies from a codon alignment.
 
@@ -84,9 +54,10 @@ def calc_aa_frequencies(alignment):
 
     # count amino acid frequencies
     for seq in alignment:
-        for i, aa in enumerate(translate_with_gaps(seq[1])):
-            if aa != '-':
-                df[aa][i] += 1
+        for i in range(seqlength):
+            codon = seq[1][3 * i : 3 * i + 3]
+            if codon != '---':
+                df[CODONSTR_TO_AASTR[codon]][i] += 1
     df = pd.DataFrame(df)
 
     # Normalize the dataframe
