@@ -71,10 +71,12 @@ class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
         for suffix in suffix_list:
             self.compare_output_dataframes(expected_prefix, outprefix, suffix)
 
-        # remove files
-        for fname in glob.glob("{0}_*".format(outprefix)):
-            os.remove(fname)
-        if not os.listdir(self.OUTPREFIX):
+        # Remove output files
+        suffix_list.extend(['log.log', 'loglikelihood.txt', 'tree.newick',
+                            'modelparams.txt'])
+        for suffix in suffix_list:
+            self.remove_output_files(outprefix, suffix)
+        if os.path.isdir(self.OUTPREFIX):
             os.rmdir(self.OUTPREFIX)
 
     def compare_output_dataframes(self, expected_prefix, outprefix, suffix):
@@ -96,6 +98,12 @@ class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
             values['actual'].select_dtypes(include=[object]).equals(
                 values['expected'].select_dtypes(include=[object]))), \
             "Expected and actual results differ in value."
+
+    def remove_output_files(self, outprefix, suffix):
+        fname = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                outprefix + '_' + suffix))
+        if os.path.isfile(fname):
+            os.remove(fname)
 
 
 class test_phydms_rel_ExpCM_k2_50(test_phydms_rel_ExpCM_k2_4):
