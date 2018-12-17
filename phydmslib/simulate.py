@@ -171,10 +171,10 @@ class Simulator(object):
             return alignment
 
         # beginning of `simulate` function
+        assert randomSeed is None or isinstance(randomSeed, int)
         if randomSeed is not False:
             scipy.random.seed(randomSeed)
-            np.random.seed(randomSeed)
-
+            
         # set up alignment and begin tree traversal
         nodes = self._internalnode + self._terminalnode
         alignment = {node: [] for node in nodes}
