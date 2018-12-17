@@ -107,7 +107,7 @@ def calc_aa_frequencies(alignment):
     return df
 
 
-def prefDistance(pi1, pi2, distmetric):
+def prefDistance(pi1, pi2, distmetric, check_input=False):
     """Compute the distance between two arrays of preferences.
 
     Args:
@@ -133,13 +133,12 @@ def prefDistance(pi1, pi2, distmetric):
     True
 
     """
-    pi1 = scipy.array(pi1)
-    pi2 = scipy.array(pi2)
-    assert len(pi1) == len(pi2)
-    assert scipy.allclose(pi1.sum(), 1, atol=0.005)
-    assert scipy.allclose(pi2.sum(), 1, atol=0.005)
-    assert scipy.all(pi1 >= 0)
-    assert scipy.all(pi2 >= 0)
+    if check_input:
+        assert len(pi1) == len(pi2)
+        assert scipy.allclose(pi1.sum(), 1, atol=0.005)
+        assert scipy.allclose(pi2.sum(), 1, atol=0.005)
+        assert scipy.all(pi1 >= 0)
+        assert scipy.all(pi2 >= 0)
 
     if distmetric == 'half_sum_abs_diff':
         dist = (scipy.fabs(pi1 - pi2)).sum() / 2.0
@@ -174,9 +173,6 @@ def divJensenShannon(p1, p2):
     True
 
     """
-    p1 = scipy.array(p1)
-    p2 = scipy.array(p2)
-
     def _kldiv(a, b):
         with scipy.errstate(all='ignore'):
             kl = a * scipy.log2(a / b)
