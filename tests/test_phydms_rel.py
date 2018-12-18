@@ -28,7 +28,7 @@ class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
     OUTPREFIX = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                 './_phydms_rel_test_results/'))
     EXPECTED_PREFIX = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                      './expected_rel_test_results/'))
+                                      './expected_rel_test_results/real_data'))
 
     if OUTPREFIX[-1] != '/':
         OUTPREFIX = '{0}/'.format(OUTPREFIX)
@@ -127,6 +127,19 @@ class test_phydms_rel_YNGKP_M5_k2_50(test_phydms_rel_YNGKP_M5_k2_4):
        bins used for integration.
     """
     K2 = 50
+
+
+class test_phydms_rel_ExpCM_simulated(test_phydms_rel_ExpCM_k2_4):
+    """Tests command-line usage of REL implementation of ``phydms`` with
+       4 bins used for integration, applied to a simulated sequence with
+       one site under strong positive selection.
+    """
+    ALIGNMENT = os.path.abspath(
+        os.path.join(os.path.dirname(__file__),
+                     './REL_input_data/NP_simulated_alignment.fasta'))
+    EXPECTED_PREFIX = os.path.abspath(
+        os.path.join(os.path.dirname(__file__),
+                     './expected_rel_test_results/simulated_data'))
 
 
 if __name__ == '__main__':
