@@ -44,8 +44,8 @@ class test_modeladequacy_ExpCM_seed0(unittest.TestCase):
         outprefix = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                  "_model_adequacy_results")
         cmd = ["phydms_modeladequacy", outprefix, alignment,
-               self.MODEL, "--number_simulations", str(n_sim), "--tree", self.TREE,
-               "--seed", str(self.SEED)]
+               self.MODEL, "--number_simulations", str(n_sim), "--tree",
+               self.TREE, "--seed", str(self.SEED)]
         subprocess.check_call(cmd)
 
         final = (pd.read_csv("{0}_pvalues.csv".format(outprefix))
@@ -83,6 +83,7 @@ class test_modeladequacy_YNGKPM0_seed1(test_modeladequacy_YNGKPM0_seed0):
     SEED = 1
     EXPECTED = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                             "expected_modeladequacy_results/YNGKP_M0_pvalues_seed1.csv")
+
 
 if __name__ == '__main__':
     runner = unittest.TextTestRunner()

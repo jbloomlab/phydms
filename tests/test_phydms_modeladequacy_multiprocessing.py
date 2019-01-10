@@ -47,8 +47,8 @@ class test_modeladequacy_ExpCM_mp(unittest.TestCase):
         outprefix = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                  "_model_adequacy_results")
         cmd = ["phydms_modeladequacy", outprefix, alignment,
-               self.MODEL, "--number_simulations", str(n_sim), "--tree", self.TREE,
-               "--seed", str(self.SEED), "--ncpus", str(self.NCPUS)]
+               self.MODEL, "--number_simulations", str(n_sim), "--tree",
+               self.TREE, "--seed", str(self.SEED), "--ncpus", str(self.NCPUS)]
         subprocess.check_call(cmd)
 
         final = (pd.read_csv("{0}_pvalues.csv".format(outprefix))
