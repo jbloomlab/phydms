@@ -43,10 +43,8 @@ class test_modeladequacy_ExpCM_seed0(unittest.TestCase):
                                  "modeladequacy_tests/HA_short_nsites10_nseqs34.fasta")
         outprefix = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                  "_model_adequacy_results")
-        tree = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                            "modeladequacy_tests/HA_short_nsites10_nseqs34_tree.newick")
         cmd = ["phydms_modeladequacy", outprefix, alignment,
-               self.MODEL, "--number_simulations", str(n_sim), "--tree", tree,
+               self.MODEL, "--number_simulations", str(n_sim), "--tree", self.TREE,
                "--seed", str(self.SEED)]
         subprocess.check_call(cmd)
 
