@@ -3,7 +3,7 @@
 This test examines the functionality of the model adequcy protocol and checks
 the results against the output in `expected_modeladequacy_results`.
 
-All of the runs using multiprocessing.
+Due to a small number of simulations, multiprocessing is not used.
 
 Written by Sarah Hilton.
 """
