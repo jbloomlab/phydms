@@ -34,15 +34,20 @@ class test_modeladequacy_ExpCM_mp(unittest.TestCase):
     EXPECTED = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                             "expected_modeladequacy_results/ExpCM_pvalues_seed0_2000rep_pvalues.csv")
     SEED = 0
+    TREE = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                        "modeladequacy_tests/HA_short_nsites10_nseqs34_tree.newick")
     NCPUS = 4
 
     def test_modeladequacy(self):
         """Runs model adequacy and compares against expected results."""
+        """Runs model adequacy and compares against expected results."""
         n_sim = 2000
-        alignment = "modeladequacy_tests/HA_short_nsites10_nseqs34.fasta"
-        outprefix = "_mp_results"
+        alignment = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                 "modeladequacy_tests/HA_short_nsites10_nseqs34.fasta")
+        outprefix = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                 "_model_adequacy_results")
         cmd = ["phydms_modeladequacy", outprefix, alignment,
-               self.MODEL, "--number_simulations", str(n_sim), "--raxml", "raxml",
+               self.MODEL, "--number_simulations", str(n_sim), "--tree", self.TREE,
                "--seed", str(self.SEED), "--ncpus", str(self.NCPUS)]
         subprocess.check_call(cmd)
 
@@ -63,18 +68,6 @@ class test_modeladequacy_ExpCM_noMP(test_modeladequacy_ExpCM_mp):
     """Runs model adequacy on an ExpCM with 1 CPU."""
     # run parameters
     NCPUS = 1
-
-# class test_modeladequacy_YNGKPM0_mp(test_modeladequacy_ExpCM_mp):
-#     """Runs model adequacy on a YNGKP_M0 with >1 CPU."""
-#     # run parameters
-#     MODEL = "YNGKP_M0"
-#     EXPECTED = "expected_modeladequacy_results/YNGKPM0_pvalues_seed0_500rep_pvalues.csv"
-#
-#
-# class test_modeladequacy_YNGKPM0_noMP(test_modeladequacy_YNGKPM0_mp):
-#     """Runs model adequacy on a YNGKP_M0 with 1 CPU."""
-#     # run parameters
-#     NCPUS = 1
 
 
 if __name__ == '__main__':
