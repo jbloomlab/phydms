@@ -23,13 +23,11 @@ import glob
 import time
 
 
-def runSimulator(arglist, return_dict):
+def runSimulator(simulator, seed_list, i, return_dict):
     """Runs `simulator.simulate` for a list of seeds"""
-    simulator = arglist[0]
-    seed_list = [int(x) for x in arglist[1]]
-    catch = list(map(simulator.simulate, seed_list))
-    return_dict[arglist[2]] = catch
-    # return catch
+    seed_list = [int(x) for x in seed_list]
+    simulations = list(map(simulator.simulate, seed_list))
+    return_dict[i] = simulations
 
 
 def RunCmds(cmds):
@@ -117,6 +115,23 @@ def main():
         raise ValueError("Model must be YNKP_M0 or ExpCM not {0}"
                          .format(args["model"]))
 
+    # set up cpus
+    logger.info('Starting simulations.')
+    logger.info('Performing {0} replicate simulations.'
+                .format(args["number_simulations"]))
+    min_sims_per_cpu = 100
+    if args['ncpus'] == -1:
+        ncpus = multiprocessing.cpu_count()
+    else:
+        ncpus = args['ncpus']
+    assert ncpus >= 1, "{0} CPUs specified".format(ncpus)
+    if (args["number_simulations"]/ncpus) < min_sims_per_cpu:
+        ncpus = max(1, args["number_simulations"] // min_sims_per_cpu)
+        logger.info('Using {0} CPU(s) to ensure >= {1} simulations / CPU'
+                    .format(ncpus, min_sims_per_cpu))
+    else:
+        logger.info('Using {0} CPUs.'.format(ncpus))
+
     # check alignment
     alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'],
                                                      checknewickvalid=True)
@@ -124,6 +139,7 @@ def main():
                 'alignment {1}'.format(model, args['alignment'])))
     logger.info('{0} is a valid alignment specifying {1} sequences of length {2}.\n'
                 .format(args["alignment"], len(alignment), len(alignment[0][1])))
+
     # calc alignment frequencies
     alignment_freqs = phydmslib.modeladequacy.calc_aa_frequencies(alignment)
     alignment_freqs["alignment"] = (alignment_freqs[amino_acids]
@@ -155,7 +171,6 @@ def main():
                 logger.info('Removed the following RAxML files:\n{0}\n'
                             .format('\n'.join(['\t{0}'.format(fname) for
                                                fname in raxmlOutputFiles])))
-
             # run RAxmL
             raxmlCMD = [args['raxml'], '-s', args['alignment'], '-n',
                         raxmlOutputName, '-m', 'GTRCAT', '-p1', '-T', '2']
@@ -175,7 +190,7 @@ def main():
             raise ValueError("The raxml command of {0} is not valid. Is raxml"
                              " installed at this path?".format(args['raxml']))
 
-    # fit the model
+    # run `phydms` to fit the model
     modelparams = "{0}phydms_modelparams.txt".format(args["outprefix"])
     phydms_CMD = ["phydms", args["alignment"], args["tree"],
                   model, "{0}{1}".format(args["outprefix"], "phydms")]
@@ -186,23 +201,6 @@ def main():
         params = f.read()
     logger.info('phydms run complete. Optimized parameters ({0}) are\n{1}\n'
                 .format(modelparams, params))
-
-    # setting up cpus
-    logger.info('Starting simulations.')
-    logger.info('Performing {0} replicate simulations.'
-                .format(args["number_simulations"]))
-    # get number of cpus for multiprocessing
-    min_sims_per_cpu = 100
-    if args['ncpus'] == -1:
-        ncpus = multiprocessing.cpu_count()
-    else:
-        ncpus = args['ncpus']
-    assert ncpus >= 1, "{0} CPUs specified".format(ncpus)
-    if (args["number_simulations"]/ncpus) < min_sims_per_cpu:
-        ncpus = max(1, args["number_simulations"] // min_sims_per_cpu)
-        logger.info('Using {0} CPU(s) to ensure >= {1} simulations / CPU'.format(ncpus, min_sims_per_cpu))
-    else:
-        logger.info('Using {0} CPUs.'.format(ncpus))
 
     # build model
     if model_type == "ExpCM":
@@ -222,7 +220,7 @@ def main():
         if (node.branch_length is None) and (node == tree.root):
             node.branch_length = 1e-06
 
-    # build the simulator object and simulate
+    # build the simulator object
     simulator = phydmslib.simulate.Simulator(tree, model)
     seeds = [seed+i for i in range(args["number_simulations"])]
 
@@ -230,25 +228,25 @@ def main():
     if ncpus == 1:
         simulations = map(simulator.simulate, seeds)
         simulations = list(simulations)
-    elif ncpus > 1:
+    elif ncpus > 1:  # use multiprocessing
         manager = multiprocessing.Manager()
-        return_dict = manager.dict()
+        simulations = manager.dict()
         seed_batches = scipy.array_split(seeds, ncpus)
         assert len(seed_batches) == ncpus
         processes = []
         for i, seed_batch in enumerate(seed_batches):
-            values = [simulator, seed_batch, i]
-            p = multiprocessing.Process(target=runSimulator, args=(values,return_dict))
+            p = multiprocessing.Process(target=runSimulator, args=(simulator,
+                                                                   seed_batch,
+                                                                   i,
+                                                                   simulations))
             processes.append(p)
             p.start()
-
         for process in processes:
             process.join()
-        simulations = return_dict.values()
+        simulations = simulations.values()
         simulations = list(itertools.chain.from_iterable(simulations))
     else:
         raise ValueError("Unexpected number of cpus ({0})".format(ncpus))
-
     assert len(simulations) == args['number_simulations']
 
     # process the simulations
