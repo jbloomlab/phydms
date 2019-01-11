@@ -189,7 +189,7 @@ def main():
     logger.info('Starting simulations.')
     logger.info('Performing {0} replicate simulations.'
                 .format(args["number_simulations"]))
-    min_sims_per_cpu = 100
+    min_sims_per_cpu = 1000
     if args['ncpus'] == -1:
         ncpus = multiprocessing.cpu_count()
     else:
