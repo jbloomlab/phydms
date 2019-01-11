@@ -31,7 +31,7 @@ class test_modeladequacy_ExpCM_seed0(unittest.TestCase):
     MODEL = "ExpCM_{0}".format(os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                "modeladequacy_tests/HA_short_prefs_nsites10.csv"))
     EXPECTED = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                            "expected_modeladequacy_results/ExpCM_pvalues_seed1.csv")
+                            "expected_modeladequacy_results/ExpCM_pvalues_seed0.csv")
     TREE = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                         "modeladequacy_tests/HA_short_nsites10_nseqs34_tree.newick")
     SEED = 0
