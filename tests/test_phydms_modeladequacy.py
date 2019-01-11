@@ -53,11 +53,11 @@ class test_modeladequacy_ExpCM_seed0(unittest.TestCase):
         expected = (pd.read_csv(self.EXPECTED)
                     .sort_values(by=["site", "metric"]))
 
-        self.assertTrue(scipy.allclose(final["pvalue"], expected["pvalue"]),
+        self.assertTrue(scipy.allclose(final["pvalue"], expected["pvalue"], atol=1e-5),
                        " pvalue: Expected \n{0}\n \nvs.\n \n{1}.".format(
                        final["pvalue"].to_string(),
                        final["pvalue"].to_string()))
-        self.assertTrue(scipy.allclose(final["qvalue"], expected["qvalue"]),
+        self.assertTrue(scipy.allclose(final["qvalue"], expected["qvalue"], atol=1e-5),
                        " qvalue: Expected \n{0}\n \nvs.\n \n{1}.".format(
                        final["qvalue"].to_string(),
                        final["qvalue"].to_string()))
