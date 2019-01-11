@@ -55,11 +55,11 @@ class test_modeladequacy_ExpCM_seed0(unittest.TestCase):
 
         self.assertTrue(scipy.allclose(final["pvalue"], expected["pvalue"], atol=1e-5),
                        " pvalue: Expected \n{0}\n \nvs.\n \n{1}.".format(
-                       final["pvalue"].to_string(),
+                       expected["pvalue"].to_string(),
                        final["pvalue"].to_string()))
         self.assertTrue(scipy.allclose(final["qvalue"], expected["qvalue"], atol=1e-5),
                        " qvalue: Expected \n{0}\n \nvs.\n \n{1}.".format(
-                       final["qvalue"].to_string(),
+                       expected["qvalue"].to_string(),
                        final["qvalue"].to_string()))
         # remove files
         for fname in glob.glob("{0}_*".format(outprefix)):
