@@ -56,7 +56,7 @@ class test_modeladequacy_ExpCM_mp(unittest.TestCase):
         expected = (pd.read_csv(self.EXPECTED)
                     .sort_values(by=["site", "metric"]))
 
-        self.assertTrue(scipy.allclose(final["pvalue"], expected["pvalue"]))
+        self.assertTrue(scipy.allclose(final["pvalue"], expected["pvalue"], "Expected {0} vs. {1}.".format(",".join(final["pvalue"].to_string()), ",".join(final["qvalue"].to_string())))
         self.assertTrue(scipy.allclose(final["qvalue"], expected["qvalue"]))
 
         # remove files
