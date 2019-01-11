@@ -31,7 +31,7 @@ class test_modeladequacy_ExpCM_seed0(unittest.TestCase):
     MODEL = "ExpCM_{0}".format(os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                "modeladequacy_tests/HA_short_prefs_nsites10.csv"))
     EXPECTED = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                            "expected_modeladequacy_results/ExpCM_pvalues_seed0.csv")
+                            "expected_modeladequacy_results/ExpCM_pvalues_seed1.csv")
     TREE = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                         "modeladequacy_tests/HA_short_nsites10_nseqs34_tree.newick")
     SEED = 0
@@ -53,9 +53,14 @@ class test_modeladequacy_ExpCM_seed0(unittest.TestCase):
         expected = (pd.read_csv(self.EXPECTED)
                     .sort_values(by=["site", "metric"]))
 
-        self.assertTrue(scipy.allclose(final["pvalue"], expected["pvalue"]), "Expected {0} vs. {1}.".format(",".join(final["pvalue"].to_string()), ",".join(final["qvalue"].to_string())))
-        self.assertTrue(scipy.allclose(final["qvalue"], expected["qvalue"]))
-
+        self.assertTrue(scipy.allclose(final["pvalue"], expected["pvalue"]),
+                       " pvalue: Expected \n{0}\n \nvs.\n \n{1}.".format(
+                       final["pvalue"].to_string(),
+                       final["pvalue"].to_string()))
+        self.assertTrue(scipy.allclose(final["qvalue"], expected["qvalue"]),
+                       " qvalue: Expected \n{0}\n \nvs.\n \n{1}.".format(
+                       final["qvalue"].to_string(),
+                       final["qvalue"].to_string()))
         # remove files
         for fname in glob.glob("{0}_*".format(outprefix)):
             os.remove(fname)
