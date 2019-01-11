@@ -115,23 +115,6 @@ def main():
         raise ValueError("Model must be YNKP_M0 or ExpCM not {0}"
                          .format(args["model"]))
 
-    # set up cpus
-    logger.info('Starting simulations.')
-    logger.info('Performing {0} replicate simulations.'
-                .format(args["number_simulations"]))
-    min_sims_per_cpu = 100
-    if args['ncpus'] == -1:
-        ncpus = multiprocessing.cpu_count()
-    else:
-        ncpus = args['ncpus']
-    assert ncpus >= 1, "{0} CPUs specified".format(ncpus)
-    if (args["number_simulations"]/ncpus) < min_sims_per_cpu:
-        ncpus = max(1, args["number_simulations"] // min_sims_per_cpu)
-        logger.info('Using {0} CPU(s) to ensure >= {1} simulations / CPU'
-                    .format(ncpus, min_sims_per_cpu))
-    else:
-        logger.info('Using {0} CPUs.'.format(ncpus))
-
     # check alignment
     alignment = phydmslib.file_io.ReadCodonAlignment(args['alignment'],
                                                      checknewickvalid=True)
@@ -201,6 +184,23 @@ def main():
         params = f.read()
     logger.info('phydms run complete. Optimized parameters ({0}) are\n{1}\n'
                 .format(modelparams, params))
+
+    # set up cpus
+    logger.info('Starting simulations.')
+    logger.info('Performing {0} replicate simulations.'
+                .format(args["number_simulations"]))
+    min_sims_per_cpu = 100
+    if args['ncpus'] == -1:
+        ncpus = multiprocessing.cpu_count()
+    else:
+        ncpus = args['ncpus']
+    assert ncpus >= 1, "{0} CPUs specified".format(ncpus)
+    if (args["number_simulations"]/ncpus) < min_sims_per_cpu:
+        ncpus = max(1, args["number_simulations"] // min_sims_per_cpu)
+        logger.info('Using {0} CPU(s) to ensure >= {1} simulations / CPU'
+                    .format(ncpus, min_sims_per_cpu))
+    else:
+        logger.info('Using {0} CPUs.'.format(ncpus))
 
     # build model
     if model_type == "ExpCM":
