@@ -53,15 +53,15 @@ class test_modeladequacy_ExpCM_seed0(unittest.TestCase):
         expected = (pd.read_csv(self.EXPECTED)
                     .sort_values(by=["site", "metric"]))
 
-        self.assertTrue(scipy.allclose(final["pvalue"], expected["pvalue"], atol=1e-2),
+        self.assertTrue(scipy.allclose(final["pvalue"], expected["pvalue"]),
                        " pvalue: Expected \n{0}\n \nvs.\n \n{1}.".format(
                        expected["pvalue"].to_string(),
                        final["pvalue"].to_string()))
-        self.assertTrue(scipy.allclose(final["qvalue"], expected["qvalue"], atol=1e-2),
+        self.assertTrue(scipy.allclose(final["qvalue"], expected["qvalue"]),
                        " qvalue: Expected \n{0}\n \nvs.\n \n{1}.".format(
                        expected["qvalue"].to_string(),
                        final["qvalue"].to_string()))
-        # remove files
+        remove files
         for fname in glob.glob("{0}_*".format(outprefix)):
             os.remove(fname)
 
