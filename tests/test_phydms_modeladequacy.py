@@ -61,7 +61,7 @@ class test_modeladequacy_ExpCM_seed0(unittest.TestCase):
                        " qvalue: Expected \n{0}\n \nvs.\n \n{1}.".format(
                        expected["qvalue"].to_string(),
                        final["qvalue"].to_string()))
-        remove files
+        # remove files
         for fname in glob.glob("{0}_*".format(outprefix)):
             os.remove(fname)
 
