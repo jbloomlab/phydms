@@ -29,18 +29,18 @@ class test_modeladequacy_ExpCM_seed0(unittest.TestCase):
     """Runs model adequacy on an ExpCM."""
     # run parameters
     MODEL = "ExpCM_{0}".format(os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                               "modeladequacy_tests/HA_short_prefs_nsites10.csv"))
+                               "NP_data/NP_prefs_short.csv"))
     EXPECTED = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                             "expected_modeladequacy_results/ExpCM_pvalues_seed0.csv")
     TREE = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                        "modeladequacy_tests/HA_short_nsites10_nseqs34_tree.newick")
+                        "NP_data/NP_tree_short.newick")
     SEED = 0
 
     def test_modeladequacy(self):
         """Runs model adequacy and compares against expected results."""
-        n_sim = 100
+        n_sim = 1999
         alignment = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                 "modeladequacy_tests/HA_short_nsites10_nseqs34.fasta")
+                                 "NP_data/NP_alignment_short.fasta")
         outprefix = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                  "_model_adequacy_results")
         cmd = ["phydms_modeladequacy", outprefix, alignment,
@@ -48,19 +48,14 @@ class test_modeladequacy_ExpCM_seed0(unittest.TestCase):
                self.TREE, "--seed", str(self.SEED)]
         subprocess.check_call(cmd)
 
-        final = (pd.read_csv("{0}_pvalues.csv".format(outprefix))
-                 .sort_values(by=["site", "metric"]))
-        expected = (pd.read_csv(self.EXPECTED)
-                    .sort_values(by=["site", "metric"]))
 
-        self.assertTrue(scipy.allclose(final["pvalue"], expected["pvalue"]),
-                       " pvalue: Expected \n{0}\n \nvs.\n \n{1}.".format(
-                       expected["pvalue"].to_string(),
-                       final["pvalue"].to_string()))
-        self.assertTrue(scipy.allclose(final["qvalue"], expected["qvalue"]),
-                       " qvalue: Expected \n{0}\n \nvs.\n \n{1}.".format(
-                       expected["qvalue"].to_string(),
-                       final["qvalue"].to_string()))
+        final = (pd.read_csv("{0}_pvalues.csv".format(outprefix)))
+        expected = (pd.read_csv(self.EXPECTED))
+        merged = pd.merge(final, expected, on=["site", "metric"], how='outer', suffixes=('_final', '_expected'))
+        merged = merged[["site", "metric", "pvalue_final", "pvalue_expected", "qvalue_final", "qvalue_expected"]]
+        self.assertTrue(scipy.allclose(merged["pvalue_expected"],
+                                       merged["pvalue_final"], atol=1e-3),
+                                        "Unexpected results: \n{0}".format(merged))
         # remove files
         for fname in glob.glob("{0}_*".format(outprefix)):
             os.remove(fname)
