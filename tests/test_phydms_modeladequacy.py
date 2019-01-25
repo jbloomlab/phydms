@@ -38,7 +38,7 @@ class test_modeladequacy_ExpCM_seed0(unittest.TestCase):
 
     def test_modeladequacy(self):
         """Runs model adequacy and compares against expected results."""
-        n_sim = 1999
+        n_sim = 500
         alignment = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                  "NP_data/NP_alignment_short.fasta")
         outprefix = os.path.join(os.path.abspath(os.path.dirname(__file__)),
