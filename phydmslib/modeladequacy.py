@@ -88,6 +88,7 @@ def prefDistance(pi1, pi2, distmetric, check_input=True):
             Distance metric to use. Can be:
                 - `half_sum_abs_diff`: half sum absolute value of difference
                 - `JensenShannon`: square root of Jensen-Shannon divergence
+                - `RMSD`: root mean square distances
 
     Returns:
         The distance between `pi1` and `pi2`.
@@ -98,9 +99,13 @@ def prefDistance(pi1, pi2, distmetric, check_input=True):
     True
     >>> scipy.allclose(prefDistance(pi1, pi1, 'JensenShannon'), 0)
     True
+    >>> scipy.allclose(prefDistance(pi1, pi1, 'RMSD'), 0)
+    True
     >>> scipy.allclose(prefDistance(pi1, pi2, 'half_sum_abs_diff'), 0.3)
     True
     >>> scipy.allclose(prefDistance(pi1, pi2, 'JensenShannon'), 0.2785483)
+    True
+    >>> scipy.allclose(prefDistance(pi1, pi2, 'RMSD'), 0.2160245)
     True
 
     """
@@ -116,7 +121,8 @@ def prefDistance(pi1, pi2, distmetric, check_input=True):
 
     elif distmetric == 'JensenShannon':
         dist = math.sqrt(divJensenShannon(pi1, pi2))
-
+    elif distmetric == "RMSD":
+        dist = math.sqrt(scipy.square(pi1 - pi2).mean())
     else:
         raise ValueError('Invalid `distmetric` {0}'.format(distmetric))
 

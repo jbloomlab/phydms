@@ -60,7 +60,7 @@ def main():
     # set up
     amino_acids = list(INDEX_TO_AA.values())
     amino_acids.sort()
-    metrics = ["JensenShannon", "half_sum_abs_diff"]
+    metrics = ["JensenShannon", "half_sum_abs_diff", "RMSD"]
 
     # setup files
     # file names slightly different depending on
