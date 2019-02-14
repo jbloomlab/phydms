@@ -35,9 +35,9 @@ class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
     if EXPECTED_PREFIX[-1] != '/':
         EXPECTED_PREFIX = '{0}/'.format(EXPECTED_PREFIX)
 
-    def test_rel_expected_output_ExpCM(self):
+    def test_rel_expected_output(self):
         """Tests expected output from command-line usage of REL implementation
-        of ``phydms`` using NP data for ExpCM.
+        of ``phydms``.
         """
         # Confirm input data exist
         for f in [self.ALIGNMENT, self.TREE, self.PREFS]:

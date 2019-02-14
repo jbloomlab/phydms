@@ -326,6 +326,10 @@ def PhyDMSComprehensiveParser():
     parser.set_defaults(randprefs=False)
     parser.add_argument('--randprefs', dest='randprefs', action='store_true',
             help="Include ExpCM models with randomized preferences.")
+    parser.add_argument('--empirical_bayes', default=False,
+            type=IntGreaterThanOne, dest='empirical_bayes', help='The number '
+            'of categories used for the integration of a discretized omega '
+            'distribution.')
     parser.add_argument('-v', '--version', action='version', version=
             '%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser

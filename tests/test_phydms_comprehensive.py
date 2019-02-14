@@ -34,15 +34,19 @@ class test_phydms_comprehensive(unittest.TestCase):
 
         ncpus = min(20, multiprocessing.cpu_count())
 
+        K2 = 4  # Number of bins used in empirical Bayes integration
+
         subprocess.check_call(['phydms_comprehensive', outprefix, alignment,
                 prefs, "--tree", tree, "--omegabysite", '--brlen', 'scale',
-                '--ncpus', str(ncpus)])
+                '--ncpus', str(ncpus), '--gammaomega', '--empirical_bayes',
+                str(K2)])
 
         expectedresults = os.path.abspath(os.path.join(os.path.dirname(__file__),
                 './expected_NP_test_results/'))
 
-        models = ['ExpCM_NP_prefs_short', 'averaged_ExpCM_NP_prefs_short', 'YNGKP_M0',
-                'YNGKP_M5']
+        models = ['ExpCM_NP_prefs_short', 'averaged_ExpCM_NP_prefs_short',
+                  'YNGKP_M0', 'YNGKP_M5', 'ExpCM_NP_prefs_short_gammaomega',
+                  'averaged_ExpCM_NP_prefs_short_gammaomega']
 
         for model in models:
             values = {}
