@@ -23,12 +23,8 @@ import glob
 import time
 
 
-def runSimulator(params):
+def runSimulator(simulator, seed_list, i, return_dict):
     """Runs `simulator.simulate` for a list of seeds"""
-    simulator = params[0]
-    seed_list = params[1]
-    i = seed_list[2]
-    return_dict = params[3]
     seed_list = [int(x) for x in seed_list]
     simulations = list(map(simulator.simulate, seed_list))
     return_dict[i] = simulations
@@ -197,20 +193,20 @@ def main():
     logger.info('Performing {0} replicate simulations.'
                 .format(args["number_simulations"]))
     min_sims_per_cpu = 1000
-    max_sims_per_cpu = 10000
+    # max_sims_per_cpu = 10000
     if args['ncpus'] == -1:
         ncpus = multiprocessing.cpu_count()
     else:
         ncpus = args['ncpus']
-        n_batches = ncpus
+        # n_batches = ncpus
     assert ncpus >= 1, "{0} CPUs specified".format(ncpus)
     if (args["number_simulations"]/ncpus) < min_sims_per_cpu:
         ncpus = max(1, args["number_simulations"] // min_sims_per_cpu)
-        n_batches = ncpus
+        # n_batches = ncpus
         logger.info('Using {0} CPU(s) to ensure >= {1} simulations / CPU'
                     .format(ncpus, min_sims_per_cpu))
-    elif (args["number_simulations"]/ncpus) > max_sims_per_cpu:
-        n_batches = round(args["number_simulations"] / max_sims_per_cpu)
+    # elif (args["number_simulations"]/ncpus) > max_sims_per_cpu:
+    #     n_batches = round(args["number_simulations"] / max_sims_per_cpu)
     else:
         logger.info('Using {0} CPUs.'.format(ncpus))
 
@@ -242,17 +238,23 @@ def main():
         simulations = list(simulations)
     elif ncpus > 1:  # use multiprocessing
         manager = multiprocessing.Manager()
-        simulations = manager.dict()
-        seed_batches = scipy.array_split(seeds, n_batches)
-        seed_batches = [[simulator, seed_batches[i], i, simulations]
-                        for i in range(len(seed_batches))]
+        sims = manager.dict()
+        seed_batches = scipy.array_split(seeds, ncpus)
         assert len(seed_batches) == ncpus
-        pool = multiprocessing.Pool(processes=ncpus)
-        pool.map(runSimulator, seed_batches)
-        pool.close()
-        pool.join()
-        simulations = simulations.values()
-        simulations = list(itertools.chain.from_iterable(simulations))
+        processes = []
+        for i, seed_batch in enumerate(seed_batches):
+            p = multiprocessing.Process(target=runSimulator, args=(simulator,
+                                                                   seed_batch,
+                                                                   i,
+                                                                   sims))
+            processes.append(p)
+            p.start()
+        for process in processes:
+            process.join()
+        # unpack the simulations from `Manager`
+        simulations = []
+        for key in sims.keys():
+            simulations.extend(sims[key])
     else:
         raise ValueError("Unexpected number of cpus ({0})".format(ncpus))
     assert len(simulations) == args['number_simulations']
