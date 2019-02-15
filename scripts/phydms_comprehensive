@@ -172,15 +172,16 @@ def main():
             if args['empirical_bayes']:
                 models[gammaomegamodelname] = (
                     'ExpCM_{0}'.format(prefsfile), additionalcmds +
-                    ['--gammaomega'] + ['--empirical_bayes'] +
-                    [str(args['empirical_bayes'])])
+                    ['--gammaomega'] + ['--ncats'] + [str(args['ncats'])] +
+                    ['--empirical_bayes'] + [str(args['empirical_bayes'])])
                 filesuffixes[gammaomegamodelname] = \
                     copy.deepcopy(filesuffixlist) + \
                     ['_omegabycategory.csv'] + ['_posteriorprobabilities.csv']
             else:
                 models[gammaomegamodelname] = (
                     'ExpCM_{0}'.format(prefsfile),
-                    additionalcmds + ['--gammaomega'])
+                    additionalcmds + ['--gammaomega'] + ['--ncats'] +
+                    [str(args['ncats'])])
                 filesuffixes[gammaomegamodelname] = filesuffixlist
         if args["gammabeta"]:
             gammabetamodelname = '{0}_gammabeta'.format(modelname)
@@ -197,8 +198,8 @@ def main():
                 if args['empirical_bayes']:
                     models[avgmodelname] = (
                         'ExpCM_{0}'.format(prefsfile), additionalcmds +
-                        ['--gammaomega'] + ['--avgprefs'] +
-                        ['--empirical_bayes'] +
+                        ['--gammaomega'] + ['--ncats'] + [str(args['ncats'])] +
+                        ['--avgprefs'] + ['--empirical_bayes'] +
                         [str(args['empirical_bayes'])], 0)
                     filesuffixes[avgmodelname] = \
                         copy.deepcopy(filesuffixlist) + \
@@ -206,8 +207,8 @@ def main():
                         ['_posteriorprobabilities.csv']
                 else:
                     models[avgmodelname] = ('ExpCM_{0}'.format(prefsfile),
-                            additionalcmds + ['--gammaomega'] \
-                            + ['--avgprefs'], 0)
+                            additionalcmds + ['--gammaomega'] + ['--ncats'] +
+                            [str(args['ncats'])] + ['--avgprefs'], 0)
                     filesuffixes[avgmodelname] = filesuffixlist
             if args["gammabeta"]:
                 avgmodelname = 'averaged_{0}_gammabeta'.format(modelname)
@@ -225,8 +226,8 @@ def main():
                 if args['empirical_bayes']:
                     models[randmodelname] = (
                         'ExpCM_{0}'.format(prefsfile), additionalcmds +
-                        ['--gammaomega'] + ['--randprefs'] +
-                        ['--empirical_bayes'] +
+                        ['--gammaomega'] + ['--ncats'] + [str(args['ncats'])] +
+                        ['--randprefs'] + ['--empirical_bayes'] +
                         [str(args['empirical_bayes'])], 0)
                     filesuffixes[randmodelname] = \
                         copy.deepcopy(filesuffixlist) + \
@@ -234,8 +235,8 @@ def main():
                         ['_posteriorprobabilities.csv']
                 else:
                     models[randmodelname] = ('ExpCM_{0}'.format(prefsfile),
-                            additionalcmds + ['--gammaomega'] \
-                            + ['--randprefs'], 0)
+                            additionalcmds + ['--gammaomega'] + ['--ncats'] +
+                            [str(args['ncats'])] + ['--randprefs'], 0)
                     filesuffixes[randmodelname] = filesuffixlist
             if args["gammabeta"]:
                 randmodelname = 'randomized_{0}_gammabeta'.format(modelname)
