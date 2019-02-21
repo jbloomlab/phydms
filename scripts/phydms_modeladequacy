@@ -20,13 +20,15 @@ import pandas as pd
 import logging
 import phydmslib.parsearguments
 import glob
+import time
 
 
-def runSimulator(simulator, seed_list):
+def runSimulator(simulator, seed_list, i, return_dict):
     """Runs `simulator.simulate` for a list of seeds"""
-    alignments = []
-    alignments += map(simulator.simulate, seed_list)
-    return alignments
+    seed_list = [int(x) for x in seed_list]
+    simulations = list(map(simulator.simulate, seed_list))
+    return_dict[i] = simulations
+
 
 def RunCmds(cmds):
     """Runs the command line arguments in *cmds* using *subprocess*."""
@@ -58,7 +60,7 @@ def main():
     # set up
     amino_acids = list(INDEX_TO_AA.values())
     amino_acids.sort()
-    metrics = ["JensenShannon", "half_sum_abs_diff"]
+    metrics = ["JensenShannon", "half_sum_abs_diff", "RMSD"]
 
     # setup files
     # file names slightly different depending on
@@ -120,6 +122,7 @@ def main():
                 'alignment {1}'.format(model, args['alignment'])))
     logger.info('{0} is a valid alignment specifying {1} sequences of length {2}.\n'
                 .format(args["alignment"], len(alignment), len(alignment[0][1])))
+
     # calc alignment frequencies
     alignment_freqs = phydmslib.modeladequacy.calc_aa_frequencies(alignment)
     alignment_freqs["alignment"] = (alignment_freqs[amino_acids]
@@ -140,10 +143,12 @@ def main():
                         .format(args['raxml']))
 
             # remove pre-existing RAxML files
+            cwd = os.getcwd()
+            full_path = os.path.join(cwd, args["outprefix"])
             raxmlOutputName = os.path.splitext(os.path.basename(
                     args["alignment"]))[0]
             raxmlOutputFiles = []
-            for raxmlFile in glob.glob("RAxML_*{0}".format(raxmlOutputName)):
+            for raxmlFile in glob.glob("{0}/RAxML_*{1}".format(full_path, raxmlOutputName)):
                 if os.path.isfile(raxmlFile):
                     raxmlOutputFiles.append(raxmlFile)
                     os.remove(raxmlFile)
@@ -151,15 +156,15 @@ def main():
                 logger.info('Removed the following RAxML files:\n{0}\n'
                             .format('\n'.join(['\t{0}'.format(fname) for
                                                fname in raxmlOutputFiles])))
-
             # run RAxmL
             raxmlCMD = [args['raxml'], '-s', args['alignment'], '-n',
-                        raxmlOutputName, '-m', 'GTRCAT', '-p1', '-T', '2']
+                        raxmlOutputName, '-m', 'GTRCAT', '-w', full_path,
+                        '-p1', '-T', '2']
             with open(raxmlStandardOutputFile, 'w') as f:
                 subprocess.check_call(raxmlCMD, stdout=f)
 
             # move RAxML tree to output directory and remove all other files
-            for raxmlFile in glob.glob("RAxML_*{0}".format(raxmlOutputName)):
+            for raxmlFile in glob.glob("{0}RAxML_*{1}".format(full_path, raxmlOutputName)):
                 if "bestTree" in raxmlFile:
                     args["tree"] = args["outprefix"] + 'RAxML_tree.newick'
                     os.rename(raxmlFile, args['tree'])
@@ -171,7 +176,7 @@ def main():
             raise ValueError("The raxml command of {0} is not valid. Is raxml"
                              " installed at this path?".format(args['raxml']))
 
-    # fit the model
+    # run `phydms` to fit the model
     modelparams = "{0}phydms_modelparams.txt".format(args["outprefix"])
     phydms_CMD = ["phydms", args["alignment"], args["tree"],
                   model, "{0}{1}".format(args["outprefix"], "phydms")]
@@ -183,23 +188,28 @@ def main():
     logger.info('phydms run complete. Optimized parameters ({0}) are\n{1}\n'
                 .format(modelparams, params))
 
-    # run the simulations
+    # set up cpus
     logger.info('Starting simulations.')
     logger.info('Performing {0} replicate simulations.'
                 .format(args["number_simulations"]))
-    # get number of cpus for multiprocessing
+    min_sims_per_cpu = 1000
+    # max_sims_per_cpu = 10000
     if args['ncpus'] == -1:
         ncpus = multiprocessing.cpu_count()
     else:
         ncpus = args['ncpus']
+        # n_batches = ncpus
     assert ncpus >= 1, "{0} CPUs specified".format(ncpus)
-    if (args["number_simulations"]/ncpus) < 1000:
-        ncpus = args["number_simulations"] // 1000
-        if ncpus == 0:
-            ncpus = 1
-        logger.info('Using {0} CPU(s) to ensure >= 100 simulations / CPU'.format(ncpus))
+    if (args["number_simulations"]/ncpus) < min_sims_per_cpu:
+        ncpus = max(1, args["number_simulations"] // min_sims_per_cpu)
+        # n_batches = ncpus
+        logger.info('Using {0} CPU(s) to ensure >= {1} simulations / CPU'
+                    .format(ncpus, min_sims_per_cpu))
+    # elif (args["number_simulations"]/ncpus) > max_sims_per_cpu:
+    #     n_batches = round(args["number_simulations"] / max_sims_per_cpu)
     else:
         logger.info('Using {0} CPUs.'.format(ncpus))
+
     # build model
     if model_type == "ExpCM":
         model = phydmslib.modeladequacy.make_expcm(modelparams, prefs)
@@ -208,6 +218,7 @@ def main():
         model = phydmslib.modeladequacy.make_YNGKP_M0(modelparams, nsites)
     else:
         raise ValueError("Unexpected model type of {0}".format(model_type))
+
     # stationary state frequencies
     ss_freqs = phydmslib.modeladequacy.calc_stationary_state_freqs(model)
 
@@ -217,19 +228,36 @@ def main():
         if (node.branch_length is None) and (node == tree.root):
             node.branch_length = 1e-06
 
-    # build the simulator object and simulate
+    # build the simulator object
     simulator = phydmslib.simulate.Simulator(tree, model)
     seeds = [seed+i for i in range(args["number_simulations"])]
-    if ncpus > 1:
-        pool = multiprocessing.Pool(ncpus)
-        seed_batches = scipy.array_split(seeds, ncpus)
-        seed_batches = [(simulator, seed_batch) for seed_batch in seed_batches]
-        simulations = pool.starmap(runSimulator, seed_batches)
-        simulations = [rep for rep_batch in simulations for rep in rep_batch]
-        pool.close()
-        pool.join()
-    else:
+
+    # run the simulations
+    if ncpus == 1:
         simulations = map(simulator.simulate, seeds)
+        simulations = list(simulations)
+    elif ncpus > 1:  # use multiprocessing
+        manager = multiprocessing.Manager()
+        sims = manager.dict()
+        seed_batches = scipy.array_split(seeds, ncpus)
+        assert len(seed_batches) == ncpus
+        processes = []
+        for i, seed_batch in enumerate(seed_batches):
+            p = multiprocessing.Process(target=runSimulator, args=(simulator,
+                                                                   seed_batch,
+                                                                   i,
+                                                                   sims))
+            processes.append(p)
+            p.start()
+        for process in processes:
+            process.join()
+        # unpack the simulations from `Manager`
+        simulations = []
+        for key in sims.keys():
+            simulations.extend(sims[key])
+    else:
+        raise ValueError("Unexpected number of cpus ({0})".format(ncpus))
+    assert len(simulations) == args['number_simulations']
 
     # process the simulations
     simulations_by_site = [[] for x in range(model.nsites)]
@@ -248,12 +276,13 @@ def main():
         natural = alignment_freqs[site]
         for metric in metrics:
             # distance from model to simulations
-            sim = scipy.array([phydmslib.modeladequacy.prefDistance(sim, ss, metric)
+            sim = scipy.array([phydmslib.modeladequacy.prefDistance(sim, ss, metric, check_input=False)
                                for sim in sims])
             # distance from model to natural alignment
             natural_distance = phydmslib.modeladequacy.prefDistance(natural,
                                                                     ss,
-                                                                    metric)
+                                                                    metric,
+                                                                    check_input=False)
             pvalue = phydmslib.modeladequacy.calculate_pvalue(sim,
                                                               natural_distance,
                                                               seed=seed + site)
@@ -269,6 +298,7 @@ def main():
         final.append(group)
     pd.concat(final).to_csv(pvaluesfile, index=False)
     logger.info('P values in {0}.'.format(pvaluesfile))
+
     logger.info('Successful completion of model adequacy test.')
 
 

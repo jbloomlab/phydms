@@ -45,6 +45,8 @@ Constants defined:
     `CODON_NT_COUNT` (`numpy.ndarray` of int, shape `(N_NT, N_CODON)`)
         Element `[w][x]` gives the number of occurrences of nucleotide
         `w` in codon `x`.
+    `CODONSTR_TO_AASTR` (dict):
+        mapping of codons to amino acids.
     `STOP_CODON_TO_NT_INDICES` (`numpy.ndarray` of float, shape `(N_STOP, 3, N_NT)`)
         Element `[x][p][w]` is 1.0 if codon position `p` is nucleotide `w`
         in stop codon `x` and 0.0 otherwise.
@@ -77,6 +79,7 @@ STOP_CODON_TO_NT_INDICES = []
 STOP_POSITIONS = scipy.ones((3, N_NT), dtype = 'float')
 CODON_TO_INDEX = {}
 INDEX_TO_CODON = {}
+CODONSTR_TO_AASTR = {}
 CODON_TO_AA = []
 i = 0
 for nt1 in sorted(NT_TO_INDEX.keys()):
@@ -84,13 +87,14 @@ for nt1 in sorted(NT_TO_INDEX.keys()):
         for nt3 in sorted(NT_TO_INDEX.keys()):
             codon = nt1 + nt2 + nt3
             aa = str(Bio.Seq.Seq(codon).translate())
+            CODONSTR_TO_AASTR[codon] = aa
             if aa != '*':
                 CODON_TO_INDEX[codon] = i
                 INDEX_TO_CODON[i] = codon
                 CODON_TO_AA.append(AA_TO_INDEX[aa])
                 i += 1
             else:
-                STOP_CODON_TO_NT_INDICES.append(scipy.zeros((3, N_NT), 
+                STOP_CODON_TO_NT_INDICES.append(scipy.zeros((3, N_NT),
                         dtype='float'))
                 STOP_CODON_TO_NT_INDICES[-1][0][NT_TO_INDEX[nt1]] = 1.0
                 STOP_CODON_TO_NT_INDICES[-1][1][NT_TO_INDEX[nt2]] = 1.0

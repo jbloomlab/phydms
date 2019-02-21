@@ -10,36 +10,6 @@ import scipy
 import math
 
 
-def translate_with_gaps(seq):
-    """Translate from nucleotides to amino acids.
-
-    Args:
-        `seq` (str)
-            The nucleotide sequence.
-    Returns:
-        The amino-acid sequence
-
-    >>> s1 = "ATGATG"
-    >>> s2 = "CTT---ATG"
-    >>> translate_with_gaps(s1) == "MM"
-    True
-    >>> translate_with_gaps(s2) == "L-M"
-    True
-
-    """
-    assert len(seq) % 3 == 0, "Sequence is not divisible by 3."
-    prot_seq = []
-    for i in range(0, len(seq), 3):
-        codon = seq[i:i+3]
-        if codon == "---":
-            aa = "-"
-        else:
-            codon = CODON_TO_INDEX[codon]
-            aa = INDEX_TO_AA[CODON_TO_AA[codon]]
-        prot_seq.append(aa)
-    return "".join(prot_seq)
-
-
 def calc_aa_frequencies(alignment):
     """Calculate amino-acid frequencies from a codon alignment.
 
@@ -84,9 +54,10 @@ def calc_aa_frequencies(alignment):
 
     # count amino acid frequencies
     for seq in alignment:
-        for i, aa in enumerate(translate_with_gaps(seq[1])):
-            if aa != '-':
-                df[aa][i] += 1
+        for i in range(seqlength):
+            codon = seq[1][3 * i : 3 * i + 3]
+            if codon != '---':
+                df[CODONSTR_TO_AASTR[codon]][i] += 1
     df = pd.DataFrame(df)
 
     # Normalize the dataframe
@@ -107,7 +78,7 @@ def calc_aa_frequencies(alignment):
     return df
 
 
-def prefDistance(pi1, pi2, distmetric):
+def prefDistance(pi1, pi2, distmetric, check_input=True):
     """Compute the distance between two arrays of preferences.
 
     Args:
@@ -117,36 +88,41 @@ def prefDistance(pi1, pi2, distmetric):
             Distance metric to use. Can be:
                 - `half_sum_abs_diff`: half sum absolute value of difference
                 - `JensenShannon`: square root of Jensen-Shannon divergence
+                - `RMSD`: root mean square distances
 
     Returns:
         The distance between `pi1` and `pi2`.
 
-    >>> pi1 = [0.5, 0.2, 0.3]
-    >>> pi2 = [0.2, 0.4, 0.4]
+    >>> pi1 = scipy.array([0.5, 0.2, 0.3])
+    >>> pi2 = scipy.array([0.2, 0.4, 0.4])
     >>> scipy.allclose(prefDistance(pi1, pi1, 'half_sum_abs_diff'), 0)
     True
     >>> scipy.allclose(prefDistance(pi1, pi1, 'JensenShannon'), 0)
+    True
+    >>> scipy.allclose(prefDistance(pi1, pi1, 'RMSD'), 0)
     True
     >>> scipy.allclose(prefDistance(pi1, pi2, 'half_sum_abs_diff'), 0.3)
     True
     >>> scipy.allclose(prefDistance(pi1, pi2, 'JensenShannon'), 0.2785483)
     True
+    >>> scipy.allclose(prefDistance(pi1, pi2, 'RMSD'), 0.2160245)
+    True
 
     """
-    pi1 = scipy.array(pi1)
-    pi2 = scipy.array(pi2)
-    assert len(pi1) == len(pi2)
-    assert scipy.allclose(pi1.sum(), 1, atol=0.005)
-    assert scipy.allclose(pi2.sum(), 1, atol=0.005)
-    assert scipy.all(pi1 >= 0)
-    assert scipy.all(pi2 >= 0)
+    if check_input:
+        assert len(pi1) == len(pi2)
+        assert scipy.allclose(pi1.sum(), 1, atol=0.005)
+        assert scipy.allclose(pi2.sum(), 1, atol=0.005)
+        assert scipy.all(pi1 >= 0)
+        assert scipy.all(pi2 >= 0)
 
     if distmetric == 'half_sum_abs_diff':
         dist = (scipy.fabs(pi1 - pi2)).sum() / 2.0
 
     elif distmetric == 'JensenShannon':
         dist = math.sqrt(divJensenShannon(pi1, pi2))
-
+    elif distmetric == "RMSD":
+        dist = math.sqrt(scipy.square(pi1 - pi2).mean())
     else:
         raise ValueError('Invalid `distmetric` {0}'.format(distmetric))
 
@@ -163,9 +139,9 @@ def divJensenShannon(p1, p2):
             The two distributions for which we compute divergence.
     Returns:
         The Jensen-Shannon divergence as a float.
-    >>> p1 = [0.5, 0.2, 0.2, 0.1]
-    >>> p2 = [0.4, 0.1, 0.3, 0.2]
-    >>> p3 = [0.0, 0.2, 0.2, 0.6]
+    >>> p1 = scipy.array([0.5, 0.2, 0.2, 0.1])
+    >>> p2 = scipy.array([0.4, 0.1, 0.3, 0.2])
+    >>> p3 = scipy.array([0.0, 0.2, 0.2, 0.6])
     >>> scipy.allclose(divJensenShannon(p1, p1), 0, atol=1e-5)
     True
     >>> scipy.allclose(divJensenShannon(p1, p2), 0.035789, atol=1e-5)
@@ -174,9 +150,6 @@ def divJensenShannon(p1, p2):
     True
 
     """
-    p1 = scipy.array(p1)
-    p2 = scipy.array(p2)
-
     def _kldiv(a, b):
         with scipy.errstate(all='ignore'):
             kl = a * scipy.log2(a / b)

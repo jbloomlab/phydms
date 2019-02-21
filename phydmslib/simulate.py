@@ -129,15 +129,18 @@ class Simulator(object):
 
             if branch_len not in self._cached_exp_M:
                 self._cached_exp_M[branch_len] = self._model.M(branch_len)
+                self._cached_cumsum[branch_len] = {}
+            cached_cumsum = self._cached_cumsum[branch_len]
             exp_M = self._cached_exp_M[branch_len]
 
             new_seq = []
+            parent_alignment = alignment[parent.name]
             for r in range(self.nsites):
-                parent_codon = alignment[parent.name][r]
-                query = (r, parent_codon, branch_len)
-                if query not in self._cached_cumsum:
-                    self._cached_cumsum[query] = scipy.cumsum(self._seq_array[parent_codon].dot(exp_M[r]))
-                cumsum = self._cached_cumsum[query]
+                parent_codon = parent_alignment[r]
+                query = (r, parent_codon)
+                if query not in cached_cumsum:
+                    cached_cumsum[query] = scipy.cumsum(self._seq_array[parent_codon].dot(exp_M[r]))
+                cumsum = cached_cumsum[query]
 
                 # choose from the new codon distribution for the site
                 codon = scipy.argmin(cumsum < scipy.random.rand())
@@ -171,9 +174,9 @@ class Simulator(object):
             return alignment
 
         # beginning of `simulate` function
+        assert randomSeed is None or isinstance(randomSeed, int)
         if randomSeed is not False:
             scipy.random.seed(randomSeed)
-            np.random.seed(randomSeed)
 
         # set up alignment and begin tree traversal
         nodes = self._internalnode + self._terminalnode
