@@ -65,6 +65,15 @@ class test_Simulator_ExpCM(unittest.TestCase):
             e_pw = scipy.asarray([scipy.random.dirichlet([7] * N_NT) for i
                                   in range(3)])
             self.model = phydmslib.models.YNGKP_M0(e_pw, self.nsites)
+        elif self.MODEL == phydmslib.models.ExpCM_empirical_phi_divpressure:
+            divpressure = scipy.ndarray(1000, dtype=float)
+            for x in range(0, 500):
+                divpressure[x] = 1
+            scipy.random.shuffle(divpressure)
+            g = scipy.random.dirichlet([7] * N_NT)
+            self.model = phydmslib.models.ExpCM_empirical_phi_divpressure(
+                prefs, g, kappa=kappa, omega=omega, omega2=self.OMEGA_2,
+                beta=beta, mu=mu, divPressureValues=divpressure, freeparams=['mu'])
         else:
             raise ValueError("Invalid MODEL: {0}".format(type(self.MODEL)))
 
@@ -93,12 +102,20 @@ class test_Simulator_ExpCM(unittest.TestCase):
         self.assertTrue(len(seed1) == len(seed2) == len(expected),
                         "Alignments different lengths")
         for seq_id in seed1.keys():
-            self.assertTrue(seed1[seq_id] == expected[seq_id],
-                            ("Sequence {0} different between simulated and "
-                            "expected alignment".format(seq_id)))
-            self.assertFalse(seed2[seq_id] == expected[seq_id],
-                             ("Sequence {0} from seed 2 should be different "
-                             "from expected alignment".format(seq_id)))
+            if self.MODEL == phydmslib.models.ExpCM_empirical_phi_divpressure:
+                self.assertTrue(
+                    seed1[seq_id] != expected[seq_id] and
+                    seed2[seq_id] != expected[seq_id],
+                    ("Sequences generated with divpressure should be"
+                     "different from alignments without divpressure."))
+            else:
+                self.assertTrue(seed1[seq_id] == expected[seq_id],
+                                ("Sequence {0} different between simulated "
+                                 "and expected alignment".format(seq_id)))
+                self.assertFalse(seed2[seq_id] == expected[seq_id],
+                                 ("Sequence {0} from seed 2 should be "
+                                  "different from expected "
+                                  "alignment".format(seq_id)))
 
 
 class test_Simulator_YNGKP_MO(test_Simulator_ExpCM):
@@ -106,6 +123,12 @@ class test_Simulator_YNGKP_MO(test_Simulator_ExpCM):
     MODEL = phydmslib.models.YNGKP_M0
     EXPECTED = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                             'expected_simulator_results/expected_simulator_YNGKP_MO.fasta')
+
+class test_Simulator_ExpCM_divpressure(test_Simulator_ExpCM):
+    """Tests `Simulator` simulation of `ExpCM` model with divpressure flag."""
+
+    MODEL = phydmslib.models.ExpCM_empirical_phi_divpressure
+    OMEGA_2 = 0.25
 
 
 if __name__ == '__main__':
