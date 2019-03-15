@@ -472,6 +472,8 @@ def PhyDMSAdequacyParser():
                         ' for the simulations', type=int)
     parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; -1 '
             'means all available.', type=int)
+    parser.add_argument('--minpref', default=0.002, type=FloatGreaterThanZero,
+            help="Adjust all preferences in ExpCM 'prefsfile' to >= this.")
     parser.add_argument('-v', '--version', action='version', version=
             '%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser

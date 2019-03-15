@@ -109,7 +109,8 @@ def main():
     elif (args["model"][0] == "ExpCM"):
         model = "{0}_{1}".format(args["model"][0], args["model"][1])
         model_type = "ExpCM"
-        prefs = phydmslib.file_io.readPrefs(args["model"][1])
+        prefs = phydmslib.file_io.readPrefs(args["model"][1],
+                                            minpref=args["minpref"])
         prefs = [prefs[r] for r in sorted(prefs.keys())]
     else:
         raise ValueError("Model must be YNKP_M0 or ExpCM not {0}"
@@ -179,7 +180,8 @@ def main():
     # run `phydms` to fit the model
     modelparams = "{0}phydms_modelparams.txt".format(args["outprefix"])
     phydms_CMD = ["phydms", args["alignment"], args["tree"],
-                  model, "{0}{1}".format(args["outprefix"], "phydms")]
+                  model, "{0}{1}".format(args["outprefix"], "phydms"),
+                  "--minpref", "{0}".format(args["minpref"])]
     logger.info('Starting phydms command: {0}'.format(" ".join(phydms_CMD)))
     RunCmds(phydms_CMD)
     assert os.path.isfile(modelparams), "Could not find model params file"
