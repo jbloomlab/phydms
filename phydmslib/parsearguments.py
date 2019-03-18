@@ -401,6 +401,9 @@ def PhyDMSParser():
     parser.add_argument('--minpref', default=0.002, type=FloatGreaterThanZero,
             help="Adjust all preferences in ExpCM 'prefsfile' to >= this.")
     parser.add_argument('--seed', type=int, default=1, help="Random number seed.")
+    parser.add_argument('--fixbeta', type=float, default=False, help="Parameter "
+                        "value for beta. Beta will not be fit during "
+                        "optimization.")
     parser.add_argument('--initparams', type=ExistingFile, help="Initialize "
             "model params from this file, which should be format of "
             "'*_modelparams.txt' file created by 'phydms' with this model.")

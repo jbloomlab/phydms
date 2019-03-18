@@ -129,7 +129,7 @@ def fitOmegaBySite(argtup):
     `argtup` is return value of `treeliksForOmegaBySite`.
 
     Returns tuple `(pval, omega, resultstr)` where `pval` is P-value,
-    `omega` is omega, and `resultstr` is tab-separated line with 
+    `omega` is omega, and `resultstr` is tab-separated line with
     site, omega, P, dLnL.
     """
     (site, treeliks, nograd) = argtup
@@ -156,6 +156,8 @@ def fitOmegaBySite(argtup):
 
 def main():
     """Main body of script."""
+
+    min_beta = 1.0e-4
 
     # Parse command line arguments
     parser = phydmslib.parsearguments.PhyDMSParser()
@@ -222,7 +224,8 @@ def main():
         # process the substitution model
         yngkp_match = re.compile('^YNGKP_(?P<modelvariant>M\d+)$')
         if isinstance(args['model'], str) and yngkp_match.search(args['model']):
-            for argname in ['randprefs', 'avgprefs', 'divpressure', 'diffprefsbysite']:
+            for argname in ['randprefs', 'avgprefs', 'divpressure',
+                            'diffprefsbysite', 'fixbeta']:
                 assert not args[argname], "'--{0}' incompatible with YNKGP".format(
                             argname)
             assert not args['gammaomega'], ("Can't use --gammaomega with YNGKP "
@@ -280,7 +283,18 @@ def main():
                 freeparams.append('eta')
                 logger.info('Nucleotide frequency parameters phi will '
                         'be optimized by maximum likelihood.\n')
-                model = phydmslib.models.ExpCM(prefslist, freeparams=freeparams)
+                if args['fixbeta'] is not False:
+                    assert args['gammabeta'] is False, "Can't use --gammabeta and --fixbeta"
+                    freeparams.remove('beta')
+                    if args['fixbeta'] < min_beta:
+                        beta = min_beta
+                        logger.info('Beta will be set to the min value {0} and will not be optimized'.format(beta))
+                    else:
+                        beta = args["fixbeta"]
+                        logger.info('Beta will be set to {0} and will not be optimized'.format(beta))
+                    model = phydmslib.models.ExpCM(prefslist, beta=beta, freeparams=freeparams)
+                else:
+                    model = phydmslib.models.ExpCM(prefslist, freeparams=freeparams)
             else:
                 g = scipy.ndarray(phydmslib.constants.N_NT, dtype='float')
                 for (w, nt) in phydmslib.constants.INDEX_TO_NT.items():
@@ -295,8 +309,20 @@ def main():
                         ', '.join(['{0} = {1:.3f}'.format(nt, g[w]) for
                         (w, nt) in phydmslib.constants.INDEX_TO_NT.items()])))
                 if not args['divpressure']:
-                    model = phydmslib.models.ExpCM_empirical_phi(prefslist, g,
-                        freeparams=freeparams)
+                    if args['fixbeta'] is not False:
+                        assert args['gammabeta'] is False, "Can't use --gammabeta and --fixbeta"
+                        freeparams.remove('beta')
+                        if args['fixbeta'] < min_beta:
+                            beta = min_beta
+                            logger.info('Beta will be set to the min value {0} and will not be optimized'.format(beta))
+                        else:
+                            beta = args["fixbeta"]
+                            logger.info('Beta will be set to {0} and will not be optimized'.format(beta))
+                        model = phydmslib.models.ExpCM_empirical_phi(prefslist, g,
+                            beta=beta, freeparams=freeparams)
+                    else:
+                        model = phydmslib.models.ExpCM_empirical_phi(prefslist, g,
+                            freeparams=freeparams)
                 else:
                     for otherarg in ['omegabysite', 'diffprefsbysite',
                             'gammomega', 'gammabeta']:
@@ -333,6 +359,7 @@ def main():
         else:
             raise ValueError("Invalid model of {0}".format(args['model']))
         if args['initparams']:
+            assert args["fixbeta"] is False, "Can't use --initparams and --fixbeta"
             print("Initializing model parameters from {0}".format(
                     args['initparams']))
             with open(args['initparams']) as f:
