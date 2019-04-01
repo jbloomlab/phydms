@@ -8,6 +8,13 @@ import phydmslib.models
 import pandas as pd
 import scipy
 import math
+import multiprocessing
+from statsmodels.sandbox.stats.multicomp import multipletests
+
+
+# global variable
+amino_acids = list(INDEX_TO_AA.values())
+amino_acids.sort()
 
 
 def calc_aa_frequencies(alignment):
@@ -55,7 +62,7 @@ def calc_aa_frequencies(alignment):
     # count amino acid frequencies
     for seq in alignment:
         for i in range(seqlength):
-            codon = seq[1][3 * i : 3 * i + 3]
+            codon = seq[1][3 * i: 3 * i + 3]
             if codon != '---':
                 df[CODONSTR_TO_AASTR[codon]][i] += 1
     df = pd.DataFrame(df)
@@ -262,6 +269,210 @@ def calculate_pvalue(simulation_values, true_value, seed=False):
     pvalue = (greater + tie_breaker + 1) / (len(simulation_values) + 1)
     assert 0 <= pvalue <= 1.0, "pvalue is > 1.0 or < 0.0"
     return pvalue
+
+
+def run_simulations(tree, model, nsim=1000, seed=0, ncpus=1):
+    """Simualate a batch of alignments.
+
+    Args:
+        `tree` (`Bio.Phylo` tree object)
+            Tree to simulate alignments along. Branch lengths are assumed
+            to be in units of average codon substitutions / site.
+        `model` (`phydmslib.model` object)
+            Model to simulate alignments under.
+        `nsim` (`int`)
+            Number of replicate simualations.
+        `seed` (`int`)
+            Random seed for simulations. Each simulation will be `seed + i`
+            where `i` is the replicate index.
+        `ncpus` (`int`)
+            Number of cpus for the simulations.
+    Returns:
+        List of alignments (length `nsim`). Each element is a `list` of
+        `tuples` in the form (seq_id, seq).
+
+    """
+    # build the simulator object
+    simulator = phydmslib.simulate.Simulator(tree, model)
+    seeds = [seed+i for i in range(nsim)]
+
+    # run the simulations
+    if ncpus == 1:
+        simulations = map(simulator.simulate, seeds)
+        simulations = list(simulations)
+    elif ncpus > 1:  # use multiprocessing
+        manager = multiprocessing.Manager()
+        sims = manager.dict()
+        seed_batches = scipy.array_split(seeds, ncpus)
+        assert len(seed_batches) == ncpus
+        processes = []
+        for i, seed_batch in enumerate(seed_batches):
+            p = multiprocessing.Process(target=runSimulator, args=(simulator,
+                                                                   seed_batch,
+                                                                   i,
+                                                                   sims))
+            processes.append(p)
+            p.start()
+        for process in processes:
+            process.join()
+        # unpack the simulations from `Manager`
+        simulations = []
+        for key in sims.keys():
+            simulations.extend(sims[key])
+    else:
+        raise ValueError("Unexpected number of cpus ({0})".format(ncpus))
+    len(simulations) == nsim
+    return simulations
+
+
+def runSimulator(simulator, seed_list, i, return_dict):
+    """Run `simulator.simulate` for a list of seeds."""
+    seed_list = [int(x) for x in seed_list]
+    simulations = list(map(simulator.simulate, seed_list))
+    return_dict[i] = simulations
+
+
+def process_simulations(simulations, nsites):
+    """Reformat simulations as site-specific amino-acid frequencies.
+
+    Args:
+        `simulations` (`list`)
+            List of alignments (length `nsim`). Each element is a `list` of
+            `tuples` in the form (seq_id, seq).
+        `nsites` (`int`)
+            Number of sites in an alignment.
+
+    Returns:
+        Simulation amino-acid frequencies in the shape `(nsites, nsim, N_AA)`
+        with `simulations_by_site[r][i][x]` as the frequency of amino acid `x`
+        at site `r` in simulation replicate `i`.
+    >>> print(process_simulations([[("a","ATG"),("b","ATG")],[("a","GCA"),("b","ATG")]], 1))
+    [[array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0.,
+           0., 0., 0.]), array([0.5, 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0.5, 0. , 0. ,
+           0. , 0. , 0. , 0. , 0. , 0. , 0. ])]]
+
+    """
+    # process
+    simulations_by_site = [[] for x in range(nsites)]
+    for rep in simulations:
+        sim_freqs = calc_aa_frequencies(rep)
+        sim_freqs = sim_freqs[amino_acids].values
+        for site in range(nsites):
+            simulations_by_site[site].append(sim_freqs[site])
+    return simulations_by_site
+
+
+def calc_distances_pvalues(simulations_by_site, model, alignment, seed,
+                           metrics=["JensenShannon", "half_sum_abs_diff", "RMSD"]):
+    """Calculate distances and pvalues.
+
+    Args:
+        `simulations_by_site` (`list`)
+            Simulation amino-acid frequencies in the shape
+            `(nsites, nsim, N_AA)` with `simulations_by_site[r][i][x]` as the
+            frequency of amino acid `x` at site `r` in simulation replicate `i`
+        `model` (`phydmslib.model` object )
+        `alignment` (list)
+            Alignment of codon sequences as a list of tuples, (seq_id, seq)
+        `seed` (`int`)
+            Random seed to break ties. The random seed for a given site is
+            `seed` + `site`.
+        `metrics` (`list` of `str`)
+            Distance metrics. Must be allowed in `prefDistance`.
+
+    Returns:
+        `pandas` dataframe of length `nsites` with columns `site`, `pvalue`,
+        and `metric`
+
+    """
+    # model statioanry state frequencies
+    ss_freqs = calc_stationary_state_freqs(model)
+    nsites = model.nsites
+    assert len(simulations_by_site) == nsites
+
+    # natural alignment frequencies
+    alignment_freqs = calc_aa_frequencies(alignment)
+    alignment_freqs["alignment"] = (alignment_freqs[amino_acids]
+                                    .apply(lambda r: tuple(r), axis=1)
+                                    .apply(scipy.array))
+    alignment_freqs = scipy.array(alignment_freqs["alignment"].tolist())
+    assert len(alignment_freqs) == nsites
+
+    # pvalues
+    pvalues = []
+    for site in range(nsites):
+        sims = simulations_by_site[site]
+        ss = ss_freqs[site]
+        natural = alignment_freqs[site]
+        for metric in metrics:
+            # distance from model to simulations
+            sim = scipy.array([prefDistance(sim, ss, metric, check_input=False)
+                               for sim in sims])
+            # distance from model to natural alignment
+            nat_dist = prefDistance(natural, ss, metric, check_input=False)
+            pvalue = calculate_pvalue(sim, nat_dist, seed=seed + site)
+            pvalues.append((site+1, pvalue, metric))
+    pvalues = pd.DataFrame(pvalues, columns=['site', 'pvalue', 'metric'])
+    return pvalues
+
+
+def calc_qvalues(pvalues):
+    """Calculate qvalues.
+
+    Args:
+        `pvalues` (`pandas` dataframe)
+            `pandas` dataframe of length `nsites` with columns `site`,
+            `pvalue`, and `metric`
+
+    Returns:
+        `pandas` dataframe of length `nsites` with columns `site`, `pvalue`,
+         `metric`, and `qvalue`
+
+    """
+    final = []
+    for name, group in pvalues.groupby("metric"):
+        group = group.sort_values(by="pvalue", ascending=True)
+        group["qvalue"] = multipletests(group["pvalue"].tolist(),
+                                        method='fdr_bh')[1]
+        final.append(group)
+    return pd.concat(final)
+
+
+def calc_ncpus(cpus, njobs, min_jobs_per_cpu=1000):
+    """Calcluate the number of CPUs to use.
+
+    Args:
+        `cpus` (`int`)
+            Number of CPUs available. If -1, then a number was not specified
+            by the user.
+        `njobs` (`int`)
+            Number of jobs to run.
+        `min_jobs_per_cpu` (`int`)
+            Minimum number of jobs per CPU.
+
+    Returns:
+        `ncpus` (`int`)
+            number of CPUs
+        `msg` (`str`)
+            message for logger
+    >>> print(calc_ncpus(10, 10000, 1000)[0])
+    10
+    >>> print(calc_ncpus(10, 10000, 8000)[0])
+    1
+
+    """
+    if cpus == -1:
+        ncpus = multiprocessing.cpu_count()
+    else:
+        ncpus = cpus
+    assert ncpus >= 1, "{0} CPUs specified".format(ncpus)
+    if (njobs/ncpus) < min_jobs_per_cpu:
+        ncpus = max(1, njobs // min_jobs_per_cpu)
+        msg = ('Using {0} CPU(s) to ensure >= {1} simulations / CPU'
+               .format(ncpus, min_jobs_per_cpu))
+    else:
+        msg = 'Using {0} CPUs.'.format(ncpus)
+    return ncpus, msg
 
 
 if __name__ == '__main__':
