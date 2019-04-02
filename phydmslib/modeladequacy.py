@@ -346,10 +346,6 @@ def process_simulations(simulations, nsites):
         Simulation amino-acid frequencies in the shape `(nsites, nsim, N_AA)`
         with `simulations_by_site[r][i][x]` as the frequency of amino acid `x`
         at site `r` in simulation replicate `i`.
-    >>> print(process_simulations([[("a","ATG"),("b","ATG")],[("a","GCA"),("b","ATG")]], 1))
-    [[array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0.,
-           0., 0., 0.]), array([0.5, 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0.5, 0. , 0. ,
-           0. , 0. , 0. , 0. , 0. , 0. , 0. ])]]
 
     """
     # process
