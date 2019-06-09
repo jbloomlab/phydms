@@ -11,6 +11,7 @@ Written by Jesse Bloom and Mike Doud
 """
 
 
+import collections
 import os
 import tempfile
 import string
@@ -102,6 +103,10 @@ def MWColorMapping(maptype='jet', reverse=True):
         assert len(mapping_d[aa]) == 7
     cmap = mapper.get_cmap()
     return (cmap, mapping_d, mapper)
+
+def SingleColorMapping(maptype="#999999"):
+    """Maps all amino acids to the single color given by `maptype`."""
+    return (None, collections.defaultdict(lambda: maptype), None)
 
 def ChargeColorMapping(maptype='jet', reverse=False):
     """Maps amino-acid charge at neutral pH to colors. 
@@ -253,7 +258,8 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
 
     * *custom_cmap* can be the name of a valid *matplotlib.colors.Colormap* which will be
       used to color amino-acid one-letter codes in the logoplot by the *map_metric* when
-      either 'kd' or 'mw' is used as *map_metric*.
+      either 'kd' or 'mw' is used as *map_metric*. If *map_metric* is 'singlecolor',
+      then should be string giving the color to plot.
 
     * *relativestackheight* indicates how high the letter stack is relative to
       the default. The default is multiplied by this number, so make it > 1
@@ -262,7 +268,8 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
     * *map_metric* specifies the amino-acid property metric used to map colors to amino-acid
       letters. Valid options are 'kd' (Kyte-Doolittle hydrophobicity scale, default), 'mw' 
       (molecular weight), 'functionalgroup' (functional groups: small, nucleophilic, hydrophobic,
-      aromatic, basic, acidic, and amide), and 'charge' (charge at neutral pH). If 'charge' is used, then the
+      aromatic, basic, acidic, and amide), 'charge' (charge at neutral pH), and
+      'singlecolor'. If 'charge' is used, then the
       argument for *custom_cmap* will no longer be meaningful, since 'charge' uses its own 
       blue/black/red colormapping. Similarly, 'functionalgroup' uses its own colormapping.
 
@@ -419,7 +426,8 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
             map_functions = {'kd':KyteDoolittleColorMapping,
                              'mw': MWColorMapping,
                              'charge' : ChargeColorMapping,
-                             'functionalgroup':FunctionalGroupColorMapping}
+                             'functionalgroup':FunctionalGroupColorMapping,
+                             'singlecolor': SingleColorMapping}
             map_fcn = map_functions[map_metric]
             (cmap, colormapping, mapper) = map_fcn(maptype=custom_cmap)
         elif alphabet_type == 'nt':
