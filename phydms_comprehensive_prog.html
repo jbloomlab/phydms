@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>the phydms_comprehensive program &#8212; phydms 2.3.1 documentation</title>
+    <meta charset="utf-8" />
+    <title>the phydms_comprehensive program &#8212; phydms 2.3.2 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="the phydms_prepalignment program" href="phydms_prepalignment.html" />
@@ -30,8 +29,6 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <div class="section" id="the-phydms-comprehensive-program">
@@ -39,17 +36,20 @@
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#the-phydms-comprehensive-program" id="id1">the <code class="docutils literal notranslate"><span class="pre">phydms_comprehensive</span></code> program</a><ul>
-<li><a class="reference internal" href="#overview" id="id2">Overview</a></li>
-<li><a class="reference internal" href="#command-line-usage" id="id3">Command-line usage</a><ul>
-<li><a class="reference internal" href="#Positional Arguments" id="id4">Positional Arguments</a></li>
-<li><a class="reference internal" href="#Named Arguments" id="id5">Named Arguments</a></li>
+<li><p><a class="reference internal" href="#the-phydms-comprehensive-program" id="id1">the <code class="docutils literal notranslate"><span class="pre">phydms_comprehensive</span></code> program</a></p>
+<ul>
+<li><p><a class="reference internal" href="#overview" id="id2">Overview</a></p></li>
+<li><p><a class="reference internal" href="#command-line-usage" id="id3">Command-line usage</a></p>
+<ul>
+<li><p><a class="reference internal" href="#Positional Arguments" id="id4">Positional Arguments</a></p></li>
+<li><p><a class="reference internal" href="#Named Arguments" id="id5">Named Arguments</a></p></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#output-files" id="id6">Output files</a><ul>
-<li><a class="reference internal" href="#log-file" id="id7">Log file</a></li>
-<li><a class="reference internal" href="#model-comparison-files" id="id8">Model comparison files</a></li>
-<li><a class="reference internal" href="#phydms-output-for-each-model" id="id9"><code class="docutils literal notranslate"><span class="pre">phydms</span></code> output for each model</a></li>
+<li><p><a class="reference internal" href="#output-files" id="id6">Output files</a></p>
+<ul>
+<li><p><a class="reference internal" href="#log-file" id="id7">Log file</a></p></li>
+<li><p><a class="reference internal" href="#model-comparison-files" id="id8">Model comparison files</a></p></li>
+<li><p><a class="reference internal" href="#phydms-output-for-each-model" id="id9"><code class="docutils literal notranslate"><span class="pre">phydms</span></code> output for each model</a></p></li>
 </ul>
 </li>
 </ul>
@@ -65,11 +65,11 @@ Alternatively, you can specify the tree using <code class="docutils literal notr
 For each set of site-specific amino-acid preferences, <code class="docutils literal notranslate"><span class="pre">phydms_comprehensive</span></code> optimizes the tree with the following models:</p>
 <blockquote>
 <div><ul class="simple">
-<li><em>ExpCM</em></li>
-<li><em>ExpCM</em> with a gamma-distributed <span class="math notranslate nohighlight">\(\omega\)</span> (if using the <code class="docutils literal notranslate"><span class="pre">--gammaomega</span></code> flag).</li>
-<li><em>ExpCM</em> with a gamma-distributed <span class="math notranslate nohighlight">\(\beta\)</span> (if using the <code class="docutils literal notranslate"><span class="pre">--gammabeta</span></code> flag).</li>
-<li><em>YNGKP_M0</em></li>
-<li><em>YNGKP_M5</em></li>
+<li><p><em>ExpCM</em></p></li>
+<li><p><em>ExpCM</em> with a gamma-distributed <span class="math notranslate nohighlight">\(\omega\)</span> (if using the <code class="docutils literal notranslate"><span class="pre">--gammaomega</span></code> flag).</p></li>
+<li><p><em>ExpCM</em> with a gamma-distributed <span class="math notranslate nohighlight">\(\beta\)</span> (if using the <code class="docutils literal notranslate"><span class="pre">--gammabeta</span></code> flag).</p></li>
+<li><p><em>YNGKP_M0</em></p></li>
+<li><p><em>YNGKP_M5</em></p></li>
 </ul>
 </div></blockquote>
 <p>It also runs each of these <em>ExpCM</em> with averaged preferences as a control.
@@ -79,7 +79,8 @@ Finally, it creates summaries that enable comparison among the models.</p>
 </div>
 <div class="section" id="command-line-usage">
 <h2><a class="toc-backref" href="#id3">Command-line usage</a><a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
-<p>Comprehensive phylogenetic model comparison and detection of selection informed by deep mutational scanning data. This program runs ‘phydms’ repeatedly to compare substitution models and detect selection. The ‘phydms’ package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a>). Version 2.3.1. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
+<p><p>Comprehensive phylogenetic model comparison and detection of selection informed by deep mutational scanning data. This program runs ‘phydms’ repeatedly to compare substitution models and detect selection. The ‘phydms’ package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a>). Version 2.3.1. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
+</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">phydms_comprehensive</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">(</span><span class="o">--</span><span class="n">raxml</span> <span class="n">RAXML</span> <span class="o">|</span> <span class="o">--</span><span class="n">tree</span> <span class="n">TREE</span><span class="p">)</span> <span class="p">[</span><span class="o">--</span><span class="n">ncpus</span> <span class="n">NCPUS</span><span class="p">]</span>
                             <span class="p">[</span><span class="o">--</span><span class="n">brlen</span> <span class="p">{</span><span class="n">scale</span><span class="p">,</span><span class="n">optimize</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">omegabysite</span><span class="p">]</span>
                             <span class="p">[</span><span class="o">--</span><span class="n">diffprefsbysite</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">gammaomega</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">gammabeta</span><span class="p">]</span>
@@ -89,91 +90,69 @@ Finally, it creates summaries that enable comparison among the models.</p>
 </div>
 <div class="section" id="Positional Arguments">
 <h3><a class="toc-backref" href="#id4">Positional Arguments</a><a class="headerlink" href="#Positional Arguments" title="Permalink to this headline">¶</a></h3>
-<table class="docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group">
-<kbd>outprefix</kbd></td>
-<td><p class="first">Output file prefix.</p>
-<p class="last">This prefix can be a directory name (e.g. my_directory/) if you want to create a new directory. See Output files for a description of the created files.</p>
-</td></tr>
-<tr><td class="option-group">
-<kbd>alignment</kbd></td>
-<td><p class="first">Existing FASTA file with aligned codon sequences.</p>
-<p class="last">The alignment must meet the same specifications described in the phydms documentation for the argument of the same name (see phydms_prog).</p>
-</td></tr>
-<tr><td class="option-group">
-<kbd>prefsfiles</kbd></td>
-<td><p class="first">Existing files with site-specific amino-acid preferences.</p>
-<p class="last">Provide the name of one or more files giving site-specific amino-acid preferences. These files should meet the same specifications described in the phydms documentation for the prefsfile that should accompany an ExpCM (see phydms_prog).</p>
-</td></tr>
-</tbody>
-</table>
+<dl class="option-list">
+<dt><kbd>outprefix</kbd></dt>
+<dd><p>Output file prefix.</p>
+<p>This prefix can be a directory name (e.g. <code class="docutils literal notranslate"><span class="pre">my_directory/</span></code>) if you want to create a new directory. See <a class="reference internal" href="#output-files">Output files</a> for a description of the created files.</p>
+</dd>
+<dt><kbd>alignment</kbd></dt>
+<dd><p>Existing FASTA file with aligned codon sequences.</p>
+<p>The alignment must meet the same specifications described in the <code class="docutils literal notranslate"><span class="pre">phydms</span></code> documentation for the argument of the same name (see <a class="reference internal" href="phydms_prog.html#phydms-prog"><span class="std std-ref">the phydms program</span></a>).</p>
+</dd>
+<dt><kbd>prefsfiles</kbd></dt>
+<dd><p>Existing files with site-specific amino-acid preferences.</p>
+<p>Provide the name of one or more files giving site-specific amino-acid preferences. These files should meet the same specifications described in the <code class="docutils literal notranslate"><span class="pre">phydms</span></code> documentation for the <em>prefsfile</em> that should accompany an <em>ExpCM</em> (see <a class="reference internal" href="phydms_prog.html#phydms-prog"><span class="std std-ref">the phydms program</span></a>).</p>
+</dd>
+</dl>
 </div>
 <div class="section" id="Named Arguments">
 <h3><a class="toc-backref" href="#id5">Named Arguments</a><a class="headerlink" href="#Named Arguments" title="Permalink to this headline">¶</a></h3>
-<table class="docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group">
-<kbd>--raxml</kbd></td>
-<td><p class="first">Path to RAxML (e.g., ‘raxml’)</p>
-<p class="last">By default, phydms_comprehensive uses RAxML to infer a tree topology under the Jukes Cantor model and the command raxml. Use this argument to specify a path to RAxML other than raxml.  The tree inferred by RAxML can be found in the same directory as the other output files.</p>
-</td></tr>
-<tr><td class="option-group">
-<kbd>--tree</kbd></td>
-<td><p class="first">Existing Newick file giving input tree.</p>
-<p class="last">If you want to instead fix the tree to some existing topology, use this argument and provide the name of a file giving a valid tree in Newick format. You cannot specify both –tree and –raxml.</p>
-</td></tr>
-<tr><td class="option-group">
-<kbd>--ncpus</kbd></td>
-<td><p class="first">Use this many CPUs; -1 means all available.</p>
-<p class="last">Default: -1</p>
-</td></tr>
-<tr><td class="option-group">
-<kbd>--brlen</kbd></td>
-<td><p class="first">Possible choices: scale, optimize</p>
+<dl class="option-list">
+<dt><kbd>--raxml</kbd></dt>
+<dd><p>Path to RAxML (e.g., ‘raxml’)</p>
+<p>By default, <code class="docutils literal notranslate"><span class="pre">phydms_comprehensive</span></code> uses <code class="docutils literal notranslate"><span class="pre">RAxML</span></code> to infer a tree topology under the <em>Jukes Cantor</em> model and the command <code class="docutils literal notranslate"><span class="pre">raxml</span></code>. Use this argument to specify a path to <code class="docutils literal notranslate"><span class="pre">RAxML</span></code> other than <code class="docutils literal notranslate"><span class="pre">raxml</span></code>.  The tree inferred by <code class="docutils literal notranslate"><span class="pre">RAxML</span></code> can be found in the same directory as the other output files.</p>
+</dd>
+<dt><kbd>--tree</kbd></dt>
+<dd><p>Existing Newick file giving input tree.</p>
+<p>If you want to instead fix the tree to some existing topology, use this argument and provide the name of a file giving a valid tree in Newick format. You cannot specify both <code class="docutils literal notranslate"><span class="pre">--tree</span></code> and <code class="docutils literal notranslate"><span class="pre">--raxml</span></code>.</p>
+</dd>
+<dt><kbd>--ncpus</kbd></dt>
+<dd><p>Use this many CPUs; -1 means all available.</p>
+<p>Default: -1</p>
+</dd>
+<dt><kbd>--brlen</kbd></dt>
+<dd><p>Possible choices: scale, optimize</p>
 <p>How to handle branch lengths: scale by single parameter or optimize each one</p>
-<p class="last">Default: “optimize”</p>
-</td></tr>
-<tr><td class="option-group">
-<kbd>--omegabysite</kbd></td>
-<td><p class="first">Fit omega (dN/dS) for each site.</p>
-<p class="last">Default: False</p>
-</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd>--diffprefsbysite</kbd></td>
-</tr>
-<tr><td>&#160;</td><td><p class="first">Fit differential preferences for each site.</p>
-<p class="last">Default: False</p>
-</td></tr>
-<tr><td class="option-group">
-<kbd>--gammaomega</kbd></td>
-<td><p class="first">Fit ExpCM with gamma distributed omega.</p>
-<p class="last">Default: False</p>
-</td></tr>
-<tr><td class="option-group">
-<kbd>--gammabeta</kbd></td>
-<td><p class="first">Fit ExpCM with gamma distributed beta.</p>
-<p class="last">Default: False</p>
-</td></tr>
-<tr><td class="option-group">
-<kbd>--no-avgprefs</kbd></td>
-<td><p class="first">No fitting of models with preferences averaged across sites for ExpCM.</p>
-<p class="last">Default: False</p>
-</td></tr>
-<tr><td class="option-group">
-<kbd>--randprefs</kbd></td>
-<td><p class="first">Include ExpCM models with randomized preferences.</p>
-<p class="last">Default: False</p>
-</td></tr>
-<tr><td class="option-group">
-<kbd>-v, --version</kbd></td>
-<td>show program’s version number and exit</td></tr>
-</tbody>
-</table>
+<p>Default: “optimize”</p>
+</dd>
+<dt><kbd>--omegabysite</kbd></dt>
+<dd><p>Fit omega (dN/dS) for each site.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--diffprefsbysite</kbd></dt>
+<dd><p>Fit differential preferences for each site.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--gammaomega</kbd></dt>
+<dd><p>Fit ExpCM with gamma distributed omega.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--gammabeta</kbd></dt>
+<dd><p>Fit ExpCM with gamma distributed beta.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--no-avgprefs</kbd></dt>
+<dd><p>No fitting of models with preferences averaged across sites for ExpCM.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--randprefs</kbd></dt>
+<dd><p>Include ExpCM models with randomized preferences.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>-v, --version</kbd></dt>
+<dd><p>show program’s version number and exit</p>
+</dd>
+</dl>
 </div>
 </div>
 <div class="section" id="output-files">
@@ -206,7 +185,6 @@ This file is in Markdown format:</p>
 
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -278,8 +256,6 @@ This file is in Markdown format:</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -289,11 +265,11 @@ This file is in Markdown format:</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2018, Sarah Hilton and Jesse Bloom.
+      &copy;2015-2019, Sarah Hilton and Jesse Bloom.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="_sources/phydms_comprehensive_prog.rst.txt"

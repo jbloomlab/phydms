@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Numerical implementation &#8212; phydms 2.3.1 documentation</title>
+    <meta charset="utf-8" />
+    <title>Numerical implementation &#8212; phydms 2.3.2 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="phydmslib API" href="api.html" />
@@ -30,8 +29,6 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <div class="section" id="numerical-implementation">
@@ -41,22 +38,23 @@ It may be of help in trying to understand the code.</p>
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#numerical-implementation" id="id3">Numerical implementation</a><ul>
-<li><a class="reference internal" href="#expcm-substitution-model-parameters-and-derivatives" id="id4"><em>ExpCM</em> substitution model parameters and derivatives</a></li>
-<li><a class="reference internal" href="#expcm-stationary-state-and-derivatives" id="id5"><em>ExpCM</em> stationary state and derivatives</a></li>
-<li><a class="reference internal" href="#expcm-with-empirical-nucleotide-frequencies" id="id6"><em>ExpCM</em> with empirical nucleotide frequencies</a></li>
-<li><a class="reference internal" href="#expcm-with-empirical-nucleotide-frequencies-and-diversifying-pressure" id="id7"><em>ExpCM</em> with empirical nucleotide frequencies and diversifying pressure</a></li>
-<li><a class="reference internal" href="#expcm-with-the-preferences-as-free-parameters" id="id8"><em>ExpCM</em> with the preferences as free parameters</a></li>
-<li><a class="reference internal" href="#regularizing-preferences-for-expcm-with-preferences-as-free-parameters" id="id9">Regularizing preferences for <em>ExpCM</em> with preferences as free parameters</a></li>
-<li><a class="reference internal" href="#yngkp-m0-model" id="id10"><em>YNGKP_M0</em> model</a></li>
-<li><a class="reference internal" href="#exponentials-of-the-substitution-matrix-and-derivatives" id="id11">Exponentials of the substitution matrix and derivatives</a></li>
-<li><a class="reference internal" href="#scaling-the-branch-lengths-with-a-mutation-rate" id="id12">Scaling the branch lengths with a mutation rate</a></li>
-<li><a class="reference internal" href="#calculating-the-likelihood-and-derivatives-on-a-tree" id="id13">Calculating the likelihood and derivatives on a tree</a></li>
-<li><a class="reference internal" href="#scaling-to-avoid-numerical-underflow" id="id14">Scaling to avoid numerical underflow</a></li>
-<li><a class="reference internal" href="#units-of-tree-branch-lengths" id="id15">Units of tree branch lengths</a></li>
-<li><a class="reference internal" href="#models-with-a-gamma-distributed-model-parameter" id="id16">Models with a gamma-distributed model parameter</a></li>
-<li><a class="reference internal" href="#derivatives-with-respect-to-branch-lengths" id="id17">Derivatives with respect to branch lengths</a></li>
-<li><a class="reference internal" href="#optimization" id="id18">Optimization</a></li>
+<li><p><a class="reference internal" href="#numerical-implementation" id="id3">Numerical implementation</a></p>
+<ul>
+<li><p><a class="reference internal" href="#expcm-substitution-model-parameters-and-derivatives" id="id4"><em>ExpCM</em> substitution model parameters and derivatives</a></p></li>
+<li><p><a class="reference internal" href="#expcm-stationary-state-and-derivatives" id="id5"><em>ExpCM</em> stationary state and derivatives</a></p></li>
+<li><p><a class="reference internal" href="#expcm-with-empirical-nucleotide-frequencies" id="id6"><em>ExpCM</em> with empirical nucleotide frequencies</a></p></li>
+<li><p><a class="reference internal" href="#expcm-with-empirical-nucleotide-frequencies-and-diversifying-pressure" id="id7"><em>ExpCM</em> with empirical nucleotide frequencies and diversifying pressure</a></p></li>
+<li><p><a class="reference internal" href="#expcm-with-the-preferences-as-free-parameters" id="id8"><em>ExpCM</em> with the preferences as free parameters</a></p></li>
+<li><p><a class="reference internal" href="#regularizing-preferences-for-expcm-with-preferences-as-free-parameters" id="id9">Regularizing preferences for <em>ExpCM</em> with preferences as free parameters</a></p></li>
+<li><p><a class="reference internal" href="#yngkp-m0-model" id="id10"><em>YNGKP_M0</em> model</a></p></li>
+<li><p><a class="reference internal" href="#exponentials-of-the-substitution-matrix-and-derivatives" id="id11">Exponentials of the substitution matrix and derivatives</a></p></li>
+<li><p><a class="reference internal" href="#scaling-the-branch-lengths-with-a-mutation-rate" id="id12">Scaling the branch lengths with a mutation rate</a></p></li>
+<li><p><a class="reference internal" href="#calculating-the-likelihood-and-derivatives-on-a-tree" id="id13">Calculating the likelihood and derivatives on a tree</a></p></li>
+<li><p><a class="reference internal" href="#scaling-to-avoid-numerical-underflow" id="id14">Scaling to avoid numerical underflow</a></p></li>
+<li><p><a class="reference internal" href="#units-of-tree-branch-lengths" id="id15">Units of tree branch lengths</a></p></li>
+<li><p><a class="reference internal" href="#models-with-a-gamma-distributed-model-parameter" id="id16">Models with a gamma-distributed model parameter</a></p></li>
+<li><p><a class="reference internal" href="#derivatives-with-respect-to-branch-lengths" id="id17">Derivatives with respect to branch lengths</a></p></li>
+<li><p><a class="reference internal" href="#optimization" id="id18">Optimization</a></p></li>
 </ul>
 </li>
 </ul>
@@ -569,7 +567,7 @@ In this case, <span class="math notranslate nohighlight">\(\mu\)</span> also bec
 Here we consider how to use those computations to compute the actual likelihoods on a tree.</p>
 <div class="figure align-center" id="id2">
 <a class="reference internal image-reference" href="_images/implementation_tree_example.jpg"><img alt="implementation_tree_example.jpg" src="_images/implementation_tree_example.jpg" style="width: 40%;" /></a>
-<p class="caption"><span class="caption-text">The tree used in the example calculation below.</span></p>
+<p class="caption"><span class="caption-text">The tree used in the example calculation below.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
 <p>We begin by computing the likelihood of the alignment at a specific site.
 Let <span class="math notranslate nohighlight">\(\mathcal{S}_r\)</span> denote the set of aligned codons at site <span class="math notranslate nohighlight">\(r\)</span>, let <span class="math notranslate nohighlight">\(\mathcal{T}\)</span> by the phylogenetic tree with branch lengths specified, and let <span class="math notranslate nohighlight">\(\mathbf{P_r}\)</span> be the transition matrix at site <span class="math notranslate nohighlight">\(r\)</span> defined above.
@@ -741,7 +739,6 @@ This is somewhat simpler for each individual branch length, since each individua
 
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -811,8 +808,6 @@ This is somewhat simpler for each individual branch length, since each individua
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -822,11 +817,11 @@ This is somewhat simpler for each individual branch length, since each individua
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2018, Sarah Hilton and Jesse Bloom.
+      &copy;2015-2019, Sarah Hilton and Jesse Bloom.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="_sources/implementation.rst.txt"

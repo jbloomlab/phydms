@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Installation &#8212; phydms 2.3.1 documentation</title>
+    <meta charset="utf-8" />
+    <title>Installation &#8212; phydms 2.3.2 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="how to use phydms" href="howtouse.html" />
@@ -30,8 +29,6 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <div class="section" id="installation">
@@ -39,18 +36,20 @@
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#installation" id="id2">Installation</a><ul>
-<li><a class="reference internal" href="#minimal-requirements" id="id3">Minimal requirements</a></li>
-<li><a class="reference internal" href="#quick-installation" id="id4">Quick installation</a></li>
-<li><a class="reference internal" href="#where-to-install-phydms-with-pip" id="id5">Where to install phydms with <code class="docutils literal notranslate"><span class="pre">pip</span></code></a><ul>
-<li><a class="reference internal" href="#install-via-the-user-option-to-pip" id="id6">Install via the <code class="docutils literal notranslate"><span class="pre">--user</span></code> option to <code class="docutils literal notranslate"><span class="pre">pip</span></code></a></li>
-<li><a class="reference internal" href="#install-into-a-virtual-environment" id="id7">Install into a virtual environment</a></li>
+<li><p><a class="reference internal" href="#installation" id="id2">Installation</a></p>
+<ul>
+<li><p><a class="reference internal" href="#minimal-requirements" id="id3">Minimal requirements</a></p></li>
+<li><p><a class="reference internal" href="#quick-installation" id="id4">Quick installation</a></p></li>
+<li><p><a class="reference internal" href="#where-to-install-phydms-with-pip" id="id5">Where to install phydms with <code class="docutils literal notranslate"><span class="pre">pip</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#install-via-the-user-option-to-pip" id="id6">Install via the <code class="docutils literal notranslate"><span class="pre">--user</span></code> option to <code class="docutils literal notranslate"><span class="pre">pip</span></code></a></p></li>
+<li><p><a class="reference internal" href="#install-into-a-virtual-environment" id="id7">Install into a virtual environment</a></p></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#upgrading-your-phydms-version-with-pip" id="id8">Upgrading your <code class="docutils literal notranslate"><span class="pre">phydms</span></code> version with <code class="docutils literal notranslate"><span class="pre">pip</span></code></a></li>
-<li><a class="reference internal" href="#install-phydms-from-source-code" id="id9">Install <code class="docutils literal notranslate"><span class="pre">phydms</span></code> from source code</a></li>
-<li><a class="reference internal" href="#other-required-software" id="id10">Other required software</a></li>
-<li><a class="reference internal" href="#older-versions-e-g-version-1-0" id="id11">Older versions (e.g., version 1.0)</a></li>
+<li><p><a class="reference internal" href="#upgrading-your-phydms-version-with-pip" id="id8">Upgrading your <code class="docutils literal notranslate"><span class="pre">phydms</span></code> version with <code class="docutils literal notranslate"><span class="pre">pip</span></code></a></p></li>
+<li><p><a class="reference internal" href="#install-phydms-from-source-code" id="id9">Install <code class="docutils literal notranslate"><span class="pre">phydms</span></code> from source code</a></p></li>
+<li><p><a class="reference internal" href="#other-required-software" id="id10">Other required software</a></p></li>
+<li><p><a class="reference internal" href="#older-versions-e-g-version-1-0" id="id11">Older versions (e.g., version 1.0)</a></p></li>
 </ul>
 </li>
 </ul>
@@ -148,7 +147,6 @@ The older implementations are also still on <a class="reference external" href="
 
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -218,8 +216,6 @@ The older implementations are also still on <a class="reference external" href="
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -229,11 +225,11 @@ The older implementations are also still on <a class="reference external" href="
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2018, Sarah Hilton and Jesse Bloom.
+      &copy;2015-2019, Sarah Hilton and Jesse Bloom.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="_sources/installation.rst.txt"
