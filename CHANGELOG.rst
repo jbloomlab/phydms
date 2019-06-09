@@ -1,6 +1,10 @@
 Changelog
 ===========
 
+2.3.2
+-------
+* Option for single color in logo plots.
+
 2.3.1
 -----------
 * Fix natural sorting of negative numbers in `phydms_logoplot`
