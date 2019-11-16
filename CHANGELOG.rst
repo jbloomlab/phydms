@@ -5,6 +5,8 @@ Changelog
 ------
 * Start testing with Python 3.6 and 3.7.
 
+* Remove use of deprecated `Bio.Alphabet`
+
 2.3.3
 -------
 * Fixed `pandas` deprecation bug.
