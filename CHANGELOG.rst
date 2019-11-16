@@ -1,6 +1,10 @@
 Changelog
 ===========
 
+2.3.4
+------
+* Start testing with Python 3.6 and 3.7.
+
 2.3.3
 -------
 * Fixed `pandas` deprecation bug.
