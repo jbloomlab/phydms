@@ -159,7 +159,7 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
     if checknewickvalid:
         if len(set([head for (head, seq) in seqs])) != len(seqs):
             raise ValueError("Headers in {0} not all unique".format(fastafile))
-        disallowedheader = re.compile('[\s\:\;\(\)\[\]\,\'\"]')
+        disallowedheader = re.compile(r'[\s\:\;\(\)\[\]\,\'\"]')
         for (head, seq) in seqs:
             if disallowedheader.search(head):
                 raise ValueError(("Invalid character in header in {0}:"
@@ -303,7 +303,7 @@ def readPrefs_dms_tools_format(f):
     and *h* is a dictionary with *h[r]* giving the site entropy (log base
     2) for each *r* in *sites*.
     """
-    charmatch = re.compile('^PI_([A-z\*\-]+)$')
+    charmatch = re.compile(r'^PI_([A-z\*\-]+)$')
     if isinstance(f, str):
         f = open(f)
         lines = f.readlines()

@@ -42,7 +42,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         os.remove(tempfile)
         self.brlen = {}
         for (name, brlen) in re.findall(
-                '(?P<name>node\d):(?P<brlen>\d+\.\d+)', self.newick):
+                r'(?P<name>node\d):(?P<brlen>\d+\.\d+)', self.newick):
             if name != self.tree.root.name:
                 i = name[-1] # node number
                 self.brlen[int(i)] = float(brlen)
