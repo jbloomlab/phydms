@@ -79,12 +79,12 @@ setup(
     long_description = readme,
     license = 'GPLv3',
     setup_requires = [
-        'cython>=0.21',
-        'numpy>=0.18',
+        'cython>=0.28',
+        'numpy>=1.11',
         ],
     install_requires = [
         'biopython>=1.67',
-        'cython>=0.21',
+        'cython>=0.28',
         'numpy>=1.11',
         'scipy>=0.18',
         'matplotlib>=2.0.2',
