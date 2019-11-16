@@ -7,6 +7,8 @@ Changelog
 
 * Remove use of deprecated `Bio.Alphabet`
 
+* Stop using deprecated `natsort.natsorted`
+
 2.3.3
 -------
 * Fixed `pandas` deprecation bug.
