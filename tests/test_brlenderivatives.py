@@ -170,7 +170,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
         for n in range(len(tl.t)):
             diff = scipy.optimize.check_grad(func, dfunc, 
                     scipy.array([tl.t[n]]), n)
-            self.assertTrue(diff < 1e-5, diff)
+            self.assertTrue(diff < 2e-5, diff)
 
 
     def test_dtcurrent(self):
