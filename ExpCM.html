@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Experimentally Informed Codon Models &#8212; phydms 2.3.2 documentation</title>
+    <title>Experimentally Informed Codon Models &#8212; phydms 2.3.4 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -29,6 +29,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="experimentally-informed-codon-models">
@@ -103,7 +105,7 @@ Q_{xy} \times F_{r,xy}\]</div>
 \omega &amp; \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
 \omega \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} &amp; \mbox{otherwise.}
 \end{cases}\end{split}\]</div>
-<p>Equation <a class="reference internal" href="#equation-frxy">(3)</a> differs from that described in <a class="reference external" href="http://mbe.oxfordjournals.org/content/31/10/2753">Bloom, Mol Biol Evol, 31:2753-2769</a> only by the addition of the <span class="math notranslate nohighlight">\(\omega\)</span> parameter that differentiates nonsynonymous and synonymoust mutations; the equation in that reference was in turn based on the one originally derived by <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/9656490">Halpern and Bruno, Mol Biol Evol, 15:910-917</a> (although note that the Halpern and Bruno equation contains a key typographical error in the denominator). The <em>stringency parameter</em> <span class="math notranslate nohighlight">\(\beta\)</span> has a value of greater than one if natural selection favors high-preference amino acids with greater stringency than suggested by the <span class="math notranslate nohighlight">\(\pi_{r,a}\)</span> values, and has a value of less than one if natural selection favors high-preference amino acids with less stringency than suggested by the <span class="math notranslate nohighlight">\(\pi_{r,a}\)</span> values.
+<p>Equation <a class="reference internal" href="implementation.html#equation-frxy">(3)</a> differs from that described in <a class="reference external" href="http://mbe.oxfordjournals.org/content/31/10/2753">Bloom, Mol Biol Evol, 31:2753-2769</a> only by the addition of the <span class="math notranslate nohighlight">\(\omega\)</span> parameter that differentiates nonsynonymous and synonymoust mutations; the equation in that reference was in turn based on the one originally derived by <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/9656490">Halpern and Bruno, Mol Biol Evol, 15:910-917</a> (although note that the Halpern and Bruno equation contains a key typographical error in the denominator). The <em>stringency parameter</em> <span class="math notranslate nohighlight">\(\beta\)</span> has a value of greater than one if natural selection favors high-preference amino acids with greater stringency than suggested by the <span class="math notranslate nohighlight">\(\pi_{r,a}\)</span> values, and has a value of less than one if natural selection favors high-preference amino acids with less stringency than suggested by the <span class="math notranslate nohighlight">\(\pi_{r,a}\)</span> values.
 The <span class="math notranslate nohighlight">\(\omega\)</span> parameter is not a ratio of nonsynonymous to synonymous mutations, but rather their relative rates after accounting for the differing preferences among sites.</p>
 <p>The stationary state of the model defined by the mutation terms alone is trivially observed to be</p>
 <div class="math notranslate nohighlight">
@@ -113,7 +115,7 @@ The <span class="math notranslate nohighlight">\(\omega\)</span> parameter is no
 <div class="math notranslate nohighlight">
 \[f_{r,x} \propto \left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta},\]</div>
 <p>and furthermore that this selection-term only model is reversible (the derivation in <a class="reference external" href="http://mbe.oxfordjournals.org/content/31/10/2753">Bloom, Mol Biol Evol, 31:2753-2769</a> doesn’t include the <span class="math notranslate nohighlight">\(\omega\)</span> term, but carrying through the same derivation with this term yields the above result).</p>
-<p>Finally, <a class="reference external" href="http://mbe.oxfordjournals.org/content/31/10/2753">Bloom, Mol Biol Evol, 31:2753-2769</a> shows that given these stationary states, the overall model defined by <a class="reference internal" href="#equation-prxy">(1)</a> is reversible and has stationary state</p>
+<p>Finally, <a class="reference external" href="http://mbe.oxfordjournals.org/content/31/10/2753">Bloom, Mol Biol Evol, 31:2753-2769</a> shows that given these stationary states, the overall model defined by <a class="reference internal" href="implementation.html#equation-prxy">(1)</a> is reversible and has stationary state</p>
 <div class="math notranslate nohighlight">
 \[p_{r,x} = \frac{f_{r,x} \times q_x}{\sum_y f_y \times q_y} = \frac{\left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta} \times q_x}{\sum_y \left(\pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta} \times q_y}.\]</div>
 <p>Therefore, assuming that the preferences <span class="math notranslate nohighlight">\(\pi_{r,a}\)</span> are known <em>a priori</em> for all amino acids <span class="math notranslate nohighlight">\(a\)</span> at all sites <span class="math notranslate nohighlight">\(r\)</span> (e.g. the preferences have been measured in a deep mutational scanning experiment), the substitution model is completely defined by giving values to the following six parameters: <span class="math notranslate nohighlight">\(\omega\)</span>, <span class="math notranslate nohighlight">\(\beta\)</span>, <span class="math notranslate nohighlight">\(\kappa\)</span>, <span class="math notranslate nohighlight">\(\phi_A\)</span>, <span class="math notranslate nohighlight">\(\phi_C\)</span>, and <span class="math notranslate nohighlight">\(\phi_G\)</span>. When fitting an <em>ExpCM</em> for a gene phylogeny, <code class="docutils literal notranslate"><span class="pre">phydms</span></code> assumes that these six parameters are constant across all sites, and optimizes their values by maximum likelihood.</p>
@@ -158,7 +160,7 @@ Note that the mean <span class="math notranslate nohighlight">\(\beta\)</span> v
 <h2><a class="toc-backref" href="#id7">Identifying diversifying selection via site-specific <span class="math notranslate nohighlight">\(\omega_r\)</span> values</a><a class="headerlink" href="#identifying-diversifying-selection-via-site-specific-omega-r-values" title="Permalink to this headline">¶</a></h2>
 <p>One type of interesting selection is <em>diversifying selection</em>, where there is continual pressure for amino-acid change. Such selection might be expected to occur at sites that are targeted by adaptive immunity or subjected to some other form of selection which constantly favors changes in the protein sequence. At such sites, we expect that the relative rate of nonsynonymous substitutions will be higher than suggested by the site-specific preferences <span class="math notranslate nohighlight">\(\pi_{r,a}\)</span> due to this diversifying selection.</p>
 <p>To detect diversifying selection at specific sites within the framework of the <em>ExpCM</em> implemented in <code class="docutils literal notranslate"><span class="pre">phydms</span></code>, we use an approach that is highly analogous the <em>FEL</em> (<strong>f</strong>ixed <strong>e</strong>ffects <strong>l</strong>ikelihood) method described by <a class="reference external" href="http://mbe.oxfordjournals.org/content/22/5/1208.full">Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222</a>. Essentially, the tree topology, branch lengths, and all shared model parameters are fixed to their maximum-likelihood values optimized over the entire gene sequence. Then for each site <span class="math notranslate nohighlight">\(r\)</span>, we fit a site-specific ratio of the rate of synonymous versus nonsynonymous substitutions while holding all holding all the other tree and model parameters constant. Effectively, this is fitting a different <span class="math notranslate nohighlight">\(\omega_r\)</span> for each site, and so this analysis is indicated as <code class="docutils literal notranslate"><span class="pre">--omegabysite</span></code> in the <code class="docutils literal notranslate"><span class="pre">phydms</span></code> options.</p>
-<p>Specifically, after fixing all of the other parameters as described above, for each site <span class="math notranslate nohighlight">\(r\)</span> we re-define Equation <a class="reference internal" href="#equation-frxy">(3)</a> as</p>
+<p>Specifically, after fixing all of the other parameters as described above, for each site <span class="math notranslate nohighlight">\(r\)</span> we re-define Equation <a class="reference internal" href="implementation.html#equation-frxy">(3)</a> as</p>
 <div class="math notranslate nohighlight" id="equation-frxy-omegabysite">
 <span class="eqno">(4)<a class="headerlink" href="#equation-frxy-omegabysite" title="Permalink to this equation">¶</a></span>\[\begin{split}F_{r,xy} =
 \begin{cases}
@@ -173,7 +175,7 @@ Note that the mean <span class="math notranslate nohighlight">\(\beta\)</span> v
 <div class="section" id="identifying-differentially-selected-amino-acids-by-fitting-preferences-for-each-site">
 <h2><a class="toc-backref" href="#id8">Identifying differentially selected amino acids by fitting preferences for each site</a><a class="headerlink" href="#identifying-differentially-selected-amino-acids-by-fitting-preferences-for-each-site" title="Permalink to this headline">¶</a></h2>
 <p>A more complete approach is to examine each site to see the extent to which the preferences for each amino acid in nature differ from those encapsulated in the <span class="math notranslate nohighlight">\(\pi_{r,a}\)</span> values. The advantage of this approach is that it can identify any form of differential selection (the approach in the previous section works best when the selection in nature is more uniform across amino acids than the <span class="math notranslate nohighlight">\(\pi_{r,a}\)</span> values), and also that it can pinpoint specific amino acids that are favored or disfavored in natural evolution by an unexpected amount. The disadvantage is that <code class="docutils literal notranslate"><span class="pre">phydms</span></code> does not currently implement a good way to statistically test the significance of this type of differential selection, so although you can visualize and assess the selection it’s hard to say that any given differential selection is significant at some specific P-value threshold.</p>
-<p>To identify differential selection, we first fix the tree / branch lengths and all parameters of the substitution model at their maximum-likelihood values obtained across the whole tree. We then define a new set of 20 preferences for each site <span class="math notranslate nohighlight">\(r\)</span> that we will denote as <span class="math notranslate nohighlight">\(\hat{\pi}_{r,a}\)</span> (note that these only represent 19 parameters, as <span class="math notranslate nohighlight">\(1 = \sum_a \hat{\pi}_{r,a}\)</span>. We then redefine Equation <a class="reference internal" href="#equation-frxy">(3)</a> replacing the <span class="math notranslate nohighlight">\(\left(\pi_{r,a}\right)^{\beta}\)</span> values with the <span class="math notranslate nohighlight">\(\hat{\pi}_{r,a}\)</span> values as</p>
+<p>To identify differential selection, we first fix the tree / branch lengths and all parameters of the substitution model at their maximum-likelihood values obtained across the whole tree. We then define a new set of 20 preferences for each site <span class="math notranslate nohighlight">\(r\)</span> that we will denote as <span class="math notranslate nohighlight">\(\hat{\pi}_{r,a}\)</span> (note that these only represent 19 parameters, as <span class="math notranslate nohighlight">\(1 = \sum_a \hat{\pi}_{r,a}\)</span>. We then redefine Equation <a class="reference internal" href="implementation.html#equation-frxy">(3)</a> replacing the <span class="math notranslate nohighlight">\(\left(\pi_{r,a}\right)^{\beta}\)</span> values with the <span class="math notranslate nohighlight">\(\hat{\pi}_{r,a}\)</span> values as</p>
 <div class="math notranslate nohighlight" id="equation-frxy-diffprefs">
 <span class="eqno">(5)<a class="headerlink" href="#equation-frxy-diffprefs" title="Permalink to this equation">¶</a></span>\[\begin{split} F_{r,xy} =
  \begin{cases}
@@ -210,7 +212,7 @@ Note that the mean <span class="math notranslate nohighlight">\(\beta\)</span> v
 <div class="section" id="specifiying-diversifying-pressure-at-sites">
 <h2><a class="toc-backref" href="#id9">Specifiying diversifying pressure at sites</a><a class="headerlink" href="#specifiying-diversifying-pressure-at-sites" title="Permalink to this headline">¶</a></h2>
 <p>In some cases, it might be possible to specify <em>a priori</em> expections for the diversifying pressure at each site. For instance, viruses benefit from amino-acid change in sites targeted by the immune system and, consequently, these sites have a higher rate of amino-acid substitution than expected given their level of inherent functional constraint. We can incorporate our expectations for diversifying pressure  at specific sites into the selection terms <span class="math notranslate nohighlight">\(F_{r,xy}\)</span>.</p>
-<p>Let <span class="math notranslate nohighlight">\(\delta_{r}\)</span> be the pre-determined diversifying pressure for amino-acid change at site <span class="math notranslate nohighlight">\(r\)</span> in the protein. A large positive value of <span class="math notranslate nohighlight">\(\delta_r\)</span> corresponds to high pressure for amino-acid diversification, and negative value corresponds to expected pressure against amino-acid diversification beyond that captured in the amino-acid preferences.  We then replace <span class="math notranslate nohighlight">\(\omega\)</span> in Equation <a class="reference internal" href="#equation-frxy">(3)</a> with the expression <span class="math notranslate nohighlight">\(\omega\times\left(1+\omega_{2}\times\delta_{r}\right)\)</span>, resulting in selection terms:</p>
+<p>Let <span class="math notranslate nohighlight">\(\delta_{r}\)</span> be the pre-determined diversifying pressure for amino-acid change at site <span class="math notranslate nohighlight">\(r\)</span> in the protein. A large positive value of <span class="math notranslate nohighlight">\(\delta_r\)</span> corresponds to high pressure for amino-acid diversification, and negative value corresponds to expected pressure against amino-acid diversification beyond that captured in the amino-acid preferences.  We then replace <span class="math notranslate nohighlight">\(\omega\)</span> in Equation <a class="reference internal" href="implementation.html#equation-frxy">(3)</a> with the expression <span class="math notranslate nohighlight">\(\omega\times\left(1+\omega_{2}\times\delta_{r}\right)\)</span>, resulting in selection terms:</p>
 <div class="math notranslate nohighlight" id="equation-frxy-divpressure">
 <span class="eqno">(11)<a class="headerlink" href="#equation-frxy-divpressure" title="Permalink to this equation">¶</a></span>\[\begin{split}F_{r,xy} =
 \begin{cases}
@@ -218,7 +220,7 @@ Note that the mean <span class="math notranslate nohighlight">\(\beta\)</span> v
 \omega\times\left(1+\omega_{2}\times\delta_{r}\right) &amp; \mbox{if $\mathcal{A}\left(x\right) \ne \mathcal{A}\left(y\right)$ and $\pi_{r,\mathcal{A}\left(x\right)} = \pi_{r,\mathcal{A}\left(y\right)}$} \\
 \omega\times\left(1+\omega_{2}\times\delta_{r}\right) \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} &amp; \mbox{otherwise.}
 \end{cases}\end{split}\]</div>
-<p>Whereas before <span class="math notranslate nohighlight">\(\omega\)</span> reflected the elevation of non-synonymous substitutin rate (averaged across the entire gene) beyond that expected given the amino-acid preferences, now <span class="math notranslate nohighlight">\(\omega\)</span> reflects a gene-wide rate of elevated non-synonymous substitution after taking into account the expected sites of diversifying pressure (as represented by <span class="math notranslate nohighlight">\(\delta_r\)</span>) weighted by <span class="math notranslate nohighlight">\(\omega_{2}\times\delta_{r}\)</span>. These new selection terms in equation Equation <a class="reference internal" href="#equation-frxy-divpressure">(11)</a> are identical the selection terms in Equation <a class="reference internal" href="#equation-frxy">(3)</a> when <span class="math notranslate nohighlight">\(\omega_{2} = 0\)</span>.</p>
+<p>Whereas before <span class="math notranslate nohighlight">\(\omega\)</span> reflected the elevation of non-synonymous substitutin rate (averaged across the entire gene) beyond that expected given the amino-acid preferences, now <span class="math notranslate nohighlight">\(\omega\)</span> reflects a gene-wide rate of elevated non-synonymous substitution after taking into account the expected sites of diversifying pressure (as represented by <span class="math notranslate nohighlight">\(\delta_r\)</span>) weighted by <span class="math notranslate nohighlight">\(\omega_{2}\times\delta_{r}\)</span>. These new selection terms in equation Equation <a class="reference internal" href="implementation.html#equation-frxy-divpressure">(26)</a> are identical the selection terms in Equation <a class="reference internal" href="implementation.html#equation-frxy">(3)</a> when <span class="math notranslate nohighlight">\(\omega_{2} = 0\)</span>.</p>
 <p>To ensure a positive value of <span class="math notranslate nohighlight">\(\omega\times\left(1+\omega_{2}\times\delta_{r}\right)\)</span> with <span class="math notranslate nohighlight">\(-\infty&lt;\delta_{r}&lt;\infty\)</span>, <span class="math notranslate nohighlight">\(\omega\)</span> and <span class="math notranslate nohighlight">\(\omega_{2}\)</span> are constrained in the following ways:</p>
 <p><span class="math notranslate nohighlight">\(\omega&gt;0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\begin{cases}
@@ -226,12 +228,13 @@ Note that the mean <span class="math notranslate nohighlight">\(\beta\)</span> v
 -\infty&lt;\omega_{2}&lt;\frac{-1}{\min_r\delta_r} &amp; \text{when }\max_r\delta_r&lt;0\\
 \frac{-1}{\max_r\delta_r}&lt;\omega_{2}&lt;\frac{-1}{\min_r\delta_r} &amp; \text{otherwise}\\
 \end{cases}\)</span></p>
-<p>This results in a total of seven free parameters: <span class="math notranslate nohighlight">\(\omega\)</span>, <span class="math notranslate nohighlight">\(\omega_{2}\)</span>, <span class="math notranslate nohighlight">\(\beta\)</span>, <span class="math notranslate nohighlight">\(\kappa\)</span>, <span class="math notranslate nohighlight">\(\phi_A\)</span>, <span class="math notranslate nohighlight">\(\phi_C\)</span>, and <span class="math notranslate nohighlight">\(\phi_G\)</span>, an increase of one from the model with <span class="math notranslate nohighlight">\(F_{r,xy}\)</span> defined by Equation <a class="reference internal" href="#equation-frxy">(3)</a>. A likelihood ratio test can therefore by used to test if adding the specified site-specific diversifying pressure represented by the <span class="math notranslate nohighlight">\(\delta_r\)</span> values actually improves the description of the gene’s evolution.</p>
+<p>This results in a total of seven free parameters: <span class="math notranslate nohighlight">\(\omega\)</span>, <span class="math notranslate nohighlight">\(\omega_{2}\)</span>, <span class="math notranslate nohighlight">\(\beta\)</span>, <span class="math notranslate nohighlight">\(\kappa\)</span>, <span class="math notranslate nohighlight">\(\phi_A\)</span>, <span class="math notranslate nohighlight">\(\phi_C\)</span>, and <span class="math notranslate nohighlight">\(\phi_G\)</span>, an increase of one from the model with <span class="math notranslate nohighlight">\(F_{r,xy}\)</span> defined by Equation <a class="reference internal" href="implementation.html#equation-frxy">(3)</a>. A likelihood ratio test can therefore by used to test if adding the specified site-specific diversifying pressure represented by the <span class="math notranslate nohighlight">\(\delta_r\)</span> values actually improves the description of the gene’s evolution.</p>
 </div>
 </div>
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -264,7 +267,7 @@ Note that the mean <span class="math notranslate nohighlight">\(\beta\)</span> v
     
 
 <p>
-<a href="https://travis-ci.org/jbloomlab/phydms">
+<a class="badge" href="https://travis-ci.org/jbloomlab/phydms">
     <img
         alt="https://secure.travis-ci.org/jbloomlab/phydms.svg?branch=master"
         src="https://secure.travis-ci.org/jbloomlab/phydms.svg?branch=master"
@@ -296,15 +299,23 @@ Note that the mean <span class="math notranslate nohighlight">\(\beta\)</span> v
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -313,8 +324,8 @@ Note that the mean <span class="math notranslate nohighlight">\(\beta\)</span> v
       &copy;2015-2019, Sarah Hilton and Jesse Bloom.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/ExpCM.rst.txt"

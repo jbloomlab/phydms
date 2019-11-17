@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>phydmslib package &#8212; phydms 2.3.2 documentation</title>
+    <title>phydmslib package &#8212; phydms 2.3.4 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -29,6 +29,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="phydmslib-package">
@@ -100,7 +102,7 @@ codon position <cite>p</cite> and 1.0 otherwise</p>
 <p>Module for input / output from files.</p>
 <dl class="function">
 <dt id="phydmslib.file_io.ReadCodonAlignment">
-<code class="descclassname">phydmslib.file_io.</code><code class="descname">ReadCodonAlignment</code><span class="sig-paren">(</span><em>fastafile</em>, <em>checknewickvalid</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.ReadCodonAlignment" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.file_io.</code><code class="sig-name descname">ReadCodonAlignment</code><span class="sig-paren">(</span><em class="sig-param">fastafile</em>, <em class="sig-param">checknewickvalid</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.ReadCodonAlignment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads codon alignment from file.</p>
 <p><em>fastafile</em> is the name of an existing FASTA file.</p>
 <p><em>checknewickvalid</em> : if <em>True</em>, we require that names are unique and do
@@ -149,7 +151,7 @@ the exception of a shared terminal stop) and free of ambiguous nucleotides.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;&gt;</span><span class="si">{0}</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">ReadCodonAlignment</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="c1"># doctest: +IGNORE_EXCEPTION_DETAIL</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">ReadCodonAlignment</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> 
 <span class="gt">Traceback (most recent call last):</span>
 <span class="gr">ValueError</span>:
 </pre></div>
@@ -158,7 +160,7 @@ the exception of a shared terminal stop) and free of ambiguous nucleotides.</p>
 
 <dl class="function">
 <dt id="phydmslib.file_io.Versions">
-<code class="descclassname">phydmslib.file_io.</code><code class="descname">Versions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.Versions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.file_io.</code><code class="sig-name descname">Versions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.Versions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a string with version information.</p>
 <p>You would call this function if you want a string giving detailed information
 on the version of <code class="docutils literal notranslate"><span class="pre">phydms</span></code> and the associated packages that it uses.</p>
@@ -166,7 +168,7 @@ on the version of <code class="docutils literal notranslate"><span class="pre">p
 
 <dl class="function">
 <dt id="phydmslib.file_io.readDivPressure">
-<code class="descclassname">phydmslib.file_io.</code><code class="descname">readDivPressure</code><span class="sig-paren">(</span><em>fileName</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.readDivPressure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.file_io.</code><code class="sig-name descname">readDivPressure</code><span class="sig-paren">(</span><em class="sig-param">fileName</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.readDivPressure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads in diversifying pressures from some file.</p>
 <p>Scale diversifying pressure values so absolute value of the max value is 1,
 unless all values are zero.</p>
@@ -189,7 +191,7 @@ with one) and the second column is the diversifying pressure values.</p>
 
 <dl class="function">
 <dt id="phydmslib.file_io.readPrefs">
-<code class="descclassname">phydmslib.file_io.</code><code class="descname">readPrefs</code><span class="sig-paren">(</span><em>prefsfile</em>, <em>minpref=0</em>, <em>avgprefs=False</em>, <em>randprefs=False</em>, <em>seed=1</em>, <em>sites_as_strings=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.readPrefs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.file_io.</code><code class="sig-name descname">readPrefs</code><span class="sig-paren">(</span><em class="sig-param">prefsfile</em>, <em class="sig-param">minpref=0</em>, <em class="sig-param">avgprefs=False</em>, <em class="sig-param">randprefs=False</em>, <em class="sig-param">seed=1</em>, <em class="sig-param">sites_as_strings=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.readPrefs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read preferences from file with some error checking.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
@@ -225,7 +227,7 @@ If this option is <cite>True</cite>, then they are kept as strings.</p>
 
 <dl class="function">
 <dt id="phydmslib.file_io.readPrefs_dms_tools_format">
-<code class="descclassname">phydmslib.file_io.</code><code class="descname">readPrefs_dms_tools_format</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.readPrefs_dms_tools_format" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.file_io.</code><code class="sig-name descname">readPrefs_dms_tools_format</code><span class="sig-paren">(</span><em class="sig-param">f</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.readPrefs_dms_tools_format" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads the amino-acid preferences written by <a class="reference external" href="http://jbloomlab.github.io/dms_tools/">dms_tools v1</a>.</p>
 <p>This is an exact copy of the same code from
 <cite>dms_tools.file_io.ReadPreferences</cite>. It is copied because
@@ -251,7 +253,7 @@ and <em>h</em> is a dictionary with <em>h[r]</em> giving the site entropy (log b
 using the indexing schemes defined in <cite>phydmslib.constants</cite>.</p>
 <dl class="function">
 <dt id="phydmslib.models.DiscreteGamma">
-<code class="descclassname">phydmslib.models.</code><code class="descname">DiscreteGamma</code><span class="sig-paren">(</span><em>alpha</em>, <em>beta</em>, <em>ncats</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.DiscreteGamma" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">DiscreteGamma</code><span class="sig-paren">(</span><em class="sig-param">alpha</em>, <em class="sig-param">beta</em>, <em class="sig-param">ncats</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.DiscreteGamma" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns category means for discretized gamma distribution.</p>
 <p>The distribution is evenly divided into categories, and the
 mean of each category is returned.</p>
@@ -287,7 +289,7 @@ True</p>
 
 <dl class="class">
 <dt id="phydmslib.models.DistributionModel">
-<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">DistributionModel</code><a class="headerlink" href="#phydmslib.models.DistributionModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">DistributionModel</code><a class="headerlink" href="#phydmslib.models.DistributionModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#phydmslib.models.Model" title="phydmslib.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.Model</span></code></a></p>
 <p>Substitution model with a parameter drawn from distribution.</p>
 <p>This abstract base class defines required methods / attributes
@@ -296,16 +298,16 @@ drawn from a distribution. An example is that <cite>omega</cite> might be
 drawn from a gamma distribution.</p>
 <dl class="method">
 <dt id="phydmslib.models.DistributionModel.M">
-<code class="descname">M</code><span class="sig-paren">(</span><em>k</em>, <em>t</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.DistributionModel.M" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">M</code><span class="sig-paren">(</span><em class="sig-param">k</em>, <em class="sig-param">t</em>, <em class="sig-param">tips=None</em>, <em class="sig-param">gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.DistributionModel.M" title="Permalink to this definition">¶</a></dt>
 <dd><p>Matrix exponential <cite>M(mu * t) = exp(mu * t * P)</cite> for category <cite>k</cite>.</p>
 <p>Similar to definition for <cite>Model</cite> abstract base class except
 also specifies for which category <cite>k</cite> we are returning the
 matrix exponential. <cite>k</cite> is an <cite>int</cite> with <cite>0 &lt;= k &lt; ncats</cite>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.DistributionModel.basemodel">
-<code class="descname">basemodel</code><a class="headerlink" href="#phydmslib.models.DistributionModel.basemodel" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">basemodel</code><a class="headerlink" href="#phydmslib.models.DistributionModel.basemodel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base model over which this model is distributed.</p>
 <p>A <cite>DistributionModel</cite> is a base model with some property
 drawn from a distribution. This gives such a base model.
@@ -314,9 +316,9 @@ among sites will be current, but the distributed parameter
 will not.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.DistributionModel.catweights">
-<code class="descname">catweights</code><a class="headerlink" href="#phydmslib.models.DistributionModel.catweights" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">catweights</code><a class="headerlink" href="#phydmslib.models.DistributionModel.catweights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Weight assigned to each category.</p>
 <p>Is a <cite>numpy.ndarray</cite> of <cite>float</cite> of shape <cite>(ncats,)</cite> where each
 entry is &gt; 0 and the entries sum to one. <cite>catweights[k]</cite> is
@@ -325,7 +327,7 @@ the weight assigned to category <cite>k</cite> where <cite>0 &lt;= k &lt; ncats<
 
 <dl class="method">
 <dt id="phydmslib.models.DistributionModel.dM">
-<code class="descname">dM</code><span class="sig-paren">(</span><em>k</em>, <em>t</em>, <em>param</em>, <em>Mkt</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.DistributionModel.dM" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">dM</code><span class="sig-paren">(</span><em class="sig-param">k</em>, <em class="sig-param">t</em>, <em class="sig-param">param</em>, <em class="sig-param">Mkt</em>, <em class="sig-param">tips=None</em>, <em class="sig-param">gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.DistributionModel.dM" title="Permalink to this definition">¶</a></dt>
 <dd><p>Derivative of <cite>M(k, t)</cite> with respect to <cite>param</cite>.</p>
 <p>Similar to definiton for <cite>Model</cite> abstract base class
 except also specifies for which category <cite>k</cite> we are
@@ -335,9 +337,9 @@ returning the derivative. <cite>k</cite> is an <cite>int</cite> with
 those in <cite>distributionparams</cite>, and can also be <cite>distributedparam</cite>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.DistributionModel.d_distributionparams">
-<code class="descname">d_distributionparams</code><a class="headerlink" href="#phydmslib.models.DistributionModel.d_distributionparams" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">d_distributionparams</code><a class="headerlink" href="#phydmslib.models.DistributionModel.d_distributionparams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Derivatives of <cite>distributedparam</cite> with respect to <cite>distributionparams</cite>.</p>
 <dl class="simple">
 <dt>Returns:</dt><dd><dl class="simple">
@@ -351,22 +353,22 @@ with respect to <cite>param</cite> where <cite>param</cite> is in <cite>distribu
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.DistributionModel.distributedparam">
-<code class="descname">distributedparam</code><a class="headerlink" href="#phydmslib.models.DistributionModel.distributedparam" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">distributedparam</code><a class="headerlink" href="#phydmslib.models.DistributionModel.distributedparam" title="Permalink to this definition">¶</a></dt>
 <dd><p>String giving name of parameter drawn from the distribution.</p>
 <p>This parameter must be in <cite>freeparams</cite>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.DistributionModel.distributionparams">
-<code class="descname">distributionparams</code><a class="headerlink" href="#phydmslib.models.DistributionModel.distributionparams" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">distributionparams</code><a class="headerlink" href="#phydmslib.models.DistributionModel.distributionparams" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of params giving shape of distribution for <cite>distributedparam</cite>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.DistributionModel.dstationarystate">
-<code class="descname">dstationarystate</code><span class="sig-paren">(</span><em>k</em>, <em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.DistributionModel.dstationarystate" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">dstationarystate</code><span class="sig-paren">(</span><em class="sig-param">k</em>, <em class="sig-param">param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.DistributionModel.dstationarystate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Derivative of <cite>stationarystate</cite> with respect to <cite>param</cite> for category <cite>k</cite>.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
@@ -389,16 +391,16 @@ category <cite>k</cite>.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.DistributionModel.ncats">
-<code class="descname">ncats</code><a class="headerlink" href="#phydmslib.models.DistributionModel.ncats" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">ncats</code><a class="headerlink" href="#phydmslib.models.DistributionModel.ncats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of categories for distributed parameter.</p>
 <p>Is an <cite>int</cite> &gt; 1.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.DistributionModel.stationarystate">
-<code class="descname">stationarystate</code><span class="sig-paren">(</span><em>k</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.DistributionModel.stationarystate" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">stationarystate</code><span class="sig-paren">(</span><em class="sig-param">k</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.DistributionModel.stationarystate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stationary state of substitution model.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
@@ -416,7 +418,7 @@ state probability of codon <cite>x</cite> at site <cite>r</cite> for category <c
 
 <dl class="class">
 <dt id="phydmslib.models.ExpCM">
-<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">ExpCM</code><span class="sig-paren">(</span><em>prefs, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, phi=array([0.25, 0.25, 0.25, 0.25]), freeparams=['kappa', 'omega', 'beta', 'mu', 'eta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">ExpCM</code><span class="sig-paren">(</span><em class="sig-param">prefs, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, phi=array([0.25, 0.25, 0.25, 0.25]), freeparams=['kappa', 'omega', 'beta', 'mu', 'eta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#phydmslib.models.Model" title="phydmslib.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.Model</span></code></a></p>
 <p>Experimentally informed codon models (ExpCM) for a gene.</p>
 <p>See <cite>__init__</cite> method for how to initialize an <cite>ExpCM</cite>.</p>
@@ -497,29 +499,29 @@ index ranging over each element in <cite>eta</cite>.</p>
 </dl>
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM.ALLOWEDPARAMS">
-<code class="descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'beta', 'eta', 'mu']</em><a class="headerlink" href="#phydmslib.models.ExpCM.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'beta', 'eta', 'mu']</em><a class="headerlink" href="#phydmslib.models.ExpCM.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.ExpCM.M">
-<code class="descname">M</code><span class="sig-paren">(</span><em>t</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.M" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">M</code><span class="sig-paren">(</span><em class="sig-param">t</em>, <em class="sig-param">tips=None</em>, <em class="sig-param">gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.M" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for method in <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.ExpCM.PARAMLIMITS">
-<code class="descname">PARAMLIMITS</code><a class="headerlink" href="#phydmslib.models.ExpCM.PARAMLIMITS" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">PARAMLIMITS</code><a class="headerlink" href="#phydmslib.models.ExpCM.PARAMLIMITS" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'beta': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'kappa': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'pi': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">PARAMTYPES</code><em class="property"> = {'beta': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'kappa': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'pi': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.ExpCM.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>prefs, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, phi=array([0.25, 0.25, 0.25, 0.25]), freeparams=['kappa', 'omega', 'beta', 'mu', 'eta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">prefs, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, phi=array([0.25, 0.25, 0.25, 0.25]), freeparams=['kappa', 'omega', 'beta', 'mu', 'eta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize an <cite>ExpCM</cite> object.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
@@ -537,63 +539,63 @@ at each site.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.ExpCM.branchScale">
-<code class="descname">branchScale</code><a class="headerlink" href="#phydmslib.models.ExpCM.branchScale" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">branchScale</code><a class="headerlink" href="#phydmslib.models.ExpCM.branchScale" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.ExpCM.dM">
-<code class="descname">dM</code><span class="sig-paren">(</span><em>t</em>, <em>param</em>, <em>Mt</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.dM" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dM</code><span class="sig-paren">(</span><em class="sig-param">t</em>, <em class="sig-param">param</em>, <em class="sig-param">Mt</em>, <em class="sig-param">tips=None</em>, <em class="sig-param">gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.dM" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for method in <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.ExpCM.dlogprior">
-<code class="descname">dlogprior</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.dlogprior" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dlogprior</code><span class="sig-paren">(</span><em class="sig-param">param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.dlogprior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Zero for all <cite>param</cite>, as no prior defined over this model.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.ExpCM.dstationarystate">
-<code class="descname">dstationarystate</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.dstationarystate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dstationarystate</code><span class="sig-paren">(</span><em class="sig-param">param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.dstationarystate" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.ExpCM.freeparams">
-<code class="descname">freeparams</code><a class="headerlink" href="#phydmslib.models.ExpCM.freeparams" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">freeparams</code><a class="headerlink" href="#phydmslib.models.ExpCM.freeparams" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.ExpCM.logprior">
-<code class="descname">logprior</code><a class="headerlink" href="#phydmslib.models.ExpCM.logprior" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">logprior</code><a class="headerlink" href="#phydmslib.models.ExpCM.logprior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Is zero, as no prior is defined over this model.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.ExpCM.mu">
-<code class="descname">mu</code><a class="headerlink" href="#phydmslib.models.ExpCM.mu" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">mu</code><a class="headerlink" href="#phydmslib.models.ExpCM.mu" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.ExpCM.nsites">
-<code class="descname">nsites</code><a class="headerlink" href="#phydmslib.models.ExpCM.nsites" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">nsites</code><a class="headerlink" href="#phydmslib.models.ExpCM.nsites" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.ExpCM.paramsReport">
-<code class="descname">paramsReport</code><a class="headerlink" href="#phydmslib.models.ExpCM.paramsReport" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">paramsReport</code><a class="headerlink" href="#phydmslib.models.ExpCM.paramsReport" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.ExpCM.spielman_wr">
-<code class="descname">spielman_wr</code><span class="sig-paren">(</span><em>norm=True</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.spielman_wr" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">spielman_wr</code><span class="sig-paren">(</span><em class="sig-param">norm=True</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.spielman_wr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of site-specific omega values calculated from the <cite>ExpCM</cite>.</p>
 <blockquote>
 <div><dl class="simple">
@@ -624,15 +626,15 @@ is the set of codons which are non-synonymous to codon <cite>x</cite> and differ
 ExpCM <cite>omega</cite> value.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.ExpCM.stationarystate">
-<code class="descname">stationarystate</code><a class="headerlink" href="#phydmslib.models.ExpCM.stationarystate" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">stationarystate</code><a class="headerlink" href="#phydmslib.models.ExpCM.stationarystate" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.ExpCM.updateParams">
-<code class="descname">updateParams</code><span class="sig-paren">(</span><em>newvalues</em>, <em>update_all=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.updateParams" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">updateParams</code><span class="sig-paren">(</span><em class="sig-param">newvalues</em>, <em class="sig-param">update_all=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.updateParams" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
@@ -640,7 +642,7 @@ ExpCM <cite>omega</cite> value.</p>
 
 <dl class="class">
 <dt id="phydmslib.models.ExpCM_empirical_phi">
-<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">ExpCM_empirical_phi</code><span class="sig-paren">(</span><em>prefs, g, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, freeparams=['kappa', 'omega', 'beta', 'mu']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">ExpCM_empirical_phi</code><span class="sig-paren">(</span><em class="sig-param">prefs, g, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, freeparams=['kappa', 'omega', 'beta', 'mu']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#phydmslib.models.ExpCM" title="phydmslib.models.ExpCM"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.ExpCM</span></code></a></p>
 <p>An <cite>ExpCM</cite> with <cite>phi</cite> calculated empirically from nucleotide frequencies.</p>
 <p>See <cite>__init__</cite> method for how to initialize an <cite>ExpCM_empirical_phi</cite>.</p>
@@ -665,17 +667,17 @@ to one.</p>
 </dl>
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM_empirical_phi.ALLOWEDPARAMS">
-<code class="descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'beta', 'mu']</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'beta', 'mu']</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM_empirical_phi.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'beta': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'pi': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">PARAMTYPES</code><em class="property"> = {'beta': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'pi': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.ExpCM_empirical_phi.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>prefs, g, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, freeparams=['kappa', 'omega', 'beta', 'mu']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">prefs, g, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, freeparams=['kappa', 'omega', 'beta', 'mu']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize an <cite>ExpCM_empirical_phi</cite> object.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
@@ -692,7 +694,7 @@ to one.</p>
 
 <dl class="class">
 <dt id="phydmslib.models.ExpCM_empirical_phi_divpressure">
-<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">ExpCM_empirical_phi_divpressure</code><span class="sig-paren">(</span><em>prefs, g, divPressureValues, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, omega2=0.0, freeparams=['kappa', 'omega', 'beta', 'mu', 'omega2']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">ExpCM_empirical_phi_divpressure</code><span class="sig-paren">(</span><em class="sig-param">prefs, g, divPressureValues, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, omega2=0.0, freeparams=['kappa', 'omega', 'beta', 'mu', 'omega2']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#phydmslib.models.ExpCM_empirical_phi" title="phydmslib.models.ExpCM_empirical_phi"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.ExpCM_empirical_phi</span></code></a></p>
 <p><cite>ExpCM</cite> with empirical <cite>phi</cite> and <em>a priori</em> diversifying pressure at sites.</p>
 <p>See <cite>__init__</cite> method for how to initialize.</p>
@@ -713,17 +715,17 @@ The maximum absolute value of the array should be between 0 and 1.</p>
 </dl>
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM_empirical_phi_divpressure.ALLOWEDPARAMS">
-<code class="descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'beta', 'mu', 'omega2']</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'beta', 'mu', 'omega2']</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'beta': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;, 'omega2': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'pi': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">PARAMTYPES</code><em class="property"> = {'beta': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;, 'omega2': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'pi': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.ExpCM_empirical_phi_divpressure.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>prefs, g, divPressureValues, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, omega2=0.0, freeparams=['kappa', 'omega', 'beta', 'mu', 'omega2']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">prefs, g, divPressureValues, kappa=2.0, omega=0.5, beta=1.0, mu=1.0, omega2=0.0, freeparams=['kappa', 'omega', 'beta', 'mu', 'omega2']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize an <cite>ExpCM_empirical_phi_divpressure</cite> object.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
@@ -740,7 +742,7 @@ The maximum absolute value of the array should be between 0 and 1.</p>
 
 <dl class="class">
 <dt id="phydmslib.models.ExpCM_fitprefs">
-<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">ExpCM_fitprefs</code><span class="sig-paren">(</span><em>prefs, prior, kappa, omega, phi, mu=1.0, origbeta=1.0, freeparams=['zeta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">ExpCM_fitprefs</code><span class="sig-paren">(</span><em class="sig-param">prefs, prior, kappa, omega, phi, mu=1.0, origbeta=1.0, freeparams=['zeta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#phydmslib.models.ExpCM" title="phydmslib.models.ExpCM"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.ExpCM</span></code></a></p>
 <p>An <cite>ExpCM</cite> with the preferences <cite>pi</cite> as free parameters.</p>
 <p>The difference between <cite>ExpCM</cite> and <cite>ExpCM_fitprefs</cite> is that the
@@ -791,12 +793,12 @@ to optimize a stringency parameter if you are also optimizing the
 preferences as they are confounded.</p>
 <dl class="attribute">
 <dt id="phydmslib.models.ExpCM_fitprefs.ALLOWEDPARAMS">
-<code class="descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'eta', 'mu', 'zeta']</em><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'eta', 'mu', 'zeta']</em><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.ExpCM_fitprefs.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>prefs, prior, kappa, omega, phi, mu=1.0, origbeta=1.0, freeparams=['zeta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">prefs, prior, kappa, omega, phi, mu=1.0, origbeta=1.0, freeparams=['zeta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize an <cite>ExpCM_fitprefs</cite> object.</p>
 <p>The calling parameters have the meaning described in the main class doc
 string. The default values have changed consistent with recommended
@@ -820,13 +822,13 @@ a fixed-preference <cite>ExpCM</cite> prior to initializing this model.</p>
 
 <dl class="method">
 <dt id="phydmslib.models.ExpCM_fitprefs.dlogprior">
-<code class="descname">dlogprior</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.dlogprior" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dlogprior</code><span class="sig-paren">(</span><em class="sig-param">param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.dlogprior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Value of derivative of prior depends on value of <cite>prior</cite>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.ExpCM_fitprefs.logprior">
-<code class="descname">logprior</code><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.logprior" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">logprior</code><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.logprior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Value of log prior depends on value of <cite>prior</cite>.</p>
 </dd></dl>
 
@@ -834,7 +836,7 @@ a fixed-preference <cite>ExpCM</cite> prior to initializing this model.</p>
 
 <dl class="class">
 <dt id="phydmslib.models.ExpCM_fitprefs2">
-<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">ExpCM_fitprefs2</code><span class="sig-paren">(</span><em>prefs, prior, kappa, omega, phi, mu=1.0, origbeta=1.0, freeparams=['zeta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs2" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">ExpCM_fitprefs2</code><span class="sig-paren">(</span><em class="sig-param">prefs, prior, kappa, omega, phi, mu=1.0, origbeta=1.0, freeparams=['zeta']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#phydmslib.models.ExpCM_fitprefs" title="phydmslib.models.ExpCM_fitprefs"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.ExpCM_fitprefs</span></code></a></p>
 <p>An <cite>ExpCM</cite> with the preferences <cite>pi</cite> as free parameters.</p>
 <p>This class differs from <cite>ExpCM_fitprefs</cite> in the way that
@@ -845,7 +847,7 @@ are the same as for an <cite>ExpCM_fitprefs</cite>.</p>
 
 <dl class="class">
 <dt id="phydmslib.models.GammaDistributedBetaModel">
-<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">GammaDistributedBetaModel</code><span class="sig-paren">(</span><em>model, ncats, alpha_lambda=1.0, beta_lambda=2.0, freeparams=['alpha_lambda', 'beta_lambda']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedBetaModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">GammaDistributedBetaModel</code><span class="sig-paren">(</span><em class="sig-param">model, ncats, alpha_lambda=1.0, beta_lambda=2.0, freeparams=['alpha_lambda', 'beta_lambda']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedBetaModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#phydmslib.models.GammaDistributedModel" title="phydmslib.models.GammaDistributedModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.GammaDistributedModel</span></code></a></p>
 <p>Implements gamma distribution over <cite>beta</cite> for a model.</p>
 <p>See <cite>__init__</cite> method for how to initialize a
@@ -855,7 +857,7 @@ method; do <strong>not</strong> set attributes directly.</p>
 <p>Attributes are inherited from <cite>GammaDistributedModel</cite>.</p>
 <dl class="method">
 <dt id="phydmslib.models.GammaDistributedBetaModel.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>model, ncats, alpha_lambda=1.0, beta_lambda=2.0, freeparams=['alpha_lambda', 'beta_lambda']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedBetaModel.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">model, ncats, alpha_lambda=1.0, beta_lambda=2.0, freeparams=['alpha_lambda', 'beta_lambda']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedBetaModel.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize an <cite>GammaDistributedModel</cite> object.</p>
 <p>The <cite>lambda_param</cite> is set to “beta”.</p>
 <dl class="simple">
@@ -872,7 +874,7 @@ method; do <strong>not</strong> set attributes directly.</p>
 
 <dl class="class">
 <dt id="phydmslib.models.GammaDistributedModel">
-<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">GammaDistributedModel</code><span class="sig-paren">(</span><em>model, lambda_param, ncats, alpha_lambda=1.0, beta_lambda=2.0, freeparams=['alpha_lambda', 'beta_lambda']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">GammaDistributedModel</code><span class="sig-paren">(</span><em class="sig-param">model, lambda_param, ncats, alpha_lambda=1.0, beta_lambda=2.0, freeparams=['alpha_lambda', 'beta_lambda']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#phydmslib.models.DistributionModel" title="phydmslib.models.DistributionModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.DistributionModel</span></code></a></p>
 <p>Implements gamma distribution over some parameter <cite>lambda</cite> for a model.</p>
 <p>This model can be used to take a simple substitution model that
@@ -903,24 +905,24 @@ method; do <strong>not</strong> set attributes directly.</p>
 </dl>
 <dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.M">
-<code class="descname">M</code><span class="sig-paren">(</span><em>k</em>, <em>t</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.M" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">M</code><span class="sig-paren">(</span><em class="sig-param">k</em>, <em class="sig-param">t</em>, <em class="sig-param">tips=None</em>, <em class="sig-param">gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.M" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>DistributionModel</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.PARAMLIMITS">
-<code class="descname">PARAMLIMITS</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.PARAMLIMITS" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">PARAMLIMITS</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.PARAMLIMITS" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="phydmslib.models.GammaDistributedModel.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'alpha_lambda': &lt;class 'float'&gt;, 'beta_lambda': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">PARAMTYPES</code><em class="property"> = {'alpha_lambda': &lt;class 'float'&gt;, 'beta_lambda': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>model, lambda_param, ncats, alpha_lambda=1.0, beta_lambda=2.0, freeparams=['alpha_lambda', 'beta_lambda']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">model, lambda_param, ncats, alpha_lambda=1.0, beta_lambda=2.0, freeparams=['alpha_lambda', 'beta_lambda']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a <cite>GammaDistributedModel</cite>.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
@@ -939,106 +941,106 @@ in <cite>model.freeparams</cite> other than <cite>distributedparam</cite>.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.basemodel">
-<code class="descname">basemodel</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.basemodel" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">basemodel</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.basemodel" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>DistributionModel</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.branchScale">
-<code class="descname">branchScale</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.branchScale" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">branchScale</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.branchScale" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.catweights">
-<code class="descname">catweights</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.catweights" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">catweights</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.catweights" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>DistributionModel</cite> abstract base class.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.dM">
-<code class="descname">dM</code><span class="sig-paren">(</span><em>k</em>, <em>t</em>, <em>param</em>, <em>Mkt</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.dM" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dM</code><span class="sig-paren">(</span><em class="sig-param">k</em>, <em class="sig-param">t</em>, <em class="sig-param">param</em>, <em class="sig-param">Mkt</em>, <em class="sig-param">tips=None</em>, <em class="sig-param">gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.dM" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>DistributionModel</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.d_distributionparams">
-<code class="descname">d_distributionparams</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.d_distributionparams" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">d_distributionparams</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.d_distributionparams" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>DistributionModel</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.distributedparam">
-<code class="descname">distributedparam</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.distributedparam" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">distributedparam</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.distributedparam" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns name of the distributed parameter.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.distributionparams">
-<code class="descname">distributionparams</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.distributionparams" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">distributionparams</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.distributionparams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns list of params defining distribution of <cite>distributedparam</cite>.</p>
 <p>This list is <cite>[‘alpha_lambda’, ‘beta_lambda’]</cite>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.dlogprior">
-<code class="descname">dlogprior</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.dlogprior" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dlogprior</code><span class="sig-paren">(</span><em class="sig-param">param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.dlogprior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Equal to value of <cite>basemodel.dlogprior</cite>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.dstationarystate">
-<code class="descname">dstationarystate</code><span class="sig-paren">(</span><em>k</em>, <em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.dstationarystate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dstationarystate</code><span class="sig-paren">(</span><em class="sig-param">k</em>, <em class="sig-param">param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.dstationarystate" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.freeparams">
-<code class="descname">freeparams</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.freeparams" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">freeparams</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.freeparams" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.logprior">
-<code class="descname">logprior</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.logprior" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">logprior</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.logprior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Equal to value of <cite>basemodel.logprior</cite>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.mu">
-<code class="descname">mu</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.mu" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">mu</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.mu" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.ncats">
-<code class="descname">ncats</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.ncats" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">ncats</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.ncats" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>DistributionModel</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.nsites">
-<code class="descname">nsites</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.nsites" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">nsites</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.nsites" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.paramsReport">
-<code class="descname">paramsReport</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.paramsReport" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">paramsReport</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.paramsReport" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.stationarystate">
-<code class="descname">stationarystate</code><span class="sig-paren">(</span><em>k</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.stationarystate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">stationarystate</code><span class="sig-paren">(</span><em class="sig-param">k</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.stationarystate" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.GammaDistributedModel.updateParams">
-<code class="descname">updateParams</code><span class="sig-paren">(</span><em>newvalues</em>, <em>update_all=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.updateParams" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">updateParams</code><span class="sig-paren">(</span><em class="sig-param">newvalues</em>, <em class="sig-param">update_all=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.updateParams" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
@@ -1046,7 +1048,7 @@ in <cite>model.freeparams</cite> other than <cite>distributedparam</cite>.</p>
 
 <dl class="class">
 <dt id="phydmslib.models.GammaDistributedOmegaModel">
-<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">GammaDistributedOmegaModel</code><span class="sig-paren">(</span><em>model, ncats, alpha_lambda=1.0, beta_lambda=2.0, freeparams=['alpha_lambda', 'beta_lambda']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">GammaDistributedOmegaModel</code><span class="sig-paren">(</span><em class="sig-param">model, ncats, alpha_lambda=1.0, beta_lambda=2.0, freeparams=['alpha_lambda', 'beta_lambda']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#phydmslib.models.GammaDistributedModel" title="phydmslib.models.GammaDistributedModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.GammaDistributedModel</span></code></a></p>
 <p>Implements gamma distribution over <cite>omega</cite> for a model.</p>
 <p>This model can be used to implement a gamma distribution over a
@@ -1059,7 +1061,7 @@ method; do <strong>not</strong> set attributes directly.</p>
 <p>Attributes are inherited from <cite>GammaDistributedModel</cite>.</p>
 <dl class="method">
 <dt id="phydmslib.models.GammaDistributedOmegaModel.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>model, ncats, alpha_lambda=1.0, beta_lambda=2.0, freeparams=['alpha_lambda', 'beta_lambda']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">model, ncats, alpha_lambda=1.0, beta_lambda=2.0, freeparams=['alpha_lambda', 'beta_lambda']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize an <cite>GammaDistributedModel</cite> object.</p>
 <p>The <cite>lambda_param</cite> is set to “omega”.</p>
 <dl class="simple">
@@ -1076,13 +1078,13 @@ method; do <strong>not</strong> set attributes directly.</p>
 
 <dl class="class">
 <dt id="phydmslib.models.Model">
-<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">Model</code><a class="headerlink" href="#phydmslib.models.Model" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">Model</code><a class="headerlink" href="#phydmslib.models.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Substitution model abstract base class.</p>
 <p>Specifies required methods / attributes of substitution models.</p>
 <dl class="method">
 <dt id="phydmslib.models.Model.M">
-<code class="descname">M</code><span class="sig-paren">(</span><em>t</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.M" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">M</code><span class="sig-paren">(</span><em class="sig-param">t</em>, <em class="sig-param">tips=None</em>, <em class="sig-param">gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.M" title="Permalink to this definition">¶</a></dt>
 <dd><p>Matrix exponential <cite>M(mu * t) = exp(mu * t * P)</cite>.</p>
 <p>If we are considering branch to tip node, you can use
 <cite>tips</cite> and <cite>gaps</cite> to get only the column needed for
@@ -1119,9 +1121,9 @@ one.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.Model.PARAMLIMITS">
-<code class="descname">PARAMLIMITS</code><a class="headerlink" href="#phydmslib.models.Model.PARAMLIMITS" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">PARAMLIMITS</code><a class="headerlink" href="#phydmslib.models.Model.PARAMLIMITS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dict of tuples giving lower and upper allowed param values.</p>
 <p>For each <cite>param</cite> in <cite>freeparams</cite>, <cite>PARAMLIMITS[param]</cite>
 is a 2-tuple of floats giving upper and lower allowed
@@ -1129,9 +1131,9 @@ values of <cite>param</cite> (or of each element in <cite>param</cite> if
 <cite>param</cite> is an array).</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.Model.branchScale">
-<code class="descname">branchScale</code><a class="headerlink" href="#phydmslib.models.Model.branchScale" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">branchScale</code><a class="headerlink" href="#phydmslib.models.Model.branchScale" title="Permalink to this definition">¶</a></dt>
 <dd><p>Factor to scale branch lengths to substitutions per site.</p>
 <p>When we use a branch length of <cite>t = 1</cite>, how many substitutions
 per site do we expect averaged over all sites? This method
@@ -1141,7 +1143,7 @@ substitution per site, multiply by this number.</p>
 
 <dl class="method">
 <dt id="phydmslib.models.Model.dM">
-<code class="descname">dM</code><span class="sig-paren">(</span><em>t</em>, <em>param</em>, <em>Mt</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.dM" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">dM</code><span class="sig-paren">(</span><em class="sig-param">t</em>, <em class="sig-param">param</em>, <em class="sig-param">Mt</em>, <em class="sig-param">tips=None</em>, <em class="sig-param">gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.dM" title="Permalink to this definition">¶</a></dt>
 <dd><p>Derivative of <cite>M(t)</cite> with respect to <cite>param</cite>.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
@@ -1177,7 +1179,7 @@ single array providing the derivative of
 
 <dl class="method">
 <dt id="phydmslib.models.Model.dlogprior">
-<code class="descname">dlogprior</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.dlogprior" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">dlogprior</code><span class="sig-paren">(</span><em class="sig-param">param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.dlogprior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Derivative of <cite>logprior</cite> with respect to <cite>param</cite>.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p><cite>param</cite> (string in <cite>freeparams</cite>)</p>
@@ -1190,7 +1192,7 @@ or 0 if there is no prior defined over this model.</p>
 
 <dl class="method">
 <dt id="phydmslib.models.Model.dstationarystate">
-<code class="descname">dstationarystate</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.dstationarystate" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">dstationarystate</code><span class="sig-paren">(</span><em class="sig-param">param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.dstationarystate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Derivative of <cite>stationarystate</cite> with respect to <cite>param</cite>.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p><cite>param</cite> (string in <cite>freeparams</cite>)</p>
@@ -1207,44 +1209,44 @@ to <cite>param</cite>. If <cite>param</cite> is an array, then
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.Model.freeparams">
-<code class="descname">freeparams</code><a class="headerlink" href="#phydmslib.models.Model.freeparams" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">freeparams</code><a class="headerlink" href="#phydmslib.models.Model.freeparams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Model parameters to be optimized (a list of strings).</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.Model.logprior">
-<code class="descname">logprior</code><a class="headerlink" href="#phydmslib.models.Model.logprior" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">logprior</code><a class="headerlink" href="#phydmslib.models.Model.logprior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Log prior over current model.</p>
 <p>Is a float giving log prior over current model, or
 0 if there is no prior defined over this model.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.Model.mu">
-<code class="descname">mu</code><a class="headerlink" href="#phydmslib.models.Model.mu" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">mu</code><a class="headerlink" href="#phydmslib.models.Model.mu" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mutation rate, scales branch lengths in <cite>M</cite> and <cite>dM</cite>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.Model.nsites">
-<code class="descname">nsites</code><a class="headerlink" href="#phydmslib.models.Model.nsites" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">nsites</code><a class="headerlink" href="#phydmslib.models.Model.nsites" title="Permalink to this definition">¶</a></dt>
 <dd><p>An <cite>int</cite> giving the number of codon sites.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.Model.paramsReport">
-<code class="descname">paramsReport</code><a class="headerlink" href="#phydmslib.models.Model.paramsReport" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">paramsReport</code><a class="headerlink" href="#phydmslib.models.Model.paramsReport" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reports current values of independent model parameters.</p>
 <p>Returns a dictionary keyed by parameter name with value being the
 parameter value. Does <strong>not</strong> include <cite>mu</cite> as this is confounded
 with branch lengths.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.Model.stationarystate">
-<code class="descname">stationarystate</code><a class="headerlink" href="#phydmslib.models.Model.stationarystate" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">stationarystate</code><a class="headerlink" href="#phydmslib.models.Model.stationarystate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stationary state of substitution model.</p>
 <p>A <cite>numpy.ndarray</cite> of floats, shape <cite>(nsites, N_CODON)</cite>.
 Element <cite>stationarystate[r][x]</cite> is the stationary
@@ -1253,7 +1255,7 @@ state probability of codon <cite>x</cite> at site <cite>r</cite>.</p>
 
 <dl class="method">
 <dt id="phydmslib.models.Model.updateParams">
-<code class="descname">updateParams</code><span class="sig-paren">(</span><em>newvalues</em>, <em>update_all=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.updateParams" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">updateParams</code><span class="sig-paren">(</span><em class="sig-param">newvalues</em>, <em class="sig-param">update_all=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.updateParams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update model params.</p>
 <p>This method is the <strong>only</strong> acceptable way to update
 model parameters; other dependent model parameters are
@@ -1274,7 +1276,7 @@ current values of model parameters.</p>
 
 <dl class="class">
 <dt id="phydmslib.models.YNGKP_M0">
-<em class="property">class </em><code class="descclassname">phydmslib.models.</code><code class="descname">YNGKP_M0</code><span class="sig-paren">(</span><em>e_pw, nsites, kappa=2.0, omega=0.5, mu=1.0, freeparams=['kappa', 'omega', 'mu']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">YNGKP_M0</code><span class="sig-paren">(</span><em class="sig-param">e_pw, nsites, kappa=2.0, omega=0.5, mu=1.0, freeparams=['kappa', 'omega', 'mu']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#phydmslib.models.Model" title="phydmslib.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.Model</span></code></a></p>
 <p>YNGKP_M0 model from Yang et al, 2000.</p>
 <p>See <cite>__init__</cite> method for how to initialize an <cite>YNGKP_M0</cite>.</p>
@@ -1323,29 +1325,29 @@ this estimator takes into account stop codon nucleotide frequencies.
 The codon frequencies, <cite>Phi_x</cite> are computed from the <cite>phi</cite> values.</p>
 <dl class="attribute">
 <dt id="phydmslib.models.YNGKP_M0.ALLOWEDPARAMS">
-<code class="descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'mu']</em><a class="headerlink" href="#phydmslib.models.YNGKP_M0.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'mu']</em><a class="headerlink" href="#phydmslib.models.YNGKP_M0.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.YNGKP_M0.M">
-<code class="descname">M</code><span class="sig-paren">(</span><em>t</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.M" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">M</code><span class="sig-paren">(</span><em class="sig-param">t</em>, <em class="sig-param">tips=None</em>, <em class="sig-param">gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.M" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for method in <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.YNGKP_M0.PARAMLIMITS">
-<code class="descname">PARAMLIMITS</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.PARAMLIMITS" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">PARAMLIMITS</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.PARAMLIMITS" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="phydmslib.models.YNGKP_M0.PARAMTYPES">
-<code class="descname">PARAMTYPES</code><em class="property"> = {'e_pw': (&lt;class 'numpy.ndarray'&gt;, (3, 4)), 'kappa': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.YNGKP_M0.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">PARAMTYPES</code><em class="property"> = {'e_pw': (&lt;class 'numpy.ndarray'&gt;, (3, 4)), 'kappa': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.YNGKP_M0.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.YNGKP_M0.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>e_pw, nsites, kappa=2.0, omega=0.5, mu=1.0, freeparams=['kappa', 'omega', 'mu']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">e_pw, nsites, kappa=2.0, omega=0.5, mu=1.0, freeparams=['kappa', 'omega', 'mu']</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize an <cite>YNGKP_M0</cite> object.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
@@ -1360,69 +1362,69 @@ The codon frequencies, <cite>Phi_x</cite> are computed from the <cite>phi</cite>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.YNGKP_M0.branchScale">
-<code class="descname">branchScale</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.branchScale" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">branchScale</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.branchScale" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.YNGKP_M0.dM">
-<code class="descname">dM</code><span class="sig-paren">(</span><em>t</em>, <em>param</em>, <em>Mt</em>, <em>tips=None</em>, <em>gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.dM" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dM</code><span class="sig-paren">(</span><em class="sig-param">t</em>, <em class="sig-param">param</em>, <em class="sig-param">Mt</em>, <em class="sig-param">tips=None</em>, <em class="sig-param">gaps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.dM" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for method in <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.YNGKP_M0.dlogprior">
-<code class="descname">dlogprior</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.dlogprior" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dlogprior</code><span class="sig-paren">(</span><em class="sig-param">param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.dlogprior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Zero for all <cite>param</cite>, as no prior defined over this model.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.YNGKP_M0.dstationarystate">
-<code class="descname">dstationarystate</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.dstationarystate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dstationarystate</code><span class="sig-paren">(</span><em class="sig-param">param</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.dstationarystate" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.YNGKP_M0.freeparams">
-<code class="descname">freeparams</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.freeparams" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">freeparams</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.freeparams" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.YNGKP_M0.logprior">
-<code class="descname">logprior</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.logprior" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">logprior</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.logprior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Is zero, as no prior is defined over this model.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.YNGKP_M0.mu">
-<code class="descname">mu</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.mu" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">mu</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.mu" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.YNGKP_M0.nsites">
-<code class="descname">nsites</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.nsites" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">nsites</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.nsites" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.YNGKP_M0.paramsReport">
-<code class="descname">paramsReport</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.paramsReport" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">paramsReport</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.paramsReport" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.models.YNGKP_M0.stationarystate">
-<code class="descname">stationarystate</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.stationarystate" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">stationarystate</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.stationarystate" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.models.YNGKP_M0.updateParams">
-<code class="descname">updateParams</code><span class="sig-paren">(</span><em>newvalues</em>, <em>update_all=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.updateParams" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">updateParams</code><span class="sig-paren">(</span><em class="sig-param">newvalues</em>, <em class="sig-param">update_all=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.updateParams" title="Permalink to this definition">¶</a></dt>
 <dd><p>See docs for <cite>Model</cite> abstract base class.</p>
 </dd></dl>
 
@@ -1434,7 +1436,7 @@ The codon frequencies, <cite>Phi_x</cite> are computed from the <cite>phi</cite>
 <p>Numerical routines for <code class="docutils literal notranslate"><span class="pre">phydmslib</span></code>.</p>
 <dl class="function">
 <dt id="phydmslib.numutils.broadcastGetCols">
-<code class="descclassname">phydmslib.numutils.</code><code class="descname">broadcastGetCols</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.numutils.broadcastGetCols" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.numutils.</code><code class="sig-name descname">broadcastGetCols</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.numutils.broadcastGetCols" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get specified columns from <cite>ndarray</cite> of square <cite>ndarrays</cite>.</p>
 <p>This functions uses fast <cite>numpy</cite> broadcasting to get the
 columns from a long array of arrays.</p>
@@ -1465,7 +1467,7 @@ columns from a long array of arrays.</p>
 
 <dl class="function">
 <dt id="phydmslib.numutils.broadcastMatrixMultiply">
-<code class="descclassname">phydmslib.numutils.</code><code class="descname">broadcastMatrixMultiply</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.numutils.broadcastMatrixMultiply" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.numutils.</code><code class="sig-name descname">broadcastMatrixMultiply</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.numutils.broadcastMatrixMultiply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Broadcast square matrix multiplication using <cite>blas</cite> for speed.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
@@ -1501,7 +1503,7 @@ with <cite>b[r]</cite>.</p>
 
 <dl class="function">
 <dt id="phydmslib.numutils.broadcastMatrixVectorMultiply">
-<code class="descclassname">phydmslib.numutils.</code><code class="descname">broadcastMatrixVectorMultiply</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.numutils.broadcastMatrixVectorMultiply" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.numutils.</code><code class="sig-name descname">broadcastMatrixVectorMultiply</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.numutils.broadcastMatrixVectorMultiply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Broadcast matrix vector multiplication using <cite>blas</cite> for speed.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
@@ -1545,7 +1547,7 @@ as for BLAS <cite>dgemv</cite>).</p>
 <p>Module for parsing arguments.</p>
 <dl class="class">
 <dt id="phydmslib.parsearguments.ArgumentDefaultsRawDescriptionFormatter">
-<em class="property">class </em><code class="descclassname">phydmslib.parsearguments.</code><code class="descname">ArgumentDefaultsRawDescriptionFormatter</code><span class="sig-paren">(</span><em>prog</em>, <em>indent_increment=2</em>, <em>max_help_position=24</em>, <em>width=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ArgumentDefaultsRawDescriptionFormatter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">ArgumentDefaultsRawDescriptionFormatter</code><span class="sig-paren">(</span><em class="sig-param">prog</em>, <em class="sig-param">indent_increment=2</em>, <em class="sig-param">max_help_position=24</em>, <em class="sig-param">width=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ArgumentDefaultsRawDescriptionFormatter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentDefaultsHelpFormatter</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.RawDescriptionHelpFormatter</span></code></p>
 <p>Print default arguments and raw text description formatter.</p>
 <p>Based on this:
@@ -1554,12 +1556,12 @@ as for BLAS <cite>dgemv</cite>).</p>
 
 <dl class="class">
 <dt id="phydmslib.parsearguments.ArgumentParserNoArgHelp">
-<em class="property">class </em><code class="descclassname">phydmslib.parsearguments.</code><code class="descname">ArgumentParserNoArgHelp</code><span class="sig-paren">(</span><em>prog=None</em>, <em>usage=None</em>, <em>description=None</em>, <em>epilog=None</em>, <em>parents=[]</em>, <em>formatter_class=&lt;class 'argparse.HelpFormatter'&gt;</em>, <em>prefix_chars='-'</em>, <em>fromfile_prefix_chars=None</em>, <em>argument_default=None</em>, <em>conflict_handler='error'</em>, <em>add_help=True</em>, <em>allow_abbrev=True</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ArgumentParserNoArgHelp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">ArgumentParserNoArgHelp</code><span class="sig-paren">(</span><em class="sig-param">prog=None</em>, <em class="sig-param">usage=None</em>, <em class="sig-param">description=None</em>, <em class="sig-param">epilog=None</em>, <em class="sig-param">parents=[]</em>, <em class="sig-param">formatter_class=&lt;class 'argparse.HelpFormatter'&gt;</em>, <em class="sig-param">prefix_chars='-'</em>, <em class="sig-param">fromfile_prefix_chars=None</em>, <em class="sig-param">argument_default=None</em>, <em class="sig-param">conflict_handler='error'</em>, <em class="sig-param">add_help=True</em>, <em class="sig-param">allow_abbrev=True</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ArgumentParserNoArgHelp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></p>
 <p>Like <em>argparse.ArgumentParser</em>, but prints help when no arguments.</p>
 <dl class="method">
 <dt id="phydmslib.parsearguments.ArgumentParserNoArgHelp.error">
-<code class="descname">error</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ArgumentParserNoArgHelp.error" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">error</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ArgumentParserNoArgHelp.error" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints error message, then help.</p>
 </dd></dl>
 
@@ -1567,25 +1569,25 @@ as for BLAS <cite>dgemv</cite>).</p>
 
 <dl class="function">
 <dt id="phydmslib.parsearguments.ExistingFile">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">ExistingFile</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ExistingFile" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">ExistingFile</code><span class="sig-paren">(</span><em class="sig-param">fname</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ExistingFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>If <em>fname</em> is name of an existing file return it, otherwise an error.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="phydmslib.parsearguments.ExistingFileOrNone">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">ExistingFileOrNone</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ExistingFileOrNone" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">ExistingFileOrNone</code><span class="sig-paren">(</span><em class="sig-param">fname</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ExistingFileOrNone" title="Permalink to this definition">¶</a></dt>
 <dd><p>Like <cite>Existingfile</cite>, but if <cite>fname</cite> is string “None” then return <cite>None</cite>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="phydmslib.parsearguments.FloatBetweenZeroAndOne">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">FloatBetweenZeroAndOne</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.FloatBetweenZeroAndOne" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">FloatBetweenZeroAndOne</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.FloatBetweenZeroAndOne" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <em>x</em> only if <em>0 &lt;= x &lt;= 1</em>, otherwise raises error.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="phydmslib.parsearguments.FloatGreaterThanEqualToZero">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">FloatGreaterThanEqualToZero</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.FloatGreaterThanEqualToZero" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">FloatGreaterThanEqualToZero</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.FloatGreaterThanEqualToZero" title="Permalink to this definition">¶</a></dt>
 <dd><p>If <em>x</em> is a float &gt;= 0, returns it, otherwise raises and error.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.1f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">FloatGreaterThanEqualToZero</span><span class="p">(</span><span class="s1">&#39;1.5&#39;</span><span class="p">))</span>
 <span class="go">1.5</span>
@@ -1601,13 +1603,13 @@ as for BLAS <cite>dgemv</cite>).</p>
 
 <dl class="function">
 <dt id="phydmslib.parsearguments.FloatGreaterThanOne">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">FloatGreaterThanOne</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.FloatGreaterThanOne" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">FloatGreaterThanOne</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.FloatGreaterThanOne" title="Permalink to this definition">¶</a></dt>
 <dd><p>If <em>x</em> is a string for a float &gt; 1, returns it, otherwise an error.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="phydmslib.parsearguments.FloatGreaterThanZero">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">FloatGreaterThanZero</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.FloatGreaterThanZero" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">FloatGreaterThanZero</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.FloatGreaterThanZero" title="Permalink to this definition">¶</a></dt>
 <dd><p>If <em>x</em> is string for float &gt; 0, returns it, otherwise an error.</p>
 <p>Designed based on this: <a class="reference external" href="http://stackoverflow.com/questions/12116685/how-can-i-require-my-python-scripts-argument-to-be-a-float-between-0-0-1-0-usin">http://stackoverflow.com/questions/12116685/how-can-i-require-my-python-scripts-argument-to-be-a-float-between-0-0-1-0-usin</a></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">FloatGreaterThanZero</span><span class="p">(</span><span class="s1">&#39;0.1&#39;</span><span class="p">))</span>
@@ -1624,19 +1626,19 @@ as for BLAS <cite>dgemv</cite>).</p>
 
 <dl class="function">
 <dt id="phydmslib.parsearguments.IntGreaterThanOne">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">IntGreaterThanOne</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.IntGreaterThanOne" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">IntGreaterThanOne</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.IntGreaterThanOne" title="Permalink to this definition">¶</a></dt>
 <dd><p>If <em>n</em> is an integer &gt; 1, returns it, otherwise an error.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="phydmslib.parsearguments.IntGreaterThanZero">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">IntGreaterThanZero</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.IntGreaterThanZero" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">IntGreaterThanZero</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.IntGreaterThanZero" title="Permalink to this definition">¶</a></dt>
 <dd><p>If <em>n</em> is an integer &gt; 0, returns it, otherwise an error.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="phydmslib.parsearguments.ModelOption">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">ModelOption</code><span class="sig-paren">(</span><em>model</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ModelOption" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">ModelOption</code><span class="sig-paren">(</span><em class="sig-param">model</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ModelOption" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <em>model</em> if a valid choice.</p>
 <p>Returns the string if it specifies a <code class="docutils literal notranslate"><span class="pre">YNGKP_</span></code> model variant.</p>
 <p>Returns <em>(‘ExpCM’, prefsfile)</em> if it specifies an <code class="docutils literal notranslate"><span class="pre">ExpCM_</span></code> model.</p>
@@ -1644,7 +1646,7 @@ as for BLAS <cite>dgemv</cite>).</p>
 
 <dl class="function">
 <dt id="phydmslib.parsearguments.NonNegativeInt">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">NonNegativeInt</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.NonNegativeInt" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">NonNegativeInt</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.NonNegativeInt" title="Permalink to this definition">¶</a></dt>
 <dd><p>If <em>n</em> is non-negative integer returns it, otherwise an error.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">NonNegativeInt</span><span class="p">(</span><span class="s1">&#39;8&#39;</span><span class="p">))</span>
 <span class="go">8</span>
@@ -1670,38 +1672,38 @@ as for BLAS <cite>dgemv</cite>).</p>
 
 <dl class="function">
 <dt id="phydmslib.parsearguments.PhyDMSComprehensiveParser">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">PhyDMSComprehensiveParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSComprehensiveParser" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">PhyDMSComprehensiveParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSComprehensiveParser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <em>argparse.ArgumentParser</em> for <code class="docutils literal notranslate"><span class="pre">phdyms_comprehensive</span></code> script.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="phydmslib.parsearguments.PhyDMSLogoPlotParser">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">PhyDMSLogoPlotParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSLogoPlotParser" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">PhyDMSLogoPlotParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSLogoPlotParser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <cite>argparse.ArgumentParser</cite> for <code class="docutils literal notranslate"><span class="pre">phydms_logoplot</span></code>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="phydmslib.parsearguments.PhyDMSParser">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">PhyDMSParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSParser" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">PhyDMSParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSParser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <em>argparse.ArgumentParser</em> for <code class="docutils literal notranslate"><span class="pre">phydms</span></code> script.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="phydmslib.parsearguments.PhyDMSPrepAlignmentParser">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">PhyDMSPrepAlignmentParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSPrepAlignmentParser" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">PhyDMSPrepAlignmentParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSPrepAlignmentParser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <em>argparse.ArgumentParser</em> for <code class="docutils literal notranslate"><span class="pre">phydms_prepalignment</span></code>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="phydmslib.parsearguments.PhyDMSTestdivpressureParser">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">PhyDMSTestdivpressureParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSTestdivpressureParser" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">PhyDMSTestdivpressureParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSTestdivpressureParser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <em>argparse.ArgumentParser</em> for <code class="docutils literal notranslate"><span class="pre">phdyms_testdivpressure</span></code>
 script.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="phydmslib.parsearguments.diffPrefsPrior">
-<code class="descclassname">phydmslib.parsearguments.</code><code class="descname">diffPrefsPrior</code><span class="sig-paren">(</span><em>priorstring</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.diffPrefsPrior" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">diffPrefsPrior</code><span class="sig-paren">(</span><em class="sig-param">priorstring</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.diffPrefsPrior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses <cite>priorstring</cite> and returns <cite>prior</cite> tuple.</p>
 </dd></dl>
 
@@ -1712,7 +1714,7 @@ script.</p>
 <p>Written by Jesse Bloom and Sarah Hilton.</p>
 <dl class="function">
 <dt id="phydmslib.simulate.pyvolvePartitions">
-<code class="descclassname">phydmslib.simulate.</code><code class="descname">pyvolvePartitions</code><span class="sig-paren">(</span><em>model</em>, <em>divselection=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.simulate.pyvolvePartitions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.simulate.</code><code class="sig-name descname">pyvolvePartitions</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">divselection=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.simulate.pyvolvePartitions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get list of <cite>pyvolve</cite> partitions for <cite>model</cite>.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
@@ -1738,7 +1740,7 @@ of the sites in 1, 2, … numbering.</p>
 
 <dl class="function">
 <dt id="phydmslib.simulate.simulateAlignment">
-<code class="descclassname">phydmslib.simulate.</code><code class="descname">simulateAlignment</code><span class="sig-paren">(</span><em>model</em>, <em>treeFile</em>, <em>alignmentPrefix</em>, <em>randomSeed=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.simulate.simulateAlignment" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.simulate.</code><code class="sig-name descname">simulateAlignment</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">treeFile</em>, <em class="sig-param">alignmentPrefix</em>, <em class="sig-param">randomSeed=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.simulate.simulateAlignment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulate an alignment given a model and tree (units = subs/site).</p>
 <p>Simulations done using <cite>pyvolve</cite>.</p>
 <dl class="simple">
@@ -1769,7 +1771,7 @@ and the suffix <cite>‘_simulatedalignment.fasta’</cite>.</p>
 using the indexing schemes defined in <cite>phydmslib.constants</cite>.</p>
 <dl class="class">
 <dt id="phydmslib.treelikelihood.TreeLikelihood">
-<em class="property">class </em><code class="descclassname">phydmslib.treelikelihood.</code><code class="descname">TreeLikelihood</code><span class="sig-paren">(</span><em>tree</em>, <em>alignment</em>, <em>model</em>, <em>underflowfreq=3</em>, <em>dparamscurrent=True</em>, <em>dtcurrent=False</em>, <em>branchScale=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.treelikelihood.</code><code class="sig-name descname">TreeLikelihood</code><span class="sig-paren">(</span><em class="sig-param">tree</em>, <em class="sig-param">alignment</em>, <em class="sig-param">model</em>, <em class="sig-param">underflowfreq=3</em>, <em class="sig-param">dparamscurrent=True</em>, <em class="sig-param">dtcurrent=False</em>, <em class="sig-param">branchScale=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Uses alignment, model, and tree to calculate likelihoods.</p>
 <p>See <cite>__init__</cite> for how to initialize a <cite>TreeLikelihood</cite>.</p>
@@ -1903,7 +1905,7 @@ performed.</p>
 </dl>
 <dl class="method">
 <dt id="phydmslib.treelikelihood.TreeLikelihood.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>tree</em>, <em>alignment</em>, <em>model</em>, <em>underflowfreq=3</em>, <em>dparamscurrent=True</em>, <em>dtcurrent=False</em>, <em>branchScale=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">tree</em>, <em class="sig-param">alignment</em>, <em class="sig-param">model</em>, <em class="sig-param">underflowfreq=3</em>, <em class="sig-param">dparamscurrent=True</em>, <em class="sig-param">dtcurrent=False</em>, <em class="sig-param">branchScale=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a <cite>TreeLikelihood</cite> object.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
@@ -1931,39 +1933,39 @@ only to the input tree, not the output one.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.treelikelihood.TreeLikelihood.dloglik">
-<code class="descname">dloglik</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dloglik" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">dloglik</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dloglik" title="Permalink to this definition">¶</a></dt>
 <dd><p><cite>dloglik[param]</cite> is derivative of <cite>loglik</cite> by <cite>param</cite>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.treelikelihood.TreeLikelihood.dloglik_dt">
-<code class="descname">dloglik_dt</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dloglik_dt" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">dloglik_dt</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dloglik_dt" title="Permalink to this definition">¶</a></dt>
 <dd><p><cite>dloglik_dt</cite> is derivative of <cite>loglik</cite> with respect to <cite>t</cite>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.treelikelihood.TreeLikelihood.dloglikarray">
-<code class="descname">dloglikarray</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dloglikarray" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">dloglikarray</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dloglikarray" title="Permalink to this definition">¶</a></dt>
 <dd><p>Derivative of <cite>loglik</cite> with respect to <cite>paramsarray</cite>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.treelikelihood.TreeLikelihood.dparamscurrent">
-<code class="descname">dparamscurrent</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dparamscurrent" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">dparamscurrent</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dparamscurrent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Are derivatives with respect to model parameters current?</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.treelikelihood.TreeLikelihood.dtcurrent">
-<code class="descname">dtcurrent</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dtcurrent" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">dtcurrent</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dtcurrent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Are derivatives with respect to branch lengths current?</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="phydmslib.treelikelihood.TreeLikelihood.maximizeLikelihood">
-<code class="descname">maximizeLikelihood</code><span class="sig-paren">(</span><em>optimize_brlen=False</em>, <em>approx_grad=False</em>, <em>logliktol=0.01</em>, <em>nparamsretry=1</em>, <em>printfunc=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.maximizeLikelihood" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">maximizeLikelihood</code><span class="sig-paren">(</span><em class="sig-param">optimize_brlen=False</em>, <em class="sig-param">approx_grad=False</em>, <em class="sig-param">logliktol=0.01</em>, <em class="sig-param">nparamsretry=1</em>, <em class="sig-param">printfunc=None</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.maximizeLikelihood" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximize the log likelihood.</p>
 <p>Maximizes log likelihood with respect to model parameters
 and potentially branch lengths depending on <cite>optimize_brlen</cite>.
@@ -1998,29 +2000,29 @@ or <cite>logger.info</cite>.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.treelikelihood.TreeLikelihood.paramsarray">
-<code class="descname">paramsarray</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.paramsarray" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">paramsarray</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.paramsarray" title="Permalink to this definition">¶</a></dt>
 <dd><p>All free model parameters as 1-dimensional <cite>numpy.ndarray</cite>.</p>
 <p>You are allowed to update model parameters by direct
 assignment of this property.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.treelikelihood.TreeLikelihood.paramsarraybounds">
-<code class="descname">paramsarraybounds</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.paramsarraybounds" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">paramsarraybounds</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.paramsarraybounds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bounds for parameters in <cite>paramsarray</cite>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.treelikelihood.TreeLikelihood.t">
-<code class="descname">t</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.t" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">t</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets array of branch lengths.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="phydmslib.treelikelihood.TreeLikelihood.tree">
-<code class="descname">tree</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.tree" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">tree</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.tree" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tree with branch lengths in codon substitutions per site.</p>
 <p>The tree is a <cite>Bio.Phylo.BaseTree.Tree</cite> object.</p>
 <p>This is the current tree after whatever optimizations have
@@ -2029,7 +2031,7 @@ been performed so far.</p>
 
 <dl class="method">
 <dt id="phydmslib.treelikelihood.TreeLikelihood.updateParams">
-<code class="descname">updateParams</code><span class="sig-paren">(</span><em>newvalues</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.updateParams" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">updateParams</code><span class="sig-paren">(</span><em class="sig-param">newvalues</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.updateParams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update model parameters and re-compute likelihoods.</p>
 <p>This method is the <strong>only</strong> acceptable way to update model
 parameters. The likelihood is re-computed as needed
@@ -2053,22 +2055,26 @@ valid model parameter (in <cite>model.freeparams</cite>).</p>
 <p>Utilities for <code class="docutils literal notranslate"><span class="pre">phydmslib</span></code>.</p>
 <dl class="function">
 <dt id="phydmslib.utils.BenjaminiHochbergCorrection">
-<code class="descclassname">phydmslib.utils.</code><code class="descname">BenjaminiHochbergCorrection</code><span class="sig-paren">(</span><em>pvals</em>, <em>fdr</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.utils.BenjaminiHochbergCorrection" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.utils.</code><code class="sig-name descname">BenjaminiHochbergCorrection</code><span class="sig-paren">(</span><em class="sig-param">pvals</em>, <em class="sig-param">fdr</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.utils.BenjaminiHochbergCorrection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Benjamini-Hochberg procedure to control false discovery rate.</p>
 <p>Calling arguments:</p>
-<p><em>pvals</em> : a list of tuples of <em>(label, p)</em>  where <em>label</em> is some label assigned
-to each data point, and <em>p</em> is the corresponding <em>P-value</em>.</p>
+<dl>
+<dt><em>pvals</em><span class="classifier">a list of tuples of <em>(label, p)</em>  where <em>label</em> is some label</span></dt><dd><p>assignedto each data point, and <em>p</em> is the corresponding <em>P-value</em>.</p>
+</dd>
+</dl>
 <p><em>fdr</em> : the desired false discovery rate</p>
-<p>The return value is the 2-tuple <em>(pcutoff, significantlabels)</em>. After applying
-the algorithm, all data points with <em>p &lt;= pcutoff</em> are declared significant.
-The labels for these data points are in <em>significantlabels</em>. If there are no
-significant sites, <em>pcutoff</em> is returned as the maximum P-value that would
-have made a single point significant.</p>
+<dl class="simple">
+<dt>The return value is the 2-tuple <em>(pcutoff, significantlabels)</em>. After</dt><dd><p>applyingthe algorithm, all data points with <em>p &lt;= pcutoff</em> are declared
+significant. The labels for these data points are in <em>significantlabels</em>.
+If there are no significant sites, <em>pcutoff</em> is returned as the maximum
+P-value that would have made a single point significant.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="phydmslib.utils.modelComparisonDataFrame">
-<code class="descclassname">phydmslib.utils.</code><code class="descname">modelComparisonDataFrame</code><span class="sig-paren">(</span><em>modelcomparisonfile</em>, <em>splitparams</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.utils.modelComparisonDataFrame" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.utils.</code><code class="sig-name descname">modelComparisonDataFrame</code><span class="sig-paren">(</span><em class="sig-param">modelcomparisonfile</em>, <em class="sig-param">splitparams</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.utils.modelComparisonDataFrame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts <code class="docutils literal notranslate"><span class="pre">modelcomparison.md</span></code> file to <cite>pandas</cite> DataFrame.</p>
 <p>Running <code class="docutils literal notranslate"><span class="pre">phydms_comprehensive</span></code> creates a file with the suffix
 <code class="docutils literal notranslate"><span class="pre">modelcomparison.md</span></code>. This function converts that file into a
@@ -2124,7 +2130,7 @@ and so is only known to work with <em>weblogolib</em> version 3.4 and 3.5.</p>
 <p>Written by Jesse Bloom and Mike Doud</p>
 <dl class="function">
 <dt id="phydmslib.weblogo.ChargeColorMapping">
-<code class="descclassname">phydmslib.weblogo.</code><code class="descname">ChargeColorMapping</code><span class="sig-paren">(</span><em>maptype='jet'</em>, <em>reverse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.ChargeColorMapping" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.weblogo.</code><code class="sig-name descname">ChargeColorMapping</code><span class="sig-paren">(</span><em class="sig-param">maptype='jet'</em>, <em class="sig-param">reverse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.ChargeColorMapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maps amino-acid charge at neutral pH to colors. 
 Currently does not use the keyword arguments for <em>maptype</em>
 or <em>reverse</em> but accepts these arguments to be consistent
@@ -2133,7 +2139,7 @@ with KyteDoolittleColorMapping and MWColorMapping for now.</p>
 
 <dl class="function">
 <dt id="phydmslib.weblogo.FunctionalGroupColorMapping">
-<code class="descclassname">phydmslib.weblogo.</code><code class="descname">FunctionalGroupColorMapping</code><span class="sig-paren">(</span><em>maptype='jet'</em>, <em>reverse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.FunctionalGroupColorMapping" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.weblogo.</code><code class="sig-name descname">FunctionalGroupColorMapping</code><span class="sig-paren">(</span><em class="sig-param">maptype='jet'</em>, <em class="sig-param">reverse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.FunctionalGroupColorMapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maps amino-acid functional groups to colors.
 Currently does not use the keyword arguments for <em>maptype</em>
 or <em>reverse</em> but accepts these arguments to be consistent
@@ -2143,7 +2149,7 @@ these arguments.</p>
 
 <dl class="function">
 <dt id="phydmslib.weblogo.KyteDoolittleColorMapping">
-<code class="descclassname">phydmslib.weblogo.</code><code class="descname">KyteDoolittleColorMapping</code><span class="sig-paren">(</span><em>maptype='jet'</em>, <em>reverse=True</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.KyteDoolittleColorMapping" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.weblogo.</code><code class="sig-name descname">KyteDoolittleColorMapping</code><span class="sig-paren">(</span><em class="sig-param">maptype='jet'</em>, <em class="sig-param">reverse=True</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.KyteDoolittleColorMapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maps amino-acid hydrophobicities to colors.</p>
 <p>Uses the Kyte-Doolittle hydrophobicity scale defined by:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">J</span><span class="o">.</span> <span class="n">Kyte</span> <span class="o">&amp;</span> <span class="n">R</span><span class="o">.</span> <span class="n">F</span><span class="o">.</span> <span class="n">Doolittle</span><span class="p">:</span> 
@@ -2174,7 +2180,7 @@ and hydrophobic ones blue.</p>
 
 <dl class="function">
 <dt id="phydmslib.weblogo.LogoOverlay">
-<code class="descclassname">phydmslib.weblogo.</code><code class="descname">LogoOverlay</code><span class="sig-paren">(</span><em>sites</em>, <em>overlayfile</em>, <em>overlay</em>, <em>nperline</em>, <em>sitewidth</em>, <em>rmargin</em>, <em>logoheight</em>, <em>barheight</em>, <em>barspacing</em>, <em>fix_limits={}</em>, <em>fixlongname=False</em>, <em>overlay_cmap=None</em>, <em>underlay=False</em>, <em>scalebar=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.LogoOverlay" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.weblogo.</code><code class="sig-name descname">LogoOverlay</code><span class="sig-paren">(</span><em class="sig-param">sites</em>, <em class="sig-param">overlayfile</em>, <em class="sig-param">overlay</em>, <em class="sig-param">nperline</em>, <em class="sig-param">sitewidth</em>, <em class="sig-param">rmargin</em>, <em class="sig-param">logoheight</em>, <em class="sig-param">barheight</em>, <em class="sig-param">barspacing</em>, <em class="sig-param">fix_limits={}</em>, <em class="sig-param">fixlongname=False</em>, <em class="sig-param">overlay_cmap=None</em>, <em class="sig-param">underlay=False</em>, <em class="sig-param">scalebar=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.LogoOverlay" title="Permalink to this definition">¶</a></dt>
 <dd><p>Makes overlay for <em>LogoPlot</em>.</p>
 <p>This function creates colored bars overlay bars showing up to two
 properties.
@@ -2203,7 +2209,7 @@ where <cite>scalebarheight</cite> is in points.</p></li>
 
 <dl class="function">
 <dt id="phydmslib.weblogo.LogoPlot">
-<code class="descclassname">phydmslib.weblogo.</code><code class="descname">LogoPlot</code><span class="sig-paren">(</span><em>sites</em>, <em>datatype</em>, <em>data</em>, <em>plotfile</em>, <em>nperline</em>, <em>numberevery=10</em>, <em>allowunsorted=False</em>, <em>ydatamax=1.01</em>, <em>overlay=None</em>, <em>fix_limits={}</em>, <em>fixlongname=False</em>, <em>overlay_cmap=None</em>, <em>ylimits=None</em>, <em>relativestackheight=1</em>, <em>custom_cmap='jet'</em>, <em>map_metric='kd'</em>, <em>noseparator=False</em>, <em>underlay=False</em>, <em>scalebar=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.LogoPlot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.weblogo.</code><code class="sig-name descname">LogoPlot</code><span class="sig-paren">(</span><em class="sig-param">sites</em>, <em class="sig-param">datatype</em>, <em class="sig-param">data</em>, <em class="sig-param">plotfile</em>, <em class="sig-param">nperline</em>, <em class="sig-param">numberevery=10</em>, <em class="sig-param">allowunsorted=False</em>, <em class="sig-param">ydatamax=1.01</em>, <em class="sig-param">overlay=None</em>, <em class="sig-param">fix_limits={}</em>, <em class="sig-param">fixlongname=False</em>, <em class="sig-param">overlay_cmap=None</em>, <em class="sig-param">ylimits=None</em>, <em class="sig-param">relativestackheight=1</em>, <em class="sig-param">custom_cmap='jet'</em>, <em class="sig-param">map_metric='kd'</em>, <em class="sig-param">noseparator=False</em>, <em class="sig-param">underlay=False</em>, <em class="sig-param">scalebar=False</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.LogoPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create sequence logo showing amino-acid or nucleotide preferences.</p>
 <p>The heights of each letter is equal to the preference of
 that site for that amino acid or nucleotide.</p>
@@ -2292,14 +2298,16 @@ string <em>jet</em> or <em>bwr</em>. Otherwise, it can be <em>None</em> and a (h
 be made for you.</p></li>
 <li><p><em>custom_cmap</em> can be the name of a valid <em>matplotlib.colors.Colormap</em> which will be
 used to color amino-acid one-letter codes in the logoplot by the <em>map_metric</em> when
-either ‘kd’ or ‘mw’ is used as <em>map_metric</em>.</p></li>
+either ‘kd’ or ‘mw’ is used as <em>map_metric</em>. If <em>map_metric</em> is ‘singlecolor’,
+then should be string giving the color to plot.</p></li>
 <li><p><em>relativestackheight</em> indicates how high the letter stack is relative to
 the default. The default is multiplied by this number, so make it &gt; 1
 for a higher letter stack.</p></li>
 <li><p><em>map_metric</em> specifies the amino-acid property metric used to map colors to amino-acid
 letters. Valid options are ‘kd’ (Kyte-Doolittle hydrophobicity scale, default), ‘mw’ 
 (molecular weight), ‘functionalgroup’ (functional groups: small, nucleophilic, hydrophobic,
-aromatic, basic, acidic, and amide), and ‘charge’ (charge at neutral pH). If ‘charge’ is used, then the
+aromatic, basic, acidic, and amide), ‘charge’ (charge at neutral pH), and
+‘singlecolor’. If ‘charge’ is used, then the
 argument for <em>custom_cmap</em> will no longer be meaningful, since ‘charge’ uses its own 
 blue/black/red colormapping. Similarly, ‘functionalgroup’ uses its own colormapping.</p></li>
 <li><p><em>noseparator</em> is only meaningful if <em>datatype</em> is ‘diffsel’ or ‘diffprefs’.
@@ -2314,9 +2322,15 @@ works when data is <cite>diffsel</cite>.</p></li>
 
 <dl class="function">
 <dt id="phydmslib.weblogo.MWColorMapping">
-<code class="descclassname">phydmslib.weblogo.</code><code class="descname">MWColorMapping</code><span class="sig-paren">(</span><em>maptype='jet'</em>, <em>reverse=True</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.MWColorMapping" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">phydmslib.weblogo.</code><code class="sig-name descname">MWColorMapping</code><span class="sig-paren">(</span><em class="sig-param">maptype='jet'</em>, <em class="sig-param">reverse=True</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.MWColorMapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maps amino-acid molecular weights to colors. Otherwise, this
 function is identical to <em>KyteDoolittleColorMapping</em></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="phydmslib.weblogo.SingleColorMapping">
+<code class="sig-prename descclassname">phydmslib.weblogo.</code><code class="sig-name descname">SingleColorMapping</code><span class="sig-paren">(</span><em class="sig-param">maptype='#999999'</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.SingleColorMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps all amino acids to the single color given by <cite>maptype</cite>.</p>
 </dd></dl>
 
 </div>
@@ -2329,6 +2343,7 @@ function is identical to <em>KyteDoolittleColorMapping</em></p>
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -2361,7 +2376,7 @@ function is identical to <em>KyteDoolittleColorMapping</em></p>
     
 
 <p>
-<a href="https://travis-ci.org/jbloomlab/phydms">
+<a class="badge" href="https://travis-ci.org/jbloomlab/phydms">
     <img
         alt="https://secure.travis-ci.org/jbloomlab/phydms.svg?branch=master"
         src="https://secure.travis-ci.org/jbloomlab/phydms.svg?branch=master"
@@ -2395,15 +2410,23 @@ function is identical to <em>KyteDoolittleColorMapping</em></p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -2412,8 +2435,8 @@ function is identical to <em>KyteDoolittleColorMapping</em></p>
       &copy;2015-2019, Sarah Hilton and Jesse Bloom.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/phydmslib.rst.txt"
