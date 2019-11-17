@@ -1,6 +1,14 @@
 Changelog
 ===========
 
+2.3.4
+------
+* Start testing with Python 3.6 and 3.7.
+
+* Remove use of deprecated `Bio.Alphabet`
+
+* Stop using deprecated `natsort.natsorted`
+
 2.3.3
 -------
 * Fixed `pandas` deprecation bug.

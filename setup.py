@@ -13,8 +13,8 @@ try:
 except ImportError:
     raise ImportError("You must install setuptools")
 
-if not (sys.version_info[0] == 3 and sys.version_info[1] >= 4):
-    raise RuntimeError('phydms requires Python 3.4 or higher.\n'
+if not (sys.version_info[0] == 3 and sys.version_info[1] >= 5):
+    raise RuntimeError('phydms requires Python 3.5 or higher.\n'
             'You are using Python {0}.{1}'.format(
             sys.version_info[0], sys.version_info[1]))
 
@@ -79,12 +79,12 @@ setup(
     long_description = readme,
     license = 'GPLv3',
     setup_requires = [
-        'cython>=0.21',
-        'numpy>=0.18',
+        'cython>=0.28',
+        'numpy>=1.11',
         ],
     install_requires = [
         'biopython>=1.67',
-        'cython>=0.21',
+        'cython>=0.28',
         'numpy>=1.11',
         'scipy>=0.18',
         'matplotlib>=2.0.2',

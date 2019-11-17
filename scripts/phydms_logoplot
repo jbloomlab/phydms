@@ -51,7 +51,7 @@ def main():
         print("Reading preferences from {0}".format(args['prefs']))
         prefs = phydmslib.file_io.readPrefs(args['prefs'], 
                 sites_as_strings=True)
-        sites = natsort.natsorted(prefs.keys(), signed=True)
+        sites = natsort.realsorted(prefs.keys())
         print("Read preferences for {0} sites.".format(len(sites)))
         beta = args['stringency']
         if beta != 1:
@@ -69,7 +69,7 @@ def main():
                 args['diffprefs']))
         diffprefs = pandas.read_csv(args['diffprefs'], sep='\t', 
                 comment='#')
-        sites = natsort.natsorted(map(str, diffprefs['site'].values), signed=True)
+        sites = natsort.realsorted(map(str, diffprefs['site'].values))
         print("Read differential preferences for {0} sites.".format(len(sites)))
         data = {}
         ydatamax = args['diffprefheight'] * 1.01
