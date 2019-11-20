@@ -30,8 +30,9 @@ def RunCmds(cmds):
     except:
         os.kill(pid, signal.SIGTERM)
 
-def createModelComparisonFile(models, outprefix, modelcomparisonfile):
-    """Creates `modelcomparisonfile` in Markdown format.
+def createModelComparisonFile(models, outprefix, modelcomparisonfile,
+                              modelcomparisoncsv):
+    """Creates model comparison files.
 
     `models` is a list of the prefixes used for each run.
 
@@ -44,7 +45,6 @@ def createModelComparisonFile(models, outprefix, modelcomparisonfile):
         optimized parameters.
     """
 
-    # modelcomparison.csv
     columns = ['Model', 'deltaAIC', 'LogLikelihood', 'nParams', 'ParamValues']
     stats = dict([(col, []) for col in columns])
     for modelName in models:
@@ -76,6 +76,10 @@ def createModelComparisonFile(models, outprefix, modelcomparisonfile):
         text.append(formatline.format(*line))
     with open(modelcomparisonfile, 'w') as f:
         f.write('\n'.join(text))
+    (pd.DataFrame(stats)
+     .sort_values('deltaAIC')
+     .to_csv(modelcomparisoncsv, index=False)
+     )
 
 
 def main():
@@ -103,6 +107,7 @@ def main():
         logfile = "{0}.log".format(args['outprefix'])
         args['outprefix'] = '{0}_'.format(args['outprefix'])
     modelcomparisonfile = '{0}modelcomparison.md'.format(args['outprefix'])
+    modelcomparisoncsv = '{0}modelcomparison.csv'.format(args['outprefix'])
     raxmlStandardOutputFile = '{0}raxml_output.txt'.format(args['outprefix'])
 
     #Set up to log everything to logfile.
@@ -295,7 +300,7 @@ def main():
     try:
 
         # remove existing output files
-        outfiles = [modelcomparisonfile]
+        outfiles = [modelcomparisonfile, modelcomparisoncsv]
         removed = []
         for modelname in models.keys():
             for suffix in filesuffixes[modelname]:
@@ -350,7 +355,7 @@ def main():
             time.sleep(1)
 
         createModelComparisonFile(models.keys(), args["outprefix"],
-                modelcomparisonfile)
+                modelcomparisonfile, modelcomparisoncsv)
 
         # make sure all expected output files are there
         for fname in outfiles:

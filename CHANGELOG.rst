@@ -1,6 +1,10 @@
 Changelog
 ===========
 
+2.3.5
+------
+* `phydms_comprehensive` outputs CSV as well as Markdown model comparison.
+
 2.3.4
 ------
 * Start testing with Python 3.6 and 3.7.

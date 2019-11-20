@@ -76,6 +76,7 @@ This file is in Markdown format::
     | YNGKP_M5                | 2599.70  | -4683.23      | 12      | alpha_omega=0.30, beta_omega=2.41, kappa=5.84 |
     | YNGKP_M0                | 2679.50  | -4724.13      | 11      | kappa=5.79, omega=0.11                        |
 
+A similar file with the name ``modelcomparison.csv`` will also be created.
 
 ``phydms`` output for each model
 ++++++++++++++++++++++++++++++++++

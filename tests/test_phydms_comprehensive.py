@@ -74,6 +74,11 @@ class test_phydms_comprehensive(unittest.TestCase):
                 sigomegas[name] = omegas[name][omegas[name]['site'].isin(sigsites)]['omega'].values
             self.assertTrue(((sigomegas['actual'] > 1) == (sigomegas['expected'] > 1)).all())
 
+        actualmodelcomp = pandas.read_csv(os.path.join(outprefix,
+                                                       'modelcomparison.csv'))
+        expectmodelcomp = pandas.read_csv(os.path.join(expectedresults,
+                                                       'modelcomparison.csv'))
+        self.assertTrue(actualmodelcomp.equals(expectmodelcomp))
 
 if __name__ == '__main__':
     runner = unittest.TextTestRunner()
