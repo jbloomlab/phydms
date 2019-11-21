@@ -52,7 +52,8 @@ class test_phydms_testdivpressure(unittest.TestCase):
         actual.sort_values(by=columns, inplace=True)
         expected.sort_values(by=columns, inplace=True)
         self.assertTrue(scipy.allclose(actual["value"],
-                expected["value"], atol=1e-2, rtol=1e-5))
+                expected["value"], atol=1e-2, rtol=1e-5),
+                f"{actual.to_csv(index=False)}\n{expected.to_csv(index=False)}")
 
 
 
