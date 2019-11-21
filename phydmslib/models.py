@@ -295,7 +295,7 @@ class ExpCM(Model):
     _REPORTPARAMS = ['kappa', 'omega', 'beta', 'phi']
     _PARAMLIMITS = {'kappa':(0.01, 100.0),
                    'omega':(1.0e-5, 100.0),
-                   'beta':(1.0e-5, 10),
+                   'beta':(1.0e-5, 20),
                    'eta':(0.01, 0.99),
                    'phi':(0.001, 0.999),
                    'pi':(ALMOST_ZERO, 1),
