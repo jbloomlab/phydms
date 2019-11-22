@@ -66,7 +66,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
         # define model
         prefs = []
         minpref = 0.02
-        g = scipy.random.dirichlet([5] * N_NT)
+        g = scipy.random.dirichlet([10] * N_NT)
         for r in range(self.nsites):
             rprefs = scipy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
