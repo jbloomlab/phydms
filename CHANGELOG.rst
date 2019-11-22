@@ -1,6 +1,10 @@
 Changelog
 ===========
 
+2.3.5
+------
+* Increased maximum bound for stringency parameter as the max bound was too low and being hit during optimization in some cases.
+
 2.3.4
 ------
 * Start testing with Python 3.6 and 3.7.
