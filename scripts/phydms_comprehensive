@@ -133,7 +133,8 @@ def main():
             '_modelparams.txt']
     filesuffixes = {} # keyed by model, values are list of suffixes
     models = {}
-    additionalcmds = ["--brlen", args["brlen"]]
+    additionalcmds = ["--brlen", args["brlen"],
+                      '--minbrlen', str(args['minbrlen'])]
     if args['omegabysite']:
         additionalcmds.append('--omegabysite')
         filesuffixlist = copy.deepcopy(filesuffixlist) + ['_omegabysite.txt']

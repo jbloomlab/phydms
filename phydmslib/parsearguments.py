@@ -322,6 +322,9 @@ def PhyDMSComprehensiveParser():
     parser.set_defaults(noavgprefs=False)
     parser.add_argument('--ncats', default=4, type=IntGreaterThanOne,
             help='Number of categories for gamma-distribution.')
+    parser.add_argument('--minbrlen', type=FloatGreaterThanZero,
+            default=phydmslib.constants.ALMOST_ZERO,
+            help="Adjust all branch lengths in starting 'tree' to >= this.")
     parser.add_argument('--no-avgprefs', dest='noavgprefs', action='store_true',
             help="No fitting of models with preferences averaged across sites "
             "for ExpCM.")
