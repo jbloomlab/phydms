@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>phydmslib package &#8212; phydms 2.3.6 documentation</title>
+    <title>phydmslib package &#8212; phydms 2.3.7 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -276,14 +276,14 @@ mean of each category is returned.</p>
 </dl>
 <p>Check that we get values in Figure 1 of Yang, J Mol Evol, 39:306-314
 &gt;&gt;&gt; catmeans = DiscreteGamma(0.5, 0.5, 4)
-&gt;&gt;&gt; scipy.allclose(catmeans, scipy.array([0.0334, 0.2519, 0.8203, 2.8944]), atol=1e-4)
+&gt;&gt;&gt; numpy.allclose(catmeans, numpy.array([0.0334, 0.2519, 0.8203, 2.8944]), atol=1e-4)
 True</p>
 <p>Make sure we get expected mean of alpha / beta
 &gt;&gt;&gt; alpha = 0.6
 &gt;&gt;&gt; beta = 0.8
 &gt;&gt;&gt; ncats = 6
 &gt;&gt;&gt; catmeans = DiscreteGamma(alpha, beta, ncats)
-&gt;&gt;&gt; scipy.allclose(catmeans.sum() / ncats, alpha / beta)
+&gt;&gt;&gt; numpy.allclose(catmeans.sum() / ncats, alpha / beta)
 True</p>
 </dd></dl>
 
@@ -707,7 +707,7 @@ expectation of diversifying pressure.</p>
 <dt>Has all the attributes of an <cite>ExpCM_empirical_phi</cite> plus the following:</dt><dd><dl class="simple">
 <dt><cite>omega2</cite> (float)</dt><dd><p>Part of the expression which replaces <cite>omega</cite>.</p>
 </dd>
-<dt><cite>divPressureValues</cite> (<cite>scipy.array</cite> of length <cite>nsites</cite>)</dt><dd><p>Array of <cite>deltar</cite> values in site order.
+<dt><cite>divPressureValues</cite> (<cite>numpy.array</cite> of length <cite>nsites</cite>)</dt><dd><p>Array of <cite>deltar</cite> values in site order.
 The maximum absolute value of the array should be between 0 and 1.</p>
 </dd>
 </dl>
@@ -1456,9 +1456,9 @@ columns from a long array of arrays.</p>
 </dl>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">n</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">n</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cols</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">expected</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">][:,</span> <span class="n">cols</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expected</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">][:,</span> <span class="n">cols</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="p">)])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">scipy</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">broadcastGetCols</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">cols</span><span class="p">))</span>
 <span class="go">True</span>
 </pre></div>
@@ -1523,8 +1523,8 @@ as for BLAS <cite>dgemv</cite>).</p>
 </dl>
 </dd>
 </dl>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">array</span><span class="p">([[[</span><span class="mf">1.</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">6</span><span class="p">]]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[[</span><span class="mf">1.</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">6</span><span class="p">]]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mv</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
 <span class="gp">... </span>  <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
@@ -2432,7 +2432,7 @@ function is identical to <em>KyteDoolittleColorMapping</em></p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2019, Sarah Hilton and Jesse Bloom.
+      &copy;2015-2020, Sarah Hilton and Jesse Bloom.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
