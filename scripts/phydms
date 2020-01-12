@@ -17,6 +17,7 @@ import multiprocessing
 import warnings
 warnings.simplefilter('always')
 warnings.simplefilter('ignore', ImportWarning)
+import numpy
 import scipy
 import scipy.stats
 import statsmodels.sandbox.stats.multicomp
@@ -85,7 +86,7 @@ def fitDiffPrefsBySite(argtup):
     diffprefs = treelik.model.pi[0] - treelik.model.origpi[0]
     resultstr = [str(site)] + ['{0:.4f}'.format(diffprefs[a])
             for a in range(N_AA)]
-    halfabssum = 0.5 * scipy.absolute(diffprefs).sum()
+    halfabssum = 0.5 * numpy.absolute(diffprefs).sum()
     resultstr.append('{0:.4f}'.format(halfabssum))
     return (halfabssum, '\t'.join(resultstr))
 
@@ -233,7 +234,7 @@ def main():
             logger.info(('Codon substitution model with be {0} version '
                     'of YNGKP (Yang, Nielsen, Goldman, & Pederson. Genetics. '
                     '155:431-449).').format(modelvariant))
-            e_pw = scipy.ones((3,phydmslib.constants.N_NT), dtype='float')
+            e_pw = numpy.ones((3,phydmslib.constants.N_NT), dtype='float')
             for p in range(3):
                 for (w, nt) in phydmslib.constants.INDEX_TO_NT.items():
                     e_pw[p][w] = sum([list(seq)[p::3].count(nt) for (head, seq)
@@ -312,7 +313,7 @@ def main():
                     logger.info(('Read diversifying pressure from {0} '
                             'for all sites.').format(args['divpressure']))
                     divPressureSites = list(divpressure.keys())
-                    divpressure = scipy.array([divpressure[x] for x in
+                    divpressure = numpy.array([divpressure[x] for x in
                             sorted(divPressureSites)])
                     model = phydmslib.models.ExpCM_empirical_phi_divpressure(
                             prefslist, g, divpressure, freeparams=freeparams)
@@ -466,11 +467,11 @@ def main():
                 if ncpus > 1:
                     pool.close()
                     pool.join()
-            pvalues = scipy.array([tup[0] for tup in omegaresults])
-            omegas = scipy.array([tup[1] for tup in omegaresults])
+            pvalues = numpy.array([tup[0] for tup in omegaresults])
+            omegas = numpy.array([tup[1] for tup in omegaresults])
             omega_strs = [tup[2] for tup in omegaresults]
             # compute Q-values separately for each sign of omega
-            qvalues = scipy.ones(pvalues.shape)
+            qvalues = numpy.ones(pvalues.shape)
             for op in [operator.ge, operator.le]:
                 pvalues_sign = scipy.where(op(omegas, 1),
                         pvalues, 1)

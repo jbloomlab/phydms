@@ -7,6 +7,7 @@ Written by Sarah Hilton and Jesse Bloom.
 
 import os
 import sys
+import numpy
 import scipy
 import math
 import unittest
@@ -60,7 +61,7 @@ class test_simulateAlignmentRandomSeed_ExpCM(unittest.TestCase):
                     kappa=kappa, omega=omega, beta=beta, mu=mu,
                     freeparams=['mu'])
         elif self.MODEL == phydmslib.models.YNGKP_M0:
-            e_pw = scipy.asarray([scipy.random.dirichlet([7] * N_NT) for i
+            e_pw = numpy.asarray([scipy.random.dirichlet([7] * N_NT) for i
                     in range(3)])
             model = phydmslib.models.YNGKP_M0(e_pw, nsites)
         else:

@@ -8,6 +8,7 @@ Written by Sarah Hilton and Jesse Bloom.
 
 import os
 import sys
+import numpy
 import scipy
 import math
 import unittest
@@ -53,7 +54,7 @@ class test_simulateAlignment_ExpCM_divselection(unittest.TestCase):
         beta = 1.5
         mu = 0.3
         omega2 = 1.2
-        deltar = scipy.array([1 if x in random.sample(range(nsites), 20) else 0 for x in range(nsites)])
+        deltar = numpy.array([1 if x in random.sample(range(nsites), 20) else 0 for x in range(nsites)])
         if self.MODEL == phydmslib.models.ExpCM_empirical_phi_divpressure:
             g = scipy.random.dirichlet([7] * N_NT)
             model = phydmslib.models.ExpCM_empirical_phi_divpressure(prefs, g, deltar,
@@ -103,11 +104,11 @@ class test_simulateAlignment_ExpCM_divselection(unittest.TestCase):
 
         # We expect nsubs = t, but build in some tolerance
         # with rtol since we simulated finite number of sites.
-        self.assertTrue(scipy.allclose(nsubs, t, rtol=0.2),
+        self.assertTrue(numpy.allclose(nsubs, t, rtol=0.2),
                 ("Simulated subs per site of {0} is not close "
                 "to expected value of {1} (branchScale = {2}, t = {3})").format(
                 nsubs, t, model.branchScale, t))
-        self.assertTrue(scipy.allclose(treedist, nsubs, rtol=0.2), (
+        self.assertTrue(numpy.allclose(treedist, nsubs, rtol=0.2), (
                 "Simulated subs per site of {0} is not close to inferred "
                 "branch length of {1}").format(nsubs, treedist))
 

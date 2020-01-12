@@ -88,7 +88,7 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
                     self.alignment, model)
 
         logliks = [tl.loglik for tl in tls.values()]
-        self.assertTrue(all([scipy.allclose(logliks[0], logliki)
+        self.assertTrue(all([numpy.allclose(logliks[0], logliki)
                 for logliki in logliks]),
                 "All loglik should be equal prior to optimization as pi "
                 "starts at initial origpi values.")
@@ -127,16 +127,16 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
             else:
                 raise ValueError("Unrecognized MODEL: {0}".format(self.MODEL))
             if firstloglik:
-                self.assertFalse(scipy.allclose(firstloglik, tl.loglik,
+                self.assertFalse(numpy.allclose(firstloglik, tl.loglik,
                         atol=0.02), "loglik matches even with random pi")
             maxresult = tl.maximizeLikelihood()
             if firstloglik:
-                self.assertTrue(scipy.allclose(firstloglik, tl.loglik,
+                self.assertTrue(numpy.allclose(firstloglik, tl.loglik,
                         atol=0.4), "loglik not the same for different starts:"
                         " {0} versus {1}".format(firstloglik, tl.loglik))
             else:
                 firstloglik = tl.loglik
-            self.assertTrue(scipy.allclose(tl.model.origpi, self.model.pi))
+            self.assertTrue(numpy.allclose(tl.model.origpi, self.model.pi))
             # ensure highest prefs are for amino acids with nonzero counts
             for r in range(tl.nsites):
                 for (c, nc) in self.codoncounts[r].items():

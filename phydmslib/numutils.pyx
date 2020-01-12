@@ -42,7 +42,7 @@ def broadcastMatrixMultiply(numpy.ndarray a, numpy.ndarray b,
     cdef int n = a.shape[1]
     assert n == a.shape[2] == b.shape[2] == b.shape[1]
     if not a.flags['C']:
-        a = scipy.ascontiguousarray(a)
+        a = numpy.ascontiguousarray(a)
     assert b.flags['C'], "b not C contiguous"
     cdef numpy.ndarray ab = numpy.ndarray((r, n, n), dtype=numpy.double)
     cdef int i
@@ -70,8 +70,8 @@ def broadcastMatrixVectorMultiply(numpy.ndarray m, numpy.ndarray v,
             `mv[r]` is the matrix-vector product of `m[r]` with
             `v[r]` for 0 <= `r` <= `d1`.
 
-    >>> m = scipy.array([[[1., 2], [3, 4]], [[5, 6], [7, 8]], [[9, 8], [7, 6]]])
-    >>> v = scipy.array([[1., 2], [3, 4], [1, 3]])
+    >>> m = numpy.array([[[1., 2], [3, 4]], [[5, 6], [7, 8]], [[9, 8], [7, 6]]])
+    >>> v = numpy.array([[1., 2], [3, 4], [1, 3]])
     >>> mv = scipy.ndarray(v.shape, dtype='int')
     >>> for r in range(v.shape[0]):
     ...   for x in range(v.shape[1]):
@@ -93,14 +93,14 @@ def broadcastMatrixVectorMultiply(numpy.ndarray m, numpy.ndarray v,
     cdef int n = v.shape[1]
     assert n == m.shape[1] == m.shape[2]
     if not m.flags['C']:
-        m = scipy.ascontiguousarray(m)
+        m = numpy.ascontiguousarray(m)
     assert v.flags['C']
     cdef numpy.ndarray mv = numpy.ndarray((r, n), dtype=numpy.double)
     cdef int i
     for i in range(r):
         mv[i] = scipy.linalg.blas.dgemv(alpha, m[i], v[i])
     return mv
-    #return scipy.sum(m * v[:, None, :], axis=2)
+    #return numpy.sum(m * v[:, None, :], axis=2)
 
 
 def broadcastGetCols(numpy.ndarray m, numpy.ndarray cols):
@@ -121,16 +121,16 @@ def broadcastGetCols(numpy.ndarray m, numpy.ndarray cols):
 
     >>> n = 2
     >>> r = 3
-    >>> m = scipy.arange(r * n * n).reshape(r, n, n)
+    >>> m = numpy.arange(r * n * n).reshape(r, n, n)
     >>> cols = scipy.random.random_integers(0, n - 1, r)
-    >>> expected = scipy.array([m[i][:, cols[i]] for i in range(r)])
+    >>> expected = numpy.array([m[i][:, cols[i]] for i in range(r)])
     >>> scipy.allclose(expected, broadcastGetCols(m, cols))
     True
     """
     assert m.ndim == 3
     assert cols.ndim == 1
     assert cols.shape[0] == m.shape[0]
-    return m[scipy.arange(m.shape[0]), :, cols]
+    return m[numpy.arange(m.shape[0]), :, cols]
 
 
 if __name__ == '__main__':

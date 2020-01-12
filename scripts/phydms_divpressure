@@ -91,7 +91,7 @@ def createModelComparisonFile(models, outprefix):
         df["DiversifyingPressureType"] = [modelID[2] for x in range(len(df))]
         df["DiversifyingPressureID"] = [modelID[1] + "_" + str(modelID[3]) \
                 for x in range(len(df))]
-        final = pd.concat([final,df])
+        final = pd.concat([final, df], sort=True)
         with open(outprefix + outFilePrefix + "_loglikelihood.txt") as f:
             temp = {"Preferences":[],"DiversifyingPressureSet":[],
                     "DiversifyingPressureType":[],"DiversifyingPressureID":[],

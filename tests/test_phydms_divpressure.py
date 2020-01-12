@@ -11,6 +11,7 @@ import shutil
 import unittest
 import subprocess
 import pandas as pd
+import numpy
 import scipy
 
 
@@ -51,7 +52,7 @@ class test_phydms_testdivpressure(unittest.TestCase):
         columns = [x for x in actual.columns.values if x != "value"]
         actual.sort_values(by=columns, inplace=True)
         expected.sort_values(by=columns, inplace=True)
-        self.assertTrue(scipy.allclose(actual["value"],
+        self.assertTrue(numpy.allclose(actual["value"],
                 expected["value"], atol=5e-2, rtol=1e-5),
                 f"{actual.to_csv(index=False)}\n{expected.to_csv(index=False)}")
 

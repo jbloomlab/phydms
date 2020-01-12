@@ -10,6 +10,7 @@ import math
 import unittest
 import random
 import copy
+import numpy
 import scipy
 import scipy.optimize
 import Bio.Phylo
@@ -150,16 +151,16 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         self.assertTrue(nparams == sum(map(lambda x: (1 if isinstance(x, float)
                 else len(x)), modelparams.values())))
         # set to new value, make sure have changed
-        tl.paramsarray = scipy.array([random.uniform(0.7, 0.8) for i in
+        tl.paramsarray = numpy.array([random.uniform(0.7, 0.8) for i in
                 range(nparams)])
         for (param, value) in modelparams.items():
-            self.assertFalse(scipy.allclose(value, getattr(tl.model, param)))
-        self.assertFalse(scipy.allclose(logl, tl.loglik))
+            self.assertFalse(numpy.allclose(value, getattr(tl.model, param)))
+        self.assertFalse(numpy.allclose(logl, tl.loglik))
         # re-set to old value, make sure return to original values
         tl.paramsarray = copy.deepcopy(paramsarray)
-        self.assertTrue(scipy.allclose(logl, tl.loglik))
+        self.assertTrue(numpy.allclose(logl, tl.loglik))
         for (param, value) in modelparams.items():
-            self.assertTrue(scipy.allclose(value, getattr(tl.model, param)))
+            self.assertTrue(numpy.allclose(value, getattr(tl.model, param)))
 
     def test_Likelihood(self):
         """Tests likelihood."""
@@ -184,8 +185,8 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             for (node, t) in self.brlen.items():
                 M[node] = model.M(t / model.branchScale)
             # compute partials at root node
-            partials = scipy.zeros(shape=(self.nsites, N_CODON))
-            siteloglik = scipy.zeros(shape=(self.nsites,))
+            partials = numpy.zeros(shape=(self.nsites, N_CODON))
+            siteloglik = numpy.zeros(shape=(self.nsites,))
             loglik = 0.0
             for r in range(self.nsites):
                 for y in range(N_CODON):
@@ -205,7 +206,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             for (name, d) in [('partials', partials_by_mu),
                                       ('siteloglik', siteloglik_by_mu),
                                       ('loglik', loglik_by_mu)]:
-                self.assertTrue(scipy.allclose(d[mu1]['actual'],
+                self.assertTrue(numpy.allclose(d[mu1]['actual'],
                         d[mu1]['expected']), "Mismatch: {0}".format(name))
 
     def test_LikelihoodDerivativesModelParams(self):
@@ -232,7 +233,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
                 return tl.dloglikarray[i]
             for iparam in range(len(tl.paramsarray)):
                 diff = scipy.optimize.check_grad(func, dfunc,
-                        scipy.array([tl.paramsarray[iparam]]), iparam)
+                        numpy.array([tl.paramsarray[iparam]]), iparam)
                 self.assertTrue(diff < 1e-1, ("{0}: diff {1}, value "
                         "{2}, deriv {3}").format(tl._index_to_param[iparam],
                         diff, tl.paramsarray[iparam],
@@ -258,11 +259,11 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             self.assertTrue(tl.loglik > startloglik, "no loglik increase: "
                     "start = {0}, end = {1}".format(startloglik, tl.loglik))
             for (otherloglik, otherparams) in zip(logliks, paramsarrays):
-                self.assertTrue(scipy.allclose(tl.loglik, otherloglik,
+                self.assertTrue(numpy.allclose(tl.loglik, otherloglik,
                         atol=1e-3, rtol=1e-3),
                         "Large difference in loglik: {0} vs {1}".format(
                         otherloglik, tl.loglik))
-                self.assertTrue(scipy.allclose(tl.paramsarray, otherparams,
+                self.assertTrue(numpy.allclose(tl.paramsarray, otherparams,
                         atol=1e-2, rtol=1e-1),
                         "Large difference in paramsarray: {0} vs {1}, {2}".format(
                         otherparams, tl.paramsarray, self.model))

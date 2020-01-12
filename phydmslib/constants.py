@@ -56,6 +56,7 @@ Constants defined:
 
 import re
 import inspect
+import numpy
 import scipy
 import Bio.Seq
 
@@ -73,7 +74,7 @@ assert len(INDEX_TO_AA) == len(AA_TO_INDEX) == N_AA
 
 N_STOP = 0
 STOP_CODON_TO_NT_INDICES = []
-STOP_POSITIONS = scipy.ones((3, N_NT), dtype = 'float')
+STOP_POSITIONS = numpy.ones((3, N_NT), dtype = 'float')
 CODON_TO_INDEX = {}
 INDEX_TO_CODON = {}
 CODON_TO_AA = []
@@ -89,7 +90,7 @@ for nt1 in sorted(NT_TO_INDEX.keys()):
                 CODON_TO_AA.append(AA_TO_INDEX[aa])
                 i += 1
             else:
-                STOP_CODON_TO_NT_INDICES.append(scipy.zeros((3, N_NT), 
+                STOP_CODON_TO_NT_INDICES.append(numpy.zeros((3, N_NT), 
                         dtype='float'))
                 STOP_CODON_TO_NT_INDICES[-1][0][NT_TO_INDEX[nt1]] = 1.0
                 STOP_CODON_TO_NT_INDICES[-1][1][NT_TO_INDEX[nt2]] = 1.0
@@ -99,23 +100,23 @@ for nt1 in sorted(NT_TO_INDEX.keys()):
                 STOP_POSITIONS[2][NT_TO_INDEX[nt3]] = -1.0
                 N_STOP += 1
 
-STOP_CODON_TO_NT_INDICES = scipy.asarray(STOP_CODON_TO_NT_INDICES)
+STOP_CODON_TO_NT_INDICES = numpy.asarray(STOP_CODON_TO_NT_INDICES)
 
 N_CODON = len(CODON_TO_INDEX)
-CODON_TO_AA = scipy.array(CODON_TO_AA, dtype='int')
+CODON_TO_AA = numpy.array(CODON_TO_AA, dtype='int')
 assert len(CODON_TO_INDEX) == len(INDEX_TO_CODON) == len(CODON_TO_AA) == N_CODON
 
 PURINES = frozenset(['A', 'G'])
 PYRIMIDINES = frozenset(['C', 'T'])
 assert PURINES.union(PYRIMIDINES) == frozenset(NT_TO_INDEX.keys())
 
-CODON_TRANSITION = scipy.full((N_CODON, N_CODON), False, dtype='bool')
-CODON_SINGLEMUT = scipy.full((N_CODON, N_CODON), False, dtype='bool')
-CODON_NT_MUT = scipy.full((N_NT, N_CODON, N_CODON), False, dtype='bool')
-CODON_NT = scipy.full((3, N_NT, N_CODON), False, dtype='bool')
-CODON_NT_INDEX = scipy.full((3, N_CODON), -1, dtype='int')
-CODON_NONSYN = scipy.full((N_CODON, N_CODON), False, dtype='bool')
-CODON_NT_COUNT = scipy.zeros((N_NT, N_CODON), dtype='int')
+CODON_TRANSITION = numpy.full((N_CODON, N_CODON), False, dtype='bool')
+CODON_SINGLEMUT = numpy.full((N_CODON, N_CODON), False, dtype='bool')
+CODON_NT_MUT = numpy.full((N_NT, N_CODON, N_CODON), False, dtype='bool')
+CODON_NT = numpy.full((3, N_NT, N_CODON), False, dtype='bool')
+CODON_NT_INDEX = numpy.full((3, N_CODON), -1, dtype='int')
+CODON_NONSYN = numpy.full((N_CODON, N_CODON), False, dtype='bool')
+CODON_NT_COUNT = numpy.zeros((N_NT, N_CODON), dtype='int')
 for (x, codonx) in INDEX_TO_CODON.items():
     for (i, ntx) in enumerate(codonx):
         for w in range(N_NT):

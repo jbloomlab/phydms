@@ -6,6 +6,7 @@ Written by Jesse Bloom and Sarah Hilton.
 
 import random
 import unittest
+import numpy
 import scipy
 import scipy.linalg
 import scipy.optimize
@@ -70,13 +71,13 @@ class test_GammaDistributedBeta_ExpCM(unittest.TestCase):
         ncats = 4
         gammamodel = phydmslib.models.GammaDistributedBetaModel(basemodel,
                 ncats)
-        self.assertTrue(scipy.allclose(scipy.array([m.beta for m in
+        self.assertTrue(numpy.allclose(numpy.array([m.beta for m in
                 gammamodel._models]), phydmslib.models.DiscreteGamma(
                 gammamodel.alpha_lambda, gammamodel.beta_lambda,
                 gammamodel.ncats)))
         for (param, pvalue) in paramvalues.items():
             if param != gammamodel.distributedparam:
-                self.assertTrue(scipy.allclose(getattr(gammamodel, param),
+                self.assertTrue(numpy.allclose(getattr(gammamodel, param),
                         pvalue))
 
         # try some updates and make sure everything remains OK
@@ -91,16 +92,16 @@ class test_GammaDistributedBeta_ExpCM(unittest.TestCase):
                     newvalues[param] = scipy.random.uniform(
                             low, high, paramlength)
             gammamodel.updateParams(newvalues)
-            self.assertTrue(scipy.allclose(scipy.array([m.beta for m in
+            self.assertTrue(numpy.allclose(numpy.array([m.beta for m in
                     gammamodel._models]), phydmslib.models.DiscreteGamma(
                     gammamodel.alpha_lambda, gammamodel.beta_lambda,
                     gammamodel.ncats)))
             for (param, pvalue) in newvalues.items():
                 if param != gammamodel.distributedparam:
-                    self.assertTrue(scipy.allclose(pvalue,
+                    self.assertTrue(numpy.allclose(pvalue,
                             getattr(gammamodel, param)))
                     if param not in gammamodel.distributionparams:
-                        self.assertTrue(all([scipy.allclose(pvalue,
+                        self.assertTrue(all([numpy.allclose(pvalue,
                                 getattr(m, param)) for m in
                                 gammamodel._models]))
 
@@ -112,11 +113,11 @@ class test_GammaDistributedBeta_ExpCM(unittest.TestCase):
             t = 0.15
             for k in range(gammamodel.ncats):
                 M = gammamodel.M(k, t)
-                self.assertTrue(scipy.allclose(gammamodel._models[k].M(t), M))
+                self.assertTrue(numpy.allclose(gammamodel._models[k].M(t), M))
                 for param in gammamodel.freeparams:
                     if param not in gammamodel.distributionparams:
                         dM = gammamodel.dM(k, t, param, M)
-                        self.assertTrue(scipy.allclose(dM,
+                        self.assertTrue(numpy.allclose(dM,
                                 gammamodel._models[k].dM(t, param, Mt=None)))
 
             # Check derivatives with respect to distribution params
@@ -135,10 +136,10 @@ class test_GammaDistributedBeta_ExpCM(unittest.TestCase):
                         gammamodel.updateParams({param:x[0]})
                         return gammamodel.d_distributionparams[param][k]
                     diff = scipy.optimize.check_grad(func, dfunc,
-                            scipy.array([pvalue]))
+                            numpy.array([pvalue]))
                     gammamodel.updateParams({param:pvalue})
                     diffs.append(diff)
-                diffs = scipy.array(diffs)
+                diffs = numpy.array(diffs)
                 self.assertTrue((diffs < 1e-5).all(), ("Excessive diff "
                         "for d_distributionparams[{0}] when "
                         "distributionparams = {1}:\n{2}".format(
@@ -146,12 +147,12 @@ class test_GammaDistributedBeta_ExpCM(unittest.TestCase):
 
             # Check the stationary state and deriviative of the stationary state
             # Stationary states should be different for each `k`
-            self.assertFalse(all([scipy.allclose(gammamodel.stationarystate(i),
+            self.assertFalse(all([numpy.allclose(gammamodel.stationarystate(i),
                     gammamodel.stationarystate(j)) for i in
                     range(gammamodel.ncats) for j in range(i+1, gammamodel.ncats)]))
             # The derviative of the stationary states should be different with
             # respect to beta for each `k`
-            self.assertFalse(all([scipy.allclose(gammamodel.dstationarystate(i, "beta"),
+            self.assertFalse(all([numpy.allclose(gammamodel.dstationarystate(i, "beta"),
                     gammamodel.dstationarystate(j, "beta")) for i in
                     range(gammamodel.ncats) for j in range(i+1, gammamodel.ncats)]))
 

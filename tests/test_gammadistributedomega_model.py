@@ -6,6 +6,7 @@ Written by Jesse Bloom.
 
 import random
 import unittest
+import numpy
 import scipy
 import scipy.linalg
 import scipy.optimize
@@ -66,13 +67,13 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
         ncats = 4
         gammamodel = phydmslib.models.GammaDistributedOmegaModel(basemodel,
                 ncats)
-        self.assertTrue(scipy.allclose(scipy.array([m.omega for m in
+        self.assertTrue(numpy.allclose(numpy.array([m.omega for m in
                 gammamodel._models]), phydmslib.models.DiscreteGamma(
                 gammamodel.alpha_lambda, gammamodel.beta_lambda,
                 gammamodel.ncats)))
         for (param, pvalue) in paramvalues.items():
             if param != gammamodel.distributedparam:
-                self.assertTrue(scipy.allclose(getattr(gammamodel, param),
+                self.assertTrue(numpy.allclose(getattr(gammamodel, param),
                         pvalue))
 
         # try some updates and make sure everything remains OK
@@ -87,16 +88,16 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
                     newvalues[param] = scipy.random.uniform(
                             low, high, paramlength)
             gammamodel.updateParams(newvalues)
-            self.assertTrue(scipy.allclose(scipy.array([m.omega for m in
+            self.assertTrue(numpy.allclose(numpy.array([m.omega for m in
                     gammamodel._models]), phydmslib.models.DiscreteGamma(
                     gammamodel.alpha_lambda, gammamodel.beta_lambda,
                     gammamodel.ncats)))
             for (param, pvalue) in newvalues.items():
                 if param != gammamodel.distributedparam:
-                    self.assertTrue(scipy.allclose(pvalue,
+                    self.assertTrue(numpy.allclose(pvalue,
                             getattr(gammamodel, param)))
                     if param not in gammamodel.distributionparams:
-                        self.assertTrue(all([scipy.allclose(pvalue,
+                        self.assertTrue(all([numpy.allclose(pvalue,
                                 getattr(m, param)) for m in
                                 gammamodel._models]))
 
@@ -107,11 +108,11 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
             t = 0.15
             for k in range(gammamodel.ncats):
                 M = gammamodel.M(k, t)
-                self.assertTrue(scipy.allclose(gammamodel._models[k].M(t), M))
+                self.assertTrue(numpy.allclose(gammamodel._models[k].M(t), M))
                 for param in gammamodel.freeparams:
                     if param not in gammamodel.distributionparams:
                         dM = gammamodel.dM(k, t, param, M)
-                        self.assertTrue(scipy.allclose(dM,
+                        self.assertTrue(numpy.allclose(dM,
                                 gammamodel._models[k].dM(t, param, Mt=None)))
 
             # Check derivatives with respect to distribution params
@@ -130,10 +131,10 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
                         gammamodel.updateParams({param:x[0]})
                         return gammamodel.d_distributionparams[param][k]
                     diff = scipy.optimize.check_grad(func, dfunc,
-                            scipy.array([pvalue]))
+                            numpy.array([pvalue]))
                     gammamodel.updateParams({param:pvalue})
                     diffs.append(diff)
-                diffs = scipy.array(diffs)
+                diffs = numpy.array(diffs)
                 self.assertTrue((diffs < 1e-5).all(), ("Excessive diff "
                         "for d_distributionparams[{0}] when "
                         "distributionparams = {1}:\n{2}".format(
