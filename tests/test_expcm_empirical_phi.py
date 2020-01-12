@@ -6,6 +6,7 @@ Written by Jesse Bloom.
 
 import random
 import unittest
+import numpy
 import scipy
 import scipy.linalg
 import sympy
@@ -37,7 +38,7 @@ class testExpCM_empirical_phi(unittest.TestCase):
         beta = 1.2
         self.expcm = phydmslib.models.ExpCM_empirical_phi(self.prefs,
                 g=g, omega=omega, kappa=kappa, beta=beta)
-        self.assertTrue(scipy.allclose(g, self.expcm.g))
+        self.assertTrue(numpy.allclose(g, self.expcm.g))
 
         # now check ExpCM attributes / derivates, updating several times
         for update in range(2):
@@ -47,7 +48,7 @@ class testExpCM_empirical_phi(unittest.TestCase):
                       'mu':random.uniform(0.05, 5.0),
                      }
             self.expcm.updateParams(self.params)
-            self.assertTrue(scipy.allclose(g, self.expcm.g))
+            self.assertTrue(numpy.allclose(g, self.expcm.g))
             self.check_empirical_phi()
             self.check_dQxy_dbeta()
             self.check_dprx_dbeta()
@@ -62,10 +63,10 @@ class testExpCM_empirical_phi(unittest.TestCase):
             for x in range(N_CODON):
                 for w in range(N_NT):
                     nt_freqs[w] += self.expcm.prx[r][x] * CODON_NT_COUNT[w][x]
-        self.assertTrue(scipy.allclose(sum(nt_freqs), 3 * self.nsites))
-        nt_freqs = scipy.array(nt_freqs)
+        self.assertTrue(numpy.allclose(sum(nt_freqs), 3 * self.nsites))
+        nt_freqs = numpy.array(nt_freqs)
         nt_freqs /= nt_freqs.sum()
-        self.assertTrue(scipy.allclose(nt_freqs, self.expcm.g, atol=1e-5),
+        self.assertTrue(numpy.allclose(nt_freqs, self.expcm.g, atol=1e-5),
                 "Actual nt_freqs: {0}\nExpected (g): {1}".format(
                 nt_freqs, self.expcm.g))
 
@@ -129,31 +130,31 @@ class testExpCM_empirical_phi(unittest.TestCase):
         self.assertEqual(self.nsites, self.expcm.nsites)
 
         # make sure Prxy has rows summing to zero
-        self.assertFalse(scipy.isnan(self.expcm.Prxy).any())
-        self.assertFalse(scipy.isinf(self.expcm.Prxy).any())
-        diag = scipy.eye(N_CODON, dtype='bool')
+        self.assertFalse(numpy.isnan(self.expcm.Prxy).any())
+        self.assertFalse(numpy.isinf(self.expcm.Prxy).any())
+        diag = numpy.eye(N_CODON, dtype='bool')
         for r in range(self.nsites):
-            self.assertTrue(scipy.allclose(0, scipy.sum(self.expcm.Prxy[r],
+            self.assertTrue(numpy.allclose(0, numpy.sum(self.expcm.Prxy[r],
                     axis=1)))
-            self.assertTrue(scipy.allclose(0, self.expcm.Prxy[r].sum()))
+            self.assertTrue(numpy.allclose(0, self.expcm.Prxy[r].sum()))
             self.assertTrue((self.expcm.Prxy[r][diag] <= 0).all())
             self.assertTrue((self.expcm.Prxy[r][~diag] >= 0).all())
 
         # make sure prx sums to 1 for each r
         self.assertTrue((self.expcm.prx >= 0).all())
         for r in range(self.nsites):
-            self.assertTrue(scipy.allclose(1, self.expcm.prx[r].sum()))
+            self.assertTrue(numpy.allclose(1, self.expcm.prx[r].sum()))
 
         # prx is eigenvector or Prxy for the same r, but not different r
         for r in range(self.nsites):
-            self.assertTrue(scipy.allclose(0, scipy.dot(self.expcm.prx[r],
+            self.assertTrue(numpy.allclose(0, numpy.dot(self.expcm.prx[r],
                     self.expcm.Prxy[r])))
             if r > 0:
-                self.assertFalse(scipy.allclose(0, scipy.dot(self.expcm.prx[r],
+                self.assertFalse(numpy.allclose(0, numpy.dot(self.expcm.prx[r],
                         self.expcm.Prxy[r - 1])))
 
         # phi sums to one
-        self.assertTrue(scipy.allclose(1, self.expcm.phi.sum()))
+        self.assertTrue(numpy.allclose(1, self.expcm.phi.sum()))
 
     def check_ExpCM_derivatives(self):
         """Makes sure derivatives are as expected."""
@@ -206,15 +207,15 @@ class testExpCM_empirical_phi(unittest.TestCase):
         """Makes sure matrix exponentials are as expected."""
         for r in range(self.nsites):
             # fromdiag is recomputed Prxy after diagonalization
-            fromdiag = scipy.dot(self.expcm.A[r], scipy.dot(scipy.diag(
+            fromdiag = numpy.dot(self.expcm.A[r], numpy.dot(numpy.diag(
                     self.expcm.D[r]), self.expcm.Ainv[r]))
-            self.assertTrue(scipy.allclose(self.expcm.Prxy[r], fromdiag,
+            self.assertTrue(numpy.allclose(self.expcm.Prxy[r], fromdiag,
                     atol=1e-5), "Max diff {0}".format(
                     (self.expcm.Prxy[r] - fromdiag).max()))
 
             for t in [0.02, 0.2, 0.5]:
                 direct = scipy.linalg.expm(self.expcm.Prxy[r] * self.expcm.mu * t)
-                self.assertTrue(scipy.allclose(self.expcm.M(t)[r], direct, atol=1e-6),
+                self.assertTrue(numpy.allclose(self.expcm.M(t)[r], direct, atol=1e-6),
                         "Max diff {0}".format((self.expcm.M(t)[r] - direct).max()))
         # check derivatives of M calculated by dM
         # implementation looks a bit complex because `check_grad` function

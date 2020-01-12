@@ -10,6 +10,7 @@ import math
 import unittest
 import random
 import copy
+import numpy
 import scipy
 import scipy.optimize
 import Bio.Phylo
@@ -122,7 +123,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
             k = random.choice(tl._catindices)
             x = random.randint(0, N_CODON - 1)
             y = random.randint(0, N_CODON - 1)
-            t = scipy.array([random.uniform(0.05, 0.5)])
+            t = numpy.array([random.uniform(0.05, 0.5)])
             diff = scipy.optimize.check_grad(func, dfunc, t, k, r, x, y)
             self.assertTrue(abs(diff) < 1e-4, "diff = {0}".format(diff))
 
@@ -134,20 +135,20 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
                 dparamscurrent=False, dtcurrent=True)
         loglik1 = tl.loglik
         tl.t = 2 * tl.t
-        self.assertFalse(scipy.allclose(loglik1, tl.loglik))
+        self.assertFalse(numpy.allclose(loglik1, tl.loglik))
         tl.t = tl.t / 2
-        self.assertTrue(scipy.allclose(loglik1, tl.loglik))
+        self.assertTrue(numpy.allclose(loglik1, tl.loglik))
         tl.t = tl.t * scipy.random.uniform(0.1, 1.5, tl.t.shape)
-        self.assertFalse(scipy.allclose(loglik1, tl.loglik))
+        self.assertFalse(numpy.allclose(loglik1, tl.loglik))
         loglik2 = tl.loglik
         t = tl.t
         t[1] *= 3
         tl.t = t
-        self.assertFalse(scipy.allclose(loglik2, tl.loglik))
+        self.assertFalse(numpy.allclose(loglik2, tl.loglik))
         t = tl.t
         t[1] /= 3
         tl.t = t
-        self.assertTrue(scipy.allclose(loglik2, tl.loglik))
+        self.assertTrue(numpy.allclose(loglik2, tl.loglik))
 
     def test_BrLenDerivatives(self):
         """Tests derivatives of branch lengths."""
@@ -169,7 +170,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
 
         for n in range(len(tl.t)):
             diff = scipy.optimize.check_grad(func, dfunc, 
-                    scipy.array([tl.t[n]]), n)
+                    numpy.array([tl.t[n]]), n)
             self.assertTrue(diff < 2e-5, diff)
 
 
@@ -183,7 +184,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
                 self.alignment, self.model, underflowfreq=self.underflowfreq,
                 dparamscurrent=True, dtcurrent=False)
 
-        self.assertTrue(scipy.allclose(tl1.loglik, tl2.loglik))
+        self.assertTrue(numpy.allclose(tl1.loglik, tl2.loglik))
 
         with self.assertRaises(Exception) as context:
             tl2.dtcurrent = True
@@ -201,8 +202,8 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
         tl2.t = 1.1 * tl2.t
         tl2.dparamscurrent = False
         tl2.dtcurrent = True
-        self.assertTrue(scipy.allclose(tl1.dloglik_dt, tl2.dloglik_dt))
-        self.assertTrue(scipy.allclose(tl1.loglik, tl2.loglik))
+        self.assertTrue(numpy.allclose(tl1.dloglik_dt, tl2.dloglik_dt))
+        self.assertTrue(numpy.allclose(tl1.loglik, tl2.loglik))
 
         tl1.updateParams({'kappa':3.15})
         tl2.updateParams({'kappa':3.15})
@@ -211,8 +212,8 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
         tl1.dtcurrent = False
         tl1.dparamscurrent = True
         for (param, deriv) in tl1.dloglik.items():
-            self.assertTrue(scipy.allclose(deriv, tl2.dloglik[param]))
-        self.assertTrue(scipy.allclose(tl1.loglik, tl2.loglik))
+            self.assertTrue(numpy.allclose(deriv, tl2.dloglik[param]))
+        self.assertTrue(numpy.allclose(tl1.loglik, tl2.loglik))
 
 
 class test_BrLenDerivatives_ExpCM_empirical_phi(test_BrLenDerivatives_ExpCM):

@@ -8,6 +8,7 @@ are correct for `ExpCM` implemented in `phydmslib.models`."""
 
 import random
 import unittest
+import numpy
 import scipy
 import scipy.linalg
 import sympy
@@ -39,19 +40,19 @@ class testExpCM(unittest.TestCase):
         beta = 1.9
         self.expcm = phydmslib.models.ExpCM(self.prefs, phi=phi, omega=omega,
                 kappa=kappa, beta=beta)
-        self.assertTrue(scipy.allclose(phi, self.expcm.phi))
-        self.assertTrue(scipy.allclose(omega, self.expcm.omega))
-        self.assertTrue(scipy.allclose(kappa, self.expcm.kappa))
-        self.assertTrue(scipy.allclose(beta, self.expcm.beta))
+        self.assertTrue(numpy.allclose(phi, self.expcm.phi))
+        self.assertTrue(numpy.allclose(omega, self.expcm.omega))
+        self.assertTrue(numpy.allclose(kappa, self.expcm.kappa))
+        self.assertTrue(numpy.allclose(beta, self.expcm.beta))
 
-        self.assertTrue(scipy.allclose(scipy.repeat(1.0, self.nsites), self.expcm.stationarystate.sum(axis=1)))
+        self.assertTrue(numpy.allclose(numpy.repeat(1.0, self.nsites), self.expcm.stationarystate.sum(axis=1)))
 
         # now check ExpCM attributes / derivates, updating several times
         for update in range(2):
             self.params = {'omega':random.uniform(*self.expcm.PARAMLIMITS['omega']),
                       'kappa':random.uniform(*self.expcm.PARAMLIMITS['kappa']),
                       'beta':random.uniform(0.5, 2.5),
-                      'eta':scipy.array([random.uniform(*self.expcm.PARAMLIMITS['eta']) for i in range(N_NT - 1)]),
+                      'eta':numpy.array([random.uniform(*self.expcm.PARAMLIMITS['eta']) for i in range(N_NT - 1)]),
                       'mu':random.uniform(0.05, 3.0),
                      }
             self.expcm.updateParams(self.params)
@@ -64,27 +65,27 @@ class testExpCM(unittest.TestCase):
         self.assertEqual(self.nsites, self.expcm.nsites)
 
         # make sure Prxy has rows summing to zero
-        self.assertFalse(scipy.isnan(self.expcm.Prxy).any())
-        self.assertFalse(scipy.isinf(self.expcm.Prxy).any())
-        diag = scipy.eye(N_CODON, dtype='bool')
+        self.assertFalse(numpy.isnan(self.expcm.Prxy).any())
+        self.assertFalse(numpy.isinf(self.expcm.Prxy).any())
+        diag = numpy.eye(N_CODON, dtype='bool')
         for r in range(self.nsites):
-            self.assertTrue(scipy.allclose(0, scipy.sum(self.expcm.Prxy[r],
+            self.assertTrue(numpy.allclose(0, numpy.sum(self.expcm.Prxy[r],
                     axis=1)))
-            self.assertTrue(scipy.allclose(0, self.expcm.Prxy[r].sum()))
+            self.assertTrue(numpy.allclose(0, self.expcm.Prxy[r].sum()))
             self.assertTrue((self.expcm.Prxy[r][diag] <= 0).all())
             self.assertTrue((self.expcm.Prxy[r][~diag] >= 0).all())
 
         # make sure prx sums to 1 for each r
         self.assertTrue((self.expcm.prx >= 0).all())
         for r in range(self.nsites):
-            self.assertTrue(scipy.allclose(1, self.expcm.prx[r].sum()))
+            self.assertTrue(numpy.allclose(1, self.expcm.prx[r].sum()))
 
         # prx is eigenvector or Prxy for the same r, but not different r
         for r in range(self.nsites):
-            self.assertTrue(scipy.allclose(0, scipy.dot(self.expcm.prx[r],
+            self.assertTrue(numpy.allclose(0, numpy.dot(self.expcm.prx[r],
                     self.expcm.Prxy[r])))
             if r > 0:
-                self.assertFalse(scipy.allclose(0, scipy.dot(self.expcm.prx[r],
+                self.assertFalse(numpy.allclose(0, numpy.dot(self.expcm.prx[r],
                         self.expcm.Prxy[r - 1])))
 
     def check_ExpCM_derivatives(self):
@@ -121,19 +122,19 @@ class testExpCM(unittest.TestCase):
                             phiw = eta0 * eta1 * eta2
                         else:
                             raise ValueError("Invalid w")
-                        self.assertTrue(scipy.allclose(float(phiw.subs(values)),
+                        self.assertTrue(numpy.allclose(float(phiw.subs(values)),
                                 self.expcm.phi[w]))
                         if CODON_TRANSITION[x][y]:
                             Qxy = kappa * phiw
                         else:
                             Qxy = phiw
-                        self.assertTrue(scipy.allclose(float(Qxy.subs(values)),
+                        self.assertTrue(numpy.allclose(float(Qxy.subs(values)),
                                 self.expcm.Qxy[x][y]))
                         if CODON_NONSYN[x][y]:
                             if pirAx == pirAy:
                                 Prxy = Qxy * omega
                             else:
-                                Prxy = Qxy * omega * (-beta * scipy.log(pirAx / pirAy) / (1 - (pirAx / pirAy)**beta))
+                                Prxy = Qxy * omega * (-beta * numpy.log(pirAx / pirAy) / (1 - (pirAx / pirAy)**beta))
                         else:
                             Prxy = Qxy
                     for (name, actual, expect) in [
@@ -149,7 +150,7 @@ class testExpCM(unittest.TestCase):
                             expectval = 0
                         else:
                             expectval = float(expect.subs(values))
-                        self.assertTrue(scipy.allclose(actual, expectval, atol=1e-4),
+                        self.assertTrue(numpy.allclose(actual, expectval, atol=1e-4),
                                 "{0}: {1} vs {2}".format(name, actual, expectval))
 
         # check prx
@@ -186,21 +187,21 @@ class testExpCM(unittest.TestCase):
                         ('dprx_deta2', self.expcm.dprx['eta'][2][r][x], sympy.diff(prx, eta2)),
                         ]:
                     expectval = float(expect.subs(values))
-                    self.assertTrue(scipy.allclose(actual, expectval, atol=1e-5),
+                    self.assertTrue(numpy.allclose(actual, expectval, atol=1e-5),
                             "{0}: {1} vs {2}".format(name, actual, expectval))
 
     def check_ExpCM_matrix_exponentials(self):
         """Makes sure matrix exponentials of ExpCM are as expected."""
         for r in range(self.nsites):
             # fromdiag is recomputed Prxy after diagonalization
-            fromdiag = scipy.dot(self.expcm.A[r], scipy.dot(scipy.diag(
+            fromdiag = numpy.dot(self.expcm.A[r], numpy.dot(numpy.diag(
                     self.expcm.D[r]), self.expcm.Ainv[r]))
-            self.assertTrue(scipy.allclose(self.expcm.Prxy[r], fromdiag,
+            self.assertTrue(numpy.allclose(self.expcm.Prxy[r], fromdiag,
                     atol=1e-5), "Max diff {0}".format((self.expcm.Prxy[r] - fromdiag).max()))
 
             for t in [0.02, 0.2, 0.5]:
                 direct = scipy.linalg.expm(self.expcm.Prxy[r] * self.expcm.mu * t)
-                self.assertTrue(scipy.allclose(self.expcm.M(t)[r], direct, atol=1e-6),
+                self.assertTrue(numpy.allclose(self.expcm.M(t)[r], direct, atol=1e-6),
                         "Max diff {0}".format((self.expcm.M(t)[r] - direct).max()))
         # check derivatives of M calculated by dM
         # implementation looks a bit complex because `check_grad` function

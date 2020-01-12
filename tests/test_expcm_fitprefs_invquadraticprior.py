@@ -6,6 +6,7 @@ Written by Jesse Bloom."""
 import random
 import unittest
 import copy
+import numpy
 import scipy
 import scipy.linalg
 import sympy
@@ -44,7 +45,7 @@ class test_ExpCM_fitprefs_invquadraticprior(unittest.TestCase):
         lnpr = sympy.ln((1 / (1 + c1 * (pi - theta)**2))**c2)
         deriv = -2 * c1 * c2 * (pi - theta) / (1 + c1 * (pi - theta)**2)
         values = [(c1, 150), (c2, 0.5), (pi, 0.3), (theta, 0.421)]
-        self.assertTrue(scipy.allclose(
+        self.assertTrue(numpy.allclose(
                 float(deriv.subs(values)), float(sympy.diff(lnpr, pi).subs(values))))
 
 
@@ -53,7 +54,7 @@ class test_ExpCM_fitprefs_invquadraticprior(unittest.TestCase):
         scipy.random.seed(1)
 
         expcm_fitprefs = copy.deepcopy(self.expcm_fitprefs)
-        self.assertTrue(scipy.allclose(expcm_fitprefs.pi, expcm_fitprefs.origpi))
+        self.assertTrue(numpy.allclose(expcm_fitprefs.pi, expcm_fitprefs.origpi))
         if self.MODEL == phydmslib.models.ExpCM_fitprefs:
             newzeta = expcm_fitprefs.zeta.copy() * scipy.random.uniform(0.9, 1.0, 
                     expcm_fitprefs.zeta.shape)
@@ -63,7 +64,7 @@ class test_ExpCM_fitprefs_invquadraticprior(unittest.TestCase):
         else:
             raise RuntimeError("invalid MODEL: {0}".format(self.MODEL))
         expcm_fitprefs.updateParams({'zeta':newzeta})
-        self.assertFalse(scipy.allclose(expcm_fitprefs.pi, expcm_fitprefs.origpi))
+        self.assertFalse(numpy.allclose(expcm_fitprefs.pi, expcm_fitprefs.origpi))
         nsites = expcm_fitprefs.nsites
 
         def func(zetari, i, r):
@@ -81,7 +82,7 @@ class test_ExpCM_fitprefs_invquadraticprior(unittest.TestCase):
         j = 0
         for r in range(nsites):
             for i in range(N_AA - 1):
-                zetari = scipy.array([expcm_fitprefs.zeta.reshape(
+                zetari = numpy.array([expcm_fitprefs.zeta.reshape(
                         nsites, N_AA - 1)[r][i]])
                 diff = scipy.optimize.check_grad(func, dfunc, zetari, i, r)
                 deriv = dfunc(zetari, i, r)

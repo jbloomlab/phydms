@@ -8,6 +8,7 @@ Written by Jesse Bloom.
 
 import os
 import sys
+import numpy
 import scipy
 import math
 import unittest
@@ -62,7 +63,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
                     freeparams=['mu'])
             partitions = phydmslib.simulate.pyvolvePartitions(model)
         elif self.MODEL == phydmslib.models.YNGKP_M0:
-            e_pw = scipy.asarray([scipy.random.dirichlet([7] * N_NT) for i 
+            e_pw = numpy.asarray([scipy.random.dirichlet([7] * N_NT) for i 
                     in range(3)])
             model = phydmslib.models.YNGKP_M0(e_pw, nsites)
             partitions = phydmslib.simulate.pyvolvePartitions(model)
@@ -110,11 +111,11 @@ class test_branchScale_ExpCM(unittest.TestCase):
 
         # We expect nsubs = branchScale * t, but build in some tolerance
         # with rtol since we simulated finite number of sites.
-        self.assertTrue(scipy.allclose(nsubs, model.branchScale * t, rtol=0.2),
+        self.assertTrue(numpy.allclose(nsubs, model.branchScale * t, rtol=0.2),
                 ("Simulated subs per site of {0} is not close "
                 "to expected value of {1} (branchScale = {2}, t = {3})").format(
                 nsubs, t * model.branchScale, model.branchScale, t))
-        self.assertTrue(scipy.allclose(treedist, nsubs, rtol=0.2), (
+        self.assertTrue(numpy.allclose(treedist, nsubs, rtol=0.2), (
                 "Simulated subs per site of {0} is not close to inferred "
                 "branch length of {1}").format(nsubs, treedist))
 

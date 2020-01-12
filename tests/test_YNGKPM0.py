@@ -9,6 +9,7 @@ are correct for `YNGKP_M0` implemented in `phydmslib.models`."""
 
 import random
 import unittest
+import numpy
 import scipy
 import scipy.linalg
 import sympy
@@ -23,7 +24,7 @@ class testYNGKP_M0(unittest.TestCase):
 
         # create alignment
         sequences = [""]
-        #self.e_pa = scipy.array([[4.0, 0.0, 0.0, 0.0], [0.0, 1.0, 2.0, 1.0], [0.0, 2.0, 0.0, 2.0]])
+        #self.e_pa = numpy.array([[4.0, 0.0, 0.0, 0.0], [0.0, 1.0, 2.0, 1.0], [0.0, 2.0, 0.0, 2.0]])
         scipy.random.seed(1)
         random.seed(1)
         self.e_pa = scipy.random.uniform(0.12, 1.0, size = (3, N_NT))
@@ -35,10 +36,10 @@ class testYNGKP_M0(unittest.TestCase):
         omega = 0.4
         kappa = 2.5
         self.YNGKP_M0 = phydmslib.models.YNGKP_M0(self.e_pa, self.nsites, omega=omega, kappa=kappa)
-        self.assertTrue(scipy.allclose(omega, self.YNGKP_M0.omega))
-        self.assertTrue(scipy.allclose(kappa, self.YNGKP_M0.kappa))
+        self.assertTrue(numpy.allclose(omega, self.YNGKP_M0.omega))
+        self.assertTrue(numpy.allclose(kappa, self.YNGKP_M0.kappa))
 
-        self.assertTrue(scipy.allclose(scipy.repeat(1.0, self.nsites), self.YNGKP_M0.stationarystate.sum(axis=1)))
+        self.assertTrue(numpy.allclose(numpy.repeat(1.0, self.nsites), self.YNGKP_M0.stationarystate.sum(axis=1)))
 
         # now check YNGKP_M0 attributes / derivates, updating several times
         for update in range(2):
@@ -56,12 +57,12 @@ class testYNGKP_M0(unittest.TestCase):
         self.assertEqual(self.nsites, self.YNGKP_M0.nsites)
 
         # make sure Prxy has rows summing to zero
-        self.assertFalse(scipy.isnan(self.YNGKP_M0.Pxy).any())
-        self.assertFalse(scipy.isinf(self.YNGKP_M0.Pxy).any())
-        diag = scipy.eye(N_CODON, dtype='bool')
-        self.assertTrue(scipy.allclose(0, scipy.sum(self.YNGKP_M0.Pxy[0],
+        self.assertFalse(numpy.isnan(self.YNGKP_M0.Pxy).any())
+        self.assertFalse(numpy.isinf(self.YNGKP_M0.Pxy).any())
+        diag = numpy.eye(N_CODON, dtype='bool')
+        self.assertTrue(numpy.allclose(0, numpy.sum(self.YNGKP_M0.Pxy[0],
                 axis=1)))
-        self.assertTrue(scipy.allclose(0, self.YNGKP_M0.Pxy[0].sum()))
+        self.assertTrue(numpy.allclose(0, self.YNGKP_M0.Pxy[0].sum()))
         self.assertTrue((self.YNGKP_M0.Pxy[0][diag] <= 0).all())
         self.assertTrue((self.YNGKP_M0.Pxy[0][~diag] >= 0).all())
         assert self.YNGKP_M0.Pxy.shape == (1, N_CODON, N_CODON)
@@ -120,14 +121,14 @@ class testYNGKP_M0(unittest.TestCase):
         """Makes sure matrix exponentials of YNGKP_M0 are as expected."""
         for r in range(1):
             # fromdiag is recomputed Prxy after diagonalization
-            fromdiag = scipy.dot(self.YNGKP_M0.A[0], scipy.dot(scipy.diag(
+            fromdiag = numpy.dot(self.YNGKP_M0.A[0], numpy.dot(numpy.diag(
                     self.YNGKP_M0.D[r]), self.YNGKP_M0.Ainv[r]))
-            self.assertTrue(scipy.allclose(self.YNGKP_M0.Pxy[r], fromdiag,
+            self.assertTrue(numpy.allclose(self.YNGKP_M0.Pxy[r], fromdiag,
                     atol=1e-5), "Max diff {0}".format((self.YNGKP_M0.Pxy[r] - fromdiag).max()))
 
             for t in [0.02, 0.2, 0.5]:
                 direct = scipy.linalg.expm(self.YNGKP_M0.Pxy[r] * self.YNGKP_M0.mu * t)
-                self.assertTrue(scipy.allclose(self.YNGKP_M0.M(t)[r], direct, atol=1e-6),
+                self.assertTrue(numpy.allclose(self.YNGKP_M0.M(t)[r], direct, atol=1e-6),
                         "Max diff {0}".format((self.YNGKP_M0.M(t)[r] - direct).max()))
         # check derivatives of M calculated by dM
         # implementation looks a bit complex because `check_grad` function

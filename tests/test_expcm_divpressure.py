@@ -10,7 +10,7 @@ import unittest
 import scipy
 import scipy.linalg
 import sympy
-import numpy as np
+import numpy
 from phydmslib.constants import *
 import phydmslib.models
 
@@ -36,7 +36,7 @@ class test_compare_ExpCM_empirical_phi_with_and_without_divpressure(unittest.Tes
         omega2 = 0.2
         kappa = 2.5
         beta = 1.2
-        divpressure = scipy.zeros(nsites)
+        divpressure = numpy.zeros(nsites)
 
         expcm = phydmslib.models.ExpCM_empirical_phi(
                 prefs, g, omega=omega, kappa=kappa, beta=beta)
@@ -45,30 +45,30 @@ class test_compare_ExpCM_empirical_phi_with_and_without_divpressure(unittest.Tes
                 prefs, g, divPressureValues=divpressure, omega=omega,
                 kappa=kappa, beta=beta, omega2=omega2)
 
-        self.assertTrue(scipy.allclose(expcm.stationarystate,
+        self.assertTrue(numpy.allclose(expcm.stationarystate,
                 expcm_divpressure.stationarystate),
                 "stationarystate differs.")
-        self.assertTrue(scipy.allclose(expcm.Qxy,
+        self.assertTrue(numpy.allclose(expcm.Qxy,
                 expcm_divpressure.Qxy),
                 "Qxy differs")
-        self.assertTrue(scipy.allclose(expcm.Frxy,
+        self.assertTrue(numpy.allclose(expcm.Frxy,
                 expcm_divpressure.Frxy),
                 "Frxy differs")
-        self.assertTrue(scipy.allclose(expcm.Prxy,
+        self.assertTrue(numpy.allclose(expcm.Prxy,
                 expcm_divpressure.Prxy),
                 "Prxy differs")
         t = 0.02
-        self.assertTrue(scipy.allclose(expcm.M(t),
+        self.assertTrue(numpy.allclose(expcm.M(t),
                 expcm_divpressure.M(t)),
                 "M({0}) differs".format(t))
         for param in ['kappa', 'omega', 'beta']:
-            self.assertTrue(scipy.allclose(getattr(expcm, param),
+            self.assertTrue(numpy.allclose(getattr(expcm, param),
                     getattr(expcm_divpressure, param)),
                     "param values differ for {0}".format(param))
-            self.assertTrue(scipy.allclose(expcm.dstationarystate(param),
+            self.assertTrue(numpy.allclose(expcm.dstationarystate(param),
                     expcm_divpressure.dstationarystate(param)),
                     "dstationarystate differs for {0}".format(param))
-            self.assertTrue(scipy.allclose(expcm.dM(t, param, expcm.M(t)),
+            self.assertTrue(numpy.allclose(expcm.dM(t, param, expcm.M(t)),
                     expcm_divpressure.dM(t, param, expcm_divpressure.M(t))),
                     "dM({0}) differs for {1}".format(t, param))
 
@@ -89,7 +89,7 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        self.divpressure = np.random.randint(2, size=self.nsites)
+        self.divpressure = numpy.random.randint(2, size=self.nsites)
 
         # create initial ExpCM
         g = scipy.random.dirichlet([3] * N_NT)
@@ -109,7 +109,7 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
                       'omega2': random.uniform(0.1,0.3)
                      }
             self.expcm_divpressure.updateParams(self.params)
-            self.assertTrue(scipy.allclose(g, self.expcm_divpressure.g))
+            self.assertTrue(numpy.allclose(g, self.expcm_divpressure.g))
 
             self.check_empirical_phi()
 
@@ -130,10 +130,10 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
             for x in range(N_CODON):
                 for w in range(N_NT):
                     nt_freqs[w] += self.expcm_divpressure.prx[r][x] * CODON_NT_COUNT[w][x]
-        self.assertTrue(scipy.allclose(sum(nt_freqs), 3 * self.nsites))
-        nt_freqs = scipy.array(nt_freqs)
+        self.assertTrue(numpy.allclose(sum(nt_freqs), 3 * self.nsites))
+        nt_freqs = numpy.array(nt_freqs)
         nt_freqs /= nt_freqs.sum()
-        self.assertTrue(scipy.allclose(nt_freqs, self.expcm_divpressure.g, atol=1e-5),
+        self.assertTrue(numpy.allclose(nt_freqs, self.expcm_divpressure.g, atol=1e-5),
                 "Actual nt_freqs: {0}\nExpected (g): {1}".format(
                 nt_freqs, self.expcm_divpressure.g))
 
@@ -198,31 +198,31 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
         self.assertEqual(self.nsites, self.expcm_divpressure.nsites)
 
         # make sure Prxy has rows summing to zero
-        self.assertFalse(scipy.isnan(self.expcm_divpressure.Prxy).any())
-        self.assertFalse(scipy.isinf(self.expcm_divpressure.Prxy).any())
-        diag = scipy.eye(N_CODON, dtype='bool')
+        self.assertFalse(numpy.isnan(self.expcm_divpressure.Prxy).any())
+        self.assertFalse(numpy.isinf(self.expcm_divpressure.Prxy).any())
+        diag = numpy.eye(N_CODON, dtype='bool')
         for r in range(self.nsites):
-            self.assertTrue(scipy.allclose(0, scipy.sum(self.expcm_divpressure.Prxy[r],
+            self.assertTrue(numpy.allclose(0, numpy.sum(self.expcm_divpressure.Prxy[r],
                     axis=1)))
-            self.assertTrue(scipy.allclose(0, self.expcm_divpressure.Prxy[r].sum()))
+            self.assertTrue(numpy.allclose(0, self.expcm_divpressure.Prxy[r].sum()))
             self.assertTrue((self.expcm_divpressure.Prxy[r][diag] <= 0).all())
             self.assertTrue((self.expcm_divpressure.Prxy[r][~diag] >= 0).all())
 
         # make sure prx sums to 1 for each r
         self.assertTrue((self.expcm_divpressure.prx >= 0).all())
         for r in range(self.nsites):
-            self.assertTrue(scipy.allclose(1, self.expcm_divpressure.prx[r].sum()))
+            self.assertTrue(numpy.allclose(1, self.expcm_divpressure.prx[r].sum()))
 
         # prx is eigenvector or Prxy for the same r, but not different r
         for r in range(self.nsites):
-            self.assertTrue(scipy.allclose(0, scipy.dot(self.expcm_divpressure.prx[r],
+            self.assertTrue(numpy.allclose(0, numpy.dot(self.expcm_divpressure.prx[r],
                     self.expcm_divpressure.Prxy[r])))
             if r > 0:
-                self.assertFalse(scipy.allclose(0, scipy.dot(self.expcm_divpressure.prx[r],
+                self.assertFalse(numpy.allclose(0, numpy.dot(self.expcm_divpressure.prx[r],
                         self.expcm_divpressure.Prxy[r - 1])))
 
         # phi sums to one
-        self.assertTrue(scipy.allclose(1, self.expcm_divpressure.phi.sum()))
+        self.assertTrue(numpy.allclose(1, self.expcm_divpressure.phi.sum()))
 
     def check_ExpCM_derivatives(self):
         """Makes sure derivatives are as expected."""
@@ -276,15 +276,15 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
         """Makes sure matrix exponentials are as expected."""
         for r in range(self.nsites):
             # fromdiag is recomputed Prxy after diagonalization
-            fromdiag = scipy.dot(self.expcm_divpressure.A[r], scipy.dot(scipy.diag(
+            fromdiag = numpy.dot(self.expcm_divpressure.A[r], numpy.dot(numpy.diag(
                     self.expcm_divpressure.D[r]), self.expcm_divpressure.Ainv[r]))
-            self.assertTrue(scipy.allclose(self.expcm_divpressure.Prxy[r], fromdiag,
+            self.assertTrue(numpy.allclose(self.expcm_divpressure.Prxy[r], fromdiag,
                     atol=1e-5), "Max diff {0}".format(
                     (self.expcm_divpressure.Prxy[r] - fromdiag).max()))
 
             for t in [0.02, 0.2, 0.5]:
                 direct = scipy.linalg.expm(self.expcm_divpressure.Prxy[r] * self.expcm_divpressure.mu * t)
-                self.assertTrue(scipy.allclose(self.expcm_divpressure.M(t)[r], direct, atol=1e-6),
+                self.assertTrue(numpy.allclose(self.expcm_divpressure.M(t)[r], direct, atol=1e-6),
                         "Max diff {0}".format((self.expcm_divpressure.M(t)[r] - direct).max()))
         # check derivatives of M calculated by dM
         # implementation looks a bit complex because `check_grad` function

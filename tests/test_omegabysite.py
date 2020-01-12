@@ -81,7 +81,7 @@ class test_OmegaBySiteYNGKP(test_OmegaBySiteExpCM):
     """Tests ``--omegabysite`` to ``phydms`` for `YNGKP_M0`."""
 
     def initializeModel(self):
-        e_pw = scipy.full((3, N_NT), 1.0 / N_NT, dtype='float')
+        e_pw = numpy.full((3, N_NT), 1.0 / N_NT, dtype='float')
         # mu > 1 leads to longer branches in simulation
         self.model = phydmslib.models.YNGKP_M0(e_pw, self.nsites, mu=4.0)
         self.modelname = 'YNGKP'

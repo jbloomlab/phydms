@@ -10,6 +10,7 @@ import os
 import unittest
 import multiprocessing
 import subprocess
+import numpy
 import scipy
 import pandas
 
@@ -56,7 +57,7 @@ class test_phydms_comprehensive(unittest.TestCase):
                             (x, y) = line.split('=')
                             values[name][x.strip()] = float(y)
             for param in values['actual'].keys():
-                self.assertTrue(scipy.allclose(values['actual'][param],
+                self.assertTrue(numpy.allclose(values['actual'][param],
                         values['expected'][param], atol=1e-2, rtol=1e-5))
 
             omegas = {}
@@ -66,7 +67,7 @@ class test_phydms_comprehensive(unittest.TestCase):
                 omegas[name] = pandas.read_csv(fname,
                         comment='#', sep='\t')
                 omegas[name] = omegas[name].sort_values(by='site', axis=0)
-            self.assertTrue(scipy.allclose(omegas['actual']['P'].values,
+            self.assertTrue(numpy.allclose(omegas['actual']['P'].values,
                     omegas['expected']['P'].values, atol=0.01, rtol=0.03))
             sigsites = omegas['expected'][omegas['expected']['P'] < 0.05]['site'].values
             sigomegas = {}

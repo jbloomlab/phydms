@@ -50,12 +50,12 @@ class test_underflow(unittest.TestCase):
             tl_nocorrection = phydmslib.treelikelihood.TreeLikelihood(
                     tree, alignment, m, underflowfreq=100000)
 
-            self.assertTrue(scipy.allclose(tl.loglik, tl_nocorrection.loglik),
+            self.assertTrue(numpy.allclose(tl.loglik, tl_nocorrection.loglik),
                     ("Log likelihoods differ with and without correction "
                     "for {0}: {1} versus {2}".format(desc, tl.loglik,
                     tl_nocorrection.loglik)))
             for (param, dl) in tl_nocorrection.dloglik.items():
-                self.assertTrue(scipy.allclose(dl, tl.dloglik[param]),
+                self.assertTrue(numpy.allclose(dl, tl.dloglik[param]),
                         ('dloglik differs with and without correction for {0}: '
                         '{1}, {2} versus {3}'.format(param, desc,
                         tl.dloglik[param], dl)))
@@ -65,12 +65,12 @@ class test_underflow(unittest.TestCase):
             tl_nocorrection.dparamscurrent = False
             tl.dtcurrent = True
             tl_nocorrection.dtcurrent = True
-            self.assertTrue(scipy.allclose(tl.loglik, tl_nocorrection.loglik),
+            self.assertTrue(numpy.allclose(tl.loglik, tl_nocorrection.loglik),
                     ("Log likelihoods differ with and without correction "
                     "for {0}: {1} versus {2}".format(desc, tl.loglik,
                     tl_nocorrection.loglik)))
-            self.assertTrue(scipy.allclose(tl.loglik, oldloglik))
-            self.assertTrue(scipy.allclose(tl.dloglik_dt,
+            self.assertTrue(numpy.allclose(tl.loglik, oldloglik))
+            self.assertTrue(numpy.allclose(tl.dloglik_dt,
                     tl_nocorrection.dloglik_dt))
 
 

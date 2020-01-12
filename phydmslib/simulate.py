@@ -48,7 +48,7 @@ def pyvolvePartitions(model, divselection=None):
 
     partitions = []
     for r in range(model.nsites):
-        matrix = scipy.zeros((len(codons), len(codons)), dtype='float')
+        matrix = numpy.zeros((len(codons), len(codons)), dtype='float')
         for (xi, x) in enumerate(codons):
             for (yi, y) in enumerate(codons):
                 ntdiffs = [(x[j], y[j]) for j in range(3) if x[j] != y[j]]

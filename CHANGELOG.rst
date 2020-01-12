@@ -1,6 +1,10 @@
 Changelog
 ===========
 
+2.3.7
+------
+* Fixed ``scipy`` 2.0.0 deprecation warnings by using ``numpy`` functions in many places rather than ``scipy`` functions. See `here <https://docs.scipy.org/doc/scipy/reference/release.1.4.0.html#deprecated-features>`_.
+
 2.3.6
 ------
 * Revert changes in 2.3.5, they led to numerical errors. Users will have to re-scale preferences when optimizations hits upper bound on parameter.

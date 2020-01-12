@@ -11,6 +11,7 @@ import copy
 import warnings
 warnings.simplefilter('always')
 warnings.simplefilter('ignore', ImportWarning)
+import numpy
 import scipy
 import scipy.optimize
 import Bio.Phylo
@@ -228,7 +229,7 @@ class TreeLikelihood(object):
         self.nnodes = self.ntips + self.ninternal
         self.rdescend = [-1] * self.ninternal
         self.ldescend = [-1] * self.ninternal
-        self.underflowlogscale = scipy.zeros(self.nsites, dtype='float')
+        self.underflowlogscale = numpy.zeros(self.nsites, dtype='float')
         if self._distributionmodel:
             self._Lshape = (self.model.ncats, self.nsites, N_CODON)
         else:
@@ -258,10 +259,10 @@ class TreeLikelihood(object):
                             param, paramvalue))
         tipnodes = []
         internalnodes = []
-        self.tips = scipy.zeros((self.ntips, self.nsites), dtype='int')
+        self.tips = numpy.zeros((self.ntips, self.nsites), dtype='int')
         self.gaps = []
         self.descendants = []
-        self._t = scipy.full((self.nnodes - 1,), -1, dtype='float')
+        self._t = numpy.full((self.nnodes - 1,), -1, dtype='float')
         for node in self._tree.find_clades(order='postorder'):
             if node.is_terminal():
                 tipnodes.append(node)
@@ -285,7 +286,7 @@ class TreeLikelihood(object):
                     else:
                         raise ValueError("Bad codon {0} in {1}".format(codon,
                                 node.name))
-                self.gaps.append(scipy.array(nodegaps, dtype='int'))
+                self.gaps.append(numpy.array(nodegaps, dtype='int'))
             else:
                 assert n >= self.ntips, "n = {0}, ntips = {1}".format(
                         n, self.ntips)
@@ -300,7 +301,7 @@ class TreeLikelihood(object):
                 self.descendants.append([self.name_to_nodeindex[nx] for nx
                         in node.find_clades() if nx != node])
             self.name_to_nodeindex[node] = n
-        self.gaps = scipy.array(self.gaps)
+        self.gaps = numpy.array(self.gaps)
         assert len(self.gaps) == self.ntips
 
         # _index_to_param defines internal mapping of
@@ -402,7 +403,7 @@ class TreeLikelihood(object):
                           'Max magnitude in Jacobian is {4}.\n'
                           'Full optimization result:\n{5}\n'.format(
                           i, opttype, old, new,
-                          scipy.absolute(result.jac).max(), result))
+                          numpy.absolute(result.jac).max(), result))
 
         oldloglik = self.loglik
         converged = False
@@ -429,7 +430,7 @@ class TreeLikelihood(object):
                 summary.append(msg)
                 if result.success and (not (oldloglik - self.loglik > logliktol)):
                     paramsconverged = True
-                    jacmax = scipy.absolute(result.jac).max()
+                    jacmax = numpy.absolute(result.jac).max()
                     if (jacmax > 1000) and not (firstbrlenpass and optimize_brlen):
                         warnings.warn("Optimizer reports convergence, "
                                 "but max element in Jacobian is {0}\n"
@@ -452,9 +453,9 @@ class TreeLikelihood(object):
                         scipy.random.seed(nparamstry)
                         # seed at geometric mean of original value, max
                         # bound, min bound, and random number between max and min
-                        minarray = scipy.array([self.paramsarraybounds[j][0] for
+                        minarray = numpy.array([self.paramsarraybounds[j][0] for
                                 j in range(len(self.paramsarray))])
-                        maxarray = scipy.array([self.paramsarraybounds[j][1] for
+                        maxarray = numpy.array([self.paramsarraybounds[j][1] for
                                 j in range(len(self.paramsarray))])
                         randarray = scipy.random.uniform(minarray, maxarray)
                         newarray = (minarray * maxarray * randarray *
@@ -576,7 +577,7 @@ class TreeLikelihood(object):
                 raise ValueError("Invalid param type")
         for (param, paramd) in vectorized_params.items():
             assert set(paramd.keys()) == set(range(len(paramd)))
-            newvalues[param] = scipy.array([paramd[i] for i in range(len(paramd))],
+            newvalues[param] = numpy.array([paramd[i] for i in range(len(paramd))],
                     dtype='float')
         self.updateParams(newvalues)
         self._paramsarray = self.paramsarray
@@ -682,7 +683,7 @@ class TreeLikelihood(object):
         if self._distributionmodel:
             catweights = self.model.catweights
         else:
-            catweights = scipy.ones(1, dtype='float')
+            catweights = numpy.ones(1, dtype='float')
         # When there are multiple categories, it is acceptable
         # for some (but not all) of them to have underflow at
         # any given site. Note that we still include a check for
@@ -693,15 +694,15 @@ class TreeLikelihood(object):
                 divide='raise', invalid='raise'):
             self.underflowlogscale.fill(0.0)
             self._computePartialLikelihoods()
-            sitelik = scipy.zeros(self.nsites, dtype='float')
+            sitelik = numpy.zeros(self.nsites, dtype='float')
             assert (self.L[rootnode] >= 0).all(), str(self.L[rootnode])
             for k in self._catindices:
-                sitelik += scipy.sum(self._stationarystate(k) *
+                sitelik += numpy.sum(self._stationarystate(k) *
                         self.L[rootnode][k], axis=1) * catweights[k]
             assert (sitelik > 0).all(), "Underflow:\n{0}\n{1}".format(
                     sitelik, self.underflowlogscale)
-            self.siteloglik = scipy.log(sitelik) + self.underflowlogscale
-            self.loglik = scipy.sum(self.siteloglik) + self.model.logprior
+            self.siteloglik = numpy.log(sitelik) + self.underflowlogscale
+            self.loglik = numpy.sum(self.siteloglik) + self.model.logprior
             if self.dparamscurrent:
                 self._dloglik = {}
                 for param in self.model.freeparams:
@@ -715,17 +716,17 @@ class TreeLikelihood(object):
                         weighted_dk = catweights
                     dsiteloglik = 0
                     for k in self._catindices:
-                        dsiteloglik += (scipy.sum(
+                        dsiteloglik += (numpy.sum(
                                 self._dstationarystate(k, name) *
                                 self.L[rootnode][k] + self.dL[name][rootnode][k] *
                                 self._stationarystate(k), axis=-1) *
                                 weighted_dk[k])
                     dsiteloglik /= sitelik
-                    self._dloglik[param] = (scipy.sum(dsiteloglik, axis=-1)
+                    self._dloglik[param] = (numpy.sum(dsiteloglik, axis=-1)
                             + self.model.dlogprior(param))
             if self.dtcurrent:
                 self._dloglik_dt = 0
-                dLnroot_dt = scipy.array([self.dL_dt[n2][rootnode] for
+                dLnroot_dt = numpy.array([self.dL_dt[n2][rootnode] for
                         n2 in sorted(self.dL_dt.keys())])
                 for k in self._catindices:
                     if isinstance(k, int):
@@ -733,11 +734,11 @@ class TreeLikelihood(object):
                     else:
                         assert k == slice(None)
                         dLnrootk_dt = dLnroot_dt
-                    self._dloglik_dt += catweights[k] * scipy.sum(
+                    self._dloglik_dt += catweights[k] * numpy.sum(
                             self._stationarystate(k) *
                             dLnrootk_dt, axis=-1)
                 self._dloglik_dt /= sitelik
-                self._dloglik_dt = scipy.sum(self._dloglik_dt, axis=-1)
+                self._dloglik_dt = numpy.sum(self._dloglik_dt, axis=-1)
                 assert self._dloglik_dt.shape == self.t.shape
 
     def _M(self, k, t, tips=None, gaps=None):
@@ -809,7 +810,7 @@ class TreeLikelihood(object):
                             dtype='float')
             if self.dtcurrent:
                 for n2 in self.dL_dt.keys():
-                    self.dL_dt[n2][n] = scipy.zeros(self._Lshape, dtype='float')
+                    self.dL_dt[n2][n] = numpy.zeros(self._Lshape, dtype='float')
             for k in self._catindices:
                 if istipr:
                     Mright = MLright = self._M(k, tright,
@@ -881,10 +882,10 @@ class TreeLikelihood(object):
 
             if ni > 0 and ni % self.underflowfreq == 0:
                 # rescale by same amount for each category k
-                scale = scipy.amax(scipy.array([scipy.amax(self.L[n][k],
+                scale = numpy.amax(numpy.array([numpy.amax(self.L[n][k],
                         axis=1) for k in self._catindices]), axis=0)
                 assert scale.shape == (self.nsites,)
-                self.underflowlogscale += scipy.log(scale)
+                self.underflowlogscale += numpy.log(scale)
                 for k in self._catindices:
                     self.L[n][k] /= scale[:, scipy.newaxis]
                     if self.dtcurrent:

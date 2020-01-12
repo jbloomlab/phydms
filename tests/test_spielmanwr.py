@@ -5,6 +5,7 @@ Written by Jesse Bloom and Sarah Hilton."""
 
 import random
 import unittest
+import numpy
 import scipy
 from phydmslib.constants import *
 import phydmslib.models
@@ -53,9 +54,9 @@ class testExpCM_spielmanwr(unittest.TestCase):
                         numerator += prx * Prxy
                         denominator += prx * Qxy
             wr.append(numerator/denominator)
-        wr = scipy.array(wr)
-        self.assertTrue(scipy.allclose(wr, scipy.array(self.model.spielman_wr(norm=False)), rtol=0.01))
-        self.assertTrue(scipy.allclose(wr/self.model.omega, scipy.array(self.model.spielman_wr()), rtol=0.01))
+        wr = numpy.array(wr)
+        self.assertTrue(numpy.allclose(wr, numpy.array(self.model.spielman_wr(norm=False)), rtol=0.01))
+        self.assertTrue(numpy.allclose(wr/self.model.omega, numpy.array(self.model.spielman_wr()), rtol=0.01))
 
 
 class test_empirical_phi_spielmanwr(testExpCM_spielmanwr):
