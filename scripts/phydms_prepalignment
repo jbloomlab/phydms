@@ -39,6 +39,11 @@ def MAFFT_CDSandProtAlignments(headseqprots, mafftcmd, tempfileprefix):
     *headseqprots* except coding and protein sequences are aligned.
     The sequence order is preserved in this list.
     """
+    # mafft shortens sequence names to the first 253 characters
+    headseqprots = [(head[:254], seq, prot) for (head, seq, prot) in headseqprots]
+    headseqprotsnames = [head for head, seq, prot in headseqprots]
+    assert len(headseqprotsnames) == len(set(headseqprotsnames)), "The first 253 characters of each sequence name must be unique."
+
     seq_d = dict([(head, seq) for (head, seq, prot) in headseqprots])
     prot_d = dict([(head, prot) for (head, seq, prot) in headseqprots])
 
@@ -55,8 +60,8 @@ def MAFFT_CDSandProtAlignments(headseqprots, mafftcmd, tempfileprefix):
 
     with open(alignedprotsfile,'w') as stdout, open(outputfile, 'w') as stderr:
         subprocess.check_call(
-                [mafftcmd, '--auto', '--thread', '-1', unalignedprotsfile], 
-                stdout=stdout, 
+                [mafftcmd, '--auto', '--thread', '-1', unalignedprotsfile],
+                stdout=stdout,
                 stderr=stderr,
                 )
 
@@ -329,7 +334,7 @@ def main():
     points = []
     labels = []
     for (label, idents, color, marker, alpha) in [
-            ('purged', purged_idents, 'b', 'o', 0.25), 
+            ('purged', purged_idents, 'b', 'o', 0.25),
             ('retained', retained_idents, 'r', 'd', 0.5)
             ]:
         pt = plt.scatter(
