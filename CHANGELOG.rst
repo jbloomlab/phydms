@@ -1,5 +1,8 @@
 Changelog
 ===========
+2.3.8
+------
+* Fixed bug in `phydms_prepalignment` due to `mafft` shortening sequence names.
 
 2.3.7
 ------
