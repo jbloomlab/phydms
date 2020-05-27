@@ -602,7 +602,7 @@ def main():
             df['pr(positive_selection)'] = df[target_omegas].sum(axis=1)
             df.insert(0, 'site', range(1, model.nsites + 1))
 
-            # output stuff
+            # output files
             relomega = (pd.melt(df.drop(columns='pr(positive_selection)'),
                                 id_vars=['site'], var_name='omega_value',
                                 value_name='post_probability')
