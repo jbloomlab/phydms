@@ -31,10 +31,10 @@ class test_DiffPrefsBySiteExpCM(unittest.TestCase):
         self.tree = os.path.abspath(os.path.join(os.path.dirname(__file__),
                 './NP_data/NP_tree_short.newick'))
         self.prefs = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                './NP_data/NP_prefs_shorter.csv'))
+                './NP_data/NP_prefs_5.csv'))
         prefs = phydmslib.file_io.readPrefs(self.prefs, minpref=0.005)
         aas = [INDEX_TO_AA[a] for a in range(N_AA)]
-        self.shuffledsites = random.sample(sorted(prefs.keys()), 10)
+        self.shuffledsites = random.sample(sorted(prefs.keys()), 2)
         self.targetaas = dict([(r, random.choice(aas)) for r in self.shuffledsites])
         prefs = [prefs[r] for r in sorted(list(prefs.keys()))]
         hipref = 0.9

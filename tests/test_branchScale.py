@@ -38,7 +38,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
         random.seed(1)
 
         # define model, only free parameter is mu for testing simulations
-        nsites = 50
+        nsites = 10
         prefs = []
         minpref = 0.01
         for r in range(nsites):
@@ -62,7 +62,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
                     freeparams=['mu'])
             partitions = phydmslib.simulate.pyvolvePartitions(model)
         elif self.MODEL == phydmslib.models.YNGKP_M0:
-            e_pw = scipy.asarray([scipy.random.dirichlet([7] * N_NT) for i 
+            e_pw = scipy.asarray([scipy.random.dirichlet([7] * N_NT) for i
                     in range(3)])
             model = phydmslib.models.YNGKP_M0(e_pw, nsites)
             partitions = phydmslib.simulate.pyvolvePartitions(model)
@@ -80,7 +80,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
         os.remove(temptree)
 
         # Simulate evolution of two sequences separated by a long branch.
-        # Then estimate subs per site in a heuristic way that will be 
+        # Then estimate subs per site in a heuristic way that will be
         # roughly correct for short branches. Do this all several times
         # and average results to get better accuracy.
         alignment = '_temp_branchScale_simulatedalignment.fasta'

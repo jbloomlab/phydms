@@ -34,7 +34,7 @@ class test_simulateAlignmentRandomSeed_ExpCM(unittest.TestCase):
     def setUp(self):
         """Set up parameters for test."""
         # define model
-        self.nsites = 100
+        self.nsites = 5
         prefs = []
         minpref = 0.01
         for r in range(self.nsites):

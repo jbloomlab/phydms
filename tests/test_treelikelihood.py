@@ -49,7 +49,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
 
         # simulate alignment with pyvolve
         pyvolvetree = pyvolve.read_tree(tree=self.newick)
-        self.nsites = 60
+        self.nsites = 20
         self.nseqs = self.tree.count_terminals()
         e_pw = scipy.ndarray((3, N_NT), dtype='float')
         e_pw.fill(0.25)
@@ -165,7 +165,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         """Tests likelihood."""
         random.seed(1)
         scipy.random.seed(1)
-        
+
         if self.DISTRIBUTIONMODEL:
             return # test doesn't work for DistributionModel
         mus = [0.5, 1.5]
@@ -212,7 +212,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         """Test derivatives of with respect to model params."""
         random.seed(1)
         scipy.random.seed(1)
-        
+
         tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model)
 
@@ -244,7 +244,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         Make sure it gives the same value for several starting points."""
         random.seed(1)
         scipy.random.seed(1)
-        
+
         tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model)
 

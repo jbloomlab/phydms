@@ -37,7 +37,7 @@ class test_simulateAlignmentReplicate_ExpCM(unittest.TestCase):
         random.seed(1)
 
         # define model
-        nsites = 20
+        nsites = 5
         prefs = []
         minpref = 0.01
         for r in range(nsites):

@@ -35,7 +35,7 @@ class test_BrLenOptimize_ExpCM(unittest.TestCase):
 
         self.underflowfreq = 1
 
-        # define tree 
+        # define tree
         self.newick = ('((node1:0.2,node2:0.3)node4:0.3,node3:0.5)node5:0.04;')
         tempfile = '_temp.tree'
         with open(tempfile, 'w') as f:
@@ -44,7 +44,7 @@ class test_BrLenOptimize_ExpCM(unittest.TestCase):
         os.remove(tempfile)
 
         # amino-acid preferences
-        self.nsites = 50
+        self.nsites = 5
         prefs = []
         minpref = 0.02
         g = scipy.random.dirichlet([5] * N_NT)
@@ -78,7 +78,7 @@ class test_BrLenOptimize_ExpCM(unittest.TestCase):
             raise ValueError("Invalid MODEL: {0}".format(self.MODEL))
         if self.DISTRIBUTIONMODEL is None:
             pass
-        elif (self.DISTRIBUTIONMODEL == 
+        elif (self.DISTRIBUTIONMODEL ==
                 phydmslib.models.GammaDistributedOmegaModel):
             self.model = self.DISTRIBUTIONMODEL(self.model, ncats=4)
         else:
@@ -87,11 +87,11 @@ class test_BrLenOptimize_ExpCM(unittest.TestCase):
 
     def test_Optimize(self):
         """Tests optimization of branch lengths."""
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model, underflowfreq=self.underflowfreq)
         maxresult = tl.maximizeLikelihood(optimize_brlen=True)
 
-        tl2 = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+        tl2 = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model, underflowfreq=self.underflowfreq)
         maxresult = tl.maximizeLikelihood(optimize_brlen=False)
 

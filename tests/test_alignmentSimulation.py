@@ -33,7 +33,7 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         """Set up parameters for test."""
         scipy.random.seed(1)
         # define model
-        self.nsites = 1000
+        self.nsites = 350
         prefs = []
         minpref = 0.01
         for r in range(self.nsites):
