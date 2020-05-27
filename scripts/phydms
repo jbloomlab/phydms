@@ -18,6 +18,7 @@ import warnings
 warnings.simplefilter('always')
 warnings.simplefilter('ignore', ImportWarning)
 import pandas as pd
+import numpy
 import scipy
 import scipy.stats
 import statsmodels.sandbox.stats.multicomp
@@ -542,6 +543,7 @@ def main():
 
         # given a distribution of omega values, compute posterior probabilities
         if args['empirical_bayes']:
+            # set up models
             if isinstance(args['model'], str) and \
                yngkp_match.search(args['model']) and \
                modelvariant == 'M5':
@@ -560,53 +562,54 @@ def main():
             logger.info('Distribution of omega values will be integrated '
                         'with {0} discrete categories.'.format(
                             args['empirical_bayes']))
-            relomega = {'site': [], 'post_probability': [], 'omega_value': []}
-            omega_values = phydmslib.models.DiscreteGamma(
-                tl.model.alpha_lambda, tl.model.beta_lambda,
-                args['empirical_bayes'])
-            assert len(omega_values) == args['empirical_bayes']
+            omegas = phydmslib.models.DiscreteGamma(tl.model.alpha_lambda,
+                                                    tl.model.beta_lambda,
+                                                    args['empirical_bayes'])
+            assert len(omegas) == args['empirical_bayes']
             logger.info('Constructing a substitution model for each '
                         'discrete category.')
             # For each omega value, list of likelihoods by site
-            likelihoods = []
-            for omega_value in omega_values:
-                omega_value = min(100.0, omega_value)
-                omega_value = max(1.0e-5, omega_value)
-                model.updateParams({'omega': omega_value})
-                assert model.omega == omega_value
+            df = {}
+            for omega in omegas:
+                # omega must be within the correct range
+                omega = max(min(model.PARAMLIMITS['omega'][1], omega),
+                            model.PARAMLIMITS['omega'][0])
+                model.updateParams({'omega': omega})
+                assert model.omega == omega
                 # log likelihood by site
-                log_likelihood = phydmslib.treelikelihood.TreeLikelihood(
-                    tree, alignment, model).siteloglik
-                assert len(log_likelihood) == model.nsites
+                treeliks = (phydmslib.treelikelihood.TreeLikelihood(tree,
+                                                                    alignment,
+                                                                    model)
+                            .siteloglik)
+                assert len(treeliks) == model.nsites
                 # likelihood by site
-                likelihood = [math.exp(num) for num in log_likelihood]
-                relomega['site'].extend(range(1, model.nsites + 1))
-                relomega['omega_value'].extend([omega_value] * model.nsites)
-                likelihoods.append(likelihood)
-            num_sig_cat = sum(i > 1 for i in omega_values)
+                treeliks = numpy.exp(treeliks)
+                # if an omega value is repeated, sum likelihoods
+                df[omega] = (treeliks if omega not in df.keys()
+                             else df[omega] + treeliks)
+            df = pd.DataFrame(df)
             logger.info('There are {0} category(ies) whose omega value is '
-                        'greater than one.'.format(str(num_sig_cat)))
+                        'greater than one.'
+                        .format(str(sum(i > 1 for i in omegas))))
             logger.info('Computing posterior probabilities of positive '
                         'selection for each site.')
             # posterior_k = likelihood_k / sum(likelihoods), all by site
-            posterior_probabilities = \
-                scipy.divide(likelihoods, scipy.sum(likelihoods, axis=0))
+            df = df.div(df.sum(axis=1), axis=0)
             # Sum of posterior probabilities for each site must be 1
-            assert scipy.allclose(
-                scipy.sum(posterior_probabilities, axis=0),
-                [1] * model.nsites)
-            relomega['post_probability'] = posterior_probabilities.ravel()
-            relomega = pd.DataFrame(relomega)
-            relprobability = {'site': [], 'pr(positive_selection)': []}
-            for name, group in relomega.groupby('site'):
-                relprobability['site'].append(name)
-                relprobability['pr(positive_selection)'].append(
-                    group[group.omega_value >= 1]['post_probability'].sum())
-            relprobability = pd.DataFrame(relprobability)
-            relprobability = relprobability.sort_values(
-                by='pr(positive_selection)', ascending=False)
-            relomega.to_csv(relomegafile, index=False)
-            relprobability.to_csv(relprobabilityfile, index=False)
+            assert numpy.allclose(df.sum(axis=1), 1)
+            # probability of omega greater than 1
+            df['pr(positive_selection)'] = df[df >= 1].sum(axis=1)
+            df.insert(0, 'site', range(1, model.nsites + 1))
+
+            # output stuff
+            relomega = (pd.melt(df.drop(columns='pr(positive_selection)'),
+                                id_vars=['site'], var_name='omega_value',
+                                value_name='post_probability')
+                        .to_csv(relomegafile, index=False))
+            relprobability = (df[['site', 'pr(positive_selection)']]
+                              .sort_values(by='pr(positive_selection)',
+                                           ascending=False)
+                              .to_csv(relprobabilityfile, index=False))
 
     except:
         logger.exception('Terminating {0} at {1} with ERROR'.format(prog, time.asctime()))
