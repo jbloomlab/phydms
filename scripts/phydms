@@ -598,7 +598,8 @@ def main():
             # Sum of posterior probabilities for each site must be 1
             assert numpy.allclose(df.sum(axis=1), 1)
             # probability of omega greater than 1
-            df['pr(positive_selection)'] = df[df >= 1].sum(axis=1)
+            target_omegas = [x for x in df.columns.values if x > 1]
+            df['pr(positive_selection)'] = df[target_omegas].sum(axis=1)
             df.insert(0, 'site', range(1, model.nsites + 1))
 
             # output stuff
