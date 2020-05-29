@@ -22,12 +22,11 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
     def setUp(self):
         self.tree = os.path.abspath(os.path.join(os.path.dirname(__file__),
                 './NP_data/NP_tree_short.newick'))
-        self.alignment = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                './NP_data/NP_alignment_short.fasta'))
-        self.prefs = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                './NP_data/NP_prefs_short.csv'))
-        self.nsites = len(phydmslib.file_io.ReadCodonAlignment(self.alignment,
-                True)[0][1]) // 3
+        self.prefsfname = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                './NP_data/NP_prefs_shorter.csv'))
+        self.prefs = phydmslib.file_io.readPrefs(self.prefsfname, minpref=0.005)
+        self.prefs = [self.prefs[r] for r in sorted(list(self.prefs.keys()))]
+        self.nsites = len(self.prefs)
         self.initializeModel()
         self.outdir = os.path.abspath(os.path.join(os.path.dirname(__file__),
                 './omegabysite_test_results/'))
@@ -35,13 +34,11 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
             os.mkdir(self.outdir)
 
     def initializeModel(self):
-        prefs = phydmslib.file_io.readPrefs(self.prefs, minpref=0.005)
-        prefs = [prefs[r] for r in sorted(list(prefs.keys()))]
         # Using beta < 1 partially flattens prefs in simulation
         # Use mu < 1 to get branch lengths about right
-        self.model = phydmslib.models.ExpCM(prefs, beta=0.5, mu=0.5)
+        self.model = phydmslib.models.ExpCM(self.prefs, beta=0.5, mu=0.5)
         self.modelname = 'ExpCM'
-        self.modelarg = 'ExpCM_{0}'.format(self.prefs)
+        self.modelarg = 'ExpCM_{0}'.format(self.prefsfname)
 
     def test_OnSimulatedData(self):
         random.seed(1)

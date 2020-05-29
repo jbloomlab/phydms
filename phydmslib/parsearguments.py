@@ -320,12 +320,21 @@ def PhyDMSComprehensiveParser():
     parser.add_argument('--gammabeta', dest='gammabeta', action=\
             'store_true', help="Fit ExpCM with gamma distributed beta.")
     parser.set_defaults(noavgprefs=False)
+    parser.add_argument('--ncats', default=4, type=IntGreaterThanOne,
+            help='Number of categories for gamma-distribution.')
+    parser.add_argument('--minbrlen', type=FloatGreaterThanZero,
+            default=phydmslib.constants.ALMOST_ZERO,
+            help="Adjust all branch lengths in starting 'tree' to >= this.")
     parser.add_argument('--no-avgprefs', dest='noavgprefs', action='store_true',
             help="No fitting of models with preferences averaged across sites "
             "for ExpCM.")
     parser.set_defaults(randprefs=False)
     parser.add_argument('--randprefs', dest='randprefs', action='store_true',
             help="Include ExpCM models with randomized preferences.")
+    parser.add_argument('--empirical_bayes', default=False,
+            type=IntGreaterThanOne, dest='empirical_bayes', help='The number '
+            'of categories used for the integration of a discretized omega '
+            'distribution.')
     parser.add_argument('-v', '--version', action='version', version=
             '%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
@@ -414,6 +423,9 @@ def PhyDMSParser():
     parser.set_defaults(nograd=False)
     parser.add_argument('--nograd', dest='nograd', action='store_true',
             help="Do not use gradients for likelihood maximization.")
+    parser.add_argument('--empirical_bayes', default=False,
+            type=IntGreaterThanOne, help='The number of categories used '
+            'for the integration of a discretized omega distribution.')
     parser.add_argument('-v', '--version', action='version', version=(
             ('%(prog)s {version}'.format(version=phydmslib.__version__))))
     return parser
@@ -445,6 +457,35 @@ def PhyDMSTestdivpressureParser():
             '-1 means all available.', type=int)
     parser.add_argument('-v', '--version', action='version', version='%(prog)s '
             '{version}'.format(version=phydmslib.__version__))
+    return parser
+
+
+def PhyDMSAdequacyParser():
+    """Returns *argparse.ArgumentParser* for ``phdyms_adequacy`` script."""
+    parser = ArgumentParserNoArgHelp(description=("Model adequacy test."
+            "{0} Version {1}. Full documentation at {2}").format(
+            phydmslib.__acknowledgments__, phydmslib.__version__,
+            phydmslib.__url__),
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('outprefix', help='Output file prefix.', type=str)
+    parser.add_argument('alignment', help='Existing FASTA file with aligned '
+            'codon sequences.', type=ExistingFile)
+    parser.add_argument('model', type=ModelOption,
+            help=("Substitution model: ExpCM_<prefsfile> or YNGKP_0 ."
+            "For ExpCM, <prefsfile> has first column labeled 'site' and "
+            "others labeled by 1-letter  amino-acid code."))
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--raxml', help="Path to RAxML (e.g., 'raxml')")
+    group.add_argument('--tree', type=ExistingFile,
+             help="Existing Newick file giving input tree.")
+    parser.add_argument("--number_simulations", default=10000, type=int,
+                        help="Number of replicate simulations")
+    parser.add_argument('--seed', default=0, help='Use this random seed'
+                        ' for the simulations', type=int)
+    parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; -1 '
+            'means all available.', type=int)
+    parser.add_argument('-v', '--version', action='version', version=
+            '%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
 
 

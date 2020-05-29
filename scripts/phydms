@@ -17,6 +17,7 @@ import multiprocessing
 import warnings
 warnings.simplefilter('always')
 warnings.simplefilter('ignore', ImportWarning)
+import pandas as pd
 import numpy
 import scipy
 import scipy.stats
@@ -130,7 +131,7 @@ def fitOmegaBySite(argtup):
     `argtup` is return value of `treeliksForOmegaBySite`.
 
     Returns tuple `(pval, omega, resultstr)` where `pval` is P-value,
-    `omega` is omega, and `resultstr` is tab-separated line with 
+    `omega` is omega, and `resultstr` is tab-separated line with
     site, omega, P, dLnL.
     """
     (site, treeliks, nograd) = argtup
@@ -179,8 +180,10 @@ def main():
     treefile = '{0}{1}tree.newick'.format(args['outprefix'], underscore)
     omegafile = '{0}{1}omegabysite.txt'.format(args['outprefix'], underscore)
     diffprefsfile = '{0}{1}diffprefsbysite.txt'.format(args['outprefix'], underscore)
+    relomegafile = '{0}{1}omegabycategory.csv'.format(args['outprefix'], underscore)
+    relprobabilityfile = '{0}{1}posteriorprobabilities.csv'.format(args['outprefix'], underscore)
     to_remove = [modelparamsfile, loglikelihoodfile, treefile, omegafile,
-            logfile, diffprefsfile]
+            logfile, diffprefsfile, relomegafile, relprobabilityfile]
     for f in to_remove:
         if os.path.isfile(f):
             os.remove(f)
@@ -537,6 +540,77 @@ def main():
                         for a in range(N_AA)]) + '\thalf_sum_abs_dpi\n')
                 f.write('\n'.join([tup[1] for tup in sorted(diffprefresults,
                         reverse=True)]))
+
+        # given a distribution of omega values, compute posterior probabilities
+        if args['empirical_bayes']:
+            # set up models
+            if isinstance(args['model'], str) and \
+               yngkp_match.search(args['model']) and \
+               modelvariant == 'M5':
+                # Reconstruct YNGKP_M5 with fit model parameters
+                model = phydmslib.models.YNGKP_M0(
+                    e_pw, nsites=tl.model.nsites, kappa=tl.model.kappa,
+                    freeparams=['mu', 'omega', 'kappa'])
+            elif args['model'][0] == 'ExpCM' and args['gammaomega']:
+                # Reconstruct ExpCM with fit model parameters
+                model = phydmslib.models.ExpCM_empirical_phi(
+                    prefslist, g, kappa=tl.model.kappa, beta=tl.model.beta,
+                    freeparams=['mu', 'omega'])
+            else:
+                raise ValueError('Empirical bayes integration requires a '
+                                 'distribution of omega values.')
+            logger.info('Distribution of omega values will be integrated '
+                        'with {0} discrete categories.'.format(
+                            args['empirical_bayes']))
+            omegas = phydmslib.models.DiscreteGamma(tl.model.alpha_lambda,
+                                                    tl.model.beta_lambda,
+                                                    args['empirical_bayes'])
+            assert len(omegas) == args['empirical_bayes']
+            logger.info('Constructing a substitution model for each '
+                        'discrete category.')
+            # For each omega value, list of likelihoods by site
+            df = {}
+            for omega in omegas:
+                # omega must be within the correct range
+                omega = max(min(model.PARAMLIMITS['omega'][1], omega),
+                            model.PARAMLIMITS['omega'][0])
+                model.updateParams({'omega': omega})
+                assert model.omega == omega
+                # log likelihood by site
+                treeliks = (phydmslib.treelikelihood.TreeLikelihood(tree,
+                                                                    alignment,
+                                                                    model)
+                            .siteloglik)
+                assert len(treeliks) == model.nsites
+                # likelihood by site
+                treeliks = numpy.exp(treeliks)
+                # if an omega value is repeated, sum likelihoods
+                df[omega] = (treeliks if omega not in df.keys()
+                             else df[omega] + treeliks)
+            df = pd.DataFrame(df)
+            logger.info('There are {0} category(ies) whose omega value is '
+                        'greater than one.'
+                        .format(str(sum(i > 1 for i in omegas))))
+            logger.info('Computing posterior probabilities of positive '
+                        'selection for each site.')
+            # posterior_k = likelihood_k / sum(likelihoods), all by site
+            df = df.div(df.sum(axis=1), axis=0)
+            # Sum of posterior probabilities for each site must be 1
+            assert numpy.allclose(df.sum(axis=1), 1)
+            # probability of omega greater than 1
+            target_omegas = [x for x in df.columns.values if x > 1]
+            df['pr(positive_selection)'] = df[target_omegas].sum(axis=1)
+            df.insert(0, 'site', range(1, model.nsites + 1))
+
+            # output files
+            relomega = (pd.melt(df.drop(columns='pr(positive_selection)'),
+                                id_vars=['site'], var_name='omega_value',
+                                value_name='post_probability')
+                        .to_csv(relomegafile, index=False))
+            relprobability = (df[['site', 'pr(positive_selection)']]
+                              .sort_values(by='pr(positive_selection)',
+                                           ascending=False)
+                              .to_csv(relprobabilityfile, index=False))
 
     except:
         logger.exception('Terminating {0} at {1} with ERROR'.format(prog, time.asctime()))

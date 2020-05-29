@@ -63,7 +63,7 @@ def extensions():
             Extension('phydmslib.numutils', ['phydmslib/numutils.pyx'],
                     include_dirs=[numpy.get_include()],
                     extra_compile_args=['-Wno-unused-function']),
-          ]      
+          ]
     return cythonize(ext)
 
 # main setup command
@@ -107,5 +107,6 @@ setup(
             'scripts/phydms_prepalignment',
             'scripts/phydms_logoplot',
             'scripts/phydms_divpressure',
+            'scripts/phydms_modeladequacy',
             ],
 )
