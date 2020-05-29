@@ -107,6 +107,5 @@ setup(
             'scripts/phydms_prepalignment',
             'scripts/phydms_logoplot',
             'scripts/phydms_divpressure',
-            'scripts/phydms_modeladequacy',
             ],
 )

@@ -460,35 +460,6 @@ def PhyDMSTestdivpressureParser():
     return parser
 
 
-def PhyDMSAdequacyParser():
-    """Returns *argparse.ArgumentParser* for ``phdyms_adequacy`` script."""
-    parser = ArgumentParserNoArgHelp(description=("Model adequacy test."
-            "{0} Version {1}. Full documentation at {2}").format(
-            phydmslib.__acknowledgments__, phydmslib.__version__,
-            phydmslib.__url__),
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('outprefix', help='Output file prefix.', type=str)
-    parser.add_argument('alignment', help='Existing FASTA file with aligned '
-            'codon sequences.', type=ExistingFile)
-    parser.add_argument('model', type=ModelOption,
-            help=("Substitution model: ExpCM_<prefsfile> or YNGKP_0 ."
-            "For ExpCM, <prefsfile> has first column labeled 'site' and "
-            "others labeled by 1-letter  amino-acid code."))
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--raxml', help="Path to RAxML (e.g., 'raxml')")
-    group.add_argument('--tree', type=ExistingFile,
-             help="Existing Newick file giving input tree.")
-    parser.add_argument("--number_simulations", default=10000, type=int,
-                        help="Number of replicate simulations")
-    parser.add_argument('--seed', default=0, help='Use this random seed'
-                        ' for the simulations', type=int)
-    parser.add_argument('--ncpus', default=-1, help='Use this many CPUs; -1 '
-            'means all available.', type=int)
-    parser.add_argument('-v', '--version', action='version', version=
-            '%(prog)s {version}'.format(version=phydmslib.__version__))
-    return parser
-
-
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

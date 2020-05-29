@@ -18,7 +18,6 @@ import phydmslib.models
 import phydmslib.treelikelihood
 import phydmslib.simulate
 from phydmslib.constants import *
-from phydmslib.modeladequacy import *
 from phydmslib.file_io import ReadCodonAlignment
 import Bio.SeqIO
 import Bio.Phylo
