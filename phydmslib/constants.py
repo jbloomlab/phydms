@@ -45,7 +45,8 @@ Constants defined:
     `CODON_NT_COUNT` (`numpy.ndarray` of int, shape `(N_NT, N_CODON)`)
         Element `[w][x]` gives the number of occurrences of nucleotide
         `w` in codon `x`.
-    `STOP_CODON_TO_NT_INDICES` (`numpy.ndarray` of float, shape `(N_STOP, 3, N_NT)`)
+    `STOP_CODON_TO_NT_INDICES`
+        (`numpy.ndarray` of float, shape `(N_STOP, 3, N_NT)`)
         Element `[x][p][w]` is 1.0 if codon position `p` is nucleotide `w`
         in stop codon `x` and 0.0 otherwise.
     `STOP_POSITIONS` (`numpy.ndarray` of float, shape `(3, N_NT)`)
@@ -73,7 +74,7 @@ assert len(INDEX_TO_AA) == len(AA_TO_INDEX) == N_AA
 
 N_STOP = 0
 STOP_CODON_TO_NT_INDICES = []
-STOP_POSITIONS = numpy.ones((3, N_NT), dtype = 'float')
+STOP_POSITIONS = numpy.ones((3, N_NT), dtype='float')
 CODON_TO_INDEX = {}
 INDEX_TO_CODON = {}
 CODON_TO_AA = []
@@ -90,7 +91,7 @@ for nt1 in sorted(NT_TO_INDEX.keys()):
                 i += 1
             else:
                 STOP_CODON_TO_NT_INDICES.append(numpy.zeros((3, N_NT),
-                        dtype='float'))
+                                                dtype='float'))
                 STOP_CODON_TO_NT_INDICES[-1][0][NT_TO_INDEX[nt1]] = 1.0
                 STOP_CODON_TO_NT_INDICES[-1][1][NT_TO_INDEX[nt2]] = 1.0
                 STOP_CODON_TO_NT_INDICES[-1][2][NT_TO_INDEX[nt3]] = 1.0
@@ -103,7 +104,8 @@ STOP_CODON_TO_NT_INDICES = numpy.asarray(STOP_CODON_TO_NT_INDICES)
 
 N_CODON = len(CODON_TO_INDEX)
 CODON_TO_AA = numpy.array(CODON_TO_AA, dtype='int')
-assert len(CODON_TO_INDEX) == len(INDEX_TO_CODON) == len(CODON_TO_AA) == N_CODON
+assert len(CODON_TO_INDEX) == len(INDEX_TO_CODON)\
+        == len(CODON_TO_AA) == N_CODON
 
 PURINES = frozenset(['A', 'G'])
 PYRIMIDINES = frozenset(['C', 'T'])
@@ -126,7 +128,8 @@ for (x, codonx) in INDEX_TO_CODON.items():
     for (y, codony) in INDEX_TO_CODON.items():
         if CODON_TO_AA[x] != CODON_TO_AA[y]:
             CODON_NONSYN[x][y] = True
-        diffs = [(ntx, nty) for (ntx, nty) in zip(codonx, codony) if ntx != nty]
+        diffs = [(ntx, nty) for (ntx, nty) in zip(codonx, codony)
+                 if ntx != nty]
         if len(diffs) == 1:
             (ntx, nty) = diffs[0]
             CODON_SINGLEMUT[x][y] = True
