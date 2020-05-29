@@ -25,6 +25,7 @@ import pyvolve
 import itertools
 from scipy.special import comb
 from scipy.stats import entropy
+import pandas as pd
 
 
 class test_compare_ExpCM(unittest.TestCase):
@@ -123,7 +124,7 @@ class test_compare_ExpCM(unittest.TestCase):
         amino_acids.sort()
 
         site_entropy = [[] for x in range(self.nsites)]
-        temp = [calc_aa_frequencies(x)[amino_acids].values for x in a]
+        temp = [self.calc_aa_frequencies(x)[amino_acids].values for x in a]
         for sim in temp:
             for i, site in enumerate(sim):
                 site_entropy[i].append(entropy(site))
@@ -150,7 +151,7 @@ class test_compare_ExpCM(unittest.TestCase):
         amino_acids.sort()
 
         aa_freqs = [[] for x in range(self.nsites)]
-        temp = [calc_aa_frequencies(x)[amino_acids].values for x in a]
+        temp = [self.calc_aa_frequencies(x)[amino_acids].values for x in a]
         for sim in temp:
             for i, site in enumerate(sim):
                 aa_freqs[i].append(site)
@@ -176,6 +177,39 @@ class test_compare_ExpCM(unittest.TestCase):
             else:
                 new_seq.append(CODONSTR_TO_AASTR[codon])
         return("".join(new_seq))
+
+    def calc_aa_frequencies(self, alignment):
+        """Calculate amino-acid frequencies from a codon alignment."""
+        # Read in the alignnment
+        assert scipy.all(scipy.array([len(s[1]) % 3 for s in alignment]) == 0),\
+            "At least one sequence in the alignment is not a multiple of 3."
+        seqlength = len(alignment[0][1]) // 3
+        df = {k: [0 for x in range(seqlength)] for k in list(INDEX_TO_AA.values())}
+
+        # count amino acid frequencies
+        for seq in alignment:
+            for i in range(seqlength):
+                codon = seq[1][3 * i: 3 * i + 3]
+                if codon != '---':
+                    df[CODONSTR_TO_AASTR[codon]][i] += 1
+        df = pd.DataFrame(df)
+
+        # Normalize the dataframe
+        assert not scipy.any(df.sum(axis=1) == 0), ("Attempting to normalize a "
+                                                    "site by an amino acid count"
+                                                    " of zero. Does the alignment"
+                                                    " have an all gap column?")
+        df = df.div(df.sum(axis=1), axis=0)
+        assert scipy.allclose(df.sum(axis=1), 1, atol=0.005)
+
+        # Final formatting
+        aa = [x for x in INDEX_TO_AA.values()]
+        aa.sort()  # ABC order
+        final_cols = ["site"]
+        final_cols.extend(aa)
+        df["site"] = [x+1 for x in range(len(df))]
+        df = df[final_cols]
+        return df
 
 
 if __name__ == '__main__':
