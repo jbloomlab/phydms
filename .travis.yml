@@ -26,6 +26,7 @@ branches:
   only:
     - master
     - REL
+    - REL_merge
 
 notifications:
   email:
