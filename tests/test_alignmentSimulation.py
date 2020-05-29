@@ -7,7 +7,6 @@ Written by Sarah Hilton and Jesse Bloom.
 
 import os
 import sys
-import numpy
 import scipy
 import math
 import unittest
@@ -60,9 +59,9 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
                                                               mu=mu,
                                                               freeparams=['mu'])
         elif self.MODEL == phydmslib.models.YNGKP_M0:
-            e_pw = numpy.asarray([scipy.random.dirichlet([7] * N_NT) for i
-                    in range(3)])
-            model = phydmslib.models.YNGKP_M0(e_pw, nsites)
+            e_pw = scipy.asarray([scipy.random.dirichlet([7] * N_NT) for i
+                                  in range(3)])
+            self.model = phydmslib.models.YNGKP_M0(e_pw, self.nsites)
         else:
             raise ValueError("Invalid MODEL: {0}".format(type(self.MODEL)))
 
@@ -128,11 +127,12 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
 
         # We expect nsubs = t, but build in some tolerance
         # with rtol since we simulated finite number of sites.
-        self.assertTrue(numpy.allclose(nsubs, t, rtol=0.2),
-                ("Simulated subs per site of {0} is not close "
-                "to expected value of {1} (branchScale = {2}, t = {3})").format(
-                nsubs, t, model.branchScale, t))
-        self.assertTrue(numpy.allclose(treedist, nsubs, rtol=0.2), (
+        self.assertTrue(scipy.allclose(nsubs, self.t, rtol=0.2),
+                        ("Simulated subs per site of {0} is not close "
+                         "to expected value of {1} (branchScale = {2},"
+                         " t = {3})").format(
+                nsubs, self.t, self.model.branchScale, self.t))
+        self.assertTrue(scipy.allclose(treedist, nsubs, rtol=0.2), (
                 "Simulated subs per site of {0} is not close to inferred "
                 "branch length of {1}").format(nsubs, treedist))
 
