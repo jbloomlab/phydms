@@ -1,10 +1,9 @@
 """Utilities for ``phydmslib``."""
 
 
-import math
+import pandas
 import tempfile
 import numpy
-import pandas
 
 
 def modelComparisonDataFrame(modelcomparisonfile, splitparams):
@@ -28,10 +27,10 @@ def modelComparisonDataFrame(modelcomparisonfile, splitparams):
 
     >>> with tempfile.NamedTemporaryFile(mode='w') as f:
     ...     _ = f.write('\\n'.join([
-    ...         '| Model | deltaAIC | LogLikelihood | nParams | ParamValues  |',
-    ...         '|-------|----------|---------------|---------|--------------|',
-    ...         '| ExpCM | 0.00     | -1000.00      | 7       | x=1.0, y=2.0 |',
-    ...         '| YNGKP | 10.2     | -1005.10      | 7       | x=1.3, z=0.1 |',
+    ...        '| Model | deltaAIC | LogLikelihood | nParams | ParamValues  |',
+    ...        '|-------|----------|---------------|---------|--------------|',
+    ...        '| ExpCM | 0.00     | -1000.00      | 7       | x=1.0, y=2.0 |',
+    ...        '| YNGKP | 10.2     | -1005.10      | 7       | x=1.3, z=0.1 |',
     ...         ]))
     ...     f.flush()
     ...     df_split = modelComparisonDataFrame(f.name, splitparams=True)
