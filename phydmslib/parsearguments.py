@@ -59,7 +59,7 @@ def NonNegativeInt(n):
         raise ValueError('%r is not a string' % n)
     try:
         n = int(n)
-    except:
+    except ValueError:
         raise ValueError('%s is not an integer' % n)
     if n < 0:
         raise ValueError('%d is not non-negative' % n)
@@ -71,7 +71,7 @@ def IntGreaterThanZero(n):
     """If *n* is an integer > 0, returns it, otherwise an error."""
     try:
         n = int(n)
-    except:
+    except ValueError:
         raise ValueError("%s is not an integer" % n)
     if n <= 0:
         raise ValueError("%d is not > 0" % n)
@@ -83,7 +83,7 @@ def IntGreaterThanOne(n):
     """If *n* is an integer > 1, returns it, otherwise an error."""
     try:
         n = int(n)
-    except:
+    except ValueError:
         raise ValueError("%s is not an integer" % n)
     if n <= 1:
         raise ValueError("%d is not > 1" % n)
@@ -104,7 +104,7 @@ def FloatGreaterThanEqualToZero(x):
     """
     try:
         x = float(x)
-    except:
+    except ValueError:
         raise ValueError("%r not float greater than or equal to zero" % x)
     if x >= 0:
         return x
