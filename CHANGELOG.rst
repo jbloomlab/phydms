@@ -1,5 +1,10 @@
 Changelog
 ===========
+
+2.4.0
+------
+* Added REL method for detecting sites of positive selection.
+
 2.3.8
 ------
 * Fixed bug in `phydms_prepalignment` due to `mafft` shortening sequence names.
