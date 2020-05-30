@@ -7,8 +7,9 @@ import os
 import sys
 import math
 import phydmslib.models
-from phydmslib.constants import *
+from phydmslib.constants import (NT_TO_INDEX, AA_TO_INDEX, ALMOST_ZERO)
 import pyvolve
+import numpy
 from tempfile import mkstemp
 import random
 import Bio.Phylo
@@ -35,7 +36,6 @@ def pyvolvePartitions(model, divselection=None):
     """
     codons = pyvolve.genetics.Genetics().codons
     codon_dict = pyvolve.genetics.Genetics().codon_dict
-    pyrims = pyvolve.genetics.Genetics().pyrims
     purines = pyvolve.genetics.Genetics().purines
 
     if divselection:
@@ -59,14 +59,17 @@ def pyvolvePartitions(model, divselection=None):
                     (xaa, yaa) = (codon_dict[x], codon_dict[y])
                     fxy = 1.0
                     if xaa != yaa:
-                        if type(model) == phydmslib.models.ExpCM_empirical_phi_divpressure:
-                            fxy *= model.omega * (1 + model.omega2 * model.deltar[r])
+                        if type(model) ==\
+                         phydmslib.models.ExpCM_empirical_phi_divpressure:
+                            fxy *= (model.omega *
+                                    (1 + model.omega2 * model.deltar[r]))
                         elif r + 1 in divsites:
                             fxy *= divomega
                         else:
                             fxy *= model.omega
                     if type(model) in [phydmslib.models.ExpCM,
-                            phydmslib.models.ExpCM_empirical_phi, phydmslib.models.ExpCM_empirical_phi_divpressure]:
+                                       phydmslib.models.ExpCM_empirical_phi,
+                                       phydmslib.models.ExpCM_empirical_phi_divpressure]:
                         qxy *= model.phi[NT_TO_INDEX[ynt]]
                         pix = model.pi[r][AA_TO_INDEX[xaa]]**model.beta
                         piy = model.pi[r][AA_TO_INDEX[yaa]]**model.beta
@@ -81,17 +84,18 @@ def pyvolvePartitions(model, divselection=None):
                     matrix[xi][yi] = model.mu * qxy * fxy
             matrix[xi][xi] = -matrix[xi].sum()
 
-        # create model in way that captures annoying print statements in pyvolve
+        # create model in way that captures print statements from pyvolve
         old_stdout = sys.stdout
         sys.stdout = open(os.devnull, 'w')
         try:
-            m = pyvolve.Model("custom", {"matrix":matrix})
+            m = pyvolve.Model("custom", {"matrix": matrix})
         finally:
             sys.stdout.close()
             sys.stdout = old_stdout
         partitions.append(pyvolve.Partition(models=m, size=1))
 
     return partitions
+
 
 def simulateAlignment(model, treeFile, alignmentPrefix, randomSeed=False):
     """
@@ -115,15 +119,15 @@ def simulateAlignment(model, treeFile, alignmentPrefix, randomSeed=False):
     file with the name having the prefix giving by `alignmentPrefix`
     and the suffix `'_simulatedalignment.fasta'`.
     """
-    if randomSeed == False:
+    if randomSeed is False:
         pass
     else:
         random.seed(randomSeed)
 
-    #Transform the branch lengths by dividing by the model `branchScale`
+    # Transform the branch lengths by dividing by the model `branchScale`
     tree = Bio.Phylo.read(treeFile, 'newick')
     for node in tree.get_terminals() + tree.get_nonterminals():
-        if (node.branch_length == None) and (node == tree.root):
+        if (node.branch_length is None) and (node == tree.root):
             node.branch_length = 1e-06
         else:
             node.branch_length /= model.branchScale
@@ -133,17 +137,16 @@ def simulateAlignment(model, treeFile, alignmentPrefix, randomSeed=False):
     pyvolve_tree = pyvolve.read_tree(file=temp_path)
     os.remove(temp_path)
 
-
-    #Make the `pyvolve` partition
+    # Make the `pyvolve` partition
     partitions = pyvolvePartitions(model)
 
-    #Simulate the alignment
+    # Simulate the alignment
     alignment = '{0}_simulatedalignment.fasta'.format(alignmentPrefix)
     info = '_temp_{0}info.txt'.format(alignmentPrefix)
     rates = '_temp_{0}_ratefile.txt'.format(alignmentPrefix)
     evolver = pyvolve.Evolver(partitions=partitions, tree=pyvolve_tree)
     evolver(seqfile=alignment, infofile=info, ratefile=rates)
-    for f in [rates,info, "custom_matrix_frequencies.txt"]:
+    for f in [rates, info, "custom_matrix_frequencies.txt"]:
         if os.path.isfile(f):
             os.remove(f)
     assert os.path.isfile(alignment)
