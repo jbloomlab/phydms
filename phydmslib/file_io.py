@@ -4,6 +4,7 @@ Module for input / output from files.
 
 
 import sys
+import io
 import re
 import time
 import platform
