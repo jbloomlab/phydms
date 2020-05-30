@@ -41,6 +41,7 @@
 .. _`McCandlish and Stoltzfus, Quarterly Review of Biology, 89:225-252`: http://www.ncbi.nlm.nih.gov/pubmed/25195318
 .. _`HKY85`: https://dx.doi.org/10.1007%2FBF02101694
 .. _`Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`: http://mbe.oxfordjournals.org/content/22/5/1208.full
+.. _`Nielsen and Yang, Genetics, 148; 929-936`: https://www.genetics.org/content/148/3/929
 .. _`AIC`: https://en.wikipedia.org/wiki/Akaike_information_criterion
 .. _`reStructuredText`: http://docutils.sourceforge.net/rst.html
 .. _`Julien Dutheil`: http://kimura.univ-montp2.fr/jdutheil/CMS/index.php/
