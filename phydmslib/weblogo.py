@@ -24,11 +24,12 @@ matplotlib.use('pdf')
 import pylab
 import PyPDF2
 # the following are part of the weblogo library
-import weblogolib # weblogo library
-import weblogolib.colorscheme # weblogo library
-import corebio.matrix # weblogo library
-import corebio.utils # weblogo library
-from phydmslib.constants import *
+import weblogolib  # weblogo library
+import weblogolib.colorscheme  # weblogo library
+import corebio.matrix  # weblogo library
+import corebio.utils  # weblogo library
+from phydmslib.constants import AA_TO_INDEX, NT_TO_INDEX
+matplotlib.use('pdf', warn=False)
 
 
 def KyteDoolittleColorMapping(maptype='jet', reverse=True):
@@ -37,11 +38,11 @@ def KyteDoolittleColorMapping(maptype='jet', reverse=True):
     Uses the Kyte-Doolittle hydrophobicity scale defined by::
 
         J. Kyte & R. F. Doolittle:
-        "A simple method for displaying the hydropathic character of a protein."
-        J Mol Biol, 157, 105-132
+        "A simple method for displaying the hydropathic character of a
+        protein." J Mol Biol, 157, 105-132
 
-    More positive values indicate higher hydrophobicity, while more negative values
-    indicate lower hydrophobicity.
+    More positive values indicate higher hydrophobicity,
+    while more negative values indicate lower hydrophobicity.
 
     The returned variable is the 3-tuple *(cmap, mapping_d, mapper)*:
 
@@ -54,25 +55,25 @@ def KyteDoolittleColorMapping(maptype='jet', reverse=True):
 
         * *mapper* is the actual *pylab.cm.ScalarMappable* object.
 
-    The optional calling argument *maptype* should specify a valid ``pylab`` color map.
+    The optional argument *maptype* should specify a valid ``pylab`` color map.
 
     The optional calling argument *reverse* specifies that we set up the color
     map so that the most hydrophobic residue comes first (in the Kyte-Doolittle
-    scale the most hydrophobic comes last as it has the largest value). This option
-    is *True* by default as it seems more intuitive to have charged residues red
-    and hydrophobic ones blue.
+    scale the most hydrophobic comes last as it has the largest value).
+    This option is *True* by default as it seems more intuitive to have
+    charged residues red and hydrophobic ones blue.
     """
-    d = {'A':1.8, 'C':2.5, 'D':-3.5, 'E':-3.5, 'F':2.8, 'G':-0.4,\
-         'H':-3.2, 'I':4.5, 'K':-3.9, 'L':3.8, 'M':1.9, 'N':-3.5,\
-         'P':-1.6, 'Q':-3.5, 'R':-4.5, 'S':-0.8, 'T':-0.7,\
-         'V':4.2, 'W':-0.9, 'Y':-1.3}
+    d = {'A': 1.8, 'C': 2.5, 'D': -3.5, 'E': -3.5, 'F': 2.8, 'G': -0.4,
+         'H': -3.2, 'I': 4.5, 'K': -3.9, 'L': 3.8, 'M': 1.9, 'N': -3.5,
+         'P': -1.6, 'Q': -3.5, 'R': -4.5, 'S': -0.8, 'T': -0.7, 'V': 4.2,
+         'W': -0.9, 'Y': -1.3}
     aas = sorted(AA_TO_INDEX.keys())
     hydrophobicities = [d[aa] for aa in aas]
     if reverse:
         hydrophobicities = [-1 * x for x in hydrophobicities]
     mapper = pylab.cm.ScalarMappable(cmap=maptype)
     mapper.set_clim(min(hydrophobicities), max(hydrophobicities))
-    mapping_d = {'*':'#000000'}
+    mapping_d = {'*': '#000000'}
     for (aa, h) in zip(aas, hydrophobicities):
         tup = mapper.to_rgba(h, bytes=True)
         (red, green, blue, alpha) = tup
@@ -81,21 +82,22 @@ def KyteDoolittleColorMapping(maptype='jet', reverse=True):
     cmap = mapper.get_cmap()
     return (cmap, mapping_d, mapper)
 
+
 def MWColorMapping(maptype='jet', reverse=True):
     """Maps amino-acid molecular weights to colors. Otherwise, this
     function is identical to *KyteDoolittleColorMapping*
     """
-    d = {'A':89,'R':174,'N':132,'D':133,'C':121,'Q':146,'E':147,\
-         'G':75,'H':155,'I':131,'L':131,'K':146,'M':149,'F':165,\
-         'P':115,'S':105,'T':119,'W':204,'Y':181,'V':117}
+    d = {'A': 89, 'R': 174, 'N': 132, 'D': 133, 'C': 121, 'Q': 146, 'E': 147,
+         'G': 75, 'H': 155, 'I': 131, 'L': 131, 'K': 146, 'M': 149, 'F': 165,
+         'P': 115, 'S': 105, 'T': 119, 'W': 204, 'Y': 181, 'V': 117}
 
     aas = sorted(AA_TO_INDEX.keys())
-    mws  = [d[aa] for aa in aas]
+    mws = [d[aa] for aa in aas]
     if reverse:
         mws = [-1 * x for x in mws]
     mapper = pylab.cm.ScalarMappable(cmap=maptype)
     mapper.set_clim(min(mws), max(mws))
-    mapping_d = {'*':'#000000'}
+    mapping_d = {'*': '#000000'}
     for (aa, h) in zip(aas, mws):
         tup = mapper.to_rgba(h, bytes=True)
         (red, green, blue, alpha) = tup
@@ -104,9 +106,11 @@ def MWColorMapping(maptype='jet', reverse=True):
     cmap = mapper.get_cmap()
     return (cmap, mapping_d, mapper)
 
+
 def SingleColorMapping(maptype="#999999"):
     """Maps all amino acids to the single color given by `maptype`."""
     return (None, collections.defaultdict(lambda: maptype), None)
+
 
 def ChargeColorMapping(maptype='jet', reverse=False):
     """Maps amino-acid charge at neutral pH to colors.
@@ -118,15 +122,16 @@ def ChargeColorMapping(maptype='jet', reverse=False):
     neg_color = '#0000FF'
     neut_color = '#000000'
 
-    mapping_d = {'A':neut_color,'R':pos_color,'N':neut_color,\
-                 'D':neg_color,'C':neut_color,'Q':neut_color,\
-                 'E':neg_color,'G':neut_color,'H':pos_color,\
-                 'I':neut_color,'L':neut_color,'K':pos_color,\
-                 'M':neut_color,'F':neut_color,'P':neut_color,\
-                 'S':neut_color,'T':neut_color,'W':neut_color,\
-                 'Y':neut_color,'V':neut_color}
+    mapping_d = {'A': neut_color, 'R': pos_color, 'N': neut_color,
+                 'D': neg_color, 'C': neut_color, 'Q': neut_color,
+                 'E': neg_color, 'G': neut_color, 'H': pos_color,
+                 'I': neut_color, 'L': neut_color, 'K': pos_color,
+                 'M': neut_color, 'F': neut_color, 'P': neut_color,
+                 'S': neut_color, 'T':  neut_color, 'W': neut_color,
+                 'Y': neut_color, 'V': neut_color}
 
     return (None, mapping_d, None)
+
 
 def FunctionalGroupColorMapping(maptype='jet', reverse=False):
     """Maps amino-acid functional groups to colors.
@@ -143,23 +148,25 @@ def FunctionalGroupColorMapping(maptype='jet', reverse=False):
     amide_color = '#972aa8'
     basic_color = '#3c58e5'
 
-    mapping_d = {'G':small_color, 'A':small_color,
-                 'S':nucleophilic_color, 'T':nucleophilic_color, 'C':nucleophilic_color,
-                 'V':hydrophobic_color, 'L':hydrophobic_color, 'I':hydrophobic_color, 'M':hydrophobic_color, 'P':hydrophobic_color,
-                 'F':aromatic_color, 'Y':aromatic_color, 'W':aromatic_color,
-                 'D':acidic_color, 'E':acidic_color,
-                 'H':basic_color, 'K':basic_color, 'R':basic_color,
-                 'N':amide_color, 'Q':amide_color,
-                 '*':'#000000'}
+    mapping_d = {'G': small_color, 'A': small_color,
+                 'S': nucleophilic_color, 'T': nucleophilic_color,
+                 'C': nucleophilic_color, 'V': hydrophobic_color,
+                 'L': hydrophobic_color, 'I': hydrophobic_color,
+                 'M': hydrophobic_color, 'P': hydrophobic_color,
+                 'F': aromatic_color, 'Y': aromatic_color,
+                 'W': aromatic_color, 'D': acidic_color, 'E': acidic_color,
+                 'H': basic_color, 'K': basic_color, 'R': basic_color,
+                 'N': amide_color, 'Q': amide_color,
+                 '*': '#000000'}
     return (None, mapping_d, None)
 
 
 def LogoPlot(sites, datatype, data, plotfile, nperline,
-        numberevery=10, allowunsorted=False, ydatamax=1.01,
-        overlay=None, fix_limits={}, fixlongname=False,
-        overlay_cmap=None, ylimits=None, relativestackheight=1,
-        custom_cmap='jet', map_metric='kd', noseparator=False,
-        underlay=False, scalebar=False):
+             numberevery=10, allowunsorted=False, ydatamax=1.01,
+             overlay=None, fix_limits={}, fixlongname=False,
+             overlay_cmap=None, ylimits=None, relativestackheight=1,
+             custom_cmap='jet', map_metric='kd', noseparator=False,
+             underlay=False, scalebar=False):
     """Create sequence logo showing amino-acid or nucleotide preferences.
 
     The heights of each letter is equal to the preference of
@@ -196,7 +203,8 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
       of the logo plot.
       It must end in the extension ``.pdf``.
 
-    * *nperline* is the number of sites per line. Often 40 to 80 are good values.
+    * *nperline* is the number of sites per line. Often 40 to 80 are
+       good values.
 
     * *numberevery* is specifies how frequently we put labels for the sites on
       x-axis.
@@ -205,9 +213,10 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
       **not** be sorted. This means that the logo plot will **not** have
       sites in sorted order.
 
-    * *ydatamax* : meaningful only if *datatype* is 'diffprefs'. In this case, it gives
-      the maximum that the logo stacks extend in the positive and negative directions.
-      Cannot be smaller than the maximum extent of the differential preferences.
+    * *ydatamax* : meaningful only if *datatype* is 'diffprefs'. In this case,
+      it gives the maximum that the logo stacks extend in the positive and
+      negative directions. Cannot be smaller than the maximum extent of the
+      differential preferences.
 
     * *ylimits*: is **mandatory** if *datatype* is 'diffsel', and meaningless
       otherwise. It is *(ymin, ymax)* where *ymax > 0 > ymin*, and gives extent
@@ -241,41 +250,47 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
           right the one-character wildtype identity in `prop_d` for each
           site.
 
-    * *fix_limits* is only meaningful if *overlay* is being used. In this case, for any
-      *shortname* in *overlay* that also keys an entry in *fix_limits*, we use
-      *fix_limits[shortname]* to set the limits for *shortname*. Specifically,
-      *fix_limits[shortname]* should be the 2-tuple *(ticks, ticknames)*. *ticks*
-      should be a list of tick locations (numbers) and *ticknames* should be a list of
-      the corresponding tick label for that tick.
+    * *fix_limits* is only meaningful if *overlay* is being used. In this case,
+       for any *shortname* in *overlay* that also keys an entry in
+       *fix_limits*, we use *fix_limits[shortname]* to set the limits for
+       *shortname*. Specifically, *fix_limits[shortname]* should be the 2-tuple
+       *(ticks, ticknames)*. *ticks* should be a list of tick locations
+       (numbers) and *ticknames* should be a list of the corresponding tick
+       label for that tick.
 
-    * If *fixlongname* is *True*, then we use the *longname* in *overlay* exactly as written;
-      otherwise we add a parenthesis indicating the *shortname* for which this *longname*
-      stands.
+    * If *fixlongname* is *True*, then we use the *longname* in *overlay*
+      exactly as written; otherwise we add a parenthesis indicating the
+      *shortname* for which this *longname* stands.
 
-    * *overlay_cmap* can be the name of a valid *matplotlib.colors.Colormap*, such as the
-      string *jet* or *bwr*. Otherwise, it can be *None* and a (hopefully) good choice will
-      be made for you.
+    * *overlay_cmap* can be the name of a valid *matplotlib.colors.Colormap*,
+      such as the string *jet* or *bwr*. Otherwise, it can be *None* and a
+      (hopefully) good choice will be made for you.
 
-    * *custom_cmap* can be the name of a valid *matplotlib.colors.Colormap* which will be
-      used to color amino-acid one-letter codes in the logoplot by the *map_metric* when
-      either 'kd' or 'mw' is used as *map_metric*. If *map_metric* is 'singlecolor',
-      then should be string giving the color to plot.
+    * *custom_cmap* can be the name of a valid *matplotlib.colors.Colormap*
+      which will be used to color amino-acid one-letter codes in the logoplot
+      by the *map_metric* when either 'kd' or 'mw' is used as *map_metric*.
+      If *map_metric* is 'singlecolor', then should be string giving the color
+      to plot.
 
     * *relativestackheight* indicates how high the letter stack is relative to
       the default. The default is multiplied by this number, so make it > 1
       for a higher letter stack.
 
-    * *map_metric* specifies the amino-acid property metric used to map colors to amino-acid
-      letters. Valid options are 'kd' (Kyte-Doolittle hydrophobicity scale, default), 'mw'
-      (molecular weight), 'functionalgroup' (functional groups: small, nucleophilic, hydrophobic,
-      aromatic, basic, acidic, and amide), 'charge' (charge at neutral pH), and
-      'singlecolor'. If 'charge' is used, then the
-      argument for *custom_cmap* will no longer be meaningful, since 'charge' uses its own
-      blue/black/red colormapping. Similarly, 'functionalgroup' uses its own colormapping.
+    * *map_metric* specifies the amino-acid property metric used to map colors
+      to amino-acid letters. Valid options are
+      'kd'(Kyte-Doolittle hydrophobicity scale, default),
+      'mw' (molecular weight),
+      'functionalgroup' (functional groups: small, nucleophilic, hydrophobic,
+      aromatic, basic, acidic, and amide),
+      'charge' (charge at neutral pH), and
+      'singlecolor'. If 'charge' is used, then the argument for *custom_cmap*
+      will no longer be meaningful, since 'charge' uses its own
+      blue/black/red colormapping. Similarly, 'functionalgroup' uses its own
+      colormapping.
 
-    * *noseparator* is only meaningful if *datatype* is 'diffsel' or 'diffprefs'.
-      If it set to *True*, then we do **not** print a black horizontal line to
-      separate positive and negative values.
+    * *noseparator* is only meaningful if *datatype* is 'diffsel' or
+      'diffprefs'.  If it set to *True*, then we do **not** print a black
+      horizontal line to separate positive and negative values.
 
     * *underlay* if `True` then make an underlay rather than an overlay.
 
@@ -283,11 +298,14 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
       should be a 2-tuple of `(scalebarlen, scalebarlabel)`. Currently only
       works when data is `diffsel`.
     """
-    assert datatype in ['prefs', 'diffprefs', 'diffsel'], "Invalid datatype {0}".format(datatype)
+    assert datatype in ['prefs', 'diffprefs', 'diffsel'], ("Invalid datatype "
+                                                           "{0}"
+                                                           .format(datatype))
 
     # check data, and get characters
     assert sites, "No sites specified"
-    assert set(sites) == set(data.keys()), "Not a match between sites and the keys of data"
+    assert set(sites) == set(data.keys()), ("Not a match between "
+                                            "sites and the keys of data")
     characters = list(data[sites[0]].keys())
     aas = sorted(AA_TO_INDEX.keys())
     if set(characters) == set(NT_TO_INDEX.keys()):
@@ -295,75 +313,97 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
     elif set(characters) == set(aas) or set(characters) == set(aas + ['*']):
         alphabet_type = 'aa'
     else:
-        raise ValueError("Invalid set of characters in data. Does not specify either nucleotides or amino acids:\n%s" % str(characters))
+        raise ValueError("Invalid set of characters in data. Does not specify "
+                         "either nucleotides or amino acids:\n{0}"
+                         .format(str(characters)))
     for r in sites:
         if set(data[r].keys()) != set(characters):
-            raise ValueError("Not all sites in data have the same set of characters")
+            raise ValueError("Not all sites in data have the same "
+                             "set of characters")
 
-    firstblankchar = 'B' # character for first blank space for diffprefs / diffsel
+    firstblankchar = 'B'  # char for first blank space for diffprefs / diffsel
     assert firstblankchar not in characters, "firstblankchar in characters"
-    lastblankchar = 'b' # character for last blank space for diffprefs / diffsel
+    lastblankchar = 'b'  # char for last blank space for diffprefs / diffsel
     assert lastblankchar not in characters, "lastblankchar in characters"
-    separatorchar = '-' # separates positive and negative for diffprefs / diffsel
+    separatorchar = '-'  # separates pos and neg for diffprefs / diffsel
     assert separatorchar not in characters, "lastblankchar in characters"
-    if noseparator:
-        separatorheight = 0
-    else:
-        separatorheight = 0.02 # height of separator as frac of total for diffprefs / diffsel
+    # height of separator as frac of total for diffprefs / diffsel
+    separatorheight = 0 if noseparator else 0.02
 
     if os.path.splitext(plotfile)[1].lower() != '.pdf':
         raise ValueError("plotfile must end in .pdf: %s" % plotfile)
     if os.path.isfile(plotfile):
-        os.remove(plotfile) # remove existing plot
+        os.remove(plotfile)  # remove existing plot
 
     if not allowunsorted:
         sorted_sites = natsort.natsorted([r for r in sites])
         if sorted_sites != sites:
             raise ValueError("sites is not properly sorted")
 
-    # Following are specifications of weblogo sizing taken from its documentation
-    stackwidth = 9.5 # stack width in points, not default size of 10.8, but set to this in weblogo call below
-    barheight = 5.5 # height of bars in points if using overlay
-    barspacing = 2.0 # spacing between bars in points if using overlay
-    stackaspectratio = 4.4 # ratio of stack height:width, doesn't count part going over maximum value of 1
+    # Following are specifications of weblogo sizing taken from its docs
+    # stack width in points, set to this in weblogo call below (default 10.8)
+    stackwidth = 9.5
+    barheight = 5.5  # height of bars in points if using overlay
+    barspacing = 2.0  # spacing between bars in points if using overlay
+    # ratio of stack height:width, doesn't count part going over max value of 1
+    stackaspectratio = 4.4
     assert relativestackheight > 0, "relativestackheight must be > 0"
     stackaspectratio *= relativestackheight
     if overlay:
         if len(overlay) > 3:
             raise ValueError("overlay cannot have more than 3 entries")
-        ymax = (stackaspectratio * stackwidth + len(overlay) * (barspacing + barheight)) / float(stackaspectratio * stackwidth)
-        aspectratio = ymax * stackaspectratio # effective aspect ratio for full range
+        ymax = ((stackaspectratio * stackwidth + len(overlay) *
+                (barspacing + barheight)) /
+                float(stackaspectratio * stackwidth))
+        # effective aspect ratio for full range
+        aspectratio = ymax * stackaspectratio
     else:
         ymax = 1.0
         aspectratio = stackaspectratio
-    rmargin = 11.5 # right margin in points, fixed by weblogo
-    stackheightmargin = 16 # margin between stacks in points, fixed by weblogo
+    rmargin = 11.5  # right margin in points, fixed by weblogo
+    stackheightmargin = 16  # margin between stacks in points, fixed by weblogo
 
     showscalebar = False
     try:
         # write data into transfacfile (a temporary file)
         (fd, transfacfile) = tempfile.mkstemp()
         f = os.fdopen(fd, 'w')
-        ordered_alphabets = {} # keyed by site index (0, 1, ...) with values ordered lists for characters from bottom to top
+        # keyed by site index (0, 1, ...)
+        # with values ordered lists for characters from bottom to top
+        ordered_alphabets = {}
         if datatype == 'prefs':
             chars_for_string = characters
             f.write('ID ID\nBF BF\nP0 %s\n' % ' '.join(chars_for_string))
             for (isite, r) in enumerate(sites):
-                f.write('%d %s\n' % (isite, ' '.join([str(data[r][x]) for x in characters])))
+                f.write('%d %s\n' % (isite, ' '.join([str(data[r][x])
+                                                      for x in characters])))
                 pi_r = [(data[r][x], x) for x in characters]
                 pi_r.sort()
-                ordered_alphabets[isite] = [tup[1] for tup in pi_r] # order from smallest to biggest
+                # order from smallest to biggest
+                ordered_alphabets[isite] = [tup[1] for tup in pi_r]
         elif datatype == 'diffprefs':
-            chars_for_string = characters + [firstblankchar, lastblankchar, separatorchar]
-            ydatamax *= 2.0 # maximum possible range of data, multiply by two for range
+            chars_for_string = characters + [firstblankchar,
+                                             lastblankchar,
+                                             separatorchar]
+            # maximum possible range of data, multiply by two for range
+            ydatamax *= 2.0
             f.write('ID ID\nBF BF\nP0 %s\n' % ' '.join(chars_for_string))
             for (isite, r) in enumerate(sites):
-                positivesum = sum([data[r][x] for x in characters if data[r][x] > 0]) + separatorheight / 2.0
-                negativesum = sum([data[r][x] for x in characters if data[r][x] < 0]) - separatorheight / 2.0
+                positivesum = sum([data[r][x] for x in characters
+                                   if data[r][x] > 0]) + separatorheight / 2.0
+                negativesum = sum([data[r][x] for x in characters
+                                   if data[r][x] < 0]) - separatorheight / 2.0
                 if abs(positivesum + negativesum) > 1.0e-3:
-                    raise ValueError("Differential preferences sum of %s is not close to zero for site %s" % (positivesum + negativesum, r))
+                    raise ValueError("Differential preferences sum of %s is "
+                                     "not close to zero for site %s"
+                                     % (positivesum + negativesum, r))
                 if 2.0 * positivesum > ydatamax:
-                    raise ValueError("You need to increase ydatamax: the total differential preferences sum to more than the y-axis limits. Right now, ydatamax is %.3f while the total differential preferences are %.3f" % (ydatamax, 2.0 * positivesum))
+                    raise ValueError("You need to increase ydatamax: the "
+                                     "total differential preferences sum to "
+                                     "more than the y-axis limits. Right now, "
+                                     "ydatamax is %.3f while the total "
+                                     "differential preferences are %.3f"
+                                     % (ydatamax, 2.0 * positivesum))
                 f.write('%d' % isite)
                 deltapi_r = []
                 for x in characters:
@@ -373,21 +413,39 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
                 firstpositiveindex = 0
                 while deltapi_r[firstpositiveindex][0] < 0:
                     firstpositiveindex += 1
-                ordered_alphabets[isite] = [firstblankchar] + [tup[1] for tup in deltapi_r[ : firstpositiveindex]] + [separatorchar] + [tup[1] for tup in deltapi_r[firstpositiveindex : ]] + [lastblankchar] # order from most negative to most positive with blank characters and separators
-                f.write(' %g %g %g\n' % (0.5 * (ydatamax + 2.0 * negativesum) / ydatamax, 0.5 * (ydatamax + 2.0 * negativesum) / ydatamax, separatorheight)) # heights for blank charactors and separators
+                # order from most neg to most pos w/ blank characters and seps
+                ordered_alphabets[isite] = ([firstblankchar] +
+                                            [tup[1] for tup in
+                                             deltapi_r[:firstpositiveindex]] +
+                                            [separatorchar] +
+                                            [tup[1] for tup in
+                                             deltapi_r[firstpositiveindex:]] +
+                                            [lastblankchar])
+                f.write(' %g %g %g\n'
+                        % (0.5 * (ydatamax + 2.0 * negativesum) / ydatamax,
+                           0.5 * (ydatamax + 2.0 * negativesum) / ydatamax,
+                           separatorheight))  # heights for blank chars & seps
         elif datatype == 'diffsel':
             assert ylimits, "You must specify ylimits if using diffsel"
             (dataymin, dataymax) = ylimits
-            assert dataymax > 0 > dataymin, "Invalid ylimits of {0}".format(ylimits)
+            assert dataymax > 0 > dataymin, ("Invalid ylimits of {0}"
+                                             .format(ylimits))
             yextent = float(dataymax - dataymin)
             separatorheight *= yextent
-            chars_for_string = characters + [firstblankchar, lastblankchar, separatorchar]
-            f.write('ID ID\nBF BF\nP0 {0}\n'.format(' '.join(chars_for_string)))
+            chars_for_string = characters + [firstblankchar,
+                                             lastblankchar,
+                                             separatorchar]
+            f.write('ID ID\nBF BF\nP0 {0}\n'
+                    .format(' '.join(chars_for_string)))
             for (isite, r) in enumerate(sites):
-                positivesum = sum([data[r][x] for x in characters if data[r][x] > 0]) + separatorheight / 2.0
-                negativesum = sum([data[r][x] for x in characters if data[r][x] < 0]) - separatorheight / 2.0
-                assert positivesum <= dataymax, "Data exceeds ylimits in positive direction"
-                assert negativesum >= dataymin, "Data exceeds ylimits in negative direction"
+                positivesum = sum([data[r][x] for x in characters
+                                  if data[r][x] > 0]) + separatorheight / 2.0
+                negativesum = sum([data[r][x] for x in characters
+                                  if data[r][x] < 0]) - separatorheight / 2.0
+                assert positivesum <= dataymax, ("Data exceeds ylimits in "
+                                                 "positive direction")
+                assert negativesum >= dataymin, ("Data exceeds ylimits in "
+                                                 "negative direction")
                 f.write('{0}'.format(isite))
                 diffsel_r = []
                 for x in characters:
@@ -397,8 +455,19 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
                 firstpositiveindex = 0
                 while diffsel_r[firstpositiveindex][0] < 0:
                     firstpositiveindex += 1
-                ordered_alphabets[isite] = [firstblankchar] + [tup[1] for tup in diffsel_r[ : firstpositiveindex]] + [separatorchar] + [tup[1] for tup in diffsel_r[firstpositiveindex : ]] + [lastblankchar] # order from most negative to most positive with blank characters and separators
-                f.write(' %g %g %g\n' % ((negativesum - dataymin) / yextent, (dataymax - positivesum) / yextent, separatorheight / yextent)) # heights for blank charactors and separators
+                # order from most neg to most pos with blank chars and seps
+                ordered_alphabets[isite] = ([firstblankchar] +
+                                            [tup[1] for tup in
+                                             diffsel_r[:firstpositiveindex]] +
+                                            [separatorchar] +
+                                            [tup[1] for tup in
+                                             diffsel_r[firstpositiveindex:]] +
+                                            [lastblankchar])
+                # heights for blank charactors and separators
+                f.write(' %g %g %g\n'
+                        % ((negativesum - dataymin) / yextent,
+                           (dataymax - positivesum) / yextent,
+                           separatorheight / yextent))
             # height of one unit on y-axis in points
             heightofone = stackwidth * stackaspectratio / yextent
             assert heightofone > 0
@@ -410,10 +479,15 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
 
         # create web logo
         charstring = ''.join(chars_for_string)
-        assert len(charstring) == len(chars_for_string), "Length of charstring doesn't match length of chars_for_string. Do you have unallowable multi-letter characters?\n%s" % (str(chars_for_string))
+        assert len(charstring) == len(chars_for_string),\
+               ("Length of charstring doesn't match length of "
+                "chars_for_string. Do you have unallowable multi-letter "
+                "characters?\n%s"
+                % (str(chars_for_string)))
         logoprior = weblogolib.parse_prior('equiprobable', charstring, 0)
         motif = _my_Motif.read_transfac(open(transfacfile), charstring)
-        logodata = weblogolib.LogoData.from_counts(motif.alphabet, motif, logoprior)
+        logodata = weblogolib.LogoData.from_counts(motif.alphabet,
+                                                   motif, logoprior)
         logo_options = weblogolib.LogoOptions()
         logo_options.fineprint = None
         logo_options.stacks_per_line = nperline
@@ -423,10 +497,10 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
         logo_options.show_yaxis = False
         logo_options.yaxis_scale = ymax
         if alphabet_type == 'aa':
-            map_functions = {'kd':KyteDoolittleColorMapping,
+            map_functions = {'kd': KyteDoolittleColorMapping,
                              'mw': MWColorMapping,
-                             'charge' : ChargeColorMapping,
-                             'functionalgroup':FunctionalGroupColorMapping,
+                             'charge': ChargeColorMapping,
+                             'functionalgroup': FunctionalGroupColorMapping,
                              'singlecolor': SingleColorMapping}
             map_fcn = map_functions[map_metric]
             (cmap, colormapping, mapper) = map_fcn(maptype=custom_cmap)
@@ -438,24 +512,29 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
             colormapping['G'] = '#FFA500'
         else:
             raise ValueError("Invalid alphabet_type %s" % alphabet_type)
-        colormapping[firstblankchar] = colormapping[lastblankchar] = '#000000' # black, but color doesn't matter as modified weblogo code replaces with empty space
-        colormapping[separatorchar] = '#000000' # black
+        # black but doesn't matter. modified weblogo code replaces w/ empty ' '
+        colormapping[firstblankchar] = colormapping[lastblankchar] = '#000000'
+        colormapping[separatorchar] = '#000000'  # black
         color_scheme = weblogolib.colorscheme.ColorScheme()
         for x in chars_for_string:
             if hasattr(color_scheme, 'rules'):
-                color_scheme.rules.append(weblogolib.colorscheme.SymbolColor(x, colormapping[x], "'%s'" % x))
+                color_scheme.rules.append((weblogolib.colorscheme.SymbolColor(
+                                           x, colormapping[x], "'%s'" % x)))
             else:
                 # this part is needed for weblogo 3.4
-                color_scheme.groups.append(weblogolib.colorscheme.ColorGroup(x, colormapping[x], "'%s'" % x))
+                color_scheme.groups.append((weblogolib.colorscheme.ColorGroup(
+                                            x, colormapping[x], "'%s'" % x)))
         logo_options.color_scheme = color_scheme
-        logo_options.annotate = [{True:r, False:''}[0 == isite % numberevery] for (isite, r) in enumerate(sites)]
+        logo_options.annotate = [{True: r, False: ''}[0 == isite % numberevery]
+                                 for (isite, r) in enumerate(sites)]
         logoformat = weblogolib.LogoFormat(logodata, logo_options)
         # _my_pdf_formatter is modified from weblogo version 3.4 source code
         # to allow custom ordering of the symbols.
         pdf = _my_pdf_formatter(logodata, logoformat, ordered_alphabets)
         with open(plotfile, 'wb') as f:
             f.write(pdf)
-        assert os.path.isfile(plotfile), "Failed to find expected plotfile %s" % plotfile
+        assert os.path.isfile(plotfile), ("Failed to find expected plotfile %s"
+                                          % plotfile)
     finally:
         # close if still open
         try:
@@ -472,10 +551,15 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
             (fdoverlay, overlayfile) = tempfile.mkstemp(suffix='.pdf')
             (fdmerged, mergedfile) = tempfile.mkstemp(suffix='.pdf')
             foverlay = os.fdopen(fdoverlay, 'wb')
-            foverlay.close() # close, but we still have the path overlayfile...
+            foverlay.close()  # close, but we still have the path overlayfile
             fmerged = os.fdopen(fdmerged, 'wb')
             logoheight = stackwidth * stackaspectratio + stackheightmargin
-            LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth=stackwidth, rmargin=rmargin, logoheight=logoheight, barheight=barheight, barspacing=barspacing, fix_limits=fix_limits, fixlongname=fixlongname, overlay_cmap=overlay_cmap, underlay=underlay, scalebar=showscalebar)
+            LogoOverlay(sites, overlayfile, overlay, nperline,
+                        sitewidth=stackwidth, rmargin=rmargin,
+                        logoheight=logoheight, barheight=barheight,
+                        barspacing=barspacing, fix_limits=fix_limits,
+                        fixlongname=fixlongname, overlay_cmap=overlay_cmap,
+                        underlay=underlay, scalebar=showscalebar)
             plotfile_f = open(plotfile, 'rb')
             plot = PyPDF2.PdfFileReader(plotfile_f).getPage(0)
             overlayfile_f = open(overlayfile, 'rb')
@@ -483,7 +567,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
             xshift = overlaypdf.artBox[2] - plot.artBox[2]
             yshift = (barheight + barspacing) * len(overlay) - 0.5 * barspacing
             overlaypdf.mergeTranslatedPage(plot, xshift,
-                    yshift * int(underlay), expand=True)
+                                           yshift * int(underlay), expand=True)
             overlaypdf.compressContentStreams()
             output = PyPDF2.PdfFileWriter()
             output.addPage(overlaypdf)
@@ -520,9 +604,9 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
 
 #  Copyright (c) 2003-2004 The Regents of the University of California.
 #  Copyright (c) 2005 Gavin E. Crooks
-#  Copyright (c) 2006-2011, The Regents of the University of California, through
-#  Lawrence Berkeley National Laboratory (subject to receipt of any required
-#  approvals from the U.S. Dept. of Energy).  All rights reserved.
+#  Copyright (c) 2006-2011, The Regents of the University of California,
+#  through Lawrence Berkeley National Laboratory (subject to receipt of any
+#  required approvals from the U.S. Dept. of Energy).  All rights reserved.
 
 #  This software is distributed under the new BSD Open Source License.
 #  <http://www.opensource.org/licenses/bsd-license.html>
@@ -555,8 +639,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
 #  POSSIBILITY OF SUCH DAMAGE.
 
 # Replicates README.txt
-
-def _my_pdf_formatter(data, format, ordered_alphabets) :
+def _my_pdf_formatter(data, format, ordered_alphabets):
     """ Generate a logo in PDF format.
 
     Modified from weblogo version 3.4 source code.
@@ -566,7 +649,7 @@ def _my_pdf_formatter(data, format, ordered_alphabets) :
     return gs.convert('pdf', eps, format.logo_width, format.logo_height)
 
 
-def _my_eps_formatter(logodata, format, ordered_alphabets) :
+def _my_eps_formatter(logodata, format, ordered_alphabets):
     """ Generate a logo in Encapsulated Postscript (EPS)
 
     Modified from weblogo version 3.4 source code.
@@ -576,10 +659,10 @@ def _my_eps_formatter(logodata, format, ordered_alphabets) :
     from bottom to top.
     """
     substitutions = {}
-    from_format =[
+    from_format = [
         "creation_date",    "logo_width",           "logo_height",
         "lines_per_logo",   "line_width",           "line_height",
-        "line_margin_right","line_margin_left",     "line_margin_bottom",
+        "line_margin_right", "line_margin_left",     "line_margin_bottom",
         "line_margin_top",  "title_height",         "xaxis_label_height",
         "creator_text",     "logo_title",           "logo_margin",
         "stroke_width",     "tic_length",
@@ -599,16 +682,15 @@ def _my_eps_formatter(logodata, format, ordered_alphabets) :
         "stack_width"
         ]
 
-    for s in from_format :
-        substitutions[s] = getattr(format,s)
+    for s in from_format:
+        substitutions[s] = getattr(format, s)
 
     substitutions["shrink"] = str(format.show_boxes).lower()
 
-
     # --------- COLORS --------------
     def format_color(color):
-        return  " ".join( ("[",str(color.red) , str(color.green),
-            str(color.blue), "]"))
+        return " ".join(("[", str(color.red), str(color.green),
+                         str(color.blue), "]"))
 
     substitutions["default_color"] = format_color(format.default_color)
 
@@ -620,40 +702,39 @@ def _my_eps_formatter(logodata, format, ordered_alphabets) :
         grouplist = format.color_scheme.groups
     for group in grouplist:
         cf = format_color(group.color)
-        for s in group.symbols :
-            colors.append( "  ("+s+") " + cf )
+        for s in group.symbols:
+            colors.append("  ("+s+") " + cf)
     substitutions["color_dict"] = "\n".join(colors)
 
     data = []
 
     # Unit conversion. 'None' for probability units
-    conv_factor = None #JDB
-    #JDB conv_factor = std_units[format.unit_name]
+    conv_factor = None  # JDB
+    # JDB conv_factor = std_units[format.unit_name]
 
     data.append("StartLine")
 
-    seq_from = format.logo_start- format.first_index
-    seq_to = format.logo_end - format.first_index +1
+    seq_from = format.logo_start - format.first_index
+    seq_to = format.logo_end - format.first_index + 1
 
     # seq_index : zero based index into sequence data
-    # logo_index : User visible coordinate, first_index based
     # stack_index : zero based index of visible stacks
-    for seq_index in range(seq_from, seq_to) :
-        logo_index = seq_index + format.first_index
+    for seq_index in range(seq_from, seq_to):
         stack_index = seq_index - seq_from
 
-        if stack_index!=0 and (stack_index % format.stacks_per_line) ==0 :
+        if stack_index != 0 and (stack_index % format.stacks_per_line) == 0:
             data.append("")
             data.append("EndLine")
             data.append("StartLine")
             data.append("")
 
-        data.append("(%s) StartStack" % format.annotate[seq_index] )
+        data.append("(%s) StartStack" % format.annotate[seq_index])
 
         if conv_factor:
-            stack_height = logodata.entropy[seq_index] * std_units[format.unit_name]
-        else :
-            stack_height = 1.0 # Probability
+            stack_height = (logodata.entropy[seq_index] *
+                            std_units[format.unit_name])
+        else:
+            stack_height = 1.0  # Probability
 
         # The following code modified by JDB to use ordered_alphabets
         # and also to replace the "blank" characters 'b' and 'B'
@@ -670,34 +751,36 @@ def _my_eps_formatter(logodata, format, ordered_alphabets) :
         # Sort by frequency. If equal frequency then reverse alphabetic
         # (So sort reverse alphabetic first, then frequencty)
         # TODO: doublecheck this actual works
-        #s = list(zip(logodata.counts[seq_index], logodata.alphabet))
-        #s.sort(key= lambda x: x[1])
-        #s.reverse()
-        #s.sort(key= lambda x: x[0])
-        #if not format.reverse_stacks: s.reverse()
+        # s = list(zip(logodata.counts[seq_index], logodata.alphabet))
+        # s.sort(key= lambda x: x[1])
+        # s.reverse()
+        # s.sort(key= lambda x: x[0])
+        # if not format.reverse_stacks: s.reverse()
 
         C = float(sum(logodata.counts[seq_index]))
-        if C > 0.0 :
+        if C > 0.0:
             fraction_width = 1.0
-            if format.scale_width :
+            if format.scale_width:
                 fraction_width = logodata.weight[seq_index]
             # print(fraction_width, file=sys.stderr)
             for c in s:
-                data.append(" %f %f (%s) ShowSymbol" % (fraction_width, c[0]*stack_height/C, c[1]) )
+                data.append(" %f %f (%s) ShowSymbol"
+                            % (fraction_width, c[0]*stack_height/C, c[1]))
 
         # Draw error bar on top of logo. Replaced by DrawErrorbarFirst above.
-        if logodata.entropy_interval is not None and conv_factor and C>0.0:
+        if logodata.entropy_interval is not None and conv_factor and C > 0.0:
 
             low, high = logodata.entropy_interval[seq_index]
             center = logodata.entropy[seq_index]
             low *= conv_factor
             high *= conv_factor
-            center *=conv_factor
-            if high> format.yaxis_scale : high = format.yaxis_scale
+            center *= conv_factor
+            if high > format.yaxis_scale:
+                high = format.yaxis_scale
 
             down = (center - low)
-            up   = (high - center)
-            data.append(" %f %f DrawErrorbar" % (down, up) )
+            up = (high - center)
+            data.append(" %f %f DrawErrorbar" % (down, up))
 
         data.append("EndStack")
         data.append("")
@@ -705,9 +788,10 @@ def _my_eps_formatter(logodata, format, ordered_alphabets) :
     data.append("EndLine")
     substitutions["logo_data"] = "\n".join(data)
 
-
     # Create and output logo
-    template = corebio.utils.resource_string( __name__, '_weblogo_template.eps', __file__).decode()
+    template = corebio.utils.resource_string(__name__,
+                                             '_weblogo_template.eps',
+                                             __file__).decode()
     logo = string.Template(template).substitute(substitutions)
 
     return logo.encode()
@@ -744,7 +828,7 @@ def _my_eps_formatter(logodata, format, ordered_alphabets) :
 #  IN THE SOFTWARE.
 
 
-class _my_Motif(corebio.matrix.AlphabeticArray) :
+class _my_Motif(corebio.matrix.AlphabeticArray):
     """A two dimensional array where the second dimension is indexed by an
     Alphabet. Used to represent sequence motifs and similar information.
 
@@ -758,8 +842,9 @@ class _my_Motif(corebio.matrix.AlphabeticArray) :
     """
 
     def __init__(self, alphabet, array=None, dtype=None, name=None,
-            description = None, scale=None) :
-        corebio.matrix.AlphabeticArray.__init__(self, (None, alphabet), array, dtype)
+                 description=None, scale=None):
+        corebio.matrix.AlphabeticArray.__init__(self,
+                                                (None, alphabet), array, dtype)
         self.name = name
         self.description = description
         self.scale = scale
@@ -768,35 +853,41 @@ class _my_Motif(corebio.matrix.AlphabeticArray) :
     def alphabet(self):
         return self.alphabets[1]
 
-    def reindex(self, alphabet) :
-        return  _my_Motif(alphabet, corebio.matrix.AlphabeticArray.reindex(self, (None, alphabet)))
+    def reindex(self, alphabet):
+        return _my_Motif(alphabet,
+                         corebio.matrix.AlphabeticArray.reindex(self,
+                                                                (None,
+                                                                 alphabet)))
 
     # These methods alter self, and therefore do not return a value.
-    # (Compare to Seq objects, where the data is immutable and therefore methods return a new Seq.)
+    # (Compare to Seq objects, where the data is immutable and
+    # therefore methods return a new Seq.)
     # TODO: Should reindex (above) also act on self?
 
     def reverse(self):
         """Reverse sequence data"""
-#        self.array = na.array(self.array[::-1]) # This is a view into the origional numpy array.
-        self.array = self.array[::-1] # This is a view into the origional numpy array.
+        self.array = self.array[::-1]  # view into the origional numpy array.
 
-    @staticmethod #TODO: should be classmethod?
-    def read_transfac( fin, alphabet = None) :
+    @staticmethod  # TODO: should be classmethod?
+    def read_transfac(fin, alphabet=None):
         """ Parse a sequence matrix from a file.
         Returns a tuple of (alphabet, matrix)
         """
 
         items = []
 
-        start=True
-        for line in fin :
-            if line.isspace() or line[0] =='#' : continue
+        start = True
+        for line in fin:
+            if line.isspace() or line[0] == '#':
+                continue
             stuff = line.split()
-            if start and stuff[0] != 'PO' and stuff[0] != 'P0': continue
-            if stuff[0]=='XX' or stuff[0]=='//': break
+            if start and stuff[0] != 'PO' and stuff[0] != 'P0':
+                continue
+            if stuff[0] == 'XX' or stuff[0] == '//':
+                break
             start = False
             items.append(stuff)
-        if len(items) < 2  :
+        if len(items) < 2:
             raise ValueError("Vacuous file.")
 
         # Is the first line a header line?
@@ -804,43 +895,45 @@ class _my_Motif(corebio.matrix.AlphabeticArray) :
         hcols = len(header)
         rows = len(items)
         cols = len(items[0])
-        if not( header[0] == 'PO' or header[0] =='P0' or hcols == cols-1 or hcols == cols-2) :
+        if not(header[0] == 'PO' or header[0] == 'P0' or
+               hcols == cols-1 or hcols == cols-2):
             raise ValueError("Missing header line!")
 
         # Do all lines (except the first) contain the same number of items?
         cols = len(items[0])
-        for i in range(1, len(items)) :
-            if cols != len(items[i]) :
+        for i in range(1, len(items)):
+            if cols != len(items[i]):
                 raise ValueError("Inconsistant length, row %d: " % i)
 
         # Vertical or horizontal arrangement?
-        if header[0] == 'PO' or header[0] == 'P0': header.pop(0)
+        if header[0] == 'PO' or header[0] == 'P0':
+            header.pop(0)
 
         position_header = True
         alphabet_header = True
-        for h in header :
-            if not corebio.utils.isint(h) : position_header = False
-#allow non-alphabetic            if not str.isalpha(h) : alphabet_header = False
+        for h in header:
+            if not corebio.utils.isint(h):
+                position_header = False
+# allow non-alphabetic if not str.isalpha(h) : alphabet_header = False
 
-        if not position_header and not alphabet_header :
+        if not position_header and not alphabet_header:
             raise ValueError("Can't parse header: %s" % str(header))
 
-        if position_header and alphabet_header :
+        if position_header and alphabet_header:
             raise ValueError("Can't parse header")
 
-
         # Check row headers
-        if alphabet_header :
-            for i,r in enumerate(items) :
-                if not corebio.utils.isint(r[0]) and r[0][0]!='P' :
+        if alphabet_header:
+            for i, r in enumerate(items):
+                if not corebio.utils.isint(r[0]) and r[0][0] != 'P':
                     raise ValueError(
                         "Expected position as first item on line %d" % i)
                 r.pop(0)
                 defacto_alphabet = ''.join(header)
-        else :
+        else:
             a = []
-            for i,r in enumerate(items) :
-                if not ischar(r[0]) and r[0][0]!='P' :
+            for i, r in enumerate(items):
+                if not ischar(r[0]) and r[0][0] != 'P':
                     raise ValueError(
                         "Expected position as first item on line %d" % i)
                 a.append(r.pop(0))
@@ -849,46 +942,47 @@ class _my_Motif(corebio.matrix.AlphabeticArray) :
         # Check defacto_alphabet
         defacto_alphabet = corebio.seq.Alphabet(defacto_alphabet)
 
-        if alphabet :
-            if not defacto_alphabet.alphabetic(alphabet) :
+        if alphabet:
+            if not defacto_alphabet.alphabetic(alphabet):
                 raise ValueError("Incompatible alphabets: %s , %s (defacto)"
                                  % (alphabet, defacto_alphabet))
-        else :
+        else:
             alphabets = (unambiguous_rna_alphabet,
-                        unambiguous_dna_alphabet,
-                        unambiguous_protein_alphabet,
-                      )
-            for a in alphabets :
-                if defacto_alphabet.alphabetic(a) :
+                         unambiguous_dna_alphabet,
+                         unambiguous_protein_alphabet,
+                         )
+            for a in alphabets:
+                if defacto_alphabet.alphabetic(a):
                     alphabet = a
                     break
-            if not alphabet :
+            if not alphabet:
                 alphabet = defacto_alphabet
 
-
         # The last item of each row may be extra cruft. Remove
-        if len(items[0]) == len(header) +1 :
-            for r in items :
+        if len(items[0]) == len(header) + 1:
+            for r in items:
                 r.pop()
 
         # items should now be a list of lists of numbers (as strings)
         rows = len(items)
         cols = len(items[0])
-        matrix = numpy.zeros( (rows,cols) , dtype=numpy.float64)
-        for r in range( rows) :
+        matrix = numpy.zeros((rows, cols), dtype=numpy.float64)
+        for r in range(rows):
             for c in range(cols):
-                matrix[r,c] = float( items[r][c])
+                matrix[r, c] = float(items[r][c])
 
-        if position_header :
+        if position_header:
             matrix.transpose()
 
         return _my_Motif(defacto_alphabet, matrix).reindex(alphabet)
-
 # End of code modified from weblogo version 3.4
-#==============================================================
+# ==============================================================
 
 
-def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoheight, barheight, barspacing, fix_limits={}, fixlongname=False, overlay_cmap=None, underlay=False, scalebar=False):
+def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin,
+                logoheight, barheight, barspacing, fix_limits={},
+                fixlongname=False, overlay_cmap=None, underlay=False,
+                scalebar=False):
     """Makes overlay for *LogoPlot*.
 
     This function creates colored bars overlay bars showing up to two
@@ -917,11 +1011,11 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
 
     * *barspacing* is the vertical spacing between bars in points.
 
-    * *fix_limits* has the same meaning of the variable of this name used by *LogoPlot*.
+    * *fix_limits* has the same meaning as in  *LogoPlot*.
 
-    * *fixlongname* has the same meaning of the variable of this name used by *LogoPlot*.
+    * *fixlongname* has the same meaning as in *LogoPlot*.
 
-    * *overlay_cmap* has the same meaning of the variable of this name used by *LogoPlot*.
+    * *overlay_cmap* has the same meaning as in *LogoPlot*.
 
     * *underlay* is a bool. If `True`, make an underlay rather than an overlay.
 
@@ -935,7 +1029,7 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
     else:
         mapper = pylab.cm.ScalarMappable(cmap=overlay_cmap)
         cmap = mapper.get_cmap()
-    pts_per_inch = 72.0 # to convert between points and inches
+    pts_per_inch = 72.0  # to convert between points and inches
     # some general properties of the plot
     matplotlib.rc('text', usetex=True)
     matplotlib.rc('xtick', labelsize=8)
@@ -945,54 +1039,72 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
     matplotlib.rc('ytick.major', size=3)
     matplotlib.rc('xtick.major', size=2.5)
     # define sizes (still in points)
-    colorbar_bmargin = 20 # margin below color bars in points
-    colorbar_tmargin = 15 # margin above color bars in points
+    colorbar_bmargin = 20  # margin below color bars in points
+    colorbar_tmargin = 15  # margin above color bars in points
     nlines = int(math.ceil(len(sites) / float(nperline)))
-    lmargin = 25 # left margin in points
+    lmargin = 25  # left margin in points
     barwidth = nperline * sitewidth
     figwidth = lmargin + rmargin + barwidth
-    figheight = nlines * (logoheight + len(overlay) * (barheight +
-            barspacing)) + (barheight + colorbar_bmargin + colorbar_tmargin) + (
-            int(underlay) * len(overlay) * (barheight + barspacing))
+    figheight = (nlines *
+                 (logoheight + len(overlay) * (barheight + barspacing)) +
+                 (barheight + colorbar_bmargin + colorbar_tmargin) +
+                 (int(underlay) * len(overlay) * (barheight + barspacing)))
     # set up the figure and axes
-    fig = pylab.figure(figsize=(figwidth / pts_per_inch, figheight / pts_per_inch))
+    fig = pylab.figure(figsize=(figwidth / pts_per_inch,
+                                figheight / pts_per_inch))
     # determine property types
     prop_types = {}
     for (prop_d, shortname, longname) in overlay:
         if shortname == longname == 'wildtype':
             assert all([(isinstance(prop, str) and len(prop) == 1) for
-                    prop in prop_d.values()]), 'prop_d does not give letters'
+                        prop in prop_d.values()]),\
+                        'prop_d does not give letters'
             proptype = 'wildtype'
-            (vmin, vmax) = (0, 1) # not used, but need to be assigned
-            propcategories = None # not used, but needs to be assigned
+            (vmin, vmax) = (0, 1)  # not used, but need to be assigned
+            propcategories = None  # not used, but needs to be assigned
         elif all([isinstance(prop, str) for prop in prop_d.values()]):
             proptype = 'discrete'
             propcategories = list(set(prop_d.values()))
             propcategories.sort()
             (vmin, vmax) = (0, len(propcategories) - 1)
-        elif all ([isinstance(prop, (int, float)) for prop in prop_d.values()]):
+        elif all([isinstance(prop, (int, float)) for prop in prop_d.values()]):
             proptype = 'continuous'
             propcategories = None
             (vmin, vmax) = (min(prop_d.values()), max(prop_d.values()))
-            # If vmin is slightly greater than zero, set it to zero. This helps for RSA properties.
+            # If vmin is slightly greater than zero, set it to zero.
+            # This helps for RSA properties.
             if vmin >= 0 and vmin / float(vmax - vmin) < 0.05:
                 vmin = 0.0
                 # And if vmax is just a bit less than one, set it to that...
                 if 0.9 <= vmax <= 1.0:
                     vmax = 1.0
         else:
-            raise ValueError("Property %s is neither continuous or discrete. Values are:\n%s" % (shortname, str(prop_d.items())))
+            raise ValueError("Property %s is neither continuous or discrete. "
+                             "Values are:\n%s"
+                             % (shortname, str(prop_d.items())))
         if shortname in fix_limits:
-            (vmin, vmax) = (min(fix_limits[shortname][0]), max(fix_limits[shortname][0]))
-        assert vmin < vmax, "vmin >= vmax, did you incorrectly use fix_vmin and fix_vmax?"
+            (vmin, vmax) = (min(fix_limits[shortname][0]),
+                            max(fix_limits[shortname][0]))
+        assert vmin < vmax, ("vmin >= vmax, did you incorrectly use "
+                             "fix_vmin and fix_vmax?")
         prop_types[shortname] = (proptype, vmin, vmax, propcategories)
-    assert len(prop_types) == len(overlay), "Not as many property types as overlays. Did you give the same name (shortname) to multiple properties in the overlay?"
+    assert len(prop_types) == len(overlay), ("Not as many property types as "
+                                             "overlays. Did you give the same "
+                                             "name (shortname) to multiple "
+                                             "properties in the overlay?")
     # loop over each line of the multi-lined plot
     prop_image = {}
     for iline in range(nlines):
-        isites = sites[iline * nperline : min(len(sites), (iline + 1) * nperline)]
+        isites = sites[iline * nperline: min(len(sites),
+                       (iline + 1) * nperline)]
         xlength = len(isites) * sitewidth
-        logo_ax = pylab.axes([lmargin / figwidth, ((nlines - iline - 1) * (logoheight + len(overlay) * (barspacing + barheight))) / figheight, xlength / figwidth, logoheight / figheight], frameon=False)
+        logo_ax = pylab.axes([lmargin / figwidth,
+                             (((nlines - iline - 1) *
+                                 (logoheight + len(overlay) *
+                                  (barspacing + barheight))) /
+                                 figheight),
+                              xlength / figwidth,
+                              logoheight / figheight], frameon=False)
         logo_ax.yaxis.set_ticks_position('none')
         logo_ax.xaxis.set_ticks_position('none')
         pylab.yticks([])
@@ -1000,16 +1112,18 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
         pylab.xticks([])
         for (iprop, (prop_d, shortname, longname)) in enumerate(overlay):
             (proptype, vmin, vmax, propcategories) = prop_types[shortname]
-            prop_ax = pylab.axes([
-                    lmargin / figwidth,
-                    ((nlines - iline - 1) * (logoheight +
-                        len(overlay) * (barspacing + barheight)) +
-                        (1 - int(underlay)) * logoheight + int(underlay) *
-                        barspacing + iprop * (barspacing + barheight))
-                        / figheight,
-                    xlength / figwidth,
-                    barheight / figheight],
-                    frameon=(proptype != 'wildtype'))
+            prop_ax = pylab.axes([lmargin / figwidth,
+                                 (((nlines - iline - 1) *
+                                  (logoheight + len(overlay) *
+                                   (barspacing + barheight)) +
+                                  (1 - int(underlay)) *
+                                  logoheight +
+                                  int(underlay) *
+                                  barspacing + iprop *
+                                  (barspacing + barheight)) /
+                                  figheight),
+                                 xlength / figwidth, barheight / figheight],
+                                 frameon=(proptype != 'wildtype'))
             prop_ax.xaxis.set_ticks_position('none')
             pylab.xticks([])
             pylab.xlim((0, len(isites)))
@@ -1019,21 +1133,29 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
                 prop_ax.yaxis.set_ticks_position('none')
                 for (isite, site) in enumerate(isites):
                     pylab.text(isite + 0.5, -0.5, prop_d[site], size=9,
-                            horizontalalignment='center', family='monospace')
+                               horizontalalignment='center',
+                               family='monospace')
                 continue
             pylab.yticks([0], [shortname], size=8)
             prop_ax.yaxis.set_ticks_position('left')
             propdata = pylab.zeros(shape=(1, len(isites)))
-            propdata[ : ] = pylab.nan # set to nan for all entries
+            propdata[:] = pylab.nan  # set to nan for all entries
             for (isite, site) in enumerate(isites):
                 if site in prop_d:
                     if proptype == 'continuous':
                         propdata[(0, isite)] = prop_d[site]
                     elif proptype == 'discrete':
-                        propdata[(0, isite)] = propcategories.index(prop_d[site])
+                        propdata[(0, isite)] = (propcategories
+                                                .index(prop_d[site]))
                     else:
                         raise ValueError('neither continuous nor discrete')
-            prop_image[shortname] = pylab.imshow(propdata, interpolation='nearest', aspect='auto', extent=[0, len(isites), 0.5, -0.5], cmap=cmap, vmin=vmin, vmax=vmax)
+            prop_image[shortname] = pylab.imshow(propdata,
+                                                 interpolation='nearest',
+                                                 aspect='auto',
+                                                 extent=[0, len(isites),
+                                                         0.5, -0.5],
+                                                 cmap=cmap,
+                                                 vmin=vmin, vmax=vmax)
             pylab.yticks([0], [shortname], size=8)
 
     # set up colorbar axes, then color bars
@@ -1044,12 +1166,14 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
         colorbarwidth = 0.4
         colorbarspacingwidth = 1.0 - colorbarwidth
     elif ncolorbars:
-        colorbarspacingfrac = 0.5 # space between color bars is this fraction of bar width
-        colorbarwidth = 1.0 / (ncolorbars * (1.0 + colorbarspacingfrac)) # width of color bars in fraction of figure width
-        colorbarspacingwidth = colorbarwidth * colorbarspacingfrac # width of color bar spacing in fraction of figure width
+        # space between color bars is this fraction of bar width
+        colorbarspacingfrac = 0.5
+        # width of color bars in fraction of figure width
+        colorbarwidth = 1.0 / (ncolorbars * (1.0 + colorbarspacingfrac))
+        # width of color bar spacing in fraction of figure width
+        colorbarspacingwidth = colorbarwidth * colorbarspacingfrac
     # bottom of color bars
     ybottom = 1.0 - (colorbar_tmargin + barheight) / figheight
-    propnames = {}
     icolorbar = -1
     icolorbarshift = 0
     while icolorbar < len(overlay):
@@ -1059,17 +1183,17 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
             if scalebar:
                 (scalebarheight, scalebarlabel) = scalebar
                 xleft = (colorbarspacingwidth * 0.5 + icolorbar *
-                        (colorbarwidth + colorbarspacingwidth))
+                         (colorbarwidth + colorbarspacingwidth))
                 ytop = 1 - colorbar_tmargin / figheight
                 scalebarheightfrac = scalebarheight / figheight
                 # follow here for fig axes: https://stackoverflow.com/a/5022412
                 fullfigax = pylab.axes([0, 0, 1, 1], facecolor=(1, 1, 1, 0))
                 fullfigax.axvline(x=xleft, ymin=ytop - scalebarheightfrac,
-                        ymax=ytop, color='black', linewidth=1.5)
+                                  ymax=ytop, color='black', linewidth=1.5)
                 pylab.text(xleft + 0.005, ytop - scalebarheightfrac / 2.0,
-                        scalebarlabel, verticalalignment='center',
-                        horizontalalignment='left',
-                        transform=fullfigax.transAxes)
+                           scalebarlabel, verticalalignment='center',
+                           horizontalalignment='left',
+                           transform=fullfigax.transAxes)
             continue
 
         (prop_d, shortname, longname) = overlay[icolorbar]
@@ -1084,25 +1208,41 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
             propname = longname
         else:
             propname = "%s (%s)" % (longname, shortname)
-        colorbar_ax = pylab.axes([colorbarspacingwidth * 0.5 + (icolorbar - icolorbarshift - int(not bool(scalebar))) * (colorbarwidth + colorbarspacingwidth), ybottom, colorbarwidth, barheight / figheight], frameon=True)
+        colorbar_ax = pylab.axes([colorbarspacingwidth * 0.5 +
+                                  (icolorbar - icolorbarshift -
+                                   int(not bool(scalebar))) *
+                                  (colorbarwidth + colorbarspacingwidth),
+                                  ybottom,
+                                  colorbarwidth,
+                                  barheight / figheight],
+                                 frameon=True)
         colorbar_ax.xaxis.set_ticks_position('bottom')
         colorbar_ax.yaxis.set_ticks_position('none')
         pylab.xticks([])
         pylab.yticks([])
         pylab.title(propname, size=9)
         if proptype == 'continuous':
-            cb = pylab.colorbar(prop_image[shortname], cax=colorbar_ax, orientation='horizontal')
-            # if range is close to zero to one, manually set tics to 0, 0.5, 1. This helps for RSA
+            cb = pylab.colorbar(prop_image[shortname],
+                                cax=colorbar_ax,
+                                orientation='horizontal')
+            # if range is close to zero to one, manually set tics to 0, 0.5, 1.
+            # This helps for RSA
             if -0.1 <= vmin <= 0 and 1.0 <= vmax <= 1.15:
                 cb.set_ticks([0, 0.5, 1])
                 cb.set_ticklabels(['0', '0.5', '1'])
             # if it seems plausible, set integer ticks
             if 4 < (vmax - vmin) <= 11:
-                fixedticks = [itick for itick in range(int(vmin), int(vmax) + 1)]
+                fixedticks = [itick for itick in
+                              range(int(vmin), int(vmax) + 1)]
                 cb.set_ticks(fixedticks)
                 cb.set_ticklabels([str(itick) for itick in fixedticks])
         elif proptype == 'discrete':
-            cb = pylab.colorbar(prop_image[shortname], cax=colorbar_ax, orientation='horizontal', boundaries=[i for i in range(len(propcategories) + 1)], values=[i for i in range(len(propcategories))])
+            cb = pylab.colorbar(prop_image[shortname],
+                                cax=colorbar_ax,
+                                orientation='horizontal',
+                                boundaries=[i for i in
+                                            range(len(propcategories) + 1)],
+                                values=[i for i in range(len(propcategories))])
             cb.set_ticks([i + 0.5 for i in range(len(propcategories))])
             cb.set_ticklabels(propcategories)
         else:
