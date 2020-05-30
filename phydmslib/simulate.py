@@ -319,9 +319,9 @@ def simulateAlignment(model, treeFile, alignmentPrefix,
 
     The result of this function is a simulated FASTA alignment. If `nSim`
     is set to 1 or not specified then the simulated alignment will be named
-     `'{alignmentPrefix}_simulatedalignment.fasta'`. Otherwise, there will be
-     an alignment named `'{alignmentPrefix}_{rep}_simulatedalignment.fasta'`
-     for `rep` in `range(nSim)`.
+    `'{alignmentPrefix}_simulatedalignment.fasta'`. Otherwise, there will be
+    an alignment named `'{alignmentPrefix}_{rep}_simulatedalignment.fasta'`
+    for `rep` in `range(nSim)`.
 
     """
     if randomSeed is False:
