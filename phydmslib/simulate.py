@@ -27,6 +27,7 @@ class Simulator(object):
     simulate an aligment using `Simulator.simulate`.
 
     See `__init__` for how to initialize a `Simulator`.
+
     Attributes:
         `tree` (instance of `Bio.Phylo.BaseTree.Tree` derived class)
             Phylogenetic tree. Branch lengths are in units of codon
