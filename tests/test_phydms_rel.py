@@ -24,7 +24,7 @@ class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
     PREFS = os.path.abspath(os.path.join(os.path.dirname(__file__),
                             './REL_input_data/NP_prefs.csv'))
     MODEL = 'ExpCM'
-    K2 = 4  # Number of bins used for empirical_bayes integration
+    J = 4  # Number of bins used for empirical Bayesian integration
     OUTPREFIX = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                 './_phydms_rel_test_results/'))
     EXPECTED_PREFIX = os.path.abspath(os.path.join(os.path.dirname(__file__),
@@ -45,19 +45,21 @@ class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
                 os.path.isfile(f), "Can't find test file {0}".format(f))
 
         ncpus = 1
-        model_with_bins = self.MODEL + '_k2_' + str(self.K2)
+        model_with_bins = self.MODEL + '_k2_' + str(self.J)
 
         if self.MODEL is 'ExpCM':
             subprocess.check_call(['phydms', self.ALIGNMENT, self.TREE,
                                   'ExpCM_{0}'.format(self.PREFS),
                                    self.OUTPREFIX + model_with_bins,
                                    '--ncpus', str(ncpus), '--gammaomega',
-                                   '--empirical_bayes', str(self.K2)])
+                                   '--random_effects_likelihood',
+                                   '--REL_ncats', str(self.J)])
         elif self.MODEL is 'YNGKP_M5':
             subprocess.check_call(['phydms', self.ALIGNMENT, self.TREE,
                                   'YNGKP_M5', self.OUTPREFIX + model_with_bins,
-                                   '--ncpus', str(ncpus), '--empirical_bayes',
-                                   str(self.K2)])
+                                   '--ncpus', str(ncpus),
+                                   '--random_effects_likelihood',
+                                   '--REL_ncats', str(self.J)])
         else:
             raise ValueError('Only ExpCM and YNGKP models are implemented at '
                              'this time.')
@@ -112,7 +114,7 @@ class test_phydms_rel_ExpCM_k2_50(test_phydms_rel_ExpCM_k2_4):
     """Tests command-line usage of REL implementation of ``phydms`` with 50
        bins used for integration.
     """
-    K2 = 50
+    J = 50
 
 
 class test_phydms_rel_YNGKP_M5_k2_4(test_phydms_rel_ExpCM_k2_4):
@@ -126,7 +128,7 @@ class test_phydms_rel_YNGKP_M5_k2_50(test_phydms_rel_YNGKP_M5_k2_4):
     """Tests command-line usage of REL implementation of YNGKP_M5 with 50
        bins used for integration.
     """
-    K2 = 50
+    J = 50
 
 
 class test_phydms_rel_ExpCM_simulated(test_phydms_rel_ExpCM_k2_4):

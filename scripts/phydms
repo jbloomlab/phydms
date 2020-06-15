@@ -542,7 +542,7 @@ def main():
                         reverse=True)]))
 
         # given a distribution of omega values, compute posterior probabilities
-        if args['empirical_bayes']:
+        if args['random_effects_likelihood']:
             # set up models
             if isinstance(args['model'], str) and \
                yngkp_match.search(args['model']) and \
@@ -557,15 +557,15 @@ def main():
                     prefslist, g, kappa=tl.model.kappa, beta=tl.model.beta,
                     freeparams=['mu', 'omega'])
             else:
-                raise ValueError('Empirical bayes integration requires a '
+                raise ValueError('Random-effects-likelihood approach requires '
                                  'distribution of omega values.')
             logger.info('Distribution of omega values will be integrated '
                         'with {0} discrete categories.'.format(
-                            args['empirical_bayes']))
+                            args['REL_ncats']))
             omegas = phydmslib.models.DiscreteGamma(tl.model.alpha_lambda,
                                                     tl.model.beta_lambda,
-                                                    args['empirical_bayes'])
-            assert len(omegas) == args['empirical_bayes']
+                                                    args['REL_ncats'])
+            assert len(omegas) == args['REL_ncats']
             logger.info('Constructing a substitution model for each '
                         'discrete category.')
             # For each omega value, list of likelihoods by site

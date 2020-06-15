@@ -1,7 +1,8 @@
 """Runs ``phydms_comprehensive``
 
 This test examines the functionality of ``phydms_comprehensive`` when run
-from the command-line with the `--gammaomega` and `--empirical_bayes` flags.
+from the command-line with the `--gammaomega` and
+`--random_effects_likelihood` flags.
 
 Written by Jesse Bloom, Sarah Hilton, and Jonathan Mah
 """
@@ -16,8 +17,8 @@ import pandas
 
 class test_phydms_comprehensive_REL(unittest.TestCase):
     """Tests command-line ``phydms_comprehensive`` with the `--gammaomega`
-    and `--empirical_bayes` flags. This test is performed with the minimum
-    number of categories used for integration, being 2."""
+    and `--random_effects_likelihood` flags. This test is performed with
+    the minimum number of categories used for integration, being 2."""
 
     def test_NP(self):
         """Tests command-line ``phydms_comprehensive`` on NP data."""
@@ -38,13 +39,13 @@ class test_phydms_comprehensive_REL(unittest.TestCase):
 
         K = 2  # Number of bins used in fitting gamma distribution
 
-        K2 = 2  # Number of bins used in empirical Bayes integration
+        J = 2  # Number of bins used in empirical Bayesian integration
 
         subprocess.check_call(
             ['phydms_comprehensive', outprefix, alignment,
              prefs, "--tree", tree, "--omegabysite", '--brlen', 'scale',
              '--ncpus', str(ncpus), '--gammaomega', '--ncats', str(K),
-             '--empirical_bayes', str(K2)])
+             '--random_effects_likelihood', '--REL_ncats', str(J)])
 
         expectedresults = os.path.abspath(os.path.join(
             os.path.dirname(__file__), './expected_NP_test_results/'))

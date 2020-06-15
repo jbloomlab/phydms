@@ -142,10 +142,10 @@ def main():
     #set up the YNGKP models
     models = {'YNGKP_M0':('YNGKP_M0', additionalcmds)}
     filesuffixes['YNGKP_M0'] = filesuffixlist
-    if args['empirical_bayes']:
+    if args['random_effects_likelihood']:
         models['YNGKP_M5'] = (
-            'YNGKP_M5', additionalcmds + ['--empirical_bayes'] +
-            [str(args['empirical_bayes'])])
+            'YNGKP_M5', additionalcmds + ['--random_effects_likelihood'] +
+            ['--REL_ncats'] + [str(args['REL_ncats'])])
         filesuffixes['YNGKP_M5'] = copy.deepcopy(filesuffixlist) + \
             ['_omegabycategory.csv'] + ['_posteriorprobabilities.csv']
     else:
@@ -170,11 +170,12 @@ def main():
         models[modelname] = ('ExpCM_{0}'.format(prefsfile), additionalcmds)
         if args["gammaomega"]:
             gammaomegamodelname = '{0}_gammaomega'.format(modelname)
-            if args['empirical_bayes']:
+            if args['random_effects_likelihood']:
                 models[gammaomegamodelname] = (
                     'ExpCM_{0}'.format(prefsfile), additionalcmds +
                     ['--gammaomega'] + ['--ncats'] + [str(args['ncats'])] +
-                    ['--empirical_bayes'] + [str(args['empirical_bayes'])])
+                    ['--random_effects_likelihood'] + ['--REL_ncats'] +
+                    [str(args['REL_ncats'])])
                 filesuffixes[gammaomegamodelname] = \
                     copy.deepcopy(filesuffixlist) + \
                     ['_omegabycategory.csv'] + ['_posteriorprobabilities.csv']
@@ -196,12 +197,12 @@ def main():
             filesuffixes[avgmodelname] = filesuffixlist
             if args["gammaomega"]:
                 avgmodelname = 'averaged_{0}_gammaomega'.format(modelname)
-                if args['empirical_bayes']:
+                if args['random_effects_likelihood']:
                     models[avgmodelname] = (
                         'ExpCM_{0}'.format(prefsfile), additionalcmds +
                         ['--gammaomega'] + ['--ncats'] + [str(args['ncats'])] +
-                        ['--avgprefs'] + ['--empirical_bayes'] +
-                        [str(args['empirical_bayes'])], 0)
+                        ['--avgprefs'] + ['--random_effects_likelihood'] +
+                        ['--REL_ncats'] + [str(args['REL_ncats'])], 0)
                     filesuffixes[avgmodelname] = \
                         copy.deepcopy(filesuffixlist) + \
                         ['_omegabycategory.csv'] + \
@@ -224,12 +225,12 @@ def main():
             filesuffixes[randmodelname] = filesuffixlist
             if args["gammaomega"]:
                 randmodelname = 'randomized_{0}_gammaomega'.format(modelname)
-                if args['empirical_bayes']:
+                if args['random_effects_likelihood']:
                     models[randmodelname] = (
                         'ExpCM_{0}'.format(prefsfile), additionalcmds +
                         ['--gammaomega'] + ['--ncats'] + [str(args['ncats'])] +
-                        ['--randprefs'] + ['--empirical_bayes'] +
-                        [str(args['empirical_bayes'])], 0)
+                        ['--randprefs'] + ['--random_effects_likelihood'] +
+                        ['--REL_ncats'] + [str(args['REL_ncats'])], 0)
                     filesuffixes[randmodelname] = \
                         copy.deepcopy(filesuffixlist) + \
                         ['_omegabycategory.csv'] + \

@@ -331,10 +331,15 @@ def PhyDMSComprehensiveParser():
     parser.set_defaults(randprefs=False)
     parser.add_argument('--randprefs', dest='randprefs', action='store_true',
             help="Include ExpCM models with randomized preferences.")
-    parser.add_argument('--empirical_bayes', default=False,
-            type=IntGreaterThanOne, dest='empirical_bayes', help='The number '
-            'of categories used for the integration of a discretized omega '
-            'distribution.')
+    parser.set_defaults(random_effects_likelihood=False)
+    parser.add_argument('--random_effects_likelihood',
+            dest='random_effects_likelihood', action='store_true',
+            help="Compute posterior probability of biologically interesting "
+            "selection for each site.")
+    parser.add_argument('--REL_ncats', default=50,
+            type=IntGreaterThanOne, help='The number of categories used '
+            'for the integration of a discretized omega distribution when '
+            'applying a random-effects-likelihood approach.')
     parser.add_argument('-v', '--version', action='version', version=
             '%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
@@ -423,9 +428,15 @@ def PhyDMSParser():
     parser.set_defaults(nograd=False)
     parser.add_argument('--nograd', dest='nograd', action='store_true',
             help="Do not use gradients for likelihood maximization.")
-    parser.add_argument('--empirical_bayes', default=False,
+    parser.set_defaults(random_effects_likelihood=False)
+    parser.add_argument('--random_effects_likelihood',
+            dest='random_effects_likelihood', action='store_true',
+            help="Compute posterior probability of biologically interesting "
+            "selection for each site.")
+    parser.add_argument('--REL_ncats', default=50,
             type=IntGreaterThanOne, help='The number of categories used '
-            'for the integration of a discretized omega distribution.')
+            'for the integration of a discretized omega distribution when '
+            'applying a random-effects-likelihood approach.')
     parser.add_argument('-v', '--version', action='version', version=(
             ('%(prog)s {version}'.format(version=phydmslib.__version__))))
     return parser
