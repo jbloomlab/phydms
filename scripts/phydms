@@ -560,8 +560,8 @@ def main():
                 raise ValueError('Random-effects-likelihood approach requires '
                                  'distribution of omega values.')
             logger.info('Distribution of omega values will be integrated '
-                        'with {0} discrete categories.'.format(
-                            args['REL_ncats']))
+                        'with {0} discrete categories.'
+                        .format(args['REL_ncats']))
             omegas = phydmslib.models.DiscreteGamma(tl.model.alpha_lambda,
                                                     tl.model.beta_lambda,
                                                     args['REL_ncats'])
