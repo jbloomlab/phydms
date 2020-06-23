@@ -32,10 +32,10 @@ This creates the alignment ``SUMO1_alignment.fasta`` in which all gaps relative 
 
 In addition to creating the alignment, the plot ``SUMO1_alignment.pdf`` is crated which shows the nucleotide and protein divergence from the reference *Homo sapiens* sequence of all homologs that passed the filters related to no premature stops, divisible by 3, and no stop codons. Here is that plot:
 
-.. figure:: SUMO1_alignment.jpg
+.. figure:: _static/SUMO1_alignment.jpg
    :width: 40%
    :align: center
-   :alt: SUMO1_alignment.jpg
+   :alt: _static/SUMO1_alignment.jpg
 
    A ``jpg`` version of the plot ``SUMO1_alignment.pdf``.
 
@@ -56,4 +56,3 @@ If there are sequences that you specifically want to exclude, you can do somethi
 
 
 .. include:: weblinks.txt
-   

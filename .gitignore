@@ -11,6 +11,7 @@ custom_matrix_frequencies.txt
 ._*
 docs/_build/
 docs/_template/
+docs/phydmslib.*
 build/
 *.sbatch
 *.swp

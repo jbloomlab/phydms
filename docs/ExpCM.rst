@@ -47,7 +47,7 @@ The *ExpCM* substitution model
 The substitution model is in mutation-selection form. The rate of substitution :math:`P_{r,xy}` from codon :math:`x` to codon :math:`y` at site :math:`r` is
 
 .. math::
-   :label: Prxy
+   :label: Prxy_ExpCM
 
    P_{r,xy} =
    Q_{xy} \times F_{r,xy}
@@ -57,7 +57,7 @@ where :math:`Q_{xy}` is the rate of mutation from *x* to *y* and :math:`F_{r,xy}
 The mutation rate terms :math:`Q_{xy}` are given by what is essentially a `HKY85`_ model. It consists of transition-transversion ratio :math:`\kappa` and four nucleotide frequencies :math:`\phi_{A}`, :math:`\phi_{C}`, :math:`\phi_{G}`, and :math:`\phi_{T}` (these nucleotide frequencies only constitute three independent parameters since they sum to one). The frequencies are the expected nucleotide composition in the **absence** of any selection on amino acids. The mutation rate terms are:
 
 .. math::
-   :label: Qxy
+   :label: Qxy_ExpCM
 
    Q_{xy} = \begin{cases}
             0 & \mbox{if $x$ and $y$ differ by more than one nucleotide,} \\
@@ -68,7 +68,7 @@ The mutation rate terms :math:`Q_{xy}` are given by what is essentially a `HKY85
 The selection terms :math:`F_{r,xy}` are defined in terms of the site-specific amino acid preferences. Let :math:`\pi_{r,a}` denote the preference of site :math:`r` for amino acid :math:`a`, and let :math:`\operatorname{A}\left(x\right)` denote the amino acid encoded by codon :math:`x`. Let :math:`\beta` be a *stringency parameter*, and let :math:`\omega` be a relative rate of nonsynonymous to synonymous mutations. Then the selection terms are:
 
 .. math::
-   :label: Frxy
+   :label: Frxy_ExpCM
 
    F_{r,xy} =
    \begin{cases}
@@ -77,7 +77,7 @@ The selection terms :math:`F_{r,xy}` are defined in terms of the site-specific a
    \omega \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} & \mbox{otherwise.}
    \end{cases}
 
-Equation :eq:`Frxy` differs from that described in `Bloom, Mol Biol Evol, 31:2753-2769`_ only by the addition of the :math:`\omega` parameter that differentiates nonsynonymous and synonymoust mutations; the equation in that reference was in turn based on the one originally derived by `Halpern and Bruno, Mol Biol Evol, 15:910-917`_ (although note that the Halpern and Bruno equation contains a key typographical error in the denominator). The *stringency parameter* :math:`\beta` has a value of greater than one if natural selection favors high-preference amino acids with greater stringency than suggested by the :math:`\pi_{r,a}` values, and has a value of less than one if natural selection favors high-preference amino acids with less stringency than suggested by the :math:`\pi_{r,a}` values.
+Equation :eq:`Frxy_ExpCM` differs from that described in `Bloom, Mol Biol Evol, 31:2753-2769`_ only by the addition of the :math:`\omega` parameter that differentiates nonsynonymous and synonymoust mutations; the equation in that reference was in turn based on the one originally derived by `Halpern and Bruno, Mol Biol Evol, 15:910-917`_ (although note that the Halpern and Bruno equation contains a key typographical error in the denominator). The *stringency parameter* :math:`\beta` has a value of greater than one if natural selection favors high-preference amino acids with greater stringency than suggested by the :math:`\pi_{r,a}` values, and has a value of less than one if natural selection favors high-preference amino acids with less stringency than suggested by the :math:`\pi_{r,a}` values.
 The :math:`\omega` parameter is not a ratio of nonsynonymous to synonymous mutations, but rather their relative rates after accounting for the differing preferences among sites.
 
 The stationary state of the model defined by the mutation terms alone is trivially observed to be
@@ -94,7 +94,7 @@ In `Bloom, Mol Biol Evol, 31:2753-2769`_, it is shown that the stationary state 
 
 and furthermore that this selection-term only model is reversible (the derivation in `Bloom, Mol Biol Evol, 31:2753-2769`_ doesn't include the :math:`\omega` term, but carrying through the same derivation with this term yields the above result).
 
-Finally, `Bloom, Mol Biol Evol, 31:2753-2769`_ shows that given these stationary states, the overall model defined by :eq:`Prxy` is reversible and has stationary state
+Finally, `Bloom, Mol Biol Evol, 31:2753-2769`_ shows that given these stationary states, the overall model defined by :eq:`Prxy_ExpCM` is reversible and has stationary state
 
 .. math::
    p_{r,x} = \frac{f_{r,x} \times q_x}{\sum_y f_y \times q_y} = \frac{\left(\pi_{r,\operatorname{A}\left(x\right)}\right)^{\beta} \times q_x}{\sum_y \left(\pi_{r,\operatorname{A}\left(y\right)}\right)^{\beta} \times q_y}.
@@ -148,7 +148,7 @@ One type of interesting selection is *diversifying selection*, where there is co
 
 To detect diversifying selection at specific sites within the framework of the *ExpCM* implemented in ``phydms``, we use an approach that is highly analogous the *FEL* (**f**\ixed **e**\ffects **l**\ikelihood) method described by `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_. Essentially, the tree topology, branch lengths, and all shared model parameters are fixed to their maximum-likelihood values optimized over the entire gene sequence. Then for each site :math:`r`, we fit a site-specific ratio of the rate of synonymous versus nonsynonymous substitutions while holding all holding all the other tree and model parameters constant. Effectively, this is fitting a different :math:`\omega_r` for each site, and so this analysis is indicated as ``--omegabysite`` in the ``phydms`` options.
 
-Specifically, after fixing all of the other parameters as described above, for each site :math:`r` we re-define Equation :eq:`Frxy` as
+Specifically, after fixing all of the other parameters as described above, for each site :math:`r` we re-define Equation :eq:`Frxy_ExpCM` as
 
 .. math::
    :label: Frxy_omegabysite
@@ -170,7 +170,7 @@ Identifying differentially selected amino acids by fitting preferences for each 
 ---------------------------------------------------------------------------------------
 A more complete approach is to examine each site to see the extent to which the preferences for each amino acid in nature differ from those encapsulated in the :math:`\pi_{r,a}` values. The advantage of this approach is that it can identify any form of differential selection (the approach in the previous section works best when the selection in nature is more uniform across amino acids than the :math:`\pi_{r,a}` values), and also that it can pinpoint specific amino acids that are favored or disfavored in natural evolution by an unexpected amount. The disadvantage is that ``phydms`` does not currently implement a good way to statistically test the significance of this type of differential selection, so although you can visualize and assess the selection it's hard to say that any given differential selection is significant at some specific P-value threshold.
 
-To identify differential selection, we first fix the tree / branch lengths and all parameters of the substitution model at their maximum-likelihood values obtained across the whole tree. We then define a new set of 20 preferences for each site :math:`r` that we will denote as :math:`\hat{\pi}_{r,a}` (note that these only represent 19 parameters, as :math:`1 = \sum_a \hat{\pi}_{r,a}`. We then redefine Equation :eq:`Frxy` replacing the :math:`\left(\pi_{r,a}\right)^{\beta}` values with the :math:`\hat{\pi}_{r,a}` values as
+To identify differential selection, we first fix the tree / branch lengths and all parameters of the substitution model at their maximum-likelihood values obtained across the whole tree. We then define a new set of 20 preferences for each site :math:`r` that we will denote as :math:`\hat{\pi}_{r,a}` (note that these only represent 19 parameters, as :math:`1 = \sum_a \hat{\pi}_{r,a}`. We then redefine Equation :eq:`Frxy_ExpCM` replacing the :math:`\left(\pi_{r,a}\right)^{\beta}` values with the :math:`\hat{\pi}_{r,a}` values as
 
 .. math::
    :label: Frxy_diffprefs
@@ -243,10 +243,10 @@ Specifiying diversifying pressure at sites
 ----------------------------------------------
 In some cases, it might be possible to specify *a priori* expections for the diversifying pressure at each site. For instance, viruses benefit from amino-acid change in sites targeted by the immune system and, consequently, these sites have a higher rate of amino-acid substitution than expected given their level of inherent functional constraint. We can incorporate our expectations for diversifying pressure  at specific sites into the selection terms :math:`F_{r,xy}`.
 
-Let :math:`\delta_{r}` be the pre-determined diversifying pressure for amino-acid change at site :math:`r` in the protein. A large positive value of :math:`\delta_r` corresponds to high pressure for amino-acid diversification, and negative value corresponds to expected pressure against amino-acid diversification beyond that captured in the amino-acid preferences.  We then replace :math:`\omega` in Equation :eq:`Frxy` with the expression :math:`\omega\times\left(1+\omega_{2}\times\delta_{r}\right)`, resulting in selection terms:
+Let :math:`\delta_{r}` be the pre-determined diversifying pressure for amino-acid change at site :math:`r` in the protein. A large positive value of :math:`\delta_r` corresponds to high pressure for amino-acid diversification, and negative value corresponds to expected pressure against amino-acid diversification beyond that captured in the amino-acid preferences.  We then replace :math:`\omega` in Equation :eq:`Frxy_ExpCM` with the expression :math:`\omega\times\left(1+\omega_{2}\times\delta_{r}\right)`, resulting in selection terms:
 
 .. math::
-   :label: Frxy_divpressure
+   :label: Frxy_divpressure_ExpCM
 
    F_{r,xy} =
    \begin{cases}
@@ -255,7 +255,7 @@ Let :math:`\delta_{r}` be the pre-determined diversifying pressure for amino-aci
    \omega\times\left(1+\omega_{2}\times\delta_{r}\right) \times \frac{\ln\left(\left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta}\right)}{1 - \left(\left(\pi_{r,\mathcal{A}\left(x\right)}\right)^{\beta} / \left(\pi_{r,\mathcal{A}\left(y\right)}\right)^{\beta}\right)} & \mbox{otherwise.}
    \end{cases}
 
-Whereas before :math:`\omega` reflected the elevation of non-synonymous substitutin rate (averaged across the entire gene) beyond that expected given the amino-acid preferences, now :math:`\omega` reflects a gene-wide rate of elevated non-synonymous substitution after taking into account the expected sites of diversifying pressure (as represented by :math:`\delta_r`) weighted by :math:`\omega_{2}\times\delta_{r}`. These new selection terms in equation Equation :eq:`Frxy_divpressure` are identical the selection terms in Equation :eq:`Frxy` when :math:`\omega_{2} = 0`.
+Whereas before :math:`\omega` reflected the elevation of non-synonymous substitutin rate (averaged across the entire gene) beyond that expected given the amino-acid preferences, now :math:`\omega` reflects a gene-wide rate of elevated non-synonymous substitution after taking into account the expected sites of diversifying pressure (as represented by :math:`\delta_r`) weighted by :math:`\omega_{2}\times\delta_{r}`. These new selection terms in equation Equation :eq:`Frxy_divpressure_ExpCM` are identical the selection terms in Equation :eq:`Frxy_ExpCM` when :math:`\omega_{2} = 0`.
 
 To ensure a positive value of :math:`\omega\times\left(1+\omega_{2}\times\delta_{r}\right)` with :math:`-\infty<\delta_{r}<\infty`, :math:`\omega` and :math:`\omega_{2}` are constrained in the following ways:
 
@@ -267,7 +267,7 @@ To ensure a positive value of :math:`\omega\times\left(1+\omega_{2}\times\delta_
 \frac{-1}{\max_r\delta_r}<\omega_{2}<\frac{-1}{\min_r\delta_r} & \text{otherwise}\\
 \end{cases}`
 
-This results in a total of seven free parameters: :math:`\omega`, :math:`\omega_{2}`, :math:`\beta`, :math:`\kappa`, :math:`\phi_A`, :math:`\phi_C`, and :math:`\phi_G`, an increase of one from the model with :math:`F_{r,xy}` defined by Equation :eq:`Frxy`. A likelihood ratio test can therefore by used to test if adding the specified site-specific diversifying pressure represented by the :math:`\delta_r` values actually improves the description of the gene's evolution.
+This results in a total of seven free parameters: :math:`\omega`, :math:`\omega_{2}`, :math:`\beta`, :math:`\kappa`, :math:`\phi_A`, :math:`\phi_C`, and :math:`\phi_G`, an increase of one from the model with :math:`F_{r,xy}` defined by Equation :eq:`Frxy_ExpCM`. A likelihood ratio test can therefore by used to test if adding the specified site-specific diversifying pressure represented by the :math:`\delta_r` values actually improves the description of the gene's evolution.
 
 
 .. include:: weblinks.txt
