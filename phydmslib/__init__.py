@@ -1,5 +1,10 @@
 """
-``phydmslib`` is the Python API for ``phydms``.
+================================
+phydmslib
+================================
+
+phydmslib is the Python API for phydms.
+
 """
 from ._metadata import __version__
 from ._metadata import __author__
