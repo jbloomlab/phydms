@@ -79,7 +79,8 @@ Command-line usage
     This option is not typically recommended. It will typically lead to only very slight improvements in log likelihood at substantial computational cost.
 
    \-\-omegabysite
-    If using a YNGKP model, then the :math:`\omega_r` value is nearly analogous that obtained using the *FEL* model described by `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_. If using and *ExpCM*, then :math:`\omega_r` has the meaning described in :ref:`ExpCM`. Essentially, we fix all other model / tree parameters and then compare a model that fits a synonymous and nonsynonymous rate to each site to a null model that only fits a synonymous rate; there is evidence for :math:`\omega_r \ne 1` if fitting both nonsynonymous and synonymous rate gives sufficiently better likelihood than fitting synonymous rate alone. See also the ``--omegabysite_fixsyn`` option.
+    If using a YNGKP model, then the :math:`\omega_r` value is nearly analogous that obtained using the *FEL* model described by `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_. If using an *ExpCM*, then :math:`\omega_r` has the meaning described in :ref:`ExpCM`. Essentially, we fix all other model / tree parameters and then compare a model that fits a synonymous and nonsynonymous rate to each site to a null model that only fits a synonymous rate; there is evidence for :math:`\omega_r \ne 1` if fitting both nonsynonymous and synonymous rate gives sufficiently better likelihood than fitting synonymous rate alone. See also the ``--omegabysite_fixsyn`` option.
+    For an alternative method to determine site-specific :math:`\omega_r`, please see the ``--random_effects_likelihood`` option.
 
    \-\-omegabysite_fixsyn
     This option is meaningful only if you are using ``--omegabysite``. If you use this option, then we compare a model in which we fit a nonsynonymous rate to each site to a model in which we fit nothing. The synonymous rate is not fit, and so is assumed to be equal to the overall value fit for the tree. According to `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_, in some cases this can yield greater power if there is relatively limited data. However, it comes with the risk of giving spurious results if there is substantial variation in the synonymous substitution rate among sites. This distribution is then partitioned into several discrete categories
@@ -115,17 +116,23 @@ Command-line usage
     This can be used as a control, as it merges all the information in the preferences into a non-site-specific model.
 
    \-\-random_effects_likelihood
-    This option computes the posterior probability that :math:`\omega_r \ne 1`, e.g., :math:`\omega_r > 1` or :math:`\omega_r < 1`.
-    This calculation is nearly identical to the posterior probabilities obtained using the *REL* model described by `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_.
-    In summary, as opposed to the ``--omegabysite`` option in which the model likelihood of fitting both a synonymous and nonsynonymous rate is compared to a null model that only fits a synonymous rate for each site, when using the ``random_effects_likelihood`` option, a distribution of the nonsynonymous and synonymous rates is fit across the entire gene.
+    If using a YNGKP model, then the :math:`\omega_r` value is nearly analogous that obtained using the *REL* model described by `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_.
+    If using an *ExpCM*, then :math:`\omega_r` has the meaning described in :ref:`ExpCM`.
+    We compute the posterior probability that :math:`\omega_r \ne 1`, e.g., :math:`\omega_r > 1` or :math:`\omega_r < 1` given a distribution of :math:`\omega` across the gene.
+    For an alternative method to determine site-specific :math:`\omega_r`, please see the ``--omegabysite`` option.
 
-    This option requires a gamma-distributed :math:`\omega`. Thus, you **cannot** use this option with a `model` of *ExpCM* **unless** you are also using the ``--gammaomega`` option.
-    For *YNGKP* models, set ``model`` to *YNGKP_M5* to get gamma-distributed :math:`\omega`.
+    This option requires a gamma-distributed :math:`\omega`.
+    For *ExpCM*, use the ``--gammaomega`` option.
+    For *YNGKP* models, use the *YNGKP_M5* model.
+    To control the number of categories used to compute the posterior probability, see the ``--REL_ncats`` option.
 
    \-\-REL_ncats
-    Determines the number of discrete categories to be integrated over when using ``--random_effects_likelihood``. More categories leads to slightly longer run-time, values of 50-100 are usually adequate.
+    More categories leads to slightly longer run-time, values of 50-100 are usually adequate.
 
-    Note that the ``ncats`` and ``REL_ncats`` options do **not** have to be the same, ``ncats`` contributes more to runtime than ``REL_ncats``, so it is recommended that the value given to ``ncats`` be less than the value given for ``REL_ncats`` to save on computing time.
+    Note that while the ``--ncats`` and ``--REL_ncats`` have a similar definition, the number of categories used to discretize a distribution, they are slightly different in practice.
+    ``--ncats`` controls the discretization while the distribution is being fit.
+    ``--REL_ncats`` controls the discretization of the fit distribution while calculating the posterior.
+    The calculation of the posterior is much more computationally efficient, so we recommend that ``--ncats`` :math:`<<` ``--REL_ncats``.
 
    \-\-minbrlen
     All branches with lengths less than this value will be set to this value in the initial starting tree.
@@ -201,7 +208,7 @@ In this file, `phi0A` is the corrected empirical frequency of `A` at the first c
 If you use a model with a gamma-distributed :math:`\omega` (i.e., the ``--gammarates`` option for an *ExpCM*, or the *YNGKP_M5* model) or :math:`\beta`, rather than have a single value for the parameter, there are instead two parameters that determine the gamma distribution.
 For a gamma-distributed :math:`\omega`, these are the shape parameter :math:`\alpha_{\omega}` (denoted *alpha_omega*) and the inverse scale parameter :math:`\beta_{\omega}` (denoted by *beta_omega*).
 The mean and variance of the omega distribution are :math:`\alpha_{\omega}/ \beta_{\omega}` and :math:`\alpha_{\omega} / \left(\beta_{\omega}\right)^2`, respectively.
-To get the exact values, use the :ref:`api` to call ``phydmslib.models.DiscreteGamma(alpha_omega, beta_omega, ncats)`` where *ncats* is the value set by ``--ncats``. Here is an example of the model parameter file contents for an *ExpCM* with ``--gammaomega``::
+To get the exact values, use :class:`phydmslib.models.DiscreteGamma` ``(alpha_omega, beta_omega, ncats)`` where *ncats* is the value set by ``--ncats``. Here is an example of the model parameter file contents for an *ExpCM* with ``--gammaomega``::
 
     alpha_omega = 0.835183
     beta = 3.01549
@@ -259,7 +266,8 @@ The sites are sorted with the highest half absolute sum differential preference 
 
 Gamma-distributed discrete category file
 +++++++++++++++++++++++++++++++++++++++++++
-This file has the suffix ``_omegabycategory.csv``, and is created only if using the ``--random_effects_likelihood`` option. This file gives the posterior probability of each site falling into each category, as well as the mean :math:`omega` value of each discretized category.
+This file has the suffix ``_omegabycategory.csv``, and is created only if using the ``--random_effects_likelihood`` option.
+This file gives the posterior probability of each site falling into each category, as well as the mean :math:`omega` value of each discretized category.
 These posterior probabilities are computed nearly identically to those obtained using the *REL* model as described in `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_.
 
 Here is an example of the first few lines of a file. The entries are comma separated::
@@ -271,15 +279,15 @@ Here is an example of the first few lines of a file. The entries are comma separ
     4,0.2530711698554593,0.0695219697627359
     5,0.24843828974534077,0.0695219697627359
 
-The first column gives the site numbers.
+The first column gives the site number.
 The second column gives the posterior probability of that site falling into a given category.
 The last column gives the omega value of the given category.
-The sites are sorted in ascending numerical order. The omega values of each category are sorted in ascending numerical order.
+The sites  and omega values are sorted in ascending numerical order.
 
 Site-specific posterior probability file
 +++++++++++++++++++++++++++++++++++++++++++
 This file has the suffix ``_posteriorprobabilities.csv``, and is created only if using the ``--random_effects_likelihood`` option.
-This file gives the sum total probability of each site being under either diversifying selection.
+This file gives the sum total probability of each site having an :math:`\omega_r > 1`.
 These posterior probabilities are computed nearly identically to those obtained using the *REL* model as described in `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_.
 
 Here is an example of the first few lines of a file. The entries are comma separate::

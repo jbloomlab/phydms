@@ -431,8 +431,8 @@ def PhyDMSParser():
     parser.set_defaults(random_effects_likelihood=False)
     parser.add_argument('--random_effects_likelihood',
             dest='random_effects_likelihood', action='store_true',
-            help="Compute posterior probability of biologically interesting "
-            "selection for each site.")
+            help="Infer site-specific omega (dN/dS) using the random effects "
+                  "likelihood method.")
     parser.add_argument('--REL_ncats', default=50,
             type=IntGreaterThanOne, help='The number of categories used '
             'for the integration of a discretized omega distribution when '
