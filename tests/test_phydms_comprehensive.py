@@ -15,7 +15,7 @@ import scipy
 import pandas
 
 
-class test_phydms_comprehensive_REL(unittest.TestCase):
+class test_phydms_comprehensive(unittest.TestCase):
     """Tests command-line ``phydms_comprehensive`` with the `--gammaomega`
     and `--random_effects_likelihood` flags. This test is performed with
     the minimum number of categories used for integration, being 2."""
@@ -31,7 +31,7 @@ class test_phydms_comprehensive_REL(unittest.TestCase):
         for f in [prefs, alignment]:
             self.assertTrue(os.path.isfile(f), "Can't find file {0}".format(f))
         outprefix = os.path.abspath(os.path.join(
-            os.path.dirname(__file__), './NP_test_results_REL/'))
+            os.path.dirname(__file__), './NP_test_results/'))
         if outprefix[-1] != "/":
             outprefix = "{0}/".format(outprefix)
 

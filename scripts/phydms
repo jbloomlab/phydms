@@ -247,7 +247,7 @@ def main():
             model = phydmslib.models.YNGKP_M0(e_pw, nsites, freeparams=
                     ['mu', 'omega', 'kappa'])
             if modelvariant == 'M0':
-                pass
+                assert not args['random_effects_likelihood'], "'--random_effects_likelihood' incompatible with YNKGP_M0. Please specify the YNGKP_M5 model."
             elif modelvariant == 'M5':
                 logger.info(('For this {0} model, omega will be drawn from '
                         '{1} gamma-distributed categories.').format(
@@ -263,6 +263,8 @@ def main():
             prefsfile = args['model'][1]
             logger.info(('The model will be an ExpCM informed by site-specific '
                     'amino-acid preferences in {0}').format(prefsfile))
+            if args['random_effects_likelihood']:
+                assert args['gammaomega'], "For ExpCM, --random_effects_likelihood must be called with --gammaomega"
             for (argname, desc) in [('avgprefs', 'averaged'),
                     ('randprefs', 'randomized')]:
                 if args[argname]:
@@ -551,17 +553,16 @@ def main():
                 model = phydmslib.models.YNGKP_M0(
                     e_pw, nsites=tl.model.nsites, kappa=tl.model.kappa,
                     freeparams=['mu', 'omega', 'kappa'])
-            elif args['model'][0] == 'ExpCM' and args['gammaomega']:
+            elif args['model'][0] == 'ExpCM':
                 # Reconstruct ExpCM with fit model parameters
                 model = phydmslib.models.ExpCM_empirical_phi(
                     prefslist, g, kappa=tl.model.kappa, beta=tl.model.beta,
                     freeparams=['mu', 'omega'])
             else:
-                raise ValueError('Random-effects-likelihood approach requires '
-                                 'distribution of omega values.')
+                raise ValueError('model {0} incompatible with random-effects-likelihood method.'.format(args['model']))
             logger.info('Distribution of omega values will be integrated '
-                        'with {0} discrete categories.'.format(
-                            args['REL_ncats']))
+                        'with {0} discrete categories.'
+                        .format(args['REL_ncats']))
             omegas = phydmslib.models.DiscreteGamma(tl.model.alpha_lambda,
                                                     tl.model.beta_lambda,
                                                     args['REL_ncats'])
