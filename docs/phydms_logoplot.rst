@@ -52,10 +52,10 @@ You can do this with a command like this::
 
 Here is the resulting plot:
 
-.. image:: _static/prefs_logoplot.pdf
+.. image:: _static/prefs_logoplot.jpg
    :width: 95%
    :align: center
-   :alt: If your browser does not display inline PDF images, click on this text to open in a new window.
+   :alt: jpeg version of logoplot pdf.
 
 The preferences in this plot are re-scaled by the stringency parameter of :math:`\beta = 2.99`, which we got from the ``*_modelparams.txt`` file after running ``phydms``.
 
@@ -72,10 +72,10 @@ Here we overlay the diversifying selection the same preferences logo plot shown 
 
 where ``omegabysite.txt`` is the file produced by ``phydms``. The created plot looks like this:
 
-.. image:: _static/omegaoverlay_logoplot.pdf
+.. image:: _static/omegaoverlay_logoplot.jpg
    :width: 95%
    :align: center
-   :alt: If your browser does not display inline PDF images, click on this text to open in a new window.
+   :alt: jpeg version of omega overlay pdf.
 
 Note that the plot shows the *P*-value that :math:`\omega_r` is greater than or less than one (recall that the *P*-values are more meaningful than the actual :math:`\omega_r` values for this kind of analysis).
 These *P*-values are **not** corrected for multiple testing (for that, look at the *Q*-values output by ``phydms``).
@@ -92,10 +92,10 @@ Here is an example::
 
     phydms_logoplot --diffprefs diffprefsbysite.txt diffprefs_logplot.pdf --nperline 72
 
-.. image:: _static/diffprefs_logoplot.pdf
+.. image:: _static/diffprefs_logoplot.jpg
    :width: 95%
    :align: center
-   :alt: If your browser does not display inline PDF images, click on this text to open in a new window.
+   :alt: jpeg version of diff prefs pdf.
 
 
 

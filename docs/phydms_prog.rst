@@ -201,7 +201,7 @@ In this file, `phi0A` is the corrected empirical frequency of `A` at the first c
 If you use a model with a gamma-distributed :math:`\omega` (i.e., the ``--gammarates`` option for an *ExpCM*, or the *YNGKP_M5* model) or :math:`\beta`, rather than have a single value for the parameter, there are instead two parameters that determine the gamma distribution.
 For a gamma-distributed :math:`\omega`, these are the shape parameter :math:`\alpha_{\omega}` (denoted *alpha_omega*) and the inverse scale parameter :math:`\beta_{\omega}` (denoted by *beta_omega*).
 The mean and variance of the omega distribution are :math:`\alpha_{\omega}/ \beta_{\omega}` and :math:`\alpha_{\omega} / \left(\beta_{\omega}\right)^2`, respectively.
-To get the exact values, use the :ref:`api` to call ``phydmslib.models.DiscreteGamma(alpha_omega, beta_omega, ncats)`` where *ncats* is the value set by ``--ncats``. Here is an example of the model parameter file contents for an *ExpCM* with ``--gammaomega``::
+To get the exact values, use :class:`phydmslib.models.DiscreteGamma` ``(alpha_omega, beta_omega, ncats)`` where *ncats* is the value set by ``--ncats``. Here is an example of the model parameter file contents for an *ExpCM* with ``--gammaomega``::
 
     alpha_omega = 0.835183
     beta = 3.01549
