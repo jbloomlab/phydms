@@ -201,7 +201,7 @@ In this file, `phi0A` is the corrected empirical frequency of `A` at the first c
 If you use a model with a gamma-distributed :math:`\omega` (i.e., the ``--gammarates`` option for an *ExpCM*, or the *YNGKP_M5* model) or :math:`\beta`, rather than have a single value for the parameter, there are instead two parameters that determine the gamma distribution.
 For a gamma-distributed :math:`\omega`, these are the shape parameter :math:`\alpha_{\omega}` (denoted *alpha_omega*) and the inverse scale parameter :math:`\beta_{\omega}` (denoted by *beta_omega*).
 The mean and variance of the omega distribution are :math:`\alpha_{\omega}/ \beta_{\omega}` and :math:`\alpha_{\omega} / \left(\beta_{\omega}\right)^2`, respectively.
-To get the exact values, use :class:`phydmslib.models.DiscreteGamma` ``(alpha_omega, beta_omega, ncats)`` where *ncats* is the value set by ``--ncats``. Here is an example of the model parameter file contents for an *ExpCM* with ``--gammaomega``::
+To get the exact values, use the :ref:`api` to call ``phydmslib.models.DiscreteGamma(alpha_omega, beta_omega, ncats)`` where *ncats* is the value set by ``--ncats``. Here is an example of the model parameter file contents for an *ExpCM* with ``--gammaomega``::
 
     alpha_omega = 0.835183
     beta = 3.01549
@@ -257,5 +257,40 @@ The first column gives the site numbers, subsequent columns give the differentia
 The last column gives the half absolute sum of the differential preferences, :math:`\sum_a |\Delta\pi_{r,a}|`, at each site. This quantity can range from zero to one.
 The sites are sorted with the highest half absolute sum differential preference first.
 
+Gamma-distributed discrete category file
++++++++++++++++++++++++++++++++++++++++++++
+This file has the suffix ``_omegabycategory.csv``, and is created only if using the ``--random_effects_likelihood`` option. This file gives the posterior probability of each site falling into each category, as well as the mean :math:`omega` value of each discretized category.
+These posterior probabilities are computed nearly identically to those obtained using the *REL* model as described in `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_.
+
+Here is an example of the first few lines of a file. The entries are comma separated::
+
+    site,post_probability,omega_value
+    1,0.2503826180447997,0.0695219697627359
+    2,0.24755166505269052,0.0695219697627359
+    3,0.2526024760622074,0.0695219697627359
+    4,0.2530711698554593,0.0695219697627359
+    5,0.24843828974534077,0.0695219697627359
+
+The first column gives the site numbers.
+The second column gives the posterior probability of that site falling into a given category.
+The last column gives the omega value of the given category.
+The sites are sorted in ascending numerical order. The omega values of each category are sorted in ascending numerical order.
+
+Site-specific posterior probability file
++++++++++++++++++++++++++++++++++++++++++++
+This file has the suffix ``_posteriorprobabilities.csv``, and is created only if using the ``--random_effects_likelihood`` option.
+This file gives the sum total probability of each site being under either diversifying selection.
+These posterior probabilities are computed nearly identically to those obtained using the *REL* model as described in `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_.
+
+Here is an example of the first few lines of a file. The entries are comma separate::
+
+    site,pr(positive_selection)
+    8,0.2541928826887663
+    2,0.2533289672072823
+    6,0.252851860574337
+    9,0.25243889606707554
+
+The first column gives the site numbers in descending order of posterior probability.
+The second column gives the sum total posterior probability of the given site being under diversifying selection.
 
 .. include:: weblinks.txt
