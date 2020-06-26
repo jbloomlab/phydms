@@ -260,7 +260,7 @@ Here is an example of the first few lines of a file. The entries are tab separat
     127 -0.0088 -0.0006 -0.0010 0.1423  -0.0021 -0.0179 -0.0059 -0.0096 -0.0208 -0.0100 -0.0021 -0.0095 -0.0007 -0.0066 -0.0073 -0.0114 -0.0146 -0.0075 -0.0010 -0.0049 0.1423
     289 -0.0079 -0.0127 -0.0005 -0.0002 -0.0228 -0.0005 -0.0154 -0.0156 -0.0033 -0.0167 -0.0113 -0.0034 -0.0004 -0.0004 -0.0094 -0.0020 -0.0028 -0.0133 -0.0006 0.1391  0.1391
 
-The first column gives the site numbers, subsequent columns give the differential preference (:math:`\Delta\pi_{r,a}`) for each amino acid.
+The first column gives the site number, subsequent columns give the differential preference (:math:`\Delta\pi_{r,a}`) for each amino acid.
 The last column gives the half absolute sum of the differential preferences, :math:`\sum_a |\Delta\pi_{r,a}|`, at each site. This quantity can range from zero to one.
 The sites are sorted with the highest half absolute sum differential preference first.
 
@@ -298,7 +298,7 @@ Here is an example of the first few lines of a file. The entries are comma separ
     6,0.252851860574337
     9,0.25243889606707554
 
-The first column gives the site numbers in descending order of posterior probability.
+The first column gives the site number in descending order of posterior probability.
 The second column gives the sum total posterior probability of the given site being under diversifying selection.
 
 .. include:: weblinks.txt

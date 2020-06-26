@@ -928,7 +928,7 @@ The models described above fit a single value to each model parameter.
 We can also fit a distribution of values across sites for one model parameter :math:`\lambda`.
 For instance, when :math:`\lambda` is the :math:`\omega` of the *YNGKP* models, we get the *YNGKP_M5* model described in `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_.
 
-Specifically, let the :math:`\lambda` values be drawn from :math:`K` discrete categories with lambda values :math:`\lambda_0, \lambda_2, \ldots, \lambda_{K-1}`, and give equal weight to each category. Then the overall likelihood at site :math:`r` is
+Specifically, let the :math:`\lambda` values be drawn from :math:`K` discrete categories with lambda values :math:`\lambda_0, \lambda_1, \ldots, \lambda_{K-1}`, and give equal weight to each category. Then the overall likelihood at site :math:`r` is
 
 .. math::
 
@@ -978,6 +978,43 @@ The derivative of the log likelihood at site :math:`r` with respect to these par
    \frac{1}{K} \sum\limits_{k=0}^{K-1} \frac{\partial \lambda_k}{\partial \beta_{\lambda}}\frac{\partial \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\lambda = \lambda_k}\right)}{\partial \lambda_k}.
 
 The derivatives :math:`\frac{\partial \lambda_k}{\partial \alpha_{\lambda}}` and :math:`\frac{\partial \lambda_k}{\partial \beta_{\lambda}}` are computed numerically using the finite-difference method.
+
+Random effects likelihood approach
+------------------------------------
+Given a model with a gamma-distributed :math:`\omega` as described above, we can apply a random effects likelihood approach to infer site-specific :math:`\omega`, i.e., :math:`\omega_r`.
+As described above, we initially fit a gamma distribution of omega across the entire gene partitioned into :math:`K` discrete categories.
+A typical value for :math:`K` would be four or five partitions in the gamma distribution.
+Separately, we can fit a higher-resolution gamma distribution of omega across the gene using :math:`J` discrete categories to approximate the integration of the distribution.
+Fitting a gamma-distribution of omega partitioned into :math:`J` discrete categories for the purpose of approximating integration is much less costly than fitting a gamma-distribution of omega into :math:`K` discrete categories for the purposes of fitting the model, so typically we have :math:`K << J`.
+
+Specifically, we fit the gamma-distribution of omega used for integration identically to how we fit the gamma-distribution of omega used for fitting the model, i.e., we let the :math:`\omega` values be drawn from :math:`J` discrete categories with omega values :math:`\omega_0, \omega_1, \ldots, \omega_{J-1}`, and give equal weight to each category.
+
+We then assign each discrete category the mean :math:`\omega` value of its subdistribution.
+Recall that, as described above, the mean of each category is
+
+.. math::
+
+   \omega_j = \frac{\alpha_{\omega}J}{\beta_{\omega}} \left[\gamma\left(\omega_{j,\rm{upper}} \beta_{\omega}, \alpha_{\omega} + 1\right) - \gamma\left( \omega_{j,\rm{lower}} \beta_{\omega}, \alpha_{\omega} + 1 \right)\right]
+
+where :math:`\gamma` is the lower-incomplete gamma function and can be evaluated by ``scipy.special.gammainc(alpha_omega + 1, omega_j_upper * beta_omega)``.
+
+We do not know *a priori* which discrete category a site belongs to, so the likelihood at site :math:`r` is given by the average over all possibilities, i.e.,
+
+.. math::
+
+   \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right) =
+   \frac{1}{J} \sum_{j=0}^{J-1} \Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_j}\right)
+
+Then, the posterior probability of observing a specific discrete category, :math:`j`, for a site :math:`r` can be computed using the empirical Bayesian method, i.e.,
+
+.. math::
+
+   \text{Pr}\left(\mathbf{P_r}_{\omega = \omega_j} \mid \mathcal{T}, \mathcal{S}_r\right) = \frac{\frac{1}{J}\text{Pr}\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_j}\right)}{\Pr\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}\right)} = \frac{\text{Pr}\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_j}\right)}{\sum_{i=0}^{J - 1}\text{Pr}\left(\mathcal{S}_r \mid \mathcal{T}, \mathbf{P_r}_{\omega = \omega_i}\right)}.
+
+We compute the posterior probability of observing :math:`\omega_r > 1` by taking the summing up the likelihood of observing any category with :math:`\omega_j > 1` at site :math:`r` and dividing this sum by the likelihood of observing any category at site :math:`r`, i.e.,
+
+.. math::
+   \text{Pr}(\omega_r > 1 \mid \mathcal{T}, \mathcal{S}_r) = \sum_{j \in \omega_j > 1}\text{Pr}\left(\mathbf{P_r}_{\omega = \omega_j} \mid \mathcal{T}, \mathcal{S}_r\right)
 
 Derivatives with respect to branch lengths
 --------------------------------------------
