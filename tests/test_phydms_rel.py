@@ -52,13 +52,13 @@ class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
                                   'ExpCM_{0}'.format(self.PREFS),
                                    self.OUTPREFIX + model_with_bins,
                                    '--ncpus', str(ncpus), '--gammaomega',
-                                   '--random_effects_likelihood',
+                                   '--omega_random_effects_likelihood',
                                    '--REL_ncats', str(self.J)])
         elif self.MODEL is 'YNGKP_M5':
             subprocess.check_call(['phydms', self.ALIGNMENT, self.TREE,
                                   'YNGKP_M5', self.OUTPREFIX + model_with_bins,
                                    '--ncpus', str(ncpus),
-                                   '--random_effects_likelihood',
+                                   '--omega_random_effects_likelihood',
                                    '--REL_ncats', str(self.J)])
         else:
             raise ValueError('Only ExpCM and YNGKP models are implemented at '

@@ -2,7 +2,7 @@
 
 This test examines the functionality of ``phydms_comprehensive`` when run
 from the command-line with the `--gammaomega` and
-`--random_effects_likelihood` flags.
+`--omega_random_effects_likelihood` flags.
 
 Written by Jesse Bloom, Sarah Hilton, and Jonathan Mah
 """
@@ -17,7 +17,7 @@ import pandas
 
 class test_phydms_comprehensive(unittest.TestCase):
     """Tests command-line ``phydms_comprehensive`` with the `--gammaomega`
-    and `--random_effects_likelihood` flags. This test is performed with
+    and `--omega_random_effects_likelihood` flags. This test is performed with
     the minimum number of categories used for integration, being 2."""
 
     def test_NP(self):
@@ -45,7 +45,7 @@ class test_phydms_comprehensive(unittest.TestCase):
             ['phydms_comprehensive', outprefix, alignment,
              prefs, "--tree", tree, "--omegabysite", '--brlen', 'scale',
              '--ncpus', str(ncpus), '--gammaomega', '--ncats', str(K),
-             '--random_effects_likelihood', '--REL_ncats', str(J)])
+             '--omega_random_effects_likelihood', '--REL_ncats', str(J)])
 
         expectedresults = os.path.abspath(os.path.join(
             os.path.dirname(__file__), './expected_NP_test_results/'))
