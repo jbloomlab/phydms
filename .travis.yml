@@ -25,6 +25,7 @@ script:
 branches:
   only:
     - master
+    - REL-names
 
 notifications:
   email:
