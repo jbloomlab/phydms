@@ -272,16 +272,14 @@ These posterior probabilities are computed nearly identically to those obtained 
 
 Here is an example of the first few lines of a file. The entries are comma separated::
 
-    site,post_probability,omega_value
+    site,post_probability,omega
     1,0.2503826180447997,0.0695219697627359
     2,0.24755166505269052,0.0695219697627359
     3,0.2526024760622074,0.0695219697627359
     4,0.2530711698554593,0.0695219697627359
     5,0.24843828974534077,0.0695219697627359
 
-The first column gives the site number.
-The second column gives the posterior probability of that site falling into a given category.
-The last column gives the omega value of the given category.
+The ``post_probability`` column gives the posterior probability of that site falling into a given category.
 The sites  and omega values are sorted in ascending numerical order.
 
 Site-specific posterior probability file
@@ -292,13 +290,12 @@ These posterior probabilities are computed nearly identically to those obtained 
 
 Here is an example of the first few lines of a file. The entries are comma separate::
 
-    site,pr(positive_selection)
+    site,pr(omega > 1)
     8,0.2541928826887663
     2,0.2533289672072823
     6,0.252851860574337
     9,0.25243889606707554
 
-The first column gives the site number in descending order of posterior probability.
-The second column gives the sum total posterior probability of the given site being under diversifying selection.
+The pr(omega > 1) gives the sum total posterior probability of the given site being under diversifying selection.
 
 .. include:: weblinks.txt

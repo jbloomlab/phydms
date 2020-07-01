@@ -600,16 +600,16 @@ def main():
             assert numpy.allclose(df.sum(axis=1), 1)
             # probability of omega greater than 1
             target_omegas = [x for x in df.columns.values if x > 1]
-            df['pr(positive_selection)'] = df[target_omegas].sum(axis=1)
+            df['p(omega > 1)'] = df[target_omegas].sum(axis=1)
             df.insert(0, 'site', range(1, model.nsites + 1))
 
             # output files
-            relomega = (pd.melt(df.drop(columns='pr(positive_selection)'),
-                                id_vars=['site'], var_name='omega_value',
+            relomega = (pd.melt(df.drop(columns='p(omega > 1)'),
+                                id_vars=['site'], var_name='omega',
                                 value_name='post_probability')
                         .to_csv(relomegafile, index=False))
-            relprobability = (df[['site', 'pr(positive_selection)']]
-                              .sort_values(by='pr(positive_selection)',
+            relprobability = (df[['site', 'p(omega > 1)']]
+                              .sort_values(by='p(omega > 1)',
                                            ascending=False)
                               .to_csv(relprobabilityfile, index=False))
 

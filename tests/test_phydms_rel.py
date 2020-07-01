@@ -84,8 +84,8 @@ class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
             omegas['expected']['post_probability'].values,
             atol=0.001, rtol=0.003))
         self.assertTrue(scipy.allclose(
-            omegas['actual']['omega_value'].values,
-            omegas['expected']['omega_value'].values,
+            omegas['actual']['omega'].values,
+            omegas['expected']['omega'].values,
             atol=0.001, rtol=0.003))
 
         posteriors = {}
@@ -95,8 +95,8 @@ class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
                 model_with_bins, '_posteriorprobabilities.csv')))
             posteriors[name] = pandas.read_csv(fname)
         self.assertTrue(scipy.allclose(
-            posteriors['actual']['pr(positive_selection)'].values,
-            posteriors['expected']['pr(positive_selection)'].values,
+            posteriors['actual']['p(omega > 1)'].values,
+            posteriors['expected']['p(omega > 1)'].values,
             atol=0.001, rtol=0.003))
 
     def remove_output_files(self, outprefix, model_with_bins):
