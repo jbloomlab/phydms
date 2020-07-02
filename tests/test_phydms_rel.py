@@ -67,9 +67,9 @@ class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
         self.compare_output_dataframes(
             self.OUTPREFIX, self.EXPECTED_PREFIX, model_with_bins)
 
-        # self.remove_output_files(self.OUTPREFIX, model_with_bins)
-        # if not os.listdir(self.OUTPREFIX):
-        #     os.rmdir(self.OUTPREFIX)
+        self.remove_output_files(self.OUTPREFIX, model_with_bins)
+        if not os.listdir(self.OUTPREFIX):
+            os.rmdir(self.OUTPREFIX)
 
     def compare_output_dataframes(self, outprefix, expected_prefix,
                                   model_with_bins):

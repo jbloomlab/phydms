@@ -619,6 +619,8 @@ def main():
 
             relprobability.insert(2, 'fdr(omega > 1)', fdr_diversifying)
 
+            # Output files
+
             relomega = (pd.melt(df.drop(columns='p(omega > 1)'),
                                 id_vars=['site'], var_name='omega',
                                 value_name='post_probability')
