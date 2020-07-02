@@ -29,16 +29,12 @@ class test_DiffPrefsBySiteExpCM(unittest.TestCase):
         random.seed(1)
         scipy.random.seed(1)
         self.tree = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                './NP_data/NP_tree.newick'))
-        self.alignment = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                './NP_data/NP_alignment.fasta'))
+                './NP_data/NP_tree_short.newick'))
         self.prefs = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                './NP_data/NP_prefs.tsv'))
-        self.nsites = len(phydmslib.file_io.ReadCodonAlignment(self.alignment,
-                True)[0][1]) // 3
+                './NP_data/NP_prefs_5.csv'))
         prefs = phydmslib.file_io.readPrefs(self.prefs, minpref=0.005)
         aas = [INDEX_TO_AA[a] for a in range(N_AA)]
-        self.shuffledsites = random.sample(sorted(prefs.keys()), 10)
+        self.shuffledsites = random.sample(sorted(prefs.keys()), 2)
         self.targetaas = dict([(r, random.choice(aas)) for r in self.shuffledsites])
         prefs = [prefs[r] for r in sorted(list(prefs.keys()))]
         hipref = 0.9
@@ -62,7 +58,7 @@ class test_DiffPrefsBySiteExpCM(unittest.TestCase):
     def test_OnSimulatedData(self):
         """Run ``phydms`` on the simulated data."""
         random.seed(1)
-        scipy.random.seed(1)
+        scipy.random.seed(0)
         partitions = phydmslib.simulate.pyvolvePartitions(self.model)
         evolver = pyvolve.Evolver(partitions=partitions,
                 tree=pyvolve.read_tree(file=self.tree))

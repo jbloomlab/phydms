@@ -25,7 +25,7 @@ script:
 branches:
   only:
     - master
-    - model_adequacy
+    - REL-names
 
 notifications:
   email:

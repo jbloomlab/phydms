@@ -41,7 +41,7 @@ class test_simulateAlignment_ExpCM_divselection(unittest.TestCase):
         alignmentPrefix = "test"
 
         # define model
-        nsites = 1000
+        nsites = 350
         prefs = []
         minpref = 0.01
         for r in range(nsites):

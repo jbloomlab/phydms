@@ -13,8 +13,8 @@ try:
 except ImportError:
     raise ImportError("You must install setuptools")
 
-if not (sys.version_info[0] == 3 and sys.version_info[1] >= 5):
-    raise RuntimeError('phydms requires Python 3.5 or higher.\n'
+if not (sys.version_info[0] == 3 and sys.version_info[1] >= 6):
+    raise RuntimeError('phydms requires Python 3.6 or higher.\n'
             'You are using Python {0}.{1}'.format(
             sys.version_info[0], sys.version_info[1]))
 
@@ -63,7 +63,7 @@ def extensions():
             Extension('phydmslib.numutils', ['phydmslib/numutils.pyx'],
                     include_dirs=[numpy.get_include()],
                     extra_compile_args=['-Wno-unused-function']),
-          ]      
+          ]
     return cythonize(ext)
 
 # main setup command

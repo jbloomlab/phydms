@@ -36,7 +36,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
 
         self.underflowfreq = 1
 
-        # define tree 
+        # define tree
         self.newick = ('((node1:0.2,node2:0.3)node4:0.3,node3:0.5)node5:0.04;')
         tempfile = '_temp.tree'
         with open(tempfile, 'w') as f:
@@ -46,7 +46,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
 
         # simulate alignment with pyvolve
         pyvolvetree = pyvolve.read_tree(tree=self.newick)
-        self.nsites = 50
+        self.nsites = 5
         self.nseqs = self.tree.count_terminals()
         e_pw = scipy.ndarray((3, N_NT), dtype='float')
         e_pw.fill(0.25)
@@ -91,7 +91,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
 
         if self.DISTRIBUTIONMODEL is None:
             pass
-        elif (self.DISTRIBUTIONMODEL == 
+        elif (self.DISTRIBUTIONMODEL ==
                 phydmslib.models.GammaDistributedOmegaModel):
             self.model = self.DISTRIBUTIONMODEL(self.model, ncats=4)
         else:
@@ -100,7 +100,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
 
     def test_Initialize(self):
         """Test that `TreeLikelihood` initializes properly."""
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model, underflowfreq=self.underflowfreq,
                 dparamscurrent=False, dtcurrent=True)
         self.assertEqual(tl.dloglik_dt.shape, tl.t.shape)
@@ -109,7 +109,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
         """Tests model `dM` with respect to `t`."""
         scipy.random.seed(1)
         random.seed(1)
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model, underflowfreq=self.underflowfreq,
                 dparamscurrent=False, dtcurrent=True)
 
@@ -130,7 +130,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
     def test_AdjustBrLen(self):
         """Tests adjusting branch lengths."""
         scipy.random.seed(1)
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model, underflowfreq=self.underflowfreq,
                 dparamscurrent=False, dtcurrent=True)
         loglik1 = tl.loglik
@@ -152,7 +152,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
 
     def test_BrLenDerivatives(self):
         """Tests derivatives of branch lengths."""
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model, underflowfreq=self.underflowfreq,
                 dparamscurrent=False, dtcurrent=True)
 
@@ -169,18 +169,18 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
             return tl.dloglik_dt[n]
 
         for n in range(len(tl.t)):
-            diff = scipy.optimize.check_grad(func, dfunc, 
+            diff = scipy.optimize.check_grad(func, dfunc,
                     numpy.array([tl.t[n]]), n)
             self.assertTrue(diff < 2e-5, diff)
 
 
     def test_dtcurrent(self):
         """Tests use of `dtcurrent` attribute."""
-        tl1 = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+        tl1 = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model, underflowfreq=self.underflowfreq,
                 dparamscurrent=False, dtcurrent=True)
 
-        tl2 = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+        tl2 = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model, underflowfreq=self.underflowfreq,
                 dparamscurrent=True, dtcurrent=False)
 

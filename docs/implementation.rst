@@ -928,7 +928,7 @@ The models described above fit a single value to each model parameter.
 We can also fit a distribution of values across sites for one model parameter :math:`\lambda`.
 For instance, when :math:`\lambda` is the :math:`\omega` of the *YNGKP* models, we get the *YNGKP_M5* model described in `Yang, Nielsen, Goldman, and Krabbe Pederson, Genetics, 155:431-449`_.
 
-Specifically, let the :math:`\lambda` values be drawn from :math:`K` discrete categories with lambda values :math:`\lambda_0, \lambda_2, \ldots, \lambda_{K-1}`, and give equal weight to each category. Then the overall likelihood at site :math:`r` is
+Specifically, let the :math:`\lambda` values be drawn from :math:`K` discrete categories with lambda values :math:`\lambda_0, \lambda_1, \ldots, \lambda_{K-1}`, and give equal weight to each category. Then the overall likelihood at site :math:`r` is
 
 .. math::
 

@@ -5,7 +5,7 @@
 =======================================================
 
 .. contents::
-   :depth: 2
+   :depth: 3
 
 Overview
 -------------
@@ -143,8 +143,11 @@ In this case, :math:`\beta` is drawn from ``--ncats`` categories placed at the m
 Note that the mean :math:`\beta` value is then :math:`\alpha_{\beta} / \beta_{\beta}`.
 
 Identifying diversifying selection via site-specific :math:`\omega_r` values
-------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
 One type of interesting selection is *diversifying selection*, where there is continual pressure for amino-acid change. Such selection might be expected to occur at sites that are targeted by adaptive immunity or subjected to some other form of selection which constantly favors changes in the protein sequence. At such sites, we expect that the relative rate of nonsynonymous substitutions will be higher than suggested by the site-specific preferences :math:`\pi_{r,a}` due to this diversifying selection.
+
+FEL-like approach
+++++++++++++++++++
 
 To detect diversifying selection at specific sites within the framework of the *ExpCM* implemented in ``phydms``, we use an approach that is highly analogous the *FEL* (**f**\ixed **e**\ffects **l**\ikelihood) method described by `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_. Essentially, the tree topology, branch lengths, and all shared model parameters are fixed to their maximum-likelihood values optimized over the entire gene sequence. Then for each site :math:`r`, we fit a site-specific ratio of the rate of synonymous versus nonsynonymous substitutions while holding all holding all the other tree and model parameters constant. Effectively, this is fitting a different :math:`\omega_r` for each site, and so this analysis is indicated as ``--omegabysite`` in the ``phydms`` options.
 
@@ -165,6 +168,44 @@ and then fit the values for :math:`\mu_r` and :math:`\omega_r`. After this fitti
 The null hypothesis is that :math:`\omega_r = 1`. We compute a P-value for rejection of this null hypothesis using a :math:`\chi_1^2` test to compare the likelihood obtained when fitting both :math:`\mu_r` and :math:`\omega_r` to that obtained when fitting only :math:`\mu_r` and fixing :math:`\omega_r = 1`. See `Kosakovsky Pond and Frost, Mol Biol Evol, 22:1208-1222`_ for a justification for using a :math:`\chi_1^2` test for this type of analysis. Note that the P-values reported by ``phydms`` are **not** adjusted for multiple testing, so you will want to make such an adjustment if you are testing the hypothesis that any site has :math:`\omega_r \ne 1`. Note also that in many cases, the fitted value of :math:`\omega_r` will either be very small (e.g. close to zero) or very large (e.g. close to :math:`\infty`) -- in general, it is more informative to look for sites with small P-values and then simply look to see if :math:`\omega` is > or < 1.
 
 Significant support for a value of :math:`\omega_r > 1` can be taken as evidence for diversifying selection beyond that expected given the constraints encapsulated in the site-specific amino-acid preferences. Significant support for a value of :math:`\omega_r < 1` can be taken as evidence for selection against amino-acid change beyond that expected given the constraints encapsulated in the site-specific amino-acid preferences. Note, however, that if the site-specific preferences don't accurately describe the real constraints, you might get :math:`\omega_r \ne 1` simply because of this fact -- so you will want to examine if sites might be subject to selection that is better described by modulating the stringency parameter :math:`\beta` or by invoking differential preferences, as described below.
+
+REL-like approach
++++++++++++++++++++
+
+In addition to the site-specific FEL-based approach discussed above, we have also implemented an approach that is highly analogous to the REL (**r**\andom **e**\ffects **l**\ikelihood) method described by `Nielsen and Yang, Genetics, 148; 929-936`_.
+Rather than fitting the ratio of the rate of synonymous versus nonsynonymous substitutions for *each* site, the REL approach involves fitting a discretized gamma distribution of omega values across *all* sites.
+When fitting this gamma distribution of :math:`\omega`, we let :math:`\omega` values be drawn from *K* discrete categories, with each category given equal proportion.
+This gamma distribution is described by a shape parameter, :math:`\alpha_{\omega}` and an inverse scale parameter, :math:`{\beta_\omega}`, which are fit simultaneously with the tree topology, branch lengths, and other shared model parameters using maximum likelihood estimation.
+We then infer selection at individual sites using an empirical Bayesian approach.
+
+In the empirical Bayesian approach, we integrate the gamma distribution of omega values by approximating the distribution with *J* discrete categories, with each category having equal proportion.
+Integrating the distribution is much faster than fitting the distribution, so typically *J* is set to be greater than *K* to save time.
+Then, for each discrete category, *j*, we assign the mean value of its subdistribution, denoted as :math:`\omega_j`, to that category.
+This analysis is indicated as ``--omega_random_effects_likelihood`` in the ``phydms`` options.
+Given an integer greater than one, the ``--empirical_bayes`` option specifies the number of discrete categories used to approximate the gamma distribution for integration, denoted as *J*.
+
+We do not know *a priori* which discrete category a site belongs to, so the likelihood function for observing a site's sequence data, :math:`\mathcal{S}_r`, is given by the average over all possibilities, i.e.,
+
+.. math::
+   :label: rel_likelihood_function
+
+   \mathcal{L}(\mathcal{S}_r) = \frac{1}{J}\sum_{j = 0}^{J - 1} \mathcal{L}(\mathcal{S}_r | \omega_j)
+
+where :math:`\mathcal{L}(\mathcal{S}_r | \omega_j)` is the likelihood function for observing sequence data :math:`\mathcal{S}_r` given that site *r* is in category *j*.
+
+Then, the posterior probability that a site, *r*, with sequence data, :math:`\mathcal{S}_r`, belongs to category, *j*, is given by
+
+.. math::
+   :label: rel_posterior_probability
+
+   \text{Pr}(\omega_j | \mathcal{S}r) = \frac{\frac{1}{J}\mathcal{L}(\mathcal{S}_r | \omega_j)}{\mathcal{L}(\mathcal{S}_r)} = \frac{\mathcal{L}(\mathcal{S}_r | \omega_j)}{\sum_{i=0}^{J - 1}\mathcal{L}(\mathcal{S}_r | \omega_i)}.
+
+The category *j* which maximizes the posterior probability of observing :math:`\omega_j` given sequence data, :math:`\mathcal{S}_r`, is the most likely category for site, *r*. We calculate the posterior probability of diversifying selection at individual sites by summing the posterior probabilities over which that site belongs to any category, *j*, where :math:`\omega_j > 1`, i.e.,
+
+.. math::
+   :label: rel_diversifying_selection
+
+   \text{Pr}(\omega_r > 1) = \sum_{j: \omega_j > 1}\text{Pr}(\omega_j | \mathcal{S}_r)
 
 Identifying differentially selected amino acids by fitting preferences for each site
 ---------------------------------------------------------------------------------------

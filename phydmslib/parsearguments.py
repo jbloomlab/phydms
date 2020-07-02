@@ -320,12 +320,26 @@ def PhyDMSComprehensiveParser():
     parser.add_argument('--gammabeta', dest='gammabeta', action=\
             'store_true', help="Fit ExpCM with gamma distributed beta.")
     parser.set_defaults(noavgprefs=False)
+    parser.add_argument('--ncats', default=4, type=IntGreaterThanOne,
+            help='Number of categories for gamma-distribution.')
+    parser.add_argument('--minbrlen', type=FloatGreaterThanZero,
+            default=phydmslib.constants.ALMOST_ZERO,
+            help="Adjust all branch lengths in starting 'tree' to >= this.")
     parser.add_argument('--no-avgprefs', dest='noavgprefs', action='store_true',
             help="No fitting of models with preferences averaged across sites "
             "for ExpCM.")
     parser.set_defaults(randprefs=False)
     parser.add_argument('--randprefs', dest='randprefs', action='store_true',
             help="Include ExpCM models with randomized preferences.")
+    parser.set_defaults(omega_random_effects_likelihood=False)
+    parser.add_argument('--omega_random_effects_likelihood',
+            dest='omega_random_effects_likelihood', action='store_true',
+            help="Infer site-specific omega (dN/dS) using the random effects "
+                  "likelihood method.")
+    parser.add_argument('--REL_ncats', default=50,
+            type=IntGreaterThanOne, help='Number of categories used '
+            'to integrate the inferred discretized omega distribution for '
+            'the random effects likelihood method.')
     parser.add_argument('-v', '--version', action='version', version=
             '%(prog)s {version}'.format(version=phydmslib.__version__))
     return parser
@@ -414,6 +428,15 @@ def PhyDMSParser():
     parser.set_defaults(nograd=False)
     parser.add_argument('--nograd', dest='nograd', action='store_true',
             help="Do not use gradients for likelihood maximization.")
+    parser.set_defaults(omega_random_effects_likelihood=False)
+    parser.add_argument('--omega_random_effects_likelihood',
+            dest='omega_random_effects_likelihood', action='store_true',
+            help="Infer site-specific omega (dN/dS) using the random effects "
+                  "likelihood method.")
+    parser.add_argument('--REL_ncats', default=50,
+            type=IntGreaterThanOne, help='The number of categories used '
+            'for the integration of a discretized omega distribution when '
+            'applying a random-effects-likelihood approach.')
     parser.add_argument('-v', '--version', action='version', version=(
             ('%(prog)s {version}'.format(version=phydmslib.__version__))))
     return parser
