@@ -2,7 +2,7 @@
 
 This test examines the functionality of ``phydms_comprehensive`` when run
 from the command-line with the `--gammaomega` and
-`--random_effects_likelihood` flags.
+`--omega_random_effects_likelihood` flags.
 
 Written by Jesse Bloom, Sarah Hilton, and Jonathan Mah
 """
@@ -17,7 +17,7 @@ import pandas
 
 class test_phydms_comprehensive(unittest.TestCase):
     """Tests command-line ``phydms_comprehensive`` with the `--gammaomega`
-    and `--random_effects_likelihood` flags. This test is performed with
+    and `--omega_random_effects_likelihood` flags. This test is performed with
     the minimum number of categories used for integration, being 2."""
 
     def test_NP(self):
@@ -45,7 +45,7 @@ class test_phydms_comprehensive(unittest.TestCase):
             ['phydms_comprehensive', outprefix, alignment,
              prefs, "--tree", tree, "--omegabysite", '--brlen', 'scale',
              '--ncpus', str(ncpus), '--gammaomega', '--ncats', str(K),
-             '--random_effects_likelihood', '--REL_ncats', str(J)])
+             '--omega_random_effects_likelihood', '--REL_ncats', str(J)])
 
         expectedresults = os.path.abspath(os.path.join(
             os.path.dirname(__file__), './expected_NP_test_results/'))
@@ -69,7 +69,7 @@ class test_phydms_comprehensive(unittest.TestCase):
                 self.assertTrue(scipy.allclose(
                     values['actual'][param],
                     values['expected'][param], atol=1e-2, rtol=1e-5))
-
+            # FEL
             omegas = {}
             for (name, prefix) in [('expected', expectedresults),
                                    ('actual', outprefix)]:
@@ -89,6 +89,34 @@ class test_phydms_comprehensive(unittest.TestCase):
                     omegas[name]['site'].isin(sigsites)]['omega'].values
             self.assertTrue(((
                 sigomegas['actual'] > 1) == (sigomegas['expected'] > 1)).all())
+
+        # REL
+            if 'gammomega' in model or model == 'YNGKP_M5':
+                omegas = {}
+                for (name, prefix) in [('expected', expectedresults),
+                                       ('actual', outprefix)]:
+                    fname = os.path.abspath(os.path.join(
+                        prefix, './{0}{1}'.format(model, '_omegabycategory.csv')))
+                    omegas[name] = pandas.read_csv(fname)
+                self.assertTrue(scipy.allclose(
+                    omegas['actual']['post_probability'].values,
+                    omegas['expected']['post_probability'].values,
+                    atol=0.001, rtol=0.003))
+                self.assertTrue(scipy.allclose(
+                    omegas['actual']['omega'].values,
+                    omegas['expected']['omega'].values,
+                    atol=0.001, rtol=0.003))
+
+                posteriors = {}
+                for (name, prefix) in [('expected', expectedresults),
+                                       ('actual', outprefix)]:
+                    fname = os.path.abspath(os.path.join(
+                        prefix, './{0}{1}'.format(model, '_posteriorprobabilities.csv')))
+                    posteriors[name] = pandas.read_csv(fname)
+                self.assertTrue(scipy.allclose(
+                    posteriors['actual']['p(omega > 1)'].values,
+                    posteriors['expected']['p(omega > 1)'].values,
+                    atol=0.001, rtol=0.003))
 
 
 if __name__ == '__main__':

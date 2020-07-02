@@ -247,7 +247,7 @@ def main():
             model = phydmslib.models.YNGKP_M0(e_pw, nsites, freeparams=
                     ['mu', 'omega', 'kappa'])
             if modelvariant == 'M0':
-                assert not args['random_effects_likelihood'], "'--random_effects_likelihood' incompatible with YNKGP_M0. Please specify the YNGKP_M5 model."
+                assert not args['omega_random_effects_likelihood'], "'--omega_random_effects_likelihood' incompatible with YNKGP_M0. Please specify the YNGKP_M5 model."
             elif modelvariant == 'M5':
                 logger.info(('For this {0} model, omega will be drawn from '
                         '{1} gamma-distributed categories.').format(
@@ -263,8 +263,8 @@ def main():
             prefsfile = args['model'][1]
             logger.info(('The model will be an ExpCM informed by site-specific '
                     'amino-acid preferences in {0}').format(prefsfile))
-            if args['random_effects_likelihood']:
-                assert args['gammaomega'], "For ExpCM, --random_effects_likelihood must be called with --gammaomega"
+            if args['omega_random_effects_likelihood']:
+                assert args['gammaomega'], "For ExpCM, --omega_random_effects_likelihood must be called with --gammaomega"
             for (argname, desc) in [('avgprefs', 'averaged'),
                     ('randprefs', 'randomized')]:
                 if args[argname]:
@@ -544,7 +544,7 @@ def main():
                         reverse=True)]))
 
         # given a distribution of omega values, compute posterior probabilities
-        if args['random_effects_likelihood']:
+        if args['omega_random_effects_likelihood']:
             # set up models
             if isinstance(args['model'], str) and \
                yngkp_match.search(args['model']) and \
@@ -600,16 +600,16 @@ def main():
             assert numpy.allclose(df.sum(axis=1), 1)
             # probability of omega greater than 1
             target_omegas = [x for x in df.columns.values if x > 1]
-            df['pr(positive_selection)'] = df[target_omegas].sum(axis=1)
+            df['p(omega > 1)'] = df[target_omegas].sum(axis=1)
             df.insert(0, 'site', range(1, model.nsites + 1))
 
             # output files
-            relomega = (pd.melt(df.drop(columns='pr(positive_selection)'),
-                                id_vars=['site'], var_name='omega_value',
+            relomega = (pd.melt(df.drop(columns='p(omega > 1)'),
+                                id_vars=['site'], var_name='omega',
                                 value_name='post_probability')
                         .to_csv(relomegafile, index=False))
-            relprobability = (df[['site', 'pr(positive_selection)']]
-                              .sort_values(by='pr(positive_selection)',
+            relprobability = (df[['site', 'p(omega > 1)']]
+                              .sort_values(by='p(omega > 1)',
                                            ascending=False)
                               .to_csv(relprobabilityfile, index=False))
 

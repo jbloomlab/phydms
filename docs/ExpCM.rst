@@ -172,9 +172,17 @@ Significant support for a value of :math:`\omega_r > 1` can be taken as evidence
 REL-like approach
 +++++++++++++++++++
 
-In addition to the site-specific FEL-based approach discussed above, we have also implemented an approach that is highly analogous to the REL (**r**\andom **e**\ffects **l**\ikelihood) method described by `Nielsen and Yang, Genetics, 148; 929-936`_. Rather than fitting the ratio of the rate of synonymous versus nonsynonymous substitutions for *each* site, the REL approach involves fitting a discretized gamma distribution of omega values across *all* sites. When fitting this gamma distribution of :math:`\omega`, we let :math:`\omega` values be drawn from *K* discrete categories, with each category given equal proportion. This gamma distribution is described by a shape parameter, :math:`\alpha_{\omega}` and an inverse scale parameter, :math:`{\beta_\omega}`, which are fit simultaneously with the tree topology, branch lengths, and other shared model parameters using maximum likelihood estimation. We then infer selection at individual sites using an empirical Bayesian approach.
+In addition to the site-specific FEL-based approach discussed above, we have also implemented an approach that is highly analogous to the REL (**r**\andom **e**\ffects **l**\ikelihood) method described by `Nielsen and Yang, Genetics, 148; 929-936`_.
+Rather than fitting the ratio of the rate of synonymous versus nonsynonymous substitutions for *each* site, the REL approach involves fitting a discretized gamma distribution of omega values across *all* sites.
+When fitting this gamma distribution of :math:`\omega`, we let :math:`\omega` values be drawn from *K* discrete categories, with each category given equal proportion.
+This gamma distribution is described by a shape parameter, :math:`\alpha_{\omega}` and an inverse scale parameter, :math:`{\beta_\omega}`, which are fit simultaneously with the tree topology, branch lengths, and other shared model parameters using maximum likelihood estimation.
+We then infer selection at individual sites using an empirical Bayesian approach.
 
-In the empirical Bayesian approach, we integrate the gamma distribution of omega values by approximating the distribution with *J* discrete categories, with each category having equal proportion. Integrating the distribution is much faster than fitting the distribution, so typically *J* is set to be greater than *K* to save time. Then, for each discrete category, *j*, we assign the mean value of its subdistribution, denoted as :math:`\omega_j`, to that category. This analysis is indicated as ``--empirical_bayes`` in the ``phydms`` options. Given an integer greater than one, the ``--empirical_bayes`` option specifies the number of discrete categories used to approximate the gamma distribution for integration, denoted as *J*.
+In the empirical Bayesian approach, we integrate the gamma distribution of omega values by approximating the distribution with *J* discrete categories, with each category having equal proportion.
+Integrating the distribution is much faster than fitting the distribution, so typically *J* is set to be greater than *K* to save time.
+Then, for each discrete category, *j*, we assign the mean value of its subdistribution, denoted as :math:`\omega_j`, to that category.
+This analysis is indicated as ``--omega_random_effects_likelihood`` in the ``phydms`` options.
+Given an integer greater than one, the ``--empirical_bayes`` option specifies the number of discrete categories used to approximate the gamma distribution for integration, denoted as *J*.
 
 We do not know *a priori* which discrete category a site belongs to, so the likelihood function for observing a site's sequence data, :math:`\mathcal{S}_r`, is given by the average over all possibilities, i.e.,
 

@@ -331,9 +331,9 @@ def PhyDMSComprehensiveParser():
     parser.set_defaults(randprefs=False)
     parser.add_argument('--randprefs', dest='randprefs', action='store_true',
             help="Include ExpCM models with randomized preferences.")
-    parser.set_defaults(random_effects_likelihood=False)
-    parser.add_argument('--random_effects_likelihood',
-            dest='random_effects_likelihood', action='store_true',
+    parser.set_defaults(omega_random_effects_likelihood=False)
+    parser.add_argument('--omega_random_effects_likelihood',
+            dest='omega_random_effects_likelihood', action='store_true',
             help="Infer site-specific omega (dN/dS) using the random effects "
                   "likelihood method.")
     parser.add_argument('--REL_ncats', default=50,
@@ -428,9 +428,9 @@ def PhyDMSParser():
     parser.set_defaults(nograd=False)
     parser.add_argument('--nograd', dest='nograd', action='store_true',
             help="Do not use gradients for likelihood maximization.")
-    parser.set_defaults(random_effects_likelihood=False)
-    parser.add_argument('--random_effects_likelihood',
-            dest='random_effects_likelihood', action='store_true',
+    parser.set_defaults(omega_random_effects_likelihood=False)
+    parser.add_argument('--omega_random_effects_likelihood',
+            dest='omega_random_effects_likelihood', action='store_true',
             help="Infer site-specific omega (dN/dS) using the random effects "
                   "likelihood method.")
     parser.add_argument('--REL_ncats', default=50,
