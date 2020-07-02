@@ -117,6 +117,10 @@ class test_phydms_comprehensive(unittest.TestCase):
                     posteriors['actual']['p(omega > 1)'].values,
                     posteriors['expected']['p(omega > 1)'].values,
                     atol=0.001, rtol=0.003))
+                self.assertTrue(scipy.allclose(
+                    posteriors['actual']['fdr(omega > 1)'].values,
+                    posteriors['expected']['fdr(omega > 1)'].values,
+                    atol=0.001, rtol=0.003))
 
 
 if __name__ == '__main__':
