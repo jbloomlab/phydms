@@ -603,15 +603,27 @@ def main():
             df['p(omega > 1)'] = df[target_omegas].sum(axis=1)
             df.insert(0, 'site', range(1, model.nsites + 1))
 
-            # output files
+            # Sort sites by descending order of posterior probability
+            relprobability = (df[['site', 'p(omega > 1)']]
+                              .sort_values(by='p(omega > 1)',
+                                           ascending=False))
+
+            logger.info('Computing false discovery rate.')
+
+            # FDR is given by expected value of 1 minus posterior probability
+            fdr_diversifying = [1 - x for x in relprobability['p(omega > 1)']]
+            for i in range(1, len(fdr_diversifying)):
+                fdr_diversifying[i] += fdr_diversifying[i - 1]
+            for i in range(len(fdr_diversifying)):
+                fdr_diversifying[i] = fdr_diversifying[i] / (i + 1)
+
+            relprobability.insert(2, 'fdr(omega > 1)', fdr_diversifying)
+
             relomega = (pd.melt(df.drop(columns='p(omega > 1)'),
                                 id_vars=['site'], var_name='omega',
                                 value_name='post_probability')
                         .to_csv(relomegafile, index=False))
-            relprobability = (df[['site', 'p(omega > 1)']]
-                              .sort_values(by='p(omega > 1)',
-                                           ascending=False)
-                              .to_csv(relprobabilityfile, index=False))
+            relprobability.to_csv(relprobabilityfile, index=False)
 
     except:
         logger.exception('Terminating {0} at {1} with ERROR'.format(prog, time.asctime()))
