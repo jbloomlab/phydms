@@ -602,7 +602,6 @@ def main():
             target_omegas = [x for x in df.columns.values if x > 1]
             df['p(omega > 1)'] = df[target_omegas].sum(axis=1)
             df.insert(0, 'site', range(1, model.nsites + 1))
-            # Note that purifying selection is given by the compliment to one.
 
             # Sort sites by descending order of posterior probability
             relprobability = (df[['site', 'p(omega > 1)']]
