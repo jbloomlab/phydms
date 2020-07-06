@@ -606,21 +606,21 @@ def main():
             # Sort sites by descending order of posterior probability
             relprobability = (df[['site', 'p(omega > 1)']]
                               .sort_values(by='p(omega > 1)',
-                                           ascending=False))
+                                           ascending=False)
+                              .reset_index())
 
             logger.info('Computing false discovery rate.')
 
-            # FDR is given by expected value of 1 minus posterior probability
-            fdr_diversifying = [1 - x for x in relprobability['p(omega > 1)']]
-            for i in range(1, len(fdr_diversifying)):
-                fdr_diversifying[i] += fdr_diversifying[i - 1]
-            for i in range(len(fdr_diversifying)):
-                fdr_diversifying[i] = fdr_diversifying[i] / (i + 1)
-
-            relprobability.insert(2, 'fdr(omega > 1)', fdr_diversifying)
-
+            # FDR of a given site is the _expected_ posterior error probability
+            # of all sites with a posterior probability >= to that site
+            # posterior error probability = 1 - posterior probability
+            # expected PEP = sum of PEP over sites / number of sites
+            relprobability['fdr'] = ((1.0 - relprobability['p(omega > 1)'])
+                                     .cumsum())
+            relprobability['fdr'] = (relprobability['fdr']
+                                     .div(relprobability.index.to_series() + 1,
+                                          axis=0))
             # Output files
-
             relomega = (pd.melt(df.drop(columns='p(omega > 1)'),
                                 id_vars=['site'], var_name='omega',
                                 value_name='post_probability')

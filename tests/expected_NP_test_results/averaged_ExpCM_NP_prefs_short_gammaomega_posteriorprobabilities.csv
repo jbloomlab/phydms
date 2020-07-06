@@ -1,4 +1,4 @@
-site,p(omega > 1),fdr(omega > 1)
+site,p(omega > 1),fdr
 1,0.0,1.0
 98,0.0,1.0
 96,0.0,1.0

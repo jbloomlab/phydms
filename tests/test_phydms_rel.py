@@ -99,8 +99,8 @@ class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
             posteriors['expected']['p(omega > 1)'].values,
             atol=0.001, rtol=0.003))
         self.assertTrue(scipy.allclose(
-            posteriors['actual']['fdr(omega > 1)'].values,
-            posteriors['expected']['fdr(omega > 1)'].values,
+            posteriors['actual']['fdr'].values,
+            posteriors['expected']['fdr'].values,
             atol=0.001, rtol=0.003))
 
     def remove_output_files(self, outprefix, model_with_bins):
