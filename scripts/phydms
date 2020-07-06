@@ -603,15 +603,29 @@ def main():
             df['p(omega > 1)'] = df[target_omegas].sum(axis=1)
             df.insert(0, 'site', range(1, model.nsites + 1))
 
-            # output files
+            # Sort sites by descending order of posterior probability
+            relprobability = (df[['site', 'p(omega > 1)']]
+                              .sort_values(by='p(omega > 1)',
+                                           ascending=False)
+                              .reset_index())
+
+            logger.info('Computing false discovery rate.')
+
+            # FDR of a given site is the _expected_ posterior error probability
+            # of all sites with a posterior probability >= to that site
+            # posterior error probability = 1 - posterior probability
+            # expected PEP = sum of PEP over sites / number of sites
+            relprobability['fdr'] = ((1.0 - relprobability['p(omega > 1)'])
+                                     .cumsum())
+            relprobability['fdr'] = (relprobability['fdr']
+                                     .div(relprobability.index.to_series() + 1,
+                                          axis=0))
+            # Output files
             relomega = (pd.melt(df.drop(columns='p(omega > 1)'),
                                 id_vars=['site'], var_name='omega',
                                 value_name='post_probability')
                         .to_csv(relomegafile, index=False))
-            relprobability = (df[['site', 'p(omega > 1)']]
-                              .sort_values(by='p(omega > 1)',
-                                           ascending=False)
-                              .to_csv(relprobabilityfile, index=False))
+            relprobability.to_csv(relprobabilityfile, index=False)
 
     except:
         logger.exception('Terminating {0} at {1} with ERROR'.format(prog, time.asctime()))

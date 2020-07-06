@@ -98,6 +98,10 @@ class test_phydms_rel_ExpCM_k2_4(unittest.TestCase):
             posteriors['actual']['p(omega > 1)'].values,
             posteriors['expected']['p(omega > 1)'].values,
             atol=0.001, rtol=0.003))
+        self.assertTrue(scipy.allclose(
+            posteriors['actual']['fdr'].values,
+            posteriors['expected']['fdr'].values,
+            atol=0.001, rtol=0.003))
 
     def remove_output_files(self, outprefix, model_with_bins):
         suffix_list = ['_omegabycategory.csv', '_posteriorprobabilities.csv',

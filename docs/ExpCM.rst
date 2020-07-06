@@ -207,6 +207,9 @@ The category *j* which maximizes the posterior probability of observing :math:`\
 
    \text{Pr}(\omega_r > 1) = \sum_{j: \omega_j > 1}\text{Pr}(\omega_j | \mathcal{S}_r)
 
+In order to correct for the multiple hypothesis, we calculated a false discovery rate for each site.
+Here, the false discovery rate is equal to the expected posterior exclusion probability (PEP) for a given :math:`\text{Pr}(\omega_r > 1)` cutoff.
+
 Identifying differentially selected amino acids by fitting preferences for each site
 ---------------------------------------------------------------------------------------
 A more complete approach is to examine each site to see the extent to which the preferences for each amino acid in nature differ from those encapsulated in the :math:`\pi_{r,a}` values. The advantage of this approach is that it can identify any form of differential selection (the approach in the previous section works best when the selection in nature is more uniform across amino acids than the :math:`\pi_{r,a}` values), and also that it can pinpoint specific amino acids that are favored or disfavored in natural evolution by an unexpected amount. The disadvantage is that ``phydms`` does not currently implement a good way to statistically test the significance of this type of differential selection, so although you can visualize and assess the selection it's hard to say that any given differential selection is significant at some specific P-value threshold.

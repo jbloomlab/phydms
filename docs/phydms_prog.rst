@@ -290,12 +290,13 @@ These posterior probabilities are computed nearly identically to those obtained 
 
 Here is an example of the first few lines of a file. The entries are comma separate::
 
-    site,pr(omega > 1)
-    8,0.2541928826887663
-    2,0.2533289672072823
-    6,0.252851860574337
-    9,0.25243889606707554
+    site,pr(omega > 1),fdr
+    8,0.2541928826887663,0.018418996007380062
+    2,0.2533289672072823,0.08321487617349083
+    6,0.252851860574337,0.13687061712626966
+    9,0.25243889606707554,0.16408133174046005
 
 The pr(omega > 1) gives the sum total posterior probability of the given site being under diversifying selection.
+The fale discovery rate gives the expected posterior exclusion probability for a given pr(omega > 1) cutoff.
 
 .. include:: weblinks.txt
