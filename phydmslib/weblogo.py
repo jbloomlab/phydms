@@ -20,7 +20,7 @@ import shutil
 import natsort
 import numpy
 import matplotlib
-matplotlib.use('pdf', warn=False)
+matplotlib.use('pdf')
 import pylab
 import PyPDF2
 # the following are part of the weblogo library
@@ -36,8 +36,8 @@ def KyteDoolittleColorMapping(maptype='jet', reverse=True):
 
     Uses the Kyte-Doolittle hydrophobicity scale defined by::
 
-        J. Kyte & R. F. Doolittle: 
-        "A simple method for displaying the hydropathic character of a protein." 
+        J. Kyte & R. F. Doolittle:
+        "A simple method for displaying the hydropathic character of a protein."
         J Mol Biol, 157, 105-132
 
     More positive values indicate higher hydrophobicity, while more negative values
@@ -49,7 +49,7 @@ def KyteDoolittleColorMapping(maptype='jet', reverse=True):
 
         * *mapping_d* is a dictionary keyed by the one-letter amino-acid
           codes. The values are the colors in CSS2 format (e.g. #FF0000
-          for red) for that amino acid. The value for a stop codon 
+          for red) for that amino acid. The value for a stop codon
           (denoted by a ``*`` character) is black (#000000).
 
         * *mapper* is the actual *pylab.cm.ScalarMappable* object.
@@ -84,11 +84,11 @@ def KyteDoolittleColorMapping(maptype='jet', reverse=True):
 def MWColorMapping(maptype='jet', reverse=True):
     """Maps amino-acid molecular weights to colors. Otherwise, this
     function is identical to *KyteDoolittleColorMapping*
-    """ 
+    """
     d = {'A':89,'R':174,'N':132,'D':133,'C':121,'Q':146,'E':147,\
          'G':75,'H':155,'I':131,'L':131,'K':146,'M':149,'F':165,\
          'P':115,'S':105,'T':119,'W':204,'Y':181,'V':117}
-    
+
     aas = sorted(AA_TO_INDEX.keys())
     mws  = [d[aa] for aa in aas]
     if reverse:
@@ -109,7 +109,7 @@ def SingleColorMapping(maptype="#999999"):
     return (None, collections.defaultdict(lambda: maptype), None)
 
 def ChargeColorMapping(maptype='jet', reverse=False):
-    """Maps amino-acid charge at neutral pH to colors. 
+    """Maps amino-acid charge at neutral pH to colors.
     Currently does not use the keyword arguments for *maptype*
     or *reverse* but accepts these arguments to be consistent
     with KyteDoolittleColorMapping and MWColorMapping for now."""
@@ -132,7 +132,7 @@ def FunctionalGroupColorMapping(maptype='jet', reverse=False):
     """Maps amino-acid functional groups to colors.
     Currently does not use the keyword arguments for *maptype*
     or *reverse* but accepts these arguments to be consistent
-    with the other mapping functions, which all get called with 
+    with the other mapping functions, which all get called with
     these arguments."""
 
     small_color = '#f76ab4'
@@ -166,7 +166,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
     that site for that amino acid or nucleotide.
 
     Note that stop codons may or may not be included in the logo
-    depending on whether they are present in *pi_d*.  
+    depending on whether they are present in *pi_d*.
 
     CALLING VARIABLES:
 
@@ -177,22 +177,22 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
       listed in *sites*. These should be **strings**, not integers.
 
     * *datatype* should be one of the following strings:
-    
+
         * 'prefs' for preferences
-        
+
         * 'diffprefs' for differential preferences
-        
+
         * 'diffsel' for differential selection
 
     * *data* is a dictionary that has a key for every entry in
       *sites*. For every site *r* in *sites*, *sites[r][x]*
-      is the value for character *x*. 
+      is the value for character *x*.
       Preferences must sum to one; differential preferences to zero.
       All sites must have the same set of characters. The characters
       must be the set of nucleotides or amino acids with or without
       stop codons.
 
-    * *plotfile* is a string giving the name of the created PDF file 
+    * *plotfile* is a string giving the name of the created PDF file
       of the logo plot.
       It must end in the extension ``.pdf``.
 
@@ -201,7 +201,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
     * *numberevery* is specifies how frequently we put labels for the sites on
       x-axis.
 
-    * *allowunsorted* : if *True* then we allow the entries in *sites* to 
+    * *allowunsorted* : if *True* then we allow the entries in *sites* to
       **not** be sorted. This means that the logo plot will **not** have
       sites in sorted order.
 
@@ -209,9 +209,9 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
       the maximum that the logo stacks extend in the positive and negative directions.
       Cannot be smaller than the maximum extent of the differential preferences.
 
-    * *ylimits*: is **mandatory** if *datatype* is 'diffsel', and meaningless 
-      otherwise. It is *(ymin, ymax)* where *ymax > 0 > ymin*, and gives extent 
-      of the data in the positive and negative directions. Must encompass the 
+    * *ylimits*: is **mandatory** if *datatype* is 'diffsel', and meaningless
+      otherwise. It is *(ymin, ymax)* where *ymax > 0 > ymin*, and gives extent
+      of the data in the positive and negative directions. Must encompass the
       actual maximum and minimum of the data.
 
     * *overlay* : make overlay bars that indicate other properties for
@@ -236,7 +236,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
         - *longname* : longer name for property used on axes label. Can be the
           same as *shortname* if you don't need a different long name.
 
-        - In the special case where both *shortname* and *longname* are 
+        - In the special case where both *shortname* and *longname* are
           the string `wildtype`, then rather than an overlay bar we
           right the one-character wildtype identity in `prop_d` for each
           site.
@@ -253,7 +253,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
       stands.
 
     * *overlay_cmap* can be the name of a valid *matplotlib.colors.Colormap*, such as the
-      string *jet* or *bwr*. Otherwise, it can be *None* and a (hopefully) good choice will 
+      string *jet* or *bwr*. Otherwise, it can be *None* and a (hopefully) good choice will
       be made for you.
 
     * *custom_cmap* can be the name of a valid *matplotlib.colors.Colormap* which will be
@@ -266,11 +266,11 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
       for a higher letter stack.
 
     * *map_metric* specifies the amino-acid property metric used to map colors to amino-acid
-      letters. Valid options are 'kd' (Kyte-Doolittle hydrophobicity scale, default), 'mw' 
+      letters. Valid options are 'kd' (Kyte-Doolittle hydrophobicity scale, default), 'mw'
       (molecular weight), 'functionalgroup' (functional groups: small, nucleophilic, hydrophobic,
       aromatic, basic, acidic, and amide), 'charge' (charge at neutral pH), and
       'singlecolor'. If 'charge' is used, then the
-      argument for *custom_cmap* will no longer be meaningful, since 'charge' uses its own 
+      argument for *custom_cmap* will no longer be meaningful, since 'charge' uses its own
       blue/black/red colormapping. Similarly, 'functionalgroup' uses its own colormapping.
 
     * *noseparator* is only meaningful if *datatype* is 'diffsel' or 'diffprefs'.
@@ -334,7 +334,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
         ymax = (stackaspectratio * stackwidth + len(overlay) * (barspacing + barheight)) / float(stackaspectratio * stackwidth)
         aspectratio = ymax * stackaspectratio # effective aspect ratio for full range
     else:
-        ymax = 1.0 
+        ymax = 1.0
         aspectratio = stackaspectratio
     rmargin = 11.5 # right margin in points, fixed by weblogo
     stackheightmargin = 16 # margin between stacks in points, fixed by weblogo
@@ -421,7 +421,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
         logo_options.stack_width = stackwidth
         logo_options.unit_name = 'probability'
         logo_options.show_yaxis = False
-        logo_options.yaxis_scale = ymax 
+        logo_options.yaxis_scale = ymax
         if alphabet_type == 'aa':
             map_functions = {'kd':KyteDoolittleColorMapping,
                              'mw': MWColorMapping,
@@ -452,7 +452,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
         logoformat = weblogolib.LogoFormat(logodata, logo_options)
         # _my_pdf_formatter is modified from weblogo version 3.4 source code
         # to allow custom ordering of the symbols.
-        pdf = _my_pdf_formatter(logodata, logoformat, ordered_alphabets) 
+        pdf = _my_pdf_formatter(logodata, logoformat, ordered_alphabets)
         with open(plotfile, 'wb') as f:
             f.write(pdf)
         assert os.path.isfile(plotfile), "Failed to find expected plotfile %s" % plotfile
@@ -482,9 +482,9 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
             overlaypdf = PyPDF2.PdfFileReader(overlayfile_f).getPage(0)
             xshift = overlaypdf.artBox[2] - plot.artBox[2]
             yshift = (barheight + barspacing) * len(overlay) - 0.5 * barspacing
-            overlaypdf.mergeTranslatedPage(plot, xshift, 
+            overlaypdf.mergeTranslatedPage(plot, xshift,
                     yshift * int(underlay), expand=True)
-            overlaypdf.compressContentStreams() 
+            overlaypdf.compressContentStreams()
             output = PyPDF2.PdfFileWriter()
             output.addPage(overlaypdf)
             output.write(fmerged)
@@ -520,56 +520,56 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
 
 #  Copyright (c) 2003-2004 The Regents of the University of California.
 #  Copyright (c) 2005 Gavin E. Crooks
-#  Copyright (c) 2006-2011, The Regents of the University of California, through 
+#  Copyright (c) 2006-2011, The Regents of the University of California, through
 #  Lawrence Berkeley National Laboratory (subject to receipt of any required
 #  approvals from the U.S. Dept. of Energy).  All rights reserved.
 
 #  This software is distributed under the new BSD Open Source License.
 #  <http://www.opensource.org/licenses/bsd-license.html>
 #
-#  Redistribution and use in source and binary forms, with or without 
-#  modification, are permitted provided that the following conditions are met: 
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
 #
-#  (1) Redistributions of source code must retain the above copyright notice, 
-#  this list of conditions and the following disclaimer. 
+#  (1) Redistributions of source code must retain the above copyright notice,
+#  this list of conditions and the following disclaimer.
 #
-#  (2) Redistributions in binary form must reproduce the above copyright 
-#  notice, this list of conditions and the following disclaimer in the 
-#  documentation and or other materials provided with the distribution. 
+#  (2) Redistributions in binary form must reproduce the above copyright
+#  notice, this list of conditions and the following disclaimer in the
+#  documentation and or other materials provided with the distribution.
 #
-#  (3) Neither the name of the University of California, Lawrence Berkeley 
-#  National Laboratory, U.S. Dept. of Energy nor the names of its contributors 
-#  may be used to endorse or promote products derived from this software 
-#  without specific prior written permission. 
+#  (3) Neither the name of the University of California, Lawrence Berkeley
+#  National Laboratory, U.S. Dept. of Energy nor the names of its contributors
+#  may be used to endorse or promote products derived from this software
+#  without specific prior written permission.
 #
-#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
-#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
-#  POSSIBILITY OF SUCH DAMAGE. 
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
 
 # Replicates README.txt
 
 def _my_pdf_formatter(data, format, ordered_alphabets) :
     """ Generate a logo in PDF format.
-    
+
     Modified from weblogo version 3.4 source code.
     """
     eps = _my_eps_formatter(data, format, ordered_alphabets).decode()
-    gs = weblogolib.GhostscriptAPI()    
+    gs = weblogolib.GhostscriptAPI()
     return gs.convert('pdf', eps, format.logo_width, format.logo_height)
 
 
 def _my_eps_formatter(logodata, format, ordered_alphabets) :
     """ Generate a logo in Encapsulated Postscript (EPS)
-    
-    Modified from weblogo version 3.4 source code. 
+
+    Modified from weblogo version 3.4 source code.
 
     *ordered_alphabets* is a dictionary keyed by zero-indexed
     consecutive sites, with values giving order of characters
@@ -577,12 +577,12 @@ def _my_eps_formatter(logodata, format, ordered_alphabets) :
     """
     substitutions = {}
     from_format =[
-        "creation_date",    "logo_width",           "logo_height",      
+        "creation_date",    "logo_width",           "logo_height",
         "lines_per_logo",   "line_width",           "line_height",
         "line_margin_right","line_margin_left",     "line_margin_bottom",
         "line_margin_top",  "title_height",         "xaxis_label_height",
         "creator_text",     "logo_title",           "logo_margin",
-        "stroke_width",     "tic_length",           
+        "stroke_width",     "tic_length",
         "stacks_per_line",  "stack_margin",
         "yaxis_label",      "yaxis_tic_interval",   "yaxis_minor_tic_interval",
         "xaxis_label",      "xaxis_tic_interval",   "number_interval",
@@ -590,7 +590,7 @@ def _my_eps_formatter(logodata, format, ordered_alphabets) :
         "errorbar_width_fraction",
         "errorbar_gray",    "small_fontsize",       "fontsize",
         "title_fontsize",   "number_fontsize",      "text_font",
-        "logo_font",        "title_font",          
+        "logo_font",        "title_font",
         "logo_label",       "yaxis_scale",          "end_type",
         "debug",            "show_title",           "show_xaxis",
         "show_xaxis_label", "show_yaxis",           "show_yaxis_label",
@@ -598,7 +598,7 @@ def _my_eps_formatter(logodata, format, ordered_alphabets) :
         "rotate_numbers",   "show_ends",            "stack_height",
         "stack_width"
         ]
-   
+
     for s in from_format :
         substitutions[s] = getattr(format,s)
 
@@ -607,12 +607,12 @@ def _my_eps_formatter(logodata, format, ordered_alphabets) :
 
     # --------- COLORS --------------
     def format_color(color):
-        return  " ".join( ("[",str(color.red) , str(color.green), 
-            str(color.blue), "]"))  
+        return  " ".join( ("[",str(color.red) , str(color.green),
+            str(color.blue), "]"))
 
     substitutions["default_color"] = format_color(format.default_color)
 
-    colors = []  
+    colors = []
     if hasattr(format.color_scheme, 'rules'):
         grouplist = format.color_scheme.rules
     else:
@@ -623,13 +623,13 @@ def _my_eps_formatter(logodata, format, ordered_alphabets) :
         for s in group.symbols :
             colors.append( "  ("+s+") " + cf )
     substitutions["color_dict"] = "\n".join(colors)
-        
+
     data = []
-    
+
     # Unit conversion. 'None' for probability units
     conv_factor = None #JDB
     #JDB conv_factor = std_units[format.unit_name]
-    
+
     data.append("StartLine")
 
     seq_from = format.logo_start- format.first_index
@@ -639,18 +639,18 @@ def _my_eps_formatter(logodata, format, ordered_alphabets) :
     # logo_index : User visible coordinate, first_index based
     # stack_index : zero based index of visible stacks
     for seq_index in range(seq_from, seq_to) :
-        logo_index = seq_index + format.first_index 
+        logo_index = seq_index + format.first_index
         stack_index = seq_index - seq_from
-        
+
         if stack_index!=0 and (stack_index % format.stacks_per_line) ==0 :
             data.append("")
             data.append("EndLine")
             data.append("StartLine")
             data.append("")
-        
+
         data.append("(%s) StartStack" % format.annotate[seq_index] )
 
-        if conv_factor: 
+        if conv_factor:
             stack_height = logodata.entropy[seq_index] * std_units[format.unit_name]
         else :
             stack_height = 1.0 # Probability
@@ -676,11 +676,11 @@ def _my_eps_formatter(logodata, format, ordered_alphabets) :
         #s.sort(key= lambda x: x[0])
         #if not format.reverse_stacks: s.reverse()
 
-        C = float(sum(logodata.counts[seq_index])) 
+        C = float(sum(logodata.counts[seq_index]))
         if C > 0.0 :
             fraction_width = 1.0
             if format.scale_width :
-                fraction_width = logodata.weight[seq_index] 
+                fraction_width = logodata.weight[seq_index]
             # print(fraction_width, file=sys.stderr)
             for c in s:
                 data.append(" %f %f (%s) ShowSymbol" % (fraction_width, c[0]*stack_height/C, c[1]) )
@@ -693,17 +693,17 @@ def _my_eps_formatter(logodata, format, ordered_alphabets) :
             low *= conv_factor
             high *= conv_factor
             center *=conv_factor
-            if high> format.yaxis_scale : high = format.yaxis_scale 
+            if high> format.yaxis_scale : high = format.yaxis_scale
 
-            down = (center - low) 
-            up   = (high - center) 
+            down = (center - low)
+            up   = (high - center)
             data.append(" %f %f DrawErrorbar" % (down, up) )
-            
+
         data.append("EndStack")
         data.append("")
-               
+
     data.append("EndLine")
-    substitutions["logo_data"] = "\n".join(data)  
+    substitutions["logo_data"] = "\n".join(data)
 
 
     # Create and output logo
@@ -712,7 +712,7 @@ def _my_eps_formatter(logodata, format, ordered_alphabets) :
 
     return logo.encode()
 #
-# End of code modified from weblogo    
+# End of code modified from weblogo
 #########################################################################
 
 #########################################################################
@@ -725,7 +725,7 @@ def _my_eps_formatter(logodata, format, ordered_alphabets) :
 #  This software is distributed under the MIT Open Source License.
 #  <http://www.opensource.org/licenses/mit-license.html>
 #
-#  Permission is hereby granted, free of charge, to any person obtaining a 
+#  Permission is hereby granted, free of charge, to any person obtaining a
 #  copy of this software and associated documentation files (the "Software"),
 #  to deal in the Software without restriction, including without limitation
 #  the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -735,57 +735,57 @@ def _my_eps_formatter(logodata, format, ordered_alphabets) :
 #  The above copyright notice and this permission notice shall be included
 #  in all copies or substantial portions of the Software.
 #
-#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-#  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 #  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+#  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-#  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+#  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 #  IN THE SOFTWARE.
 
 
 class _my_Motif(corebio.matrix.AlphabeticArray) :
-    """A two dimensional array where the second dimension is indexed by an 
+    """A two dimensional array where the second dimension is indexed by an
     Alphabet. Used to represent sequence motifs and similar information.
 
-    
+
     Attr:
     - alphabet     -- An Alphabet
     - array        -- A numpy array
     - name         -- The name of this motif (if any) as a string.
     - description  -- The description, if any.
-    
+
     """
-            
+
     def __init__(self, alphabet, array=None, dtype=None, name=None,
             description = None, scale=None) :
         corebio.matrix.AlphabeticArray.__init__(self, (None, alphabet), array, dtype)
         self.name = name
         self.description = description
-        self.scale = scale    
+        self.scale = scale
 
     @property
     def alphabet(self):
         return self.alphabets[1]
-        
+
     def reindex(self, alphabet) :
         return  _my_Motif(alphabet, corebio.matrix.AlphabeticArray.reindex(self, (None, alphabet)))
-  
+
     # These methods alter self, and therefore do not return a value.
     # (Compare to Seq objects, where the data is immutable and therefore methods return a new Seq.)
     # TODO: Should reindex (above) also act on self?
-    
+
     def reverse(self):
         """Reverse sequence data"""
 #        self.array = na.array(self.array[::-1]) # This is a view into the origional numpy array.
         self.array = self.array[::-1] # This is a view into the origional numpy array.
-    
+
     @staticmethod #TODO: should be classmethod?
     def read_transfac( fin, alphabet = None) :
-        """ Parse a sequence matrix from a file. 
+        """ Parse a sequence matrix from a file.
         Returns a tuple of (alphabet, matrix)
         """
-   
+
         items = []
 
         start=True
@@ -816,8 +816,8 @@ class _my_Motif(corebio.matrix.AlphabeticArray) :
         # Vertical or horizontal arrangement?
         if header[0] == 'PO' or header[0] == 'P0': header.pop(0)
 
-        position_header = True    
-        alphabet_header = True    
+        position_header = True
+        alphabet_header = True
         for h in header :
             if not corebio.utils.isint(h) : position_header = False
 #allow non-alphabetic            if not str.isalpha(h) : alphabet_header = False
@@ -832,7 +832,7 @@ class _my_Motif(corebio.matrix.AlphabeticArray) :
         # Check row headers
         if alphabet_header :
             for i,r in enumerate(items) :
-                if not corebio.utils.isint(r[0]) and r[0][0]!='P' : 
+                if not corebio.utils.isint(r[0]) and r[0][0]!='P' :
                     raise ValueError(
                         "Expected position as first item on line %d" % i)
                 r.pop(0)
@@ -840,11 +840,11 @@ class _my_Motif(corebio.matrix.AlphabeticArray) :
         else :
             a = []
             for i,r in enumerate(items) :
-                if not ischar(r[0]) and r[0][0]!='P' : 
+                if not ischar(r[0]) and r[0][0]!='P' :
                     raise ValueError(
                         "Expected position as first item on line %d" % i)
                 a.append(r.pop(0))
-            defacto_alphabet = ''.join(a)                
+            defacto_alphabet = ''.join(a)
 
         # Check defacto_alphabet
         defacto_alphabet = corebio.seq.Alphabet(defacto_alphabet)
@@ -853,9 +853,9 @@ class _my_Motif(corebio.matrix.AlphabeticArray) :
             if not defacto_alphabet.alphabetic(alphabet) :
                 raise ValueError("Incompatible alphabets: %s , %s (defacto)"
                                  % (alphabet, defacto_alphabet))
-        else :            
+        else :
             alphabets = (unambiguous_rna_alphabet,
-                        unambiguous_dna_alphabet,                      
+                        unambiguous_dna_alphabet,
                         unambiguous_protein_alphabet,
                       )
             for a in alphabets :
@@ -864,23 +864,23 @@ class _my_Motif(corebio.matrix.AlphabeticArray) :
                     break
             if not alphabet :
                 alphabet = defacto_alphabet
-   
+
 
         # The last item of each row may be extra cruft. Remove
         if len(items[0]) == len(header) +1 :
             for r in items :
                 r.pop()
 
-        # items should now be a list of lists of numbers (as strings) 
+        # items should now be a list of lists of numbers (as strings)
         rows = len(items)
         cols = len(items[0])
-        matrix = numpy.zeros( (rows,cols) , dtype=numpy.float64) 
+        matrix = numpy.zeros( (rows,cols) , dtype=numpy.float64)
         for r in range( rows) :
             for c in range(cols):
-                matrix[r,c] = float( items[r][c]) 
+                matrix[r,c] = float( items[r][c])
 
         if position_header :
-            matrix.transpose() 
+            matrix.transpose()
 
         return _my_Motif(defacto_alphabet, matrix).reindex(alphabet)
 
@@ -894,7 +894,7 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
     This function creates colored bars overlay bars showing up to two
     properties.
     The trick of this function is to create the bars the right
-    size so they align when they overlay the logo plot. 
+    size so they align when they overlay the logo plot.
 
     CALLING VARIABLES:
 
@@ -960,7 +960,7 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
     prop_types = {}
     for (prop_d, shortname, longname) in overlay:
         if shortname == longname == 'wildtype':
-            assert all([(isinstance(prop, str) and len(prop) == 1) for 
+            assert all([(isinstance(prop, str) and len(prop) == 1) for
                     prop in prop_d.values()]), 'prop_d does not give letters'
             proptype = 'wildtype'
             (vmin, vmax) = (0, 1) # not used, but need to be assigned
@@ -1001,14 +1001,14 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
         for (iprop, (prop_d, shortname, longname)) in enumerate(overlay):
             (proptype, vmin, vmax, propcategories) = prop_types[shortname]
             prop_ax = pylab.axes([
-                    lmargin / figwidth, 
-                    ((nlines - iline - 1) * (logoheight + 
-                        len(overlay) * (barspacing + barheight)) + 
-                        (1 - int(underlay)) * logoheight + int(underlay) * 
-                        barspacing + iprop * (barspacing + barheight)) 
-                        / figheight, 
-                    xlength / figwidth, 
-                    barheight / figheight], 
+                    lmargin / figwidth,
+                    ((nlines - iline - 1) * (logoheight +
+                        len(overlay) * (barspacing + barheight)) +
+                        (1 - int(underlay)) * logoheight + int(underlay) *
+                        barspacing + iprop * (barspacing + barheight))
+                        / figheight,
+                    xlength / figwidth,
+                    barheight / figheight],
                     frameon=(proptype != 'wildtype'))
             prop_ax.xaxis.set_ticks_position('none')
             pylab.xticks([])
@@ -1018,7 +1018,7 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin, logoh
                 pylab.yticks([])
                 prop_ax.yaxis.set_ticks_position('none')
                 for (isite, site) in enumerate(isites):
-                    pylab.text(isite + 0.5, -0.5, prop_d[site], size=9, 
+                    pylab.text(isite + 0.5, -0.5, prop_d[site], size=9,
                             horizontalalignment='center', family='monospace')
                 continue
             pylab.yticks([0], [shortname], size=8)
