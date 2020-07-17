@@ -7,9 +7,6 @@ import random
 import unittest
 import copy
 import os
-import scipy
-import scipy.linalg
-import sympy
 from phydmslib.constants import *
 import phydmslib.models
 import phydmslib.file_io
@@ -25,7 +22,7 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
 
     def setUp(self):
         """Set up for tests."""
-        scipy.random.seed(1)
+        numpy.random.seed(1)
         random.seed(1)
 
         nsites = 1
@@ -33,15 +30,15 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
         self.prefs = []
         self.realprefs = []
         for r in range(nsites):
-            rprefs = scipy.random.dirichlet([0.5] * N_AA)
+            rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-            scipy.random.shuffle(rprefs)
+            numpy.random.shuffle(rprefs)
             self.realprefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
         self.kappa = 3.0
         self.omega = 3.0
-        self.phi = scipy.random.dirichlet([5] * N_NT)
+        self.phi = numpy.random.dirichlet([5] * N_NT)
         self.model = self.MODEL(self.prefs,
                 prior=None, kappa=self.kappa, omega=self.omega, phi=self.phi)
         self.realmodel = phydmslib.models.ExpCM(self.realprefs,
@@ -117,12 +114,12 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
         tl = copy.deepcopy(self.tl)
         firstloglik = None
         for seed in range(3):
-            scipy.random.seed(seed)
+            numpy.random.seed(seed)
             if self.MODEL == phydmslib.models.ExpCM_fitprefs:
-                tl.paramsarray = scipy.random.uniform(0.1, 0.99,
+                tl.paramsarray = numpy.random.uniform(0.1, 0.99,
                         len(tl.paramsarray))
             elif self.MODEL == phydmslib.models.ExpCM_fitprefs2:
-                tl.paramsarray = scipy.random.uniform(0.5, 5.0,
+                tl.paramsarray = numpy.random.uniform(0.5, 5.0,
                         len(tl.paramsarray))
             else:
                 raise ValueError("Unrecognized MODEL: {0}".format(self.MODEL))

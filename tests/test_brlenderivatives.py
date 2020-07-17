@@ -11,7 +11,6 @@ import unittest
 import random
 import copy
 import numpy
-import scipy
 import scipy.optimize
 import Bio.Phylo
 import phydmslib.models
@@ -32,11 +31,11 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
     def setUp(self):
         """Set up parameters for test."""
         random.seed(1)
-        scipy.random.seed(1)
+        numpy.random.seed(1)
 
         self.underflowfreq = 1
 
-        # define tree 
+        # define tree
         self.newick = ('((node1:0.2,node2:0.3)node4:0.3,node3:0.5)node5:0.04;')
         tempfile = '_temp.tree'
         with open(tempfile, 'w') as f:
@@ -48,7 +47,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
         pyvolvetree = pyvolve.read_tree(tree=self.newick)
         self.nsites = 50
         self.nseqs = self.tree.count_terminals()
-        e_pw = scipy.ndarray((3, N_NT), dtype='float')
+        e_pw = numpy.ndarray((3, N_NT), dtype='float')
         e_pw.fill(0.25)
         yngkp_m0 = phydmslib.models.YNGKP_M0(e_pw, self.nsites)
         partitions = phydmslib.simulate.pyvolvePartitions(yngkp_m0)
@@ -67,9 +66,9 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
         # define model
         prefs = []
         minpref = 0.02
-        g = scipy.random.dirichlet([10] * N_NT)
+        g = numpy.random.dirichlet([10] * N_NT)
         for r in range(self.nsites):
-            rprefs = scipy.random.dirichlet([0.5] * N_AA)
+            rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
             prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
@@ -78,12 +77,12 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
         elif self.MODEL == phydmslib.models.ExpCM_empirical_phi:
             self.model = phydmslib.models.ExpCM_empirical_phi(prefs, g)
         elif self.MODEL == phydmslib.models.ExpCM_empirical_phi_divpressure:
-            divpressure = scipy.random.uniform(-1, 5, self.nsites)
+            divpressure = numpy.random.uniform(-1, 5, self.nsites)
             divpressure /= max(abs(divpressure))
             self.model = phydmslib.models.ExpCM_empirical_phi_divpressure(
                     prefs, g, divpressure)
         elif self.MODEL == phydmslib.models.YNGKP_M0:
-            e_pw = scipy.random.uniform(0.2, 0.8, size=(3, N_NT))
+            e_pw = numpy.random.uniform(0.2, 0.8, size=(3, N_NT))
             e_pw = e_pw / e_pw.sum(axis=1, keepdims=True)
             self.model = phydmslib.models.YNGKP_M0(e_pw, self.nsites)
         else:
@@ -91,7 +90,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
 
         if self.DISTRIBUTIONMODEL is None:
             pass
-        elif (self.DISTRIBUTIONMODEL == 
+        elif (self.DISTRIBUTIONMODEL ==
                 phydmslib.models.GammaDistributedOmegaModel):
             self.model = self.DISTRIBUTIONMODEL(self.model, ncats=4)
         else:
@@ -100,16 +99,16 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
 
     def test_Initialize(self):
         """Test that `TreeLikelihood` initializes properly."""
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model, underflowfreq=self.underflowfreq,
                 dparamscurrent=False, dtcurrent=True)
         self.assertEqual(tl.dloglik_dt.shape, tl.t.shape)
 
     def test_dM_dt(self):
         """Tests model `dM` with respect to `t`."""
-        scipy.random.seed(1)
+        numpy.random.seed(1)
         random.seed(1)
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model, underflowfreq=self.underflowfreq,
                 dparamscurrent=False, dtcurrent=True)
 
@@ -129,8 +128,8 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
 
     def test_AdjustBrLen(self):
         """Tests adjusting branch lengths."""
-        scipy.random.seed(1)
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+        numpy.random.seed(1)
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model, underflowfreq=self.underflowfreq,
                 dparamscurrent=False, dtcurrent=True)
         loglik1 = tl.loglik
@@ -138,7 +137,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
         self.assertFalse(numpy.allclose(loglik1, tl.loglik))
         tl.t = tl.t / 2
         self.assertTrue(numpy.allclose(loglik1, tl.loglik))
-        tl.t = tl.t * scipy.random.uniform(0.1, 1.5, tl.t.shape)
+        tl.t = tl.t * numpy.random.uniform(0.1, 1.5, tl.t.shape)
         self.assertFalse(numpy.allclose(loglik1, tl.loglik))
         loglik2 = tl.loglik
         t = tl.t
@@ -152,7 +151,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
 
     def test_BrLenDerivatives(self):
         """Tests derivatives of branch lengths."""
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model, underflowfreq=self.underflowfreq,
                 dparamscurrent=False, dtcurrent=True)
 
@@ -169,18 +168,18 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
             return tl.dloglik_dt[n]
 
         for n in range(len(tl.t)):
-            diff = scipy.optimize.check_grad(func, dfunc, 
+            diff = scipy.optimize.check_grad(func, dfunc,
                     numpy.array([tl.t[n]]), n)
             self.assertTrue(diff < 2e-5, diff)
 
 
     def test_dtcurrent(self):
         """Tests use of `dtcurrent` attribute."""
-        tl1 = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+        tl1 = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model, underflowfreq=self.underflowfreq,
                 dparamscurrent=False, dtcurrent=True)
 
-        tl2 = phydmslib.treelikelihood.TreeLikelihood(self.tree, 
+        tl2 = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model, underflowfreq=self.underflowfreq,
                 dparamscurrent=True, dtcurrent=False)
 

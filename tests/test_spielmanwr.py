@@ -6,7 +6,6 @@ Written by Jesse Bloom and Sarah Hilton."""
 import random
 import unittest
 import numpy
-import scipy
 from phydmslib.constants import *
 import phydmslib.models
 
@@ -22,13 +21,13 @@ class testExpCM_spielmanwr(unittest.TestCase):
 
         # create models
         random.seed(1)
-        scipy.random.seed(1)
+        numpy.random.seed(1)
         nsites = 10
-        g = scipy.random.dirichlet([5] * N_NT)
+        g = numpy.random.dirichlet([5] * N_NT)
         prefs = []
         minpref = 0.01
         for r in range(nsites):
-            rprefs = scipy.random.dirichlet([0.5] * N_AA)
+            rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
             prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))

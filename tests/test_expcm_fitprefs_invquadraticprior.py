@@ -7,8 +7,7 @@ import random
 import unittest
 import copy
 import numpy
-import scipy
-import scipy.linalg
+import scipy.optimize
 import sympy
 from phydmslib.constants import *
 import phydmslib.models
@@ -21,20 +20,20 @@ class test_ExpCM_fitprefs_invquadraticprior(unittest.TestCase):
 
     def setUp(self):
         """Set up for tests."""
-        scipy.random.seed(1)
+        numpy.random.seed(1)
         random.seed(1)
         nsites = 1
         minpref = 0.001
         self.prefs = []
         for r in range(nsites):
-            rprefs = scipy.random.dirichlet([0.7] * N_AA)
+            rprefs = numpy.random.dirichlet([0.7] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs[0] = rprefs[1] + 1.0e-8 # ensure near equal prefs handled OK
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        self.expcm_fitprefs = self.MODEL(self.prefs, 
+        self.expcm_fitprefs = self.MODEL(self.prefs,
                 prior=('invquadratic', 150.0, 0.5), kappa=3.0, omega=0.3,
-                phi=scipy.random.dirichlet([5] * N_NT))
+                phi=numpy.random.dirichlet([5] * N_NT))
         assert len(self.expcm_fitprefs.zeta.flatten()) == nsites * (N_AA - 1)
         assert self.expcm_fitprefs.nsites == nsites
 
@@ -51,15 +50,15 @@ class test_ExpCM_fitprefs_invquadraticprior(unittest.TestCase):
 
     def test_dlogprior(self):
         """Test `dlogprior`."""
-        scipy.random.seed(1)
+        numpy.random.seed(1)
 
         expcm_fitprefs = copy.deepcopy(self.expcm_fitprefs)
         self.assertTrue(numpy.allclose(expcm_fitprefs.pi, expcm_fitprefs.origpi))
         if self.MODEL == phydmslib.models.ExpCM_fitprefs:
-            newzeta = expcm_fitprefs.zeta.copy() * scipy.random.uniform(0.9, 1.0, 
+            newzeta = expcm_fitprefs.zeta.copy() * numpy.random.uniform(0.9, 1.0,
                     expcm_fitprefs.zeta.shape)
         elif self.MODEL == phydmslib.models.ExpCM_fitprefs2:
-            newzeta = expcm_fitprefs.zeta.copy() * scipy.random.uniform(0.01, 10.0, 
+            newzeta = expcm_fitprefs.zeta.copy() * numpy.random.uniform(0.01, 10.0,
                     expcm_fitprefs.zeta.shape)
         else:
             raise RuntimeError("invalid MODEL: {0}".format(self.MODEL))

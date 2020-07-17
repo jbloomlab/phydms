@@ -5,7 +5,6 @@ Written by Jesse Bloom and Sarah Hilton.
 
 import os
 import sys
-import scipy
 import math
 import phydmslib.models
 from phydmslib.constants import *

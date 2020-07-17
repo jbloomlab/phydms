@@ -10,8 +10,8 @@ are correct for `YNGKP_M0` implemented in `phydmslib.models`."""
 import random
 import unittest
 import numpy
-import scipy
 import scipy.linalg
+import scipy.optimize
 import sympy
 from phydmslib.constants import *
 import phydmslib.models
@@ -25,14 +25,14 @@ class testYNGKP_M0(unittest.TestCase):
         # create alignment
         sequences = [""]
         #self.e_pa = numpy.array([[4.0, 0.0, 0.0, 0.0], [0.0, 1.0, 2.0, 1.0], [0.0, 2.0, 0.0, 2.0]])
-        scipy.random.seed(1)
+        numpy.random.seed(1)
         random.seed(1)
-        self.e_pa = scipy.random.uniform(0.12, 1.0, size = (3, N_NT))
+        self.e_pa = numpy.random.uniform(0.12, 1.0, size = (3, N_NT))
         self.e_pa = self.e_pa/self.e_pa.sum(axis=1, keepdims=True)
         self.nsites = 10
 
         # create initial YNGKP_M0
-        phi = scipy.random.dirichlet([2] * N_NT)
+        phi = numpy.random.dirichlet([2] * N_NT)
         omega = 0.4
         kappa = 2.5
         self.YNGKP_M0 = phydmslib.models.YNGKP_M0(self.e_pa, self.nsites, omega=omega, kappa=kappa)

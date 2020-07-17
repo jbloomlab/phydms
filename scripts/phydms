@@ -18,7 +18,6 @@ import warnings
 warnings.simplefilter('always')
 warnings.simplefilter('ignore', ImportWarning)
 import numpy
-import scipy
 import scipy.stats
 import statsmodels.sandbox.stats.multicomp
 import Bio.Phylo
@@ -130,7 +129,7 @@ def fitOmegaBySite(argtup):
     `argtup` is return value of `treeliksForOmegaBySite`.
 
     Returns tuple `(pval, omega, resultstr)` where `pval` is P-value,
-    `omega` is omega, and `resultstr` is tab-separated line with 
+    `omega` is omega, and `resultstr` is tab-separated line with
     site, omega, P, dLnL.
     """
     (site, treeliks, nograd) = argtup
@@ -283,7 +282,7 @@ def main():
                         'be optimized by maximum likelihood.\n')
                 model = phydmslib.models.ExpCM(prefslist, freeparams=freeparams)
             else:
-                g = scipy.ndarray(phydmslib.constants.N_NT, dtype='float')
+                g = numpy.ndarray(phydmslib.constants.N_NT, dtype='float')
                 for (w, nt) in phydmslib.constants.INDEX_TO_NT.items():
                     g[w] = sum([seq.count(nt) for (head, seq) in alignment])
                 assert len(alignment) * len(prefs) * 3 == (g.sum() +
@@ -473,14 +472,14 @@ def main():
             # compute Q-values separately for each sign of omega
             qvalues = numpy.ones(pvalues.shape)
             for op in [operator.ge, operator.le]:
-                pvalues_sign = scipy.where(op(omegas, 1),
+                pvalues_sign = numpy.where(op(omegas, 1),
                         pvalues, 1)
                 qvalues_sign = (statsmodels.sandbox.stats.multicomp
                         .multipletests(pvalues_sign, method='fdr_bh')[1])
-                qvalues = scipy.minimum(qvalues, qvalues_sign)
-            sortindex = scipy.argsort(qvalues)
-            qvalues = scipy.take(qvalues, sortindex)
-            omega_strs = scipy.take(omega_strs, sortindex)
+                qvalues = numpy.minimum(qvalues, qvalues_sign)
+            sortindex = numpy.argsort(qvalues)
+            qvalues = numpy.take(qvalues, sortindex)
+            omega_strs = numpy.take(omega_strs, sortindex)
             omegaresults = ['{0}\t{1:.3g}'.format(omega_str, q) for
                     (omega_str, q) in zip(omega_strs, qvalues)]
             logger.info("Completed fitting the site-specific omega values.")

@@ -9,7 +9,6 @@ Written by Jesse Bloom.
 import os
 import sys
 import numpy
-import scipy
 import math
 import unittest
 import random
@@ -35,7 +34,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
     def test_branchScale(self):
         """Simulate evolution, ensure scaled branches match number of subs."""
 
-        scipy.random.seed(1)
+        numpy.random.seed(1)
         random.seed(1)
 
         # define model, only free parameter is mu for testing simulations
@@ -43,7 +42,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
         prefs = []
         minpref = 0.01
         for r in range(nsites):
-            rprefs = scipy.random.dirichlet([1] * N_AA)
+            rprefs = numpy.random.dirichlet([1] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
             prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
@@ -52,18 +51,18 @@ class test_branchScale_ExpCM(unittest.TestCase):
         beta = 1.5
         mu = 0.3
         if self.MODEL == phydmslib.models.ExpCM:
-            phi = scipy.random.dirichlet([7] * N_NT)
+            phi = numpy.random.dirichlet([7] * N_NT)
             model = phydmslib.models.ExpCM(prefs, kappa=kappa, omega=omega,
                     beta=beta, mu=mu, phi=phi, freeparams=['mu'])
             partitions = phydmslib.simulate.pyvolvePartitions(model)
         elif self.MODEL == phydmslib.models.ExpCM_empirical_phi:
-            g = scipy.random.dirichlet([7] * N_NT)
+            g = numpy.random.dirichlet([7] * N_NT)
             model = phydmslib.models.ExpCM_empirical_phi(prefs, g,
                     kappa=kappa, omega=omega, beta=beta, mu=mu,
                     freeparams=['mu'])
             partitions = phydmslib.simulate.pyvolvePartitions(model)
         elif self.MODEL == phydmslib.models.YNGKP_M0:
-            e_pw = numpy.asarray([scipy.random.dirichlet([7] * N_NT) for i 
+            e_pw = numpy.asarray([numpy.random.dirichlet([7] * N_NT) for i
                     in range(3)])
             model = phydmslib.models.YNGKP_M0(e_pw, nsites)
             partitions = phydmslib.simulate.pyvolvePartitions(model)
@@ -81,7 +80,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
         os.remove(temptree)
 
         # Simulate evolution of two sequences separated by a long branch.
-        # Then estimate subs per site in a heuristic way that will be 
+        # Then estimate subs per site in a heuristic way that will be
         # roughly correct for short branches. Do this all several times
         # and average results to get better accuracy.
         alignment = '_temp_branchScale_simulatedalignment.fasta'

@@ -26,6 +26,7 @@ branches:
   only:
     - master
     - model_adequacy
+    - scipy-deprecation-warnings
 
 notifications:
   email:

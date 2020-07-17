@@ -12,7 +12,6 @@ import unittest
 import subprocess
 import pandas as pd
 import numpy
-import scipy
 
 
 class test_phydms_testdivpressure(unittest.TestCase):
@@ -39,7 +38,7 @@ class test_phydms_testdivpressure(unittest.TestCase):
         if os.path.isdir(outprefix):
             shutil.rmtree(outprefix)
 
-        
+
         subprocess.check_call(['phydms_divpressure', outprefix, alignment,
                 prefs, "--tree", tree, divpressure, divpressure2])
         actual = os.path.abspath(os.path.join(outprefix,

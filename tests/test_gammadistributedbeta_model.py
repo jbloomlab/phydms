@@ -7,8 +7,6 @@ Written by Jesse Bloom and Sarah Hilton.
 import random
 import unittest
 import numpy
-import scipy
-import scipy.linalg
 import scipy.optimize
 from phydmslib.constants import *
 import phydmslib.models
@@ -25,21 +23,21 @@ class test_GammaDistributedBeta_ExpCM(unittest.TestCase):
         """Initialize, test values, update, test again."""
 
         random.seed(1)
-        scipy.random.seed(1)
+        numpy.random.seed(1)
         nsites = 10
 
         # create preference set
         prefs = []
         minpref = 0.01
         for r in range(nsites):
-            rprefs = scipy.random.dirichlet([0.5] * N_AA)
+            rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
             prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
 
         if self.BASEMODEL == phydmslib.models.ExpCM:
             paramvalues = {
-                    'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
+                    'eta':numpy.random.dirichlet([5] * (N_NT - 1)),
                     'omega':0.7,
                     'kappa':2.5,
                     'beta':1.2,
@@ -51,7 +49,7 @@ class test_GammaDistributedBeta_ExpCM(unittest.TestCase):
                     set(basemodel.freeparams)))
             basemodel.updateParams(paramvalues)
         elif self.BASEMODEL == phydmslib.models.ExpCM_empirical_phi:
-            g = scipy.random.dirichlet([3] * N_NT)
+            g = numpy.random.dirichlet([3] * N_NT)
             paramvalues = {
                     'omega':0.7,
                     'kappa':2.5,
@@ -89,7 +87,7 @@ class test_GammaDistributedBeta_ExpCM(unittest.TestCase):
                     newvalues[param] = random.uniform(low, high)
                 else:
                     paramlength = gammamodel.PARAMTYPES[param][1]
-                    newvalues[param] = scipy.random.uniform(
+                    newvalues[param] = numpy.random.uniform(
                             low, high, paramlength)
             gammamodel.updateParams(newvalues)
             self.assertTrue(numpy.allclose(numpy.array([m.beta for m in

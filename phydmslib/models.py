@@ -18,7 +18,6 @@ warnings.simplefilter('ignore', ImportWarning)
 
 import numpy
 
-import scipy
 import scipy.misc
 import scipy.optimize
 import scipy.linalg
@@ -310,8 +309,8 @@ class ExpCM(Model):
                    'beta':float,
                    'pi':float,
                    'mu':float,
-                   'eta':(scipy.ndarray, (N_NT - 1,)),
-                   'phi':(scipy.ndarray, (N_NT,)),
+                   'eta':(numpy.ndarray, (N_NT - 1,)),
+                   'phi':(numpy.ndarray, (N_NT,)),
                   }
 
     @property
@@ -358,7 +357,7 @@ class ExpCM(Model):
         self._freeparams = list(freeparams) # underscore as `freeparams` is property
 
         # put prefs in pi
-        self.pi = scipy.ndarray((self.nsites, N_AA), dtype='float')
+        self.pi = numpy.ndarray((self.nsites, N_AA), dtype='float')
         assert (isinstance(prefs, list) and
                 all([isinstance(x, dict) for x in prefs])),\
                 "prefs is not a list of dicts"
@@ -421,7 +420,7 @@ class ExpCM(Model):
                         dtype='float')
                 self.dprx[param] = numpy.zeros((self.nsites, N_CODON), dtype='float')
             else:
-                assert self.PARAMTYPES[param][0] == scipy.ndarray
+                assert self.PARAMTYPES[param][0] == numpy.ndarray
                 paramshape = self.PARAMTYPES[param][1]
                 assert len(paramshape) == 1, "Can't handle multi-dimensional ndarray"
                 paramlen = paramshape[0]
@@ -464,10 +463,10 @@ class ExpCM(Model):
             pvalue = getattr(self, param)
             if isinstance(pvalue, float):
                 report[param] = pvalue
-            elif isinstance(pvalue, scipy.ndarray) and pvalue.shape == (N_NT,):
+            elif isinstance(pvalue, numpy.ndarray) and pvalue.shape == (N_NT,):
                 for w in range(N_NT - 1):
                     report['{0}{1}'.format(param, INDEX_TO_NT[w])] = pvalue[w]
-            elif isinstance(pvalue, scipy.ndarray) and (pvalue.shape ==
+            elif isinstance(pvalue, numpy.ndarray) and (pvalue.shape ==
                     (self.nsites, N_AA)):
                 for r in range(self.nsites):
                     for a in range(N_AA):
@@ -516,7 +515,7 @@ class ExpCM(Model):
         changed = set([]) # contains string names of changed params
         for (name, value) in newvalues.items():
             _checkParam(name, value, self.PARAMLIMITS, self.PARAMTYPES)
-            if isinstance(value, scipy.ndarray):
+            if isinstance(value, numpy.ndarray):
                 if (value != getattr(self, name)).any():
                     changed.add(name)
                     setattr(self, name, value.copy())
@@ -549,7 +548,7 @@ class ExpCM(Model):
     def M(self, t, tips=None, gaps=None):
         """See docs for method in `Model` abstract base class."""
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
-        with scipy.errstate(under='ignore'): # don't worry if some values 0
+        with numpy.errstate(under='ignore'): # don't worry if some values 0
             if ('expD', t) not in self._cached:
                 self._cached[('expD', t)] = numpy.exp(self.D * self.mu * t)
             expD = self._cached[('expD', t)]
@@ -615,27 +614,27 @@ class ExpCM(Model):
                 self._cached['Dxx_Dyy_lt_ALMOST_ZERO'] = numpy.fabs(
                         Dxx_Dyy) < ALMOST_ZERO
             Dxx_Dyy_lt_ALMOST_ZERO = self._cached['Dxx_Dyy_lt_ALMOST_ZERO']
-            with scipy.errstate(divide='raise', under='ignore',
+            with numpy.errstate(divide='raise', under='ignore',
                     over='raise', invalid='ignore'):
                 expDyy = numpy.tile(expD,(1, N_CODON)).reshape(
                         self.nsites, N_CODON, N_CODON)
                 expDxx = numpy.array([expDyy[r].transpose() for r in
                         range(self.nsites)])
                 V = (expDxx - expDyy) / Dxx_Dyy
-            with scipy.errstate(under='ignore'): # OK if some values 0
+            with numpy.errstate(under='ignore'): # OK if some values 0
                 numpy.copyto(V, self.mu * t * expDxx, where=
                         Dxx_Dyy_lt_ALMOST_ZERO)
             self._cached[('V', t)] = V
         V = self._cached[('V', t)]
 
-        with scipy.errstate(under='ignore'): # don't worry if some values 0
+        with numpy.errstate(under='ignore'): # don't worry if some values 0
             if tips is None:
                 if not paramisvec:
                     dM_param = broadcastMatrixMultiply(self.A,
                             broadcastMatrixMultiply(self.B[param]
                             * V, self.Ainv))
                 else:
-                    dM_param = scipy.ndarray((paramlength, self.nsites,
+                    dM_param = numpy.ndarray((paramlength, self.nsites,
                             N_CODON, N_CODON), dtype='float')
                     for j in range(paramlength):
                         dM_param[j] = broadcastMatrixMultiply(self.A,
@@ -647,7 +646,7 @@ class ExpCM(Model):
                             broadcastGetCols(broadcastMatrixMultiply(
                             self.B[param] * V, self.Ainv), tips))
                 else:
-                    dM_param = scipy.ndarray((paramlength, self.nsites,
+                    dM_param = numpy.ndarray((paramlength, self.nsites,
                             N_CODON), dtype='float')
                     for j in range(paramlength):
                         dM_param[j] = broadcastMatrixVectorMultiply(self.A,
@@ -662,7 +661,7 @@ class ExpCM(Model):
 
     def _eta_from_phi(self):
         """Update `eta` using current `phi`."""
-        self.eta = scipy.ndarray(N_NT - 1, dtype='float')
+        self.eta = numpy.ndarray(N_NT - 1, dtype='float')
         etaprod = 1.0
         for w in range(N_NT - 1):
             self.eta[w] = 1.0 - self.phi[w] / etaprod
@@ -690,7 +689,7 @@ class ExpCM(Model):
         `ln_piAx_piAy_beta`.
 
         Update using current `pi` and `beta`."""
-        with scipy.errstate(divide='raise', under='raise', over='raise',
+        with numpy.errstate(divide='raise', under='raise', over='raise',
                 invalid='raise'):
             for r in range(self.nsites):
                 self.pi_codon[r] = self.pi[r][CODON_TO_AA]
@@ -704,7 +703,7 @@ class ExpCM(Model):
         """Update `Frxy` from `piAx_piAy_beta`, `ln_piAx_piAy_beta`, `omega`, `beta`."""
         self.Frxy.fill(1.0)
         self.Frxy_no_omega.fill(1.0)
-        with scipy.errstate(divide='raise', under='raise', over='raise',
+        with numpy.errstate(divide='raise', under='raise', over='raise',
                         invalid='ignore'):
             numpy.copyto(self.Frxy_no_omega, -self.ln_piAx_piAy_beta
                     / (1 - self.piAx_piAy_beta), where=numpy.logical_and(
@@ -740,7 +739,7 @@ class ExpCM(Model):
                 qx[CODON_NT[j][w]] *= self.phi[w]
         frx = self.pi_codon**self.beta
         self.prx = frx * qx
-        with scipy.errstate(divide='raise', under='raise', over='raise',
+        with numpy.errstate(divide='raise', under='raise', over='raise',
                 invalid='raise'):
             for r in range(self.nsites):
                 self.prx[r] /= self.prx[r].sum()
@@ -757,7 +756,7 @@ class ExpCM(Model):
             _fill_diagonals(self.dPrxy['omega'], self._diag_indices)
         if 'beta' in self.freeparams:
             self.dPrxy['beta'].fill(0)
-            with scipy.errstate(divide='raise', under='raise', over='raise',
+            with numpy.errstate(divide='raise', under='raise', over='raise',
                     invalid='ignore'):
                 numpy.copyto(self.dPrxy['beta'], self.Prxy *
                         (1 / self.beta + (self.piAx_piAy_beta *
@@ -798,8 +797,8 @@ class ExpCM(Model):
                 self.dprx['beta'][r] = self.prx[r] * (self.ln_pi_codon[r]
                         - numpy.dot(self.ln_pi_codon[r], self.prx[r]))
         if 'eta' in self.freeparams:
-            boolterm = scipy.ndarray(N_CODON, dtype='float')
-            with scipy.errstate(divide='raise', under='raise', over='raise',
+            boolterm = numpy.ndarray(N_CODON, dtype='float')
+            with numpy.errstate(divide='raise', under='raise', over='raise',
                     invalid='raise'):
                 for i in range(N_NT - 1):
                     boolterm.fill(0)
@@ -958,7 +957,7 @@ class ExpCM_fitprefs(ExpCM):
 
         # PARAMTYPES must be instance attribute as zeta value depends on nsites
         self.PARAMTYPES = copy.deepcopy(ExpCM.PARAMTYPES)
-        self.PARAMTYPES['zeta'] = (scipy.ndarray, (len(prefs) * (N_AA - 1),))
+        self.PARAMTYPES['zeta'] = (numpy.ndarray, (len(prefs) * (N_AA - 1),))
 
         self.beta = 1.0
         _checkParam('beta', origbeta, self.PARAMLIMITS, self.PARAMTYPES)
@@ -1008,7 +1007,7 @@ class ExpCM_fitprefs(ExpCM):
                 self.origpi[r][self.origpi[r] < 2 * minpi] = 2 * minpi
                 self.origpi[r] /= self.origpi[r].sum()
             self.pi = self.origpi.copy()
-            self.zeta = scipy.ndarray(self.nsites * (N_AA - 1), dtype='float')
+            self.zeta = numpy.ndarray(self.nsites * (N_AA - 1), dtype='float')
             self.tildeFrxy = numpy.zeros((self.nsites, N_CODON, N_CODON),
                     dtype='float')
             for r in range(self.nsites):
@@ -1035,7 +1034,7 @@ class ExpCM_fitprefs(ExpCM):
 
         super(ExpCM_fitprefs, self)._update_pi_vars()
 
-        with scipy.errstate(divide='raise', under='raise', over='raise',
+        with numpy.errstate(divide='raise', under='raise', over='raise',
                 invalid='ignore'):
             numpy.copyto(self.tildeFrxy, self.omega * self.beta *
                     (self.piAx_piAy_beta * (self.ln_piAx_piAy_beta - 1)
@@ -1076,8 +1075,8 @@ class ExpCM_fitprefs(ExpCM):
         if 'zeta' in self.freeparams:
             tildeFrxyQxy = self.tildeFrxy * self.Qxy
             j = 0
-            zetaxterm = scipy.ndarray((self.nsites, N_CODON, N_CODON), dtype='float')
-            zetayterm = scipy.ndarray((self.nsites, N_CODON, N_CODON), dtype='float')
+            zetaxterm = numpy.ndarray((self.nsites, N_CODON, N_CODON), dtype='float')
+            zetayterm = numpy.ndarray((self.nsites, N_CODON, N_CODON), dtype='float')
             for r in range(self.nsites):
                 for i in range(N_AA - 1):
                     zetari = self.zeta[j]
@@ -1139,7 +1138,7 @@ class ExpCM_fitprefs2(ExpCM_fitprefs):
                 self.origpi[r][self.origpi[r] < 2 * minpi] = 2 * minpi
                 self.origpi[r] /= self.origpi[r].sum()
             self.pi = self.origpi.copy()
-            self.zeta = scipy.ndarray(self.nsites * (N_AA - 1), dtype='float')
+            self.zeta = numpy.ndarray(self.nsites * (N_AA - 1), dtype='float')
             for r in range(self.nsites):
                 self.zeta.reshape(self.nsites, N_AA - 1)[r] = (self.pi[r][ : -1]
                         / self.pi[r][-1])
@@ -1162,7 +1161,7 @@ class ExpCM_fitprefs2(ExpCM_fitprefs):
 
         super(ExpCM_fitprefs, self)._update_pi_vars()
 
-        with scipy.errstate(divide='raise', under='raise', over='raise',
+        with numpy.errstate(divide='raise', under='raise', over='raise',
                 invalid='ignore'):
             numpy.copyto(self.tildeFrxy, self.omega * self.beta *
                     (self.piAx_piAy_beta * (self.ln_piAx_piAy_beta - 1)
@@ -1261,7 +1260,7 @@ class ExpCM_empirical_phi(ExpCM):
     _PARAMLIMITS = copy.deepcopy(ExpCM._PARAMLIMITS)
     _PARAMLIMITS['g'] = (0.05, 0.85)
     PARAMTYPES = copy.deepcopy(ExpCM.PARAMTYPES)
-    PARAMTYPES['g'] = (scipy.ndarray, (N_NT,))
+    PARAMTYPES['g'] = (numpy.ndarray, (N_NT,))
 
     def __init__(self, prefs, g, kappa=2.0, omega=0.5, beta=1.0, mu=1.0,
             freeparams=['kappa', 'omega', 'beta', 'mu']):
@@ -1326,7 +1325,7 @@ class ExpCM_empirical_phi(ExpCM):
             return self.g[ : -1] - gexpect
 
         frx = self.pi_codon**beta
-        with scipy.errstate(invalid='ignore'):
+        with numpy.errstate(invalid='ignore'):
             result = scipy.optimize.root(F, self.phi[ : -1].copy(),
                     tol=1e-8)
             assert result.success, "Failed: {0}".format(result)
@@ -1412,7 +1411,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         """Update `dPrxy`, accounting for dependence of `Prxy` on `omega2`."""
         super(ExpCM_empirical_phi_divpressure, self)._update_dPrxy()
         if 'omega2' in self.freeparams:
-            with scipy.errstate(divide='raise', under='raise', over='raise',
+            with numpy.errstate(divide='raise', under='raise', over='raise',
                             invalid='ignore'):
                 numpy.copyto(self.dPrxy['omega2'], -self.ln_piAx_piAy_beta
                         * self.Qxy * self.omega /
@@ -1428,7 +1427,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         """Update `Frxy` from `piAx_piAy_beta`, `omega`, `omega2`, and `beta`."""
         self.Frxy.fill(1.0)
         self.Frxy_no_omega.fill(1.0)
-        with scipy.errstate(divide='raise', under='raise', over='raise',
+        with numpy.errstate(divide='raise', under='raise', over='raise',
                 invalid='ignore'):
             numpy.copyto(self.Frxy_no_omega, -self.ln_piAx_piAy_beta
                     / (1 - self.piAx_piAy_beta), where=numpy.logical_and(
@@ -1464,14 +1463,14 @@ class YNGKP_M0(Model):
             Keyed by each string in `freeparams`, each value is `numpy.ndarray`
             of floats giving derivative of `Pxy` with respect to that parameter.
             The shape of each array `(1, N_CODON, N_CODON)`.
-        `e_pw` (scipy.ndarray, shape `(3, N_NT)`)
+        `e_pw` (numpy.ndarray, shape `(3, N_NT)`)
             The empirical nucleotide frequencies for each position in a codon
             measured from the alignment. `e_pw[p][w]` give the frequency of
             nucleotide `w` at codon position `p`.
-        `Phi_x` (scipy.ndarray, shape `(N_CODON,)`)
+        `Phi_x` (numpy.ndarray, shape `(N_CODON,)`)
             The codon frequencies calculated from the `phi` frequencies.
             `Phi_x[x]` = phi[0][x0] * phi[1][x1] * phi[2][x2]
-        `phi` (scipy.ndarray, shape `(3, N_NT)`)
+        `phi` (numpy.ndarray, shape `(3, N_NT)`)
             The model nucleotide frequencies for each position in a codon
             computed using the `CF3X4` estimator. `phi[p][w]` is the model
             frequency of nucleotide `w` at codon position `p`.
@@ -1501,7 +1500,7 @@ class YNGKP_M0(Model):
     PARAMTYPES = {'kappa':float,
                    'omega':float,
                    'mu':float,
-                   'e_pw':(scipy.ndarray, (3, N_NT)),
+                   'e_pw':(numpy.ndarray, (3, N_NT)),
                   }
 
     @property
@@ -1597,7 +1596,7 @@ class YNGKP_M0(Model):
             pvalue = getattr(self, param)
             if isinstance(pvalue, float):
                 report[param] = pvalue
-            elif isinstance(pvalue, scipy.ndarray) and pvalue.shape == (3, N_NT):
+            elif isinstance(pvalue, numpy.ndarray) and pvalue.shape == (3, N_NT):
                 for p in range(3):
                     for w in range(N_NT - 1):
                         report['{0}{1}{2}'.format(param, p, INDEX_TO_NT[w])] =\
@@ -1657,7 +1656,7 @@ class YNGKP_M0(Model):
             return functionList
 
         phi = self.e_pw.copy().flatten()
-        with scipy.errstate(invalid='ignore'):
+        with numpy.errstate(invalid='ignore'):
             result = scipy.optimize.root(F, phi,
                     tol=1e-8)
             assert result.success, "Failed: {0}".format(result)
@@ -1679,7 +1678,7 @@ class YNGKP_M0(Model):
         changed = set([]) # contains string names of changed params
         for (name, value) in newvalues.items():
             _checkParam(name, value, self.PARAMLIMITS, self.PARAMTYPES)
-            if isinstance(value, scipy.ndarray):
+            if isinstance(value, numpy.ndarray):
                 if (value != getattr(self, name)).any():
                     changed.add(name)
                     setattr(self, name, value.copy())
@@ -1706,7 +1705,7 @@ class YNGKP_M0(Model):
     def M(self, t, tips=None, gaps=None):
         """See docs for method in `Model` abstract base class."""
         assert isinstance(t, float) and t > 0, "Invalid t: {0}".format(t)
-        with scipy.errstate(under='ignore'): # don't worry if some values 0
+        with numpy.errstate(under='ignore'): # don't worry if some values 0
             if ('expD', t) not in self._cached:
                 self._cached[('expD', t)] = numpy.exp(self.D * self.mu * t)
             expD = self._cached[('expD', t)]
@@ -1771,20 +1770,20 @@ class YNGKP_M0(Model):
                 self._cached['Dxx_Dyy_lt_ALMOST_ZERO'] = numpy.fabs(
                         Dxx_Dyy) < ALMOST_ZERO
             Dxx_Dyy_lt_ALMOST_ZERO = self._cached['Dxx_Dyy_lt_ALMOST_ZERO']
-            with scipy.errstate(divide='raise', under='ignore',
+            with numpy.errstate(divide='raise', under='ignore',
                     over='raise', invalid='ignore'):
                 expDyy = numpy.tile(expD, (1, N_CODON)).reshape(
                         1, N_CODON, N_CODON)
                 expDxx = numpy.array([expDyy[r].transpose() for r in
                         range(1)])
                 V = (expDxx - expDyy) / Dxx_Dyy
-            with scipy.errstate(under='ignore'): # OK if some values 0
+            with numpy.errstate(under='ignore'): # OK if some values 0
                 numpy.copyto(V, self.mu * t * expDxx, where=
                         Dxx_Dyy_lt_ALMOST_ZERO)
             self._cached[('V', t)] = V
         V = self._cached[('V', t)]
 
-        with scipy.errstate(under='ignore'): # don't worry if some values 0
+        with numpy.errstate(under='ignore'): # don't worry if some values 0
             dM_param = broadcastMatrixMultiply(self.A,
                         broadcastMatrixMultiply(self.B[param]
                         * V, self.Ainv))
@@ -2292,7 +2291,7 @@ def DiscreteGamma(alpha, beta, ncats):
             Number of categories in discretized gamma distribution.
 
     Returns:
-        `catmeans` (`scipy.ndarray` of `float`, shape `(ncats,)`)
+        `catmeans` (`numpy.ndarray` of `float`, shape `(ncats,)`)
             `catmeans[k]` is the mean of category `k` where
             `0 <= k < ncats`.
 
@@ -2315,7 +2314,7 @@ def DiscreteGamma(alpha, beta, ncats):
     assert beta > 0
     assert ncats > 1
     scale = 1.0 / beta
-    catmeans = scipy.ndarray(ncats, dtype='float')
+    catmeans = numpy.ndarray(ncats, dtype='float')
     for k in range(ncats):
         if k == 0:
             lower = 0.0

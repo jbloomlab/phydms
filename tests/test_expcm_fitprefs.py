@@ -7,8 +7,7 @@ import random
 import unittest
 import copy
 import numpy
-import scipy
-import scipy.linalg
+import scipy.optimize
 import sympy
 from phydmslib.constants import *
 import phydmslib.models
@@ -22,25 +21,25 @@ class test_ExpCM_fitprefs(unittest.TestCase):
     def test_DerivativeExpressions(self):
         """Makes sure we have right equations for derivatives."""
         random.seed(1)
-        scipy.random.seed(1)
+        numpy.random.seed(1)
         omega, beta, pirAx, pirAy = sympy.symbols('omega beta pirAx pirAy')
-        Frxy = omega * -beta * sympy.ln(pirAx / pirAy) / (1 - 
+        Frxy = omega * -beta * sympy.ln(pirAx / pirAy) / (1 -
                 (pirAx / pirAy)**beta)
         dFrxy_dpirAx = (-omega * beta / pirAx) * ((pirAx / pirAy)**beta * (
-                sympy.ln((pirAx / pirAy)**beta) - 1) + 1) / ((1 - 
+                sympy.ln((pirAx / pirAy)**beta) - 1) + 1) / ((1 -
                 (pirAx / pirAy)**beta)**2)
         dFrxy_dpirAx_prefsequal = -omega * beta / (2 * pirAx)
         dFrxy_dpirAy = (omega * beta / pirAy) * ((pirAx / pirAy)**beta * (
-                sympy.ln((pirAx / pirAy)**beta) - 1) + 1) / ((1 - 
+                sympy.ln((pirAx / pirAy)**beta) - 1) + 1) / ((1 -
                 (pirAx / pirAy)**beta)**2)
         dFrxy_dpirAy_prefsequal = omega * beta / (2 * pirAy)
         diffpref = 1.0e-5
         for itest in range(5):
-            values = [[beta, 1], 
-                      [pirAx, random.uniform(0.01, 0.5)], 
-                      [pirAy, random.uniform(0.01, 0.5)], 
+            values = [[beta, 1],
+                      [pirAx, random.uniform(0.01, 0.5)],
+                      [pirAy, random.uniform(0.01, 0.5)],
                       [omega, random.uniform(0.1, 2.0)]]
-            self.assertTrue(abs(values[1][1] - values[2][1]) > diffpref, 
+            self.assertTrue(abs(values[1][1] - values[2][1]) > diffpref,
                     "choose another random number seed as pirAx and pirAy "
                     "are too close.")
             self.assertTrue(numpy.allclose(float(dFrxy_dpirAx.subs(values)),
@@ -82,48 +81,48 @@ class test_ExpCM_fitprefs(unittest.TestCase):
                     if values[pirAx] == values[pirAy]:
                         if CODON_TO_AA[x] == CODON_TO_AA[y]:
                             self.assertTrue(numpy.allclose(0,
-                                    -expcm_fitprefs.tildeFrxy[r][x][y] / 
+                                    -expcm_fitprefs.tildeFrxy[r][x][y] /
                                     values[pirAx]))
                             self.assertTrue(numpy.allclose(0,
-                                    -expcm_fitprefs.tildeFrxy[r][x][y] / 
+                                    -expcm_fitprefs.tildeFrxy[r][x][y] /
                                     values[pirAy]))
                         else:
                             self.assertTrue(numpy.allclose(
                                     float(dFrxy_dpirAx_prefsequal.subs(
                                     values.items())),
-                                    -expcm_fitprefs.tildeFrxy[r][x][y] / 
+                                    -expcm_fitprefs.tildeFrxy[r][x][y] /
                                     values[pirAx]))
                             self.assertTrue(numpy.allclose(
                                     float(dFrxy_dpirAy_prefsequal.subs(
                                     values.items())),
-                                    expcm_fitprefs.tildeFrxy[r][x][y] / 
+                                    expcm_fitprefs.tildeFrxy[r][x][y] /
                                     values[pirAy]))
                     else:
                         self.assertTrue(numpy.allclose(
                                 float(dFrxy_dpirAx.subs(values.items())),
-                                -expcm_fitprefs.tildeFrxy[r][x][y] / 
+                                -expcm_fitprefs.tildeFrxy[r][x][y] /
                                 values[pirAx]))
                         self.assertTrue(numpy.allclose(
                                 float(dFrxy_dpirAy.subs(values.items())),
-                                expcm_fitprefs.tildeFrxy[r][x][y] / 
+                                expcm_fitprefs.tildeFrxy[r][x][y] /
                                 values[pirAy]))
 
     def setUp(self):
         """Set up for tests."""
-        scipy.random.seed(1)
+        numpy.random.seed(1)
         random.seed(1)
         nsites = 1
         minpref = 0.001
         self.prefs = []
         for r in range(nsites):
-            rprefs = scipy.random.dirichlet([0.7] * N_AA)
+            rprefs = numpy.random.dirichlet([0.7] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs[0] = rprefs[1] + 1.0e-8 # ensure near equal prefs handled OK
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        self.expcm_fitprefs = self.MODEL(self.prefs, 
+        self.expcm_fitprefs = self.MODEL(self.prefs,
                 prior=None, kappa=3.0, omega=0.3,
-                phi=scipy.random.dirichlet([5] * N_NT))
+                phi=numpy.random.dirichlet([5] * N_NT))
         assert len(self.expcm_fitprefs.zeta.flatten()) == nsites * (N_AA - 1)
         assert self.expcm_fitprefs.nsites == nsites
 
@@ -166,7 +165,7 @@ class test_ExpCM_fitprefs(unittest.TestCase):
     def test_zeta_updates(self):
         """Test updating `zeta`."""
         random.seed(1)
-        scipy.random.seed(1)
+        numpy.random.seed(1)
 
         expcm_fitprefs = copy.deepcopy(self.expcm_fitprefs)
 
@@ -180,13 +179,13 @@ class test_ExpCM_fitprefs(unittest.TestCase):
                 zeta[k] *= 0.9
                 expcm_fitprefs.updateParams({'zeta':zeta})
                 self.assertFalse(numpy.allclose(oldzeta, expcm_fitprefs.zeta))
-                self.assertFalse(numpy.allclose(oldpi[r], 
+                self.assertFalse(numpy.allclose(oldpi[r],
                         expcm_fitprefs.pi[r]))
                 self.assertFalse(numpy.allclose(expcm_fitprefs.pi,
                         expcm_fitprefs.origpi))
                 if self.MODEL == phydmslib.models.ExpCM_fitprefs:
                     self.assertTrue(expcm_fitprefs.pi[r][i] > oldpi[r][i])
-                    self.assertTrue(all([expcm_fitprefs.pi[r][j] < 
+                    self.assertTrue(all([expcm_fitprefs.pi[r][j] <
                             oldpi[r][j] for j in range(i + 1, N_AA)]))
                 elif self.MODEL == phydmslib.models.ExpCM_fitprefs2:
                     self.assertTrue(expcm_fitprefs.pi[r][i] < oldpi[r][i])
@@ -262,7 +261,7 @@ class test_ExpCM_fitprefs(unittest.TestCase):
                         deriv = expcm_fitprefs.dPrxy['zeta'][j][r][x][y]
                         self.assertTrue(diff < max(1e-4, 1e-5 * abs(deriv)),
                                 "{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}".format(
-                                diff, zetari, i, r, x, y, CODON_TO_AA[x], 
+                                diff, zetari, i, r, x, y, CODON_TO_AA[x],
                                 CODON_TO_AA[y], deriv))
                 j += 1
 
@@ -301,7 +300,7 @@ class test_ExpCM_fitprefs(unittest.TestCase):
                             self.assertTrue(diff < max(0.02, 1e-4 * abs(deriv)),
                                     "{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, "
                                     "{8}, {9}".format(
-                                    diff, zetari, i, r, x, y, CODON_TO_AA[x], 
+                                    diff, zetari, i, r, x, y, CODON_TO_AA[x],
                                     CODON_TO_AA[y], deriv, t))
 
 
