@@ -1,7 +1,4 @@
-"""
-============================
-``weblogo`` module
-============================
+"""``weblogo`` module
 
 Module for making sequence logos with the *weblogolib* package distributed with
 ``weblogo``  This module interfaces with the *weblogolib* API,
@@ -9,7 +6,6 @@ and so is only known to work with *weblogolib* version 3.4 and 3.5.
 
 Written by Jesse Bloom and Mike Doud
 """
-
 
 import collections
 import os
@@ -20,7 +16,6 @@ import shutil
 import natsort
 import numpy
 import matplotlib
-matplotlib.use('pdf')
 import pylab
 import PyPDF2
 # the following are part of the weblogo library
@@ -29,6 +24,7 @@ import weblogolib.colorscheme  # weblogo library
 import corebio.matrix  # weblogo library
 import corebio.utils  # weblogo library
 from phydmslib.constants import AA_TO_INDEX, NT_TO_INDEX
+matplotlib.use('pdf')
 
 
 def KyteDoolittleColorMapping(maptype='jet', reverse=True):
@@ -538,7 +534,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
         # close if still open
         try:
             f.close()
-        except:
+        except Exception:
             pass
         # remove temporary file
         if os.path.isfile(transfacfile):
@@ -576,19 +572,19 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
         finally:
             try:
                 plotfile_f.close()
-            except:
+            except Exception:
                 pass
             try:
                 overlayfile_f.close()
-            except:
+            except Exception:
                 pass
             try:
                 foverlay.close()
-            except:
+            except Exception:
                 pass
             try:
                 fmerged.close()
-            except:
+            except Exception:
                 pass
             for fname in [overlayfile, mergedfile]:
                 if os.path.isfile(fname):
@@ -730,8 +726,9 @@ def _my_eps_formatter(logodata, format, ordered_alphabets):
         data.append("(%s) StartStack" % format.annotate[seq_index])
 
         if conv_factor:
-            stack_height = (logodata.entropy[seq_index] *
-                            std_units[format.unit_name])
+            raise ValueError("Can only scale stack heights by probability.")
+            # stack_height = (logodata.entropy[seq_index] *
+            #                 std_units[format.unit_name])
         else:
             stack_height = 1.0  # Probability
 
@@ -930,13 +927,14 @@ class _my_Motif(corebio.matrix.AlphabeticArray):
                 r.pop(0)
                 defacto_alphabet = ''.join(header)
         else:
-            a = []
-            for i, r in enumerate(items):
-                if not ischar(r[0]) and r[0][0] != 'P':
-                    raise ValueError(
-                        "Expected position as first item on line %d" % i)
-                a.append(r.pop(0))
-            defacto_alphabet = ''.join(a)
+            raise ValueError("Can only use alphabet header.")
+            # a = []
+            # for i, r in enumerate(items):
+            #     if not ischar(r[0]) and r[0][0] != 'P':
+            #         raise ValueError(
+            #             "Expected position as first item on line %d" % i)
+            #     a.append(r.pop(0))
+            # defacto_alphabet = ''.join(a)
 
         # Check defacto_alphabet
         defacto_alphabet = corebio.seq.Alphabet(defacto_alphabet)
@@ -946,16 +944,17 @@ class _my_Motif(corebio.matrix.AlphabeticArray):
                 raise ValueError("Incompatible alphabets: %s , %s (defacto)"
                                  % (alphabet, defacto_alphabet))
         else:
-            alphabets = (unambiguous_rna_alphabet,
-                         unambiguous_dna_alphabet,
-                         unambiguous_protein_alphabet,
-                         )
-            for a in alphabets:
-                if defacto_alphabet.alphabetic(a):
-                    alphabet = a
-                    break
-            if not alphabet:
-                alphabet = defacto_alphabet
+            raise ValueError('Incompatible alphabet')
+            # alphabets = (unambiguous_rna_alphabet,
+            #              unambiguous_dna_alphabet,
+            #              unambiguous_protein_alphabet,
+            #              )
+            # for a in alphabets:
+            #     if defacto_alphabet.alphabetic(a):
+            #         alphabet = a
+            #         break
+            # if not alphabet:
+            #     alphabet = defacto_alphabet
 
         # The last item of each row may be extra cruft. Remove
         if len(items[0]) == len(header) + 1:
