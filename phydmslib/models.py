@@ -11,11 +11,7 @@ import six
 import abc
 import warnings
 import numpy
-<<<<<<< HEAD
 
-=======
-import scipy
->>>>>>> first pass linting models.py
 import scipy.misc
 import scipy.optimize
 import scipy.linalg
