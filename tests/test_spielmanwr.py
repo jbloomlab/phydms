@@ -54,8 +54,9 @@ class testExpCM_spielmanwr(unittest.TestCase):
                         denominator += prx * Qxy
             wr.append(numerator/denominator)
         wr = numpy.array(wr)
-        self.assertTrue(numpy.allclose(wr, numpy.array(self.model.spielman_wr(norm=False)), rtol=0.01))
-        self.assertTrue(numpy.allclose(wr/self.model.omega, numpy.array(self.model.spielman_wr()), atol=0.01))
+        print(wr, self.model.spielman_wr(norm=False))
+        self.assertTrue(numpy.allclose(wr, self.model.spielman_wr(norm=False), rtol=0.01))
+        self.assertTrue(numpy.allclose(wr/self.model.omega, self.model.spielman_wr(), rtol=0.01))
 
 
 class test_empirical_phi_spielmanwr(testExpCM_spielmanwr):
