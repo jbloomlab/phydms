@@ -12,7 +12,6 @@ import warnings
 warnings.simplefilter('always')
 warnings.simplefilter('ignore', ImportWarning)
 import numpy
-import scipy
 import scipy.optimize
 import Bio.Phylo
 import phydmslib.models
@@ -246,7 +245,7 @@ class TreeLikelihood(object):
                 paramvalue = getattr(self.model, param)
                 if isinstance(paramvalue, float):
                     self._dLshape[param] = self._Lshape
-                elif isinstance(paramvalue, scipy.ndarray) and (paramvalue.ndim
+                elif isinstance(paramvalue, numpy.ndarray) and (paramvalue.ndim
                         == 1):
                     if self._distributionmodel:
                         self._dLshape[param] = (self.model.ncats,
@@ -450,14 +449,14 @@ class TreeLikelihood(object):
                     else:
                         warnings.warn(failmsg + '\n\n' +
                                 "Re-trying with different initial params.")
-                        scipy.random.seed(nparamstry)
+                        numpy.random.seed(nparamstry)
                         # seed at geometric mean of original value, max
                         # bound, min bound, and random number between max and min
                         minarray = numpy.array([self.paramsarraybounds[j][0] for
                                 j in range(len(self.paramsarray))])
                         maxarray = numpy.array([self.paramsarraybounds[j][1] for
                                 j in range(len(self.paramsarray))])
-                        randarray = scipy.random.uniform(minarray, maxarray)
+                        randarray = numpy.random.uniform(minarray, maxarray)
                         newarray = (minarray * maxarray * randarray *
                                 origparamsarray)**(1 / 4.) # geometric mean
                         assert newarray.shape == self.paramsarray.shape
@@ -540,7 +539,7 @@ class TreeLikelihood(object):
         if self._paramsarray is not None:
             return self._paramsarray.copy()
         nparams = len(self._index_to_param)
-        self._paramsarray = scipy.ndarray(shape=(nparams,), dtype='float')
+        self._paramsarray = numpy.ndarray(shape=(nparams,), dtype='float')
         for (i, param) in self._index_to_param.items():
             if isinstance(param, str):
                 self._paramsarray[i] = getattr(self.model, param)
@@ -554,7 +553,7 @@ class TreeLikelihood(object):
     def paramsarray(self, value):
         """Set new `paramsarray` and update via `updateParams`."""
         nparams = len(self._index_to_param)
-        assert (isinstance(value, scipy.ndarray) and value.ndim == 1), (
+        assert (isinstance(value, numpy.ndarray) and value.ndim == 1), (
                 "paramsarray must be 1-dim ndarray")
         assert len(value) == nparams, ("Assigning paramsarray to ndarray "
                 "of the wrong length.")
@@ -620,7 +619,7 @@ class TreeLikelihood(object):
     @t.setter
     def t(self, value):
         """Set new branch lengths, update likelihood and derivatives."""
-        assert (isinstance(value, scipy.ndarray) and (value.dtype ==
+        assert (isinstance(value, numpy.ndarray) and (value.dtype ==
                 'float') and (value.shape == self.t.shape))
         if (self._t != value).any():
             self._t = value.copy()
@@ -643,7 +642,7 @@ class TreeLikelihood(object):
         """Derivative of `loglik` with respect to `paramsarray`."""
         assert self.dparamscurrent, "dloglikarray requires paramscurrent == True"
         nparams = len(self._index_to_param)
-        dloglikarray = scipy.ndarray(shape=(nparams,), dtype='float')
+        dloglikarray = numpy.ndarray(shape=(nparams,), dtype='float')
         for (i, param) in self._index_to_param.items():
             if isinstance(param, str):
                 dloglikarray[i] = self.dloglik[param]
@@ -690,7 +689,7 @@ class TreeLikelihood(object):
         # Underflow by ensuring that none of the site likelihoods is
         # zero.
         undererrstate = 'ignore' if len(catweights) > 1 else 'raise'
-        with scipy.errstate(over='raise', under=undererrstate,
+        with numpy.errstate(over='raise', under=undererrstate,
                 divide='raise', invalid='raise'):
             self.underflowlogscale.fill(0.0)
             self._computePartialLikelihoods()
@@ -803,10 +802,10 @@ class TreeLikelihood(object):
                 istipl = False
             tright = self.t[nright]
             tleft = self.t[nleft]
-            self.L[n] = scipy.ndarray(self._Lshape, dtype='float')
+            self.L[n] = numpy.ndarray(self._Lshape, dtype='float')
             if self.dparamscurrent:
                 for param in self._paramlist_PartialLikelihoods:
-                    self.dL[param][n] = scipy.ndarray(self._dLshape[param],
+                    self.dL[param][n] = numpy.ndarray(self._dLshape[param],
                             dtype='float')
             if self.dtcurrent:
                 for n2 in self.dL_dt.keys():
@@ -887,14 +886,14 @@ class TreeLikelihood(object):
                 assert scale.shape == (self.nsites,)
                 self.underflowlogscale += numpy.log(scale)
                 for k in self._catindices:
-                    self.L[n][k] /= scale[:, scipy.newaxis]
+                    self.L[n][k] /= scale[:, numpy.newaxis]
                     if self.dtcurrent:
                         for n2 in self.dL_dt.keys():
-                            self.dL_dt[n2][n][k] /= scale[:, scipy.newaxis]
+                            self.dL_dt[n2][n][k] /= scale[:, numpy.newaxis]
                     if self.dparamscurrent:
                         for param in self._paramlist_PartialLikelihoods:
                             for j in self._sub_index_param(param):
-                                self.dL[param][n][k][j] /= scale[:, scipy.newaxis]
+                                self.dL[param][n][k][j] /= scale[:, numpy.newaxis]
 
             # free unneeded memory by deleting already used values
             for ntodel in [nright, nleft]:
@@ -920,7 +919,7 @@ class TreeLikelihood(object):
             paramvalue = getattr(self.model, param)
             if isinstance(paramvalue, float):
                 indices = [()]
-            elif (isinstance(paramvalue, scipy.ndarray) and
+            elif (isinstance(paramvalue, numpy.ndarray) and
                     paramvalue.ndim == 1 and paramvalue.shape[0] > 1):
                 indices = [(j,) for j in range(len(paramvalue))]
             else:

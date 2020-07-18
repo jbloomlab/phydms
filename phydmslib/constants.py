@@ -57,7 +57,6 @@ Constants defined:
 import re
 import inspect
 import numpy
-import scipy
 import Bio.Seq
 
 ALMOST_ZERO = 1.0e-6
@@ -90,7 +89,7 @@ for nt1 in sorted(NT_TO_INDEX.keys()):
                 CODON_TO_AA.append(AA_TO_INDEX[aa])
                 i += 1
             else:
-                STOP_CODON_TO_NT_INDICES.append(numpy.zeros((3, N_NT), 
+                STOP_CODON_TO_NT_INDICES.append(numpy.zeros((3, N_NT),
                         dtype='float'))
                 STOP_CODON_TO_NT_INDICES[-1][0][NT_TO_INDEX[nt1]] = 1.0
                 STOP_CODON_TO_NT_INDICES[-1][1][NT_TO_INDEX[nt2]] = 1.0

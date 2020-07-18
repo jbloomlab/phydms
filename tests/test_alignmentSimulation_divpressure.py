@@ -9,7 +9,6 @@ Written by Sarah Hilton and Jesse Bloom.
 import os
 import sys
 import numpy
-import scipy
 import math
 import unittest
 import random
@@ -35,7 +34,7 @@ class test_simulateAlignment_ExpCM_divselection(unittest.TestCase):
     def test_simulateAlignment(self):
         """Simulate evolution, ensure scaled branches match number of subs."""
 
-        scipy.random.seed(1)
+        numpy.random.seed(1)
         random.seed(1)
 
         alignmentPrefix = "test"
@@ -45,7 +44,7 @@ class test_simulateAlignment_ExpCM_divselection(unittest.TestCase):
         prefs = []
         minpref = 0.01
         for r in range(nsites):
-            rprefs = scipy.random.dirichlet([1] * N_AA)
+            rprefs = numpy.random.dirichlet([1] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
             prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
@@ -56,7 +55,7 @@ class test_simulateAlignment_ExpCM_divselection(unittest.TestCase):
         omega2 = 1.2
         deltar = numpy.array([1 if x in random.sample(range(nsites), 20) else 0 for x in range(nsites)])
         if self.MODEL == phydmslib.models.ExpCM_empirical_phi_divpressure:
-            g = scipy.random.dirichlet([7] * N_NT)
+            g = numpy.random.dirichlet([7] * N_NT)
             model = phydmslib.models.ExpCM_empirical_phi_divpressure(prefs, g, deltar,
                     kappa=kappa, omega=omega, beta=beta, mu=mu,
                     freeparams=['mu'], omega2=omega2)

@@ -5,7 +5,6 @@ Written by Jesse Bloom.
 
 import os
 import sys
-import scipy
 import math
 import unittest
 import random
@@ -22,7 +21,7 @@ class test_underflow(unittest.TestCase):
     def test_underflow(self):
         """Tests correction for numerical underflow."""
 
-        scipy.random.seed(1)
+        numpy.random.seed(1)
         random.seed(1)
 
         treefile = os.path.abspath(os.path.join(os.path.dirname(__file__),

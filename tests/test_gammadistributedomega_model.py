@@ -7,8 +7,6 @@ Written by Jesse Bloom.
 import random
 import unittest
 import numpy
-import scipy
-import scipy.linalg
 import scipy.optimize
 from phydmslib.constants import *
 import phydmslib.models
@@ -25,19 +23,19 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
         """Initialize, test values, update, test again."""
 
         random.seed(1)
-        scipy.random.seed(1)
+        numpy.random.seed(1)
         nsites = 10
 
         if self.BASEMODEL == phydmslib.models.ExpCM:
             prefs = []
             minpref = 0.01
             for r in range(nsites):
-                rprefs = scipy.random.dirichlet([0.5] * N_AA)
+                rprefs = numpy.random.dirichlet([0.5] * N_AA)
                 rprefs[rprefs < minpref] = minpref
                 rprefs /= rprefs.sum()
                 prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
             paramvalues = {
-                    'eta':scipy.random.dirichlet([5] * (N_NT - 1)),
+                    'eta':numpy.random.dirichlet([5] * (N_NT - 1)),
                     'omega':0.7,
                     'kappa':2.5,
                     'beta':1.2,
@@ -49,7 +47,7 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
                     set(basemodel.freeparams)))
             basemodel.updateParams(paramvalues)
         elif self.BASEMODEL == phydmslib.models.YNGKP_M0:
-            e_pw = scipy.random.uniform(0.4, 0.6, size=(3, N_NT))
+            e_pw = numpy.random.uniform(0.4, 0.6, size=(3, N_NT))
             e_pw = e_pw / e_pw.sum(axis=1, keepdims=True)
             basemodel = self.BASEMODEL(e_pw, nsites)
             paramvalues = {
@@ -85,7 +83,7 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
                     newvalues[param] = random.uniform(low, high)
                 else:
                     paramlength = gammamodel.PARAMTYPES[param][1]
-                    newvalues[param] = scipy.random.uniform(
+                    newvalues[param] = numpy.random.uniform(
                             low, high, paramlength)
             gammamodel.updateParams(newvalues)
             self.assertTrue(numpy.allclose(numpy.array([m.omega for m in

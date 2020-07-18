@@ -32,7 +32,7 @@ def broadcastMatrixMultiply(numpy.ndarray a, numpy.ndarray b,
     ...   b[i][0][0] = 2
     >>> ab = broadcastMatrixMultiply(a, b)
     >>> expected = scipy.matmul(a, b)
-    >>> scipy.allclose(expected, ab)
+    >>> numpy.allclose(expected, ab)
     True
     """
     assert a.dtype == b.dtype == numpy.double
@@ -48,7 +48,7 @@ def broadcastMatrixMultiply(numpy.ndarray a, numpy.ndarray b,
     cdef int i
     for i in range(r):
         ab[i] = scipy.linalg.blas.dgemm(alpha, a[i], b[i])
-        # the overwrite_c option currently appears to be broken, so we do this 
+        # the overwrite_c option currently appears to be broken, so we do this
     return ab
 
 
@@ -72,7 +72,7 @@ def broadcastMatrixVectorMultiply(numpy.ndarray m, numpy.ndarray v,
 
     >>> m = numpy.array([[[1., 2], [3, 4]], [[5, 6], [7, 8]], [[9, 8], [7, 6]]])
     >>> v = numpy.array([[1., 2], [3, 4], [1, 3]])
-    >>> mv = scipy.ndarray(v.shape, dtype='int')
+    >>> mv = numpy.ndarray(v.shape, dtype='int')
     >>> for r in range(v.shape[0]):
     ...   for x in range(v.shape[1]):
     ...      mvrx = 0
@@ -82,7 +82,7 @@ def broadcastMatrixVectorMultiply(numpy.ndarray m, numpy.ndarray v,
     >>> mv2 = broadcastMatrixVectorMultiply(m, v)
     >>> mv.shape == mv2.shape
     True
-    >>> scipy.allclose(mv, mv2)
+    >>> numpy.allclose(mv, mv2)
     True
     """
     assert v.dtype == m.dtype == numpy.double
@@ -122,9 +122,9 @@ def broadcastGetCols(numpy.ndarray m, numpy.ndarray cols):
     >>> n = 2
     >>> r = 3
     >>> m = numpy.arange(r * n * n).reshape(r, n, n)
-    >>> cols = scipy.random.random_integers(0, n - 1, r)
+    >>> cols = numpy.random.random_integers(0, n - 1, r)
     >>> expected = numpy.array([m[i][:, cols[i]] for i in range(r)])
-    >>> scipy.allclose(expected, broadcastGetCols(m, cols))
+    >>> numpy.allclose(expected, broadcastGetCols(m, cols))
     True
     """
     assert m.ndim == 3

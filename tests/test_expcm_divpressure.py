@@ -7,8 +7,8 @@ Edited by Sarah Hilton
 
 import random
 import unittest
-import scipy
 import scipy.linalg
+import scipy.optimize
 import sympy
 import numpy
 from phydmslib.constants import *
@@ -21,17 +21,17 @@ class test_compare_ExpCM_empirical_phi_with_and_without_divpressure(unittest.Tes
         """Make sure all attributes are the same when `divpressure` is 0."""
 
         random.seed(1)
-        scipy.random.seed(1)
+        numpy.random.seed(1)
 
         nsites = 6
         prefs = []
         minpref = 0.01
         for r in range(nsites):
-            rprefs = scipy.random.dirichlet([0.5] * N_AA)
+            rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
             prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-        g = scipy.random.dirichlet([3] * N_NT)
+        g = numpy.random.dirichlet([3] * N_NT)
         omega = 0.7
         omega2 = 0.2
         kappa = 2.5
@@ -80,19 +80,19 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
 
         # create preferences
         random.seed(1)
-        scipy.random.seed(1)
+        numpy.random.seed(1)
         self.nsites = 6
         self.prefs = []
         minpref = 0.01
         for r in range(self.nsites):
-            rprefs = scipy.random.dirichlet([0.5] * N_AA)
+            rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
         self.divpressure = numpy.random.randint(2, size=self.nsites)
 
         # create initial ExpCM
-        g = scipy.random.dirichlet([3] * N_NT)
+        g = numpy.random.dirichlet([3] * N_NT)
         omega = 0.7
         omega2 = 0.2
         kappa = 2.5

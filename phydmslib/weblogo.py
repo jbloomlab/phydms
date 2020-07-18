@@ -20,7 +20,7 @@ import shutil
 import natsort
 import numpy
 import matplotlib
-matplotlib.use('pdf', warn=False)
+matplotlib.use('pdf')
 import pylab
 import PyPDF2
 # the following are part of the weblogo library

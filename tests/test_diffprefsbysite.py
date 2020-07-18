@@ -9,7 +9,6 @@ import unittest
 import subprocess
 import random
 import pandas
-import scipy
 import scipy.stats
 import phydmslib.file_io
 import phydmslib.models
@@ -27,7 +26,7 @@ class test_DiffPrefsBySiteExpCM(unittest.TestCase):
 
     def setUp(self):
         random.seed(1)
-        scipy.random.seed(1)
+        numpy.random.seed(1)
         self.tree = os.path.abspath(os.path.join(os.path.dirname(__file__),
                 './NP_data/NP_tree.newick'))
         self.alignment = os.path.abspath(os.path.join(os.path.dirname(__file__),
@@ -62,7 +61,7 @@ class test_DiffPrefsBySiteExpCM(unittest.TestCase):
     def test_OnSimulatedData(self):
         """Run ``phydms`` on the simulated data."""
         random.seed(1)
-        scipy.random.seed(1)
+        numpy.random.seed(1)
         partitions = phydmslib.simulate.pyvolvePartitions(self.model)
         evolver = pyvolve.Evolver(partitions=partitions,
                 tree=pyvolve.read_tree(file=self.tree))

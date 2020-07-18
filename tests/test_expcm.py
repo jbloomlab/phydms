@@ -9,8 +9,8 @@ are correct for `ExpCM` implemented in `phydmslib.models`."""
 import random
 import unittest
 import numpy
-import scipy
 import scipy.linalg
+import scipy.optimize
 import sympy
 from phydmslib.constants import *
 import phydmslib.models
@@ -23,18 +23,18 @@ class testExpCM(unittest.TestCase):
 
         # create preferences
         random.seed(1)
-        scipy.random.seed(1)
+        numpy.random.seed(1)
         self.nsites = 2
         self.prefs = []
         minpref = 0.01
         for r in range(self.nsites):
-            rprefs = scipy.random.dirichlet([0.5] * N_AA)
+            rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
             self.prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
 
         # create initial ExpCM
-        phi = scipy.random.dirichlet([2] * N_NT)
+        phi = numpy.random.dirichlet([2] * N_NT)
         omega = 0.7
         kappa = 2.5
         beta = 1.9

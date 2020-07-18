@@ -11,7 +11,6 @@ import unittest
 import random
 import copy
 import numpy
-import scipy
 import scipy.optimize
 import Bio.Phylo
 import phydmslib.models
@@ -32,7 +31,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
     def setUp(self):
         """Set up parameters for test."""
         random.seed(1)
-        scipy.random.seed(1)
+        numpy.random.seed(1)
 
         # define tree
         self.newick = ('((node1:0.2,node2:0.3)node4:0.3,node3:0.5)node5:0.04;')
@@ -52,7 +51,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         pyvolvetree = pyvolve.read_tree(tree=self.newick)
         self.nsites = 60
         self.nseqs = self.tree.count_terminals()
-        e_pw = scipy.ndarray((3, N_NT), dtype='float')
+        e_pw = numpy.ndarray((3, N_NT), dtype='float')
         e_pw.fill(0.25)
         yngkp_m0 = phydmslib.models.YNGKP_M0(e_pw, self.nsites)
         partitions = phydmslib.simulate.pyvolvePartitions(yngkp_m0)
@@ -80,11 +79,11 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         # define model
         prefs = []
         minpref = 0.02
-        g = scipy.random.dirichlet([5] * N_NT)
+        g = numpy.random.dirichlet([5] * N_NT)
         g[g < 0.1] = 0.1
         g /= g.sum()
         for r in range(self.nsites):
-            rprefs = scipy.random.dirichlet([0.5] * N_AA)
+            rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
             prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
@@ -93,12 +92,12 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         elif self.MODEL == phydmslib.models.ExpCM_empirical_phi:
             self.model = phydmslib.models.ExpCM_empirical_phi(prefs, g)
         elif self.MODEL == phydmslib.models.ExpCM_empirical_phi_divpressure:
-            divpressure = scipy.random.uniform(-1, 5, self.nsites)
+            divpressure = numpy.random.uniform(-1, 5, self.nsites)
             divpressure /= max(abs(divpressure))
             self.model = phydmslib.models.ExpCM_empirical_phi_divpressure(
                     prefs, g, divpressure)
         elif self.MODEL == phydmslib.models.YNGKP_M0:
-            e_pw = scipy.random.uniform(0.2, 0.8, size=(3, N_NT))
+            e_pw = numpy.random.uniform(0.2, 0.8, size=(3, N_NT))
             e_pw = e_pw / e_pw.sum(axis=1, keepdims=True)
             self.model = phydmslib.models.YNGKP_M0(e_pw, self.nsites)
         else:
@@ -119,7 +118,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
     def test_Initialize(self):
         """Test that initializes properly."""
         random.seed(1)
-        scipy.random.seed(1)
+        numpy.random.seed(1)
 
         tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model)
@@ -138,7 +137,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
     def test_paramsarray(self):
         """Tests params array setting and getting."""
         random.seed(1)
-        scipy.random.seed(1)
+        numpy.random.seed(1)
 
         modelparams = self.getModelParams(seed=1)
         model = copy.deepcopy(self.model)
@@ -165,8 +164,8 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
     def test_Likelihood(self):
         """Tests likelihood."""
         random.seed(1)
-        scipy.random.seed(1)
-        
+        numpy.random.seed(1)
+
         if self.DISTRIBUTIONMODEL:
             return # test doesn't work for DistributionModel
         mus = [0.5, 1.5]
@@ -212,8 +211,8 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
     def test_LikelihoodDerivativesModelParams(self):
         """Test derivatives of with respect to model params."""
         random.seed(1)
-        scipy.random.seed(1)
-        
+        numpy.random.seed(1)
+
         tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model)
 
@@ -244,8 +243,8 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
 
         Make sure it gives the same value for several starting points."""
         random.seed(1)
-        scipy.random.seed(1)
-        
+        numpy.random.seed(1)
+
         tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
                 self.alignment, self.model)
 
@@ -273,15 +272,15 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
     def getModelParams(self, seed):
         """Dict of random model params for random number seed `seed`."""
         random.seed(seed)
-        scipy.random.seed(seed)
+        numpy.random.seed(seed)
 
         modelparams = {}
         for param in self.model.freeparams:
             pvalue = getattr(self.model, param)
             if isinstance(pvalue, float):
                 modelparams[param] = random.uniform(0.5, 1.5)
-            elif isinstance(pvalue, scipy.ndarray) and pvalue.ndim == 1:
-                modelparams[param] = scipy.random.dirichlet([6] * len(pvalue))
+            elif isinstance(pvalue, numpy.ndarray) and pvalue.ndim == 1:
+                modelparams[param] = numpy.random.dirichlet([6] * len(pvalue))
             else:
                 raise ValueError("Can't handle {0}".format(param))
         return modelparams

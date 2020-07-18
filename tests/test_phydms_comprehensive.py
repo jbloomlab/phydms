@@ -11,7 +11,6 @@ import unittest
 import multiprocessing
 import subprocess
 import numpy
-import scipy
 import pandas
 
 
