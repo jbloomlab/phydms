@@ -928,7 +928,8 @@ class TreeLikelihood(object):
                     if self.dparamscurrent:
                         for param in self._paramlist_PartialLikelihoods:
                             for j in self._sub_index_param(param):
-                                self.dL[param][n][k][j] /= scale[:,numpy.newaxis]
+                                self.dL[param][n][k][j] /= (scale[:,
+                                                            numpy.newaxis])
 
             # free unneeded memory by deleting already used values
             for ntodel in [nright, nleft]:

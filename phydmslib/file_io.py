@@ -4,7 +4,6 @@ Module for input / output from files.
 
 
 import sys
-import io
 import re
 import time
 import platform
@@ -403,21 +402,25 @@ def readDivPressure(fileName):
         pandasformat = True
     except ValueError:
         pandasformat = False
-    df.columns = ['site', 'divPressureValue']
-    scaleFactor = max(df["divPressureValue"].abs())
-    if scaleFactor > 0:
-        df["divPressureValue"] = [x / scaleFactor for x
-                                  in df["divPressureValue"]]
-    assert len(df['site'].tolist()) == len(set(df['site'].tolist())),\
-           ("There is at least one non-unique site in {0}".format(fileName))
-    assert max(df["divPressureValue"].abs()) <= 1,\
-           ("The scaling produced a diversifying pressure value with an "
-            "absolute value greater than one.")
-    sites = df['site'].tolist()
-    divPressure = {}
-    for r in sites:
-        divPressure[r] = df[df['site'] == r]["divPressureValue"].tolist()[0]
-    return divPressure
+    if pandasformat:
+        df.columns = ['site', 'divPressureValue']
+        scaleFactor = max(df["divPressureValue"].abs())
+        if scaleFactor > 0:
+            df["divPressureValue"] = [x / scaleFactor for x
+                                      in df["divPressureValue"]]
+        assert len(df['site'].tolist()) == len(set(df['site'].tolist())),\
+               ("There is at >= non-unique site in {0}".format(fileName))
+        assert max(df["divPressureValue"].abs()) <= 1,\
+               ("The scaling produced a diversifying pressure value with an "
+                "absolute value greater than one.")
+        sites = df['site'].tolist()
+        divPressure = {}
+        for r in sites:
+            divPressure[r] = (df[df['site'] == r]["divPressureValue"]
+                              .tolist()[0])
+        return divPressure
+    else:
+        raise ValueError('Could not file {0}'.format(fileName))
 
 
 if __name__ == '__main__':
