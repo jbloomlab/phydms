@@ -29,7 +29,6 @@ import weblogolib.colorscheme  # weblogo library
 import corebio.matrix  # weblogo library
 import corebio.utils  # weblogo library
 from phydmslib.constants import AA_TO_INDEX, NT_TO_INDEX
-matplotlib.use('pdf', warn=False)
 
 
 def KyteDoolittleColorMapping(maptype='jet', reverse=True):
