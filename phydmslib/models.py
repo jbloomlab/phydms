@@ -875,8 +875,8 @@ class ExpCM(Model):
             num = 0
             den = 0
             for i in range(N_CODON):
-                j = numpy.intersect1d(numpy.where(CODON_SINGLEMUT[i] is True)[0],
-                                      numpy.where(CODON_NONSYN[i] is True)[0])
+                # indices where single mut and non syn true
+                j = numpy.where((CODON_SINGLEMUT[i] * CODON_NONSYN[i]) == 1)[0]
                 p_i = self.stationarystate[r][i]
                 P_xy = self.Prxy[r][i][j].sum()
                 if norm:
