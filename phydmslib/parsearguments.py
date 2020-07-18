@@ -24,9 +24,8 @@ class ArgumentParserNoArgHelp(argparse.ArgumentParser):
         sys.exit(2)
 
 
-class ArgumentDefaultsRawDescriptionFormatter(
-                                              argparse.ArgumentDefaultsHelpFormatter,
-                                              argparse.RawDescriptionHelpFormatter):
+class ArgDefaultsRawDescriptFormatter(argparse.ArgumentDefaultsHelpFormatter,
+                                      argparse.RawDescriptionHelpFormatter):
     """Print default arguments and raw text description formatter.
 
     Based on this:
@@ -208,7 +207,7 @@ def ModelOption(model):
 def PhyDMSPrepAlignmentParser():
     """Returns *argparse.ArgumentParser* for ``phydms_prepalignment``."""
     parser = (ArgumentParserNoArgHelp(
-             formatter_class=ArgumentDefaultsRawDescriptionFormatter,
+             formatter_class=ArgDefaultsRawDescriptFormatter,
              description=("Prepare alignment of protein-coding DNA "
                           "sequences.\n"
                           "Steps:\n"
