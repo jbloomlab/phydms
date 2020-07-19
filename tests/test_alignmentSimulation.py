@@ -6,21 +6,15 @@ Written by Sarah Hilton and Jesse Bloom.
 """
 
 import os
-import sys
 import numpy
-import math
 import unittest
 import random
-import io
-import copy
 import phydmslib.models
 import phydmslib.treelikelihood
 import phydmslib.simulate
-from phydmslib.constants import *
+from phydmslib.constants import N_NT, AA_TO_INDEX, N_AA
 import Bio.SeqIO
 import Bio.Phylo
-import pyvolve
-
 
 
 class test_simulateAlignment_ExpCM(unittest.TestCase):
@@ -54,15 +48,17 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         if self.MODEL == phydmslib.models.ExpCM:
             phi = numpy.random.dirichlet([7] * N_NT)
             model = phydmslib.models.ExpCM(prefs, kappa=kappa, omega=omega,
-                    beta=beta, mu=mu, phi=phi, freeparams=['mu'])
+                                           beta=beta, mu=mu, phi=phi,
+                                           freeparams=['mu'])
         elif self.MODEL == phydmslib.models.ExpCM_empirical_phi:
             g = numpy.random.dirichlet([7] * N_NT)
-            model = phydmslib.models.ExpCM_empirical_phi(prefs, g,
-                    kappa=kappa, omega=omega, beta=beta, mu=mu,
-                    freeparams=['mu'])
+            model = phydmslib.models.ExpCM_empirical_phi(prefs, g, kappa=kappa,
+                                                         omega=omega,
+                                                         beta=beta, mu=mu,
+                                                         freeparams=['mu'])
         elif self.MODEL == phydmslib.models.YNGKP_M0:
             e_pw = numpy.asarray([numpy.random.dirichlet([7] * N_NT) for i
-                    in range(3)])
+                                  in range(3)])
             model = phydmslib.models.YNGKP_M0(e_pw, nsites)
         else:
             raise ValueError("Invalid MODEL: {0}".format(type(self.MODEL)))
@@ -79,7 +75,7 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         # simulate the alignment
         phydmslib.simulate.simulateAlignment(model, temptree, alignmentPrefix)
 
-        # read in the test tree, re-scale the branch lengths, and remove the file
+        # read in the test tree, re-scale the branch lengths, remove the file
         biotree = Bio.Phylo.read(temptree, 'newick')
         os.remove(temptree)
         for node in biotree.get_terminals() + biotree.get_nonterminals():
@@ -89,8 +85,8 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         # check and see if the simulated alignment has the expected number of
         # subs exists
         alignment = '{0}_simulatedalignment.fasta'.format(alignmentPrefix)
-        nsubs = 0 # subs in simulated seqs (estimate from Hamming distance)
-        treedist = 0.0 # distance inferred by `TreeLikelihood`
+        nsubs = 0  # subs in simulated seqs (estimate from Hamming distance)
+        treedist = 0.0  # distance inferred by `TreeLikelihood`
         a = [(s.description, str(s.seq)) for s in Bio.SeqIO.parse(
                 alignment, 'fasta')]
         assert len(a[0][1]) == len(a[1][1]) == nsites * 3
@@ -98,8 +94,8 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
             if os.path.isfile(f):
                 os.remove(f)
         for r in range(nsites):
-            codon1 = a[0][1][3 * r : 3 * r + 3]
-            codon2 = a[1][1][3 * r : 3 * r + 3]
+            codon1 = a[0][1][3 * r: 3 * r + 3]
+            codon2 = a[1][1][3 * r: 3 * r + 3]
             nsubs += len([j for j in range(3) if codon1[j] != codon2[j]])
         nsubs /= float(nsites)
         tl = phydmslib.treelikelihood.TreeLikelihood(biotree, a, model)
@@ -109,9 +105,9 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         # We expect nsubs = t, but build in some tolerance
         # with rtol since we simulated finite number of sites.
         self.assertTrue(numpy.allclose(nsubs, t, rtol=0.2),
-                ("Simulated subs per site of {0} is not close "
-                "to expected value of {1} (branchScale = {2}, t = {3})").format(
-                nsubs, t, model.branchScale, t))
+                        ("Simulated subs per site of {0} is not close "
+                        "to expected value of {1} (branchScale = {2}, "
+                         "t = {3})").format(nsubs, t, model.branchScale, t))
         self.assertTrue(numpy.allclose(treedist, nsubs, rtol=0.2), (
                 "Simulated subs per site of {0} is not close to inferred "
                 "branch length of {1}").format(nsubs, treedist))
