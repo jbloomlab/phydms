@@ -69,7 +69,8 @@ def pyvolvePartitions(model, divselection=None):
                             fxy *= model.omega
                     if type(model) in [phydmslib.models.ExpCM,
                                        phydmslib.models.ExpCM_empirical_phi,
-                                       phydmslib.models.ExpCM_empirical_phi_divpressure]:
+                                       (phydmslib.models
+                                        .ExpCM_empirical_phi_divpressure)]:
                         qxy *= model.phi[NT_TO_INDEX[ynt]]
                         pix = model.pi[r][AA_TO_INDEX[xaa]]**model.beta
                         piy = model.pi[r][AA_TO_INDEX[yaa]]**model.beta
