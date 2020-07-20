@@ -1048,8 +1048,8 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin,
                  (barheight + colorbar_bmargin + colorbar_tmargin) +
                  (int(underlay) * len(overlay) * (barheight + barspacing)))
     # set up the figure and axes
-    fig = pylab.figure(figsize=(figwidth / pts_per_inch,
-                                figheight / pts_per_inch))
+    pylab.figure(figsize=(figwidth / pts_per_inch,
+                          figheight / pts_per_inch))
     # determine property types
     prop_types = {}
     for (prop_d, shortname, longname) in overlay:
