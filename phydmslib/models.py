@@ -632,9 +632,9 @@ class ExpCM(Model):
                 expDxx = numpy.array([expDyy[r].transpose() for r in
                                      range(self.nsites)])
                 V = (expDxx - expDyy) / Dxx_Dyy
-            with numpy.errstate(under='ignore'): # OK if some values 0
-                numpy.copyto(V, self.mu * t * expDxx, where=
-                        Dxx_Dyy_lt_ALMOST_ZERO)
+            with numpy.errstate(under='ignore'):  # OK if some values 0
+                numpy.copyto(V, self.mu * t * expDxx,
+                             where=Dxx_Dyy_lt_ALMOST_ZERO)
             self._cached[('V', t)] = V
         V = self._cached[('V', t)]
 
@@ -654,7 +654,7 @@ class ExpCM(Model):
                                        )
             else:
                 if not paramisvec:
-                    dM_param = (broadcastMatrixVectorMultiply(self.A, broadcastGetCols(broadcastMatrixMultiply(self.B[param] * V,self.Ainv), tips)))
+                    dM_param = (broadcastMatrixVectorMultiply(self.A, broadcastGetCols(broadcastMatrixMultiply(self.B[param] * V, self.Ainv), tips)))
                 else:
                     dM_param = numpy.ndarray((paramlength, self.nsites,
                                               N_CODON), dtype='float')
@@ -717,10 +717,13 @@ class ExpCM(Model):
         self.Frxy_no_omega.fill(1.0)
         with numpy.errstate(divide='raise', under='raise', over='raise',
                             invalid='ignore'):
-            numpy.copyto(self.Frxy_no_omega, -self.ln_piAx_piAy_beta /
-                         (1 - self.piAx_piAy_beta),
-                         where=numpy.logical_and(CODON_NONSYN,
-                                                 numpy.fabs(1 - self.piAx_piAy_beta) > ALMOST_ZERO))
+            (numpy
+             .copyto(self.Frxy_no_omega, -self.ln_piAx_piAy_beta /
+                     (1 - self.piAx_piAy_beta),
+                     where=numpy.logical_and(CODON_NONSYN,
+                                             numpy.fabs(1 -
+                                                        self.piAx_piAy_beta)
+                                             > ALMOST_ZERO)))
         numpy.copyto(self.Frxy, self.Frxy_no_omega * self.omega,
                      where=CODON_NONSYN)
 
@@ -734,13 +737,15 @@ class ExpCM(Model):
         for r in range(self.nsites):
             pr_half = self.prx[r]**0.5
             pr_neghalf = self.prx[r]**-0.5
-            # symm_pr = numpy.dot(numpy.diag(pr_half), numpy.dot(self.Prxy[r], numpy.diag(pr_neghalf)))
+            # symm_pr = numpy.dot(numpy.diag(pr_half), numpy.dot(self.Prxy[r],
+            # numpy.diag(pr_neghalf)))
             symm_pr = ((pr_half * (self.Prxy[r] * pr_neghalf).transpose())
                        .transpose())
             # assert numpy.allclose(symm_pr, symm_pr.transpose())
             (evals, evecs) = scipy.linalg.eigh(symm_pr)
             # assert numpy.allclose(scipy.linalg.inv(evecs), evecs.transpose())
-            # assert numpy.allclose(symm_pr, numpy.dot(evecs, numpy.dot(numpy.diag(evals), evecs.transpose())))
+            # assert numpy.allclose(symm_pr, numpy.dot(evecs,
+            # numpy.dot(numpy.diag(evals), evecs.transpose())))
             self.D[r] = evals
             self.Ainv[r] = evecs.transpose() * pr_half
             self.A[r] = (pr_neghalf * evecs.transpose()).transpose()
@@ -1210,10 +1215,11 @@ class ExpCM_fitprefs2(ExpCM_fitprefs):
                           (self.ln_piAx_piAy_beta - 1) + 1) /
                          (1 - self.piAx_piAy_beta) ** 2,
                          where=CODON_NONSYN)
-        numpy.copyto(self.tildeFrxy, self.omega * self.beta / 2.0,
-                     where=numpy.logical_and(CODON_NONSYN,
-                                             numpy.fabs(1 - self.piAx_piAy_beta)
-                                             < ALMOST_ZERO))
+        (numpy
+         .copyto(self.tildeFrxy, self.omega * self.beta / 2.0,
+                 where=numpy.logical_and(CODON_NONSYN,
+                                         numpy.fabs(1 - self.piAx_piAy_beta)
+                                         < ALMOST_ZERO)))
 
         self._logprior = 0.0
         self._dlogprior = dict([(param, 0.0) for param in self.freeparams])
@@ -1464,11 +1470,9 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         self.deltar = numpy.array(divPressureValues.copy())
         assert (max(numpy.absolute(self.deltar))) <= 1, (
                 "A scaled deltar value is > 1 or < -1.")
-        super(ExpCM_empirical_phi_divpressure, self).__init__(prefs, g,
-                                                              kappa=kappa,
-                                                              omega=omega,
-                                                              beta=beta, mu=mu,
-                                                              freeparams=freeparams)
+        (super(ExpCM_empirical_phi_divpressure, self)
+         .__init__(prefs, g, kappa=kappa, omega=omega, beta=beta, mu=mu,
+                   freeparams=freeparams))
 
     def _update_dPrxy(self):
         """Update `dPrxy`, accounting for dependence of `Prxy` on `omega2`."""
@@ -1482,11 +1486,12 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
                               self.omega /
                               (1 - self.piAx_piAy_beta)),
                              where=CODON_NONSYN)
-            numpy.copyto(self.dPrxy['omega2'], self.Qxy * self.omega,
-                         where=numpy.logical_and(CODON_NONSYN,
-                                                 numpy.fabs(1 -
-                                                            self.piAx_piAy_beta)
-                                                 < ALMOST_ZERO))
+            (numpy
+             .copyto(self.dPrxy['omega2'], self.Qxy * self.omega,
+                     where=numpy.logical_and(CODON_NONSYN,
+                                             numpy.fabs(1 -
+                                                        self.piAx_piAy_beta)
+                                             < ALMOST_ZERO)))
             for r in range(self.nsites):
                 self.dPrxy['omega2'][r] *= self.deltar[r]
             _fill_diagonals(self.dPrxy['omega2'], self._diag_indices)
@@ -1499,12 +1504,13 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
         self.Frxy_no_omega.fill(1.0)
         with numpy.errstate(divide='raise', under='raise', over='raise',
                             invalid='ignore'):
-            numpy.copyto(self.Frxy_no_omega,
-                         -self.ln_piAx_piAy_beta / (1 - self.piAx_piAy_beta),
-                         where=numpy.logical_and(CODON_NONSYN,
-                                                 numpy.fabs(1 -
-                                                            self.piAx_piAy_beta)
-                                                 > ALMOST_ZERO))
+            (numpy
+             .copyto(self.Frxy_no_omega, -self.ln_piAx_piAy_beta / (1 -
+                     self.piAx_piAy_beta),
+                     where=numpy.logical_and(CODON_NONSYN,
+                                             numpy.fabs(1 -
+                                                        self.piAx_piAy_beta)
+                                             > ALMOST_ZERO)))
         for r in range(self.nsites):
             numpy.copyto(self.Frxy_no_omega[r], self.Frxy_no_omega[r] *
                          (1 + self.omega2 * self.deltar[r]),
@@ -1894,13 +1900,15 @@ class YNGKP_M0(Model):
         for r in range(1):
             Phi_x_half = self.Phi_x**0.5
             Phi_x_neghalf = self.Phi_x**-0.5
-            # symm_p = numpy.dot(numpy.diag(Phi_x_half), numpy.dot(self.Pxy[r], numpy.diag(Phi_x_neghalf)))
+            # symm_p = numpy.dot(numpy.diag(Phi_x_half),
+            # numpy.dot(self.Pxy[r], numpy.diag(Phi_x_neghalf)))
             symm_p = ((Phi_x_half * (self.Pxy[r] * Phi_x_neghalf)
                       .transpose()).transpose())
             # assert numpy.allclose(symm_p, symm_p.transpose())
             (evals, evecs) = scipy.linalg.eigh(symm_p)
             # assert numpy.allclose(scipy.linalg.inv(evecs), evecs.transpose())
-            # assert numpy.allclose(symm_pr, numpy.dot(evecs, numpy.dot(numpy.diag(evals), evecs.transpose())))
+            # assert numpy.allclose(symm_pr, numpy.dot(evecs,
+            # numpy.dot(numpy.diag(evals), evecs.transpose())))
             self.D[r] = evals
             self.Ainv[r] = evecs.transpose() * Phi_x_half
             self.A[r] = (Phi_x_neghalf * evecs.transpose()).transpose()
@@ -2401,12 +2409,15 @@ def DiscreteGamma(alpha, beta, ncats):
     for k in range(ncats):
         if k == 0:
             gammainc_lower = 0.0
-        else:
+            upper = scipy.stats.gamma.ppf((k + 1) / float(ncats), alpha,
+                                          scale=scale)
+            gammainc_upper = scipy.special.gammainc(alpha + 1, upper * beta)
+        elif k == ncats - 1:
             gammainc_lower = gammainc_upper
-        if k == ncats - 1:
             upper = float('inf')
             gammainc_upper = 1.0
         else:
+            gammainc_lower = gammainc_upper
             upper = scipy.stats.gamma.ppf((k + 1) / float(ncats), alpha,
                                           scale=scale)
             gammainc_upper = scipy.special.gammainc(alpha + 1, upper * beta)
@@ -2445,12 +2456,9 @@ class GammaDistributedOmegaModel(GammaDistributedModel):
                 Meaning described in main class doc string for
                 `GammaDistributedModel`.
         """
-        super(GammaDistributedOmegaModel, self).__init__(model, "omega",
-                                                         ncats,
-                                                         alpha_lambda=1.0,
-                                                         beta_lambda=2.0,
-                                                         freeparams=[
-                                                                     'alpha_lambda', 'beta_lambda'])
+        (super(GammaDistributedOmegaModel, self)
+         .__init__(model, "omega", ncats, alpha_lambda=1.0, beta_lambda=2.0,
+                   freeparams=['alpha_lambda', 'beta_lambda']))
 
 
 class GammaDistributedBetaModel(GammaDistributedModel):
@@ -2487,11 +2495,9 @@ class GammaDistributedBetaModel(GammaDistributedModel):
         new_limits["beta"] = (new_limits["beta"][0], new_max_beta)
         model.PARAMLIMITS = new_limits
 
-        super(GammaDistributedBetaModel, self).__init__(model, "beta",
-                                                        ncats,
-                                                        alpha_lambda=1.0,
-                                                        beta_lambda=2.0,
-                                                        freeparams=['alpha_lambda', 'beta_lambda'])
+        (super(GammaDistributedBetaModel, self)
+         .__init__(model, "beta", ncats, alpha_lambda=1.0, beta_lambda=2.0,
+                   freeparams=['alpha_lambda', 'beta_lambda']))
 
         assert all([numpy.allclose(new_max_beta, m.PARAMLIMITS["beta"][1])
                    for m in self._models]), (
