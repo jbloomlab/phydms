@@ -654,13 +654,20 @@ class ExpCM(Model):
                                        )
             else:
                 if not paramisvec:
-                    dM_param = (broadcastMatrixVectorMultiply(self.A, broadcastGetCols(broadcastMatrixMultiply(self.B[param] * V, self.Ainv), tips)))
+                    # placeholders to avoid complicated nested function
+                    x = broadcastMatrixMultiply(self.B[param] * V, self.Ainv)
+                    y = broadcastGetCols(x, tips)
+                    dM_param = (broadcastMatrixVectorMultiply(self.A, y))
                 else:
                     dM_param = numpy.ndarray((paramlength, self.nsites,
                                               N_CODON), dtype='float')
                     for j in range(paramlength):
+                        # placeholders to avoid complicated nested function
+                        x = broadcastMatrixMultiply(self.B[param][j] * V,
+                                                    self.Ainv)
+                        y = broadcastGetCols(x, tips)
                         dM_param[j] = (broadcastMatrixVectorMultiply(self.A,
-                                       broadcastGetCols(broadcastMatrixMultiply(self.B[param][j] * V, self.Ainv), tips)))
+                                                                     y))
                 if gaps is not None:
                     if not paramisvec:
                         dM_param[gaps] = numpy.zeros(N_CODON, dtype='float')
@@ -808,10 +815,9 @@ class ExpCM(Model):
                 assert isinstance(paramval, numpy.ndarray)\
                  and paramval.ndim == 1
                 for j in range(paramval.shape[0]):
-                    self.B[param][j] = (broadcastMatrixMultiply(self.Ainv,
-                                        broadcastMatrixMultiply(
-                                                                self.dPrxy[param][j],
-                                                                self.A)))
+                    # placeholders to avoid complicated nested function
+                    x = broadcastMatrixMultiply(self.dPrxy[param][j], self.A)
+                    self.B[param][j] = (broadcastMatrixMultiply(self.Ainv, x))
 
     def _update_dprx(self):
         """Update `dprx`."""
@@ -1863,8 +1869,9 @@ class YNGKP_M0(Model):
         V = self._cached[('V', t)]
 
         with numpy.errstate(under='ignore'):  # don't worry if some values 0
-            dM_param = broadcastMatrixMultiply(self.A,
-                                               broadcastMatrixMultiply(self.B[param] * V, self.Ainv))
+            # placeholder to avoid complicated nested function
+            x = broadcastMatrixMultiply(self.B[param] * V, self.Ainv)
+            dM_param = broadcastMatrixMultiply(self.A, x)
             if tips is None:
                 return numpy.tile(dM_param, (self.nsites, 1, 1))
             else:
@@ -2388,7 +2395,9 @@ def DiscreteGamma(alpha, beta, ncats):
 
     Check that we get values in Figure 1 of Yang, J Mol Evol, 39:306-314
     >>> catmeans = DiscreteGamma(0.5, 0.5, 4)
-    >>> numpy.allclose(catmeans, numpy.array([0.0334, 0.2519, 0.8203, 2.8944]), atol=1e-4)
+    >>> numpy.allclose(catmeans, numpy.array(\
+                                            [0.0334, 0.2519, 0.8203, 2.8944]),\
+                                            atol=1e-4)
     True
 
     Make sure we get expected mean of alpha / beta
