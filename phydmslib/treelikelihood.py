@@ -485,15 +485,15 @@ class TreeLikelihood(object):
                     if not approx_grad:
                         self.dparamscurrent = False
                         self.dtcurrent = True
-                    result = scipy.optimize.minimize(tfunc,
-                                                     self.t,
-                                                     method='L-BFGS-B',
-                                                     jac=tdfunc,
-                                                     options=options,
-                                                     bounds=[
-                                                            (ALMOST_ZERO, None)
-                                                            ]
-                                                     * len(self.t))
+                    result = (scipy.optimize
+                              .minimize(tfunc,
+                                        self.t,
+                                        method='L-BFGS-B',
+                                        jac=tdfunc,
+                                        options=options,
+                                        bounds=([(ALMOST_ZERO, None)]
+                                                * len(self.t))
+                                        ))
                     _printResult('branches', result, i, oldloglik, self.loglik)
                     summary.append('Step {0}: optimized branches, loglik went '
                                    'from {1:.2f} to {2:.2f} ({3} iterations, '
@@ -874,8 +874,10 @@ class TreeLikelihood(object):
                                     dM_dt, self.L[nx][k])
                         self.dL_dt[nx][n][k] = LdM_dt * MLxother
                         for ndx in self.descendants[nx]:
-                            self.dL_dt[ndx][n][k] = broadcastMatrixVectorMultiply(
-                                    Mx, self.dL_dt[ndx][nx][k]) * MLxother
+                            # placeholder to avoid long, hard to read line
+                            x = self.dL_dt[ndx][nx][k]
+                            y = broadcastMatrixVectorMultiply(Mx, x)
+                            self.dL_dt[ndx][n][k] = y * MLxother
 
                 if self.dparamscurrent:
                     for param in self._paramlist_PartialLikelihoods:
