@@ -199,9 +199,9 @@ class TreeLikelihood(object):
                and len(tup) == 2 for tup in alignment)), ("alignment is not "
                                                           "list of (head, seq)"
                                                           " 2-tuples")
-        assert all((len(seq) == 3 * self.nsites for (head, seq) in alignment))
-        assert set((head for (head, seq) in alignment)) ==\
-               (set((clade.name for clade in tree.get_terminals())))
+        assert all({len(seq) == 3 * self.nsites for (head, seq) in alignment})
+        assert set((head for (head, seq) in alignment)
+                   ) == {clade.name for clade in tree.get_terminals()}
         self.alignment = copy.deepcopy(alignment)
         self.nseqs = len(alignment)
         alignment_d = dict(self.alignment)

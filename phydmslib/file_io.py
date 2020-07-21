@@ -159,7 +159,7 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
                           "of gaps.").format(fastafile))
 
     if checknewickvalid:
-        if len(set((head for (head, seq) in seqs))) != len(seqs):
+        if len({head for (head, seq) in seqs}) != len(seqs):
             raise ValueError("Headers in {0} not all unique".format(fastafile))
         disallowedheader = re.compile(r'[\s\:\;\(\)\[\]\,\'\"]')
         for (head, _seq) in seqs:
@@ -272,7 +272,7 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
     if randprefs:
         assert not avgprefs, "randprefs and avgprefs are incompatible"
         random.seed(seed)
-        sites = sorted(list(prefs.keys()))
+        sites = sorted(prefs.keys())
         prefs = [prefs[r] for r in sites]
         random.shuffle(sites)
         prefs = dict(zip(sites, prefs))

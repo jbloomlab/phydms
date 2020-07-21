@@ -1091,7 +1091,7 @@ class ExpCM_fitprefs(ExpCM):
                                              < ALMOST_ZERO))
 
         self._logprior = 0.0
-        self._dlogprior = dict([(param, 0.0) for param in self.freeparams])
+        self._dlogprior = {param: 0.0 for param in self.freeparams}
         if self.prior is None:
             pass
         elif self.prior[0] == 'invquadratic':
@@ -1378,7 +1378,8 @@ class ExpCM_empirical_phi(ExpCM):
         Note that it uses the passed value of `beta`, **not**
         the current `beta` attribute.
 
-        Initial guess is current value of `phi` attribute."""
+        Initial guess is current value of `phi` attribute.
+        """
         def F(phishort):
             """Difference between `g` and expected `g` given `phishort`."""
             phifull = numpy.append(phishort, 1 - phishort.sum())
