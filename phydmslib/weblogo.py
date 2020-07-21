@@ -674,8 +674,7 @@ def _my_eps_formatter(logodata, format, ordered_alphabets):
         "show_xaxis_label", "show_yaxis",           "show_yaxis_label",
         "show_boxes",       "show_errorbars",       "show_fineprint",
         "rotate_numbers",   "show_ends",            "stack_height",
-        "stack_width"
-        ]
+        "stack_width"]
 
     for s in from_format:
         substitutions[s] = getattr(format, s)
