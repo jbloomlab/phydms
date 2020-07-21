@@ -337,7 +337,7 @@ class ExpCM(Model):
 
     def __init__(self, prefs, kappa=2.0, omega=0.5, beta=1.0, mu=1.0,
                  phi=numpy.ones(N_NT) / N_NT,
-                 freeparams=['kappa', 'omega', 'beta', 'mu', 'eta']):
+                 freeparams={'kappa', 'omega', 'beta', 'mu', 'eta'}):
         """Initialize an `ExpCM` object.
 
         Args:
@@ -964,7 +964,7 @@ class ExpCM_fitprefs(ExpCM):
     _REPORTPARAMS.append('pi')
 
     def __init__(self, prefs, prior, kappa, omega, phi, mu=1.0, origbeta=1.0,
-                 freeparams=['zeta']):
+                 freeparams={'zeta'}):
         """Initialize an `ExpCM_fitprefs` object.
 
         The calling parameters have the meaning described in the main class doc
@@ -1330,7 +1330,7 @@ class ExpCM_empirical_phi(ExpCM):
     PARAMTYPES['g'] = (numpy.ndarray, (N_NT,))
 
     def __init__(self, prefs, g, kappa=2.0, omega=0.5, beta=1.0, mu=1.0,
-                 freeparams=['kappa', 'omega', 'beta', 'mu']):
+                 freeparams={'kappa', 'omega', 'beta', 'mu'}):
         """Initialize an `ExpCM_empirical_phi` object.
 
         Args:
@@ -1465,7 +1465,7 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
 
     def __init__(self, prefs, g, divPressureValues, kappa=2.0, omega=0.5,
                  beta=1.0, mu=1.0, omega2=0.0,
-                 freeparams=['kappa', 'omega', 'beta', 'mu', 'omega2']):
+                 freeparams={'kappa', 'omega', 'beta', 'mu', 'omega2'}):
         """Initialize an `ExpCM_empirical_phi_divpressure` object.
 
         Args:
@@ -1608,7 +1608,7 @@ class YNGKP_M0(Model):
         return 0.0
 
     def __init__(self, e_pw, nsites, kappa=2.0, omega=0.5, mu=1.0,
-                 freeparams=['kappa', 'omega', 'mu']):
+                 freeparams={'kappa', 'omega', 'mu'}):
         """Initialize an `YNGKP_M0` object.
 
         Args:
@@ -2134,7 +2134,7 @@ class GammaDistributedModel(DistributionModel):
         return ['alpha_lambda', 'beta_lambda']
 
     def __init__(self, model, lambda_param, ncats, alpha_lambda=1.0,
-                 beta_lambda=2.0, freeparams=['alpha_lambda', 'beta_lambda']):
+                 beta_lambda=2.0, freeparams={'alpha_lambda', 'beta_lambda'}):
         """Initialize a `GammaDistributedModel`.
 
         Args:
@@ -2462,7 +2462,7 @@ class GammaDistributedOmegaModel(GammaDistributedModel):
     """
 
     def __init__(self, model, ncats, alpha_lambda=1.0, beta_lambda=2.0,
-                 freeparams=['alpha_lambda', 'beta_lambda']):
+                 freeparams={'alpha_lambda', 'beta_lambda'}):
         """Initialize an `GammaDistributedModel` object.
 
         The `lambda_param` is set to "omega".
@@ -2490,7 +2490,7 @@ class GammaDistributedBetaModel(GammaDistributedModel):
     """
 
     def __init__(self, model, ncats, alpha_lambda=1.0, beta_lambda=2.0,
-                 freeparams=['alpha_lambda', 'beta_lambda']):
+                 freeparams={'alpha_lambda', 'beta_lambda'}):
         """Initialize an `GammaDistributedModel` object.
 
         The `lambda_param` is set to "beta".
