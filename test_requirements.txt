@@ -5,5 +5,6 @@ flake8-rst-docstrings
 flake8-builtins
 flake8-import-order
 flake8-comprehensions
+flake8-per-file-ignores
 flake8-bugbear
 flake8-print
