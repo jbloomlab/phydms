@@ -63,12 +63,12 @@ import Bio.Seq
 ALMOST_ZERO = 1.0e-6
 
 INDEX_TO_NT = dict(enumerate('ACGT'))
-NT_TO_INDEX = dict([(nt, i) for (i, nt) in INDEX_TO_NT.items()])
+NT_TO_INDEX = {nt: i for (i, nt) in INDEX_TO_NT.items()}
 N_NT = len(INDEX_TO_NT)
 assert len(INDEX_TO_NT) == len(NT_TO_INDEX) == N_NT
 
 INDEX_TO_AA = dict(enumerate('ACDEFGHIKLMNPQRSTVWY'))
-AA_TO_INDEX = dict([(aa, i) for (i, aa) in INDEX_TO_AA.items()])
+AA_TO_INDEX = {aa: i for (i, aa) in INDEX_TO_AA.items()}
 N_AA = len(INDEX_TO_AA)
 assert len(INDEX_TO_AA) == len(AA_TO_INDEX) == N_AA
 
