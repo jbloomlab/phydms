@@ -63,7 +63,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
         prefs = []
         minpref = 0.02
         g = numpy.random.dirichlet([10] * N_NT)
-        for r in range(self.nsites):
+        for _r in range(self.nsites):
             rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
@@ -167,12 +167,14 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
                               dtcurrent=True))
 
         def func(t, n):
+            """Evaluate function."""
             tx = tl.t
             tx[n] = t[0]
             tl.t = tx
             return tl.loglik
 
         def dfunc(t, n):
+            """Take derviative."""
             tx = tl.t
             tx[n] = t[0]
             tl.t = tx
@@ -233,30 +235,42 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
 
 
 class test_BrLenDerivatives_ExpCM_empirical_phi(test_BrLenDerivatives_ExpCM):
+    """Test branch length derv for ExpCM with empirical phi."""
+
     MODEL = phydmslib.models.ExpCM_empirical_phi
 
 
 class test_BrLenDerivativs_ExpCM_emp_phi_divpress(test_BrLenDerivatives_ExpCM):
+    """Test branch length derv for ExpCM with empirical phi & div pressure."""
+
     MODEL = phydmslib.models.ExpCM_empirical_phi_divpressure
 
 
 class test_BrLenDerivatives_YNGKP_M0(test_BrLenDerivatives_ExpCM):
+    """Test branch length derv for YNGKP M0."""
+
     MODEL = phydmslib.models.YNGKP_M0
 
 
 class test_BrLenDerivatives_YNGKP_M5(test_BrLenDerivatives_ExpCM):
+    """Test branch length derv for YNGKP M5."""
+
     MODEL = phydmslib.models.YNGKP_M0
     DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedOmegaModel
 
 
 class test_BrLenDerivatives_ExpCM_gamma_omega(
         test_BrLenDerivatives_ExpCM):
+    """Test branch length derv for ExpCM with gamma omega."""
+
     MODEL = phydmslib.models.ExpCM
     DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedOmegaModel
 
 
 class test_BrLenDerivatives_ExpCM_empirical_phi_gamma_omega(
         test_BrLenDerivatives_ExpCM):
+    """Test branch length derv for ExpCM with empirical phi & Gamma omega."""
+
     MODEL = phydmslib.models.ExpCM_empirical_phi
     DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedOmegaModel
 

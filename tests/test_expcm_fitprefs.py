@@ -1,6 +1,7 @@
 """Tests `ExpCM` with fitting of preferences as free parameters.
 
-Written by Jesse Bloom."""
+Written by Jesse Bloom.
+"""
 
 
 import random
@@ -35,7 +36,7 @@ class test_ExpCM_fitprefs(unittest.TestCase):
                         ((1 - (pirAx / pirAy)**beta)**2))
         dFrxy_dpirAy_equal = omega * beta / (2 * pirAy)
         diffpref = 1.0e-5
-        for itest in range(5):
+        for _itest in range(5):
             values = [[beta, 1],
                       [pirAx, random.uniform(0.01, 0.5)],
                       [pirAy, random.uniform(0.01, 0.5)],
@@ -125,7 +126,7 @@ class test_ExpCM_fitprefs(unittest.TestCase):
         nsites = 1
         minpref = 0.001
         self.prefs = []
-        for r in range(nsites):
+        for _r in range(nsites):
             rprefs = numpy.random.dirichlet([0.7] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs[0] = rprefs[1] + 1.0e-8  # near equal prefs handled OK

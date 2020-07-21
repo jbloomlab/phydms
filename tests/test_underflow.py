@@ -18,7 +18,6 @@ class test_underflow(unittest.TestCase):
 
     def test_underflow(self):
         """Tests correction for numerical underflow."""
-
         numpy.random.seed(1)
         random.seed(1)
 

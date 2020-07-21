@@ -3,7 +3,8 @@
 Written by Jesse Bloom.
 
 Uses `sympy` to make sure attributes and derivatives of attributes
-are correct for `ExpCM` implemented in `phydmslib.models`."""
+are correct for `ExpCM` implemented in `phydmslib.models`.
+"""
 
 
 import random
@@ -20,16 +21,17 @@ import phydmslib.models
 
 
 class testExpCM(unittest.TestCase):
+    """Tests ``ExpCM`` model."""
+
     def test_ExpCM(self):
         """Initialize `ExpCM`, test values, update, test again."""
-
         # create preferences
         random.seed(1)
         numpy.random.seed(1)
         self.nsites = 2
         self.prefs = []
         minpref = 0.01
-        for r in range(self.nsites):
+        for _r in range(self.nsites):
             rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
@@ -56,7 +58,7 @@ class testExpCM(unittest.TestCase):
         )
 
         # now check ExpCM attributes / derivates, updating several times
-        for update in range(2):
+        for _update in range(2):
             self.params = {
                 "omega": random.uniform(*self.expcm.PARAMLIMITS["omega"]),
                 "kappa": random.uniform(*self.expcm.PARAMLIMITS["kappa"]),

@@ -11,6 +11,7 @@ import phydmslib.file_io
 
 
 class test_readPrefs(unittest.TestCase):
+    """Test reading preferences."""
     def setUp(self):
         self.divPressurefiles = [
             os.path.abspath(

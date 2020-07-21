@@ -15,7 +15,6 @@ import multiprocessing
 
 def main():
     """Main body of script."""
-
     profiledir = './NP_profile/'
     if not os.path.isdir(profiledir):
         os.mkdir(profiledir)
@@ -50,15 +49,17 @@ def main():
             for f in glob.glob('{0}*'.format(outprefix)):
                 os.remove(f)
             cmd = ['phydms', alignment, tree, model, outprefix, '--profile'] + args
-            pool[name] = multiprocessing.Process(target=subprocess.check_call, 
-                    args=(cmd,), kwargs={'stdout':subprocess.PIPE, 
-                    'stderr':subprocess.PIPE})
-    started = dict([(name, False) for name in pool])
-    completed = dict([(name, False) for name in pool])
+            pool[name] = (multiprocessing
+                          .Process(target=subprocess.check_call,
+                                   args=(cmd,),
+                                   kwargs={'stdout': subprocess.PIPE,
+                                           'stderr': subprocess.PIPE}))
+    started = {name: False for name in pool}
+    completed = {name: False for name in pool}
 
     while not all(completed.values()):
-        nrunning = (list(started.values()).count(True) - 
-                list(completed.values()).count(True))
+        nrunning = (list(started.values()).count(True) -
+                    list(completed.values()).count(True))
         if nrunning < ncpus:
             for (name, p) in pool.items():
                 if (not started[name]) and (not completed[name]):
@@ -77,4 +78,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main() # run the script
+    main()  # run the script

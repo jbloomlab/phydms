@@ -1,6 +1,7 @@
 """Tests ``phydms_prepalignment``.
 
-Written by Jesse Bloom."""
+Written by Jesse Bloom.
+"""
 
 
 import os

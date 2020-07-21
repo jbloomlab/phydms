@@ -28,7 +28,6 @@ class test_branchScale_ExpCM(unittest.TestCase):
 
     def test_branchScale(self):
         """Simulate evolution, ensure scaled branches match number of subs."""
-
         numpy.random.seed(1)
         random.seed(1)
 
@@ -36,7 +35,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
         nsites = 50
         prefs = []
         minpref = 0.01
-        for r in range(nsites):
+        for _r in range(nsites):
             rprefs = numpy.random.dirichlet([1] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
@@ -87,7 +86,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
         nsubs = 0  # subs in simulated seqs (estimate from Hamming distance)
         treedist = 0.0  # distance inferred by `TreeLikelihood`
         nreplicates = 100
-        for i in range(nreplicates):
+        for _i in range(nreplicates):
             evolver(seqfile=alignment, infofile=info, ratefile=rates)
             a = [(s.description, str(s.seq)) for s in Bio.SeqIO.parse(
                     alignment, 'fasta')]
@@ -125,6 +124,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
 
 class test_branchScale_YNGKP_M0(test_branchScale_ExpCM):
     """Tests `branchScale` of `YNGKP_M0` model."""
+
     MODEL = phydmslib.models.YNGKP_M0
 
 

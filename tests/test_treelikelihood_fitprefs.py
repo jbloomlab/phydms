@@ -1,6 +1,7 @@
 """Tests `TreeLikelihood` with `ExpCM_fitprefs` and `ExpCM_fitprefs2`.
 
-Written by Jesse Bloom."""
+Written by Jesse Bloom.
+"""
 
 
 import random
@@ -32,7 +33,7 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
         minpref = 0.001
         self.prefs = []
         self.realprefs = []
-        for r in range(nsites):
+        for _r in range(nsites):
             rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
@@ -74,16 +75,10 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
         assert len(self.alignment[0][1]) == nsites * 3
         for f in [alignmentfile, info, rates]:
             os.remove(f)
-        self.codoncounts = dict(
-            [
-                (r, dict([(INDEX_TO_CODON[c], 0) for c in range(N_CODON)]))
-                for r in range(nsites)
-            ]
-        )
-        self.aacounts = dict(
-            [(r, dict([(a, 0) for a in range(N_AA)])) for r in range(nsites)]
-        )
-        for (head, seq) in self.alignment:
+        self.codoncounts = {r: {INDEX_TO_CODON[c]: 0 for c in range(N_CODON)}
+                            for r in range(nsites)}
+        self.aacounts = {r: {a: 0 for a in range(N_AA)} for r in range(nsites)}
+        for (_head, seq) in self.alignment:
             self.codoncounts[r][seq] += 1
             self.aacounts[r][CODON_TO_AA[CODON_TO_INDEX[seq]]] += 1
 
@@ -117,7 +112,7 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
             "starts at initial origpi values.",
         )
 
-        for (name, tl) in tls.items():
+        for (_name, tl) in tls.items():
             tl.maximizeLikelihood()
 
         self.assertTrue(
@@ -138,12 +133,8 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
             "Weak prior does not have higher loglik than strong prior.",
         )
 
-        pidiff2 = dict(
-            [
-                (name, ((tl.model.pi - tl.model.origpi) ** 2).sum())
-                for (name, tl) in tls.items()
-            ]
-        )
+        pidiff2 = {name: ((tl.model.pi - tl.model.origpi) ** 2).sum()
+                   for (_name, tl) in tls.items()}
         self.assertTrue(
             [
                 pidiff2["no prior"] > x
@@ -192,7 +183,7 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
             for r in range(tl.nsites):
                 for (c, nc) in self.codoncounts[r].items():
                     if nc > 0:
-                        for (c2, nc2) in self.codoncounts[r].items():
+                        for (c2, _nc2) in self.codoncounts[r].items():
                             ndiffs = len([i for (i, ci) in
                                           enumerate(c) if ci != c2[i]])
                             a = CODON_TO_AA[CODON_TO_INDEX[c]]

@@ -4,7 +4,8 @@ Written by Jesse Bloom.
 Edited by Sarah Hilton
 
 Uses `sympy` to make sure attributes and derivatives of attributes
-are correct for `YNGKP_M0` implemented in `phydmslib.models`."""
+are correct for `YNGKP_M0` implemented in `phydmslib.models`.
+"""
 
 
 import random
@@ -17,9 +18,10 @@ import phydmslib.models
 
 
 class testYNGKP_M0(unittest.TestCase):
+    """Test YNGKP M0."""
+
     def test_YNGKP_M0(self):
         """Initialize `YNGKP_M0`, test values, update, test again."""
-
         # create alignment
         numpy.random.seed(1)
         random.seed(1)
@@ -44,7 +46,7 @@ class testYNGKP_M0(unittest.TestCase):
         )
 
         # now check YNGKP_M0 attributes / derivates, updating several times
-        for update in range(2):
+        for _update in range(2):
             self.params = {
                 "omega": random.uniform(0.1, 2),
                 "kappa": random.uniform(0.5, 10),
@@ -75,7 +77,7 @@ class testYNGKP_M0(unittest.TestCase):
         assert self.YNGKP_M0.Ainv.shape == (1, N_CODON, N_CODON)
         assert self.YNGKP_M0.A.shape == (1, N_CODON, N_CODON)
         assert self.YNGKP_M0.M(0.2).shape == (self.nsites, N_CODON, N_CODON)
-        for (pname, value) in self.params.items():
+        for (pname, _value) in self.params.items():
             assert self.YNGKP_M0.dM(0.2, pname, self.YNGKP_M0.M(0.2)).shape ==\
                   (self.nsites, N_CODON, N_CODON)
 

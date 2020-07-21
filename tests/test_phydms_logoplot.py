@@ -77,7 +77,6 @@ class test_phydms_logoplot(unittest.TestCase):
                 "72",
             ]
         )
-        print(plotfile)
         self.assertTrue(os.path.isfile(plotfile))
 
     def test_omegaoverlay(self):

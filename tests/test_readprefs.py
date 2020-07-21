@@ -10,7 +10,10 @@ import phydmslib.file_io
 
 
 class test_readPrefs(unittest.TestCase):
+    """Tests reading in prefs."""
+
     def setUp(self):
+        """Set up models."""
         self.prefsfiles = [
             os.path.abspath(
                 os.path.join(

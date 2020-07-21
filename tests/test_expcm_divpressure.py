@@ -16,17 +16,17 @@ import phydmslib.models
 
 
 class test_compare_ExpCM_emp_phi_with_without_divpress(unittest.TestCase):
+    """Tests ``ExpCM`` with and without div pressure."""
 
     def test_compare(self):
         """Make sure all attributes are the same when `divpressure` is 0."""
-
         random.seed(1)
         numpy.random.seed(1)
 
         nsites = 6
         prefs = []
         minpref = 0.01
-        for r in range(nsites):
+        for _r in range(nsites):
             rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
@@ -77,17 +77,17 @@ class test_compare_ExpCM_emp_phi_with_without_divpress(unittest.TestCase):
 
 
 class testExpCM_empirical_phi_divpressure(unittest.TestCase):
+    """Tests ``ExpCM`` with div pressure."""
 
     def test_ExpCM_empirical_phi_divpressure(self):
-        """init `ExpCM_empirical_phi_divpressure`, test, update, test again."""
-
+        """Init `ExpCM_empirical_phi_divpressure`, test, update, test again."""
         # create preferences
         random.seed(1)
         numpy.random.seed(1)
         self.nsites = 6
         self.prefs = []
         minpref = 0.01
-        for r in range(self.nsites):
+        for _r in range(self.nsites):
             rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
@@ -108,7 +108,7 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
                                                        beta=beta,
                                                        omega2=omega2))
         # now check ExpCM attributes / derivates, updating several times
-        for update in range(2):
+        for _update in range(2):
             self.params = {'omega': random.uniform(0.1, 2),
                            'kappa': random.uniform(0.5, 10),
                            'beta': random.uniform(0.5, 3),

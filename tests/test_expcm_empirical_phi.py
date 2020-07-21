@@ -15,17 +15,17 @@ import phydmslib.models
 
 
 class testExpCM_empirical_phi(unittest.TestCase):
+    """Tests ``ExpCM`` with empirical phi."""
 
     def test_ExpCM_empirical_phi(self):
         """Initialize `ExpCM_empirical_phi`, test, update, test again."""
-
         # create preferences
         random.seed(1)
         numpy.random.seed(1)
         self.nsites = 7
         self.prefs = []
         minpref = 0.01
-        for r in range(self.nsites):
+        for _r in range(self.nsites):
             rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
@@ -42,7 +42,7 @@ class testExpCM_empirical_phi(unittest.TestCase):
         self.assertTrue(numpy.allclose(g, self.expcm.g))
 
         # now check ExpCM attributes / derivates, updating several times
-        for update in range(2):
+        for _update in range(2):
             self.params = {'omega': random.uniform(0.1, 2),
                            'kappa': random.uniform(0.5, 10),
                            'beta': random.uniform(0.5, 5),

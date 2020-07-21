@@ -42,7 +42,7 @@ class test_BrLenOptimize_ExpCM(unittest.TestCase):
         self.nsites = 50
         prefs = []
         minpref = 0.02
-        for r in range(self.nsites):
+        for _r in range(self.nsites):
             rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
@@ -100,6 +100,8 @@ class test_BrLenOptimize_ExpCM(unittest.TestCase):
 
 class test_BrLenOptimize_ExpCM_gamma_omega(
         test_BrLenOptimize_ExpCM):
+    """Test ExpCM with gamma omega."""
+
     MODEL = phydmslib.models.ExpCM
     DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedOmegaModel
 

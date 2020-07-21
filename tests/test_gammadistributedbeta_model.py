@@ -21,7 +21,6 @@ class test_GammaBeta_ExpCM(unittest.TestCase):
 
     def test_GammaDistributedBeta(self):
         """Initialize, test values, update, test again."""
-
         random.seed(1)
         numpy.random.seed(1)
         nsites = 10
@@ -29,7 +28,7 @@ class test_GammaBeta_ExpCM(unittest.TestCase):
         # create preference set
         prefs = []
         minpref = 0.01
-        for r in range(nsites):
+        for _r in range(nsites):
             rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()

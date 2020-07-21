@@ -21,7 +21,6 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
 
     def test_GammaDistributedOmega(self):
         """Initialize, test values, update, test again."""
-
         random.seed(1)
         numpy.random.seed(1)
         nsites = 10
@@ -29,7 +28,7 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
         if self.BASEMODEL == phydmslib.models.ExpCM:
             prefs = []
             minpref = 0.01
-            for r in range(nsites):
+            for _r in range(nsites):
                 rprefs = numpy.random.dirichlet([0.5] * N_AA)
                 rprefs[rprefs < minpref] = minpref
                 rprefs /= rprefs.sum()
@@ -82,7 +81,7 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
                                 pvalue))
 
         # try some updates and make sure everything remains OK
-        for i in range(3):
+        for _i in range(3):
             newvalues = {}
             for param in gammamodel.freeparams:
                 (low, high) = gammamodel.PARAMLIMITS[param]

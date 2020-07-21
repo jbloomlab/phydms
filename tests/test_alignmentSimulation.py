@@ -26,7 +26,6 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
 
     def test_simulateAlignment(self):
         """Simulate evolution, ensure scaled branches match number of subs."""
-
         numpy.random.seed(1)
         random.seed(1)
 
@@ -36,7 +35,7 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         nsites = 1000
         prefs = []
         minpref = 0.01
-        for r in range(nsites):
+        for _r in range(nsites):
             rprefs = numpy.random.dirichlet([1] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
@@ -121,6 +120,7 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
 
 class test_simulateAlignment_YNGKP_M0(test_simulateAlignment_ExpCM):
     """Tests `simulateAlignment` of `YNGKP_M0` model."""
+
     MODEL = phydmslib.models.YNGKP_M0
 
 

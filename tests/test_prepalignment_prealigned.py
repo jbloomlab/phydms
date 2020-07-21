@@ -1,9 +1,9 @@
 """Tests ``phydms_prepalignment``.
 
-Written by Jesse Bloom."""
+Written by Jesse Bloom.
+"""
 
 
-import sys
 import os
 import unittest
 import subprocess

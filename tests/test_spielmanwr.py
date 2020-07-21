@@ -1,12 +1,14 @@
 """Tests the calculation of spielmanwr, following Spielman and Wilke, 2015.
 
-Written by Jesse Bloom and Sarah Hilton."""
+Written by Jesse Bloom and Sarah Hilton.
+"""
 
 
 import random
 import unittest
 import numpy
-from phydmslib.constants import *
+from phydmslib.constants import (N_NT, N_AA, AA_TO_INDEX, N_CODON,
+                                 CODON_SINGLEMUT, CODON_NONSYN)
 import phydmslib.models
 
 
@@ -19,7 +21,6 @@ class testExpCM_spielmanwr(unittest.TestCase):
 
     def testExpCM_spielmanwr(self):
         """Test the `ExpCM` function `_spielman_wr`."""
-
         # create models
         random.seed(1)
         numpy.random.seed(1)
@@ -27,7 +28,7 @@ class testExpCM_spielmanwr(unittest.TestCase):
         g = numpy.random.dirichlet([5] * N_NT)
         prefs = []
         minpref = 0.01
-        for r in range(nsites):
+        for _r in range(nsites):
             rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
@@ -55,7 +56,6 @@ class testExpCM_spielmanwr(unittest.TestCase):
                         denominator += prx * Qxy
             wr.append(numerator / denominator)
         wr = numpy.array(wr)
-        print(wr, self.model.spielman_wr(norm=False))
         self.assertTrue(
             numpy.allclose(wr, self.model.spielman_wr(norm=False), rtol=0.01)
         )

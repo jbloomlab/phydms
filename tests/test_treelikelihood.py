@@ -84,7 +84,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         g = numpy.random.dirichlet([5] * N_NT)
         g[g < 0.1] = 0.1
         g /= g.sum()
-        for r in range(self.nsites):
+        for _r in range(self.nsites):
             rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
@@ -220,7 +220,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
                                     "expected": siteloglik}
             loglik_by_mu[mu] = {"actual": tl.loglik, "expected": loglik}
 
-        for (i, mu1) in enumerate(mus):
+        for (_i, mu1) in enumerate(mus):
             for (name, d) in [
                 ("partials", partials_by_mu),
                 ("siteloglik", siteloglik_by_mu),
@@ -273,7 +273,8 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
     def test_MaximizeLikelihood(self):
         """Tests maximization likelihood.
 
-        Make sure it gives the same value for several starting points."""
+        Make sure it gives the same value for several starting points.
+        """
         random.seed(1)
         numpy.random.seed(1)
 

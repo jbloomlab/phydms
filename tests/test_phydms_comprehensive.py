@@ -115,7 +115,7 @@ class test_phydms_comprehensive(unittest.TestCase):
             sigsites = (omegas["expected"]
                         [omegas["expected"]["P"] < 0.05]["site"].values)
             sigomegas = {}
-            for (name, df) in omegas.items():
+            for (name, _df) in omegas.items():
                 sigomegas[name] = (omegas[name][omegas[name]["site"]
                                    .isin(sigsites)]["omega"].values)
             self.assertTrue(

@@ -1,6 +1,7 @@
 """Tests invquadratic prior in `ExpCM_fitprefs`.
 
-Written by Jesse Bloom."""
+Written by Jesse Bloom.
+"""
 
 
 import random
@@ -25,7 +26,7 @@ class test_fitprefs_invquadraticprior(unittest.TestCase):
         nsites = 1
         minpref = 0.001
         self.prefs = []
-        for r in range(nsites):
+        for _r in range(nsites):
             rprefs = numpy.random.dirichlet([0.7] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs[0] = rprefs[1] + 1.0e-8  # near equal prefs handled OK

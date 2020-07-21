@@ -20,6 +20,7 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
     """Tests ``--omegabysite`` to ``phydms`` for `ExpCM`."""
 
     def setUp(self):
+        """Set up models."""
         self.tree = os.path.abspath(
             os.path.join(os.path.dirname(__file__),
                          "./NP_data/NP_tree_short.newick")
@@ -46,8 +47,9 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
             os.mkdir(self.outdir)
 
     def initializeModel(self):
+        """Init models."""
         prefs = phydmslib.file_io.readPrefs(self.prefs, minpref=0.005)
-        prefs = [prefs[r] for r in sorted(list(prefs.keys()))]
+        prefs = [prefs[r] for r in sorted(prefs.keys())]
         # Using beta < 1 partially flattens prefs in simulation
         # Use mu < 1 to get branch lengths about right
         self.model = phydmslib.models.ExpCM(prefs, beta=0.5, mu=0.5)
@@ -55,6 +57,7 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
         self.modelarg = "ExpCM_{0}".format(self.prefs)
 
     def test_OnSimulatedData(self):
+        """Test on Simulated Data."""
         random.seed(1)
         divpressuresites = random.sample(range(self.nsites), 5)
         partitions = phydmslib.simulate.pyvolvePartitions(
@@ -112,6 +115,7 @@ class test_OmegaBySiteYNGKP(test_OmegaBySiteExpCM):
     """Tests ``--omegabysite`` to ``phydms`` for `YNGKP_M0`."""
 
     def initializeModel(self):
+        """Init model."""
         e_pw = numpy.full((3, N_NT), 1.0 / N_NT, dtype="float")
         # mu > 1 leads to longer branches in simulation
         self.model = phydmslib.models.YNGKP_M0(e_pw, self.nsites, mu=4.0)

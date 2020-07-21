@@ -1,6 +1,7 @@
 """Runs doctests.
 
-Written by Jesse Bloom."""
+Written by Jesse Bloom.
+"""
 
 
 import sys
@@ -12,12 +13,12 @@ import phydmslib
 
 def main():
     """Run the tests."""
-
     sys.stderr.write('Running tests...\n')
     failurestrings = []
 
     # test all modules with doctest
-    for (importer, modname, ispkg) in pkgutil.iter_modules(phydmslib.__path__):
+    for (_importer, modname,
+         ispkg) in pkgutil.iter_modules(phydmslib.__path__):
         if (not ispkg) and modname[0] != '_':
             sys.stderr.write('\nTesting %s with doctest... ' % modname)
             module = __import__('phydmslib.%s' % modname, None, None,
@@ -31,7 +32,7 @@ def main():
                                  .format(result.testsRun))
             else:
                 sys.stderr.write('test FAILED!\n')
-                for (testcase, failstring) in result.failures:
+                for (_testcase, failstring) in result.failures:
                     failurestrings.append(failstring)
 
     # print summary of failures
