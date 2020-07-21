@@ -95,7 +95,7 @@ def BenjaminiHochbergCorrection(pvals, fdr):
     # find maximum rank for which p <= (rank/num_tests)*FDR
     max_rank = 0
     pcutoff = None
-    for (rank, (label, p)) in enumerate(sorted_tests):
+    for (rank, (_label, p)) in enumerate(sorted_tests):
         rank = rank + 1  # rank begins w/ 1 for smallest p-value ( no rank 0)
         bh_threshold = fdr * float(rank) / num_tests
         if p <= bh_threshold:

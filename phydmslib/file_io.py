@@ -1,6 +1,4 @@
-"""
-Module for input / output from files.
-"""
+"""Module for input / output from files."""
 
 
 import sys
@@ -119,7 +117,7 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
                          .format(fastafile, seqlen))
 
     terminalcodon = []
-    codons_by_position = dict([(icodon, []) for icodon in range(seqlen // 3)])
+    codons_by_position = {icodon: [] for icodon in range(seqlen // 3)}
     for (head, seq) in seqs:
         assert len(seq) % 3 == 0
         for icodon in range(seqlen // 3):
@@ -239,7 +237,7 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
         prefs = dict([(int(r), rprefs) for (r, rprefs) in prefs.items()])
     else:
         sites = [str(r) for r in sites]
-        prefs = dict([(str(r), rprefs) for (r, rprefs) in prefs.items()])
+        prefs = {str(r): rprefs for (r, rprefs) in prefs.items()}
 
     assert len(set(sites)) == len(sites), "Non-unique sites in prefsfiles"
     assert (all([all([pi >= 0 for pi in rprefs.values()]) for rprefs in
@@ -255,7 +253,7 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
                                            "all amino acids at site {1}"
                                            .format(prefsfile, r))
         rsum = float(sum(rprefs.values()))
-        prefs[r] = dict([(aa, pi / rsum) for (aa, pi) in rprefs.items()])
+        prefs[r] = {aa: pi / rsum for (aa, pi) in rprefs.items()}
     assert set(sites) == set(prefs.keys())
 
     # Iteratively adjust until all prefs exceed minpref after re-scaling.
@@ -292,7 +290,7 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
 
 
 def readPrefs_dms_tools_format(f):
-    """Reads the amino-acid preferences written by `dms_tools v1.
+    """Reads the amino-acid preferences written by `dms_tools v1`.
 
     This is an exact copy of the same code from
     `dms_tools.file_io.ReadPreferences`. It is copied because

@@ -1,6 +1,4 @@
-"""
-Module for parsing arguments.
-"""
+"""Module for parsing arguments."""
 
 
 import sys
@@ -17,6 +15,7 @@ yngkp_modelvariants = ['M0', 'M5']
 
 class ArgumentParserNoArgHelp(argparse.ArgumentParser):
     """Like *argparse.ArgumentParser*, but prints help when no arguments."""
+
     def error(self, message):
         """Prints error message, then help."""
         sys.stderr.write('error: %s\n\n' % message)
@@ -31,6 +30,7 @@ class ArgDefaultsRawDescriptFormatter(argparse.ArgumentDefaultsHelpFormatter,
     Based on this:
     http://stackoverflow.com/questions/18462610/argumentparser-epilog-and-description-formatting-in-conjunction-with-argumentdef
     """
+
     pass
 
 
@@ -595,7 +595,7 @@ def PhyDMSParser():
 
 
 def PhyDMSTestdivpressureParser():
-    """Returns *argparse.ArgumentParser* for ``phdyms_testdivpressure`."""
+    """Returns *argparse.ArgumentParser* for ``phdyms_testdivpressure``."""
     parser = (ArgumentParserNoArgHelp(
              description="Test different models of diversifying pressure. {0} "
              "Version {1}. Full documentation at "

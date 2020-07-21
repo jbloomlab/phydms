@@ -111,8 +111,8 @@ def ChargeColorMapping(maptype='jet', reverse=False):
     """Maps amino-acid charge at neutral pH to colors.
     Currently does not use the keyword arguments for *maptype*
     or *reverse* but accepts these arguments to be consistent
-    with KyteDoolittleColorMapping and MWColorMapping for now."""
-
+    with KyteDoolittleColorMapping and MWColorMapping for now.
+    """
     pos_color = '#FF0000'
     neg_color = '#0000FF'
     neut_color = '#000000'
@@ -133,8 +133,8 @@ def FunctionalGroupColorMapping(maptype='jet', reverse=False):
     Currently does not use the keyword arguments for *maptype*
     or *reverse* but accepts these arguments to be consistent
     with the other mapping functions, which all get called with
-    these arguments."""
-
+    these arguments.
+    """
     small_color = '#f76ab4'
     nucleophilic_color = '#ff7f00'
     hydrophobic_color = '#12ab0d'
@@ -331,7 +331,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
         os.remove(plotfile)  # remove existing plot
 
     if not allowunsorted:
-        sorted_sites = natsort.natsorted([r for r in sites])
+        sorted_sites = natsort.natsorted(sites)
         if sorted_sites != sites:
             raise ValueError("sites is not properly sorted")
 
@@ -634,14 +634,14 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
 #  POSSIBILITY OF SUCH DAMAGE.
 
 # Replicates README.txt
-def _my_pdf_formatter(data, format, ordered_alphabets):
+def _my_pdf_formatter(data, pdfformat, ordered_alphabets):
     """ Generate a logo in PDF format.
 
     Modified from weblogo version 3.4 source code.
     """
-    eps = _my_eps_formatter(data, format, ordered_alphabets).decode()
+    eps = _my_eps_formatter(data, pdfformat, ordered_alphabets).decode()
     gs = weblogolib.GhostscriptAPI()
-    return gs.convert('pdf', eps, format.logo_width, format.logo_height)
+    return gs.convert('pdf', eps, pdfformat.logo_width, pdfformat.logo_height)
 
 
 def _my_eps_formatter(logodata, format, ordered_alphabets):
@@ -1107,7 +1107,7 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin,
         pylab.yticks([])
         pylab.xlim(0.5, len(isites) + 0.5)
         pylab.xticks([])
-        for (iprop, (prop_d, shortname, longname)) in enumerate(overlay):
+        for (iprop, (prop_d, shortname, _longname)) in enumerate(overlay):
             (proptype, vmin, vmax, propcategories) = prop_types[shortname]
             prop_ax = pylab.axes([lmargin / figwidth,
                                  (((nlines - iline - 1) *
@@ -1229,16 +1229,15 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin,
                 cb.set_ticklabels(['0', '0.5', '1'])
             # if it seems plausible, set integer ticks
             if 4 < (vmax - vmin) <= 11:
-                fixedticks = [itick for itick in
-                              range(int(vmin), int(vmax) + 1)]
+                fixedticks = list(range(int(vmin), int(vmax) + 1))
                 cb.set_ticks(fixedticks)
                 cb.set_ticklabels([str(itick) for itick in fixedticks])
         elif proptype == 'discrete':
             cb = pylab.colorbar(prop_image[shortname],
                                 cax=colorbar_ax,
                                 orientation='horizontal',
-                                boundaries=[i for i in
-                                            range(len(propcategories) + 1)],
+                                boundaries=list(range(len(propcategories) + 1)
+                                                ),
                                 values=[i for i in range(len(propcategories))])
             cb.set_ticks([i + 0.5 for i in range(len(propcategories))])
             cb.set_ticklabels(propcategories)
