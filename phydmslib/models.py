@@ -522,7 +522,7 @@ class ExpCM(Model):
         assert all(map(lambda x: x in self.freeparams, newvalues.keys())),\
             "Invalid entry in newvalues: {0}\nfreeparams: {1}".format(
                 ', '.join(newvalues.keys()), ', '.join(self.freeparams))
-        changed = set([])  # contains string names of changed params
+        changed = set()  # contains string names of changed params
         for (name, value) in newvalues.items():
             _checkParam(name, value, self.PARAMLIMITS, self.PARAMTYPES)
             if isinstance(value, numpy.ndarray):
@@ -1765,7 +1765,7 @@ class YNGKP_M0(Model):
         assert all(map(lambda x: x in self.freeparams, newvalues.keys())), (
              "Invalid entry in newvalues: {0}\nfreeparams: {1}"
              .format(', '.join(newvalues.keys()), ', '.join(self.freeparams)))
-        changed = set([])  # contains string names of changed params
+        changed = set()  # contains string names of changed params
         for (name, value) in newvalues.items():
             _checkParam(name, value, self.PARAMLIMITS, self.PARAMTYPES)
             if isinstance(value, numpy.ndarray):
