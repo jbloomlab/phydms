@@ -33,7 +33,7 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
         minpref = 0.001
         self.prefs = []
         self.realprefs = []
-        for r in range(nsites):
+        for _r in range(nsites):
             rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
