@@ -232,7 +232,7 @@ class TreeLikelihood(object):
             self._Lshape = (self.model.ncats, self.nsites, N_CODON)
         else:
             self._Lshape = (self.nsites, N_CODON)
-        self.dL_dt = dict([(n, {}) for n in range(self.nnodes - 1)])
+        self.dL_dt = {n: {} for n in range(self.nnodes - 1)}
         self.L = {}
         self.dL = {}
         self._dLshape = {}
@@ -319,11 +319,11 @@ class TreeLikelihood(object):
                 self._index_to_param[i] = param
                 i += 1
             else:
-                for (pindex, pvalue) in enumerate(paramvalue):
+                for (pindex, _pvalue) in enumerate(paramvalue):
                     self._index_to_param[i] = (param, pindex)
                     i += 1
-        self._param_to_index = dict([(y, x) for (x, y) in
-                                     self._index_to_param.items()])
+        self._param_to_index = {y: x for (x, y) in
+                                self._index_to_param.items()}
         assert i == len(self._index_to_param)
 
         # now update internal attributes related to likelihood
@@ -539,7 +539,7 @@ class TreeLikelihood(object):
     def paramsarraybounds(self):
         """Bounds for parameters in `paramsarray`."""
         bounds = []
-        for (i, param) in self._index_to_param.items():
+        for (_i, param) in self._index_to_param.items():
             if isinstance(param, str):
                 bounds.append(self.model.PARAMLIMITS[param])
             elif isinstance(param, tuple):
@@ -556,7 +556,8 @@ class TreeLikelihood(object):
         """All free model parameters as 1-dimensional `numpy.ndarray`.
 
         You are allowed to update model parameters by direct
-        assignment of this property."""
+        assignment of this property.
+        """
         # Return copy of `_paramsarray` because setter checks if changed
         if self._paramsarray is not None:
             return self._paramsarray.copy()
@@ -689,7 +690,7 @@ class TreeLikelihood(object):
                 value to set. Each parameter name must either be a
                 valid model parameter (in `model.freeparams`).
         """
-        for (param, value) in newvalues.items():
+        for (param, _value) in newvalues.items():
             if param not in self.model.freeparams:
                 raise RuntimeError("Can't handle param: {0}".format(
                         param))
