@@ -10,7 +10,8 @@ import unittest
 import scipy.linalg
 import scipy.optimize
 import numpy
-from phydmslib.constants import N_CODON, N_NT, AA_TO_INDEX, N_AA, CODON_NT_COUNT
+from phydmslib.constants import (N_CODON, N_NT, AA_TO_INDEX, N_AA,
+                                 CODON_NT_COUNT)
 import phydmslib.models
 
 
@@ -171,12 +172,14 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
             return expcm.dphi_dbeta[w]
 
         for w in range(N_NT):
-            diff = scipy.optimize.check_grad(
-                func_phi, func_dphi, [self.model.beta], self.model, w, epsilon=1e-4
-            )
-            self.assertTrue(
-                diff < 1e-4, "dphi_dbeta diff {0} for w = {1}".format(diff, w)
-            )
+            diff = scipy.optimize.check_grad(func_phi,
+                                             func_dphi,
+                                             [self.model.beta],
+                                             self.model,
+                                             w,
+                                             epsilon=1e-4)
+            self.assertTrue(diff < 1e-4,
+                            "dphi_dbeta diff {0} for w = {1}".format(diff, w))
         # back to original value
         self.model.updateParams(self.params)
 
@@ -193,19 +196,16 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
 
         for r in range(self.nsites):
             for x in range(N_CODON):
-                diff = scipy.optimize.check_grad(
-                    func_prx,
-                    func_dprx,
-                    [self.model.beta],
-                    self.model,
-                    r,
-                    x,
-                    epsilon=1e-4,
-                )
-                self.assertTrue(
-                    diff < 1e-4,
-                    "dprx_dbeta diff {0} for r = {1}, x = {2}".format(diff, r, x),
-                )
+                diff = scipy.optimize.check_grad(func_prx,
+                                                 func_dprx,
+                                                 [self.model.beta],
+                                                 self.model,
+                                                 r,
+                                                 x,
+                                                 epsilon=1e-4,)
+                self.assertTrue(diff < 1e-4,
+                                "dprx_dbeta diff {0} for r = {1}, x = {2}"
+                                .format(diff, r, x))
         # back to original value
         self.model.updateParams(self.params)
 
@@ -233,7 +233,8 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
                 )
                 self.assertTrue(
                     diff < 1e-4,
-                    "dQxy_dbeta diff {0} for x = {1}, y = {2}".format(diff, x, y),
+                    "dQxy_dbeta diff {0} for x = {1}, y = {2}"
+                    .format(diff, x, y),
                 )
         # back to original value
         self.model.updateParams(self.params)
@@ -247,7 +248,8 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
         self.assertFalse(numpy.isinf(self.model.Prxy).any())
         diag = numpy.eye(N_CODON, dtype="bool")
         for r in range(self.nsites):
-            self.assertTrue(numpy.allclose(0, numpy.sum(self.model.Prxy[r], axis=1)))
+            self.assertTrue(numpy.allclose(0, numpy.sum(self.model.Prxy[r],
+                                           axis=1)))
             self.assertTrue(numpy.allclose(0, self.model.Prxy[r].sum()))
             self.assertTrue((self.model.Prxy[r][diag] <= 0).all())
             self.assertTrue((self.model.Prxy[r][~diag] >= 0).all())
@@ -259,17 +261,12 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
 
         # prx is eigenvector or Prxy for the same r, but not different r
         for r in range(self.nsites):
-            self.assertTrue(
-                numpy.allclose(0, numpy.dot(self.model.prx[r], self.model.Prxy[r]))
-            )
+            self.assertTrue(numpy.allclose(0, numpy.dot(self.model.prx[r],
+                                                        self.model.Prxy[r])))
             if r > 0:
-                (
-                    self.assertFalse(
-                        numpy.allclose(
-                            0, numpy.dot(self.model.prx[r], self.model.Prxy[r - 1])
-                        )
-                    )
-                )
+                (self.assertFalse(
+                    numpy.allclose(0, numpy.dot(self.model.prx[r],
+                                                self.model.Prxy[r - 1]))))
 
         # phi sums to one
         self.assertTrue(numpy.allclose(1, self.model.phi.sum()))
@@ -362,7 +359,8 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
             )
 
             for t in [0.02, 0.2, 0.5]:
-                direct = scipy.linalg.expm(self.model.Prxy[r] * self.model.mu * t)
+                direct = scipy.linalg.expm(self.model.Prxy[r] *
+                                           self.model.mu * t)
                 self.assertTrue(
                     numpy.allclose(self.model.M(t)[r], direct, atol=1e-6),
                     "Max diff {0}".format((self.model.M(t)[r] - direct).max()),
@@ -441,12 +439,8 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
                                         self.model.pi_codon[r][y],
                                         t,
                                         self.model.mu,
-                                        funcdM(
-                                            pvalue, pname, t, self.model, r, x, y, {}
-                                        ),
-                                    ),
-                                )
-                            )
+                                        funcdM(pvalue, pname, t, self.model,
+                                               r, x, y, {}))))
                 # back to original value
                 self.model.updateParams(self.params)
 
