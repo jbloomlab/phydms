@@ -41,7 +41,8 @@ class Model(six.with_metaclass(abc.ABCMeta)):
         """Log prior over current model.
 
         Is a float giving log prior over current model, or
-        0 if there is no prior defined over this model."""
+        0 if there is no prior defined over this model.
+        """
         pass
 
     @abc.abstractmethod
@@ -71,16 +72,16 @@ class Model(six.with_metaclass(abc.ABCMeta)):
     def dstationarystate(self, param):
         """Derivative of `stationarystate` with respect to `param`.
 
-            Args:
-                `param` (string in `freeparams`)
+        Args:
+            `param` (string in `freeparams`)
 
-            Returns:
-                `dstationarystate` (`numpy.ndarray` of floats or zero)
-                    If `param` is a float, then `dstationarystate[r][x]`
-                    is derivative of `stationarystate[r][x]` with respect
-                    to `param`. If `param` is an array, then
-                    `dstationarystate[i][r][x]` is derivative of
-                    `stationarystate[r][x]` with respect to `param[i]`.
+        Returns:
+            `dstationarystate` (`numpy.ndarray` of floats or zero)
+                If `param` is a float, then `dstationarystate[r][x]`
+                is derivative of `stationarystate[r][x]` with respect
+                to `param`. If `param` is an array, then
+                `dstationarystate[i][r][x]` is derivative of
+                `stationarystate[r][x]` with respect to `param[i]`.
         """
         pass
 
@@ -260,7 +261,7 @@ class ExpCM(Model):
         `ln_pi_codon` (`numpy.ndarray` floats, shape `(nsites, N_CODON)`)
             Natural logarithm of `pi_codon`.
         `piAx_piAy`
-             (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
+            (`numpy.ndarray` floats, shape `(nsites, N_CODON, N_CODON)`)
             `piAx_piAy[r][x][y]` is ratio of preference for amino acid
             encoded by codon `x` divided by pref for that encoded by `y`.
         `piAx_piAy_beta`
@@ -361,7 +362,7 @@ class ExpCM(Model):
         # put prefs in pi
         self.pi = numpy.ndarray((self.nsites, N_AA), dtype='float')
         assert (isinstance(prefs, list) and
-                all([isinstance(x, dict) for x in prefs])),\
+                all((isinstance(x, dict) for x in prefs))),\
             "prefs is not a list of dicts"
         for r in range(self.nsites):
             assert set(prefs[r].keys()) == set(AA_TO_INDEX.keys()),\
@@ -521,7 +522,7 @@ class ExpCM(Model):
         assert all(map(lambda x: x in self.freeparams, newvalues.keys())),\
             "Invalid entry in newvalues: {0}\nfreeparams: {1}".format(
                 ', '.join(newvalues.keys()), ', '.join(self.freeparams))
-        changed = set([])   # contains string names of changed params
+        changed = set([])  # contains string names of changed params
         for (name, value) in newvalues.items():
             _checkParam(name, value, self.PARAMLIMITS, self.PARAMTYPES)
             if isinstance(value, numpy.ndarray):
@@ -542,7 +543,7 @@ class ExpCM(Model):
         # Note also that not all attributes need to be updated
         # for all possible parameter changes, but just doing it
         # this way is much simpler and adds negligible cost.
-        if update_all or (changed and changed != set(['mu'])):
+        if update_all or (changed and changed != {'mu'}):
             self._update_pi_vars()
             self._update_phi()
             self._update_prx()
@@ -704,7 +705,8 @@ class ExpCM(Model):
         These are `pi_codon`, `ln_pi_codon`, `piAx_piAy`, `piAx_piAy_beta`,
         `ln_piAx_piAy_beta`.
 
-        Update using current `pi` and `beta`."""
+        Update using current `pi` and `beta`.
+        """
         with numpy.errstate(divide='raise', under='raise', over='raise',
                             invalid='raise'):
             for r in range(self.nsites):
@@ -718,7 +720,8 @@ class ExpCM(Model):
 
     def _update_Frxy(self):
         """
-        Update `Frxy` from `piAx_piAy_beta`,`ln_piAx_piAy_beta`,`omega`,`beta`.
+        Update `Frxy` from `piAx_piAy_beta`,`ln_piAx_piAy_beta`,
+        `omega`,`beta`.
         """
         self.Frxy.fill(1.0)
         self.Frxy_no_omega.fill(1.0)
@@ -879,8 +882,8 @@ class ExpCM(Model):
         codon `x` and differ from `x` by one nucleotide.
 
         When `norm` is `True`, the `omega_r` values above are divided by the
-        ExpCM `omega` value."""
-
+        ExpCM `omega` value.
+        """
         wr = []
         for r in range(self.nsites):
             num = 0
@@ -980,14 +983,13 @@ class ExpCM_fitprefs(ExpCM):
                 might differ from 1 if you already optimized `prefs` using
                 a fixed-preference `ExpCM` prior to initializing this model.
         """
-
         self.prior = prior
         if self.prior is None:
             pass
         elif (isinstance(self.prior, tuple) and len(self.prior) == 3 and
                 self.prior[0] == 'invquadratic'):
-            assert all([isinstance(c, (float, int)) and c > 0 for c
-                        in self.prior[1:]]),\
+            assert all((isinstance(c, (float, int)) and c > 0 for c
+                        in self.prior[1:])),\
               ("Invalid C values in elements in prior: {0}".format(self.prior))
         else:
             raise ValueError("Invalid prior: {0}".format(self.prior))
@@ -1036,7 +1038,8 @@ class ExpCM_fitprefs(ExpCM):
         `piAx_piAy`, `piAx_piAy_beta`, `ln_piAx_piAy_beta`, and `_logprior`.
 
         If `zeta` is undefined (as it will be on the first call), then create
-        `zeta` and `origpi` from `pi` and `origbeta`."""
+        `zeta` and `origpi` from `pi` and `origbeta`.
+        """
         minpi = self.PARAMLIMITS['pi'][0]
         if not hasattr(self, 'zeta'):
             # should only execute on first call to initialize zeta
@@ -1093,7 +1096,7 @@ class ExpCM_fitprefs(ExpCM):
             pass
         elif self.prior[0] == 'invquadratic':
             (priorstr, c1, c2) = self.prior
-            self._dlogprior = dict([(param, 0.0) for param in self.freeparams])
+            self._dlogprior = {param: 0.0 for param in self.freeparams}
             self._dlogprior['zeta'] = numpy.zeros(self.zeta.shape,
                                                   dtype='float')
             j = 0
@@ -1179,7 +1182,8 @@ class ExpCM_fitprefs2(ExpCM_fitprefs):
         `piAx_piAy`, `piAx_piAy_beta`, `ln_piAx_piAy_beta`, and `_logprior`.
 
         If `zeta` is undefined (as it will be on the first call), then create
-        `zeta` and `origpi` from `pi` and `origbeta`."""
+        `zeta` and `origpi` from `pi` and `origbeta`.
+        """
         minpi = self.PARAMLIMITS['pi'][0]
         if not hasattr(self, 'zeta'):
             # should only execute on first call to initialize zeta
@@ -1228,12 +1232,12 @@ class ExpCM_fitprefs2(ExpCM_fitprefs):
                                          < ALMOST_ZERO)))
 
         self._logprior = 0.0
-        self._dlogprior = dict([(param, 0.0) for param in self.freeparams])
+        self._dlogprior = {param: 0.0 for param in self.freeparams}
         if self.prior is None:
             pass
         elif self.prior[0] == 'invquadratic':
             (priorstr, c1, c2) = self.prior
-            self._dlogprior = dict([(param, 0.0) for param in self.freeparams])
+            self._dlogprior = {param: 0.0 for param in self.freeparams}
             self._dlogprior['zeta'] = numpy.zeros(self.zeta.shape,
                                                   dtype='float')
             j = 0
@@ -1335,7 +1339,6 @@ class ExpCM_empirical_phi(ExpCM):
             `g`
                 Has the meaning described in the main class doc string.
         """
-
         _checkParam('g', g, self.PARAMLIMITS, self.PARAMTYPES)
         assert abs(1 - g.sum()) <= ALMOST_ZERO, "g doesn't sum to 1"
         self.g = g.copy()
@@ -1376,7 +1379,6 @@ class ExpCM_empirical_phi(ExpCM):
         the current `beta` attribute.
 
         Initial guess is current value of `phi` attribute."""
-
         def F(phishort):
             """Difference between `g` and expected `g` given `phishort`."""
             phifull = numpy.append(phishort, 1 - phishort.sum())
@@ -1504,7 +1506,8 @@ class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
 
     def _update_Frxy(self):
         """
-        Update `Frxy` from `piAx_piAy_beta`, `omega`, `omega2`, and `beta`.
+        Update `Frxy` from `piAx_piAy_beta`, `omega`,
+        `omega2`, and `beta`.
         """
         self.Frxy.fill(1.0)
         self.Frxy_no_omega.fill(1.0)
@@ -1720,7 +1723,7 @@ class YNGKP_M0(Model):
         self._mu = value
 
     def _calculate_correctedF3X4(self):
-        '''Calculate `phi` based on the empirical `e_pw` values'''
+        """Calculate `phi` based on the empirical `e_pw` values"""
         def F(phi):
             phi_reshape = phi.reshape((3, N_NT))
             functionList = []
@@ -1782,7 +1785,7 @@ class YNGKP_M0(Model):
         # Note also that not all attributes need to be updated
         # for all possible parameter changes, but just doing it
         # this way is much simpler and adds negligible cost.
-        if update_all or (changed and changed != set(['mu'])):
+        if update_all or (changed and changed != {'mu'}):
             self._update_Pxy()
             self._update_Pxy_diag()
             self._update_dPxy()
@@ -1949,14 +1952,16 @@ class DistributionModel(six.with_metaclass(abc.ABCMeta, Model)):
         drawn from a distribution. This gives such a base model.
         Parameters of this base model that are **not** distributed
         among sites will be current, but the distributed parameter
-        will not."""
+        will not.
+        """
         pass
 
     @abc.abstractproperty
     def distributedparam(self):
         """String giving name of parameter drawn from the distribution.
 
-        This parameter must be in `freeparams`."""
+        This parameter must be in `freeparams`.
+        """
         pass
 
     @abc.abstractproperty
@@ -2116,14 +2121,15 @@ class GammaDistributedModel(DistributionModel):
 
     @property
     def distributedparam(self):
-        """Returns name of the distributed parameter. """
+        """Returns name of the distributed parameter."""
         return self._lambda_param
 
     @property
     def distributionparams(self):
         """Returns list of params defining distribution of `distributedparam`.
 
-        This list is `['alpha_lambda', 'beta_lambda']`."""
+        This list is `['alpha_lambda', 'beta_lambda']`.
+        """
         return ['alpha_lambda', 'beta_lambda']
 
     def __init__(self, model, lambda_param, ncats, alpha_lambda=1.0,
@@ -2157,7 +2163,7 @@ class GammaDistributedModel(DistributionModel):
         self.alpha_lambda = alpha_lambda
         self.beta_lambda = beta_lambda
         self._models = []  # holds array of models for each category
-        for k in range(self.ncats):
+        for _k in range(self.ncats):
             self._models.append(copy.deepcopy(model))
 
         self._freeparams = copy.copy(freeparams)
@@ -2223,8 +2229,8 @@ class GammaDistributedModel(DistributionModel):
 
         newvalues_list = [{} for k in range(self.ncats)]
 
-        if update_all or any([param in self.distributionparams for param
-                              in newvalues.keys()]):
+        if update_all or any((param in self.distributionparams for param
+                              in newvalues.keys())):
             self._d_distributionparams = {}
             for param in self.distributionparams:
                 if param in newvalues:
@@ -2255,8 +2261,8 @@ class GammaDistributedModel(DistributionModel):
         for param in self.freeparams:
             if param not in self.distributionparams:
                 pvalue = getattr(self, param)
-                assert all([numpy.allclose(pvalue, getattr(model, param))
-                           for model in self._models]), (
+                assert all((numpy.allclose(pvalue, getattr(model, param))
+                           for model in self._models)), (
                            "{0}\n{1}".format(pvalue,
                                              '\n'.join([str(getattr(model,
                                                                     param)) for
@@ -2302,7 +2308,7 @@ class GammaDistributedModel(DistributionModel):
     def mu(self):
         """See docs for `Model` abstract base class."""
         mu = self._models[0].mu
-        assert all([mu == model.mu for model in self._models])
+        assert all((mu == model.mu for model in self._models))
         return mu
 
     @mu.setter
@@ -2493,7 +2499,6 @@ class GammaDistributedBetaModel(GammaDistributedModel):
                 Meaning described in main class doc string for
                 `GammaDistributedModel`.
         """
-
         # set new limits so the maximum value of `beta` is equal to or
         # greater than the maximum `beta` inferred from the gamma distribution
         # with the constrained `alpha_beta` and `beta_beta` parameters
@@ -2508,8 +2513,8 @@ class GammaDistributedBetaModel(GammaDistributedModel):
          .__init__(model, "beta", ncats, alpha_lambda=1.0, beta_lambda=2.0,
                    freeparams=['alpha_lambda', 'beta_lambda']))
 
-        assert all([numpy.allclose(new_max_beta, m.PARAMLIMITS["beta"][1])
-                   for m in self._models]), (
+        assert all((numpy.allclose(new_max_beta, m.PARAMLIMITS["beta"][1])
+                   for m in self._models)), (
                    "{0}\n{1}".format(new_max_beta,
                                      '\n'.join([m.PARAMLIMITS["beta"][1]
                                                 for m in self._models])))
