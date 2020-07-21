@@ -1,0 +1,5 @@
+[flake8]
+exclude = docs
+application-import-names = phydmslib
+ignore = E121,E123,E126,E226,E24,E704,W503,W504,W506,D205,D400,D401,RST303,RST304
+per-file-ignores = phydmslib/utils.py:F401,phydmslib/weblogo.py:E241,phydmslib/file_io.py:F401
