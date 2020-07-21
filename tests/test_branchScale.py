@@ -100,7 +100,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
                 nsubs += len([j for j in range(3) if codon1[j] != codon2[j]])
             tl = phydmslib.treelikelihood.TreeLikelihood(biotree, a, model)
             tl.maximizeLikelihood()
-            treedist += sum([n.branch_length for n in tl.tree.get_terminals()])
+            treedist += sum((n.branch_length for n in tl.tree.get_terminals()))
         nsubs /= float(nsites * nreplicates)
         treedist /= float(nreplicates)
 

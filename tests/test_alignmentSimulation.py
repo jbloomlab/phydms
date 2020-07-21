@@ -99,7 +99,7 @@ class test_simulateAlignment_ExpCM(unittest.TestCase):
         nsubs /= float(nsites)
         tl = phydmslib.treelikelihood.TreeLikelihood(biotree, a, model)
         tl.maximizeLikelihood()
-        treedist += sum([n.branch_length for n in tl.tree.get_terminals()])
+        treedist += sum((n.branch_length for n in tl.tree.get_terminals()))
 
         # We expect nsubs = t, but build in some tolerance
         # with rtol since we simulated finite number of sites.

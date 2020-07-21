@@ -22,6 +22,7 @@ matplotlib.use('pdf')
 
 class test_DiffPrefsBySiteExpCM(unittest.TestCase):
     """Tests ``--diffprefsbysite`` to ``phydms`` for `ExpCM`."""
+
     gammaomega_arg = []
 
     def setUp(self):
@@ -40,7 +41,7 @@ class test_DiffPrefsBySiteExpCM(unittest.TestCase):
         aas = [INDEX_TO_AA[a] for a in range(N_AA)]
         self.shuffledsites = random.sample(sorted(prefs.keys()), 10)
         self.targetaas = {r: random.choice(aas) for r in self.shuffledsites}
-        prefs = [prefs[r] for r in sorted(list(prefs.keys()))]
+        prefs = [prefs[r] for r in sorted(prefs.keys())]
         hipref = 0.9
         lowpref = (1.0 - hipref) / (N_AA - 1)
         for r in self.shuffledsites:

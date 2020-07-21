@@ -11,7 +11,8 @@ import subprocess
 
 class TestPrepAlignment(unittest.TestCase):
     """
-    Runs ``phydms_prepalignment`` on test data, compares to known results.
+    Runs ``phydms_prepalignment`` on test data, compares to
+    known results.
     """
 
     def setUp(self):

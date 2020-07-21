@@ -114,10 +114,10 @@ class test_GammaBeta_ExpCM(unittest.TestCase):
                     if param not in gammamodel.distributionparams:
                         self.assertTrue(
                             all(
-                                [
+                                (
                                     numpy.allclose(pvalue, getattr(m, param))
                                     for m in gammamodel._models
-                                ]
+                                )
                             )
                         )
 
@@ -180,28 +180,28 @@ class test_GammaBeta_ExpCM(unittest.TestCase):
             # Stationary states should be different for each `k`
             self.assertFalse(
                 all(
-                    [
+                    (
                         numpy.allclose(
                             gammamodel.stationarystate(i),
                             gammamodel.stationarystate(j)
                         )
                         for i in range(gammamodel.ncats)
                         for j in range(i + 1, gammamodel.ncats)
-                    ]
+                    )
                 )
             )
             # The derviative of the stationary states should be different with
             # respect to beta for each `k`
             self.assertFalse(
                 all(
-                    [
+                    (
                         numpy.allclose(
                             gammamodel.dstationarystate(i, "beta"),
                             gammamodel.dstationarystate(j, "beta"),
                         )
                         for i in range(gammamodel.ncats)
                         for j in range(i + 1, gammamodel.ncats)
-                    ]
+                    )
                 )
             )
 

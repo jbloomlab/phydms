@@ -131,7 +131,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         self.assertTrue(tl.nseqs == self.nseqs)
         self.assertTrue(tl.nnodes == tl.ninternal + tl.ntips)
         self.assertTrue(tl.ntips == self.nseqs)
-        self.assertTrue(all([t > 0 for t in tl.t]))
+        self.assertTrue(all((t > 0 for t in tl.t)))
         for n in range(tl.ntips, tl.nnodes):
             for descend in [tl.rdescend, tl.ldescend]:
                 i = n - tl.ntips

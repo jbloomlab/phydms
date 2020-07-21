@@ -33,7 +33,7 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
         minpref = 0.001
         self.prefs = []
         self.realprefs = []
-        for _r in range(nsites):
+        for r in range(nsites):
             rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
@@ -107,7 +107,7 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
 
         logliks = [tl.loglik for tl in tls.values()]
         self.assertTrue(
-            all([numpy.allclose(logliks[0], logliki) for logliki in logliks]),
+            all((numpy.allclose(logliks[0], logliki) for logliki in logliks)),
             "All loglik should be equal prior to optimization as pi "
             "starts at initial origpi values.",
         )

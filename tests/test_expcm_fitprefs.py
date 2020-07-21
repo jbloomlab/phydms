@@ -197,8 +197,8 @@ class test_ExpCM_fitprefs(unittest.TestCase):
                                                 expcm_fitprefs.origpi))
                 if self.MODEL == phydmslib.models.ExpCM_fitprefs:
                     self.assertTrue(expcm_fitprefs.pi[r][i] > oldpi[r][i])
-                    self.assertTrue(all([expcm_fitprefs.pi[r][j] <
-                                    oldpi[r][j] for j in range(i + 1, N_AA)]))
+                    self.assertTrue(all((expcm_fitprefs.pi[r][j] <
+                                    oldpi[r][j] for j in range(i + 1, N_AA))))
                 elif self.MODEL == phydmslib.models.ExpCM_fitprefs2:
                     self.assertTrue(expcm_fitprefs.pi[r][i] < oldpi[r][i])
                     zeta[k] *= 2

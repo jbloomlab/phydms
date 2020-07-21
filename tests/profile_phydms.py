@@ -48,7 +48,9 @@ def main():
             outprefix = '{0}/{1}'.format(profiledir, name)
             for f in glob.glob('{0}*'.format(outprefix)):
                 os.remove(f)
-            cmd = ['phydms', alignment, tree, model, outprefix, '--profile'] + args
+            cmd = ['phydms', alignment, tree, model, outprefix,
+                   '--profile']
+            cmd = cmd + args
             pool[name] = (multiprocessing
                           .Process(target=subprocess.check_call,
                                    args=(cmd,),

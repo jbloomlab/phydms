@@ -107,14 +107,10 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
                     self.assertTrue(numpy.allclose(pvalue,
                                                    getattr(gammamodel, param)))
                     if param not in gammamodel.distributionparams:
-                        self.assertTrue(
-                            all(
-                                [
-                                    numpy.allclose(pvalue, getattr(m, param))
-                                    for m in gammamodel._models
-                                ]
-                            )
-                        )
+                        self.assertTrue(all(
+                                            (numpy.allclose(pvalue,
+                                                            getattr(m, param))
+                                             for m in gammamodel._models)))
 
             self.assertTrue(
                 gammamodel._models[0].branchScale
