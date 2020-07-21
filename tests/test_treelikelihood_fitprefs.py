@@ -89,40 +89,29 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
     def test_fitprefs_invquadratic_prior(self):
         """Tests fitting of preferences with invquadratic prior."""
         tls = {"no prior": copy.deepcopy(self.tl)}
-        for (name, c1, c2) in [
-            ("weak prior", 100, 0.25),
-            ("strong C1 prior", 200, 0.25),
-            ("strong C2 prior", 100, 0.75),
-        ]:
-            model = self.MODEL(
-                self.prefs,
-                prior=("invquadratic", c1, c2),
-                kappa=self.kappa,
-                omega=self.omega,
-                phi=self.phi,
-            )
-            tls[name] = phydmslib.treelikelihood.TreeLikelihood(
-                self.tree, self.alignment, model
-            )
+        for (name, c1, c2) in [("weak prior", 100, 0.25),
+                               ("strong C1 prior", 200, 0.25),
+                               ("strong C2 prior", 100, 0.75)]:
+            model = self.MODEL(self.prefs, prior=("invquadratic", c1, c2),
+                               kappa=self.kappa, omega=self.omega,
+                               phi=self.phi)
+            tls[name] = phydmslib.treelikelihood.TreeLikelihood(self.tree,
+                                                                self.alignment,
+                                                                model)
 
         logliks = [tl.loglik for tl in tls.values()]
         self.assertTrue(
             all((numpy.allclose(logliks[0], logliki) for logliki in logliks)),
             "All loglik should be equal prior to optimization as pi "
-            "starts at initial origpi values.",
-        )
+            "starts at initial origpi values.")
 
         for (_name, tl) in tls.items():
             tl.maximizeLikelihood()
 
-        self.assertTrue(
-            [
-                tls["no prior"].loglik > tl.loglik
-                for (name, tl) in tls.items()
-                if name != "no prior"
-            ],
-            "Unconstrained model does not have the highest loglik.",
-        )
+        (self
+         .assertTrue([tls["no prior"].loglik > tl.loglik
+                      for (name, tl) in tls.items() if name != "no prior"],
+                     "Unconstrained model does not have the highest loglik."))
 
         self.assertTrue(
             [
@@ -133,22 +122,12 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
             "Weak prior does not have higher loglik than strong prior.",
         )
 
-        pidiff2 = {name: ((tl.model.pi - tl.model.origpi) ** 2).sum()
-                   for (_name, tl) in tls.items()}
-        self.assertTrue(
-            [
-                pidiff2["no prior"] > x
-                for (name, x) in pidiff2.items()
-                if name != "no prior"
-            ]
-        )
-        self.assertTrue(
-            [
-                pidiff2["weak prior"] > x
-                for (name, x) in pidiff2.items()
-                if "strong" in name
-            ]
-        )
+        pidiff2 = {name: (((tl.model.pi - tl.model.origpi)**2).sum()) for
+                   (name, tl) in tls.items()}
+        self.assertTrue([pidiff2["no prior"] > x for (name, x)
+                         in pidiff2.items() if name != "no prior"])
+        self.assertTrue([pidiff2["weak prior"] > x for (name, x)
+                         in pidiff2.items() if "strong" in name])
 
     def test_fitprefs_noprior(self):
         """Tests fitting of preferences with no prior."""
