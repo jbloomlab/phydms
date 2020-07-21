@@ -43,7 +43,7 @@ def pyvolvePartitions(model, divselection=None):
     else:
         divsites = []
 
-    assert all([1 <= r <= model.nsites for r in divsites])
+    assert all((1 <= r <= model.nsites for r in divsites))
 
     partitions = []
     for r in range(model.nsites):

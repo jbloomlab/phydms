@@ -61,8 +61,8 @@ def modelComparisonDataFrame(modelcomparisonfile, splitparams):
     if splitparams:
         for (i, paramstr) in df['ParamValues'].iteritems():
             paramsdict[i] = dict(map(lambda tup: (tup[0], float(tup[1])),
-                                 [param.strip().split('=') for param in
-                                 paramstr.split(',')]))
+                                 (param.strip().split('=') for param in
+                                 paramstr.split(','))))
         params_df = pandas.DataFrame.from_dict(paramsdict, orient='index')
         params_df = params_df[sorted(params_df.columns)]
         df = (df.join(params_df)

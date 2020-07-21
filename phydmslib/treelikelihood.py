@@ -195,13 +195,13 @@ class TreeLikelihood(object):
         self.model = copy.deepcopy(model)
         self.nsites = self.model.nsites
 
-        assert isinstance(alignment, list) and all([isinstance(tup, tuple)
-               and len(tup) == 2 for tup in alignment]), ("alignment is not "
+        assert isinstance(alignment, list) and all((isinstance(tup, tuple)
+               and len(tup) == 2 for tup in alignment)), ("alignment is not "
                                                           "list of (head, seq)"
                                                           " 2-tuples")
-        assert all([len(seq) == 3 * self.nsites for (head, seq) in alignment])
-        assert set([head for (head, seq) in alignment]) ==\
-               (set([clade.name for clade in tree.get_terminals()]))
+        assert all((len(seq) == 3 * self.nsites for (head, seq) in alignment))
+        assert set((head for (head, seq) in alignment)) ==\
+               (set((clade.name for clade in tree.get_terminals())))
         self.alignment = copy.deepcopy(alignment)
         self.nseqs = len(alignment)
         alignment_d = dict(self.alignment)
@@ -950,7 +950,8 @@ class TreeLikelihood(object):
     def _sub_index_param(self, param):
         """Returns list of sub-indexes for `param`.
 
-        Used in computing partial likelihoods; loop over these indices."""
+        Used in computing partial likelihoods; loop over these indices.
+        """
         if self._distributionmodel and (param ==
                                         self.model.distributedparam):
             indices = [()]

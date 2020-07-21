@@ -384,10 +384,10 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
             ydatamax *= 2.0
             f.write('ID ID\nBF BF\nP0 %s\n' % ' '.join(chars_for_string))
             for (isite, r) in enumerate(sites):
-                positivesum = sum([data[r][x] for x in characters
-                                   if data[r][x] > 0]) + separatorheight / 2.0
-                negativesum = sum([data[r][x] for x in characters
-                                   if data[r][x] < 0]) - separatorheight / 2.0
+                positivesum = sum((data[r][x] for x in characters
+                                   if data[r][x] > 0)) + separatorheight / 2.0
+                negativesum = sum((data[r][x] for x in characters
+                                   if data[r][x] < 0)) - separatorheight / 2.0
                 if abs(positivesum + negativesum) > 1.0e-3:
                     raise ValueError("Differential preferences sum of %s is "
                                      "not close to zero for site %s"
@@ -433,10 +433,10 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
             f.write('ID ID\nBF BF\nP0 {0}\n'
                     .format(' '.join(chars_for_string)))
             for (isite, r) in enumerate(sites):
-                positivesum = sum([data[r][x] for x in characters
-                                  if data[r][x] > 0]) + separatorheight / 2.0
-                negativesum = sum([data[r][x] for x in characters
-                                  if data[r][x] < 0]) - separatorheight / 2.0
+                positivesum = sum((data[r][x] for x in characters
+                                  if data[r][x] > 0)) + separatorheight / 2.0
+                negativesum = sum((data[r][x] for x in characters
+                                  if data[r][x] < 0)) - separatorheight / 2.0
                 assert positivesum <= dataymax, ("Data exceeds ylimits in "
                                                  "positive direction")
                 assert negativesum >= dataymin, ("Data exceeds ylimits in "
@@ -635,7 +635,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
 
 # Replicates README.txt
 def _my_pdf_formatter(data, pdfformat, ordered_alphabets):
-    """ Generate a logo in PDF format.
+    """Generate a logo in PDF format.
 
     Modified from weblogo version 3.4 source code.
     """
@@ -645,7 +645,7 @@ def _my_pdf_formatter(data, pdfformat, ordered_alphabets):
 
 
 def _my_eps_formatter(logodata, format, ordered_alphabets):
-    """ Generate a logo in Encapsulated Postscript (EPS)
+    """Generate a logo in Encapsulated Postscript (EPS)
 
     Modified from weblogo version 3.4 source code.
 
@@ -865,10 +865,9 @@ class _my_Motif(corebio.matrix.AlphabeticArray):
 
     @staticmethod  # TODO: should be classmethod?
     def read_transfac(fin, alphabet=None):
-        """ Parse a sequence matrix from a file.
+        """Parse a sequence matrix from a file.
         Returns a tuple of (alphabet, matrix)
         """
-
         items = []
 
         start = True
@@ -1053,18 +1052,18 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin,
     prop_types = {}
     for (prop_d, shortname, longname) in overlay:
         if shortname == longname == 'wildtype':
-            assert all([(isinstance(prop, str) and len(prop) == 1) for
-                        prop in prop_d.values()]),\
+            assert all(((isinstance(prop, str) and len(prop) == 1) for
+                        prop in prop_d.values())),\
                         'prop_d does not give letters'
             proptype = 'wildtype'
             (vmin, vmax) = (0, 1)  # not used, but need to be assigned
             propcategories = None  # not used, but needs to be assigned
-        elif all([isinstance(prop, str) for prop in prop_d.values()]):
+        elif all((isinstance(prop, str) for prop in prop_d.values())):
             proptype = 'discrete'
             propcategories = list(set(prop_d.values()))
             propcategories.sort()
             (vmin, vmax) = (0, len(propcategories) - 1)
-        elif all([isinstance(prop, (int, float)) for prop in prop_d.values()]):
+        elif all((isinstance(prop, (int, float)) for prop in prop_d.values())):
             proptype = 'continuous'
             propcategories = None
             (vmin, vmax) = (min(prop_d.values()), max(prop_d.values()))
@@ -1238,7 +1237,7 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin,
                                 orientation='horizontal',
                                 boundaries=list(range(len(propcategories) + 1)
                                                 ),
-                                values=[i for i in range(len(propcategories))])
+                                values=list(range(len(propcategories))))
             cb.set_ticks([i + 0.5 for i in range(len(propcategories))])
             cb.set_ticklabels(propcategories)
         else:

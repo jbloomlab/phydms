@@ -106,7 +106,7 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
     assert seqs, "{0} failed to specify any sequences".format(fastafile)
 
     seqlen = len(seqs[0][1])
-    if not all([len(seq) == seqlen for (head, seq) in seqs]):
+    if not all((len(seq) == seqlen for (head, seq) in seqs)):
         raise ValueError(("All sequences in {0} are not of the same length; "
                           "they must not be properly aligned")
                          .format(fastafile))
@@ -140,29 +140,29 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
         terminalcodon.append(aa)
 
     for (icodon, codonlist) in codons_by_position.items():
-        if all([codon == '---' for codon in codonlist]):
+        if all((codon == '---' for codon in codonlist)):
             raise ValueError(("In {0}, all codons are gaps at position {1}")
                              .format(fastafile, icodon + 1))
 
-    if all([aa in ['*', '-'] for aa in terminalcodon]):
+    if all((aa in ['*', '-'] for aa in terminalcodon)):
         if len(seq) == 3:
             raise ValueError(("The only codon is a terminal stop codon for "
                               "the sequences in {0}").format(fastafile))
         seqs = [(head, seq[: -3]) for (head, seq) in seqs]
-    elif any([aa == '*' for aa in terminalcodon]):
+    elif any((aa == '*' for aa in terminalcodon)):
         raise ValueError(("Only some sequences in {0} have a terminal stop "
                           "codon. All or none must have terminal stop.")
                          .format(fastafile))
 
-    if any([gapmatch.search(seq) for (head, seq) in seqs]):
+    if any((gapmatch.search(seq) for (head, seq) in seqs)):
         raise ValueError(("In {0}, at least one sequence is entirely composed "
                           "of gaps.").format(fastafile))
 
     if checknewickvalid:
-        if len(set([head for (head, seq) in seqs])) != len(seqs):
+        if len(set((head for (head, seq) in seqs))) != len(seqs):
             raise ValueError("Headers in {0} not all unique".format(fastafile))
         disallowedheader = re.compile(r'[\s\:\;\(\)\[\]\,\'\"]')
-        for (head, seq) in seqs:
+        for (head, _seq) in seqs:
             if disallowedheader.search(head):
                 raise ValueError(("Invalid character in header in {0}:"
                                   "\n{1}").format(fastafile, head))
@@ -209,8 +209,8 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
         pandasformat = True
     except ValueError:
         pandasformat = False
-    if pandasformat and (set(df.columns) == aas.union(set(['site'])) or
-                         set(df.columns) == aas.union(set(['site', '*']))):
+    if pandasformat and (set(df.columns) == aas.union({'site'}) or
+                         set(df.columns) == aas.union({'site', '*'})):
         # read valid preferences as data frame
         sites = df['site'].tolist()
         prefs = {}
@@ -234,14 +234,14 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
                              .format(prefsfile))
         assert (min(sites) == 1 and max(sites) - min(sites)
                 == len(sites) - 1), "Sites not consecutive starting at 1"
-        prefs = dict([(int(r), rprefs) for (r, rprefs) in prefs.items()])
+        prefs = {int(r): rprefs for (r, rprefs) in prefs.items()}
     else:
         sites = [str(r) for r in sites]
         prefs = {str(r): rprefs for (r, rprefs) in prefs.items()}
 
     assert len(set(sites)) == len(sites), "Non-unique sites in prefsfiles"
-    assert (all([all([pi >= 0 for pi in rprefs.values()]) for rprefs in
-                prefs.values()])), ("prefs < 0 in prefsfile {0}"
+    assert (all((all((pi >= 0 for pi in rprefs.values())) for rprefs in
+                prefs.values()))), ("prefs < 0 in prefsfile {0}"
                                     .format(prefsfile))
     for r in list(prefs.keys()):
         rprefs = prefs[r]
@@ -260,11 +260,11 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
     for r in list(prefs.keys()):
         rprefs = prefs[r]
         iterations = 0
-        while any([pi < minpref for pi in rprefs.values()]):
-            rprefs = dict([(aa, max(1.1 * minpref, pi)) for (aa, pi)
-                           in rprefs.items()])
+        while any((pi < minpref for pi in rprefs.values())):
+            rprefs = {aa: max(1.1 * minpref, pi) for (aa, pi)
+                      in rprefs.items()}
             newsum = float(sum(rprefs.values()))
-            rprefs = dict([(aa, pi / newsum) for (aa, pi) in rprefs.items()])
+            rprefs = {aa: (pi / newsum) for (aa, pi) in rprefs.items()}
             iterations += 1
             assert iterations <= 3, "minpref adjustment not converging."
         prefs[r] = rprefs
@@ -272,12 +272,12 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
     if randprefs:
         assert not avgprefs, "randprefs and avgprefs are incompatible"
         random.seed(seed)
-        sites = sorted([r for r in prefs.keys()])
+        sites = sorted(list(prefs.keys()))
         prefs = [prefs[r] for r in sites]
         random.shuffle(sites)
         prefs = dict(zip(sites, prefs))
     elif avgprefs:
-        avg_prefs = dict([(aa, 0.0) for aa in aas])
+        avg_prefs = {aa: 0.0 for aa in aas}
         for rprefs in prefs.values():
             for aa in aas:
                 avg_prefs[aa] += rprefs[aa]
@@ -343,8 +343,8 @@ def readPrefs_dms_tools_format(f):
                 if not len(entries) - i == len(characters):
                     raise ValueError("Header line does not have valid "
                                      "credible interval format:\n%s" % line)
-                if not all([entries[i + j] == 'PI_%s_95' % characters[j]
-                            for j in range(len(characters))]):
+                if not all((entries[i + j] == 'PI_%s_95' % characters[j]
+                            for j in range(len(characters)))):
                     raise ValueError("mean and credible interval character "
                                      "mismatch in header:\n%s" % line)
                 linelength = 2 * len(characters) + 3
@@ -367,15 +367,14 @@ def readPrefs_dms_tools_format(f):
                     "Valid possibilities: %s" % (entries[1], ', '
                                                  .join(characters)))
             h[r] = float(entries[2])
-            pi_means[r] = dict([(x, float(entries[3 + i])) for (i, x)
-                                in enumerate(characters)])
+            pi_means[r] = {x: float(entries[3 + i]) for (i, x)
+                           in enumerate(characters)}
             if pi_95credint is not None:
-                pi_95credint[r] = dict([(x,
-                                        (float(entries[3 + len(characters) + i]
-                                               .split(',')[0]),
-                                         float(entries[3 + len(characters) + i]
-                                               .split(',')[1])))
-                                        for (i, x) in enumerate(characters)])
+                pi_95credint[r] = {x: (float(entries[3 + len(characters)
+                                                     + i].split(',')[0]),
+                                       float(entries[3 + len(characters)
+                                                     + i].split(',')[1]))
+                                   for (i, x) in enumerate(characters)}
     return (sites, wts, pi_means, pi_95credint, h)
 
 
