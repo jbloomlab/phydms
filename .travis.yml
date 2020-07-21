@@ -20,6 +20,7 @@ services:
   - xvfb
 
 script:
+  - flake8
   - pytest
 
 branches:
