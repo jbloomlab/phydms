@@ -363,9 +363,9 @@ def readPrefs_dms_tools_format(f):
             sites.append(r)
             wts[r] = entries[1]
             assert entries[1] in characters or entries[1] == '?',\
-                   ("Character %s is not one of the valid ones in header. "
-                    "Valid possibilities: %s" % (entries[1], ', '
-                                                 .join(characters)))
+                ("Character %s is not one of the valid ones in header. "
+                 "Valid possibilities: %s" % (entries[1], ', '.join(characters)
+                                              ))
             h[r] = float(entries[2])
             pi_means[r] = {x: float(entries[3 + i]) for (i, x)
                            in enumerate(characters)}
@@ -407,10 +407,10 @@ def readDivPressure(fileName):
             df["divPressureValue"] = [x / scaleFactor for x
                                       in df["divPressureValue"]]
         assert len(df['site'].tolist()) == len(set(df['site'].tolist())),\
-               ("There is at >= non-unique site in {0}".format(fileName))
+            ("There is at >= non-unique site in {0}".format(fileName))
         assert max(df["divPressureValue"].abs()) <= 1,\
-               ("The scaling produced a diversifying pressure value with an "
-                "absolute value greater than one.")
+            ("The scaling produced a diversifying pressure value with an "
+             "absolute value greater than one.")
         sites = df['site'].tolist()
         divPressure = {}
         for r in sites:

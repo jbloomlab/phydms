@@ -430,7 +430,7 @@ class ExpCM(Model):
                 assert self.PARAMTYPES[param][0] == numpy.ndarray
                 paramshape = self.PARAMTYPES[param][1]
                 assert len(paramshape) == 1,\
-                       "Can't handle multi-dimensional ndarray"
+                    "Can't handle multi-dimensional ndarray"
                 paramlen = paramshape[0]
                 self.dPrxy[param] = numpy.zeros((paramlen, self.nsites,
                                                  N_CODON, N_CODON),

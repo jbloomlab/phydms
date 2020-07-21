@@ -475,10 +475,10 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
         # create web logo
         charstring = ''.join(chars_for_string)
         assert len(charstring) == len(chars_for_string),\
-               ("Length of charstring doesn't match length of "
-                "chars_for_string. Do you have unallowable multi-letter "
-                "characters?\n%s"
-                % (str(chars_for_string)))
+            ("Length of charstring doesn't match length of "
+             "chars_for_string. Do you have unallowable multi-letter "
+             "characters?\n%s"
+             % (str(chars_for_string)))
         logoprior = weblogolib.parse_prior('equiprobable', charstring, 0)
         motif = _my_Motif.read_transfac(open(transfacfile), charstring)
         logodata = weblogolib.LogoData.from_counts(motif.alphabet,
