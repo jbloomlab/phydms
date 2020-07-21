@@ -51,11 +51,11 @@ class test_compare_ExpCM_emp_phi_with_without_divpress(unittest.TestCase):
             omega2=omega2,
         )
 
-        self.assertTrue(
-            numpy.allclose(expcm.stationarystate, expcm_divpressure.stationarystate),
-            "stationarystate differs.",
-        )
-        self.assertTrue(numpy.allclose(expcm.Qxy, expcm_divpressure.Qxy), "Qxy differs")
+        self.assertTrue(numpy.allclose(expcm.stationarystate,
+                                       expcm_divpressure.stationarystate),
+                        "stationarystate differs.")
+        self.assertTrue(numpy.allclose(expcm.Qxy, expcm_divpressure.Qxy),
+                        "Qxy differs")
         self.assertTrue(
             numpy.allclose(expcm.Frxy, expcm_divpressure.Frxy), "Frxy differs"
         )
@@ -159,8 +159,8 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
         nt_freqs /= nt_freqs.sum()
         self.assertTrue(
             numpy.allclose(nt_freqs, self.model.g, atol=1e-5),
-            "Actual nt_freqs: {0}\nExpected (g): {1}".format(nt_freqs, self.model.g),
-        )
+            "Actual nt_freqs: {0}\nExpected (g): {1}"
+            .format(nt_freqs, self.model.g))
 
         def func_phi(beta, expcm, w):
             expcm.updateParams({"beta": beta[0]})
