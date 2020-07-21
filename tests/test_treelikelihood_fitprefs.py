@@ -79,8 +79,9 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
                             for r in range(nsites)}
         self.aacounts = {r: {a: 0 for a in range(N_AA)} for r in range(nsites)}
         for (_head, seq) in self.alignment:
-            self.codoncounts[r][seq] += 1
-            self.aacounts[r][CODON_TO_AA[CODON_TO_INDEX[seq]]] += 1
+            for r, i in enumerate(range(0, nsites+1, 3)):
+                self.codoncounts[r][seq[i: i+3]] += 1
+                self.aacounts[r][CODON_TO_AA[CODON_TO_INDEX[seq[i: i+3]]]] += 1
 
         self.tl = phydmslib.treelikelihood.TreeLikelihood(
             self.tree, self.alignment, self.model
