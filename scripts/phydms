@@ -499,13 +499,13 @@ def main():
                     mapfunc = pool.imap
                 else:
                     mapfunc = map
-                omegaresults += mapfunc(fitOmegaBySite,
-                                        [treeliksForOmegaBySite(site,
-                                                                tl,
-                                                                prefslist,
-                                                                args['omegabysite_fixsyn'],
-                                                                args['nograd'])
-                                         for site in currentsites])
+                treelks = [treeliksForOmegaBySite(site,
+                                                  tl,
+                                                  prefslist,
+                                                  args['omegabysite_fixsyn'],
+                                                  args['nograd'])
+                           for site in currentsites]
+                omegaresults += mapfunc(fitOmegaBySite, treelks)
                 if ncpus > 1:
                     pool.close()
                     pool.join()
@@ -563,15 +563,16 @@ def main():
                     mapfunc = pool.imap
                 else:
                     mapfunc = map
-                diffprefresults += mapfunc(fitDiffPrefsBySite,
-                                           [treelikForDiffPrefsBySite(site,
-                                                                      tl,
-                                                                      prefslist,
-                                                                      args['diffprefsprior'],
-                                                                      modeltype,
-                                                                      othermodeltype,
-                                                                      args['nograd'])
-                                            for site in currentsites])
+                # placeholder to avoid long line
+                treelks = [treelikForDiffPrefsBySite(site,
+                                                     tl,
+                                                     prefslist,
+                                                     args['diffprefsprior'],
+                                                     modeltype,
+                                                     othermodeltype,
+                                                     args['nograd'])
+                           for site in currentsites]
+                diffprefresults += mapfunc(fitDiffPrefsBySite, treelks)
                 if ncpus > 1:
                     pool.close()
                     pool.join()
