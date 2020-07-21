@@ -1097,7 +1097,7 @@ class ExpCM_fitprefs(ExpCM):
             pass
         elif self.prior[0] == 'invquadratic':
             (priorstr, c1, c2) = self.prior
-            self._dlogprior = {param" 0.0 for param in self.freeparams}
+            self._dlogprior = {param: 0.0 for param in self.freeparams}
             self._dlogprior['zeta'] = numpy.zeros(self.zeta.shape,
                                                   dtype='float')
             j = 0
