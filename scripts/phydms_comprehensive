@@ -346,9 +346,9 @@ def main():
                     for fname in [outprefixes[modelname] + suffix for suffix
                                   in filesuffixes[modelname]]:
                         if not os.path.isfile(fname):
-                            raise RuntimeError("phydms failed to created"
-                                               " expected output file {0}."
-                                               .format(fname))
+                            raise RuntimeError(
+                                "phydms failed to created expected output "
+                                "file {0}.".format(fname))
                         logger.info("Found expected output file {0}"
                                     .format(fname))
                     logger.info('Analysis successful for {0}\n'

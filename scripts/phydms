@@ -322,8 +322,7 @@ def main():
                                     .format(nt, g[w]) for (w, nt) in
                                     phydmslib.constants.INDEX_TO_NT.items()])))
                 if not args['divpressure']:
-                    model = (phydmslib
-                             .models
+                    model = (phydmslib.models
                              .ExpCM_empirical_phi(prefslist, g,
                                                   freeparams=freeparams))
                 else:
@@ -383,13 +382,11 @@ def main():
         tree = Bio.Phylo.read(args['tree'], 'newick')
         tipnames = set([clade.name for clade in tree.get_terminals()])
         assert len(tipnames) == tree.count_terminals(), "non-unique tip names?"
-        assert tipnames == seqnames, ("Names in alignment do not match those "
-                                      "in tree.\nSequences in alignment but "
-                                      "NOT in tree:\n\t{0}\n Sequences in "
-                                      "tree but NOT in alignment:\n\t{1}"
-                                      .format('\n\t'.join(seqnames - tipnames),
-                                              '\n\t'.join(tipnames - seqnames))
-                                      )
+        assert tipnames == seqnames, (
+            "Names in alignment do not match those in tree.\nSequences in "
+            "alignment but NOT in tree:\n\t{0}\n Sequences in tree but NOT in "
+            "alignment:\n\t{1}".format('\n\t'.join(seqnames - tipnames),
+                                       '\n\t'.join(tipnames - seqnames)))
         logger.info('Tree has {0} tips.'.format(len(tipnames)))
         tree.root_at_midpoint()
         assert tree.is_bifurcating(), "Tree is not bifurcating: cannot handle"
@@ -563,16 +560,14 @@ def main():
                     mapfunc = pool.imap
                 else:
                     mapfunc = map
-                # placeholder to avoid long line
-                treelks = [treelikForDiffPrefsBySite(site,
-                                                     tl,
-                                                     prefslist,
-                                                     args['diffprefsprior'],
-                                                     modeltype,
-                                                     othermodeltype,
-                                                     args['nograd'])
-                           for site in currentsites]
-                diffprefresults += mapfunc(fitDiffPrefsBySite, treelks)
+                diffprefresults += mapfunc(
+                    fitDiffPrefsBySite, [
+                        treelikForDiffPrefsBySite(site, tl, prefslist,
+                                                  args['diffprefsprior'],
+                                                  modeltype,
+                                                  othermodeltype,
+                                                  args['nograd'])
+                        for site in currentsites])
                 if ncpus > 1:
                     pool.close()
                     pool.join()
