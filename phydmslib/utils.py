@@ -2,8 +2,8 @@
 
 
 import pandas
-import tempfile
-import numpy
+import tempfile  # noqa: F401
+import numpy  # noqa: F401
 
 
 def modelComparisonDataFrame(modelcomparisonfile, splitparams):

@@ -2,7 +2,7 @@
 
 
 import sys
-import io
+import io  # noqa: F401
 import re
 import time
 import platform

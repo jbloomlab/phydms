@@ -158,10 +158,10 @@ def FunctionalGroupColorMapping(maptype='jet', reverse=False):
 
 def LogoPlot(sites, datatype, data, plotfile, nperline,
              numberevery=10, allowunsorted=False, ydatamax=1.01,
-             overlay=None, fix_limits={}, fixlongname=False,
-             overlay_cmap=None, ylimits=None, relativestackheight=1,
-             custom_cmap='jet', map_metric='kd', noseparator=False,
-             underlay=False, scalebar=False):
+             overlay=None, fix_limits={},  # noqa: F401
+             fixlongname=False, overlay_cmap=None, ylimits=None,
+             relativestackheight=1, custom_cmap='jet', map_metric='kd',
+             noseparator=False, underlay=False, scalebar=False):
     """Create sequence logo showing amino-acid or nucleotide preferences.
 
     The heights of each letter is equal to the preference of
@@ -284,7 +284,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
       colormapping.
 
     * *noseparator* is only meaningful if *datatype* is 'diffsel' or
-      'diffprefs'.  If it set to *True*, then we do **not** print a black
+      'diffprefs'.  If it set to *True*, then we do **not** a black
       horizontal line to separate positive and negative values.
 
     * *underlay* if `True` then make an underlay rather than an overlay.
@@ -976,7 +976,7 @@ class _my_Motif(corebio.matrix.AlphabeticArray):
 
 
 def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin,
-                logoheight, barheight, barspacing, fix_limits={},
+                logoheight, barheight, barspacing, fix_limits={},  # noqa: F401
                 fixlongname=False, overlay_cmap=None, underlay=False,
                 scalebar=False):
     """Makes overlay for *LogoPlot*.

@@ -2,13 +2,3 @@
 exclude = docs,.eggs,setup.py,phydmslib/_metadata.py,phydmslib/__init__.py
 application-import-names = phydmslib
 ignore = E121,E123,E126,E226,E24,E704,W503,W504,W506,D205,D400,D401,RST303,RST304,I100,I101,I201,D301,D402,T001
-per-file-ignores =
-              phydmslib/utils.py:F401,
-              phydmslib/utils.py:B30,
-              phydmslib/weblogo.py:E241,
-              phydmslib/weblogo.py:B006,
-              phydmslib/weblogo.py:A002,
-              phydmslib/file_io.py:F401,
-              phydmslib/models.py:RST301,
-              phydmslib/models.py:RST201,
-              tests/profile_phydms.py:T001
