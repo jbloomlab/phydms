@@ -418,7 +418,7 @@ def readDivPressure(fileName):
                               .tolist()[0])
         return divPressure
     else:
-        raise ValueError('Could not file {0}'.format(fileName))
+        raise ValueError('Could not read file {0}'.format(fileName))
 
 
 if __name__ == '__main__':

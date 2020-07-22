@@ -655,20 +655,14 @@ class ExpCM(Model):
                                        )
             else:
                 if not paramisvec:
-                    # placeholders to avoid complicated nested function
-                    x = broadcastMatrixMultiply(self.B[param] * V, self.Ainv)
-                    y = broadcastGetCols(x, tips)
-                    dM_param = (broadcastMatrixVectorMultiply(self.A, y))
+                    dM_param = (broadcastMatrixVectorMultiply(self.A,
+                                                              broadcastGetCols(broadcastMatrixMultiply(self.B[param] * V, self.Ainv), tips)))  # noqa: E501
                 else:
                     dM_param = numpy.ndarray((paramlength, self.nsites,
                                               N_CODON), dtype='float')
                     for j in range(paramlength):
-                        # placeholders to avoid complicated nested function
-                        x = broadcastMatrixMultiply(self.B[param][j] * V,
-                                                    self.Ainv)
-                        y = broadcastGetCols(x, tips)
                         dM_param[j] = (broadcastMatrixVectorMultiply(self.A,
-                                                                     y))
+                                       broadcastGetCols(broadcastMatrixMultiply(self.B[param][j] * V, self.Ainv), tips)))  # noqa: E501
                 if gaps is not None:
                     if not paramisvec:
                         dM_param[gaps] = numpy.zeros(N_CODON, dtype='float')
@@ -728,11 +722,8 @@ class ExpCM(Model):
         with numpy.errstate(divide='raise', under='raise', over='raise',
                             invalid='ignore'):
             (numpy
-             .copyto(self.Frxy_no_omega, -self.ln_piAx_piAy_beta /
-                     (1 - self.piAx_piAy_beta),
-                     where=numpy.logical_and(CODON_NONSYN,
-                                             numpy.fabs(1 -
-                                                        self.piAx_piAy_beta)
+             .copyto(self.Frxy_no_omega, -self.ln_piAx_piAy_beta / (1 - self.piAx_piAy_beta),  # noqa: E501
+                     where=numpy.logical_and(CODON_NONSYN, numpy.fabs(1 - self.piAx_piAy_beta)  # noqa: E501
                                              > ALMOST_ZERO)))
         numpy.copyto(self.Frxy, self.Frxy_no_omega * self.omega,
                      where=CODON_NONSYN)
@@ -818,9 +809,7 @@ class ExpCM(Model):
                 assert isinstance(paramval, numpy.ndarray)\
                  and paramval.ndim == 1
                 for j in range(paramval.shape[0]):
-                    # placeholders to avoid complicated nested function
-                    x = broadcastMatrixMultiply(self.dPrxy[param][j], self.A)
-                    self.B[param][j] = (broadcastMatrixMultiply(self.Ainv, x))
+                    self.B[param][j] = (broadcastMatrixMultiply(self.Ainv, broadcastMatrixMultiply(self.dPrxy[param][j], self.A)))  # noqa: E501
 
     def _update_dprx(self):
         """Update `dprx`."""
@@ -855,7 +844,7 @@ class ExpCM(Model):
             m[r][self._diag_indices] -= numpy.sum(m[r], axis=1)
 
     def spielman_wr(self, norm=True):
-        """Returns list of site-specific omega values calc'd from the `ExpCM`.
+        """Calculate site-specific omega values the `ExpCM`.
 
             Args:
                 `norm` (bool)
@@ -1107,13 +1096,11 @@ class ExpCM_fitprefs(ExpCM):
                 self._logprior += rlogprior
                 for i in range(N_AA - 1):
                     zetari = self.zeta[j]
-                    self._dlogprior['zeta'][j] = (-2 * c1 * c2 *
-                                                  (pidiffr[i:] /
-                                                   (1 + c1 * pidiffr[i:] ** 2)
-                                                   * self.pi[r][i:] /
-                                                   (zetari - (aaindex == i)
-                                                      .astype('float')[i:]))
-                                                  .sum())
+                    self._dlogprior['zeta'][j] = (
+                        -2 * c1 * c2 *
+                        (pidiffr[i:] / (1 + c1 * pidiffr[i:] ** 2)
+                         * self.pi[r][i:] / (zetari - (aaindex == i)
+                         .astype('float')[i:])).sum())
                     j += 1
         else:
             raise ValueError("Invalid prior: {0}".format(self.prior))
@@ -1249,12 +1236,11 @@ class ExpCM_fitprefs2(ExpCM_fitprefs):
                 rlogprior = -c2 * numpy.log(1 + c1 * pidiffr**2).sum()
                 self._logprior += rlogprior
                 for i in range(N_AA - 1):
-                    self._dlogprior['zeta'][j] = ((-2 * c1 * c2 / zetasum) *
-                                                  (pidiffr /
-                                                   (1 + c1 * pidiffr**2) *
-                                                   ((aaindex == i)
-                                                    .astype('float') -
-                                                    self.pi[r])).sum())
+                    self._dlogprior['zeta'][j] = (
+                        (-2 * c1 * c2 / zetasum) * (
+                            pidiffr / (1 + c1 * pidiffr**2) * (
+                                (aaindex == i).astype('float')
+                                - self.pi[r])).sum())
                     j += 1
         else:
             raise ValueError("Invalid prior: {0}".format(self.prior))
@@ -1270,11 +1256,10 @@ class ExpCM_fitprefs2(ExpCM_fitprefs):
             for r in range(self.nsites):
                 for i in range(N_AA - 1):
                     zetari = self.zeta[j]
-                    self.dPrxy['zeta'][j][r] = (tildeFrxyQxy[r] *
-                                                (((i == self._aa_for_y)
-                                                 .astype('float') -
-                                                 (i == self._aa_for_x)
-                                                 .astype('float')) / zetari))
+                    self.dPrxy['zeta'][j][r] = (
+                        tildeFrxyQxy[r] * (
+                            ((i == self._aa_for_y).astype('float') -
+                             (i == self._aa_for_x).astype('float')) / zetari))
                     j += 1
             for j in range(self.dPrxy['zeta'].shape[0]):
                 _fill_diagonals(self.dPrxy['zeta'][j], self._diag_indices)
@@ -1288,12 +1273,11 @@ class ExpCM_fitprefs2(ExpCM_fitprefs):
             for r in range(self.nsites):
                 for i in range(N_AA - 1):
                     zetari = self.zeta[j]
-                    self.dprx['zeta'][j][r] = ((self.prx[r] / zetari) *
-                                               ((CODON_TO_AA == i)
-                                               .astype('float') -
-                                               ((CODON_TO_AA == i)
-                                                .astype('float') *
-                                                self.prx[r]).sum()))
+                    self.dprx['zeta'][j][r] = (
+                        (self.prx[r] / zetari) * (
+                            (CODON_TO_AA == i).astype('float') - (
+                                (CODON_TO_AA == i).astype('float')
+                                * self.prx[r]).sum()))
                     j += 1
 
 
@@ -1426,10 +1410,8 @@ class ExpCM_empirical_phi(ExpCM):
             for r in range(self.nsites):
                 self.dprx['beta'][r] += (self.prx[r] *
                                          (dphi_over_phi -
-                                          numpy.dot(dphi_over_phi,
-                                                    self.prx[r])
-                                          )
-                                         )
+                                          numpy.dot(dphi_over_phi, self.prx[r])
+                                          ))
 
 
 class ExpCM_empirical_phi_divpressure(ExpCM_empirical_phi):
@@ -1873,9 +1855,7 @@ class YNGKP_M0(Model):
         V = self._cached[('V', t)]
 
         with numpy.errstate(under='ignore'):  # don't worry if some values 0
-            # placeholder to avoid complicated nested function
-            x = broadcastMatrixMultiply(self.B[param] * V, self.Ainv)
-            dM_param = broadcastMatrixMultiply(self.A, x)
+            dM_param = broadcastMatrixMultiply(self.A, broadcastMatrixMultiply(self.B[param] * V, self.Ainv))  # noqa: E501
             if tips is None:
                 return numpy.tile(dM_param, (self.nsites, 1, 1))
             else:
@@ -2264,11 +2244,9 @@ class GammaDistributedModel(DistributionModel):
                 pvalue = getattr(self, param)
                 assert all((numpy.allclose(pvalue, getattr(model, param))
                            for model in self._models)), (
-                           "{0}\n{1}".format(pvalue,
-                                             '\n'.join([str(getattr(model,
-                                                                    param)) for
-                                                        model in
-                                                        self._models])))
+                           "{0}\n{1}".format(
+                            pvalue, '\n'.join([str(getattr(model, param)) for
+                                               model in self._models])))
 
     @property
     def paramsReport(self):
