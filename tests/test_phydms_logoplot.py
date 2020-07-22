@@ -20,23 +20,18 @@ class test_phydms_logoplot(unittest.TestCase):
             os.path.join(
                 os.path.dirname(__file__),
                 "./expected_NP_test_results/ExpCM_NP_prefs_short_"
-                "diffprefsbysite.txt",
-            )
-        )
+                "diffprefsbysite.txt"))
         self.omega = os.path.abspath(
             os.path.join(
                 os.path.dirname(__file__),
                 "./expected_NP_test_results/ExpCM_NP_prefs_short_"
-                "omegabysite.txt",
-            )
-        )
+                "omegabysite.txt"))
         self.prefs = os.path.abspath(
             os.path.join(os.path.dirname(__file__),
-                         "./NP_data/NP_prefs_short.csv")
-        )
+                         "./NP_data/NP_prefs_short.csv"))
         self.outprefix = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "./logoplot_test_results/")
-        )
+            os.path.join(os.path.dirname(__file__),
+                         "./logoplot_test_results/"))
         self.stringency = "2.99"
         if not os.path.isdir(self.outprefix):
             os.mkdir(self.outprefix)
@@ -46,20 +41,9 @@ class test_phydms_logoplot(unittest.TestCase):
         plotfile = os.path.join(self.outprefix, "prefs_logoplot.pdf")
         if os.path.isfile(plotfile):
             os.remove(plotfile)
-        subprocess.call(
-            [
-                "phydms_logoplot",
-                "--prefs",
-                self.prefs,
-                plotfile,
-                "--stringency",
-                self.stringency,
-                "--nperline",
-                "72",
-                "--mapmetric",
-                "charge",
-            ]
-        )
+        subprocess.call(["phydms_logoplot", "--prefs", self.prefs, plotfile,
+                         "--stringency", self.stringency, "--nperline", "72",
+                         "--mapmetric", "charge"])
         self.assertTrue(os.path.isfile(plotfile))
 
     def test_diffprefs_logoplot(self):
@@ -67,16 +51,8 @@ class test_phydms_logoplot(unittest.TestCase):
         plotfile = os.path.join(self.outprefix, "diffprefs_logoplot.pdf")
         if os.path.isfile(plotfile):
             os.remove(plotfile)
-        subprocess.call(
-            [
-                "phydms_logoplot",
-                "--diffprefs",
-                self.diffprefs,
-                plotfile,
-                "--nperline",
-                "72",
-            ]
-        )
+        subprocess.call(["phydms_logoplot", "--diffprefs", self.diffprefs,
+                        plotfile, "--nperline", "72"])
         self.assertTrue(os.path.isfile(plotfile))
 
     def test_omegaoverlay(self):
@@ -84,22 +60,9 @@ class test_phydms_logoplot(unittest.TestCase):
         plotfile = os.path.join(self.outprefix, "omegaoverlay_logoplot.pdf")
         if os.path.isfile(plotfile):
             os.remove(plotfile)
-        subprocess.call(
-            [
-                "phydms_logoplot",
-                "--prefs",
-                self.prefs,
-                plotfile,
-                "--stringency",
-                self.stringency,
-                "--nperline",
-                "72",
-                "--omegabysite",
-                self.omega,
-                "--minP",
-                "0.001",
-            ]
-        )
+        subprocess.call(["phydms_logoplot", "--prefs", self.prefs, plotfile,
+                         "--stringency", self.stringency, "--nperline", "72",
+                         "--omegabysite", self.omega, "--minP", "0.001"])
         self.assertTrue(os.path.isfile(plotfile))
 
 

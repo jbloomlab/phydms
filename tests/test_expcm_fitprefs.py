@@ -37,8 +37,7 @@ class test_ExpCM_fitprefs(unittest.TestCase):
         dFrxy_dpirAy_equal = omega * beta / (2 * pirAy)
         diffpref = 1.0e-5
         for _itest in range(5):
-            values = [[beta, 1],
-                      [pirAx, random.uniform(0.01, 0.5)],
+            values = [[beta, 1], [pirAx, random.uniform(0.01, 0.5)],
                       [pirAy, random.uniform(0.01, 0.5)],
                       [omega, random.uniform(0.1, 2.0)]]
             self.assertTrue(abs(values[1][1] - values[2][1]) > diffpref,

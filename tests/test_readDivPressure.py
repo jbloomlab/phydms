@@ -19,15 +19,11 @@ class test_readPrefs(unittest.TestCase):
             os.path.abspath(
                 os.path.join(
                     os.path.dirname(__file__),
-                    "./divpressure_tests/divpressure{0}".format(suffix),
-                )
-            )
-            for suffix in [".csv", ".tsv", ".txt"]
-        ]
+                    "./divpressure_tests/divpressure{0}".format(suffix)))
+            for suffix in [".csv", ".tsv", ".txt"]]
         self.assertTrue(
             all(map(os.path.isfile, self.divPressurefiles)),
-            "Cannot " "find divpressure needed for test.",
-        )
+            "Cannot " "find divpressure needed for test.")
 
     def test_readDivPressure(self):
         """Read divPresures in three different formats."""

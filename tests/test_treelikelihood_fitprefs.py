@@ -56,16 +56,15 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
                                                 phi=self.phi)
 
         treefile = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "./NP_data/NP_tree.newick")
-        )
+            os.path.join(os.path.dirname(__file__),
+                         "./NP_data/NP_tree.newick"))
         self.tree = Bio.Phylo.read(treefile, "newick")
         self.tree.root_at_midpoint()
 
         # simulate alignment using realmodel
         evolver = pyvolve.Evolver(
             partitions=phydmslib.simulate.pyvolvePartitions(self.realmodel),
-            tree=pyvolve.read_tree(file=treefile),
-        )
+            tree=pyvolve.read_tree(file=treefile))
         alignmentfile = "_temp_fitprefs_simulatedalignment.fasta"
         info = "_temp_info.txt"
         rates = "_temp_ratefile.txt"
@@ -84,8 +83,7 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
                 self.aacounts[r][CODON_TO_AA[CODON_TO_INDEX[seq[i: i+3]]]] += 1
 
         self.tl = phydmslib.treelikelihood.TreeLikelihood(
-            self.tree, self.alignment, self.model
-        )
+            self.tree, self.alignment, self.model)
 
     def test_fitprefs_invquadratic_prior(self):
         """Tests fitting of preferences with invquadratic prior."""
@@ -114,14 +112,10 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
                       for (name, tl) in tls.items() if name != "no prior"],
                      "Unconstrained model does not have the highest loglik."))
 
-        self.assertTrue(
-            [
-                tls["weak prior"].loglik > tl.loglik
-                for (name, tl) in tls.items()
-                if "strong" in name
-            ],
-            "Weak prior does not have higher loglik than strong prior.",
-        )
+        self.assertTrue([tls["weak prior"].loglik > tl.loglik
+                        for (name, tl) in tls.items() if "strong" in name],
+                        "Weak prior does not have higher loglik than "
+                        "strong prior.")
 
         pidiff2 = {name: (((tl.model.pi - tl.model.origpi)**2).sum()) for
                    (name, tl) in tls.items()}
@@ -147,15 +141,13 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
             if firstloglik:
                 self.assertFalse(
                     numpy.allclose(firstloglik, tl.loglik, atol=0.02),
-                    "loglik matches even with random pi",
-                )
+                    "loglik matches even with random pi")
             tl.maximizeLikelihood()
             if firstloglik:
                 self.assertTrue(
                     numpy.allclose(firstloglik, tl.loglik, atol=0.4),
                     "loglik not the same for different starts:"
-                    " {0} versus {1}".format(firstloglik, tl.loglik),
-                )
+                    " {0} versus {1}".format(firstloglik, tl.loglik))
             else:
                 firstloglik = tl.loglik
             self.assertTrue(numpy.allclose(tl.model.origpi, self.model.pi))

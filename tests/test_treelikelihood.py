@@ -152,15 +152,9 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         logl = tl.loglik
         paramsarray = tl.paramsarray
         nparams = len(paramsarray)
-        self.assertTrue(
-            nparams
-            == sum(
-                map(
-                    lambda x: (1 if isinstance(x, float) else len(x)),
-                    modelparams.values(),
-                )
-            )
-        )
+        self.assertTrue(nparams == sum(map(lambda x: (1 if isinstance(x, float)
+                                                      else len(x)),
+                                           modelparams.values(),)))
         # set to new value, make sure have changed
         tl.paramsarray = numpy.array([random.uniform(0.7, 0.8)
                                       for i in range(nparams)])
@@ -187,9 +181,9 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         for mu in mus:
             model = copy.deepcopy(self.model)
             model.updateParams({"mu": mu})
-            tl = phydmslib.treelikelihood.TreeLikelihood(
-                self.tree, self.alignment, model
-            )
+            tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
+                                                         self.alignment,
+                                                         model)
             # Here we are doing the multiplication hand-coded for the
             # tree defined in `setUp`. This calculation would be wrong
             # if the tree in `setUp` were to be changed.
@@ -207,8 +201,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
                             M[3][r][y][self.codons[3][r]]
                             * M[4][r][y][x]
                             * M[1][r][x][self.codons[1][r]]
-                            * M[2][r][x][self.codons[2][r]]
-                        )
+                            * M[2][r][x][self.codons[2][r]])
                     siteloglik[r] += partials[r][y] * model.stationarystate[r,
                                                                             y]
                 siteloglik[r] = math.log(siteloglik[r])
@@ -221,15 +214,12 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             loglik_by_mu[mu] = {"actual": tl.loglik, "expected": loglik}
 
         for (_i, mu1) in enumerate(mus):
-            for (name, d) in [
-                ("partials", partials_by_mu),
-                ("siteloglik", siteloglik_by_mu),
-                ("loglik", loglik_by_mu),
-            ]:
+            for (name, d) in [("partials", partials_by_mu),
+                              ("siteloglik", siteloglik_by_mu),
+                              ("loglik", loglik_by_mu)]:
                 self.assertTrue(
                     numpy.allclose(d[mu1]["actual"], d[mu1]["expected"]),
-                    "Mismatch: {0}".format(name),
-                )
+                    "Mismatch: {0}".format(name))
 
     def test_LikelihoodDerivativesModelParams(self):
         """Test derivatives of with respect to model params."""
@@ -237,8 +227,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         numpy.random.seed(1)
 
         tl = phydmslib.treelikelihood.TreeLikelihood(
-            self.tree, self.alignment, self.model
-        )
+            self.tree, self.alignment, self.model)
 
         for itest in range(2):
             modelparams = self.getModelParams(seed=itest)
@@ -258,17 +247,14 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
 
             for iparam in range(len(tl.paramsarray)):
                 diff = scipy.optimize.check_grad(
-                    func, dfunc, numpy.array([tl.paramsarray[iparam]]), iparam
-                )
+                    func, dfunc, numpy.array([tl.paramsarray[iparam]]), iparam)
                 self.assertTrue(
                     diff < 1e-1,
                     ("{0}: diff {1}, value " "{2}, deriv {3}").format(
                         tl._index_to_param[iparam],
                         diff,
                         tl.paramsarray[iparam],
-                        dfunc([tl.paramsarray[iparam]], iparam),
-                    ),
-                )
+                        dfunc([tl.paramsarray[iparam]], iparam)))
 
     def test_MaximizeLikelihood(self):
         """Tests maximization likelihood.
@@ -278,9 +264,8 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         random.seed(1)
         numpy.random.seed(1)
 
-        tl = phydmslib.treelikelihood.TreeLikelihood(
-            self.tree, self.alignment, self.model
-        )
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, self.alignment,
+                                                     self.model)
 
         logliks = []
         paramsarrays = []
@@ -292,23 +277,18 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             self.assertTrue(
                 tl.loglik > startloglik,
                 "no loglik increase: "
-                "start = {0}, end = {1}".format(startloglik, tl.loglik),
-            )
+                "start = {0}, end = {1}".format(startloglik, tl.loglik))
             for (otherloglik, otherparams) in zip(logliks, paramsarrays):
                 self.assertTrue(
                     numpy.allclose(tl.loglik, otherloglik,
                                    atol=1e-3, rtol=1e-3),
                     "Large difference in loglik: {0} vs {1}".format(
-                        otherloglik, tl.loglik
-                    ),
-                )
+                        otherloglik, tl.loglik))
                 self.assertTrue(
                     numpy.allclose(tl.paramsarray, otherparams,
                                    atol=1e-2, rtol=1e-1),
                     "Large difference in paramsarray: {0} vs {1}, {2}".format(
-                        otherparams, tl.paramsarray, self.model
-                    ),
-                )
+                        otherparams, tl.paramsarray, self.model))
             logliks.append(tl.loglik)
             paramsarrays.append(tl.paramsarray)
 

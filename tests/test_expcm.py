@@ -53,9 +53,7 @@ class testExpCM(unittest.TestCase):
         self.assertTrue(
             numpy.allclose(
                 numpy.repeat(1.0, self.nsites),
-                self.expcm.stationarystate.sum(axis=1)
-            )
-        )
+                self.expcm.stationarystate.sum(axis=1)))
 
         # now check ExpCM attributes / derivates, updating several times
         for _update in range(2):
@@ -64,13 +62,9 @@ class testExpCM(unittest.TestCase):
                 "kappa": random.uniform(*self.expcm.PARAMLIMITS["kappa"]),
                 "beta": random.uniform(0.5, 2.5),
                 "eta": numpy.array(
-                    [
-                        random.uniform(*self.expcm.PARAMLIMITS["eta"])
-                        for i in range(N_NT - 1)
-                    ]
-                ),
-                "mu": random.uniform(0.05, 3.0),
-            }
+                    [random.uniform(*self.expcm.PARAMLIMITS["eta"])
+                     for i in range(N_NT - 1)]),
+                "mu": random.uniform(0.05, 3.0)}
             self.expcm.updateParams(self.params)
             self.check_ExpCM_attributes()
             self.check_ExpCM_derivatives()
@@ -105,8 +99,7 @@ class testExpCM(unittest.TestCase):
                 self.assertFalse(
                     numpy.allclose(
                         0, numpy.dot(self.expcm.prx[r], self.expcm.Prxy[r - 1])
-                    )
-                )
+                    ))
 
     def check_ExpCM_derivatives(self):
         """Use `sympy` to check values & derivatives of `ExpCM` attributes."""
@@ -115,14 +108,12 @@ class testExpCM(unittest.TestCase):
                                                   "omega, eta0, eta1, eta2, "
                                                   "kappa")
 
-        values = {
-            "beta": self.params["beta"],
-            "omega": self.params["omega"],
-            "kappa": self.params["kappa"],
-            "eta0": self.params["eta"][0],
-            "eta1": self.params["eta"][1],
-            "eta2": self.params["eta"][2],
-        }
+        values = {"beta": self.params["beta"],
+                  "omega": self.params["omega"],
+                  "kappa": self.params["kappa"],
+                  "eta0": self.params["eta"][0],
+                  "eta1": self.params["eta"][1],
+                  "eta2": self.params["eta"][2]}
 
         # check Prxy
         for r in range(self.nsites):
@@ -134,14 +125,9 @@ class testExpCM(unittest.TestCase):
                         Prxy = 0
                     else:
                         w = NT_TO_INDEX[
-                            [
-                                ynt
-                                for (xnt, ynt) in zip(
-                                    INDEX_TO_CODON[x], INDEX_TO_CODON[y]
-                                )
-                                if xnt != ynt
-                            ][0]
-                        ]
+                            [ynt for (xnt, ynt) in zip(INDEX_TO_CODON[x],
+                                                       INDEX_TO_CODON[y])
+                             if xnt != ynt][0]]
                         if w == 0:
                             phiw = 1 - eta0
                         elif w == 1:
@@ -154,73 +140,45 @@ class testExpCM(unittest.TestCase):
                             raise ValueError("Invalid w")
                         self.assertTrue(
                             numpy.allclose(float(phiw.subs(values)),
-                                           self.expcm.phi[w])
-                        )
+                                           self.expcm.phi[w]))
                         if CODON_TRANSITION[x][y]:
                             Qxy = kappa * phiw
                         else:
                             Qxy = phiw
                         self.assertTrue(
                             numpy.allclose(
-                                float(Qxy.subs(values)), self.expcm.Qxy[x][y]
-                            )
-                        )
+                                float(Qxy.subs(values)), self.expcm.Qxy[x][y]))
                         if CODON_NONSYN[x][y]:
                             if pirAx == pirAy:
                                 Prxy = Qxy * omega
                             else:
-                                Prxy = (
-                                    Qxy
-                                    * omega
-                                    * (
-                                        -beta
-                                        * numpy.log(pirAx / pirAy)
-                                        / (1 - (pirAx / pirAy) ** beta)
-                                    )
-                                )
+                                Prxy = (Qxy * omega * (
+                                        -beta * numpy.log(pirAx / pirAy)
+                                        / (1 - (pirAx / pirAy) ** beta)))
                         else:
                             Prxy = Qxy
                     for (name, actual, expect) in [
                         ("Prxy", self.expcm.Prxy[r][x][y], Prxy),
-                        (
-                            "dPrxy_dkappa",
-                            self.expcm.dPrxy["kappa"][r][x][y],
-                            sympy.diff(Prxy, kappa),
-                        ),
-                        (
-                            "dPrxy_domega",
-                            self.expcm.dPrxy["omega"][r][x][y],
-                            sympy.diff(Prxy, omega),
-                        ),
-                        (
-                            "dPrxy_dbeta",
-                            self.expcm.dPrxy["beta"][r][x][y],
-                            sympy.diff(Prxy, beta),
-                        ),
-                        (
-                            "dPrxy_deta0",
-                            self.expcm.dPrxy["eta"][0][r][x][y],
-                            sympy.diff(Prxy, eta0),
-                        ),
-                        (
-                            "dPrxy_deta1",
-                            self.expcm.dPrxy["eta"][1][r][x][y],
-                            sympy.diff(Prxy, eta1),
-                        ),
-                        (
-                            "dPrxy_deta2",
-                            self.expcm.dPrxy["eta"][2][r][x][y],
-                            sympy.diff(Prxy, eta2),
-                        ),
-                    ]:
+                        ("dPrxy_dkappa",
+                         self.expcm.dPrxy["kappa"][r][x][y],
+                         sympy.diff(Prxy, kappa)),
+                        ("dPrxy_domega", self.expcm.dPrxy["omega"][r][x][y],
+                         sympy.diff(Prxy, omega)),
+                        ("dPrxy_dbeta", self.expcm.dPrxy["beta"][r][x][y],
+                         sympy.diff(Prxy, beta)),
+                        ("dPrxy_deta0", self.expcm.dPrxy["eta"][0][r][x][y],
+                         sympy.diff(Prxy, eta0)),
+                        ("dPrxy_deta1", self.expcm.dPrxy["eta"][1][r][x][y],
+                         sympy.diff(Prxy, eta1)),
+                        ("dPrxy_deta2", self.expcm.dPrxy["eta"][2][r][x][y],
+                         sympy.diff(Prxy, eta2))]:
                         if Prxy == 0:
                             expectval = 0
                         else:
                             expectval = float(expect.subs(values))
                         self.assertTrue(
                             numpy.allclose(actual, expectval, atol=1e-4),
-                            "{0}: {1} vs {2}".format(name, actual, expectval),
-                        )
+                            "{0}: {1} vs {2}".format(name, actual, expectval))
 
         # check prx
         qxs = [sympy.Symbol("qx{0}".format(x)) for x in range(N_CODON)]
@@ -251,32 +209,19 @@ class testExpCM(unittest.TestCase):
                                              in zip(frxs, qxs))
                 for (name, actual, expect) in [
                     ("prx", self.expcm.prx[r][x], prx),
-                    (
-                        "dprx_dbeta",
-                        self.expcm.dprx["beta"][r][x],
-                        sympy.diff(prx, beta),
-                    ),
-                    (
-                        "dprx_deta0",
-                        self.expcm.dprx["eta"][0][r][x],
-                        sympy.diff(prx, eta0),
-                    ),
-                    (
-                        "dprx_deta1",
-                        self.expcm.dprx["eta"][1][r][x],
-                        sympy.diff(prx, eta1),
-                    ),
-                    (
-                        "dprx_deta2",
-                        self.expcm.dprx["eta"][2][r][x],
-                        sympy.diff(prx, eta2),
-                    ),
-                ]:
+                    ("dprx_dbeta", self.expcm.dprx["beta"][r][x],
+                     sympy.diff(prx, beta)),
+                    ("dprx_deta0",
+                     self.expcm.dprx["eta"][0][r][x],
+                     sympy.diff(prx, eta0)),
+                    ("dprx_deta1", self.expcm.dprx["eta"][1][r][x],
+                     sympy.diff(prx, eta1)),
+                    ("dprx_deta2", self.expcm.dprx["eta"][2][r][x],
+                     sympy.diff(prx, eta2))]:
                     expectval = float(expect.subs(values))
                     self.assertTrue(
                         numpy.allclose(actual, expectval, atol=1e-5),
-                        "{0}: {1} vs {2}".format(name, actual, expectval),
-                    )
+                        "{0}: {1} vs {2}".format(name, actual, expectval))
 
     def check_ExpCM_matrix_exponentials(self):
         """Makes sure matrix exponentials of ExpCM are as expected."""
@@ -284,20 +229,17 @@ class testExpCM(unittest.TestCase):
             # fromdiag is recomputed Prxy after diagonalization
             fromdiag = numpy.dot(
                 self.expcm.A[r],
-                numpy.dot(numpy.diag(self.expcm.D[r]), self.expcm.Ainv[r]),
-            )
+                numpy.dot(numpy.diag(self.expcm.D[r]), self.expcm.Ainv[r]))
             self.assertTrue(
                 numpy.allclose(self.expcm.Prxy[r], fromdiag, atol=1e-5),
-                "Max diff {0}".format((self.expcm.Prxy[r] - fromdiag).max()),
-            )
+                "Max diff {0}".format((self.expcm.Prxy[r] - fromdiag).max()))
 
             for t in [0.02, 0.2, 0.5]:
                 direct = scipy.linalg.expm(self.expcm.Prxy[r] *
                                            self.expcm.mu * t)
                 self.assertTrue(
                     numpy.allclose(self.expcm.M(t)[r], direct, atol=1e-6),
-                    "Max diff {0}".format((self.expcm.M(t)[r] - direct).max()),
-                )
+                    "Max diff {0}".format((self.expcm.M(t)[r] - direct).max()))
 
         # check derivatives of M calculated by dM
         # implementation looks a bit complex because `check_grad` function
@@ -339,18 +281,16 @@ class testExpCM(unittest.TestCase):
                 for r in range(self.expcm.nsites):
                     for x in range(N_CODON):
                         for y in range(N_CODON):
-                            diff = scipy.optimize.check_grad(
-                                funcM,
-                                funcdM,
-                                pvalue,
-                                pname,
-                                t,
-                                self.expcm,
-                                r,
-                                x,
-                                y,
-                                storedvalues,
-                            )
+                            diff = scipy.optimize.check_grad(funcM,
+                                                             funcdM,
+                                                             pvalue,
+                                                             pname,
+                                                             t,
+                                                             self.expcm,
+                                                             r,
+                                                             x,
+                                                             y,
+                                                             storedvalues)
                             self.assertTrue(
                                 diff < 2e-3,
                                 ("diff {0} for {1}: r = {2}, x = {3}, "

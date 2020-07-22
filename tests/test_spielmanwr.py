@@ -57,13 +57,10 @@ class testExpCM_spielmanwr(unittest.TestCase):
             wr.append(numerator / denominator)
         wr = numpy.array(wr)
         self.assertTrue(
-            numpy.allclose(wr, self.model.spielman_wr(norm=False), rtol=0.01)
-        )
+            numpy.allclose(wr, self.model.spielman_wr(norm=False), rtol=0.01))
         self.assertTrue(
-            numpy.allclose(wr / self.model.omega,
-                           self.model.spielman_wr(),
-                           rtol=0.01)
-        )
+            numpy.allclose(wr / self.model.omega, self.model.spielman_wr(),
+                           rtol=0.01))
 
 
 class test_empirical_phi_spielmanwr(testExpCM_spielmanwr):

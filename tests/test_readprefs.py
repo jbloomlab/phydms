@@ -18,15 +18,11 @@ class test_readPrefs(unittest.TestCase):
             os.path.abspath(
                 os.path.join(
                     os.path.dirname(__file__),
-                    "./NP_data/NP_prefs{0}".format(suffix)
-                )
-            )
-            for suffix in [".csv", ".tsv", "-dms_tools_format.txt"]
-        ]
+                    "./NP_data/NP_prefs{0}".format(suffix)))
+            for suffix in [".csv", ".tsv", "-dms_tools_format.txt"]]
         self.assertTrue(
             all(map(os.path.isfile, self.prefsfiles)),
-            "Cannot " "find prefsfiles needed for test.",
-        )
+            "Cannot " "find prefsfiles needed for test.")
 
     def test_readPrefs(self):
         """Read preferences in three different formats."""
@@ -47,12 +43,11 @@ class test_readPrefs(unittest.TestCase):
                 self.assertTrue(
                     prefs1.shape == prefs2.shape,
                     "Did not read "
-                    "same number of prefs from {0} and {1}".format(f1, f2),
-                )
+                    "same number of prefs from {0} and {1}".format(f1, f2),)
                 self.assertTrue(
                     numpy.allclose(prefs1, prefs2),
-                    "Did not get " "same prefs from {0} and {1}"
-                    .format(f1, f2))
+                    "Did not get " "same prefs from {0} and {1}".format(f1, f2)
+                    )
 
     def test_avgPrefs(self):
         """Tests that the `avgprefs` option works."""
@@ -67,8 +62,7 @@ class test_readPrefs(unittest.TestCase):
                 siteprefs = numpy.array([prefs[r][aa] for aa in aas])
                 self.assertTrue(
                     numpy.allclose(firstsiteprefs, siteprefs),
-                    "Prefs not same for all sites wth avgprefs",
-                )
+                    "Prefs not same for all sites wth avgprefs")
 
     def test_minPrefs(self):
         """Tests that the `minprefs` option works."""
@@ -88,11 +82,9 @@ class test_readPrefs(unittest.TestCase):
         prefsminarray = numpy.array(prefsminlist)
         self.assertTrue(
             (prefsarray < minpref).any(),
-            "Not a good test " "as all prefs already >= minpref",
-        )
+            "Not a good test " "as all prefs already >= minpref")
         self.assertFalse(
-            (prefsminarray < minpref).any(), "Still found " "prefs < minpref"
-        )
+            (prefsminarray < minpref).any(), "Still found " "prefs < minpref")
 
 
 if __name__ == "__main__":

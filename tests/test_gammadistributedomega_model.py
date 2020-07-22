@@ -33,13 +33,11 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
                 rprefs[rprefs < minpref] = minpref
                 rprefs /= rprefs.sum()
                 prefs.append(dict(zip(sorted(AA_TO_INDEX.keys()), rprefs)))
-            paramvalues = {
-                "eta": numpy.random.dirichlet([5] * (N_NT - 1)),
-                "omega": 0.7,
-                "kappa": 2.5,
-                "beta": 1.2,
-                "mu": 0.5,
-            }
+            paramvalues = {"eta": numpy.random.dirichlet([5] * (N_NT - 1)),
+                           "omega": 0.7,
+                           "kappa": 2.5,
+                           "beta": 1.2,
+                           "mu": 0.5}
             basemodel = self.BASEMODEL(prefs)
             assert set(paramvalues.keys()) == set(
                 basemodel.freeparams
@@ -50,11 +48,7 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
             e_pw = numpy.random.uniform(0.4, 0.6, size=(3, N_NT))
             e_pw = e_pw / e_pw.sum(axis=1, keepdims=True)
             basemodel = self.BASEMODEL(e_pw, nsites)
-            paramvalues = {
-                "kappa": 2.5,
-                "omega": 0.7,
-                "mu": 0.5,
-            }
+            paramvalues = {"kappa": 2.5, "omega": 0.7, "mu": 0.5}
             assert set(paramvalues.keys()) == set(basemodel.freeparams)
             basemodel.updateParams(paramvalues)
         else:
@@ -71,10 +65,7 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
                 phydmslib.models.DiscreteGamma(
                     gammamodel.alpha_lambda,
                     gammamodel.beta_lambda,
-                    gammamodel.ncats
-                ),
-            )
-        )
+                    gammamodel.ncats)))
         for (param, pvalue) in paramvalues.items():
             if param != gammamodel.distributedparam:
                 self.assertTrue(numpy.allclose(getattr(gammamodel, param),
@@ -98,10 +89,7 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
                     phydmslib.models.DiscreteGamma(
                         gammamodel.alpha_lambda,
                         gammamodel.beta_lambda,
-                        gammamodel.ncats,
-                    ),
-                )
-            )
+                        gammamodel.ncats)))
             for (param, pvalue) in newvalues.items():
                 if param != gammamodel.distributedparam:
                     self.assertTrue(numpy.allclose(pvalue,
@@ -115,8 +103,7 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
             self.assertTrue(
                 gammamodel._models[0].branchScale
                 < gammamodel.branchScale
-                < gammamodel._models[-1].branchScale
-            )
+                < gammamodel._models[-1].branchScale)
 
             t = 0.15
             for k in range(gammamodel.ncats):
@@ -127,9 +114,8 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
                         dM = gammamodel.dM(k, t, param, M)
                         self.assertTrue(
                             numpy.allclose(
-                                dM, gammamodel._models[k].dM(t, param, Mt=None)
-                            )
-                        )
+                                dM,
+                                gammamodel._models[k].dM(t, param, Mt=None)))
 
             # Check derivatives with respect to distribution params
             d_distparams = gammamodel.d_distributionparams
@@ -142,9 +128,8 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
 
                     def func(x):
                         gammamodel.updateParams({param: x[0]})
-                        return getattr(
-                            gammamodel._models[k], gammamodel.distributedparam
-                        )
+                        return getattr(gammamodel._models[k],
+                                       gammamodel.distributedparam)
 
                     def dfunc(x):
                         gammamodel.updateParams({param: x[0]})
@@ -162,10 +147,7 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
                         "Excessive diff "
                         "for d_distributionparams[{0}] when "
                         "distributionparams = {1}:\n{2}".format(
-                            param, gammamodel.distributionparams, diffs
-                        )
-                    ),
-                )
+                            param, gammamodel.distributionparams, diffs)))
 
 
 class test_GammaDistributedOmega_YNGKP_M0(test_GammaDistributedOmega_ExpCM):

@@ -41,9 +41,7 @@ class testYNGKP_M0(unittest.TestCase):
         self.assertTrue(
             numpy.allclose(
                 numpy.repeat(1.0, self.nsites),
-                self.YNGKP_M0.stationarystate.sum(axis=1),
-            )
-        )
+                self.YNGKP_M0.stationarystate.sum(axis=1)))
 
         # now check YNGKP_M0 attributes / derivates, updating several times
         for _update in range(2):
@@ -109,35 +107,22 @@ class testYNGKP_M0(unittest.TestCase):
                 pvalue = [pvalue]
             for x in random.sample(range(N_CODON), 3):  # check a few codons
                 for y in range(N_CODON):
-                    diff = scipy.optimize.check_grad(
-                        funcPxy,
-                        funcdPxy,
-                        pvalue,
-                        pname,
-                        self.YNGKP_M0,
-                        x,
-                        y,
-                        epsilon=1e-4,
-                    )
+                    diff = scipy.optimize.check_grad(funcPxy,
+                                                     funcdPxy,
+                                                     pvalue,
+                                                     pname,
+                                                     self.YNGKP_M0,
+                                                     x,
+                                                     y,
+                                                     epsilon=1e-4)
                     self.assertTrue(
                         diff < 1e-3,
-                        (
-                            "diff {0} for {1}:"
-                            + "x = {2}, y = {3} "
-                            + "mu = {4}, "
-                            + "omega = {5}, Pxy = {6}, "
-                            + "kappa = {7}"
-                        ).format(
-                            diff,
-                            pname,
-                            x,
-                            y,
-                            self.YNGKP_M0.mu,
-                            self.YNGKP_M0.omega,
-                            self.YNGKP_M0.Pxy[0][x][y],
-                            self.YNGKP_M0.kappa,
-                        ),
-                    )
+                        ("diff {0} for {1}: x = {2}, y = {3} mu = {4}, "
+                         + "omega = {5}, Pxy = {6}, kappa = {7}"
+                         ).format(diff, pname, x, y, self.YNGKP_M0.mu,
+                                  self.YNGKP_M0.omega,
+                                  self.YNGKP_M0.Pxy[0][x][y],
+                                  self.YNGKP_M0.kappa))
             self.YNGKP_M0.updateParams(self.params)  # back to original value
 
     def check_YNGKP_M0_matrix_exponentials(self):
@@ -202,18 +187,11 @@ class testYNGKP_M0(unittest.TestCase):
                 for r in range(1):
                     for x in range(N_CODON):
                         for y in range(N_CODON):
-                            diff = scipy.optimize.check_grad(
-                                funcM,
-                                funcdM,
-                                pvalue,
-                                pname,
-                                t,
-                                self.YNGKP_M0,
-                                r,
-                                x,
-                                y,
-                                storedvalues,
-                            )
+                            diff = scipy.optimize.check_grad(funcM, funcdM,
+                                                             pvalue, pname,
+                                                             t, self.YNGKP_M0,
+                                                             r, x, y,
+                                                             storedvalues)
                             self.assertTrue(diff < 1e-3,
                                             "diff {0} for {1}: r = {2}, "
                                             "x = {3}, y = {4}"

@@ -23,26 +23,20 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
         """Set up models."""
         self.tree = os.path.abspath(
             os.path.join(os.path.dirname(__file__),
-                         "./NP_data/NP_tree_short.newick")
-        )
+                         "./NP_data/NP_tree_short.newick"))
         self.alignment = os.path.abspath(
-            os.path.join(
-                os.path.dirname(__file__), "./NP_data/NP_alignment_short.fasta"
-            )
-        )
+            os.path.join(os.path.dirname(__file__),
+                         "./NP_data/NP_alignment_short.fasta"))
         self.prefs = os.path.abspath(
             os.path.join(os.path.dirname(__file__),
-                         "./NP_data/NP_prefs_short.csv")
-        )
+                         "./NP_data/NP_prefs_short.csv"))
         self.nsites = (
             len(phydmslib.file_io.ReadCodonAlignment(self.alignment,
-                                                     True)[0][1]) // 3
-        )
+                                                     True)[0][1]) // 3)
         self.initializeModel()
         self.outdir = os.path.abspath(
             os.path.join(os.path.dirname(__file__),
-                         "./omegabysite_test_results/")
-        )
+                         "./omegabysite_test_results/"))
         if not os.path.isdir(self.outdir):
             os.mkdir(self.outdir)
 
@@ -61,28 +55,17 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
         random.seed(1)
         divpressuresites = random.sample(range(self.nsites), 5)
         partitions = phydmslib.simulate.pyvolvePartitions(
-            self.model, (200.0, divpressuresites)
-        )
+            self.model, (200.0, divpressuresites))
         evolver = pyvolve.Evolver(
-            partitions=partitions, tree=pyvolve.read_tree(file=self.tree)
-        )
+            partitions=partitions, tree=pyvolve.read_tree(file=self.tree))
         simulateprefix = os.path.join(self.outdir, self.modelname)
         simulatedalignment = simulateprefix + "_simulatedalignment.fasta"
         info = simulateprefix + "_temp_info.txt"
         rates = simulateprefix + "_temp_ratefile.txt"
         evolver(seqfile=simulatedalignment, infofile=info, ratefile=rates)
-        subprocess.check_call(
-            [
-                "phydms",
-                simulatedalignment,
-                self.tree,
-                self.modelarg,
-                simulateprefix,
-                "--omegabysite",
-                "--brlen",
-                "scale",
-            ]
-        )
+        subprocess.check_call(["phydms", simulatedalignment, self.tree,
+                               self.modelarg, simulateprefix, "--omegabysite",
+                               "--brlen", "scale"])
         omegabysitefile = simulateprefix + "_omegabysite.txt"
         omegas = pandas.read_csv(omegabysitefile, sep="\t", comment="#")
         divpressureomegas = omegas[omegas["site"].isin(divpressuresites)]
@@ -90,20 +73,16 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
         self.assertTrue(
             (divpressureomegas["omega"].values > 2).all(),
             "Not all divpressure sites have omega > 2:\n{0}"
-            .format(divpressureomegas),
-        )
+            .format(divpressureomegas))
         self.assertTrue(
             (divpressureomegas["P"].values < 0.08).all(),
             "Not all divpressure sites have P < 0.08:\n{0}"
-            .format(divpressureomegas),
-        )
+            .format(divpressureomegas))
         nspurious = len(
             omegas[
                 (omegas["omega"] > 2)
                 & (omegas["P"] < 0.05)
-                & (~omegas["site"].isin(divpressuresites))
-            ]
-        )
+                & (~omegas["site"].isin(divpressuresites))])
         self.assertTrue(nspurious <= 1, "{0} spurious sites".format(nspurious))
 
         for f in ["custom_matrix_frequencies.txt"]:
