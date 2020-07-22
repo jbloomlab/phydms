@@ -2401,10 +2401,8 @@ def DiscreteGamma(alpha, beta, ncats):
             `0 <= k < ncats`.
 
     Check that we get values in Figure 1 of Yang, J Mol Evol, 39:306-314
-    >>> catmeans = DiscreteGamma(0.5, 0.5, 4)
-    >>> numpy.allclose(catmeans, numpy.array(\
-                                            [0.0334, 0.2519, 0.8203, 2.8944]),\
-                                            atol=1e-4)
+    >>> catmeans = DiscreteGamma(0.5, 0.5, 3)
+    >>> numpy.allclose(catmeans, numpy.array([0.0603,0.4894,2.4502]),atol=1e-4)
     True
 
     Make sure we get expected mean of alpha / beta
