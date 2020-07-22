@@ -195,10 +195,9 @@ class TreeLikelihood(object):
         self.model = copy.deepcopy(model)
         self.nsites = self.model.nsites
 
-        assert isinstance(alignment, list) and all((isinstance(tup, tuple)
-               and len(tup) == 2 for tup in alignment)), ("alignment is not "
-                                                          "list of (head, seq)"
-                                                          " 2-tuples")
+        assert isinstance(alignment, list) and all(
+            (isinstance(tup, tuple) and len(tup) == 2 for tup in alignment)), (
+                "alignment is not list of (head, seq) 2-tuples")
         assert all({len(seq) == 3 * self.nsites for (head, seq) in alignment})
         assert set({head for (head, seq) in alignment}
                    ) == {clade.name for clade in tree.get_terminals()}
@@ -290,15 +289,11 @@ class TreeLikelihood(object):
             else:
                 assert n >= self.ntips, ("n = {0}, "
                                          "ntips = {1}".format(n, self.ntips))
-                assert len(node.clades) == 2, ("not 2 children: {0} has {1}\n"
-                                               "Is this the root node? -- {2}"
-                                               "\nTry `tree"
-                                               ".root_at_midpoint()` before "
-                                               "passing to `TreeLikelihood`"
-                                               ".".format(node.name,
-                                                          len(node.clades),
-                                                          node ==
-                                                          self._tree.root))
+                assert len(node.clades) == 2, (
+                    "not 2 children: {0} has {1}\n Is this the root node? -- "
+                    "{2}\nTry `tree.root_at_midpoint()` before passing to "
+                    "`TreeLikelihood`.".format(node.name, len(node.clades),
+                                               node == self._tree.root))
                 ni = n - self.ntips
                 self.rdescend[ni] = self.name_to_nodeindex[node.clades[0]]
                 self.ldescend[ni] = self.name_to_nodeindex[node.clades[1]]
@@ -501,14 +496,13 @@ class TreeLikelihood(object):
                                    .format(i, oldloglik, self.loglik,
                                            result.nit, result.nfev))
                     i += 1
-                    assert result.success, ("Optimization failed\n"
-                                            "{0}\n{1}\n{2}"
-                                            .format(result.message, self.t,
-                                                    '\n'.join(summary)))
+                    assert result.success, (
+                        "Optimization failed\n{0}\n{1}\n{2}".format(
+                            result.message, self.t, '\n'.join(summary)))
                     if oldloglik - self.loglik > logliktol:
-                        raise RuntimeError("loglik increased during t "
-                                           "optimization: {0} to {1}"
-                                           .format(oldloglik, self.loglik))
+                        raise RuntimeError(
+                            "loglik increased during t optimization: {0} to "
+                            "{1}".format(oldloglik, self.loglik))
                     elif self.loglik - oldloglik >= logliktol:
                         oldloglik = self.loglik
                     else:
@@ -875,10 +869,7 @@ class TreeLikelihood(object):
                                     dM_dt, self.L[nx][k])
                         self.dL_dt[nx][n][k] = LdM_dt * MLxother
                         for ndx in self.descendants[nx]:
-                            # placeholder to avoid long, hard to read line
-                            x = self.dL_dt[ndx][nx][k]
-                            y = broadcastMatrixVectorMultiply(Mx, x)
-                            self.dL_dt[ndx][n][k] = y * MLxother
+                            self.dL_dt[ndx][n][k] = broadcastMatrixVectorMultiply(Mx, self.dL_dt[ndx][nx][k]) * MLxother  # noqa: E501
 
                 if self.dparamscurrent:
                     for param in self._paramlist_PartialLikelihoods:
