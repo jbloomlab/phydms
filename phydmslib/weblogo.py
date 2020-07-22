@@ -644,7 +644,7 @@ def _my_pdf_formatter(data, pdfformat, ordered_alphabets):
     return gs.convert('pdf', eps, pdfformat.logo_width, pdfformat.logo_height)
 
 
-def _my_eps_formatter(logodata, format, ordered_alphabets):
+def _my_eps_formatter(logodata, format, ordered_alphabets):  # noqa: F401
     """Generate a logo in Encapsulated Postscript (EPS)
 
     Modified from weblogo version 3.4 source code.

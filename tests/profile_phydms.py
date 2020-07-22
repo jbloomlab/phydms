@@ -18,13 +18,13 @@ def main():
     profiledir = './NP_profile/'
     if not os.path.isdir(profiledir):
         os.mkdir(profiledir)
-    print("Profiling results will be written to {0}".format(profiledir))  # noqa: F401
+    print("Profiling results will be written to {0}".format(profiledir))
 
     alignment = './NP_data/NP_alignment.fasta'
     tree = './NP_data/NP_tree.newick'
     prefs = './NP_data/NP_prefs.tsv'
     print("Using alignment, tree, and prefs in:\n\t{0}".format('\n\t'.join(
-            [alignment, tree, prefs])))  # noqa: F401
+            [alignment, tree, prefs])))
 
     ncpus = max(1, multiprocessing.cpu_count() - 1)
     print("Will run programs using {0} CPUs.".format(ncpus))
@@ -67,16 +67,16 @@ def main():
                 if (not started[name]) and (not completed[name]):
                     p.start()
                     started[name] = True
-                    print("Started profiling run for {0}".format(name))  # noqa: F401
+                    print("Started profiling run for {0}".format(name))
                     break
         for (name, p) in pool.items():
             if started[name] and (not completed[name]) and (
                     not p.is_alive()):
                 completed[name] = True
-                print("Completed profiling run for {0}".format(name))  # noqa: F401
+                print("Completed profiling run for {0}".format(name))
         time.sleep(5)
 
-    print("Program complete.")  # noqa: F401
+    print("Program complete.")
 
 
 if __name__ == '__main__':
