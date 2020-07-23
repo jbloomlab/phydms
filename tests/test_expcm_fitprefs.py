@@ -69,10 +69,9 @@ class test_ExpCM_fitprefs(unittest.TestCase):
                     # check Prxy values
                     if values[pirAx] == values[pirAy]:
                         if CODON_TO_AA[x] == CODON_TO_AA[y]:
-                            (self
-                             .assertTrue(numpy.allclose(Qxy,
-                                                        (expcm_fitprefs
-                                                         .Prxy[r][x][y]))))
+                            (self.assertTrue(numpy.allclose(Qxy,
+                                                            (expcm_fitprefs
+                                                             .Prxy[r][x][y]))))
                         else:
                             (self
                              .assertTrue(numpy.allclose(Qxy * values[omega],

@@ -33,8 +33,7 @@ class testYNGKP_M0(unittest.TestCase):
         omega = 0.4
         kappa = 2.5
         self.YNGKP_M0 = phydmslib.models.YNGKP_M0(
-            self.e_pa, self.nsites, omega=omega, kappa=kappa
-        )
+            self.e_pa, self.nsites, omega=omega, kappa=kappa)
         self.assertTrue(numpy.allclose(omega, self.YNGKP_M0.omega))
         self.assertTrue(numpy.allclose(kappa, self.YNGKP_M0.kappa))
 
@@ -48,8 +47,7 @@ class testYNGKP_M0(unittest.TestCase):
             self.params = {
                 "omega": random.uniform(0.1, 2),
                 "kappa": random.uniform(0.5, 10),
-                "mu": random.uniform(0.05, 5.0),
-            }
+                "mu": random.uniform(0.05, 5.0)}
             self.YNGKP_M0.updateParams(self.params)
             self.check_YNGKP_M0_attributes()
             self.check_YNGKP_M0_derivatives()
@@ -118,7 +116,7 @@ class testYNGKP_M0(unittest.TestCase):
                     self.assertTrue(
                         diff < 1e-3,
                         ("diff {0} for {1}: x = {2}, y = {3} mu = {4}, "
-                         + "omega = {5}, Pxy = {6}, kappa = {7}"
+                         "omega = {5}, Pxy = {6}, kappa = {7}"
                          ).format(diff, pname, x, y, self.YNGKP_M0.mu,
                                   self.YNGKP_M0.omega,
                                   self.YNGKP_M0.Pxy[0][x][y],
@@ -135,8 +133,7 @@ class testYNGKP_M0(unittest.TestCase):
                           self.YNGKP_M0.Ainv[r]))
             self.assertTrue(
                 numpy.allclose(self.YNGKP_M0.Pxy[r], fromdiag, atol=1e-5),
-                "Max diff {0}".format((self.YNGKP_M0.Pxy[r] - fromdiag).max()),
-            )
+                "Max diff {0}".format((self.YNGKP_M0.Pxy[r] - fromdiag).max()))
 
             for t in [0.02, 0.2, 0.5]:
                 direct = scipy.linalg.expm(self.YNGKP_M0.Pxy[r] *
@@ -144,8 +141,7 @@ class testYNGKP_M0(unittest.TestCase):
                 self.assertTrue(
                     numpy.allclose(self.YNGKP_M0.M(t)[r], direct, atol=1e-6),
                     "Max diff {0}"
-                    .format((self.YNGKP_M0.M(t)[r] - direct).max()),
-                )
+                    .format((self.YNGKP_M0.M(t)[r] - direct).max()))
 
         # check derivatives of M calculated by dM
         # implementation looks a bit complex because `check_grad` function

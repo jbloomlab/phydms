@@ -15,10 +15,9 @@ class test_readPrefs(unittest.TestCase):
     def setUp(self):
         """Set up models."""
         self.prefsfiles = [
-            os.path.abspath(
-                os.path.join(
-                    os.path.dirname(__file__),
-                    "./NP_data/NP_prefs{0}".format(suffix)))
+            os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                         "./NP_data/NP_prefs{0}"
+                                         .format(suffix)))
             for suffix in [".csv", ".tsv", "-dms_tools_format.txt"]]
         self.assertTrue(
             all(map(os.path.isfile, self.prefsfiles)),
@@ -46,8 +45,8 @@ class test_readPrefs(unittest.TestCase):
                     "same number of prefs from {0} and {1}".format(f1, f2),)
                 self.assertTrue(
                     numpy.allclose(prefs1, prefs2),
-                    "Did not get " "same prefs from {0} and {1}".format(f1, f2)
-                    )
+                    "Did not get " "same prefs from {0} and {1}"
+                    .format(f1, f2))
 
     def test_avgPrefs(self):
         """Tests that the `avgprefs` option works."""

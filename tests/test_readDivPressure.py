@@ -17,9 +17,9 @@ class test_readPrefs(unittest.TestCase):
         """Set up."""
         self.divPressurefiles = [
             os.path.abspath(
-                os.path.join(
-                    os.path.dirname(__file__),
-                    "./divpressure_tests/divpressure{0}".format(suffix)))
+                os.path.join(os.path.dirname(__file__),
+                             "./divpressure_tests/divpressure{0}"
+                             .format(suffix)))
             for suffix in [".csv", ".tsv", ".txt"]]
         self.assertTrue(
             all(map(os.path.isfile, self.divPressurefiles)),

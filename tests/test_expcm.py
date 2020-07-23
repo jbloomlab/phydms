@@ -43,8 +43,7 @@ class testExpCM(unittest.TestCase):
         kappa = 2.5
         beta = 1.9
         self.expcm = phydmslib.models.ExpCM(
-            self.prefs, phi=phi, omega=omega, kappa=kappa, beta=beta
-        )
+            self.prefs, phi=phi, omega=omega, kappa=kappa, beta=beta)
         self.assertTrue(numpy.allclose(phi, self.expcm.phi))
         self.assertTrue(numpy.allclose(omega, self.expcm.omega))
         self.assertTrue(numpy.allclose(kappa, self.expcm.kappa))
@@ -98,8 +97,8 @@ class testExpCM(unittest.TestCase):
             if r > 0:
                 self.assertFalse(
                     numpy.allclose(
-                        0, numpy.dot(self.expcm.prx[r], self.expcm.Prxy[r - 1])
-                    ))
+                        0,
+                        numpy.dot(self.expcm.prx[r], self.expcm.Prxy[r - 1])))
 
     def check_ExpCM_derivatives(self):
         """Use `sympy` to check values & derivatives of `ExpCM` attributes."""

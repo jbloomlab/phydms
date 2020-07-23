@@ -61,9 +61,8 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         rates = "_temp_ratefile.txt"
         evolver = pyvolve.Evolver(partitions=partitions, tree=pyvolvetree)
         evolver(seqfile=alignment, infofile=info, ratefile=rates)
-        self.alignment = [
-            (s.description, str(s.seq)) for s in Bio.SeqIO.parse(alignment,
-                                                                 "fasta")]
+        self.alignment = [(s.description, str(s.seq))
+                          for s in Bio.SeqIO.parse(alignment, "fasta")]
         for f in [alignment, info, rates]:
             os.remove(f)
         assert len(self.alignment[0][1]) == self.nsites * 3
@@ -97,8 +96,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             divpressure = numpy.random.uniform(-1, 5, self.nsites)
             divpressure /= max(abs(divpressure))
             self.model = phydmslib.models.ExpCM_empirical_phi_divpressure(
-                prefs, g, divpressure
-            )
+                prefs, g, divpressure)
         elif self.MODEL == phydmslib.models.YNGKP_M0:
             e_pw = numpy.random.uniform(0.2, 0.8, size=(3, N_NT))
             e_pw = e_pw / e_pw.sum(axis=1, keepdims=True)
@@ -115,9 +113,8 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
                                         .GammaDistributedBetaModel):
             self.model = self.DISTRIBUTIONMODEL(self.model, ncats=4)
         else:
-            raise ValueError(
-                "Invalid DISTRIBUTIONMODEL: {0}".format(self.DISTRIBUTIONMODEL)
-            )
+            raise ValueError("Invalid DISTRIBUTIONMODEL: {0}"
+                             .format(self.DISTRIBUTIONMODEL))
 
     def test_Initialize(self):
         """Test that initializes properly."""
@@ -125,8 +122,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         numpy.random.seed(1)
 
         tl = phydmslib.treelikelihood.TreeLikelihood(
-            self.tree, self.alignment, self.model
-        )
+            self.tree, self.alignment, self.model)
         self.assertTrue(tl.nsites == self.nsites)
         self.assertTrue(tl.nseqs == self.nseqs)
         self.assertTrue(tl.nnodes == tl.ninternal + tl.ntips)

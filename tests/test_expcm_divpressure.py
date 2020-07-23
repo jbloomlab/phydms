@@ -58,37 +58,28 @@ class test_compare_ExpCM_emp_phi_with_without_divpress(unittest.TestCase):
         self.assertTrue(numpy.allclose(expcm.Qxy, expcm_divpressure.Qxy),
                         "Qxy differs")
         self.assertTrue(
-            numpy.allclose(expcm.Frxy, expcm_divpressure.Frxy), "Frxy differs"
-        )
+            numpy.allclose(expcm.Frxy, expcm_divpressure.Frxy), "Frxy differs")
         self.assertTrue(
-            numpy.allclose(expcm.Prxy, expcm_divpressure.Prxy), "Prxy differs"
-        )
+            numpy.allclose(expcm.Prxy, expcm_divpressure.Prxy), "Prxy differs")
         t = 0.02
         self.assertTrue(
             numpy.allclose(expcm.M(t), expcm_divpressure.M(t)),
-            "M({0}) differs".format(t),
-        )
+            "M({0}) differs".format(t))
         for param in ["kappa", "omega", "beta"]:
             self.assertTrue(
                 numpy.allclose(
-                    getattr(expcm, param), getattr(expcm_divpressure, param)
-                ),
-                "param values differ for {0}".format(param),
-            )
+                    getattr(expcm, param), getattr(expcm_divpressure, param)),
+                "param values differ for {0}".format(param))
             self.assertTrue(
                 numpy.allclose(
                     expcm.dstationarystate(param),
-                    (expcm_divpressure.dstationarystate(param)),
-                ),
-                "dstationarystate differs for {0}".format(param),
-            )
+                    (expcm_divpressure.dstationarystate(param))),
+                "dstationarystate differs for {0}".format(param))
             self.assertTrue(
                 numpy.allclose(
                     expcm.dM(t, param, expcm.M(t)),
-                    (expcm_divpressure.dM(t, param, expcm_divpressure.M(t))),
-                ),
-                "dM({0}) differs for {1}".format(t, param),
-            )
+                    (expcm_divpressure.dM(t, param, expcm_divpressure.M(t)))),
+                "dM({0}) differs for {1}".format(t, param))
 
 
 class testExpCM_empirical_phi_divpressure(unittest.TestCase):
@@ -122,8 +113,7 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
             omega=omega,
             kappa=kappa,
             beta=beta,
-            omega2=omega2,
-        )
+            omega2=omega2)
         # now check ExpCM attributes / derivates, updating several times
         for _update in range(2):
             self.params = {
@@ -234,8 +224,7 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
                 self.assertTrue(
                     diff < 1e-4,
                     "dQxy_dbeta diff {0} for x = {1}, y = {2}"
-                    .format(diff, x, y),
-                )
+                    .format(diff, x, y))
         # back to original value
         self.model.updateParams(self.params)
 
@@ -309,39 +298,25 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
                             r,
                             x,
                             y,
-                            epsilon=1e-4,
-                        )
-                        (
-                            self.assertTrue(
-                                diff < 1e-3,
-                                "diff {0} for {1}: r = {2}, x = {3}, "
-                                "y = {4}, beta = {5} pirAx = {6}, "
-                                "pirAy = {7}, mu = {8}, omega = {9}, "
-                                "Frxy = {10}, Prxy = {11}, phi = {12}, "
-                                "kappa = {13}, dQxy_dbeta = {14}, "
-                                "dphi_dbeta = {15}, dPrxy_dbeta = {16}, "
-                                "piAx_piAy_beta[r][x][y] = {17}".format(
-                                    diff,
-                                    pname,
-                                    r,
-                                    x,
-                                    y,
-                                    self.params["beta"],
-                                    self.model.pi_codon[r][x],
-                                    self.model.pi_codon[r][y],
-                                    self.model.mu,
-                                    self.model.omega,
-                                    self.model.Frxy[r][x][y],
-                                    self.model.Prxy[r][x][y],
-                                    self.model.phi,
-                                    self.model.kappa,
-                                    self.model.dQxy_dbeta[x][y],
-                                    self.model.dphi_dbeta,
-                                    self.model.dPrxy["beta"][r][x][y],
-                                    self.model.piAx_piAy_beta[r][x][y],
-                                ),
-                            )
-                        )
+                            epsilon=1e-4,)
+                        (self.assertTrue(
+                            diff < 1e-3,
+                            f"diff {diff} for {pname}: r = {r}, x = {x}, "
+                            f"y = {y}, beta = {self.params['beta']} "
+                            f"pirAx = {self.model.pi_codon[r][x]}, "
+                            f"pirAy = {self.model.pi_codon[r][y]}, "
+                            f"mu = {self.model.mu}, "
+                            f"omega = {self.model.omega}, "
+                            f"Frxy = {self.model.Frxy[r][x][y]}, "
+                            f"Prxy = {self.model.Prxy[r][x][y]}, "
+                            f"phi = {self.model.phi}, "
+                            f"kappa = {self.model.kappa}, "
+                            f"dQxy_dbeta = {self.model.dQxy_dbeta[x][y]}, "
+                            f"dphi_dbeta = {self.model.dphi_dbeta}, "
+                            f"dPrxy_dbeta = "
+                            f"{self.model.dPrxy["beta"][r][x][y]}, "
+                            f"piAx_piAy_beta[r][x][y] = "
+                            f"{self.model.piAx_piAy_beta[r][x][y]}"))
             # back to original value
             self.model.updateParams(self.params)
 
@@ -351,20 +326,17 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
             # fromdiag is recomputed Prxy after diagonalization
             fromdiag = numpy.dot(
                 self.model.A[r],
-                numpy.dot(numpy.diag(self.model.D[r]), self.model.Ainv[r]),
-            )
+                numpy.dot(numpy.diag(self.model.D[r]), self.model.Ainv[r]))
             self.assertTrue(
                 numpy.allclose(self.model.Prxy[r], fromdiag, atol=1e-5),
-                "Max diff {0}".format((self.model.Prxy[r] - fromdiag).max()),
-            )
+                "Max diff {0}".format((self.model.Prxy[r] - fromdiag).max()))
 
             for t in [0.02, 0.2, 0.5]:
                 direct = scipy.linalg.expm(self.model.Prxy[r] *
                                            self.model.mu * t)
                 self.assertTrue(
                     numpy.allclose(self.model.M(t)[r], direct, atol=1e-6),
-                    "Max diff {0}".format((self.model.M(t)[r] - direct).max()),
-                )
+                    "Max diff {0}".format((self.model.M(t)[r] - direct).max()))
         # check derivatives of M calculated by dM
         # implementation looks a bit complex because `check_grad` function
         # can only be used for single values at a time, so have to loop
@@ -419,28 +391,17 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
                                 x,
                                 y,
                                 storedvalues,
-                                epsilon=1e-4,
-                            )
-                            (
-                                self.assertTrue(
-                                    diff < 1e-3,
-                                    "diff {0} for {1}: "
-                                    "computed derivative = {10}, "
-                                    "r = {2}, x = {3}, y = {4}, "
-                                    "beta = {5}, pirAx = {6}, "
-                                    "pirAy = {7}, t = {8}, mu = {9}".format(
-                                        diff,
-                                        pname,
-                                        r,
-                                        x,
-                                        y,
-                                        self.params["beta"],
-                                        self.model.pi_codon[r][x],
-                                        self.model.pi_codon[r][y],
-                                        t,
-                                        self.model.mu,
-                                        funcdM(pvalue, pname, t, self.model,
-                                               r, x, y, {}))))
+                                epsilon=1e-4,)
+                            (self.assertTrue(
+                                diff < 1e-3,
+                                f"diff {diff} for {pname}: computed "
+                                f"derivative = {funcdM(pvalue, pname, t,\
+                                                self.model,r, x, y, {})}, "
+                                f"r = {r}, x = {x}, y = {u}, beta = "
+                                f"{self.params['beta']}, pirAx = "
+                                f"{self.model.pi_codon[r][x]}, pirAy = "
+                                f"{self.model.pi_codon[r][y]}, t = {t}, "
+                                f"mu = {self.model.mu}"))
                 # back to original value
                 self.model.updateParams(self.params)
 

@@ -39,20 +39,14 @@ class TestPrepAlignment(unittest.TestCase):
                            ("0.7", "2", [""], [keepseqsfile]),
                            ("0.7", "2", [purgeseqsfile], ["Panu", "Ggor"]),
                            ("0.7", "2", ["Fcat"], [keepseqsfile])]:
-            alignmentSuffix = ("test_SUMO1_alignment_minidentity{0}_"
-                               "minuniqueness{1}_purgeseqs{2}_keepseqs{3}"
-                               ".fasta"
-                               .format(minidentity,
-                                       minuniqueness,
-                                       (os.path
-                                        .splitext(os.path
-                                                  .basename("".join(purgeseqs
-                                                                    )))[0]),
-                                       (os.path
-                                        .splitext(os.path
-                                                  .basename("".join(keepseqs
-                                                                    )))[0])
-                                       ))
+            alignmentSuffix = (
+                "test_SUMO1_alignment_minidentity{0}_minuniqueness{1}_"
+                "purgeseqs{2}_keepseqs{3}."
+                "fasta".format(minidentity, minuniqueness,
+                               (os.path.splitext(
+                                os.path.basename("".join(purgeseqs)))[0]),
+                               (os.path.splitext(
+                                os.path.basename("".join(keepseqs)))[0])))
             alignment = os.path.abspath(os.path.join(self.testdir,
                                                      alignmentSuffix))
             subprocess.check_call(["phydms_prepalignment", inseqs, alignment,

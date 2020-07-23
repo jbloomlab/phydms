@@ -143,10 +143,8 @@ class test_GammaDistributedOmega_ExpCM(unittest.TestCase):
                 diffs = numpy.array(diffs)
                 self.assertTrue(
                     (diffs < 1e-5).all(),
-                    (
-                        "Excessive diff "
-                        "for d_distributionparams[{0}] when "
-                        "distributionparams = {1}:\n{2}".format(
+                    ("Excessive diff for d_distributionparams[{0}] when "
+                     "distributionparams = {1}:\n{2}".format(
                             param, gammamodel.distributionparams, diffs)))
 
 

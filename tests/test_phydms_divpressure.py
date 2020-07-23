@@ -25,9 +25,9 @@ class test_phydms_testdivpressure(unittest.TestCase):
         alignment = os.path.abspath(
             os.path.join(os.path.dirname(__file__),
                          "./divpressure_tests/simulated_NP.fasta"))
-        prefs = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                             "./divpressure_tests/NP_prefs.txt"
-                                             ))
+        prefs = os.path.abspath(
+            os.path.join(os.path.dirname(__file__),
+                         "./divpressure_tests/NP_prefs.txt"))
         divpressure = os.path.abspath(
             os.path.join(
                 os.path.dirname(__file__),
@@ -39,8 +39,8 @@ class test_phydms_testdivpressure(unittest.TestCase):
         for f in [prefs, alignment]:
             self.assertTrue(os.path.isfile(f), "Can't find file {0}".format(f))
         outprefix = os.path.abspath(
-            os.path.join(os.path.dirname(__file__),
-                         "./divpressure_test_results/"))
+            os.path.join(
+                os.path.dirname(__file__), "./divpressure_test_results/"))
         if outprefix[-1] != "/":
             outprefix = "{0}/".format(outprefix)
         if os.path.isdir(outprefix):
@@ -49,8 +49,8 @@ class test_phydms_testdivpressure(unittest.TestCase):
         subprocess.check_call(
             ["phydms_divpressure", outprefix, alignment, prefs, "--tree", tree,
              divpressure, divpressure2])
-        actual = os.path.abspath(os.path.join(outprefix,
-                                              "modelcomparison.csv"))
+        actual = os.path.abspath(
+            os.path.join(outprefix, "modelcomparison.csv"))
         actual = pd.read_csv(actual)
         expected = os.path.abspath(
             os.path.join(
