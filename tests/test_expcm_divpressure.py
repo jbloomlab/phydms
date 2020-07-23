@@ -314,7 +314,7 @@ class testExpCM_empirical_phi_divpressure(unittest.TestCase):
                             f"dQxy_dbeta = {self.model.dQxy_dbeta[x][y]}, "
                             f"dphi_dbeta = {self.model.dphi_dbeta}, "
                             f"dPrxy_dbeta = "
-                            f"{self.model.dPrxy["beta"][r][x][y]}, "
+                            f"{self.model.dPrxy['beta'][r][x][y]}, "
                             f"piAx_piAy_beta[r][x][y] = "
                             f"{self.model.piAx_piAy_beta[r][x][y]}"))
             # back to original value
