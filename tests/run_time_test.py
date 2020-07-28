@@ -8,9 +8,10 @@ import unittest
 import pandas as pd
 import time
 
+
 def main():
     """Runs the tests."""
-    r = {"test":[], "time":[]}
+    r = {"test": [], "time": []}
     failurestrings = []
     for test in glob.glob('test_*.py'):
         s = time.time()
@@ -26,7 +27,7 @@ def main():
             r["time"].append(float(e-s)/60)
         else:
             sys.stderr.write('Test(s) FAILED!\n')
-            for (testcase, failstring) in result.failures + result.errors:
+            for (_testcase, failstring) in result.failures + result.errors:
                 failurestrings.append(failstring)
 
     if not failurestrings:
@@ -36,8 +37,9 @@ def main():
         for fstring in failurestrings:
             sys.stderr.write('\n*********\n{0}\n********\n'.format(fstring))
     r = pd.DataFrame(r)
-    r["Greater_10min"] = ["y" if x>10 else "n" for x in r["time"]]
+    r["Greater_10min"] = ["y" if x > 10 else "n" for x in r["time"]]
     r.to_csv("time_test_results.csv", index=False)
+
 
 if __name__ == '__main__':
     main()

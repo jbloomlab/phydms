@@ -9,7 +9,6 @@ import unittest
 
 def main():
     """Runs the tests."""
-
     failurestrings = []
     for test in glob.glob('test_*.py'):
         sys.stderr.write('\nRunning tests in {0}...\n'.format(test))
@@ -21,7 +20,7 @@ def main():
             sys.stderr.write('All tests were successful.\n')
         else:
             sys.stderr.write('Test(s) FAILED!\n')
-            for (testcase, failstring) in result.failures + result.errors:
+            for (_testcase, failstring) in result.failures + result.errors:
                 failurestrings.append(failstring)
 
     if not failurestrings:

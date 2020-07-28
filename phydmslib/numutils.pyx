@@ -7,7 +7,7 @@ cimport numpy
 
 
 def broadcastMatrixMultiply(numpy.ndarray a, numpy.ndarray b,
-        float alpha=1.0):
+                            float alpha=1.0):
     """Broadcast square matrix multiplication using `blas` for speed.
 
     Args:
@@ -53,7 +53,7 @@ def broadcastMatrixMultiply(numpy.ndarray a, numpy.ndarray b,
 
 
 def broadcastMatrixVectorMultiply(numpy.ndarray m, numpy.ndarray v,
-        float alpha=1.0):
+                                  float alpha=1.0):
     """Broadcast matrix vector multiplication using `blas` for speed.
 
     Args:
@@ -100,7 +100,7 @@ def broadcastMatrixVectorMultiply(numpy.ndarray m, numpy.ndarray v,
     for i in range(r):
         mv[i] = scipy.linalg.blas.dgemv(alpha, m[i], v[i])
     return mv
-    #return numpy.sum(m * v[:, None, :], axis=2)
+    # return numpy.sum(m * v[:, None, :], axis=2)
 
 
 def broadcastGetCols(numpy.ndarray m, numpy.ndarray cols):

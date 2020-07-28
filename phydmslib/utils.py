@@ -1,10 +1,9 @@
 """Utilities for ``phydmslib``."""
 
 
-import math
-import tempfile
-import numpy
 import pandas
+import tempfile  # noqa: F401
+import numpy  # noqa: F401
 
 
 def modelComparisonDataFrame(modelcomparisonfile, splitparams):
@@ -28,10 +27,10 @@ def modelComparisonDataFrame(modelcomparisonfile, splitparams):
 
     >>> with tempfile.NamedTemporaryFile(mode='w') as f:
     ...     _ = f.write('\\n'.join([
-    ...         '| Model | deltaAIC | LogLikelihood | nParams | ParamValues  |',
-    ...         '|-------|----------|---------------|---------|--------------|',
-    ...         '| ExpCM | 0.00     | -1000.00      | 7       | x=1.0, y=2.0 |',
-    ...         '| YNGKP | 10.2     | -1005.10      | 7       | x=1.3, z=0.1 |',
+    ...        '| Model | deltaAIC | LogLikelihood | nParams | ParamValues  |',
+    ...        '|-------|----------|---------------|---------|--------------|',
+    ...        '| ExpCM | 0.00     | -1000.00      | 7       | x=1.0, y=2.0 |',
+    ...        '| YNGKP | 10.2     | -1005.10      | 7       | x=1.3, z=0.1 |',
     ...         ]))
     ...     f.flush()
     ...     df_split = modelComparisonDataFrame(f.name, splitparams=True)
@@ -60,10 +59,10 @@ def modelComparisonDataFrame(modelcomparisonfile, splitparams):
 
     paramsdict = {}
     if splitparams:
-        for (i, paramstr) in df['ParamValues'].iteritems():
+        for (i, paramstr) in df['ParamValues'].iteritems():  # noqa: F401
             paramsdict[i] = dict(map(lambda tup: (tup[0], float(tup[1])),
-                                 [param.strip().split('=') for param in
-                                 paramstr.split(',')]))
+                                 (param.strip().split('=') for param in
+                                 paramstr.split(','))))
         params_df = pandas.DataFrame.from_dict(paramsdict, orient='index')
         params_df = params_df[sorted(params_df.columns)]
         df = (df.join(params_df)
@@ -96,7 +95,7 @@ def BenjaminiHochbergCorrection(pvals, fdr):
     # find maximum rank for which p <= (rank/num_tests)*FDR
     max_rank = 0
     pcutoff = None
-    for (rank, (label, p)) in enumerate(sorted_tests):
+    for (rank, (_label, p)) in enumerate(sorted_tests):
         rank = rank + 1  # rank begins w/ 1 for smallest p-value ( no rank 0)
         bh_threshold = fdr * float(rank) / num_tests
         if p <= bh_threshold:

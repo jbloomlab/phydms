@@ -1,17 +1,13 @@
-"""
-Module for input / output from files.
-"""
+"""Module for input / output from files."""
 
 
 import sys
-import os
+import io  # noqa: F401
 import re
 import time
 import platform
 import importlib
-import math
 import random
-import io
 import Bio.Seq
 import Bio.SeqIO
 import pandas
@@ -22,10 +18,11 @@ import phydmslib.constants
 def Versions():
     """Returns a string with version information.
 
-    You would call this function if you want a string giving detailed information
-    on the version of ``phydms`` and the associated packages that it uses.
+    You would call this function if you want a string giving detailed
+    informationon the version of ``phydms`` and the associated packages that
+    it uses.
     """
-    s = [\
+    s = [
             'Version information:',
             '\tTime and date: %s' % time.asctime(),
             '\tPlatform: %s' % platform.platform(),
@@ -33,8 +30,8 @@ def Versions():
             '\tphydms version: %s' % phydmslib.__version__,
             ]
     for modname in ['Bio', 'cython', 'numpy', 'scipy', 'matplotlib',
-            'natsort', 'sympy', 'six', 'pandas', 'pyvolve', 'statsmodels',
-            'weblogolib', 'PyPDF2']:
+                    'natsort', 'sympy', 'six', 'pandas', 'pyvolve',
+                    'statsmodels', 'weblogolib', 'PyPDF2']:
         try:
             v = importlib.import_module(modname).__version__
             s.append('\t%s version: %s' % (modname, v))
@@ -109,67 +106,72 @@ def ReadCodonAlignment(fastafile, checknewickvalid):
     assert seqs, "{0} failed to specify any sequences".format(fastafile)
 
     seqlen = len(seqs[0][1])
-    if not all([len(seq) == seqlen for (head, seq) in seqs]):
+    if not all((len(seq) == seqlen for (head, seq) in seqs)):
         raise ValueError(("All sequences in {0} are not of the same length; "
-                "they must not be properly aligned").format(fastafile))
+                          "they must not be properly aligned")
+                         .format(fastafile))
     if (seqlen < 3) or (seqlen % 3 != 0):
         raise ValueError(("The length of the sequences in {0} is {1} which "
-                "is not divisible by 3; they are not valid codon sequences"
-                ).format(fastafile, seqlen))
+                          "is not divisible by 3; they are not valid "
+                          "codon sequences")
+                         .format(fastafile, seqlen))
 
     terminalcodon = []
-    codons_by_position = dict([(icodon, []) for icodon in range(seqlen // 3)])
+    codons_by_position = {icodon: [] for icodon in range(seqlen // 3)}
     for (head, seq) in seqs:
         assert len(seq) % 3 == 0
         for icodon in range(seqlen // 3):
-            codon = seq[3 * icodon : 3 * icodon + 3]
+            codon = seq[3 * icodon: 3 * icodon + 3]
             codons_by_position[icodon].append(codon)
             if codonmatch.search(codon):
                 aa = str(Bio.Seq.Seq(codon).translate())
                 if aa == '*':
                     if icodon + 1 != len(seq) // 3:
                         raise ValueError(("In {0}, sequence {1}, non-terminal "
-                                "codon {2} is stop codon: {3}").format(
-                                fastafile, head, icodon + 1, codon))
+                                          "codon {2} is stop codon: {3}")
+                                         .format(fastafile, head,
+                                         icodon + 1, codon))
             elif codon == '---':
                 aa = '-'
             else:
-                raise ValueError(("In {0}, sequence {1}, codon {2} is invalid: "
-                        "{3}").format(fastafile, head, icodon + 1, codon))
+                raise ValueError(("In {0}, sequence {1}, codon {2} is invalid:"
+                                 " {3}")
+                                 .format(fastafile, head, icodon + 1, codon))
         terminalcodon.append(aa)
 
     for (icodon, codonlist) in codons_by_position.items():
-        if all([codon == '---' for codon in codonlist]):
-            raise ValueError(("In {0}, all codons are gaps at position {1}"
-                    ).format(fastafile, icodon + 1))
+        if all((codon == '---' for codon in codonlist)):
+            raise ValueError(("In {0}, all codons are gaps at position {1}")
+                             .format(fastafile, icodon + 1))
 
-    if all([aa in ['*', '-'] for aa in terminalcodon]):
+    if all((aa in ['*', '-'] for aa in terminalcodon)):
         if len(seq) == 3:
             raise ValueError(("The only codon is a terminal stop codon for "
-                    "the sequences in {0}").format(fastafile))
-        seqs = [(head, seq[ : -3]) for (head, seq) in seqs]
-    elif any([aa == '*' for aa in terminalcodon]):
+                              "the sequences in {0}").format(fastafile))
+        seqs = [(head, seq[: -3]) for (head, seq) in seqs]
+    elif any((aa == '*' for aa in terminalcodon)):
         raise ValueError(("Only some sequences in {0} have a terminal stop "
-                "codon. All or none must have terminal stop.").format(fastafile))
+                          "codon. All or none must have terminal stop.")
+                         .format(fastafile))
 
-    if any([gapmatch.search(seq) for (head, seq) in seqs]):
+    if any((gapmatch.search(seq) for (head, seq) in seqs)):
         raise ValueError(("In {0}, at least one sequence is entirely composed "
-                "of gaps.").format(fastafile))
+                          "of gaps.").format(fastafile))
 
     if checknewickvalid:
-        if len(set([head for (head, seq) in seqs])) != len(seqs):
+        if len({head for (head, seq) in seqs}) != len(seqs):
             raise ValueError("Headers in {0} not all unique".format(fastafile))
         disallowedheader = re.compile(r'[\s\:\;\(\)\[\]\,\'\"]')
-        for (head, seq) in seqs:
+        for (head, _seq) in seqs:
             if disallowedheader.search(head):
                 raise ValueError(("Invalid character in header in {0}:"
-                        "\n{2}").format(fastafile, head))
+                                  "\n{1}").format(fastafile, head))
 
     return seqs
 
 
 def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
-        seed=1, sites_as_strings=False):
+              seed=1, sites_as_strings=False):
     """Read preferences from file with some error checking.
 
     Args:
@@ -207,8 +209,8 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
         pandasformat = True
     except ValueError:
         pandasformat = False
-    if pandasformat and (set(df.columns) == aas.union(set(['site'])) or
-            set(df.columns) == aas.union(set(['site', '*']))):
+    if pandasformat and (set(df.columns) == aas.union({'site'}) or
+                         set(df.columns) == aas.union({'site', '*'})):
         # read valid preferences as data frame
         sites = df['site'].tolist()
         prefs = {}
@@ -228,17 +230,19 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
         try:
             sites = [int(r) for r in sites]
         except ValueError:
-            raise ValueError("sites not int in prefsfile {0}".format(prefsfile))
-        assert (min(sites) == 1 and max(sites) - min(sites) == len(sites) - 1),\
-                "Sites not consecutive starting at 1"
-        prefs = dict([(int(r), rprefs) for (r, rprefs) in prefs.items()])
+            raise ValueError("sites not int in prefsfile {0}"
+                             .format(prefsfile))
+        assert (min(sites) == 1 and max(sites) - min(sites)
+                == len(sites) - 1), "Sites not consecutive starting at 1"
+        prefs = {int(r): rprefs for (r, rprefs) in prefs.items()}
     else:
         sites = [str(r) for r in sites]
-        prefs = dict([(str(r), rprefs) for (r, rprefs) in prefs.items()])
+        prefs = {str(r): rprefs for (r, rprefs) in prefs.items()}
 
     assert len(set(sites)) == len(sites), "Non-unique sites in prefsfiles"
-    assert all([all([pi >= 0 for pi in rprefs.values()]) for rprefs in
-            prefs.values()]), "prefs < 0 in prefsfile {0}".format(prefsfile)
+    assert (all((all((pi >= 0 for pi in rprefs.values())) for rprefs in
+                prefs.values()))), ("prefs < 0 in prefsfile {0}"
+                                    .format(prefsfile))
     for r in list(prefs.keys()):
         rprefs = prefs[r]
         assert sum(rprefs.values()) - 1 <= 0.01, (
@@ -246,20 +250,21 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
         if '*' in rprefs:
             del rprefs['*']
         assert aas == set(rprefs.keys()), ("prefsfile {0} does not include "
-                "all amino acids at site {1}").format(prefsfile, r)
+                                           "all amino acids at site {1}"
+                                           .format(prefsfile, r))
         rsum = float(sum(rprefs.values()))
-        prefs[r] = dict([(aa, pi / rsum) for (aa, pi) in rprefs.items()])
+        prefs[r] = {aa: pi / rsum for (aa, pi) in rprefs.items()}
     assert set(sites) == set(prefs.keys())
 
     # Iteratively adjust until all prefs exceed minpref after re-scaling.
     for r in list(prefs.keys()):
         rprefs = prefs[r]
         iterations = 0
-        while any([pi < minpref for pi in rprefs.values()]):
-            rprefs = dict([(aa, max(1.1 * minpref,
-                    pi)) for (aa, pi) in rprefs.items()])
+        while any((pi < minpref for pi in rprefs.values())):
+            rprefs = {aa: max(1.1 * minpref, pi) for (aa, pi)
+                      in rprefs.items()}
             newsum = float(sum(rprefs.values()))
-            rprefs = dict([(aa, pi / newsum) for (aa, pi) in rprefs.items()])
+            rprefs = {aa: (pi / newsum) for (aa, pi) in rprefs.items()}
             iterations += 1
             assert iterations <= 3, "minpref adjustment not converging."
         prefs[r] = rprefs
@@ -267,12 +272,12 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
     if randprefs:
         assert not avgprefs, "randprefs and avgprefs are incompatible"
         random.seed(seed)
-        sites = sorted([r for r in prefs.keys()])
+        sites = sorted(prefs.keys())
         prefs = [prefs[r] for r in sites]
         random.shuffle(sites)
         prefs = dict(zip(sites, prefs))
     elif avgprefs:
-        avg_prefs = dict([(aa, 0.0) for aa in aas])
+        avg_prefs = {aa: 0.0 for aa in aas}
         for rprefs in prefs.values():
             for aa in aas:
                 avg_prefs[aa] += rprefs[aa]
@@ -285,7 +290,7 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
 
 
 def readPrefs_dms_tools_format(f):
-    """Reads the amino-acid preferences written by `dms_tools v1 <http://jbloomlab.github.io/dms_tools/>`_.
+    """Reads the amino-acid preferences written by `dms_tools v1`.
 
     This is an exact copy of the same code from
     `dms_tools.file_io.ReadPreferences`. It is copied because
@@ -320,42 +325,58 @@ def readPrefs_dms_tools_format(f):
         if line.isspace():
             continue
         elif line[0] == '#' and not characters:
-            entries = line[1 : ].strip().split()
+            entries = line[1:].strip().split()
             if len(entries) < 4:
                 raise ValueError("Insufficient entries in header:\n%s" % line)
-            if not (entries[0] in ['POSITION', 'SITE'] and entries[1][ : 2] == 'WT' and entries[2] == 'SITE_ENTROPY'):
-                raise ValueError("Not the correct first three header columns:\n%s" % line)
+            if not (entries[0] in ['POSITION', 'SITE'] and
+                    entries[1][: 2] == 'WT' and entries[2] == 'SITE_ENTROPY'):
+                raise ValueError("Not the correct first three "
+                                 "header columns:\n%s" % line)
             i = 3
             while i < len(entries) and charmatch.search(entries[i]):
                 characters.append(charmatch.search(entries[i]).group(1))
                 i += 1
-            if i  == len(entries):
+            if i == len(entries):
                 pi_95credint = None
                 linelength = len(characters) + 3
             else:
                 if not len(entries) - i == len(characters):
-                    raise ValueError("Header line does not have valid credible interval format:\n%s" % line)
-                if not all([entries[i + j] == 'PI_%s_95' % characters[j] for j in range(len(characters))]):
-                    raise ValueError("mean and credible interval character mismatch in header:\n%s" % line)
+                    raise ValueError("Header line does not have valid "
+                                     "credible interval format:\n%s" % line)
+                if not all((entries[i + j] == 'PI_%s_95' % characters[j]
+                            for j in range(len(characters)))):
+                    raise ValueError("mean and credible interval character "
+                                     "mismatch in header:\n%s" % line)
                 linelength = 2 * len(characters) + 3
         elif line[0] == '#':
             continue
         elif not characters:
-            raise ValueError("Found data lines before encountering a valid header")
+            raise ValueError("Found data lines before encountering a valid "
+                             "header")
         else:
             entries = line.strip().split()
             if len(entries) != linelength:
-                raise ValueError("Line does not have expected %d entries:\n%s" % (linelength, line))
+                raise ValueError("Line does not have expected %d "
+                                 "entries:\n%s" % (linelength, line))
             r = entries[0]
             assert r not in sites, "Duplicate site of %s" % r
             sites.append(r)
             wts[r] = entries[1]
-            assert entries[1] in characters or entries[1] == '?', "Character %s is not one of the valid ones in header. Valid possibilities: %s" % (entries[1], ', '.join(characters))
+            assert entries[1] in characters or entries[1] == '?',\
+                ("Character %s is not one of the valid ones in header. "
+                 "Valid possibilities: %s" % (entries[1], ', '.join(characters)
+                                              ))
             h[r] = float(entries[2])
-            pi_means[r] = dict([(x, float(entries[3 + i])) for (i, x) in enumerate(characters)])
-            if pi_95credint != None:
-                pi_95credint[r] = dict([(x, (float(entries[3 + len(characters) + i].split(',')[0]), float(entries[3 + len(characters) + i].split(',')[1]))) for (i, x) in enumerate(characters)])
+            pi_means[r] = {x: float(entries[3 + i]) for (i, x)
+                           in enumerate(characters)}
+            if pi_95credint is not None:
+                pi_95credint[r] = {x: (float(entries[3 + len(characters)
+                                                     + i].split(',')[0]),
+                                       float(entries[3 + len(characters)
+                                                     + i].split(',')[1]))
+                                   for (i, x) in enumerate(characters)}
     return (sites, wts, pi_means, pi_95credint, h)
+
 
 def readDivPressure(fileName):
     """Reads in diversifying pressures from some file.
@@ -365,10 +386,10 @@ def readDivPressure(fileName):
 
     Args:
         `fileName` (string or readable file-like object)
-            File holding diversifying pressure values. Can be
-            comma-, space-, or tab-separated file. The first column
-            is the site (consecutively numbered, sites starting
-            with one) and the second column is the diversifying pressure values.
+            File holding diversifying pressure values. Can be comma-, space-,
+            or tab-separated file. The first column is the site (consecutively
+            numbered, sites starting with one) and the second column is the
+            diversifying pressure values.
 
     Returns:
         `divPressure` (dict keyed by ints)
@@ -379,17 +400,25 @@ def readDivPressure(fileName):
         pandasformat = True
     except ValueError:
         pandasformat = False
-    df.columns = ['site', 'divPressureValue']
-    scaleFactor = max(df["divPressureValue"].abs())
-    if scaleFactor > 0:
-        df["divPressureValue"] = [x / scaleFactor for x in df["divPressureValue"]]
-    assert len(df['site'].tolist()) == len(set(df['site'].tolist())),"There is at least one non-unique site in {0}".format(fileName)
-    assert max(df["divPressureValue"].abs()) <= 1, "The scaling produced a diversifying pressure value with an absolute value greater than one."
-    sites = df['site'].tolist()
-    divPressure = {}
-    for r in sites:
-        divPressure[r] = df[df['site'] == r]["divPressureValue"].tolist()[0]
-    return divPressure
+    if pandasformat:
+        df.columns = ['site', 'divPressureValue']
+        scaleFactor = max(df["divPressureValue"].abs())
+        if scaleFactor > 0:
+            df["divPressureValue"] = [x / scaleFactor for x
+                                      in df["divPressureValue"]]
+        assert len(df['site'].tolist()) == len(set(df['site'].tolist())),\
+            ("There is at >= non-unique site in {0}".format(fileName))
+        assert max(df["divPressureValue"].abs()) <= 1,\
+            ("The scaling produced a diversifying pressure value with an "
+             "absolute value greater than one.")
+        sites = df['site'].tolist()
+        divPressure = {}
+        for r in sites:
+            divPressure[r] = (df[df['site'] == r]["divPressureValue"]
+                              .tolist()[0])
+        return divPressure
+    else:
+        raise ValueError('Could not read file {0}'.format(fileName))
 
 
 if __name__ == '__main__':

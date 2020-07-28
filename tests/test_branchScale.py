@@ -7,21 +7,16 @@ Written by Jesse Bloom.
 """
 
 import os
-import sys
 import numpy
-import math
 import unittest
 import random
-import io
-import copy
 import phydmslib.models
 import phydmslib.treelikelihood
 import phydmslib.simulate
-from phydmslib.constants import *
+from phydmslib.constants import N_NT, N_AA, AA_TO_INDEX
 import Bio.SeqIO
 import Bio.Phylo
 import pyvolve
-
 
 
 class test_branchScale_ExpCM(unittest.TestCase):
@@ -33,7 +28,6 @@ class test_branchScale_ExpCM(unittest.TestCase):
 
     def test_branchScale(self):
         """Simulate evolution, ensure scaled branches match number of subs."""
-
         numpy.random.seed(1)
         random.seed(1)
 
@@ -41,7 +35,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
         nsites = 50
         prefs = []
         minpref = 0.01
-        for r in range(nsites):
+        for _r in range(nsites):
             rprefs = numpy.random.dirichlet([1] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
@@ -53,17 +47,19 @@ class test_branchScale_ExpCM(unittest.TestCase):
         if self.MODEL == phydmslib.models.ExpCM:
             phi = numpy.random.dirichlet([7] * N_NT)
             model = phydmslib.models.ExpCM(prefs, kappa=kappa, omega=omega,
-                    beta=beta, mu=mu, phi=phi, freeparams=['mu'])
+                                           beta=beta, mu=mu, phi=phi,
+                                           freeparams=['mu'])
             partitions = phydmslib.simulate.pyvolvePartitions(model)
         elif self.MODEL == phydmslib.models.ExpCM_empirical_phi:
             g = numpy.random.dirichlet([7] * N_NT)
-            model = phydmslib.models.ExpCM_empirical_phi(prefs, g,
-                    kappa=kappa, omega=omega, beta=beta, mu=mu,
-                    freeparams=['mu'])
+            model = phydmslib.models.ExpCM_empirical_phi(prefs, g, kappa=kappa,
+                                                         omega=omega,
+                                                         beta=beta, mu=mu,
+                                                         freeparams=['mu'])
             partitions = phydmslib.simulate.pyvolvePartitions(model)
         elif self.MODEL == phydmslib.models.YNGKP_M0:
             e_pw = numpy.asarray([numpy.random.dirichlet([7] * N_NT) for i
-                    in range(3)])
+                                  in range(3)])
             model = phydmslib.models.YNGKP_M0(e_pw, nsites)
             partitions = phydmslib.simulate.pyvolvePartitions(model)
         else:
@@ -87,10 +83,10 @@ class test_branchScale_ExpCM(unittest.TestCase):
         info = '_temp_info.txt'
         rates = '_temp_ratefile.txt'
         evolver = pyvolve.Evolver(partitions=partitions, tree=pyvolvetree)
-        nsubs = 0 # subs in simulated seqs (estimate from Hamming distance)
-        treedist = 0.0 # distance inferred by `TreeLikelihood`
+        nsubs = 0  # subs in simulated seqs (estimate from Hamming distance)
+        treedist = 0.0  # distance inferred by `TreeLikelihood`
         nreplicates = 100
-        for i in range(nreplicates):
+        for _i in range(nreplicates):
             evolver(seqfile=alignment, infofile=info, ratefile=rates)
             a = [(s.description, str(s.seq)) for s in Bio.SeqIO.parse(
                     alignment, 'fasta')]
@@ -99,21 +95,22 @@ class test_branchScale_ExpCM(unittest.TestCase):
                 if os.path.isfile(f):
                     os.remove(f)
             for r in range(nsites):
-                codon1 = a[0][1][3 * r : 3 * r + 3]
-                codon2 = a[1][1][3 * r : 3 * r + 3]
+                codon1 = a[0][1][3 * r: 3 * r + 3]
+                codon2 = a[1][1][3 * r: 3 * r + 3]
                 nsubs += len([j for j in range(3) if codon1[j] != codon2[j]])
             tl = phydmslib.treelikelihood.TreeLikelihood(biotree, a, model)
             tl.maximizeLikelihood()
-            treedist += sum([n.branch_length for n in tl.tree.get_terminals()])
+            treedist += sum((n.branch_length for n in tl.tree.get_terminals()))
         nsubs /= float(nsites * nreplicates)
         treedist /= float(nreplicates)
 
         # We expect nsubs = branchScale * t, but build in some tolerance
         # with rtol since we simulated finite number of sites.
         self.assertTrue(numpy.allclose(nsubs, model.branchScale * t, rtol=0.2),
-                ("Simulated subs per site of {0} is not close "
-                "to expected value of {1} (branchScale = {2}, t = {3})").format(
-                nsubs, t * model.branchScale, model.branchScale, t))
+                        ("Simulated subs per site of {0} is not close to "
+                        "expected value of {1} (branchScale = {2}, t = {3})")
+                        .format(nsubs, t * model.branchScale,
+                                model.branchScale, t))
         self.assertTrue(numpy.allclose(treedist, nsubs, rtol=0.2), (
                 "Simulated subs per site of {0} is not close to inferred "
                 "branch length of {1}").format(nsubs, treedist))
@@ -127,6 +124,7 @@ class test_branchScale_ExpCM(unittest.TestCase):
 
 class test_branchScale_YNGKP_M0(test_branchScale_ExpCM):
     """Tests `branchScale` of `YNGKP_M0` model."""
+
     MODEL = phydmslib.models.YNGKP_M0
 
 

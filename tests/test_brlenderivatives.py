@@ -4,19 +4,15 @@ Written by Jesse Bloom.
 """
 
 import os
-import sys
-import re
-import math
 import unittest
 import random
-import copy
 import numpy
 import scipy.optimize
 import Bio.Phylo
 import phydmslib.models
 import phydmslib.treelikelihood
 import phydmslib.simulate
-from phydmslib.constants import *
+from phydmslib.constants import N_CODON, N_NT, AA_TO_INDEX, N_AA
 import pyvolve
 
 
@@ -67,7 +63,7 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
         prefs = []
         minpref = 0.02
         g = numpy.random.dirichlet([10] * N_NT)
-        for r in range(self.nsites):
+        for _r in range(self.nsites):
             rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
@@ -99,18 +95,26 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
 
     def test_Initialize(self):
         """Test that `TreeLikelihood` initializes properly."""
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
-                self.alignment, self.model, underflowfreq=self.underflowfreq,
-                dparamscurrent=False, dtcurrent=True)
+        tl = (phydmslib.treelikelihood
+              .TreeLikelihood(self.tree,
+                              self.alignment,
+                              self.model,
+                              underflowfreq=self.underflowfreq,
+                              dparamscurrent=False,
+                              dtcurrent=True))
         self.assertEqual(tl.dloglik_dt.shape, tl.t.shape)
 
     def test_dM_dt(self):
         """Tests model `dM` with respect to `t`."""
         numpy.random.seed(1)
         random.seed(1)
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
-                self.alignment, self.model, underflowfreq=self.underflowfreq,
-                dparamscurrent=False, dtcurrent=True)
+        tl = (phydmslib.treelikelihood
+              .TreeLikelihood(self.tree,
+                              self.alignment,
+                              self.model,
+                              underflowfreq=self.underflowfreq,
+                              dparamscurrent=False,
+                              dtcurrent=True))
 
         def func(t, k, r, x, y):
             return tl._M(k, t[0], None)[r][x][y]
@@ -129,9 +133,12 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
     def test_AdjustBrLen(self):
         """Tests adjusting branch lengths."""
         numpy.random.seed(1)
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
-                self.alignment, self.model, underflowfreq=self.underflowfreq,
-                dparamscurrent=False, dtcurrent=True)
+        tl = (phydmslib.treelikelihood
+              .TreeLikelihood(self.tree,
+                              self.alignment,
+                              self.model,
+                              underflowfreq=self.underflowfreq,
+                              dparamscurrent=False, dtcurrent=True))
         loglik1 = tl.loglik
         tl.t = 2 * tl.t
         self.assertFalse(numpy.allclose(loglik1, tl.loglik))
@@ -151,17 +158,23 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
 
     def test_BrLenDerivatives(self):
         """Tests derivatives of branch lengths."""
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
-                self.alignment, self.model, underflowfreq=self.underflowfreq,
-                dparamscurrent=False, dtcurrent=True)
+        tl = (phydmslib.treelikelihood
+              .TreeLikelihood(self.tree,
+                              self.alignment,
+                              self.model,
+                              underflowfreq=self.underflowfreq,
+                              dparamscurrent=False,
+                              dtcurrent=True))
 
         def func(t, n):
+            """Evaluate function."""
             tx = tl.t
             tx[n] = t[0]
             tl.t = tx
             return tl.loglik
 
         def dfunc(t, n):
+            """Take derviative."""
             tx = tl.t
             tx[n] = t[0]
             tl.t = tx
@@ -169,33 +182,39 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
 
         for n in range(len(tl.t)):
             diff = scipy.optimize.check_grad(func, dfunc,
-                    numpy.array([tl.t[n]]), n)
+                                             numpy.array([tl.t[n]]), n)
             self.assertTrue(diff < 2e-5, diff)
-
 
     def test_dtcurrent(self):
         """Tests use of `dtcurrent` attribute."""
-        tl1 = phydmslib.treelikelihood.TreeLikelihood(self.tree,
-                self.alignment, self.model, underflowfreq=self.underflowfreq,
-                dparamscurrent=False, dtcurrent=True)
+        tl1 = (phydmslib.treelikelihood
+               .TreeLikelihood(self.tree,
+                               self.alignment,
+                               self.model,
+                               underflowfreq=self.underflowfreq,
+                               dparamscurrent=False, dtcurrent=True))
 
-        tl2 = phydmslib.treelikelihood.TreeLikelihood(self.tree,
-                self.alignment, self.model, underflowfreq=self.underflowfreq,
-                dparamscurrent=True, dtcurrent=False)
+        tl2 = (phydmslib.treelikelihood
+               .TreeLikelihood(self.tree,
+                               self.alignment,
+                               self.model,
+                               underflowfreq=self.underflowfreq,
+                               dparamscurrent=True,
+                               dtcurrent=False))
 
         self.assertTrue(numpy.allclose(tl1.loglik, tl2.loglik))
 
-        with self.assertRaises(Exception) as context:
+        with self.assertRaises(Exception):
             tl2.dtcurrent = True
 
-        with self.assertRaises(Exception) as context:
+        with self.assertRaises(Exception):
             tl1.dparamscurrent = True
 
-        with self.assertRaises(Exception) as context:
-            x = tl2.dloglik_dt
+        with self.assertRaises(Exception):
+            tl2.dloglik_dt
 
-        with self.assertRaises(Exception) as context:
-            x = tl1.dloglik
+        with self.assertRaises(Exception):
+            tl1.dloglik
 
         tl1.t = 1.1 * tl1.t
         tl2.t = 1.1 * tl2.t
@@ -204,8 +223,8 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
         self.assertTrue(numpy.allclose(tl1.dloglik_dt, tl2.dloglik_dt))
         self.assertTrue(numpy.allclose(tl1.loglik, tl2.loglik))
 
-        tl1.updateParams({'kappa':3.15})
-        tl2.updateParams({'kappa':3.15})
+        tl1.updateParams({'kappa': 3.15})
+        tl2.updateParams({'kappa': 3.15})
         tl2.dtcurrent = False
         tl2.dparamscurrent = True
         tl1.dtcurrent = False
@@ -216,30 +235,42 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
 
 
 class test_BrLenDerivatives_ExpCM_empirical_phi(test_BrLenDerivatives_ExpCM):
+    """Test branch length derv for ExpCM with empirical phi."""
+
     MODEL = phydmslib.models.ExpCM_empirical_phi
 
 
-class test_BrLenDerivativs_ExpCM_empirical_phi_divpressure(test_BrLenDerivatives_ExpCM):
+class test_BrLenDerivativs_ExpCM_emp_phi_divpress(test_BrLenDerivatives_ExpCM):
+    """Test branch length derv for ExpCM with empirical phi & div pressure."""
+
     MODEL = phydmslib.models.ExpCM_empirical_phi_divpressure
 
 
 class test_BrLenDerivatives_YNGKP_M0(test_BrLenDerivatives_ExpCM):
+    """Test branch length derv for YNGKP M0."""
+
     MODEL = phydmslib.models.YNGKP_M0
 
 
 class test_BrLenDerivatives_YNGKP_M5(test_BrLenDerivatives_ExpCM):
+    """Test branch length derv for YNGKP M5."""
+
     MODEL = phydmslib.models.YNGKP_M0
     DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedOmegaModel
 
 
 class test_BrLenDerivatives_ExpCM_gamma_omega(
         test_BrLenDerivatives_ExpCM):
+    """Test branch length derv for ExpCM with gamma omega."""
+
     MODEL = phydmslib.models.ExpCM
     DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedOmegaModel
 
 
 class test_BrLenDerivatives_ExpCM_empirical_phi_gamma_omega(
         test_BrLenDerivatives_ExpCM):
+    """Test branch length derv for ExpCM with empirical phi & Gamma omega."""
+
     MODEL = phydmslib.models.ExpCM_empirical_phi
     DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedOmegaModel
 

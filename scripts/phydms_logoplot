@@ -5,9 +5,7 @@
 Written by Jesse Bloom."""
 
 
-import sys
 import os
-import re
 import time
 import math
 import natsort
@@ -15,8 +13,7 @@ import pandas
 import phydmslib.weblogo
 import phydmslib.file_io
 import phydmslib.parsearguments
-from phydmslib.constants import *
-
+from phydmslib.constants import AA_TO_INDEX
 
 
 def main():
@@ -37,9 +34,10 @@ def main():
     # check on outfile we will create
     assert os.path.splitext(args['outfile'])[1].lower() == '.pdf', (
             "outfile {0} does not end in '.pdf'".format(args['outfile']))
-    assert (not os.path.dirname(args['outfile'])) or (os.path.isdir(
-            os.path.dirname(args['outfile']))), ("outfile {0} includes "
-            "non-existent directory".format(args['outfile']))
+    assert (not os.path.dirname(args['outfile'])) or\
+           (os.path.isdir(os.path.dirname(args['outfile']))),\
+           ("outfile {0} includes ""non-existent directory"
+            .format(args['outfile']))
     if os.path.isfile(args['outfile']):
         print("Removing existing outfile of {0}\n".format(args['outfile']))
         os.remove(args['outfile'])
@@ -49,8 +47,8 @@ def main():
     if args['prefs']:
         datatype = 'prefs'
         print("Reading preferences from {0}".format(args['prefs']))
-        prefs = phydmslib.file_io.readPrefs(args['prefs'], 
-                sites_as_strings=True)
+        prefs = phydmslib.file_io.readPrefs(args['prefs'],
+                                            sites_as_strings=True)
         sites = natsort.realsorted(prefs.keys())
         print("Read preferences for {0} sites.".format(len(sites)))
         beta = args['stringency']
@@ -61,16 +59,16 @@ def main():
                 prefsum = sum([prefs[r][a] for a in aas])
                 prefs[r] = dict([(a, prefs[r][a] / prefsum) for a in aas])
         data = prefs
-        ydatamax = None 
+        ydatamax = None
 
     elif args['diffprefs']:
         datatype = 'diffprefs'
         print("Reading differential preferences from {0}".format(
                 args['diffprefs']))
-        diffprefs = pandas.read_csv(args['diffprefs'], sep='\t', 
-                comment='#')
+        diffprefs = pandas.read_csv(args['diffprefs'], sep='\t', comment='#')
         sites = natsort.realsorted(map(str, diffprefs['site'].values))
-        print("Read differential preferences for {0} sites.".format(len(sites)))
+        print("Read differential preferences for {0} sites."
+              .format(len(sites)))
         data = {}
         ydatamax = args['diffprefheight'] * 1.01
         for r in sites:
@@ -82,8 +80,8 @@ def main():
             sumneg = sum([-dpi for dpi in data[r].values() if dpi < 0])
             if max(sumpos, sumneg) >= ydatamax:
                 raise ValueError("diffprefs extend beyond --diffprefheight "
-                        "{0}. Increase --diffprefheight.".format(
-                        args['diffprefheight']))
+                                 "{0}. Increase --diffprefheight."
+                                 .format(args['diffprefheight']))
 
     else:
         raise ValueError("Didn't specify either --prefs or --diffprefs")
@@ -94,15 +92,14 @@ def main():
     fix_limits = {}
     if args['omegabysite']:
         print("\nWe will make an overlay with the site-specific omega "
-                "values in {0}.".format(args['omegabysite']))
-        omegas = pandas.read_csv(args['omegabysite'], comment='#',
-                sep='\t')
-        assert set(sites) == set(map(str, omegas['site'].values)), ("sites "
-                "in {0} don't match those in prefs or diffprefs".format(
-                args['omegabysite']))
+              "values in {0}.".format(args['omegabysite']))
+        omegas = pandas.read_csv(args['omegabysite'], comment='#', sep='\t')
+        assert set(sites) == set(map(str, omegas['site'].values)),\
+               ("sites in {0} don't match those in prefs or diffprefs"
+               .format(args['omegabysite']))
         shortname = '$\omega_r$'
         longname = ('{0} $<1 \; \longleftarrow$ $\log_{{10}} P$ '
-                '$\longrightarrow \;$ {0} $>1$'.format(shortname))
+                    '$\longrightarrow \;$ {0} $>1$'.format(shortname))
         prop_d = {}
         for r in sites:
             omegar = float(omegas[omegas['site'].astype(str) == r]['omega'])
@@ -112,8 +109,8 @@ def main():
             else:
                 prop_d[r] = -max(math.log10(args['minP']), math.log10(p))
         overlay = [(prop_d, shortname, longname)]
-        ticklocs = [itick for itick in range(int(math.log10(args['minP'])), 
-                1 - int(math.log10(args['minP'])))]
+        ticklocs = [itick for itick in range(int(math.log10(args['minP'])),
+                    1 - int(math.log10(args['minP'])))]
         ticknames = [-abs(itick) for itick in ticklocs]
         fix_limits[shortname] = (ticklocs, ticknames)
     else:
@@ -137,11 +134,11 @@ def main():
                 custom_cmap=args['colormap'],
                 map_metric=args['mapmetric'],
             )
-    assert os.path.isfile(args['outfile']), "Failed to create plot" 
+    assert os.path.isfile(args['outfile']), "Failed to create plot"
     print("Created plot {0}".format(args['outfile']))
 
     print('\nSuccessful completion of %s' % prog)
 
 
 if __name__ == '__main__':
-    main() # run the script
+    main()  # run the script

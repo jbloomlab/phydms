@@ -1,6 +1,7 @@
 .*
 !.gitignore
 !.travis.yml
+!.flake8
 /*.png
 custom_matrix_frequencies.txt
 *.pyc

@@ -4,18 +4,15 @@ Written by Jesse Bloom.
 """
 
 import os
-import sys
-import re
-import math
 import unittest
 import random
-import copy
 import Bio.Phylo
 import phydmslib.models
 import phydmslib.treelikelihood
 import phydmslib.simulate
-from phydmslib.constants import *
+from phydmslib.constants import AA_TO_INDEX, N_AA
 import pyvolve
+import numpy
 
 
 class test_BrLenOptimize_ExpCM(unittest.TestCase):
@@ -45,8 +42,7 @@ class test_BrLenOptimize_ExpCM(unittest.TestCase):
         self.nsites = 50
         prefs = []
         minpref = 0.02
-        g = numpy.random.dirichlet([5] * N_NT)
-        for r in range(self.nsites):
+        for _r in range(self.nsites):
             rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
@@ -85,19 +81,27 @@ class test_BrLenOptimize_ExpCM(unittest.TestCase):
 
     def test_Optimize(self):
         """Tests optimization of branch lengths."""
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
-                self.alignment, self.model, underflowfreq=self.underflowfreq)
-        maxresult = tl.maximizeLikelihood(optimize_brlen=True)
+        tl = (phydmslib.treelikelihood
+              .TreeLikelihood(self.tree,
+                              self.alignment,
+                              self.model,
+                              underflowfreq=self.underflowfreq))
+        tl.maximizeLikelihood(optimize_brlen=True)
 
-        tl2 = phydmslib.treelikelihood.TreeLikelihood(self.tree,
-                self.alignment, self.model, underflowfreq=self.underflowfreq)
-        maxresult = tl.maximizeLikelihood(optimize_brlen=False)
+        tl2 = (phydmslib.treelikelihood
+               .TreeLikelihood(self.tree,
+                               self.alignment,
+                               self.model,
+                               underflowfreq=self.underflowfreq))
+        tl.maximizeLikelihood(optimize_brlen=False)
 
         self.assertTrue(tl.loglik > tl2.loglik)
 
 
 class test_BrLenOptimize_ExpCM_gamma_omega(
         test_BrLenOptimize_ExpCM):
+    """Test ExpCM with gamma omega."""
+
     MODEL = phydmslib.models.ExpCM
     DISTRIBUTIONMODEL = phydmslib.models.GammaDistributedOmegaModel
 

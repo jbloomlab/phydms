@@ -4,7 +4,6 @@ Written by Jesse Bloom and Sarah Hilton.
 """
 
 import os
-import sys
 import re
 import math
 import unittest
@@ -16,7 +15,8 @@ import Bio.Phylo
 import phydmslib.models
 import phydmslib.treelikelihood
 import phydmslib.simulate
-from phydmslib.constants import *
+from phydmslib.constants import (N_CODON, N_NT, AA_TO_INDEX,
+                                 N_AA, CODON_TO_INDEX)
 import pyvolve
 
 
@@ -34,46 +34,47 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         numpy.random.seed(1)
 
         # define tree
-        self.newick = ('((node1:0.2,node2:0.3)node4:0.3,node3:0.5)node5:0.04;')
-        tempfile = '_temp.tree'
-        with open(tempfile, 'w') as f:
+        self.newick = "((node1:0.2,node2:0.3)node4:0.3,node3:0.5)node5:0.04;"
+        tempfile = "_temp.tree"
+        with open(tempfile, "w") as f:
             f.write(self.newick)
-        self.tree = Bio.Phylo.read(tempfile, 'newick')
+        self.tree = Bio.Phylo.read(tempfile, "newick")
         os.remove(tempfile)
         self.brlen = {}
         for (name, brlen) in re.findall(
-                r'(?P<name>node\d):(?P<brlen>\d+\.\d+)', self.newick):
+            r"(?P<name>node\d):(?P<brlen>\d+\.\d+)", self.newick
+        ):
             if name != self.tree.root.name:
-                i = name[-1] # node number
+                i = name[-1]  # node number
                 self.brlen[int(i)] = float(brlen)
 
         # simulate alignment with pyvolve
         pyvolvetree = pyvolve.read_tree(tree=self.newick)
         self.nsites = 60
         self.nseqs = self.tree.count_terminals()
-        e_pw = numpy.ndarray((3, N_NT), dtype='float')
+        e_pw = numpy.ndarray((3, N_NT), dtype="float")
         e_pw.fill(0.25)
         yngkp_m0 = phydmslib.models.YNGKP_M0(e_pw, self.nsites)
         partitions = phydmslib.simulate.pyvolvePartitions(yngkp_m0)
-        alignment = '_temp_simulatedalignment.fasta'
-        info = '_temp_info.txt'
-        rates = '_temp_ratefile.txt'
+        alignment = "_temp_simulatedalignment.fasta"
+        info = "_temp_info.txt"
+        rates = "_temp_ratefile.txt"
         evolver = pyvolve.Evolver(partitions=partitions, tree=pyvolvetree)
         evolver(seqfile=alignment, infofile=info, ratefile=rates)
-        self.alignment = [(s.description, str(s.seq)) for s in Bio.SeqIO.parse(
-                alignment, 'fasta')]
+        self.alignment = [(s.description, str(s.seq))
+                          for s in Bio.SeqIO.parse(alignment, "fasta")]
         for f in [alignment, info, rates]:
             os.remove(f)
         assert len(self.alignment[0][1]) == self.nsites * 3
         assert len(self.alignment) == self.nseqs
-        self.codons = {} # indexed by node, site, gives codon index
+        self.codons = {}  # indexed by node, site, gives codon index
         for node in self.tree.get_terminals():
             node = node.name
             i = int(node[-1])
             self.codons[i] = {}
             seq = [seq for (head, seq) in self.alignment if node == head][0]
             for r in range(self.nsites):
-                codon = seq[3 * r : 3 * r + 3]
+                codon = seq[3 * r: 3 * r + 3]
                 self.codons[i][r] = CODON_TO_INDEX[codon]
 
         # define model
@@ -82,7 +83,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         g = numpy.random.dirichlet([5] * N_NT)
         g[g < 0.1] = 0.1
         g /= g.sum()
-        for r in range(self.nsites):
+        for _r in range(self.nsites):
             rprefs = numpy.random.dirichlet([0.5] * N_AA)
             rprefs[rprefs < minpref] = minpref
             rprefs /= rprefs.sum()
@@ -95,7 +96,7 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             divpressure = numpy.random.uniform(-1, 5, self.nsites)
             divpressure /= max(abs(divpressure))
             self.model = phydmslib.models.ExpCM_empirical_phi_divpressure(
-                    prefs, g, divpressure)
+                prefs, g, divpressure)
         elif self.MODEL == phydmslib.models.YNGKP_M0:
             e_pw = numpy.random.uniform(0.2, 0.8, size=(3, N_NT))
             e_pw = e_pw / e_pw.sum(axis=1, keepdims=True)
@@ -105,33 +106,33 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
 
         if self.DISTRIBUTIONMODEL is None:
             pass
-        elif (self.DISTRIBUTIONMODEL ==
-                phydmslib.models.GammaDistributedOmegaModel):
+        elif self.DISTRIBUTIONMODEL == (phydmslib.models
+                                        .GammaDistributedOmegaModel):
             self.model = self.DISTRIBUTIONMODEL(self.model, ncats=4)
-        elif (self.DISTRIBUTIONMODEL ==
-                phydmslib.models.GammaDistributedBetaModel):
+        elif self.DISTRIBUTIONMODEL == (phydmslib.models
+                                        .GammaDistributedBetaModel):
             self.model = self.DISTRIBUTIONMODEL(self.model, ncats=4)
         else:
-            raise ValueError("Invalid DISTRIBUTIONMODEL: {0}".format(
-                    self.DISTRIBUTIONMODEL))
+            raise ValueError("Invalid DISTRIBUTIONMODEL: {0}"
+                             .format(self.DISTRIBUTIONMODEL))
 
     def test_Initialize(self):
         """Test that initializes properly."""
         random.seed(1)
         numpy.random.seed(1)
 
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
-                self.alignment, self.model)
+        tl = phydmslib.treelikelihood.TreeLikelihood(
+            self.tree, self.alignment, self.model)
         self.assertTrue(tl.nsites == self.nsites)
         self.assertTrue(tl.nseqs == self.nseqs)
         self.assertTrue(tl.nnodes == tl.ninternal + tl.ntips)
         self.assertTrue(tl.ntips == self.nseqs)
-        self.assertTrue(all([t > 0 for t in tl.t]))
+        self.assertTrue(all((t > 0 for t in tl.t)))
         for n in range(tl.ntips, tl.nnodes):
             for descend in [tl.rdescend, tl.ldescend]:
                 i = n - tl.ntips
                 self.assertTrue(0 <= descend[i] < n,
-                        "{0}, {1}".format(n, descend[i]))
+                                "{0}, {1}".format(n, descend[i]))
         self.assertTrue(tl.nsites == len(tl.siteloglik))
 
     def test_paramsarray(self):
@@ -143,15 +144,16 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         model = copy.deepcopy(self.model)
         model.updateParams(modelparams)
         tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
-                self.alignment, model)
+                                                     self.alignment, model)
         logl = tl.loglik
         paramsarray = tl.paramsarray
         nparams = len(paramsarray)
         self.assertTrue(nparams == sum(map(lambda x: (1 if isinstance(x, float)
-                else len(x)), modelparams.values())))
+                                                      else len(x)),
+                                           modelparams.values(),)))
         # set to new value, make sure have changed
-        tl.paramsarray = numpy.array([random.uniform(0.7, 0.8) for i in
-                range(nparams)])
+        tl.paramsarray = numpy.array([random.uniform(0.7, 0.8)
+                                      for i in range(nparams)])
         for (param, value) in modelparams.items():
             self.assertFalse(numpy.allclose(value, getattr(tl.model, param)))
         self.assertFalse(numpy.allclose(logl, tl.loglik))
@@ -167,16 +169,17 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
         numpy.random.seed(1)
 
         if self.DISTRIBUTIONMODEL:
-            return # test doesn't work for DistributionModel
+            return  # test doesn't work for DistributionModel
         mus = [0.5, 1.5]
         partials_by_mu = {}
         siteloglik_by_mu = {}
         loglik_by_mu = {}
         for mu in mus:
             model = copy.deepcopy(self.model)
-            model.updateParams({'mu':mu})
+            model.updateParams({"mu": mu})
             tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
-                    self.alignment, model)
+                                                         self.alignment,
+                                                         model)
             # Here we are doing the multiplication hand-coded for the
             # tree defined in `setUp`. This calculation would be wrong
             # if the tree in `setUp` were to be changed.
@@ -190,31 +193,37 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             for r in range(self.nsites):
                 for y in range(N_CODON):
                     for x in range(N_CODON):
-                        partials[r][y] += (M[3][r][y][self.codons[3][r]] *
-                                M[4][r][y][x] * M[1][r][x][self.codons[1][r]]
-                                * M[2][r][x][self.codons[2][r]])
-                    siteloglik[r] += partials[r][y] * model.stationarystate[r, y]
+                        partials[r][y] += (
+                            M[3][r][y][self.codons[3][r]]
+                            * M[4][r][y][x]
+                            * M[1][r][x][self.codons[1][r]]
+                            * M[2][r][x][self.codons[2][r]])
+                    siteloglik[r] += partials[r][y] * model.stationarystate[r,
+                                                                            y]
                 siteloglik[r] = math.log(siteloglik[r])
                 loglik += siteloglik[r]
             rootnode = tl.nnodes - 1
-            partials_by_mu[mu] = {'actual':tl.L[rootnode], 'expected':partials}
-            siteloglik_by_mu[mu] = {'actual':tl.siteloglik, 'expected':siteloglik}
-            loglik_by_mu[mu] = {'actual':tl.loglik, 'expected':loglik}
+            partials_by_mu[mu] = {"actual": tl.L[rootnode],
+                                  "expected": partials}
+            siteloglik_by_mu[mu] = {"actual": tl.siteloglik,
+                                    "expected": siteloglik}
+            loglik_by_mu[mu] = {"actual": tl.loglik, "expected": loglik}
 
-        for (i, mu1) in enumerate(mus):
-            for (name, d) in [('partials', partials_by_mu),
-                                      ('siteloglik', siteloglik_by_mu),
-                                      ('loglik', loglik_by_mu)]:
-                self.assertTrue(numpy.allclose(d[mu1]['actual'],
-                        d[mu1]['expected']), "Mismatch: {0}".format(name))
+        for (_i, mu1) in enumerate(mus):
+            for (name, d) in [("partials", partials_by_mu),
+                              ("siteloglik", siteloglik_by_mu),
+                              ("loglik", loglik_by_mu)]:
+                self.assertTrue(
+                    numpy.allclose(d[mu1]["actual"], d[mu1]["expected"]),
+                    "Mismatch: {0}".format(name))
 
     def test_LikelihoodDerivativesModelParams(self):
         """Test derivatives of with respect to model params."""
         random.seed(1)
         numpy.random.seed(1)
 
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
-                self.alignment, self.model)
+        tl = phydmslib.treelikelihood.TreeLikelihood(
+            self.tree, self.alignment, self.model)
 
         for itest in range(2):
             modelparams = self.getModelParams(seed=itest)
@@ -225,28 +234,34 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
                 y[i] = x[0]
                 tl.paramsarray = y
                 return tl.loglik
+
             def dfunc(x, i):
                 y = tl.paramsarray
                 y[i] = x[0]
                 tl.paramsarray = y
                 return tl.dloglikarray[i]
+
             for iparam in range(len(tl.paramsarray)):
-                diff = scipy.optimize.check_grad(func, dfunc,
-                        numpy.array([tl.paramsarray[iparam]]), iparam)
-                self.assertTrue(diff < 1e-1, ("{0}: diff {1}, value "
-                        "{2}, deriv {3}").format(tl._index_to_param[iparam],
-                        diff, tl.paramsarray[iparam],
+                diff = scipy.optimize.check_grad(
+                    func, dfunc, numpy.array([tl.paramsarray[iparam]]), iparam)
+                self.assertTrue(
+                    diff < 1e-1,
+                    ("{0}: diff {1}, value " "{2}, deriv {3}").format(
+                        tl._index_to_param[iparam],
+                        diff,
+                        tl.paramsarray[iparam],
                         dfunc([tl.paramsarray[iparam]], iparam)))
 
     def test_MaximizeLikelihood(self):
         """Tests maximization likelihood.
 
-        Make sure it gives the same value for several starting points."""
+        Make sure it gives the same value for several starting points.
+        """
         random.seed(1)
         numpy.random.seed(1)
 
-        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree,
-                self.alignment, self.model)
+        tl = phydmslib.treelikelihood.TreeLikelihood(self.tree, self.alignment,
+                                                     self.model)
 
         logliks = []
         paramsarrays = []
@@ -254,17 +269,21 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
             modelparams = self.getModelParams(itest)
             tl.updateParams(modelparams)
             startloglik = tl.loglik
-            result = tl.maximizeLikelihood()
-            self.assertTrue(tl.loglik > startloglik, "no loglik increase: "
-                    "start = {0}, end = {1}".format(startloglik, tl.loglik))
+            tl.maximizeLikelihood()
+            self.assertTrue(
+                tl.loglik > startloglik,
+                "no loglik increase: "
+                "start = {0}, end = {1}".format(startloglik, tl.loglik))
             for (otherloglik, otherparams) in zip(logliks, paramsarrays):
-                self.assertTrue(numpy.allclose(tl.loglik, otherloglik,
-                        atol=1e-3, rtol=1e-3),
-                        "Large difference in loglik: {0} vs {1}".format(
+                self.assertTrue(
+                    numpy.allclose(tl.loglik, otherloglik,
+                                   atol=1e-3, rtol=1e-3),
+                    "Large difference in loglik: {0} vs {1}".format(
                         otherloglik, tl.loglik))
-                self.assertTrue(numpy.allclose(tl.paramsarray, otherparams,
-                        atol=1e-2, rtol=1e-1),
-                        "Large difference in paramsarray: {0} vs {1}, {2}".format(
+                self.assertTrue(
+                    numpy.allclose(tl.paramsarray, otherparams,
+                                   atol=1e-2, rtol=1e-1),
+                    "Large difference in paramsarray: {0} vs {1}, {2}".format(
                         otherparams, tl.paramsarray, self.model))
             logliks.append(tl.loglik)
             paramsarrays.append(tl.paramsarray)
@@ -288,14 +307,16 @@ class test_TreeLikelihood_ExpCM(unittest.TestCase):
 
 class test_TreeLikelihood_ExpCM_empirical_phi(test_TreeLikelihood_ExpCM):
     """Tests `TreeLikelihood` for `ExpCM_empirical_phi`."""
+
     MODEL = phydmslib.models.ExpCM_empirical_phi
 
 
 class test_TreeLikelihood_YNGKP_M0(test_TreeLikelihood_ExpCM):
     """Tests `TreeLikelihood` for `YNGKP_M0`."""
+
     MODEL = phydmslib.models.YNGKP_M0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     runner = unittest.TextTestRunner()
     unittest.main(testRunner=runner)
