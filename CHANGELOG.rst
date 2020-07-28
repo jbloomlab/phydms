@@ -1,5 +1,11 @@
 Changelog
 ===========
+2.3.9
+------
+* Started testing Pep8 compliance with `flake8`
+
+* Removed deprecated `scipy` functions
+
 2.3.8
 ------
 * Fixed bug in `phydms_prepalignment` due to `mafft` shortening sequence names.

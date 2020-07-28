@@ -28,7 +28,6 @@ branches:
   only:
     - master
     - model_adequacy
-    - linter
 
 notifications:
   email:
