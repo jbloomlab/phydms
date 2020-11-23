@@ -5,6 +5,8 @@ Changelog
 ------
 * Stop using matplotlib LaTex fonts in logo plots.
 
+* Pin `biopython` to <1.78 until `Bio.Alphabet` issues fixed in `pyvolve`. See `here <https://github.com/sjspielman/pyvolve/issues/19>`_
+
 2.3.9
 ------
 * Started testing Pep8 compliance with `flake8`
