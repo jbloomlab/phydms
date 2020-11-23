@@ -1027,7 +1027,7 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin,
         cmap = mapper.get_cmap()
     pts_per_inch = 72.0  # to convert between points and inches
     # some general properties of the plot
-    matplotlib.rc('text', usetex=True)
+    #matplotlib.rc('text', usetex=True)
     matplotlib.rc('xtick', labelsize=8)
     matplotlib.rc('xtick', direction='out')
     matplotlib.rc('ytick', direction='out')

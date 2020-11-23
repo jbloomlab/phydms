@@ -1,5 +1,10 @@
 Changelog
 ===========
+
+2.4.0
+------
+* Stop using matplotlib LaTex fonts in logo plots.
+
 2.3.9
 ------
 * Started testing Pep8 compliance with `flake8`
