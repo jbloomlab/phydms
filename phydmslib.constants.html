@@ -1,0 +1,208 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>phydmslib.constants module &#8212; phydms 2.4.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="phydmslib.file_io module" href="phydmslib.file_io.html" />
+    <link rel="prev" title="phydmslib package" href="phydmslib.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-phydmslib.constants">
+<span id="phydmslib-constants-module"></span><h1>phydmslib.constants module<a class="headerlink" href="#module-phydmslib.constants" title="Permalink to this headline">¶</a></h1>
+<p>Defines constants and nucleotide / amino acid / codon indices.</p>
+<dl class="simple">
+<dt>Constants defined:</dt><dd><dl class="simple">
+<dt><cite>ALMOST_ZERO</cite> (float)</dt><dd><p>a small number used to check for quantities close to zero</p>
+</dd>
+<dt><cite>N_NT</cite> (int)</dt><dd><p>number of nucleotides</p>
+</dd>
+<dt><cite>N_AA</cite> (int)</dt><dd><p>number of amino acids</p>
+</dd>
+<dt><cite>N_CODON</cite> (int)</dt><dd><p>number of codons</p>
+</dd>
+<dt><cite>N_STOP</cite> (int)</dt><dd><p>number of stop codons</p>
+</dd>
+<dt><cite>NT_TO_INDEX</cite> (dict)</dt><dd><p>mapping of one-letter nucleotides to integer indices</p>
+</dd>
+<dt><cite>INDEX_TO_NT</cite> (dict)</dt><dd><p>inverse of <cite>NT_TO_INDEX</cite></p>
+</dd>
+<dt><cite>AA_TO_INDEX</cite> (dict)</dt><dd><p>mapping of one-letter amino acids to integer indices</p>
+</dd>
+<dt><cite>INDEX_TO_AA</cite> (dict)</dt><dd><p>inverse of <cite>AA_TO_INDEX</cite></p>
+</dd>
+<dt><cite>CODON_TO_INDEX</cite> (dict):</dt><dd><p>mapping of non-stop codons to integer indices</p>
+</dd>
+<dt><cite>INDEX_TO_CODON</cite> (dict)</dt><dd><p>inverse of <cite>CODON_TO_INDEX</cite></p>
+</dd>
+<dt><cite>CODON_TO_AA</cite> (<cite>numpy.ndarray</cite> of int, length <cite>N_CODON</cite>)</dt><dd><p>Element <cite>x</cite> gives index for amino acid encoded by <cite>x</cite>.</p>
+</dd>
+<dt><cite>PURINES</cite> (<cite>frozenset</cite>)</dt><dd><p>Set of one-letter nucleotides for purines</p>
+</dd>
+<dt><cite>PYRIMIDINES</cite> (<cite>frozenset</cite>)</dt><dd><p>Set of one-letter nucleotides for pyrimidines</p>
+</dd>
+<dt><cite>CODON_TRANSITION</cite> (<cite>numpy.ndarray</cite> of bools, shape <cite>(N_CODON, NCODON)</cite>)</dt><dd><p>Element <cite>[x][y]</cite> is <cite>True</cite> iff <cite>x</cite> and <cite>y</cite> differ by 1 transition.</p>
+</dd>
+<dt><cite>CODON_SINGLEMUT</cite> (<cite>numpy.ndarray</cite> of bools, shape (<cite>N_CODON, N_CODON)</cite>)</dt><dd><p>Element <cite>[x][y]</cite> is <cite>True</cite> iff <cite>x</cite> and <cite>y</cite> differ by 1 nt mutation.</p>
+</dd>
+<dt><cite>CODON_NT_MUT</cite> (<cite>numpy.ndarray</cite> of bools, shape <cite>(N_NT, N_CODON, N_CODON)</cite>)</dt><dd><p>Element <cite>[w][x][y]</cite> is <cite>True</cite> iff <cite>x</cite> converts to <cite>y</cite> by single
+nucleotide mutation <cite>w</cite>.</p>
+</dd>
+<dt><cite>CODON_NT</cite> (<cite>numpy.ndarray</cite> of bools, shape <cite>(3, N_NT, N_CODON)</cite>)</dt><dd><p>Element <cite>[j][w][x]</cite> is <cite>True</cite> iff nt <cite>j</cite> of codon <cite>x</cite> is <cite>w</cite>.</p>
+</dd>
+<dt><cite>CODON_NT_INDEX</cite> (<cite>numpy.ndarray</cite> of int, shape <cite>(3, N_CODON)</cite>)</dt><dd><p>Element <cite>[j][x]</cite> gives index of nt at position <cite>j</cite> of codon <cite>x</cite>.</p>
+</dd>
+<dt><cite>CODON_NONSYN</cite> (<cite>numpy.ndarray</cite> of bools, shape <cite>(N_CODON, N_CODON)</cite>)</dt><dd><p>Element <cite>[x][y]</cite> is <cite>True</cite> iff mutating  <cite>x</cite> to <cite>y</cite> is nonsynonymous</p>
+</dd>
+<dt><cite>CODON_NT_COUNT</cite> (<cite>numpy.ndarray</cite> of int, shape <cite>(N_NT, N_CODON)</cite>)</dt><dd><p>Element <cite>[w][x]</cite> gives the number of occurrences of nucleotide
+<cite>w</cite> in codon <cite>x</cite>.</p>
+</dd>
+<dt><cite>STOP_CODON_TO_NT_INDICES</cite></dt><dd><p>(<cite>numpy.ndarray</cite> of float, shape <cite>(N_STOP, 3, N_NT)</cite>)
+Element <cite>[x][p][w]</cite> is 1.0 if codon position <cite>p</cite> is nucleotide <cite>w</cite>
+in stop codon <cite>x</cite> and 0.0 otherwise.</p>
+</dd>
+<dt><cite>STOP_POSITIONS</cite> (<cite>numpy.ndarray</cite> of float, shape <cite>(3, N_NT)</cite>)</dt><dd><p>Element <cite>[p][w]</cite> is -1.0 if any stop codon has nucleotide <cite>w</cite> in
+codon position <cite>p</cite> and 1.0 otherwise</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/BloomLogo.jpg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">phydms</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Software for phylogenetic analyses informed by deep mutational scanning.</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=jbloomlab&repo=phydms&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://travis-ci.org/jbloomlab/phydms">
+    <img
+        alt="https://secure.travis-ci.org/jbloomlab/phydms.svg?branch=master"
+        src="https://secure.travis-ci.org/jbloomlab/phydms.svg?branch=master"
+    />
+</a>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="howtouse.html">how to use <code class="docutils literal notranslate"><span class="pre">phydms</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="phydms_prog.html">the <code class="docutils literal notranslate"><span class="pre">phydms</span></code> program</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auxiliary_progs.html">auxiliary programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ExpCM.html"><strong>Exp</strong>erimentally Informed <strong>C</strong>odon <strong>M</strong>odels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation.html">Numerical implementation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="phydmslib.html">phydmslib package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">Acknowledgments and citations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="indices_and_tables.html">Indices and tables</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="phydmslib.html">phydmslib package</a><ul>
+      <li>Previous: <a href="phydmslib.html" title="previous chapter">phydmslib package</a></li>
+      <li>Next: <a href="phydmslib.file_io.html" title="next chapter">phydmslib.file_io module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015-2020, Sarah Hilton and Jesse Bloom.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/phydmslib.constants.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/jbloomlab/phydms" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

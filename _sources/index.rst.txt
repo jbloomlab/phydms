@@ -32,7 +32,7 @@ Contents
    auxiliary_progs
    ExpCM
    implementation
-   api
+   phydmslib
    acknowledgments
    indices_and_tables
 

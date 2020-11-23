@@ -1,0 +1,375 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>phydmslib.weblogo module &#8212; phydms 2.4.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Acknowledgments and citations" href="acknowledgments.html" />
+    <link rel="prev" title="phydmslib.utils module" href="phydmslib.utils.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-phydmslib.weblogo">
+<span id="phydmslib-weblogo-module"></span><h1>phydmslib.weblogo module<a class="headerlink" href="#module-phydmslib.weblogo" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">weblogo</span></code> module</p>
+<p>Module for making sequence logos with the <em>weblogolib</em> package distributed with
+<code class="docutils literal notranslate"><span class="pre">weblogo</span></code>  This module interfaces with the <em>weblogolib</em> API,
+and so is only known to work with <em>weblogolib</em> version 3.4 and 3.5.</p>
+<p>Written by Jesse Bloom and Mike Doud</p>
+<dl class="py function">
+<dt id="phydmslib.weblogo.ChargeColorMapping">
+<code class="sig-prename descclassname">phydmslib.weblogo.</code><code class="sig-name descname">ChargeColorMapping</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">maptype</span><span class="o">=</span><span class="default_value">'jet'</span></em>, <em class="sig-param"><span class="n">reverse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.ChargeColorMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps amino-acid charge at neutral pH to colors.
+Currently does not use the keyword arguments for <em>maptype</em>
+or <em>reverse</em> but accepts these arguments to be consistent
+with KyteDoolittleColorMapping and MWColorMapping for now.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.weblogo.FunctionalGroupColorMapping">
+<code class="sig-prename descclassname">phydmslib.weblogo.</code><code class="sig-name descname">FunctionalGroupColorMapping</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">maptype</span><span class="o">=</span><span class="default_value">'jet'</span></em>, <em class="sig-param"><span class="n">reverse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.FunctionalGroupColorMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps amino-acid functional groups to colors.
+Currently does not use the keyword arguments for <em>maptype</em>
+or <em>reverse</em> but accepts these arguments to be consistent
+with the other mapping functions, which all get called with
+these arguments.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.weblogo.KyteDoolittleColorMapping">
+<code class="sig-prename descclassname">phydmslib.weblogo.</code><code class="sig-name descname">KyteDoolittleColorMapping</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">maptype</span><span class="o">=</span><span class="default_value">'jet'</span></em>, <em class="sig-param"><span class="n">reverse</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.KyteDoolittleColorMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps amino-acid hydrophobicities to colors.</p>
+<p>Uses the Kyte-Doolittle hydrophobicity scale defined by:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">J</span><span class="o">.</span> <span class="n">Kyte</span> <span class="o">&amp;</span> <span class="n">R</span><span class="o">.</span> <span class="n">F</span><span class="o">.</span> <span class="n">Doolittle</span><span class="p">:</span>
+<span class="s2">&quot;A simple method for displaying the hydropathic character of a</span>
+<span class="n">protein</span><span class="o">.</span><span class="s2">&quot; J Mol Biol, 157, 105-132</span>
+</pre></div>
+</div>
+<p>More positive values indicate higher hydrophobicity,
+while more negative values indicate lower hydrophobicity.</p>
+<p>The returned variable is the 3-tuple <em>(cmap, mapping_d, mapper)</em>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>cmap</em> is a <code class="docutils literal notranslate"><span class="pre">pylab</span></code> <em>LinearSegmentedColorMap</em> object.</p></li>
+<li><p><em>mapping_d</em> is a dictionary keyed by the one-letter amino-acid
+codes. The values are the colors in CSS2 format (e.g. #FF0000
+for red) for that amino acid. The value for a stop codon
+(denoted by a <code class="docutils literal notranslate"><span class="pre">*</span></code> character) is black (#000000).</p></li>
+<li><p><em>mapper</em> is the actual <em>pylab.cm.ScalarMappable</em> object.</p></li>
+</ul>
+</div></blockquote>
+<p>The optional argument <em>maptype</em> should specify a valid <code class="docutils literal notranslate"><span class="pre">pylab</span></code> color map.</p>
+<p>The optional calling argument <em>reverse</em> specifies that we set up the color
+map so that the most hydrophobic residue comes first (in the Kyte-Doolittle
+scale the most hydrophobic comes last as it has the largest value).
+This option is <em>True</em> by default as it seems more intuitive to have
+charged residues red and hydrophobic ones blue.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.weblogo.LogoOverlay">
+<code class="sig-prename descclassname">phydmslib.weblogo.</code><code class="sig-name descname">LogoOverlay</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sites</span></em>, <em class="sig-param"><span class="n">overlayfile</span></em>, <em class="sig-param"><span class="n">overlay</span></em>, <em class="sig-param"><span class="n">nperline</span></em>, <em class="sig-param"><span class="n">sitewidth</span></em>, <em class="sig-param"><span class="n">rmargin</span></em>, <em class="sig-param"><span class="n">logoheight</span></em>, <em class="sig-param"><span class="n">barheight</span></em>, <em class="sig-param"><span class="n">barspacing</span></em>, <em class="sig-param"><span class="n">fix_limits</span><span class="o">=</span><span class="default_value">{}</span></em>, <em class="sig-param"><span class="n">fixlongname</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">overlay_cmap</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">underlay</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">scalebar</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.LogoOverlay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes overlay for <em>LogoPlot</em>.</p>
+<p>This function creates colored bars overlay bars showing up to two
+properties.
+The trick of this function is to create the bars the right
+size so they align when they overlay the logo plot.</p>
+<p>CALLING VARIABLES:</p>
+<ul class="simple">
+<li><p><em>sites</em> : same as the variable of this name used by <em>LogoPlot</em>.</p></li>
+<li><p><em>overlayfile</em> is a string giving the name of created PDF file containing
+the overlay. It must end in the extension <code class="docutils literal notranslate"><span class="pre">.pdf</span></code>.</p></li>
+<li><p><em>overlay</em> : same as the variable of this name used by <em>LogoPlot</em>.</p></li>
+<li><p><em>nperline</em> : same as the variable of this name used by <em>LogoPlot</em>.</p></li>
+<li><p><em>sitewidth</em> is the width of each site in points.</p></li>
+<li><p><em>rmargin</em> is the right margin in points.</p></li>
+<li><p><em>logoheight</em> is the total height of each logo row in points.</p></li>
+<li><p><em>barheight</em> is the total height of each bar in points.</p></li>
+<li><p><em>barspacing</em> is the vertical spacing between bars in points.</p></li>
+<li><p><em>fix_limits</em> has the same meaning as in  <em>LogoPlot</em>.</p></li>
+<li><p><em>fixlongname</em> has the same meaning as in <em>LogoPlot</em>.</p></li>
+<li><p><em>overlay_cmap</em> has the same meaning as in <em>LogoPlot</em>.</p></li>
+<li><p><em>underlay</em> is a bool. If <cite>True</cite>, make an underlay rather than an overlay.</p></li>
+<li><p><em>scalebar</em>: if not <cite>False</cite>, is 2-tuple <cite>(scalebarheight, scalebarlabel)</cite>
+where <cite>scalebarheight</cite> is in points.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.weblogo.LogoPlot">
+<code class="sig-prename descclassname">phydmslib.weblogo.</code><code class="sig-name descname">LogoPlot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sites</span></em>, <em class="sig-param"><span class="n">datatype</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">plotfile</span></em>, <em class="sig-param"><span class="n">nperline</span></em>, <em class="sig-param"><span class="n">numberevery</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">allowunsorted</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">ydatamax</span><span class="o">=</span><span class="default_value">1.01</span></em>, <em class="sig-param"><span class="n">overlay</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fix_limits</span><span class="o">=</span><span class="default_value">{}</span></em>, <em class="sig-param"><span class="n">fixlongname</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">overlay_cmap</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ylimits</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">relativestackheight</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">custom_cmap</span><span class="o">=</span><span class="default_value">'jet'</span></em>, <em class="sig-param"><span class="n">map_metric</span><span class="o">=</span><span class="default_value">'kd'</span></em>, <em class="sig-param"><span class="n">noseparator</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">underlay</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">scalebar</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.LogoPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create sequence logo showing amino-acid or nucleotide preferences.</p>
+<p>The heights of each letter is equal to the preference of
+that site for that amino acid or nucleotide.</p>
+<p>Note that stop codons may or may not be included in the logo
+depending on whether they are present in <em>pi_d</em>.</p>
+<p>CALLING VARIABLES:</p>
+<ul>
+<li><p><em>sites</em> is a list of all of the sites that are being included
+in the logo, as strings. They must be in natural sort or an error
+will be raised <strong>unless</strong> <em>allowunsorted</em> is <em>True</em>. The sites
+in the plot are ordered in the same arrangement
+listed in <em>sites</em>. These should be <strong>strings</strong>, not integers.</p></li>
+<li><p><em>datatype</em> should be one of the following strings:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>‘prefs’ for preferences</p></li>
+<li><p>‘diffprefs’ for differential preferences</p></li>
+<li><p>‘diffsel’ for differential selection</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><em>data</em> is a dictionary that has a key for every entry in
+<em>sites</em>. For every site <em>r</em> in <em>sites</em>, <em>sites[r][x]</em>
+is the value for character <em>x</em>.
+Preferences must sum to one; differential preferences to zero.
+All sites must have the same set of characters. The characters
+must be the set of nucleotides or amino acids with or without
+stop codons.</p></li>
+<li><p><em>plotfile</em> is a string giving the name of the created PDF file
+of the logo plot.
+It must end in the extension <code class="docutils literal notranslate"><span class="pre">.pdf</span></code>.</p></li>
+<li><dl class="simple">
+<dt><em>nperline</em> is the number of sites per line. Often 40 to 80 are</dt><dd><p>good values.</p>
+</dd>
+</dl>
+</li>
+<li><p><em>numberevery</em> is specifies how frequently we put labels for the sites on
+x-axis.</p></li>
+<li><p><em>allowunsorted</em> : if <em>True</em> then we allow the entries in <em>sites</em> to
+<strong>not</strong> be sorted. This means that the logo plot will <strong>not</strong> have
+sites in sorted order.</p></li>
+<li><p><em>ydatamax</em> : meaningful only if <em>datatype</em> is ‘diffprefs’. In this case,
+it gives the maximum that the logo stacks extend in the positive and
+negative directions. Cannot be smaller than the maximum extent of the
+differential preferences.</p></li>
+<li><p><em>ylimits</em>: is <strong>mandatory</strong> if <em>datatype</em> is ‘diffsel’, and meaningless
+otherwise. It is <em>(ymin, ymax)</em> where <em>ymax &gt; 0 &gt; ymin</em>, and gives extent
+of the data in the positive and negative directions. Must encompass the
+actual maximum and minimum of the data.</p></li>
+<li><p><em>overlay</em> : make overlay bars that indicate other properties for
+the sites. If you set to something other than <cite>None</cite>, it should be
+a list giving one to three properties. Each property is a tuple:
+<em>(prop_d, shortname, longname)</em> where:</p>
+<blockquote>
+<div><ul>
+<li><p><em>prop_d</em> is a dictionary keyed by site numbers that are in <em>sites</em>.
+For each <em>r</em> in <em>sites</em>, <em>prop_d[r]</em> gives the value of the property,
+or if there is no entry in <em>prop_d</em> for <em>r</em>, then the property
+is undefined and is colored white. Properties can either be:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>continuous: in this case, all of the values should be numbers.</p></li>
+<li><p>discrete : in this case, all of the values should be strings.
+While in practice, if you have more than a few discrete
+categories (different strings), the plot will be a mess.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><em>shortname</em> : short name for the property; will not format well
+if more than 4 or 5 characters.</p></li>
+<li><p><em>longname</em> : longer name for property used on axes label. Can be the
+same as <em>shortname</em> if you don’t need a different long name.</p></li>
+<li><p>In the special case where both <em>shortname</em> and <em>longname</em> are
+the string <cite>wildtype</cite>, then rather than an overlay bar we
+right the one-character wildtype identity in <cite>prop_d</cite> for each
+site.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><dl class="simple">
+<dt><em>fix_limits</em> is only meaningful if <em>overlay</em> is being used. In this case,</dt><dd><p>for any <em>shortname</em> in <em>overlay</em> that also keys an entry in
+<em>fix_limits</em>, we use <em>fix_limits[shortname]</em> to set the limits for
+<em>shortname</em>. Specifically, <em>fix_limits[shortname]</em> should be the 2-tuple
+<em>(ticks, ticknames)</em>. <em>ticks</em> should be a list of tick locations
+(numbers) and <em>ticknames</em> should be a list of the corresponding tick
+label for that tick.</p>
+</dd>
+</dl>
+</li>
+<li><p>If <em>fixlongname</em> is <em>True</em>, then we use the <em>longname</em> in <em>overlay</em>
+exactly as written; otherwise we add a parenthesis indicating the
+<em>shortname</em> for which this <em>longname</em> stands.</p></li>
+<li><p><em>overlay_cmap</em> can be the name of a valid <em>matplotlib.colors.Colormap</em>,
+such as the string <em>jet</em> or <em>bwr</em>. Otherwise, it can be <em>None</em> and a
+(hopefully) good choice will be made for you.</p></li>
+<li><p><em>custom_cmap</em> can be the name of a valid <em>matplotlib.colors.Colormap</em>
+which will be used to color amino-acid one-letter codes in the logoplot
+by the <em>map_metric</em> when either ‘kd’ or ‘mw’ is used as <em>map_metric</em>.
+If <em>map_metric</em> is ‘singlecolor’, then should be string giving the color
+to plot.</p></li>
+<li><p><em>relativestackheight</em> indicates how high the letter stack is relative to
+the default. The default is multiplied by this number, so make it &gt; 1
+for a higher letter stack.</p></li>
+<li><p><em>map_metric</em> specifies the amino-acid property metric used to map colors
+to amino-acid letters. Valid options are
+‘kd’(Kyte-Doolittle hydrophobicity scale, default),
+‘mw’ (molecular weight),
+‘functionalgroup’ (functional groups: small, nucleophilic, hydrophobic,
+aromatic, basic, acidic, and amide),
+‘charge’ (charge at neutral pH), and
+‘singlecolor’. If ‘charge’ is used, then the argument for <em>custom_cmap</em>
+will no longer be meaningful, since ‘charge’ uses its own
+blue/black/red colormapping. Similarly, ‘functionalgroup’ uses its own
+colormapping.</p></li>
+<li><p><em>noseparator</em> is only meaningful if <em>datatype</em> is ‘diffsel’ or
+‘diffprefs’.  If it set to <em>True</em>, then we do <strong>not</strong> a black
+horizontal line to separate positive and negative values.</p></li>
+<li><p><em>underlay</em> if <cite>True</cite> then make an underlay rather than an overlay.</p></li>
+<li><p><em>scalebar</em>: show a scale bar. If <cite>False</cite>, no scale bar shown. Otherwise
+should be a 2-tuple of <cite>(scalebarlen, scalebarlabel)</cite>. Currently only
+works when data is <cite>diffsel</cite>.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.weblogo.MWColorMapping">
+<code class="sig-prename descclassname">phydmslib.weblogo.</code><code class="sig-name descname">MWColorMapping</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">maptype</span><span class="o">=</span><span class="default_value">'jet'</span></em>, <em class="sig-param"><span class="n">reverse</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.MWColorMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps amino-acid molecular weights to colors. Otherwise, this
+function is identical to <em>KyteDoolittleColorMapping</em></p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.weblogo.SingleColorMapping">
+<code class="sig-prename descclassname">phydmslib.weblogo.</code><code class="sig-name descname">SingleColorMapping</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">maptype</span><span class="o">=</span><span class="default_value">'#999999'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.weblogo.SingleColorMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps all amino acids to the single color given by <cite>maptype</cite>.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/BloomLogo.jpg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">phydms</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Software for phylogenetic analyses informed by deep mutational scanning.</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=jbloomlab&repo=phydms&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://travis-ci.org/jbloomlab/phydms">
+    <img
+        alt="https://secure.travis-ci.org/jbloomlab/phydms.svg?branch=master"
+        src="https://secure.travis-ci.org/jbloomlab/phydms.svg?branch=master"
+    />
+</a>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="howtouse.html">how to use <code class="docutils literal notranslate"><span class="pre">phydms</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="phydms_prog.html">the <code class="docutils literal notranslate"><span class="pre">phydms</span></code> program</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auxiliary_progs.html">auxiliary programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ExpCM.html"><strong>Exp</strong>erimentally Informed <strong>C</strong>odon <strong>M</strong>odels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation.html">Numerical implementation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="phydmslib.html">phydmslib package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">Acknowledgments and citations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="indices_and_tables.html">Indices and tables</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="phydmslib.html">phydmslib package</a><ul>
+      <li>Previous: <a href="phydmslib.utils.html" title="previous chapter">phydmslib.utils module</a></li>
+      <li>Next: <a href="acknowledgments.html" title="next chapter">Acknowledgments and citations</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015-2020, Sarah Hilton and Jesse Bloom.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/phydmslib.weblogo.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/jbloomlab/phydms" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

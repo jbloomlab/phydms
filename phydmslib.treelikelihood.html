@@ -1,0 +1,434 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>phydmslib.treelikelihood module &#8212; phydms 2.4.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="phydmslib.utils module" href="phydmslib.utils.html" />
+    <link rel="prev" title="phydmslib.simulate module" href="phydmslib.simulate.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-phydmslib.treelikelihood">
+<span id="phydmslib-treelikelihood-module"></span><h1>phydmslib.treelikelihood module<a class="headerlink" href="#module-phydmslib.treelikelihood" title="Permalink to this headline">¶</a></h1>
+<p>Tree likelihoods.</p>
+<p>Nucleotides, amino acids, and codons are indexed by integers 0, 1, …
+using the indexing schemes defined in <cite>phydmslib.constants</cite>.</p>
+<dl class="py class">
+<dt id="phydmslib.treelikelihood.TreeLikelihood">
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.treelikelihood.</code><code class="sig-name descname">TreeLikelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tree</span></em>, <em class="sig-param"><span class="n">alignment</span></em>, <em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">underflowfreq</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">dparamscurrent</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">dtcurrent</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">branchScale</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Uses alignment, model, and tree to calculate likelihoods.</p>
+<p>See <cite>__init__</cite> for how to initialize a <cite>TreeLikelihood</cite>.</p>
+<p>Most commonly, you will initiate a tree likelihood object, and
+then maximize it using the <cite>maximizeLikelihood</cite> method.</p>
+<p>A <cite>TreeLikelihood</cite> object is designed to only work for a fixed
+tree topology. In the internal workings, this fixed topology is
+transformed into the node indexing scheme defined by <cite>name_to_nodeindex</cite>.</p>
+<p>After initialization, most attributes should <strong>not</strong> be changed directly.
+They should only be altered via the <cite>updateParams</cite> method or
+by altering the <cite>paramsarray</cite> property. Both of these methods
+of updating attributes correctly update all of the dependent
+properties; setting other attributes directly does not.</p>
+<dl class="simple">
+<dt>Attributes:</dt><dd><dl class="simple">
+<dt><cite>tree</cite> (instance of <cite>Bio.Phylo.BaseTree.Tree</cite> derived class)</dt><dd><p>Phylogenetic tree. Branch lengths are in units of codon
+substitutions per site for the current <cite>model</cite>.</p>
+</dd>
+<dt><cite>model</cite> (instance of <cite>phydmslib.models.Model</cite> derived class)</dt><dd><p>Specifies the substitution model for <cite>nsites</cite> codon sites.
+This can either be a simple <cite>Model</cite> or a <cite>DistributionModel</cite>.
+Note that if a non-zero prior is defined by <cite>model</cite>, this
+is included in <cite>loglik</cite> and <cite>dloglik</cite>.</p>
+</dd>
+<dt><cite>alignment</cite> (list of 2-tuples of strings, <cite>(head, seq)</cite>)</dt><dd><p>Aligned protein-coding codon sequences. Headers match
+tip names in <cite>tree</cite>; sequences contain <cite>nsites</cite> codons.</p>
+</dd>
+<dt><cite>paramsarray</cite> (<cite>numpy.ndarray</cite> of floats, 1-dimensional)</dt><dd><p>An array of the model free parameters. You can directly
+assign to <cite>paramsarray</cite>, and the correct parameters will
+be internally updated vi <cite>updateParams</cite>.
+<cite>paramsarray</cite> is actually a property rather than an attribute.</p>
+</dd>
+<dt><cite>paramsarraybounds</cite> (<cite>tuple</cite> of 2-tuples)</dt><dd><p><cite>paramsarraybounds[i]</cite> is the 2-tuple <cite>(minbound, maxbound)</cite>
+for parameter <cite>paramsarray[i]</cite>. Set <cite>minbound</cite> or <cite>maxbound</cite>
+are <cite>None</cite> if there is no lower or upper bound.</p>
+</dd>
+<dt><cite>loglik</cite> (<cite>float</cite>)</dt><dd><p>Current log likelihood. Also includes <cite>model.logprior</cite>
+if this is non-zero.</p>
+</dd>
+<dt><cite>siteloglik</cite> (<cite>numpy.ndarray</cite> of floats, length <cite>nsites</cite>)</dt><dd><p><cite>siteloglik[r]</cite> is current log likelihood at site <cite>r</cite>.</p>
+</dd>
+<dt><cite>dparamscurrent</cite> (<cite>bool</cite>)</dt><dd><p>Do we keep the derivatives of the likelihood with
+respect to model parameters current? Doing so
+involves computational costs, so only set to <cite>True</cite>
+if using these derivatives. Currently, only one of
+<cite>dparamscurrent</cite> and <cite>dtcurrent</cite> can be <cite>True</cite> simultaneously,
+as we optimize parameters and branch lengths separately.</p>
+</dd>
+<dt><cite>dtcurrent</cite> (<cite>bool</cite>)</dt><dd><p>Do we keep the derivatives of the likelihood with
+respect to branch lengths current? Doing so
+involves computational costs, so only set to <cite>True</cite>
+if using these derivatives.</p>
+</dd>
+<dt><cite>dloglik</cite> (<cite>dict</cite>)</dt><dd><p>For each <cite>param</cite> in <cite>model.freeparams</cite>, <cite>dloglik[param]</cite>
+is the derivative of <cite>loglik</cite> with respect to <cite>param</cite>.
+Only accessible if <cite>dparamscurrent</cite> is <cite>True</cite>. Also
+includes <cite>model.dlogprior</cite> if this is non-zero.</p>
+</dd>
+<dt><cite>dloglikarray</cite> (<cite>numpy.ndarray</cite> of floats, 1-dimensional)</dt><dd><p><cite>dloglikarray[i]</cite> is the derivative of <cite>loglik</cite> with respect
+to the parameter represented in <cite>paramsarray[i]</cite>. This is
+the same information as in <cite>dloglik</cite>, but in a different
+representation. Only accessible if <cite>dparamscurrent</cite> is <cite>True</cite>.</p>
+</dd>
+<dt><cite>dloglik_dt</cite> (<cite>numpy.ndarray</cite> of floats, shape <cite>(nnodes - 1,)</cite>.</dt><dd><p><cite>dloglik_dt</cite> is the derivative of <cite>loglik</cite> with respect
+to the branch lengths <cite>t</cite>.</p>
+</dd>
+<dt><cite>nsites</cite> (int)</dt><dd><p>Number of codon sites.</p>
+</dd>
+<dt><cite>nseqs</cite> (int)</dt><dd><p>Number of sequences in <cite>alignment</cite>, and tip nodes in <cite>tree</cite>.</p>
+</dd>
+<dt><cite>nnodes</cite> (int)</dt><dd><p>Total number of nodes in <cite>tree</cite>, counting tip and internal.
+Node are indexed 0, 1, …, <cite>nnodes - 1</cite>. This indexing is done
+such that the descendants of node <cite>n</cite> always have indices &lt; <cite>n</cite>,
+and so that the tips are the first <cite>ntips</cite> indices and the
+internals are the last <cite>ninternal</cite> indices.</p>
+</dd>
+<dt><cite>ninternal</cite> (int)</dt><dd><p>Total number of internal nodes in <cite>tree</cite>.</p>
+</dd>
+<dt><cite>ntips</cite> (int)</dt><dd><p>Total number of tip nodes in <cite>tree</cite>.</p>
+</dd>
+<dt><cite>tips</cite> (<cite>numpy.ndarray</cite> of <cite>int</cite>, shape <cite>(ntips, nsites)</cite>)</dt><dd><p><cite>tips[n][r]</cite> is the index of the codon at site <cite>r</cite>
+for tip node <cite>n</cite> (0 &lt;= <cite>n</cite> &lt; <cite>ntips</cite>). If <cite>tips[n][r]</cite> is
+a gap, then <cite>tips[n][r]</cite> is 0 and <cite>r</cite> is in <cite>gaps[n]</cite>.</p>
+</dd>
+<dt><cite>gaps</cite> (<cite>numpy.array</cite>, length <cite>ntips</cite>, entries <cite>numpy.array</cite> of <cite>int</cite>)</dt><dd><p><cite>gaps[n]</cite> is an array containing all sites where the codon is
+a gap for tip node <cite>n</cite> (0 &lt;= <cite>n</cite> &lt; <cite>ntips</cite>).</p>
+</dd>
+<dt><cite>name_to_nodeindex</cite> (<cite>dict</cite>)</dt><dd><p>For each sequence name (these are headers in <cite>alignment</cite>,
+tip names in <cite>tree</cite>), <cite>name_to_nodeindex[name]</cite> is the <cite>int</cite>
+index of that <cite>node</cite> in the internal indexing scheme.</p>
+</dd>
+<dt><cite>rdescend</cite> and <cite>ldescend</cite> (lists of <cite>int</cite> of length <cite>ninternal</cite>)</dt><dd><p>For each internal node <cite>n</cite>, <cite>rdescend[n - ntips]</cite>
+is its right descendant and <cite>ldescend[n - ntips]</cite> is its left
+descendant.</p>
+</dd>
+<dt><cite>descendants</cite> (<cite>list</cite> of <cite>list</cite>)</dt><dd><p>For each node <cite>n</cite>, <cite>descendants[n]</cite> is a list of all nodes
+that are direct or indirect descendants of <cite>n</cite>.</p>
+</dd>
+<dt><cite>t</cite> (<cite>numpy.ndarray</cite> of <cite>float</cite>, shape <cite>(nnodes - 1,)</cite>)</dt><dd><p><cite>t[n]</cite> is the branch length leading node <cite>n</cite>. The branch leading
+to the root node (which has index <cite>nnodes - 1</cite>) is undefined
+and not used, which is why <cite>t</cite> is of length <cite>nnodes - 1</cite> rather
+than <cite>nnodes</cite>.</p>
+</dd>
+<dt><cite>L</cite> (<cite>dict</cite>)</dt><dd><p><cite>L[n]</cite> is a <cite>numpy.ndarray</cite> of <cite>float</cite> of shape <cite>(nsites, N_CODON)</cite>
+for each node <cite>n</cite>. <cite>L[n][r][x] is the partial condition likelihood
+of codon `x</cite> at site <cite>r</cite> at node <cite>n</cite>. Note that these
+must be corrected by adding <cite>underflowlogscale</cite>.
+If <cite>model</cite> is a <cite>DistributionModel</cite>, then <cite>L[n]</cite> is instead
+of shape <cite>(model.ncats, nsites, N_CODON)</cite> with the
+first index ranging over the model categories.
+Entries in <cite>L</cite> are only defined and saved for nodes as needed
+in order to save memory.</p>
+</dd>
+<dt><cite>dL</cite> (<cite>dict</cite> keyed by strings)</dt><dd><p>For each free model parameter <cite>param</cite> and node <cite>n</cite>,
+<cite>dL[param][n]</cite> is derivative of <cite>L[n]</cite> with respect to <cite>param</cite>.
+Only guaranteed to be valid if <cite>dparamscurrent</cite> is <cite>True</cite>,
+and entries are only defined and saved for nodes as needed
+in order to save memory.</p>
+</dd>
+<dt><cite>dL_dt</cite> (<cite>dict</cite> of <cite>dict</cite>)</dt><dd><p><cite>dL_dt[n][n2]</cite> is the derivative of <cite>L[n2]</cite> with respect to
+branch length <cite>t[n]</cite> where <cite>0 &lt;= n &lt; nnodes - 1</cite>.</p>
+</dd>
+<dt><cite>underflowfreq</cite> (<cite>int</cite> &gt;= 1)</dt><dd><p>The frequency with which we rescale likelihoods to avoid
+numerical underflow</p>
+</dd>
+<dt><cite>underflowlogscale</cite> (<cite>numpy.ndarray</cite> of <cite>float</cite>, shape <cite>(nsites,)</cite>)</dt><dd><p>Corrections that must be added to <cite>L</cite> at the root node to
+get actual likelihoods when underflow correction is being
+performed.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tree</span></em>, <em class="sig-param"><span class="n">alignment</span></em>, <em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">underflowfreq</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">dparamscurrent</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">dtcurrent</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">branchScale</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a <cite>TreeLikelihood</cite> object.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>tree</cite>, <cite>alignment</cite>, <cite>model</cite>, <cite>underflowfreq</cite></dt><dd><p>Attributes of same name described in class doc string.
+Note that we make copies of <cite>tree</cite>, <cite>model</cite>, and
+<cite>alignment</cite>’ so the calling objects are not modified
+during optimization.</p>
+</dd>
+<dt><cite>dparamscurrent</cite>, <cite>dtcurrent</cite></dt><dd><p>Current values of these flags indicating which
+derivatives to compute.</p>
+</dd>
+<dt><cite>branchScale</cite> (<cite>None</cite> or float &gt; 0)</dt><dd><p>The branch lengths in the input tree are assumed
+to be in units of substitutions per site with
+the scaling defined by <cite>model.branchScale</cite>. If
+the scaling should instead be defined by some
+other value of <cite>branchScale</cite>, indicate by
+setting to that value rather than <cite>None</cite>. This
+is useful if tree was inferred on models across
+many sites but you are now just analyzing an
+individual one. Note that this option applies
+only to the input tree, not the output one.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.dloglik">
+<em class="property">property </em><code class="sig-name descname">dloglik</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dloglik" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>dloglik[param]</cite> is derivative of <cite>loglik</cite> by <cite>param</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.dloglik_dt">
+<em class="property">property </em><code class="sig-name descname">dloglik_dt</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dloglik_dt" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>dloglik_dt</cite> is derivative of <cite>loglik</cite> with respect to <cite>t</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.dloglikarray">
+<em class="property">property </em><code class="sig-name descname">dloglikarray</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dloglikarray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derivative of <cite>loglik</cite> with respect to <cite>paramsarray</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.dparamscurrent">
+<em class="property">property </em><code class="sig-name descname">dparamscurrent</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dparamscurrent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Are derivatives with respect to model parameters current?</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.dtcurrent">
+<em class="property">property </em><code class="sig-name descname">dtcurrent</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.dtcurrent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Are derivatives with respect to branch lengths current?</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.maximizeLikelihood">
+<code class="sig-name descname">maximizeLikelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">optimize_brlen</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">approx_grad</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">logliktol</span><span class="o">=</span><span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">nparamsretry</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">printfunc</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.maximizeLikelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximize the log likelihood.</p>
+<p>Maximizes log likelihood with respect to model parameters
+and potentially branch lengths depending on <cite>optimize_brlen</cite>.
+If optimizing the branch lengths, iterates between optimizing
+the model parameters and branch lengths.</p>
+<p>Uses the L-BFGS-B method implemented in <cite>scipy.optimize</cite>.</p>
+<p>There is no return variable, but after call object attributes
+will correspond to maximimum likelihood values.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>optimize_brlen</cite> (bool)</dt><dd><p>Do we optimize branch lengths?</p>
+</dd>
+<dt><cite>approx_grad</cite> (bool)</dt><dd><p>If <cite>True</cite>, then we numerically approximate the gradient
+rather than using the analytical values.</p>
+</dd>
+<dt><cite>logliktol</cite> (float)</dt><dd><p>When using <cite>optimize_brlen</cite>, keep iterating between
+optimization of parameters and branch lengths until
+change in log likelihood is less than <cite>logliktol</cite>.</p>
+</dd>
+<dt><cite>nparamsretry</cite> (int &gt;= 0)</dt><dd><p>Number of times to retry parameter optimization from
+different initial values if it fails the first time.</p>
+</dd>
+<dt><cite>printfunc</cite> (<cite>None</cite> or a function)</dt><dd><p>If not <cite>None</cite>, then we print using <cite>printfunc</cite> the
+detailed results of the optimization at each step.
+For instance, <cite>printfunc</cite> might be <cite>sys.stderr.write</cite>
+or <cite>logger.info</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>A string giving a summary of the maximization.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.paramsarray">
+<em class="property">property </em><code class="sig-name descname">paramsarray</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.paramsarray" title="Permalink to this definition">¶</a></dt>
+<dd><p>All free model parameters as 1-dimensional <cite>numpy.ndarray</cite>.</p>
+<p>You are allowed to update model parameters by direct
+assignment of this property.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.paramsarraybounds">
+<em class="property">property </em><code class="sig-name descname">paramsarraybounds</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.paramsarraybounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bounds for parameters in <cite>paramsarray</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.t">
+<em class="property">property </em><code class="sig-name descname">t</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.t" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets array of branch lengths.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.tree">
+<em class="property">property </em><code class="sig-name descname">tree</code><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tree with branch lengths in codon substitutions per site.</p>
+<p>The tree is a <cite>Bio.Phylo.BaseTree.Tree</cite> object.</p>
+<p>This is the current tree after whatever optimizations have
+been performed so far.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.treelikelihood.TreeLikelihood.updateParams">
+<code class="sig-name descname">updateParams</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">newvalues</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.treelikelihood.TreeLikelihood.updateParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update model parameters and re-compute likelihoods.</p>
+<p>This method is the <strong>only</strong> acceptable way to update model
+parameters. The likelihood is re-computed as needed
+by this method.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>newvalues</cite> (dict)</dt><dd><p>A dictionary keyed by param name and with value as new
+value to set. Each parameter name must either be a
+valid model parameter (in <cite>model.freeparams</cite>).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/BloomLogo.jpg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">phydms</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Software for phylogenetic analyses informed by deep mutational scanning.</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=jbloomlab&repo=phydms&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://travis-ci.org/jbloomlab/phydms">
+    <img
+        alt="https://secure.travis-ci.org/jbloomlab/phydms.svg?branch=master"
+        src="https://secure.travis-ci.org/jbloomlab/phydms.svg?branch=master"
+    />
+</a>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="howtouse.html">how to use <code class="docutils literal notranslate"><span class="pre">phydms</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="phydms_prog.html">the <code class="docutils literal notranslate"><span class="pre">phydms</span></code> program</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auxiliary_progs.html">auxiliary programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ExpCM.html"><strong>Exp</strong>erimentally Informed <strong>C</strong>odon <strong>M</strong>odels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation.html">Numerical implementation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="phydmslib.html">phydmslib package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">Acknowledgments and citations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="indices_and_tables.html">Indices and tables</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="phydmslib.html">phydmslib package</a><ul>
+      <li>Previous: <a href="phydmslib.simulate.html" title="previous chapter">phydmslib.simulate module</a></li>
+      <li>Next: <a href="phydmslib.utils.html" title="next chapter">phydmslib.utils module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015-2020, Sarah Hilton and Jesse Bloom.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/phydmslib.treelikelihood.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/jbloomlab/phydms" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

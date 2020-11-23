@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>phydmslib package &#8212; phydms 2.4.0 documentation</title>
+    <title>phydmslib.simulate module &#8212; phydms 2.4.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -16,8 +16,8 @@
     <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="phydmslib.constants module" href="phydmslib.constants.html" />
-    <link rel="prev" title="Numerical implementation" href="implementation.html" />
+    <link rel="next" title="phydmslib.treelikelihood module" href="phydmslib.treelikelihood.html" />
+    <link rel="prev" title="phydmslib.parsearguments module" href="phydmslib.parsearguments.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -34,31 +34,61 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-phydmslib">
-<span id="phydmslib-package"></span><h1>phydmslib package<a class="headerlink" href="#module-phydmslib" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="phydmslib">
-<h2>phydmslib<a class="headerlink" href="#phydmslib" title="Permalink to this headline">¶</a></h2>
-<p>phydmslib is the Python API for phydms.</p>
-</div>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="phydmslib.constants.html">phydmslib.constants module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="phydmslib.file_io.html">phydmslib.file_io module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="phydmslib.models.html">phydmslib.models module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="phydmslib.numutils.html">phydmslib.numutils module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="phydmslib.numutils.html">phydmslib.numutils module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="phydmslib.numutils.html">phydmslib.numutils module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="phydmslib.numutils.html">phydmslib.numutils module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="phydmslib.parsearguments.html">phydmslib.parsearguments module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="phydmslib.simulate.html">phydmslib.simulate module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="phydmslib.treelikelihood.html">phydmslib.treelikelihood module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="phydmslib.utils.html">phydmslib.utils module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="phydmslib.weblogo.html">phydmslib.weblogo module</a></li>
-</ul>
-</div>
-</div>
+  <div class="section" id="module-phydmslib.simulate">
+<span id="phydmslib-simulate-module"></span><h1>phydmslib.simulate module<a class="headerlink" href="#module-phydmslib.simulate" title="Permalink to this headline">¶</a></h1>
+<p>Functions for performing simulations, mostly using <code class="docutils literal notranslate"><span class="pre">pyvolve</span></code>.</p>
+<p>Written by Jesse Bloom and Sarah Hilton.</p>
+<dl class="py function">
+<dt id="phydmslib.simulate.pyvolvePartitions">
+<code class="sig-prename descclassname">phydmslib.simulate.</code><code class="sig-name descname">pyvolvePartitions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">divselection</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.simulate.pyvolvePartitions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of <cite>pyvolve</cite> partitions for <cite>model</cite>.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>model</cite> (<cite>phydmslib.models.Models</cite> object)</dt><dd><p>The model used for the simulations. Currently only
+certain <cite>Models</cite> are supported (e.g., <cite>YNGKP</cite>,
+<cite>ExpCM</cite>)</p>
+</dd>
+<dt><cite>divselection</cite> (<cite>None</cite> or 2-tuple <cite>(divomega, divsites)</cite>)</dt><dd><p>Set this option if you want to simulate a subset of sites
+as under diversifying selection (e.g., an <cite>omega</cite> different
+than that used by <cite>model</cite>. In this case, <cite>divomega</cite> is
+the omega for this subset of sites, and <cite>divsites</cite> is a list
+of the sites in 1, 2, … numbering.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt><cite>partitions</cite> (<cite>list</cite> of <cite>pyvolve.Partition</cite> objects)</dt><dd><p>Can be fed into <cite>pyvolve.Evolver</cite> to simulate evolution.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.simulate.simulateAlignment">
+<code class="sig-prename descclassname">phydmslib.simulate.</code><code class="sig-name descname">simulateAlignment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">treeFile</span></em>, <em class="sig-param"><span class="n">alignmentPrefix</span></em>, <em class="sig-param"><span class="n">randomSeed</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.simulate.simulateAlignment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulate an alignment given a model and tree (units = subs/site).</p>
+<p>Simulations done using <cite>pyvolve</cite>.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>model</cite> (<cite>phydmslib.models.Models</cite> object)</dt><dd><p>The model used for the simulations. Only
+models that can be passed to <cite>pyvolve.Partitions</cite>
+are supported.</p>
+</dd>
+<dt><cite>treeFile</cite> (str)</dt><dd><p>Name of newick file used to simulate the sequences.
+The branch lengths should be in substitutions per site,
+which is the default units for all <cite>phydms</cite> outputs.</p>
+</dd>
+<dt><cite>alignmentPrefix</cite></dt><dd><p>Prefix for the files created by <cite>pyvolve</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>The result of this function is a simulated FASTA alignment
+file with the name having the prefix giving by <cite>alignmentPrefix</cite>
+and the suffix <cite>‘_simulatedalignment.fasta’</cite>.</p>
+</dd></dl>
+
 </div>
 
 
@@ -113,7 +143,7 @@
 <li class="toctree-l1"><a class="reference internal" href="auxiliary_progs.html">auxiliary programs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ExpCM.html"><strong>Exp</strong>erimentally Informed <strong>C</strong>odon <strong>M</strong>odels</a></li>
 <li class="toctree-l1"><a class="reference internal" href="implementation.html">Numerical implementation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">phydmslib package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="phydmslib.html">phydmslib package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">Acknowledgments and citations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="indices_and_tables.html">Indices and tables</a></li>
 </ul>
@@ -122,8 +152,10 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="implementation.html" title="previous chapter">Numerical implementation</a></li>
-      <li>Next: <a href="phydmslib.constants.html" title="next chapter">phydmslib.constants module</a></li>
+  <li><a href="phydmslib.html">phydmslib package</a><ul>
+      <li>Previous: <a href="phydmslib.parsearguments.html" title="previous chapter">phydmslib.parsearguments module</a></li>
+      <li>Next: <a href="phydmslib.treelikelihood.html" title="next chapter">phydmslib.treelikelihood module</a></li>
+  </ul></li>
   </ul></li>
 </ul>
 </div>
@@ -157,7 +189,7 @@
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="_sources/phydmslib.rst.txt"
+      <a href="_sources/phydmslib.simulate.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

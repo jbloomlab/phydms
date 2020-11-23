@@ -1,18 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>the phydms program &#8212; phydms 2.3.8 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>the phydms program &#8212; phydms 2.4.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="auxiliary programs" href="auxiliary_progs.html" />
@@ -69,7 +70,7 @@
 </div>
 <div class="section" id="command-line-usage">
 <h2><a class="toc-backref" href="#id4">Command-line usage</a><a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
-<p><p>Phylogenetic analysis informed by deep mutational scanning data. The ‘phydms’ package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a>). Version 2.3.8. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
+<p><p>Phylogenetic analysis informed by deep mutational scanning data. The ‘phydms’ package is written by the Bloom lab (see <a class="reference external" href="https://github.com/jbloomlab/phydms/contributors">https://github.com/jbloomlab/phydms/contributors</a>). Version 2.4.0. Full documentation at <a class="reference external" href="http://jbloomlab.github.io/phydms">http://jbloomlab.github.io/phydms</a></p>
 </p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">phydms</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">brlen</span> <span class="p">{</span><span class="n">scale</span><span class="p">,</span><span class="n">optimize</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">gammaomega</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">gammabeta</span><span class="p">]</span>
               <span class="p">[</span><span class="o">--</span><span class="n">omegabysite</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">omegabysite_fixsyn</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">diffprefsbysite</span><span class="p">]</span>
@@ -310,7 +311,7 @@ In this file, <cite>phi0A</cite> is the corrected empirical frequency of <cite>A
 <p>If you use a model with a gamma-distributed <span class="math notranslate nohighlight">\(\omega\)</span> (i.e., the <code class="docutils literal notranslate"><span class="pre">--gammarates</span></code> option for an <em>ExpCM</em>, or the <em>YNGKP_M5</em> model) or <span class="math notranslate nohighlight">\(\beta\)</span>, rather than have a single value for the parameter, there are instead two parameters that determine the gamma distribution.
 For a gamma-distributed <span class="math notranslate nohighlight">\(\omega\)</span>, these are the shape parameter <span class="math notranslate nohighlight">\(\alpha_{\omega}\)</span> (denoted <em>alpha_omega</em>) and the inverse scale parameter <span class="math notranslate nohighlight">\(\beta_{\omega}\)</span> (denoted by <em>beta_omega</em>).
 The mean and variance of the omega distribution are <span class="math notranslate nohighlight">\(\alpha_{\omega}/ \beta_{\omega}\)</span> and <span class="math notranslate nohighlight">\(\alpha_{\omega} / \left(\beta_{\omega}\right)^2\)</span>, respectively.
-To get the exact values, use the <a class="reference internal" href="api.html#api"><span class="std std-ref">phydmslib API</span></a> to call <code class="docutils literal notranslate"><span class="pre">phydmslib.models.DiscreteGamma(alpha_omega,</span> <span class="pre">beta_omega,</span> <span class="pre">ncats)</span></code> where <em>ncats</em> is the value set by <code class="docutils literal notranslate"><span class="pre">--ncats</span></code>. Here is an example of the model parameter file contents for an <em>ExpCM</em> with <code class="docutils literal notranslate"><span class="pre">--gammaomega</span></code>:</p>
+To get the exact values, use <a class="reference internal" href="phydmslib.models.html#phydmslib.models.DiscreteGamma" title="phydmslib.models.DiscreteGamma"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.DiscreteGamma</span></code></a> <code class="docutils literal notranslate"><span class="pre">(alpha_omega,</span> <span class="pre">beta_omega,</span> <span class="pre">ncats)</span></code> where <em>ncats</em> is the value set by <code class="docutils literal notranslate"><span class="pre">--ncats</span></code>. Here is an example of the model parameter file contents for an <em>ExpCM</em> with <code class="docutils literal notranslate"><span class="pre">--gammaomega</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">alpha_omega</span> <span class="o">=</span> <span class="mf">0.835183</span>
 <span class="n">beta</span> <span class="o">=</span> <span class="mf">3.01549</span>
 <span class="n">beta_omega</span> <span class="o">=</span> <span class="mf">0.976053</span>
@@ -417,7 +418,7 @@ The sites are sorted with the highest half absolute sum differential preference 
 <li class="toctree-l1"><a class="reference internal" href="auxiliary_progs.html">auxiliary programs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ExpCM.html"><strong>Exp</strong>erimentally Informed <strong>C</strong>odon <strong>M</strong>odels</a></li>
 <li class="toctree-l1"><a class="reference internal" href="implementation.html">Numerical implementation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">phydmslib</span></code> API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="phydmslib.html">phydmslib package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">Acknowledgments and citations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="indices_and_tables.html">Indices and tables</a></li>
 </ul>
@@ -440,7 +441,7 @@ The sites are sorted with the highest half absolute sum differential preference 
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -457,7 +458,7 @@ The sites are sorted with the highest half absolute sum differential preference 
       &copy;2015-2020, Sarah Hilton and Jesse Bloom.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

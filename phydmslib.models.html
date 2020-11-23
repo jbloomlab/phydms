@@ -1,0 +1,1340 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>phydmslib.models module &#8212; phydms 2.4.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="phydmslib.numutils module" href="phydmslib.numutils.html" />
+    <link rel="prev" title="phydmslib.file_io module" href="phydmslib.file_io.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-phydmslib.models">
+<span id="phydmslib-models-module"></span><h1>phydmslib.models module<a class="headerlink" href="#module-phydmslib.models" title="Permalink to this headline">¶</a></h1>
+<p>Substitution models.</p>
+<p>All models defined here are subclasses of abstract base class <cite>Model</cite>.</p>
+<p>Nucleotides, amino acids, and codons are indexed by integers 0, 1, …
+using the indexing schemes defined in <cite>phydmslib.constants</cite>.</p>
+<dl class="py function">
+<dt id="phydmslib.models.DiscreteGamma">
+<code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">DiscreteGamma</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">alpha</span></em>, <em class="sig-param"><span class="n">beta</span></em>, <em class="sig-param"><span class="n">ncats</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.DiscreteGamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns category means for discretized gamma distribution.</p>
+<p>The distribution is evenly divided into categories, and the
+mean of each category is returned.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>alpha</cite> (<cite>float</cite> &gt; 0)</dt><dd><p>Shape parameter of gamma distribution.</p>
+</dd>
+<dt><cite>beta</cite> (<cite>float</cite> &gt; 0)</dt><dd><p>Inverse scale parameter of gamma distribution.</p>
+</dd>
+<dt><cite>ncats</cite> (<cite>int</cite> &gt; 1)</dt><dd><p>Number of categories in discretized gamma distribution.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt><cite>catmeans</cite> (<cite>numpy.ndarray</cite> of <cite>float</cite>, shape <cite>(ncats,)</cite>)</dt><dd><p><cite>catmeans[k]</cite> is the mean of category <cite>k</cite> where
+<cite>0 &lt;= k &lt; ncats</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>Check that we get values in Figure 1 of Yang, J Mol Evol, 39:306-314
+&gt;&gt;&gt; catmeans = DiscreteGamma(0.5, 0.5, 3)
+&gt;&gt;&gt; numpy.allclose(catmeans, numpy.array([0.0603,0.4894,2.4502]),atol=1e-4)
+True</p>
+<p>Make sure we get expected mean of alpha / beta
+&gt;&gt;&gt; alpha = 0.6
+&gt;&gt;&gt; beta = 0.8
+&gt;&gt;&gt; ncats = 6
+&gt;&gt;&gt; catmeans = DiscreteGamma(alpha, beta, ncats)
+&gt;&gt;&gt; numpy.allclose(catmeans.sum() / ncats, alpha / beta)
+True</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="phydmslib.models.DistributionModel">
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">DistributionModel</code><a class="headerlink" href="#phydmslib.models.DistributionModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#phydmslib.models.Model" title="phydmslib.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.Model</span></code></a></p>
+<p>Substitution model with a parameter drawn from distribution.</p>
+<p>This abstract base class defines required methods / attributes
+of substitution models with <em>one</em> parameter (<cite>distributedparam</cite>)
+drawn from a distribution. An example is that <cite>omega</cite> might be
+drawn from a gamma distribution.</p>
+<dl class="py method">
+<dt id="phydmslib.models.DistributionModel.M">
+<em class="property">abstract </em><code class="sig-name descname">M</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">tips</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gaps</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.DistributionModel.M" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matrix exponential <cite>M(mu * t) = exp(mu * t * P)</cite> for category <cite>k</cite>.</p>
+<p>Similar to definition for <cite>Model</cite> abstract base class except
+also specifies for which category <cite>k</cite> we are returning the
+matrix exponential. <cite>k</cite> is an <cite>int</cite> with <cite>0 &lt;= k &lt; ncats</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.DistributionModel.basemodel">
+<em class="property">abstract property </em><code class="sig-name descname">basemodel</code><a class="headerlink" href="#phydmslib.models.DistributionModel.basemodel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base model over which this model is distributed.</p>
+<p>A <cite>DistributionModel</cite> is a base model with some property
+drawn from a distribution. This gives such a base model.
+Parameters of this base model that are <strong>not</strong> distributed
+among sites will be current, but the distributed parameter
+will not.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.DistributionModel.catweights">
+<em class="property">abstract property </em><code class="sig-name descname">catweights</code><a class="headerlink" href="#phydmslib.models.DistributionModel.catweights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Weight assigned to each category.</p>
+<p>Is a <cite>numpy.ndarray</cite> of <cite>float</cite> of shape <cite>(ncats,)</cite> where each
+entry is &gt; 0 and the entries sum to one. <cite>catweights[k]</cite> is
+the weight assigned to category <cite>k</cite> where <cite>0 &lt;= k &lt; ncats</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.DistributionModel.dM">
+<em class="property">abstract </em><code class="sig-name descname">dM</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">param</span></em>, <em class="sig-param"><span class="n">Mkt</span></em>, <em class="sig-param"><span class="n">tips</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gaps</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.DistributionModel.dM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derivative of <cite>M(k, t)</cite> with respect to <cite>param</cite>.</p>
+<p>Similar to definiton for <cite>Model</cite> abstract base class
+except also specifies for which category <cite>k</cite> we are
+returning the derivative. <cite>k</cite> is an <cite>int</cite> with
+<cite>0 &lt;= k &lt; ncats</cite>.</p>
+<p>Also, <cite>param</cite> can be any string in <cite>freeparams</cite> <strong>except</strong>
+those in <cite>distributionparams</cite>, and can also be <cite>distributedparam</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.DistributionModel.d_distributionparams">
+<em class="property">abstract property </em><code class="sig-name descname">d_distributionparams</code><a class="headerlink" href="#phydmslib.models.DistributionModel.d_distributionparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derivatives of <cite>distributedparam</cite> w.r.t <cite>distributionparams</cite>.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><dl class="simple">
+<dt><cite>d_distributionparams</cite></dt><dd><p>(<cite>dict</cite> keyed by params in <cite>distributionparams</cite>)
+<cite>d_distribution[param]</cite> is a <cite>numpy.ndarray</cite> of <cite>float</cite> of
+shape <cite>(ncats,)</cite>, with <cite>d_distributionparam[param][k]</cite> giving
+the derivative of the <cite>distributedparam</cite> for category <cite>k</cite>
+with respect to <cite>param</cite> where <cite>param</cite> is in
+<cite>distributionparams</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.DistributionModel.distributedparam">
+<em class="property">abstract property </em><code class="sig-name descname">distributedparam</code><a class="headerlink" href="#phydmslib.models.DistributionModel.distributedparam" title="Permalink to this definition">¶</a></dt>
+<dd><p>String giving name of parameter drawn from the distribution.</p>
+<p>This parameter must be in <cite>freeparams</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.DistributionModel.distributionparams">
+<em class="property">abstract property </em><code class="sig-name descname">distributionparams</code><a class="headerlink" href="#phydmslib.models.DistributionModel.distributionparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of params giving distribution shape for <cite>distributedparam</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.DistributionModel.dstationarystate">
+<em class="property">abstract </em><code class="sig-name descname">dstationarystate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">param</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.DistributionModel.dstationarystate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derivative of <cite>stationarystate</cite> w.r.t <cite>param</cite> for category <cite>k</cite>.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>k</cite> (int)</dt><dd><p>Category for which we are computing stationary state.</p>
+</dd>
+<dt><cite>param</cite> (string)</dt><dd><p>A string in <cite>freeparams</cite> or <cite>distributedparam</cite></p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt><cite>dstationarystate</cite> (<cite>numpy.ndarray</cite> of floats or zero)</dt><dd><p>If <cite>param</cite> is a float, then <cite>dstationarystate[k][r][x]</cite>
+is derivative of <cite>stationarystate[k][r][x]</cite> with respect
+to <cite>param</cite> for category <cite>k</cite>. If <cite>param</cite> is an array, then
+<cite>dstationarystate[k][i][r][x]</cite> is derivative of
+<cite>stationarystate[k][r][x]</cite> with respect to <cite>param[i]</cite> for
+category <cite>k</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.DistributionModel.ncats">
+<em class="property">abstract property </em><code class="sig-name descname">ncats</code><a class="headerlink" href="#phydmslib.models.DistributionModel.ncats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of categories for distributed parameter.</p>
+<p>Is an <cite>int</cite> &gt; 1.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.DistributionModel.stationarystate">
+<em class="property">abstract </em><code class="sig-name descname">stationarystate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">k</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.DistributionModel.stationarystate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stationary state of substitution model.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>k</cite> (int)</dt><dd><p>Category for which we are computing stationary state.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>A <cite>numpy.ndarray</cite> of floats, shape <cite>(k, nsites, N_CODON)</cite>.
+Element <cite>stationarystate[k][r][x]</cite> is the stationary
+state probability of codon <cite>x</cite> at site <cite>r</cite> for category <cite>k</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="phydmslib.models.ExpCM">
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">ExpCM</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">kappa</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">omega</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">beta</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">mu</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">phi</span><span class="o">=</span><span class="default_value">array([0.25, 0.25, 0.25, 0.25])</span></em>, <em class="sig-param"><span class="n">freeparams</span><span class="o">=</span><span class="default_value">'kappa', 'omega', 'beta', 'mu', 'eta'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#phydmslib.models.Model" title="phydmslib.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.Model</span></code></a></p>
+<p>Experimentally informed codon models (ExpCM) for a gene.</p>
+<p>See <cite>__init__</cite> method for how to initialize an <cite>ExpCM</cite>.</p>
+<p>Attributes should <strong>only</strong> be updated via the <cite>updateParams</cite>
+method, do <strong>not</strong> set attributes directly.</p>
+<dl class="simple">
+<dt>Attributes (see also those inherited from <cite>Model</cite>):</dt><dd><dl class="simple">
+<dt><cite>pi</cite> (<cite>numpy.ndarray</cite> of floats, shape <cite>(nsites, N_AA)</cite>)</dt><dd><p><cite>pi[r][a]</cite> is preference of site <cite>r</cite> for amino-acid <cite>a</cite>.</p>
+</dd>
+<dt><cite>kappa</cite> (float &gt; 0)</dt><dd><p>Transition-transversion ratio.</p>
+</dd>
+<dt><cite>omega</cite> (float &gt; 0)</dt><dd><p>Nonsynonymous to synonymous substitution ratio.</p>
+</dd>
+<dt><cite>beta</cite> (float &gt; 0)</dt><dd><p>Stringency parameter re-scaling amino-acid preferences.</p>
+</dd>
+<dt><cite>phi</cite> (<cite>numpy.ndarray</cite> of floats, length <cite>N_NT</cite>)</dt><dd><p>Nucleotide frequency params summing to one, is
+computed from <cite>eta</cite>. We use <cite>eta</cite> rather than <cite>phi</cite>
+as the free parameter during optimization.</p>
+</dd>
+<dt><cite>eta</cite> (<cite>numpy.ndarray</cite> of floats, length <cite>N_NT - 1</cite>)</dt><dd><p>Transformation of the nucleotide frequency params in <cite>phi</cite>;
+all entries are &gt; 0 and &lt; 1. We use <cite>eta</cite> rather than <cite>phi</cite>
+as the free parameter during optimization.</p>
+</dd>
+<dt><cite>Prxy</cite> (<cite>numpy.ndarray</cite> of floats, shape <cite>(nsites, N_CODON, N_CODON)</cite></dt><dd><p><cite>Prxy[r][x][y]</cite> is substitution rate from codon <cite>x</cite> to <cite>y</cite> at <cite>r</cite>.
+Diagonal elements make rows sum to zero for each <cite>Prxy[r]</cite>.</p>
+</dd>
+<dt><cite>prx</cite> (<cite>numpy.ndarray</cite> of floats, shape <cite>(nsites, N_CODON)</cite></dt><dd><p><cite>prx[r][x]</cite> is stationary state of <cite>Prxy</cite> for codon <cite>x</cite> at <cite>r</cite>.
+This attribute is equivalent to <cite>stationarystate</cite>.</p>
+</dd>
+<dt><cite>Qxy</cite> (<cite>numpy.ndarray</cite> of floats, shape <cite>(N_CODON, N_CODON)</cite></dt><dd><p><cite>Qxy[x][y]</cite> is mutation rate from <cite>x</cite> to <cite>y</cite>, diagonal undefined.</p>
+</dd>
+<dt><cite>Frxy</cite> (<cite>numpy.ndarray</cite> of floats, shape <cite>(nsites, N_CODON, N_CODON)</cite></dt><dd><p><cite>Frxy[r][x][y]</cite> fixation prob from <cite>x</cite> to <cite>y</cite>, diagonal
+undefined for each <cite>Frxy[r]</cite>.</p>
+</dd>
+<dt><cite>Frxy_no_omega</cite></dt><dd><p>Like <cite>Frxy</cite> but <strong>not</strong> multiplied by <cite>omega</cite> for non-synonymous
+mutations</p>
+</dd>
+<dt><cite>pi_codon</cite> (<cite>numpy.ndarray</cite> of floats, shape <cite>(nsites, N_CODON)</cite>)</dt><dd><p><cite>pi_codon[r][x]</cite> is preference of site <cite>r</cite> for amino acid
+encoded by codon <cite>x</cite>.</p>
+</dd>
+<dt><cite>ln_pi_codon</cite> (<cite>numpy.ndarray</cite> floats, shape <cite>(nsites, N_CODON)</cite>)</dt><dd><p>Natural logarithm of <cite>pi_codon</cite>.</p>
+</dd>
+<dt><cite>piAx_piAy</cite></dt><dd><p>(<cite>numpy.ndarray</cite> floats, shape <cite>(nsites, N_CODON, N_CODON)</cite>)
+<cite>piAx_piAy[r][x][y]</cite> is ratio of preference for amino acid
+encoded by codon <cite>x</cite> divided by pref for that encoded by <cite>y</cite>.</p>
+</dd>
+<dt><cite>piAx_piAy_beta</cite></dt><dd><p>(<cite>numpy.ndarray</cite> floats, shape <cite>(nsites, N_CODON, N_CODON)</cite>)
+Equal to <cite>piAx_piAy</cite> raised to the power of <cite>beta</cite>.</p>
+</dd>
+<dt><cite>ln_piAx_piAy_beta (`numpy.ndarray</cite> of floats)</dt><dd><p>Natural logarithm of <cite>piAx_piAy_beta</cite>.</p>
+</dd>
+<dt><cite>dPrxy</cite> (dict)</dt><dd><p>Keyed by each string in <cite>freeparams</cite>, each value is <cite>numpy.ndarray</cite>
+of floats giving derivative of <cite>Prxy</cite> with respect to that
+parameter. The shape of each array <cite>(nsites, N_CODON, N_CODON)</cite>
+except for <em>eta</em>, for which it is <cite>(N_NT - 1, nsites, N_CODON,
+N_CODON)</cite> with the first index ranging over each element in <cite>eta</cite>.</p>
+</dd>
+<dt><cite>dprx</cite> (dict)</dt><dd><p>Keyed by strings in <cite>freeparams</cite>, each value is <cite>numpy.ndarray</cite>
+of floats giving derivative of <cite>prx</cite> with respect to that param,
+or 0 if if <cite>prx</cite> does not depend on parameter. The shape of each
+array is <cite>(nsites, N_CODON)</cite> except for <em>eta</em>, for which it is
+<cite>(N_NT - 1, nsites, N_CODON)</cite> with the first index ranging over
+each element in <cite>eta</cite>. Equivalent to <cite>dstationarystate[param]</cite>.</p>
+</dd>
+<dt><cite>D</cite> (<cite>numpy.ndarray</cite> floats, shape <cite>(nsites, N_CODON)</cite>)</dt><dd><p>Element <cite>r</cite> is diagonal of <span class="math notranslate nohighlight">\(\mathbf{D_r}\)</span> diagonal matrix,
+<span class="math notranslate nohighlight">\(\mathbf{P_r} = \mathbf{A_r}^{-1} \mathbf{D_r} \mathbf{A_r}\)</span></p>
+</dd>
+<dt><cite>A</cite> (<cite>numpy.ndarray</cite> floats, shape <cite>(nsites, N_CODON, N_CODON)</cite>)</dt><dd><p>Element r is <span class="math notranslate nohighlight">\(\mathbf{A_r}\)</span> matrix.</p>
+</dd>
+<dt><cite>Ainv</cite> (<cite>numpy.ndarray</cite> floats, shape <cite>(nsites, N_CODON, N_CODON)</cite>)</dt><dd><p>Element r is <span class="math notranslate nohighlight">\(\mathbf{A_r}^{-1}\)</span> matrix.</p>
+</dd>
+<dt><cite>B</cite> (dict)</dt><dd><p>Keyed by strings in <cite>freeparams</cite>, each value is <cite>numpy.ndarray</cite>
+of floats giving <cite>B</cite> matrix for that parameter. The shape
+is <cite>(nsites, N_CODON, N_CODON)</cite> except for <em>eta</em>, for which
+it is <cite>(N_NT - 1, nsites, N_CODON, N_CODON)</cite> with the first
+index ranging over each element in <cite>eta</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="phydmslib.models.ExpCM.ALLOWEDPARAMS">
+<code class="sig-name descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'beta', 'eta', 'mu']</em><a class="headerlink" href="#phydmslib.models.ExpCM.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM.M">
+<code class="sig-name descname">M</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">tips</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gaps</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.M" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for method in <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM.PARAMLIMITS">
+<em class="property">property </em><code class="sig-name descname">PARAMLIMITS</code><a class="headerlink" href="#phydmslib.models.ExpCM.PARAMLIMITS" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="phydmslib.models.ExpCM.PARAMTYPES">
+<code class="sig-name descname">PARAMTYPES</code><em class="property"> = {'beta': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'kappa': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'pi': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">kappa</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">omega</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">beta</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">mu</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">phi</span><span class="o">=</span><span class="default_value">array([0.25, 0.25, 0.25, 0.25])</span></em>, <em class="sig-param"><span class="n">freeparams</span><span class="o">=</span><span class="default_value">'kappa', 'omega', 'beta', 'mu', 'eta'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize an <cite>ExpCM</cite> object.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>prefs</cite> (list)</dt><dd><p>List of dicts giving amino-acid preferences for
+each site. Each dict keyed by amino acid letter
+codes, value is pref &gt; 0 and &lt; 1. Must sum to 1
+at each site.</p>
+</dd>
+<dt><cite>kappa</cite>, <cite>omega</cite>, <cite>beta</cite>, <cite>mu</cite>, <cite>phi</cite></dt><dd><p>Model params described in main class doc string.</p>
+</dd>
+<dt><cite>freeparams</cite> (list of strings)</dt><dd><p>Specifies free parameters.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM.branchScale">
+<em class="property">property </em><code class="sig-name descname">branchScale</code><a class="headerlink" href="#phydmslib.models.ExpCM.branchScale" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM.dM">
+<code class="sig-name descname">dM</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">param</span></em>, <em class="sig-param"><span class="n">Mt</span></em>, <em class="sig-param"><span class="n">tips</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gaps</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.dM" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for method in <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM.dlogprior">
+<code class="sig-name descname">dlogprior</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">param</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.dlogprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zero for all <cite>param</cite>, as no prior defined over this model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM.dstationarystate">
+<code class="sig-name descname">dstationarystate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">param</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.dstationarystate" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM.freeparams">
+<em class="property">property </em><code class="sig-name descname">freeparams</code><a class="headerlink" href="#phydmslib.models.ExpCM.freeparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM.logprior">
+<em class="property">property </em><code class="sig-name descname">logprior</code><a class="headerlink" href="#phydmslib.models.ExpCM.logprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is zero, as no prior is defined over this model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM.mu">
+<em class="property">property </em><code class="sig-name descname">mu</code><a class="headerlink" href="#phydmslib.models.ExpCM.mu" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM.nsites">
+<em class="property">property </em><code class="sig-name descname">nsites</code><a class="headerlink" href="#phydmslib.models.ExpCM.nsites" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM.paramsReport">
+<em class="property">property </em><code class="sig-name descname">paramsReport</code><a class="headerlink" href="#phydmslib.models.ExpCM.paramsReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM.spielman_wr">
+<code class="sig-name descname">spielman_wr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.spielman_wr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate site-specific omega values the <cite>ExpCM</cite>.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>norm</cite> (bool)</dt><dd><p>If <cite>True</cite>, normalize the <cite>omega_r</cite> values by the ExpCM
+gene-wide <cite>omega</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt><cite>wr</cite> (list)</dt><dd><p>list of <cite>omega_r</cite> values of length <cite>nsites</cite></p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<p>Following
+<a class="reference external" href="https://doi.org/10.1093/molbev/msv003">Spielman and Wilke,
+MBE, 32:1097-1108</a>,
+we can predict the <cite>dN/dS</cite> value for each site <cite>r</cite>,
+<span class="math notranslate nohighlight">\(\rm{spielman}\omega_r\)</span>, from the <cite>ExpCM</cite>.</p>
+<p>When <cite>norm</cite> is <cite>False</cite>, the <cite>omega_r</cite> values are defined as
+<span class="math notranslate nohighlight">\(\rm{spielman}\omega_r = \frac{\sum_x        \sum_{y \in N_x}p_{r,x}P_{r,xy}}        {\sum_x \sum_{y \in Nx}p_{r,x}Q_{xy}}\)</span>,
+where <cite>r,x,y</cite>, <span class="math notranslate nohighlight">\(p_{r,x}\)</span>, <span class="math notranslate nohighlight">\(P_{r,xy}\)</span>, and <span class="math notranslate nohighlight">\(Q_{x,y}\)</span>
+have the same definitions as in the main <cite>ExpCM</cite> doc string
+and <span class="math notranslate nohighlight">\(N_{x}\)</span> and differ from <cite>x</cite> by one nucleotide.</p>
+<p>When <cite>norm</cite> is <cite>True</cite>, the <cite>omega_r</cite> values above are divided by the
+ExpCM <cite>omega</cite> value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM.stationarystate">
+<em class="property">property </em><code class="sig-name descname">stationarystate</code><a class="headerlink" href="#phydmslib.models.ExpCM.stationarystate" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM.updateParams">
+<code class="sig-name descname">updateParams</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">newvalues</span></em>, <em class="sig-param"><span class="n">update_all</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM.updateParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="phydmslib.models.ExpCM_empirical_phi">
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">ExpCM_empirical_phi</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">g</span></em>, <em class="sig-param"><span class="n">kappa</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">omega</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">beta</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">mu</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">freeparams</span><span class="o">=</span><span class="default_value">'kappa', 'omega', 'beta', 'mu'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#phydmslib.models.ExpCM" title="phydmslib.models.ExpCM"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.ExpCM</span></code></a></p>
+<p>An <cite>ExpCM</cite> with <cite>phi</cite> calculated empirically from nucleotide freqs.</p>
+<p>See <cite>__init__</cite> method for how to initialize an <cite>ExpCM_empirical_phi</cite>.</p>
+<p>The difference between and <cite>ExpCM</cite> and an <cite>ExpCM_empirical_phi</cite> is that
+the nucleotide frequency parameters <cite>phi</cite> are now calculated empirically
+from their observed frequences (denoted <cite>g</cite>) in the codon alignment such
+that the stationary state gives the empirically observed nucleotide
+frequencies.</p>
+<p>So compared to an <cite>ExpCM</cite>, <cite>eta</cite> (the transformation of <cite>phi</cite>) is no
+longer a free parameter, but is computed as a function of other
+model attributes.</p>
+<dl class="simple">
+<dt>Has all the attributes of an <cite>ExpCM</cite> plus the following:</dt><dd><dl class="simple">
+<dt><cite>g</cite> (<cite>numpy.ndarray</cite> of float, length <cite>N_NT</cite>)</dt><dd><p>Empirical nucleotide frequencies in alignment, with
+<cite>g[m]</cite> being frequency of nucleotide <cite>m</cite>. Must sum
+to one.</p>
+</dd>
+<dt><cite>dphi_dbeta</cite> (<cite>numpy.ndarray</cite> of float, length <cite>N_NT</cite>)</dt><dd><p>Derivative of <cite>phi</cite> with respect to <cite>beta</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="phydmslib.models.ExpCM_empirical_phi.ALLOWEDPARAMS">
+<code class="sig-name descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'beta', 'mu']</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="phydmslib.models.ExpCM_empirical_phi.PARAMTYPES">
+<code class="sig-name descname">PARAMTYPES</code><em class="property"> = {'beta': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'pi': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM_empirical_phi.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">g</span></em>, <em class="sig-param"><span class="n">kappa</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">omega</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">beta</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">mu</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">freeparams</span><span class="o">=</span><span class="default_value">'kappa', 'omega', 'beta', 'mu'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize an <cite>ExpCM_empirical_phi</cite> object.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>prefs</cite>, <cite>kappa</cite>, <cite>omega</cite>, <cite>beta</cite>, <cite>mu</cite>, <cite>freeparams</cite></dt><dd><p>Same meaning as for an <cite>ExpCM</cite></p>
+</dd>
+<dt><cite>g</cite></dt><dd><p>Has the meaning described in the main class doc string.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="phydmslib.models.ExpCM_empirical_phi_divpressure">
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">ExpCM_empirical_phi_divpressure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">g</span></em>, <em class="sig-param"><span class="n">divPressureValues</span></em>, <em class="sig-param"><span class="n">kappa</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">omega</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">beta</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">mu</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">omega2</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">freeparams</span><span class="o">=</span><span class="default_value">'kappa', 'omega', 'beta', 'mu', 'omega2'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#phydmslib.models.ExpCM_empirical_phi" title="phydmslib.models.ExpCM_empirical_phi"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.ExpCM_empirical_phi</span></code></a></p>
+<p><cite>ExpCM</cite> with empirical <cite>phi</cite> and <em>a priori</em> diversifying pressure.</p>
+<p>See <cite>__init__</cite> method for how to initialize.</p>
+<p>Difference between <cite>ExpCM_empirical_phi</cite> and
+<cite>ExpCM_empirical_phi_divpressure`is that `omega</cite> is replaced by
+<cite>omega * (1 + omega2 * deltar)</cite> where <cite>deltar</cite> is the expectation of
+diversifying pressure at site <cite>r</cite>.</p>
+<p>The rate of non-synonymous to synonymous change is proportional to the
+expectation of diversifying pressure.</p>
+<dl class="simple">
+<dt>Has all the attributes of an <cite>ExpCM_empirical_phi</cite> plus the following:</dt><dd><dl class="simple">
+<dt><cite>omega2</cite> (float)</dt><dd><p>Part of the expression which replaces <cite>omega</cite>.</p>
+</dd>
+<dt><cite>divPressureValues</cite> (<cite>numpy.array</cite> of length <cite>nsites</cite>)</dt><dd><p>Array of <cite>deltar</cite> values in site order.
+The maximum absolute value of the array should be between 0 and 1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="phydmslib.models.ExpCM_empirical_phi_divpressure.ALLOWEDPARAMS">
+<code class="sig-name descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'beta', 'mu', 'omega2']</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES">
+<code class="sig-name descname">PARAMTYPES</code><em class="property"> = {'beta': &lt;class 'float'&gt;, 'eta': (&lt;class 'numpy.ndarray'&gt;, (3,)), 'g': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'kappa': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;, 'omega2': &lt;class 'float'&gt;, 'phi': (&lt;class 'numpy.ndarray'&gt;, (4,)), 'pi': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM_empirical_phi_divpressure.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">g</span></em>, <em class="sig-param"><span class="n">divPressureValues</span></em>, <em class="sig-param"><span class="n">kappa</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">omega</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">beta</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">mu</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">omega2</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">freeparams</span><span class="o">=</span><span class="default_value">'kappa', 'omega', 'beta', 'mu', 'omega2'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_empirical_phi_divpressure.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize an <cite>ExpCM_empirical_phi_divpressure</cite> object.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>prefs</cite>, <cite>kappa</cite>, <cite>omega</cite>, <cite>beta</cite>, <cite>mu</cite>, <cite>g</cite>, <cite>freeparams</cite></dt><dd><p>Same meaning as for an <cite>ExpCM_empirical_phi</cite></p>
+</dd>
+<dt><cite>divPressureValues</cite>, <cite>omega2</cite></dt><dd><p>Meaning described in the main class doc string.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="phydmslib.models.ExpCM_fitprefs">
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">ExpCM_fitprefs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">prior</span></em>, <em class="sig-param"><span class="n">kappa</span></em>, <em class="sig-param"><span class="n">omega</span></em>, <em class="sig-param"><span class="n">phi</span></em>, <em class="sig-param"><span class="n">mu</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">origbeta</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">freeparams</span><span class="o">=</span><span class="default_value">'zeta'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#phydmslib.models.ExpCM" title="phydmslib.models.ExpCM"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.ExpCM</span></code></a></p>
+<p>An <cite>ExpCM</cite> with the preferences <cite>pi</cite> as free parameters.</p>
+<p>The difference between <cite>ExpCM</cite> and <cite>ExpCM_fitprefs</cite> is that the
+amino-acid preferences <cite>pi</cite> are optimized for the latter. There
+can also be a regularizing prior on these preferences.</p>
+<p>The way this class is currently implemented, it will be inefficient
+if there is more than one site. The recommended usage is to optimize
+across-site parameters with fixed preferences, then optimize preferences
+for each site individually with this class after fixing across-site
+parameters. You currently can <em>not</em> initialize with more than one
+site.</p>
+<p>See <cite>__init__</cite> method for how to initialize an <cite>ExpCM_fitprefs</cite>.</p>
+<dl class="simple">
+<dt>Has all the attributes of an <cite>ExpCM</cite>, plus:</dt><dd><dl class="simple">
+<dt><cite>zeta</cite> (<cite>numpy.ndarray</cite> of float, shape <cite>(nsites * (N_AA - 1))</cite>)</dt><dd><p>Transformation of the preferences <cite>pi</cite>; all entries are
+&gt; 0 and &lt; 1. We use <cite>zeta</cite> rather than <cite>pi</cite> as the free
+parameter during optimization. The entry
+<cite>zeta.reshape(nsites, N_AA - 1)[r][i]</cite> is value <cite>i</cite>
+for site <cite>r</cite> (<cite>0 &lt;= r &lt; nsites</cite>) where <cite>0 &lt;= i &lt; N_AA - 1</cite>.</p>
+</dd>
+<dt><cite>dPrxy</cite> (dict)</dt><dd><p>Like for <cite>ExpCM</cite>, but also contains entry keyed by ‘zeta’ of
+of shape <cite>(nsites * (N_AA - 1), nsites, N_CODON, N_CODON)</cite>
+where the first index ranges over the elements in <cite>zeta</cite>.</p>
+</dd>
+<dt><cite>tildeFrxy</cite></dt><dd><p>(<cite>numpy.ndarray</cite> of <cite>float</cite>, shape <cite>(nsites, N_CODON, N_CODON)</cite>)
+Contains quantities used in calculating derivative of
+<cite>dPrxy</cite> with respect to <cite>zeta</cite>.</p>
+</dd>
+<dt><cite>origpi</cite> (<cite>numpy.ndarray</cite> of float, shape <cite>(nsites, N_AA)</cite>)</dt><dd><p><cite>origpi[r][a]</cite> is the original preference for amino-acid
+<cite>a</cite> at site <cite>r</cite> as given by the calling parameter <cite>prefs</cite>
+and re-scaled by <cite>origbeta</cite>. This value is <strong>not</strong> updated
+as <cite>zeta</cite> and <cite>pi</cite> are optimized, and is rather used to
+keep track of where the optimization starts. Set to one
+if you have not already optimized a stringency parameter
+prior to initializing this class.</p>
+</dd>
+<dt><cite>prior</cite> (<cite>None</cite> or a tuple)</dt><dd><p>Specifies the regularizing prior over the preferences.
+This prior is centered on the preferences in <cite>origpi</cite>.
+A value of <cite>None</cite> indicates no regularizing prior.
+A tuple of <cite>(‘invquadratic’, c1, c2)</cite> is the inverse
+quadratic prior described in Bloom, <em>Biology Direct</em>, 12:1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p><cite>beta</cite> (the stringency parameter) is <strong>not</strong> a free parameter,
+and is instead fixed to 1. This is because it does not make sense
+to optimize a stringency parameter if you are also optimizing the
+preferences as they are confounded.</p>
+<dl class="py attribute">
+<dt id="phydmslib.models.ExpCM_fitprefs.ALLOWEDPARAMS">
+<code class="sig-name descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'eta', 'mu', 'zeta']</em><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM_fitprefs.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">prior</span></em>, <em class="sig-param"><span class="n">kappa</span></em>, <em class="sig-param"><span class="n">omega</span></em>, <em class="sig-param"><span class="n">phi</span></em>, <em class="sig-param"><span class="n">mu</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">origbeta</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">freeparams</span><span class="o">=</span><span class="default_value">'zeta'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize an <cite>ExpCM_fitprefs</cite> object.</p>
+<p>The calling parameters have the meaning described in the main class doc
+string. The default values have changed consistent with recommended
+usage of this class: that you have already estimated
+the across-site parameters (<cite>kappa</cite>, <cite>omega</cite>, <cite>mu</cite>, <cite>phi</cite>) and so
+are specifying fixed values for those. You are then just optimizing the
+preferences in their variable-transformed form <cite>zeta</cite> from the initial
+values in <cite>prefs</cite> scaled by <cite>origbeta</cite>. The meaning of <cite>origbeta</cite>
+is described in the main class doc string.</p>
+<dl class="simple">
+<dt>Additional arguments:</dt><dd><dl class="simple">
+<dt><cite>origbeta</cite> (<cite>float</cite>)</dt><dd><p>The preferences in <cite>prefs</cite> are re-scaled by <cite>origbeta</cite> and
+used as the initial value and stored in <cite>origpi</cite>. <cite>origbeta</cite>
+might differ from 1 if you already optimized <cite>prefs</cite> using
+a fixed-preference <cite>ExpCM</cite> prior to initializing this model.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM_fitprefs.dlogprior">
+<code class="sig-name descname">dlogprior</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">param</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.dlogprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Value of derivative of prior depends on value of <cite>prior</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.ExpCM_fitprefs.logprior">
+<em class="property">property </em><code class="sig-name descname">logprior</code><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs.logprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Value of log prior depends on value of <cite>prior</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="phydmslib.models.ExpCM_fitprefs2">
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">ExpCM_fitprefs2</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefs</span></em>, <em class="sig-param"><span class="n">prior</span></em>, <em class="sig-param"><span class="n">kappa</span></em>, <em class="sig-param"><span class="n">omega</span></em>, <em class="sig-param"><span class="n">phi</span></em>, <em class="sig-param"><span class="n">mu</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">origbeta</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">freeparams</span><span class="o">=</span><span class="default_value">'zeta'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.ExpCM_fitprefs2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#phydmslib.models.ExpCM_fitprefs" title="phydmslib.models.ExpCM_fitprefs"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.ExpCM_fitprefs</span></code></a></p>
+<p>An <cite>ExpCM</cite> with the preferences <cite>pi</cite> as free parameters.</p>
+<p>This class differs from <cite>ExpCM_fitprefs</cite> in the way that
+it internally handles the transformation from the preferences
+<cite>pi</cite> to the optimization variables <cite>zeta</cite>. All other attributes
+are the same as for an <cite>ExpCM_fitprefs</cite>.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="phydmslib.models.GammaDistributedBetaModel">
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">GammaDistributedBetaModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">ncats</span></em>, <em class="sig-param"><span class="n">alpha_lambda</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">beta_lambda</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">freeparams</span><span class="o">=</span><span class="default_value">'alpha_lambda', 'beta_lambda'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedBetaModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#phydmslib.models.GammaDistributedModel" title="phydmslib.models.GammaDistributedModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.GammaDistributedModel</span></code></a></p>
+<p>Implements gamma distribution over <cite>beta</cite> for a model.</p>
+<p>See <cite>__init__</cite> method for how to initialize a
+<cite>GammaDistributedBetaModel</cite>.</p>
+<p>Attributes should <strong>only</strong> be updated via the <cite>updateParams</cite>
+method; do <strong>not</strong> set attributes directly.</p>
+<p>Attributes are inherited from <cite>GammaDistributedModel</cite>.</p>
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedBetaModel.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">ncats</span></em>, <em class="sig-param"><span class="n">alpha_lambda</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">beta_lambda</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">freeparams</span><span class="o">=</span><span class="default_value">'alpha_lambda', 'beta_lambda'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedBetaModel.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize an <cite>GammaDistributedModel</cite> object.</p>
+<p>The <cite>lambda_param</cite> is set to “beta”.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>model</cite> <cite>ncats</cite>,`alpha_lambda`, <cite>beta_lambda</cite>, <cite>freeparams</cite></dt><dd><p>Meaning described in main class doc string for
+<cite>GammaDistributedModel</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="phydmslib.models.GammaDistributedModel">
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">GammaDistributedModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">lambda_param</span></em>, <em class="sig-param"><span class="n">ncats</span></em>, <em class="sig-param"><span class="n">alpha_lambda</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">beta_lambda</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">freeparams</span><span class="o">=</span><span class="default_value">'alpha_lambda', 'beta_lambda'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#phydmslib.models.DistributionModel" title="phydmslib.models.DistributionModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.DistributionModel</span></code></a></p>
+<p>Implements gamma distribution over some parameter <cite>lambda</cite> for a model.</p>
+<p>This model can be used to take a simple substitution model that
+directly subclasses <cite>Model</cite> and implement a gamma distribution
+over <em>one</em> parameter <cite>lambda</cite>. For instance, if this is done for
+the <cite>YNGKP_M0</cite> model parameter <cite>omega</cite>, it yields a M5 variant of
+the YNGKP model.</p>
+<p>The <cite>lambda</cite> parameter is drawn from <cite>ncats</cite> categories, with
+the values being at the mean of each of these categories and
+equal weight assigned to each category.</p>
+<p>This means that rather than optimizing <cite>lambda</cite> directly,
+we optimize the shape and inverse-scale parameters
+of its gamma distribution.</p>
+<p>See <cite>__init__</cite> method for how to initialize a
+<cite>GammaDistributedModel</cite>.</p>
+<p>Attributes should <strong>only</strong> be updated via the <cite>updateParams</cite>
+method; do <strong>not</strong> set attributes directly.</p>
+<dl class="simple">
+<dt>Attributes (see also those inherited from <cite>DistributionModel</cite>):</dt><dd><dl class="simple">
+<dt><cite>alpha_omega</cite> (<cite>float</cite> &gt; 0)</dt><dd><p>Gamma distribution shape parameter.</p>
+</dd>
+<dt><cite>beta_omega</cite> (<cite>float</cite> &gt; 0)</dt><dd><p>Gamma distribution inverse-scale parameter</p>
+</dd>
+<dt><cite>lambda_param</cite> (str)</dt><dd><p>Parameter which the gamma distirubtion is implemented over.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.M">
+<code class="sig-name descname">M</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">tips</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gaps</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.M" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>DistributionModel</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.PARAMLIMITS">
+<em class="property">property </em><code class="sig-name descname">PARAMLIMITS</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.PARAMLIMITS" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="phydmslib.models.GammaDistributedModel.PARAMTYPES">
+<code class="sig-name descname">PARAMTYPES</code><em class="property"> = {'alpha_lambda': &lt;class 'float'&gt;, 'beta_lambda': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">lambda_param</span></em>, <em class="sig-param"><span class="n">ncats</span></em>, <em class="sig-param"><span class="n">alpha_lambda</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">beta_lambda</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">freeparams</span><span class="o">=</span><span class="default_value">'alpha_lambda', 'beta_lambda'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a <cite>GammaDistributedModel</cite>.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>model</cite> (<cite>Model</cite>)</dt><dd><p>A substitution model with <cite>distributedparam</cite> as a free
+parameter that does <strong>not</strong> have any other property drawn from
+a distribution. Any other parameter that is in <cite>freeparams</cite>
+of this model will also be an optimized parameter.</p>
+</dd>
+<dt><cite>ncats</cite>, <cite>lambda_param</cite>, <cite>alpha_omega</cite>, <cite>beta_omega</cite></dt><dd><p>Meaning described in main class doc string.</p>
+</dd>
+<dt><cite>freeparams</cite></dt><dd><p>The free parameters will be these <strong>plus</strong> anything
+in <cite>model.freeparams</cite> other than <cite>distributedparam</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.basemodel">
+<em class="property">property </em><code class="sig-name descname">basemodel</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.basemodel" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>DistributionModel</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.branchScale">
+<em class="property">property </em><code class="sig-name descname">branchScale</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.branchScale" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.catweights">
+<em class="property">property </em><code class="sig-name descname">catweights</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.catweights" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>DistributionModel</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.dM">
+<code class="sig-name descname">dM</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">param</span></em>, <em class="sig-param"><span class="n">Mkt</span></em>, <em class="sig-param"><span class="n">tips</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gaps</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.dM" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>DistributionModel</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.d_distributionparams">
+<em class="property">property </em><code class="sig-name descname">d_distributionparams</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.d_distributionparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>DistributionModel</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.distributedparam">
+<em class="property">property </em><code class="sig-name descname">distributedparam</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.distributedparam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns name of the distributed parameter.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.distributionparams">
+<em class="property">property </em><code class="sig-name descname">distributionparams</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.distributionparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns list of params defining distribution of <cite>distributedparam</cite>.</p>
+<p>This list is <cite>[‘alpha_lambda’, ‘beta_lambda’]</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.dlogprior">
+<code class="sig-name descname">dlogprior</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">param</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.dlogprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equal to value of <cite>basemodel.dlogprior</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.dstationarystate">
+<code class="sig-name descname">dstationarystate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">param</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.dstationarystate" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.freeparams">
+<em class="property">property </em><code class="sig-name descname">freeparams</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.freeparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.logprior">
+<em class="property">property </em><code class="sig-name descname">logprior</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.logprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equal to value of <cite>basemodel.logprior</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.mu">
+<em class="property">property </em><code class="sig-name descname">mu</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.mu" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.ncats">
+<em class="property">property </em><code class="sig-name descname">ncats</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.ncats" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>DistributionModel</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.nsites">
+<em class="property">property </em><code class="sig-name descname">nsites</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.nsites" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.paramsReport">
+<em class="property">property </em><code class="sig-name descname">paramsReport</code><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.paramsReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.stationarystate">
+<code class="sig-name descname">stationarystate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">k</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.stationarystate" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedModel.updateParams">
+<code class="sig-name descname">updateParams</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">newvalues</span></em>, <em class="sig-param"><span class="n">update_all</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedModel.updateParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="phydmslib.models.GammaDistributedOmegaModel">
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">GammaDistributedOmegaModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">ncats</span></em>, <em class="sig-param"><span class="n">alpha_lambda</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">beta_lambda</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">freeparams</span><span class="o">=</span><span class="default_value">'alpha_lambda', 'beta_lambda'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#phydmslib.models.GammaDistributedModel" title="phydmslib.models.GammaDistributedModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.GammaDistributedModel</span></code></a></p>
+<p>Implements gamma distribution over <cite>omega</cite> for a model.</p>
+<p>This model can be used to implement a gamma distribution over a
+<cite>Models</cite> <cite>omega</cite> parameter. For instance, if this is done for the
+<cite>YNGKP_M0</cite> model, it yields a M5 variant of the YNGKP model.</p>
+<p>See <cite>__init__</cite> method for how to initialize a
+<cite>GammaDistributedOmegaModel</cite>.</p>
+<p>Attributes should <strong>only</strong> be updated via the <cite>updateParams</cite>
+method; do <strong>not</strong> set attributes directly.</p>
+<p>Attributes are inherited from <cite>GammaDistributedModel</cite>.</p>
+<dl class="py method">
+<dt id="phydmslib.models.GammaDistributedOmegaModel.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">ncats</span></em>, <em class="sig-param"><span class="n">alpha_lambda</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">beta_lambda</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">freeparams</span><span class="o">=</span><span class="default_value">'alpha_lambda', 'beta_lambda'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.GammaDistributedOmegaModel.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize an <cite>GammaDistributedModel</cite> object.</p>
+<p>The <cite>lambda_param</cite> is set to “omega”.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>model</cite> <cite>ncats</cite>,`alpha_lambda`, <cite>beta_lambda</cite>, <cite>freeparams</cite></dt><dd><p>Meaning described in main class doc string for
+<cite>GammaDistributedModel</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="phydmslib.models.Model">
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">Model</code><a class="headerlink" href="#phydmslib.models.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Substitution model abstract base class.</p>
+<p>Specifies required methods / attributes of substitution models.</p>
+<dl class="py method">
+<dt id="phydmslib.models.Model.M">
+<em class="property">abstract </em><code class="sig-name descname">M</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">tips</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gaps</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.M" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matrix exponential <cite>M(mu * t) = exp(mu * t * P)</cite>.</p>
+<p>If we are considering branch to tip node, you can use
+<cite>tips</cite> and <cite>gaps</cite> to get only the column needed for
+likelihood calculation. This is computationally cheaper.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>t</cite> (float &gt; 0)</dt><dd><p>The branch length.</p>
+</dd>
+<dt><cite>tips</cite> (<cite>None</cite> or <cite>numpy.ndarray</cite> of <cite>int</cite>, length <cite>nsites</cite>)</dt><dd><p>If <cite>None</cite>, return the full matrix exponential.
+Otherwise, should be an array with element <cite>r</cite>
+giving the codon at tip node <cite>r</cite> (just put 0
+if codon is a gap and see <cite>gaps</cite> below).</p>
+</dd>
+<dt><cite>gaps</cite> (<cite>None</cite> or <cite>numpy.ndarray</cite> of <cite>int</cite>)</dt><dd><p>Only meaningful if using <cite>tips</cite>. In this case,
+array should list <cite>r</cite> for all sites where tip
+node codon is a gap. <cite>None</cite> is equivalent to
+no gaps (also can be empty array).</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt><cite>M</cite> (<cite>numpy.ndarray</cite> of floats)</dt><dd><dl class="simple">
+<dt>If not using <cite>tips</cite>, shape is <cite>(nsites, N_CODON, N_CODON)</cite></dt><dd><p>with <cite>M(t)[r][x][y]</cite> probability <cite>r</cite> changes from <cite>x</cite>
+to <cite>y</cite> in time <cite>t</cite>.</p>
+</dd>
+<dt>If using <cite>tips</cite>, shape is <cite>(nsites, N_CODON)</cite> with</dt><dd><p><cite>M(t)[r][x] probability r changes from `x</cite> to <cite>tips[r]</cite>
+in time <cite>t</cite>. If <cite>r</cite> is in <cite>gap</cite>, then <cite>M(t)[r][x]</cite> is
+one.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.Model.PARAMLIMITS">
+<em class="property">abstract property </em><code class="sig-name descname">PARAMLIMITS</code><a class="headerlink" href="#phydmslib.models.Model.PARAMLIMITS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict of tuples giving lower and upper allowed param values.</p>
+<p>For each <cite>param</cite> in <cite>freeparams</cite>, <cite>PARAMLIMITS[param]</cite>
+is a 2-tuple of floats giving upper and lower allowed
+values of <cite>param</cite> (or of each element in <cite>param</cite> if
+<cite>param</cite> is an array).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.Model.branchScale">
+<em class="property">abstract property </em><code class="sig-name descname">branchScale</code><a class="headerlink" href="#phydmslib.models.Model.branchScale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factor to scale branch lengths to substitutions per site.</p>
+<p>When we use a branch length of <cite>t = 1</cite>, how many substitutions
+per site do we expect averaged over all sites? This method
+returns that number. So to scale branch lengths to units of
+substitution per site, multiply by this number.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.Model.dM">
+<em class="property">abstract </em><code class="sig-name descname">dM</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">param</span></em>, <em class="sig-param"><span class="n">Mt</span></em>, <em class="sig-param"><span class="n">tips</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gaps</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.dM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derivative of <cite>M(t)</cite> with respect to <cite>param</cite>.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>t</cite> (float &gt; 0)</dt><dd><p>The branch length.</p>
+</dd>
+<dt><cite>param</cite> (string in <cite>freeparams</cite> or the string <cite>‘t’</cite>)</dt><dd><p>Differentiate with respect to this model parameter,
+or with respect to branch length if <cite>‘t’</cite>.</p>
+</dd>
+<dt><cite>Mt</cite> (<cite>numpy.ndarray</cite>.)</dt><dd><p>The current value of <cite>M(t, tips, gaps)</cite>. Typically this
+has already been pre-computed which is why it is passed
+here to avoid computing again. Otherwise pass
+<cite>None</cite> and it will be re-computed.</p>
+</dd>
+<dt><cite>tips</cite> and <cite>gaps</cite></dt><dd><p>Same meaning as for <cite>M</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt><cite>dM_param</cite> (<cite>numpy.ndarray</cite> floats)</dt><dd><p>If <cite>param</cite> is a float, then <cite>dM_param[r][x][y]</cite>
+is derivative of <cite>M(t)[r][x][y]</cite> with respect to
+<cite>param</cite>. If <cite>param</cite> is an array, then
+<cite>dM_param[i][r][x][y]</cite> is derivative of <cite>M(t)[r][x][y]</cite>
+with respect to <cite>param[i]</cite>. If using <cite>tips</cite>, then
+<cite>dM_param[r]</cite> or <cite>dM_params[i][r]</cite> is only a
+single array providing the derivative of
+<cite>M(t, tips, gaps)[r]</cite> with respect to <cite>param</cite> or
+<cite>param[i]</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.Model.dlogprior">
+<em class="property">abstract </em><code class="sig-name descname">dlogprior</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">param</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.dlogprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derivative of <cite>logprior</cite> with respect to <cite>param</cite>.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p><cite>param</cite> (string in <cite>freeparams</cite>)</p>
+</dd>
+<dt>Returns:</dt><dd><p>Derivative of <cite>logprior</cite> with respect to <cite>param</cite>,
+or 0 if there is no prior defined over this model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.Model.dstationarystate">
+<em class="property">abstract </em><code class="sig-name descname">dstationarystate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">param</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.dstationarystate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derivative of <cite>stationarystate</cite> with respect to <cite>param</cite>.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p><cite>param</cite> (string in <cite>freeparams</cite>)</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt><cite>dstationarystate</cite> (<cite>numpy.ndarray</cite> of floats or zero)</dt><dd><p>If <cite>param</cite> is a float, then <cite>dstationarystate[r][x]</cite>
+is derivative of <cite>stationarystate[r][x]</cite> with respect
+to <cite>param</cite>. If <cite>param</cite> is an array, then
+<cite>dstationarystate[i][r][x]</cite> is derivative of
+<cite>stationarystate[r][x]</cite> with respect to <cite>param[i]</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.Model.freeparams">
+<em class="property">abstract property </em><code class="sig-name descname">freeparams</code><a class="headerlink" href="#phydmslib.models.Model.freeparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model parameters to be optimized (a list of strings).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.Model.logprior">
+<em class="property">abstract property </em><code class="sig-name descname">logprior</code><a class="headerlink" href="#phydmslib.models.Model.logprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log prior over current model.</p>
+<p>Is a float giving log prior over current model, or
+0 if there is no prior defined over this model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.Model.mu">
+<em class="property">abstract property </em><code class="sig-name descname">mu</code><a class="headerlink" href="#phydmslib.models.Model.mu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mutation rate, scales branch lengths in <cite>M</cite> and <cite>dM</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.Model.nsites">
+<em class="property">abstract property </em><code class="sig-name descname">nsites</code><a class="headerlink" href="#phydmslib.models.Model.nsites" title="Permalink to this definition">¶</a></dt>
+<dd><p>An <cite>int</cite> giving the number of codon sites.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.Model.paramsReport">
+<em class="property">abstract property </em><code class="sig-name descname">paramsReport</code><a class="headerlink" href="#phydmslib.models.Model.paramsReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reports current values of independent model parameters.</p>
+<p>Returns a dictionary keyed by parameter name with value being the
+parameter value. Does <strong>not</strong> include <cite>mu</cite> as this is confounded
+with branch lengths.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.Model.stationarystate">
+<em class="property">abstract property </em><code class="sig-name descname">stationarystate</code><a class="headerlink" href="#phydmslib.models.Model.stationarystate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stationary state of substitution model.</p>
+<p>A <cite>numpy.ndarray</cite> of floats, shape <cite>(nsites, N_CODON)</cite>.
+Element <cite>stationarystate[r][x]</cite> is the stationary
+state probability of codon <cite>x</cite> at site <cite>r</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.Model.updateParams">
+<em class="property">abstract </em><code class="sig-name descname">updateParams</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">newvalues</span></em>, <em class="sig-param"><span class="n">update_all</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.Model.updateParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update model params.</p>
+<p>This method is the <strong>only</strong> acceptable way to update
+model parameters; other dependent model parameters are
+automatically updated as needed if you use this method.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>newvalues</cite> (dict)</dt><dd><p>Can be keyed by any parameter in <cite>freeparams</cite>.</p>
+</dd>
+<dt><cite>update_all</cite> (bool)</dt><dd><p>If <cite>True</cite>, update all dependent attributes using
+current values of model parameters.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="phydmslib.models.YNGKP_M0">
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.models.</code><code class="sig-name descname">YNGKP_M0</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">e_pw</span></em>, <em class="sig-param"><span class="n">nsites</span></em>, <em class="sig-param"><span class="n">kappa</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">omega</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">mu</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">freeparams</span><span class="o">=</span><span class="default_value">'kappa', 'omega', 'mu'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#phydmslib.models.Model" title="phydmslib.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">phydmslib.models.Model</span></code></a></p>
+<p>YNGKP_M0 model from Yang et al, 2000.</p>
+<p>See <cite>__init__</cite> method for how to initialize an <cite>YNGKP_M0</cite>.</p>
+<p>Attributes should <strong>only</strong> be updated via the <cite>updateParams</cite>
+method, do <strong>not</strong> set attributes directly.</p>
+<dl class="simple">
+<dt>Attributes (see also those inherited from <cite>Model</cite>):</dt><dd><dl class="simple">
+<dt><cite>kappa</cite> (float &gt; 0)</dt><dd><p>Transition-transversion ratio.</p>
+</dd>
+<dt><cite>omega</cite> (float &gt; 0)</dt><dd><p>Nonsynonymous to synonymous substitution ratio.</p>
+</dd>
+<dt><cite>Pxy</cite> (<cite>numpy.ndarray</cite> of floats, shape <cite>(1, CODON, N_CODON)</cite></dt><dd><p><cite>Pxy[0][x][y]</cite> is substitution rate from codon <cite>x</cite> to <cite>y</cite>.
+Diagonal elements make rows sum to zero.</p>
+</dd>
+<dt><cite>Pxy_no_omega</cite></dt><dd><p>Like <cite>Pxy</cite> but <strong>not</strong> multiplied by <cite>omega</cite> for nonsynonymous
+mutations.</p>
+</dd>
+<dt><cite>dPxy</cite> (dict)</dt><dd><p>Keyed by each string in <cite>freeparams</cite>, each value is <cite>numpy.ndarray</cite>
+of floats giving derivative of <cite>Pxy</cite> with respect to that
+parameter. The shape of each array <cite>(1, N_CODON, N_CODON)</cite>.</p>
+</dd>
+<dt><cite>e_pw</cite> (scipy.ndarray, shape <cite>(3, N_NT)</cite>)</dt><dd><p>The empirical nucleotide frequencies for each position in a codon
+measured from the alignment. <cite>e_pw[p][w]</cite> give the frequency of
+nucleotide <cite>w</cite> at codon position <cite>p</cite>.</p>
+</dd>
+<dt><cite>Phi_x</cite> (numpy.ndarray, shape <cite>(N_CODON,)</cite>)</dt><dd><p>The codon frequencies calculated from the <cite>phi</cite> frequencies.
+<cite>Phi_x[x]</cite> = phi[0][x0] * phi[1][x1] * phi[2][x2]</p>
+</dd>
+<dt><cite>phi</cite> (numpy.ndarray, shape <cite>(3, N_NT)</cite>)</dt><dd><p>The model nucleotide frequencies for each position in a codon
+computed using the <cite>CF3X4</cite> estimator. <cite>phi[p][w]</cite> is the model
+frequency of nucleotide <cite>w</cite> at codon position <cite>p</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>Unlike the <cite>ExpCM</cite>, <cite>YNGKP_M0</cite> does not have site-specific calculations.
+In order to maintain consistency, most attributes, such as <cite>Pxy</cite> and <cite>dPxy</cite>
+do have a single “site” dimension which is carried through the
+calculations. When <cite>M</cite> and <cite>dM</cite> are returned, the single site matrix is
+repeated so the final dimensions of <cite>M</cite> and <cite>dM</cite> are match those in the
+docs for the <cite>Models</cite> abstract base class.</p>
+<p>The model nucleotide frequences, <cite>phi</cite> are computed using the
+empirical nucleotide frequencies <cite>e_pw</cite> and the <cite>Corrected F3X4</cite>
+estimator (Pond et al, 2010). Unlike the traditional <cite>MG3X4</cite> or <cite>GY3X4</cite>,
+this estimator takes into account stop codon nucleotide frequencies.
+The codon frequencies, <cite>Phi_x</cite> are computed from the <cite>phi</cite> values.</p>
+<dl class="py attribute">
+<dt id="phydmslib.models.YNGKP_M0.ALLOWEDPARAMS">
+<code class="sig-name descname">ALLOWEDPARAMS</code><em class="property"> = ['kappa', 'omega', 'mu']</em><a class="headerlink" href="#phydmslib.models.YNGKP_M0.ALLOWEDPARAMS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.YNGKP_M0.M">
+<code class="sig-name descname">M</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">tips</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gaps</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.M" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for method in <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.YNGKP_M0.PARAMLIMITS">
+<em class="property">property </em><code class="sig-name descname">PARAMLIMITS</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.PARAMLIMITS" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="phydmslib.models.YNGKP_M0.PARAMTYPES">
+<code class="sig-name descname">PARAMTYPES</code><em class="property"> = {'e_pw': (&lt;class 'numpy.ndarray'&gt;, (3, 4)), 'kappa': &lt;class 'float'&gt;, 'mu': &lt;class 'float'&gt;, 'omega': &lt;class 'float'&gt;}</em><a class="headerlink" href="#phydmslib.models.YNGKP_M0.PARAMTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.YNGKP_M0.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">e_pw</span></em>, <em class="sig-param"><span class="n">nsites</span></em>, <em class="sig-param"><span class="n">kappa</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">omega</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">mu</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">freeparams</span><span class="o">=</span><span class="default_value">'kappa', 'omega', 'mu'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize an <cite>YNGKP_M0</cite> object.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>kappa</cite>, <cite>omega</cite>, <cite>mu</cite>,</dt><dd><p>Model params described in main class doc string.</p>
+</dd>
+<dt><cite>freeparams</cite> (list of strings)</dt><dd><p>Specifies free parameters.</p>
+</dd>
+<dt><cite>e_pw</cite>, <cite>nsites</cite></dt><dd><p>Meaning described in the main class doc string.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.YNGKP_M0.branchScale">
+<em class="property">property </em><code class="sig-name descname">branchScale</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.branchScale" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.YNGKP_M0.dM">
+<code class="sig-name descname">dM</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">param</span></em>, <em class="sig-param"><span class="n">Mt</span></em>, <em class="sig-param"><span class="n">tips</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gaps</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.dM" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for method in <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.YNGKP_M0.dlogprior">
+<code class="sig-name descname">dlogprior</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">param</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.dlogprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zero for all <cite>param</cite>, as no prior defined over this model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.YNGKP_M0.dstationarystate">
+<code class="sig-name descname">dstationarystate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">param</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.dstationarystate" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.YNGKP_M0.freeparams">
+<em class="property">property </em><code class="sig-name descname">freeparams</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.freeparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.YNGKP_M0.logprior">
+<em class="property">property </em><code class="sig-name descname">logprior</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.logprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is zero, as no prior is defined over this model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.YNGKP_M0.mu">
+<em class="property">property </em><code class="sig-name descname">mu</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.mu" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.YNGKP_M0.nsites">
+<em class="property">property </em><code class="sig-name descname">nsites</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.nsites" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.YNGKP_M0.paramsReport">
+<em class="property">property </em><code class="sig-name descname">paramsReport</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.paramsReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.YNGKP_M0.stationarystate">
+<em class="property">property </em><code class="sig-name descname">stationarystate</code><a class="headerlink" href="#phydmslib.models.YNGKP_M0.stationarystate" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="phydmslib.models.YNGKP_M0.updateParams">
+<code class="sig-name descname">updateParams</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">newvalues</span></em>, <em class="sig-param"><span class="n">update_all</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.models.YNGKP_M0.updateParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>See docs for <cite>Model</cite> abstract base class.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/BloomLogo.jpg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">phydms</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Software for phylogenetic analyses informed by deep mutational scanning.</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=jbloomlab&repo=phydms&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://travis-ci.org/jbloomlab/phydms">
+    <img
+        alt="https://secure.travis-ci.org/jbloomlab/phydms.svg?branch=master"
+        src="https://secure.travis-ci.org/jbloomlab/phydms.svg?branch=master"
+    />
+</a>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="howtouse.html">how to use <code class="docutils literal notranslate"><span class="pre">phydms</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="phydms_prog.html">the <code class="docutils literal notranslate"><span class="pre">phydms</span></code> program</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auxiliary_progs.html">auxiliary programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ExpCM.html"><strong>Exp</strong>erimentally Informed <strong>C</strong>odon <strong>M</strong>odels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation.html">Numerical implementation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="phydmslib.html">phydmslib package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">Acknowledgments and citations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="indices_and_tables.html">Indices and tables</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="phydmslib.html">phydmslib package</a><ul>
+      <li>Previous: <a href="phydmslib.file_io.html" title="previous chapter">phydmslib.file_io module</a></li>
+      <li>Next: <a href="phydmslib.numutils.html" title="next chapter">phydmslib.numutils module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015-2020, Sarah Hilton and Jesse Bloom.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/phydmslib.models.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/jbloomlab/phydms" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

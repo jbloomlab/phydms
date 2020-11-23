@@ -1,0 +1,314 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>phydmslib.parsearguments module &#8212; phydms 2.4.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="phydmslib.simulate module" href="phydmslib.simulate.html" />
+    <link rel="prev" title="phydmslib.numutils module" href="phydmslib.numutils.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-phydmslib.parsearguments">
+<span id="phydmslib-parsearguments-module"></span><h1>phydmslib.parsearguments module<a class="headerlink" href="#module-phydmslib.parsearguments" title="Permalink to this headline">¶</a></h1>
+<p>Module for parsing arguments.</p>
+<dl class="py class">
+<dt id="phydmslib.parsearguments.ArgDefaultsRawDescriptFormatter">
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">ArgDefaultsRawDescriptFormatter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prog</span></em>, <em class="sig-param"><span class="n">indent_increment</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">max_help_position</span><span class="o">=</span><span class="default_value">24</span></em>, <em class="sig-param"><span class="n">width</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ArgDefaultsRawDescriptFormatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentDefaultsHelpFormatter</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.RawDescriptionHelpFormatter</span></code></p>
+<p>Print default arguments and raw text description formatter.</p>
+<p>Based on this:
+<a class="reference external" href="http://stackoverflow.com/questions/18462610/argumentparser-epilog-and-description-formatting-in-conjunction-with-argumentdef">http://stackoverflow.com/questions/18462610/argumentparser-epilog-and-description-formatting-in-conjunction-with-argumentdef</a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="phydmslib.parsearguments.ArgumentParserNoArgHelp">
+<em class="property">class </em><code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">ArgumentParserNoArgHelp</code><span class="sig-paren">(</span><em class="sig-param">prog=None</em>, <em class="sig-param">usage=None</em>, <em class="sig-param">description=None</em>, <em class="sig-param">epilog=None</em>, <em class="sig-param">parents=[]</em>, <em class="sig-param">formatter_class=&lt;class 'argparse.HelpFormatter'&gt;</em>, <em class="sig-param">prefix_chars='-'</em>, <em class="sig-param">fromfile_prefix_chars=None</em>, <em class="sig-param">argument_default=None</em>, <em class="sig-param">conflict_handler='error'</em>, <em class="sig-param">add_help=True</em>, <em class="sig-param">allow_abbrev=True</em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ArgumentParserNoArgHelp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></p>
+<p>Like <em>argparse.ArgumentParser</em>, but prints help when no arguments.</p>
+<dl class="py method">
+<dt id="phydmslib.parsearguments.ArgumentParserNoArgHelp.error">
+<code class="sig-name descname">error</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ArgumentParserNoArgHelp.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints error message, then help.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.parsearguments.ExistingFile">
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">ExistingFile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fname</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ExistingFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>If <em>fname</em> is name of an existing file return it, otherwise an error.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.parsearguments.ExistingFileOrNone">
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">ExistingFileOrNone</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fname</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ExistingFileOrNone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like <cite>Existingfile</cite>, but if <cite>fname</cite> is “None” then return <cite>None</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.parsearguments.FloatBetweenZeroAndOne">
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">FloatBetweenZeroAndOne</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.FloatBetweenZeroAndOne" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <em>x</em> only if <em>0 &lt;= x &lt;= 1</em>, otherwise raises error.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.parsearguments.FloatGreaterThanEqualToZero">
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">FloatGreaterThanEqualToZero</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.FloatGreaterThanEqualToZero" title="Permalink to this definition">¶</a></dt>
+<dd><p>If <em>x</em> is a float &gt;= 0, returns it, otherwise raises and error.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.1f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">FloatGreaterThanEqualToZero</span><span class="p">(</span><span class="s1">&#39;1.5&#39;</span><span class="p">))</span>
+<span class="go">1.5</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.1f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">FloatGreaterThanEqualToZero</span><span class="p">(</span><span class="s1">&#39;-1.1&#39;</span><span class="p">))</span>
+<span class="gt">Traceback (most recent call last):</span>
+   <span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">-1.1 not float greater than or equal to zero</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.parsearguments.FloatGreaterThanOne">
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">FloatGreaterThanOne</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.FloatGreaterThanOne" title="Permalink to this definition">¶</a></dt>
+<dd><p>If <em>x</em> is a string for a float &gt; 1, returns it, otherwise an error.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.parsearguments.FloatGreaterThanZero">
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">FloatGreaterThanZero</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.FloatGreaterThanZero" title="Permalink to this definition">¶</a></dt>
+<dd><p>If <em>x</em> is string for float &gt; 0, returns it, otherwise an error.</p>
+<p>Designed based on this:
+<a class="reference external" href="http://stackoverflow.com/questions/12116685/how-can-i-require-my-python-scripts-argument-to-be-a-float-between-0-0-1-0-usin">http://stackoverflow.com/questions/12116685/how-can-i-require-my-python-scripts-argument-to-be-a-float-between-0-0-1-0-usin</a></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">FloatGreaterThanZero</span><span class="p">(</span><span class="s1">&#39;0.1&#39;</span><span class="p">))</span>
+<span class="go">0.100</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">FloatGreaterThanZero</span><span class="p">(</span><span class="s1">&#39;0.0&#39;</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+    <span class="o">...</span>
+<span class="gr">ValueError</span>: <span class="n">0.0 not a float greater than zero</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.parsearguments.IntGreaterThanOne">
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">IntGreaterThanOne</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.IntGreaterThanOne" title="Permalink to this definition">¶</a></dt>
+<dd><p>If <em>n</em> is an integer &gt; 1, returns it, otherwise an error.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.parsearguments.IntGreaterThanZero">
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">IntGreaterThanZero</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.IntGreaterThanZero" title="Permalink to this definition">¶</a></dt>
+<dd><p>If <em>n</em> is an integer &gt; 0, returns it, otherwise an error.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.parsearguments.ModelOption">
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">ModelOption</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.ModelOption" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <em>model</em> if a valid choice.</p>
+<p>Returns the string if it specifies a <code class="docutils literal notranslate"><span class="pre">YNGKP_</span></code> model variant.</p>
+<p>Returns <em>(‘ExpCM’, prefsfile)</em> if it specifies an <code class="docutils literal notranslate"><span class="pre">ExpCM_</span></code> model.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.parsearguments.NonNegativeInt">
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">NonNegativeInt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.NonNegativeInt" title="Permalink to this definition">¶</a></dt>
+<dd><p>If <em>n</em> is non-negative integer returns it, otherwise an error.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">NonNegativeInt</span><span class="p">(</span><span class="s1">&#39;8&#39;</span><span class="p">))</span>
+<span class="go">8</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">NonNegativeInt</span><span class="p">(</span><span class="s1">&#39;8.1&#39;</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+   <span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">8.1 is not an integer</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">NonNegativeInt</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span>
+<span class="go">0</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">NonNegativeInt</span><span class="p">(</span><span class="s1">&#39;-1&#39;</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+   <span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">-1 is not non-negative</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.parsearguments.PhyDMSComprehensiveParser">
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">PhyDMSComprehensiveParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSComprehensiveParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <em>argparse.ArgumentParser</em> for <code class="docutils literal notranslate"><span class="pre">phdyms_comprehensive</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.parsearguments.PhyDMSLogoPlotParser">
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">PhyDMSLogoPlotParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSLogoPlotParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <cite>argparse.ArgumentParser</cite> for <code class="docutils literal notranslate"><span class="pre">phydms_logoplot</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.parsearguments.PhyDMSParser">
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">PhyDMSParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <em>argparse.ArgumentParser</em> for <code class="docutils literal notranslate"><span class="pre">phydms</span></code> script.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.parsearguments.PhyDMSPrepAlignmentParser">
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">PhyDMSPrepAlignmentParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSPrepAlignmentParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <em>argparse.ArgumentParser</em> for <code class="docutils literal notranslate"><span class="pre">phydms_prepalignment</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.parsearguments.PhyDMSTestdivpressureParser">
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">PhyDMSTestdivpressureParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.PhyDMSTestdivpressureParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <em>argparse.ArgumentParser</em> for <code class="docutils literal notranslate"><span class="pre">phdyms_testdivpressure</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.parsearguments.diffPrefsPrior">
+<code class="sig-prename descclassname">phydmslib.parsearguments.</code><code class="sig-name descname">diffPrefsPrior</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">priorstring</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.parsearguments.diffPrefsPrior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses <cite>priorstring</cite> and returns <cite>prior</cite> tuple.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/BloomLogo.jpg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">phydms</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Software for phylogenetic analyses informed by deep mutational scanning.</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=jbloomlab&repo=phydms&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://travis-ci.org/jbloomlab/phydms">
+    <img
+        alt="https://secure.travis-ci.org/jbloomlab/phydms.svg?branch=master"
+        src="https://secure.travis-ci.org/jbloomlab/phydms.svg?branch=master"
+    />
+</a>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="howtouse.html">how to use <code class="docutils literal notranslate"><span class="pre">phydms</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="phydms_prog.html">the <code class="docutils literal notranslate"><span class="pre">phydms</span></code> program</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auxiliary_progs.html">auxiliary programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ExpCM.html"><strong>Exp</strong>erimentally Informed <strong>C</strong>odon <strong>M</strong>odels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation.html">Numerical implementation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="phydmslib.html">phydmslib package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">Acknowledgments and citations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="indices_and_tables.html">Indices and tables</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="phydmslib.html">phydmslib package</a><ul>
+      <li>Previous: <a href="phydmslib.numutils.html" title="previous chapter">phydmslib.numutils module</a></li>
+      <li>Next: <a href="phydmslib.simulate.html" title="next chapter">phydmslib.simulate module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015-2020, Sarah Hilton and Jesse Bloom.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/phydmslib.parsearguments.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/jbloomlab/phydms" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

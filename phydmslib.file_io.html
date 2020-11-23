@@ -1,0 +1,297 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>phydmslib.file_io module &#8212; phydms 2.4.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="phydmslib.models module" href="phydmslib.models.html" />
+    <link rel="prev" title="phydmslib.constants module" href="phydmslib.constants.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-phydmslib.file_io">
+<span id="phydmslib-file-io-module"></span><h1>phydmslib.file_io module<a class="headerlink" href="#module-phydmslib.file_io" title="Permalink to this headline">¶</a></h1>
+<p>Module for input / output from files.</p>
+<dl class="py function">
+<dt id="phydmslib.file_io.ReadCodonAlignment">
+<code class="sig-prename descclassname">phydmslib.file_io.</code><code class="sig-name descname">ReadCodonAlignment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fastafile</span></em>, <em class="sig-param"><span class="n">checknewickvalid</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.ReadCodonAlignment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads codon alignment from file.</p>
+<p><em>fastafile</em> is the name of an existing FASTA file.</p>
+<p><em>checknewickvalid</em> : if <em>True</em>, we require that names are unique and do
+<strong>not</strong> contain spaces, commas, colons, semicolons, parentheses, square
+brackets, or single or double quotation marks.
+If any of these disallowed characters are present, raises an Exception.</p>
+<p>Reads the alignment from the <em>fastafile</em> and returns the aligned
+sequences as a list of 2-tuple of strings <em>(header, sequence)</em>
+where <em>sequence</em> is upper case.</p>
+<p>If the terminal codon is a stop codon for <strong>all</strong> sequences, then
+this terminal codon is trimmed. Raises an exception if the sequences
+are not aligned codon sequences that are free of stop codons (with
+the exception of a shared terminal stop) and free of ambiguous nucleotides.</p>
+<p>Read aligned sequences in this example:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seqs</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;seq1&#39;</span><span class="p">,</span> <span class="s1">&#39;ATGGAA&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;seq2&#39;</span><span class="p">,</span> <span class="s1">&#39;ATGAAA&#39;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;&gt;</span><span class="si">{0}</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">ReadCodonAlignment</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seqs</span> <span class="o">==</span> <span class="n">a</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Trim stop codons from all sequences in this example:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seqs</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;seq1&#39;</span><span class="p">,</span> <span class="s1">&#39;ATGTAA&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;seq2&#39;</span><span class="p">,</span> <span class="s1">&#39;ATGTGA&#39;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;&gt;</span><span class="si">{0}</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">ReadCodonAlignment</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[(</span><span class="n">head</span><span class="p">,</span> <span class="n">seq</span><span class="p">[</span> <span class="p">:</span> <span class="o">-</span><span class="mi">3</span><span class="p">])</span> <span class="k">for</span> <span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="n">seq</span><span class="p">)</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]</span> <span class="o">==</span> <span class="n">a</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Read sequences with gap:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seqs</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;seq1&#39;</span><span class="p">,</span> <span class="s1">&#39;ATG---&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;seq2&#39;</span><span class="p">,</span> <span class="s1">&#39;ATGAGA&#39;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;&gt;</span><span class="si">{0}</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">ReadCodonAlignment</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[(</span><span class="n">head</span><span class="p">,</span> <span class="n">seq</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="n">seq</span><span class="p">)</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]</span> <span class="o">==</span> <span class="n">a</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Premature stop codon gives error:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seqs</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;seq1&#39;</span><span class="p">,</span> <span class="s1">&#39;TGAATG&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;seq2&#39;</span><span class="p">,</span> <span class="s1">&#39;ATGAGA&#39;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;&gt;</span><span class="si">{0}</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">ReadCodonAlignment</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> 
+<span class="gt">Traceback (most recent call last):</span>
+<span class="gr">ValueError</span>:
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.file_io.Versions">
+<code class="sig-prename descclassname">phydmslib.file_io.</code><code class="sig-name descname">Versions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.Versions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a string with version information.</p>
+<p>You would call this function if you want a string giving detailed
+informationon the version of <code class="docutils literal notranslate"><span class="pre">phydms</span></code> and the associated packages that
+it uses.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.file_io.readDivPressure">
+<code class="sig-prename descclassname">phydmslib.file_io.</code><code class="sig-name descname">readDivPressure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fileName</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.readDivPressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads in diversifying pressures from some file.</p>
+<p>Scale diversifying pressure values so absolute value of the max value is 1,
+unless all values are zero.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>fileName</cite> (string or readable file-like object)</dt><dd><p>File holding diversifying pressure values. Can be comma-, space-,
+or tab-separated file. The first column is the site (consecutively
+numbered, sites starting with one) and the second column is the
+diversifying pressure values.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt><cite>divPressure</cite> (dict keyed by ints)</dt><dd><p><cite>divPressure[r][v]</cite> is the diversifying pressure value of site <cite>r</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.file_io.readPrefs">
+<code class="sig-prename descclassname">phydmslib.file_io.</code><code class="sig-name descname">readPrefs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefsfile</span></em>, <em class="sig-param"><span class="n">minpref</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">avgprefs</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">randprefs</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">sites_as_strings</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.readPrefs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read preferences from file with some error checking.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt><cite>prefsfile</cite> (string or readable file-like object)</dt><dd><p>File holding amino-acid preferences. Can be
+comma-, space-, or tab-separated file with column
+headers of <cite>site</cite> and then all one-letter amino-acid
+codes, or can be in the more complex format written
+<a class="reference external" href="http://jbloomlab.github.io/dms_tools/">dms_tools v1</a>.
+Must be prefs for consecutively numbered sites starting at 1.
+Stop codon prefs can be present (stop codons are indicated by
+<code class="docutils literal notranslate"><span class="pre">*</span></code>); if so they are removed and prefs re-normalized to sum to 1.</p>
+</dd>
+<dt><cite>minpref</cite> (float &gt;= 0)</dt><dd><p>Adjust all preferences to be &gt;= this number.</p>
+</dd>
+<dt><cite>avgprefs</cite>, <cite>randprefs</cite> (bool)</dt><dd><p>Mutually exclusive options specifying to average or
+randomize prefs across sites.</p>
+</dd>
+<dt><cite>seed</cite> (int)</dt><dd><p>Seed used to sort random number generator for <cite>randprefs</cite>.</p>
+</dd>
+<dt><cite>sites_as_strings</cite> (bool)</dt><dd><p>By default, the site numers are coerced to integers.
+If this option is <cite>True</cite>, then they are kept as strings.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt><cite>prefs</cite> (dict)</dt><dd><p><cite>prefs[r][a]</cite> is the preference of site <cite>r</cite> for amino-acid <cite>a</cite>.
+<cite>r</cite> is an <cite>int</cite> unless <cite>sites_as_strings=True</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="phydmslib.file_io.readPrefs_dms_tools_format">
+<code class="sig-prename descclassname">phydmslib.file_io.</code><code class="sig-name descname">readPrefs_dms_tools_format</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span></em><span class="sig-paren">)</span><a class="headerlink" href="#phydmslib.file_io.readPrefs_dms_tools_format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the amino-acid preferences written by <cite>dms_tools v1</cite>.</p>
+<p>This is an exact copy of the same code from
+<cite>dms_tools.file_io.ReadPreferences</cite>. It is copied because
+<a class="reference external" href="http://jbloomlab.github.io/dms_tools/">dms_tools v1</a> is currently
+only compatible with <cite>python2</cite>, and we needed something that also works
+with <cite>python3</cite>.</p>
+<p><em>f</em> is the name of an existing file or a readable file-like object.
+It should be in the format written by
+<a class="reference external" href="http://jbloomlab.github.io/dms_tools/">dms_tools v1</a>.</p>
+<p>The return value is the tuple: <em>(sites, wts, pi_means, pi_95credint, h)</em>
+where <em>sites</em>, <em>wts</em>, <em>pi_means</em>, and <em>pi_95credint</em> will all
+have the same values used to write the file with <em>WritePreferences</em>,
+and <em>h</em> is a dictionary with <em>h[r]</em> giving the site entropy (log base
+2) for each <em>r</em> in <em>sites</em>.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/BloomLogo.jpg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">phydms</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Software for phylogenetic analyses informed by deep mutational scanning.</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=jbloomlab&repo=phydms&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://travis-ci.org/jbloomlab/phydms">
+    <img
+        alt="https://secure.travis-ci.org/jbloomlab/phydms.svg?branch=master"
+        src="https://secure.travis-ci.org/jbloomlab/phydms.svg?branch=master"
+    />
+</a>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="howtouse.html">how to use <code class="docutils literal notranslate"><span class="pre">phydms</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="phydms_prog.html">the <code class="docutils literal notranslate"><span class="pre">phydms</span></code> program</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auxiliary_progs.html">auxiliary programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ExpCM.html"><strong>Exp</strong>erimentally Informed <strong>C</strong>odon <strong>M</strong>odels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation.html">Numerical implementation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="phydmslib.html">phydmslib package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">Acknowledgments and citations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="indices_and_tables.html">Indices and tables</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="phydmslib.html">phydmslib package</a><ul>
+      <li>Previous: <a href="phydmslib.constants.html" title="previous chapter">phydmslib.constants module</a></li>
+      <li>Next: <a href="phydmslib.models.html" title="next chapter">phydmslib.models module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015-2020, Sarah Hilton and Jesse Bloom.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/phydmslib.file_io.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/jbloomlab/phydms" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
