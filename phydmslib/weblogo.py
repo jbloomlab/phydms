@@ -976,7 +976,7 @@ class _my_Motif(corebio.matrix.AlphabeticArray):
 
 
 def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin,
-                logoheight, barheight, barspacing, fix_limits=None,  # noqa: F401
+                logoheight, barheight, barspacing, fix_limits=None,
                 fixlongname=False, overlay_cmap=None, underlay=False,
                 scalebar=False):
     """Makes overlay for *LogoPlot*.

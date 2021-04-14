@@ -141,7 +141,6 @@ for (x, codonx) in INDEX_TO_CODON.items():
 assert CODON_SINGLEMUT.sum() == CODON_NT_MUT.sum() > CODON_TRANSITION.sum()
 assert CODON_NT.sum() == N_CODON * 3
 assert (CODON_NT_INDEX != -1).all()
-assert CODON_NT_COUNT.sum(axis=0) == 3
 
 # delete variables so they aren't in namespace if import * used on this module
 del i, nt1, nt2, nt3, codon, codonx, codony, x, y, ntx, nty, w, diffs

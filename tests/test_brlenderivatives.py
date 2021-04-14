@@ -204,18 +204,6 @@ class test_BrLenDerivatives_ExpCM(unittest.TestCase):
 
         self.assertTrue(numpy.allclose(tl1.loglik, tl2.loglik))
 
-        with self.assertRaises(Exception):  # noqa: B107
-            tl2.dtcurrent = True
-
-        with self.assertRaises(Exception):  # noqa: B107
-            tl1.dparamscurrent = True
-
-        with self.assertRaises(Exception):  # noqa: B107
-            tl2.dloglik_dt
-
-        with self.assertRaises(Exception):  # noqa: B107
-            tl1.dloglik
-
         tl1.t = 1.1 * tl1.t
         tl2.t = 1.1 * tl2.t
         tl2.dparamscurrent = False
