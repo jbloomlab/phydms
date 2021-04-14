@@ -85,7 +85,7 @@ setup(
     install_requires = [
         'biopython>=1.67',
         'cython>=0.28',
-        'numpy>=1.11',
+        'numpy>=1.16.5',
         'scipy>=0.18',
         'matplotlib>=2.0.2',
         'natsort>=5.0.1',
