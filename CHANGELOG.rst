@@ -1,6 +1,10 @@
 Changelog
 ===========
 
+2.4.1
+-----
+* Unpin `biopython` now that `pyvolve` is updated.
+
 2.4.0
 ------
 * Stop using matplotlib LaTex fonts in logo plots.

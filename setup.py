@@ -83,9 +83,7 @@ setup(
         'numpy>=1.11',
         ],
     install_requires = [
-        # pin bipython until this is fixed in pyvolve:
-        # https://github.com/sjspielman/pyvolve/issues/19
-        'biopython>=1.67,<1.78',
+        'biopython>=1.67',
         'cython>=0.28',
         'numpy>=1.11',
         'scipy>=0.18',
@@ -94,7 +92,7 @@ setup(
         'sympy>=1.0',
         'six>=1.10',
         'pandas>=0.20.2',
-        'pyvolve>=0.8.4',
+        'pyvolve>=1.0.3',
         'statsmodels>=0.8',
         'weblogo>=3.4, <3.6',
         'PyPDF2>=1.26',
