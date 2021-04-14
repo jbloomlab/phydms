@@ -59,7 +59,7 @@ def modelComparisonDataFrame(modelcomparisonfile, splitparams):
 
     paramsdict = {}
     if splitparams:
-        for (i, paramstr) in df['ParamValues'].iteritems():  # noqa: F401
+        for (i, paramstr) in df['ParamValues'].items():  # noqa: F401
             paramsdict[i] = dict(map(lambda tup: (tup[0], float(tup[1])),
                                  (param.strip().split('=') for param in
                                  paramstr.split(','))))
