@@ -158,7 +158,7 @@ def FunctionalGroupColorMapping(maptype='jet', reverse=False):
 
 def LogoPlot(sites, datatype, data, plotfile, nperline,
              numberevery=10, allowunsorted=False, ydatamax=1.01,
-             overlay=None, fix_limits={},  # noqa: F401
+             overlay=None, fix_limits=None,  # noqa: F401
              fixlongname=False, overlay_cmap=None, ylimits=None,
              relativestackheight=1, custom_cmap='jet', map_metric='kd',
              noseparator=False, underlay=False, scalebar=False):
@@ -976,7 +976,7 @@ class _my_Motif(corebio.matrix.AlphabeticArray):
 
 
 def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin,
-                logoheight, barheight, barspacing, fix_limits={},  # noqa: F401
+                logoheight, barheight, barspacing, fix_limits=None,
                 fixlongname=False, overlay_cmap=None, underlay=False,
                 scalebar=False):
     """Makes overlay for *LogoPlot*.
@@ -1018,6 +1018,8 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin,
     * *scalebar*: if not `False`, is 2-tuple `(scalebarheight, scalebarlabel)`
       where `scalebarheight` is in points.
     """
+    if fix_limits is None:
+        fix_limits = {}
     if os.path.splitext(overlayfile)[1] != '.pdf':
         raise ValueError("overlayfile must end in .pdf: %s" % overlayfile)
     if not overlay_cmap:
