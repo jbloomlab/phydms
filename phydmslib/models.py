@@ -13,6 +13,25 @@ import warnings
 import numpy
 
 import scipy.misc
+if not hasattr(scipy.misc, 'derivative'):
+    def _scipy_derivative(func, x0, dx=1.0, n=1, args=(), order=3):
+        """Reimplementation of scipy.misc.derivative (removed in scipy 1.12)."""
+        if n != 1:
+            raise NotImplementedError("Only n=1 supported")
+        weights = {
+            3: [-1/2, 0, 1/2],
+            5: [1/12, -2/3, 0, 2/3, -1/12],
+        }
+        if order not in weights:
+            raise ValueError(f"order must be 3 or 5, got {order}")
+        w = weights[order]
+        half = len(w) // 2
+        result = sum(
+            c * numpy.asarray(func(x0 + (i - half) * dx, *args))
+            for i, c in enumerate(w)
+        ) / dx
+        return result
+    scipy.misc.derivative = _scipy_derivative
 import scipy.optimize
 import scipy.linalg
 import scipy.stats

@@ -219,7 +219,7 @@ def readPrefs(prefsfile, minpref=0, avgprefs=False, randprefs=False,
             prefs[r] = {}
             for aa in df.columns:
                 if aa != 'site':
-                    prefs[r][aa] = float(rdf[aa])
+                    prefs[r][aa] = float(rdf[aa].iloc[0])
     else:
         # try reading as dms_tools format
         prefs = phydmslib.file_io.readPrefs_dms_tools_format(prefsfile)[2]
