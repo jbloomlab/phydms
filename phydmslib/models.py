@@ -26,6 +26,7 @@ from phydmslib.constants import (N_CODON, CODON_NONSYN, CODON_TRANSITION,
                                  INDEX_TO_NT, CODON_NT_MUT, CODON_NT_COUNT,
                                  CODON_TO_AA, INDEX_TO_AA, AA_TO_INDEX,
                                  CODON_NT)
+from phydmslib.scipy_derivative import derivative
 warnings.simplefilter('always')
 warnings.simplefilter('ignore', ImportWarning)
 
@@ -571,7 +572,7 @@ class ExpCM(Model):
                                                   * expD).swapaxes(1, 0),
                                                   broadcastGetCols(self.Ainv,
                                                                    tips))
-                if gaps is not None:
+                if gaps is not None and gaps.size > 0:
                     M[gaps] = numpy.ones(N_CODON, dtype='float')
         #  if M.min() < -0.01:
         #    warnings.warn("Large negative value in M(t) being set to 0. "
@@ -598,7 +599,7 @@ class ExpCM(Model):
             else:
                 dM_param = broadcastMatrixVectorMultiply(self.Prxy, Mt,
                                                          alpha=alpha)
-                if gaps is not None:
+                if gaps is not None and gaps.size > 0:
                     dM_param[gaps] = numpy.zeros(N_CODON, dtype='float')
             return dM_param
 
@@ -663,7 +664,7 @@ class ExpCM(Model):
                     for j in range(paramlength):
                         dM_param[j] = (broadcastMatrixVectorMultiply(self.A,
                                        broadcastGetCols(broadcastMatrixMultiply(self.B[param][j] * V, self.Ainv), tips)))  # noqa: E501
-                if gaps is not None:
+                if gaps is not None and gaps.size > 0:
                     if not paramisvec:
                         dM_param[gaps] = numpy.zeros(N_CODON, dtype='float')
                     else:
@@ -1338,10 +1339,10 @@ class ExpCM_empirical_phi(ExpCM):
         _checkParam('phi', self.phi, self.PARAMLIMITS, self.PARAMTYPES)
         self._eta_from_phi()
         dbeta = 1.0e-3
-        self.dphi_dbeta = scipy.misc.derivative(self._compute_empirical_phi,
+        self.dphi_dbeta = derivative(self._compute_empirical_phi,
                                                 self.beta, dx=dbeta,
                                                 n=1, order=5)
-        dphi_dbeta_halfdx = scipy.misc.derivative(self._compute_empirical_phi,
+        dphi_dbeta_halfdx = derivative(self._compute_empirical_phi,
                                                   self.beta, dx=dbeta / 2,
                                                   n=1, order=5)
         assert numpy.allclose(self.dphi_dbeta, dphi_dbeta_halfdx, atol=1e-5,
@@ -1793,7 +1794,7 @@ class YNGKP_M0(Model):
                 newM = numpy.zeros((len(tips), N_CODON))
                 for i in range(len(tips)):
                     newM[i] = (M[0][:, tips[i]])
-                if gaps is not None:
+                if gaps is not None and gaps.size > 0:
                     newM[gaps] = numpy.ones(N_CODON, dtype='float')
                 return newM
 
@@ -1820,7 +1821,7 @@ class YNGKP_M0(Model):
                 dM_param = (broadcastMatrixVectorMultiply(
                            numpy.tile(self.Pxy[0], (self.nsites, 1, 1)),
                            Mt, alpha=alpha))
-                if gaps is not None:
+                if gaps is not None and gaps.size > 0:
                     dM_param[gaps] = numpy.zeros(N_CODON, dtype='float')
             return dM_param
 
@@ -1862,7 +1863,7 @@ class YNGKP_M0(Model):
                 newdM_param = numpy.zeros((len(tips), N_CODON))
                 for i in range(len(tips)):
                     newdM_param[i] = (dM_param[0][:, tips[i]])
-                if gaps is not None:
+                if gaps is not None and gaps.size > 0:
                     newdM_param[gaps] = numpy.zeros(N_CODON, dtype='float')
                 return newdM_param
 
@@ -2188,11 +2189,10 @@ class GammaDistributedModel(DistributionModel):
             for (param, f) in [('alpha_lambda', f_alpha),
                                ('beta_lambda', f_beta)]:
                 pvalue = getattr(self, param)
-                dparam = scipy.misc.derivative(f, pvalue, dx, n=1, order=5)
+                dparam = derivative(f, pvalue, dx, n=1, order=5)
                 assert dparam.shape == (self.ncats,)
                 for stepchange in [0.5, 2]:  # make sure robust to step size
-                    dparam2 = scipy.misc.derivative(f, pvalue, stepchange * dx,
-                                                    n=1, order=5)
+                    dparam2 = derivative(f, pvalue, stepchange * dx, n=1, order=5)
                     assert (numpy.allclose(dparam, dparam2,
                                            atol=1e-5, rtol=1e-4)), (
                             "Numerical derivative of {0} at {1} differs for "

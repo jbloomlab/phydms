@@ -239,7 +239,7 @@ def main():
     # set up the ExpCM without diversifying pressure
     expcmadditionalcmds = []
     nempiricalExpCM = 3
-    if re.search('\s', args['prefsfile']):
+    if re.search(r'\s', args['prefsfile']):
         raise ValueError("There is a space in the preferences file name:\
                 {0}".format(args['prefsfile']))
     prefsfilebase = os.path.splitext(os.path.basename(args['prefsfile']))[0]

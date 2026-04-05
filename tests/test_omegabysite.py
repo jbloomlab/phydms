@@ -52,23 +52,31 @@ class test_OmegaBySiteExpCM(unittest.TestCase):
 
     def test_OnSimulatedData(self):
         """Test on Simulated Data."""
-        random.seed(1)
+        seed = 1
+        random.seed(seed)
         divpressuresites = random.sample(range(self.nsites), 5)
         partitions = phydmslib.simulate.pyvolvePartitions(
             self.model, (200.0, divpressuresites))
+
         evolver = pyvolve.Evolver(
-            partitions=partitions, tree=pyvolve.read_tree(file=self.tree))
+            partitions=partitions,
+            tree=pyvolve.read_tree(file=self.tree),
+            seed=seed,
+        )
+
         simulateprefix = os.path.join(self.outdir, self.modelname)
         simulatedalignment = simulateprefix + "_simulatedalignment.fasta"
         info = simulateprefix + "_temp_info.txt"
         rates = simulateprefix + "_temp_ratefile.txt"
         evolver(seqfile=simulatedalignment, infofile=info, ratefile=rates)
+
         subprocess.check_call(["phydms", simulatedalignment, self.tree,
                                self.modelarg, simulateprefix, "--omegabysite",
                                "--brlen", "scale"])
         omegabysitefile = simulateprefix + "_omegabysite.txt"
         omegas = pandas.read_csv(omegabysitefile, sep="\t", comment="#")
         divpressureomegas = omegas[omegas["site"].isin(divpressuresites)]
+
         self.assertTrue(len(divpressureomegas) == len(divpressuresites))
         self.assertTrue(
             (divpressureomegas["omega"].values > 2).all(),

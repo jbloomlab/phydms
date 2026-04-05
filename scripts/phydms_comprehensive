@@ -155,7 +155,7 @@ def main():
         filesuffixlist = (copy.deepcopy(filesuffixlist)
                           + ['_diffprefsbysite.txt'])
     for prefsfile in args['prefsfiles']:
-        if re.search('\s', prefsfile):
+        if re.search(r'\s', prefsfile):
             raise ValueError("There is a space in the preferences file name:\
                     {0}".format(prefsfile))
         prefsfilebase = os.path.splitext(os.path.basename(prefsfile))[0]

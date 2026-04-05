@@ -26,8 +26,9 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
 
     def setUp(self):
         """Set up for tests."""
-        numpy.random.seed(1)
-        random.seed(1)
+        seed = 1
+        numpy.random.seed(seed)
+        random.seed(seed)
 
         nsites = 1
         minpref = 0.001
@@ -64,7 +65,8 @@ class test_TreeLikelihood_ExpCM_fitprefs(unittest.TestCase):
         # simulate alignment using realmodel
         evolver = pyvolve.Evolver(
             partitions=phydmslib.simulate.pyvolvePartitions(self.realmodel),
-            tree=pyvolve.read_tree(file=treefile))
+            tree=pyvolve.read_tree(file=treefile),
+            seed=seed)
         alignmentfile = "_temp_fitprefs_simulatedalignment.fasta"
         info = "_temp_info.txt"
         rates = "_temp_ratefile.txt"

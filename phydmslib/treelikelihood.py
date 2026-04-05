@@ -300,7 +300,7 @@ class TreeLikelihood(object):
                 self.descendants.append([self.name_to_nodeindex[nx] for nx
                                          in node.find_clades() if nx != node])
             self.name_to_nodeindex[node] = n
-        self.gaps = numpy.array(self.gaps)
+        self.gaps = numpy.array(self.gaps, dtype=object)
         assert len(self.gaps) == self.ntips
 
         # _index_to_param defines internal mapping of

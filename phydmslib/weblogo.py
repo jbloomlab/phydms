@@ -474,7 +474,7 @@ def LogoPlot(sites, datatype, data, plotfile, nperline,
 
         # create web logo
         charstring = ''.join(chars_for_string)
-        assert len(charstring) == len(chars_for_string),\
+        assert len(charstring) == len(chars_for_string), \
             ("Length of charstring doesn't match length of "
              "chars_for_string. Do you have unallowable multi-letter "
              "characters?\n%s"
@@ -741,7 +741,7 @@ def _my_eps_formatter(logodata, format, ordered_alphabets):  # noqa: F401
                 s.append((s_d[aa], aa))
             else:
                 s.append((s_d[aa], ' '))
-#        s = [(s_d[aa], aa) for aa in ordered_alphabets[seq_index]]
+        # s = [(s_d[aa], aa) for aa in ordered_alphabets[seq_index]]
 
         # Sort by frequency. If equal frequency then reverse alphabetic
         # (So sort reverse alphabetic first, then frequencty)
@@ -889,8 +889,8 @@ class _my_Motif(corebio.matrix.AlphabeticArray):
         hcols = len(header)
         rows = len(items)
         cols = len(items[0])
-        if not(header[0] == 'PO' or header[0] == 'P0' or
-               hcols == cols-1 or hcols == cols-2):
+        if not (header[0] == 'PO' or header[0] == 'P0' or
+                hcols == cols-1 or hcols == cols-2):
             raise ValueError("Missing header line!")
 
         # Do all lines (except the first) contain the same number of items?
@@ -1055,8 +1055,8 @@ def LogoOverlay(sites, overlayfile, overlay, nperline, sitewidth, rmargin,
     for (prop_d, shortname, longname) in overlay:
         if shortname == longname == 'wildtype':
             assert all(((isinstance(prop, str) and len(prop) == 1) for
-                        prop in prop_d.values())),\
-                        'prop_d does not give letters'
+                        prop in prop_d.values())), \
+                'prop_d does not give letters'
             proptype = 'wildtype'
             (vmin, vmax) = (0, 1)  # not used, but need to be assigned
             propcategories = None  # not used, but needs to be assigned

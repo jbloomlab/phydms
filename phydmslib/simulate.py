@@ -120,9 +120,7 @@ def simulateAlignment(model, treeFile, alignmentPrefix, randomSeed=False):
     file with the name having the prefix giving by `alignmentPrefix`
     and the suffix `'_simulatedalignment.fasta'`.
     """
-    if randomSeed is False:
-        pass
-    else:
+    if randomSeed:
         random.seed(randomSeed)
 
     # Transform the branch lengths by dividing by the model `branchScale`
@@ -146,7 +144,10 @@ def simulateAlignment(model, treeFile, alignmentPrefix, randomSeed=False):
     info = '_temp_{0}info.txt'.format(alignmentPrefix)
     rates = '_temp_{0}_ratefile.txt'.format(alignmentPrefix)
     evolver = pyvolve.Evolver(partitions=partitions, tree=pyvolve_tree)
-    evolver(seqfile=alignment, infofile=info, ratefile=rates)
+    if randomSeed:
+        evolver(seqfile=alignment, infofile=info, ratefile=rates, seed=randomSeed)
+    else:
+        evolver(seqfile=alignment, infofile=info, ratefile=rates)
     for f in [rates, info, "custom_matrix_frequencies.txt"]:
         if os.path.isfile(f):
             os.remove(f)

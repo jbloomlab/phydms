@@ -229,7 +229,7 @@ def main():
         seqnames = set([head for (head, seq) in alignment])
 
         # process the substitution model
-        yngkp_match = re.compile('^YNGKP_(?P<modelvariant>M\d+)$')
+        yngkp_match = re.compile(r'^YNGKP_(?P<modelvariant>M\d+)$')
         if (isinstance(args['model'],
                        str) and yngkp_match.search(args['model'])):
             for argname in ['randprefs', 'avgprefs',
